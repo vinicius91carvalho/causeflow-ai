@@ -1,0 +1,117 @@
+---
+title: "Architecture"
+description: "How CauseFlow Relay communicates with the control plane using JSON-RPC 2.0 over WebSocket."
+---
+
+## Communication protocol
+
+The Relay uses **JSON-RPC 2.0 over WebSocket (WSS)** for all communication with the CauseFlow control plane.
+
+- **Transport:** WebSocket, TLS 1.2+, port 443
+- **Direction:** Outbound only. The Relay dials out to `wss://api.causeflow.ai/v1/relay/connect`. The control plane never connects inward.
+- **Protocol:** JSON-RPC 2.0. Every message is a JSON object with `jsonrpc`, `method`, `params`, and `id` fields.
+- **Authentication:** The Relay authenticates on connect using its `RELAY_TOKEN`. The control plane validates the token and associates the connection with your tenant.
+
+Once the WebSocket handshake completes, the control plane can send query requests at any time. The Relay processes each request and sends back a response on the same connection.
+
+## Request and response format
+
+### Request (control plane → Relay)
+
+The control plane sends an `execute` request when an AI agent needs to query your database:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "req-abc123",
+  "method": "execute",
+  "params": {
+    "resourceId": "main-pg",
+    "operation": "query",
+    "statement": "SELECT id, name, email, plan FROM customers WHERE created_at > $1 LIMIT 100",
+    "parameters": ["2024-01-01T00:00:00Z"]
+  }
+}
+```
+
+### Response (Relay → control plane)
+
+The Relay returns the masked results along with execution metadata:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "req-abc123",
+  "result": {
+    "rows": [
+      {
+        "id": 42,
+        "name": "Acme Corp",
+        "email": "***@***.***",
+        "plan": "enterprise"
+      }
+    ],
+    "rowCount": 1,
+    "metadata": {
+      "masked": true,
+      "maskedFieldCount": 1,
+      "executionMs": 18,
+      "resourceId": "main-pg"
+    }
+  }
+}
+```
+
+Note that `email` was masked before the response left your network. The control plane and AI agents only ever see the `***@***.***` value.
+
+## RPC methods
+
+The control plane can invoke any of the following methods on the Relay:
+
+| Method | Direction | Description |
+|---|---|---|
+| `execute` | Control plane → Relay | Execute a query or operation on a database resource. |
+| `list_resources` | Control plane → Relay | List all configured database resources and their current status. |
+| `describe_resource` | Control plane → Relay | Return the schema and metadata for a specific resource. |
+| `health_check` | Control plane → Relay | Run connectivity and authentication checks against all configured databases. |
+
+## Relay-initiated messages
+
+The Relay also sends messages to the control plane without being asked:
+
+| Message | Interval | Description |
+|---|---|---|
+| `heartbeat` | Every 30 seconds | Keeps the WebSocket alive and signals that the Relay is healthy. Includes uptime and connection stats. |
+| `resource_update` | On connect + on change | Sends the current resource list and schema fingerprints to the control plane. Triggered when the Relay starts and whenever a resource becomes reachable or unreachable. |
+
+## Request lifecycle
+
+Every query request passes through the following stages inside the Relay:
+
+<Steps>
+  <Step title="Resource check">
+    The Relay looks up the `resourceId` in your configuration. If the resource is not configured, the request is rejected immediately with an error — no database connection is attempted.
+  </Step>
+  <Step title="Operation allowlist">
+    The requested operation (e.g., `query`, `describe_table`) is checked against the `allowedOperations` list for that resource. Operations not on the list are rejected.
+  </Step>
+  <Step title="SQL validation">
+    For PostgreSQL resources, the query is parsed and checked against the SQL blocklist. Any DDL statement, DML statement, or dangerous built-in function causes an immediate rejection. Multi-statement queries (semicolons) are blocked to prevent injection. For MongoDB, aggregation stages that write data (`$out`, `$merge`) are blocked.
+  </Step>
+  <Step title="Query execution">
+    The validated query runs inside a **read-only transaction** with a 30-second statement timeout. The connection pool is shared across requests for that resource (max 5 connections).
+  </Step>
+  <Step title="PII masking">
+    Each field in the result set is scanned against the configured masking patterns. Matching values are replaced with their mask strings before the response is assembled.
+  </Step>
+  <Step title="Audit log">
+    A structured JSON log entry is written with the request ID, resource, operation, row count, masked field count, execution time, and outcome. No query parameters or row values are written to the audit log.
+  </Step>
+  <Step title="Response">
+    The masked result is returned to the control plane over the WebSocket. Raw data never leaves your network.
+  </Step>
+</Steps>
+
+## Connection resilience
+
+The Relay automatically reconnects if the WebSocket connection is lost. It uses exponential backoff with jitter, starting at 1 second and capping at 60 seconds. In-flight requests at the time of disconnection are failed with an error response; they are not replayed. The control plane handles retries at the application layer.

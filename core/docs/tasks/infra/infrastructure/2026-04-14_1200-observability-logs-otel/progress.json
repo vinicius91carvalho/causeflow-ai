@@ -1,0 +1,55 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-15T00:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-cdk-log-groups-xray-iam.md",
+      "title": "CDK log groups dedicados + X-Ray IAM (write-only)",
+      "status": "completed",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "sprint/01-cdk-log-groups-xray-iam",
+      "merged": false
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-logger-context-sensitive-paths.md",
+      "title": "Logger context (AsyncLocalStorage) + sensitiveLogPaths",
+      "status": "completed",
+      "depends_on": [],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "sprint/02-logger-context-sensitive-paths",
+      "merged": false
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-outbound-worker-lifecycle.md",
+      "title": "Outbound instrumentation + worker lifecycle logs",
+      "status": "completed",
+      "depends_on": [
+        2
+      ],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": "sprint/03-outbound-worker-lifecycle",
+      "merged": true
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-otel-xray-in-process.md",
+      "title": "OpenTelemetry in-process + X-Ray (sem sidecar)",
+      "status": "completed",
+      "depends_on": [
+        1,
+        3
+      ],
+      "batch": 4,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": true
+    }
+  ]
+}

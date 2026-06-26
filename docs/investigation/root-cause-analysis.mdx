@@ -1,0 +1,106 @@
+---
+title: "Root cause analysis"
+description: "How CauseFlow's AI orchestrator investigates incidents and identifies root causes."
+---
+
+Root cause analysis is the core of CauseFlow's value. After triage completes, the AI orchestrator examines every relevant data source — logs, metrics, infrastructure state, code history, and database queries — and synthesizes its findings into a single, unified explanation of why the incident occurred and what to do about it.
+
+## Investigation pipeline
+
+```
+Alert received
+      │
+      ▼
+  AI Triage
+  (severity classification, initial scoping)
+      │
+      ▼
+  Pre-investigation enrichment
+  (historical patterns, blast radius, recent changes)
+      │
+      ▼
+  Orchestrator investigation loop
+  (logs → metrics → infra → code → database → synthesis)
+      │
+      ▼
+  Root cause analysis
+  (unified explanation + confidence score)
+      │
+      ▼
+  Remediation proposals
+```
+
+## Pre-investigation enrichment
+
+Before the investigation loop begins, CauseFlow enriches the investigation context with four sources:
+
+1. **Historical patterns** — has this incident signature appeared before? If so, what was the root cause?
+2. **Blast radius** — which other services depend on the affected service? This guides investigation scope.
+3. **Recent changes** — deployments, configuration changes, and code commits in the past 24 hours
+4. **Service metadata** — architecture notes, runbooks, and related tickets from connected project management tools
+
+This enrichment gives the orchestrator a head start — rather than exploring from scratch, it begins with hypotheses informed by prior investigations.
+
+## Orchestrator investigation loop
+
+The AI orchestrator runs an iterative tool-calling loop:
+
+1. **Receive context** — incident description, triage output, enrichment data
+2. **Form hypothesis** — initial guess based on the alert and context
+3. **Call tools** — query logs, pull metrics, describe infrastructure, read code, or run database queries
+4. **Refine** — update the hypothesis based on tool results, call more tools if needed
+5. **Synthesize** — structured root cause analysis with confidence level and supporting evidence
+
+The orchestrator completes between 5 and 20 tool-call iterations depending on what it finds. A clear signal (for example, a spike in 5xx errors correlated with a deploy) produces a shorter investigation; ruling out multiple hypotheses takes longer.
+
+Triage completes in **5 to 30 seconds**; a full investigation typically takes **1 to 5 minutes** depending on log volume and the number of connected integrations.
+
+## Synthesis
+
+After completing its investigation loop, the orchestrator synthesizes all gathered evidence into a single root cause analysis. Higher-capability reasoning is used for the synthesis; faster models handle high-volume rapid subtasks.
+
+The synthesis output includes:
+
+- **Root cause** — a plain-language explanation of why the incident occurred
+- **Confidence score** — 0.0 to 1.0, reflecting how much of the evidence points to a single explanation
+- **Supporting evidence** — the key findings that support the conclusion, organized by data source
+- **Recommended actions** — specific steps to resolve the issue (restart a service, rollback a deploy, apply a code fix)
+- **Blast radius assessment** — which other services may be affected
+
+## Adding context mid-investigation
+
+If you have information that might help the orchestrator focus, you can add context while an investigation is in progress.
+
+**From the dashboard:** Open the incident detail page and click **Add context**. Type your observation (for example, "this started after the 2:15pm deploy of orders-service v1.4.2") and submit.
+
+**Via API:**
+
+```bash
+curl -X POST "https://api.causeflow.ai/v1/investigations/:investigationId/context" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "context": "Issue started at 14:15 UTC after deploying orders-service v1.4.2. The deploy included a change to the database connection pool size."
+  }'
+```
+
+Context is injected into the orchestrator's active investigation loop on the next iteration. The orchestrator always incorporates all submitted context in its final synthesis.
+
+## Re-investigation
+
+If the initial investigation did not find the root cause, or if you have new information after reviewing the results, you can trigger a re-investigation.
+
+**From the dashboard:** Click **Re-investigate** on the incident detail page. You'll be prompted to add context before starting.
+
+**What changes on re-investigation:**
+- The orchestrator restarts with the additional context
+- Previous findings are included as "prior investigation notes" to avoid repeating the same analysis
+- A new root cause analysis is generated and displayed alongside the previous one
+
+Each re-investigation consumes **1 investigation credit**.
+
+## Credit consumption
+
+Each investigation (including re-investigations) consumes **1 investigation credit** from your plan. The initial triage consumes 1 event credit separately.
+
+See [Usage and credits](/billing/usage-and-credits) for plan limits and credit details.

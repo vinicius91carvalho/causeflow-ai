@@ -1,0 +1,60 @@
+# Credentials (never commit)
+.api-credentials.md
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+dist/
+.turbo/
+out/
+*.tsbuildinfo
+
+# SST
+.sst/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Testing
+coverage/
+screenshots/
+test-results/
+playwright-report/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Vercel
+.vercel
+
+# Playwright
+.playwright-mcp/
+
+.open-next/
+
+# Playwright auth state
+tests/dashboard/.auth/
+
+# Claude Code worktrees
+.claude/worktrees/
+
+# Local-only run artifacts (Playwright screenshots, execution logs)
+.artifacts/

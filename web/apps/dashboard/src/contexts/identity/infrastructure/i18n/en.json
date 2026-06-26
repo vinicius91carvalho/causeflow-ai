@@ -1,0 +1,225 @@
+{
+  "dashboard": {
+    "auth": {
+      "fields": {
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "name": "Full Name",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password"
+      },
+      "errors": {
+        "invalidCredentials": "Invalid email or password",
+        "invalidEmail": "Please enter a valid email address",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "generic": "Something went wrong. Please try again.",
+        "accountNotLinked": "This email is already linked to another sign-in method. Please sign in with the original method.",
+        "sessionRequired": "You must be signed in to access this page.",
+        "betaAccessDenied": "CauseFlow AI is currently in private beta. Your email is not on the access list. Contact adm@causeflow.ai to request access."
+      },
+      "signIn": {
+        "title": "Welcome back",
+        "subtitle": "Sign in to your CauseFlow AI account",
+        "continueWithGoogle": "Continue with Google",
+        "continueWithGitHub": "Continue with GitHub",
+        "orContinueWith": "or continue with email",
+        "forgotPassword": "Forgot password?",
+        "submit": "Sign In",
+        "noAccount": "Don't have an account?",
+        "signUpLink": "Sign up"
+      },
+      "signUp": {
+        "title": "Create your account",
+        "subtitle": "Start investigating incidents in minutes",
+        "continueWithGoogle": "Sign up with Google",
+        "continueWithGitHub": "Sign up with GitHub",
+        "passwordStrength": "Password strength",
+        "passwordsMatch": "Passwords match",
+        "agreeToTerms": "I agree to the",
+        "termsLink": "Terms of Service",
+        "and": "and",
+        "privacyLink": "Privacy Policy",
+        "submit": "Create Account",
+        "haveAccount": "Already have an account?",
+        "signInLink": "Sign in",
+        "successMessage": "Account created! Redirecting to email verification..."
+      },
+      "verifyEmail": {
+        "title": "Check your email",
+        "subtitle": "We sent a 6-digit verification code to",
+        "codeLabel": "Verification Code",
+        "submit": "Verify Email",
+        "noCode": "Didn't receive the code?",
+        "resend": "Resend code",
+        "resending": "Sending...",
+        "resendIn": "Resend in {seconds}s",
+        "successTitle": "Email verified!",
+        "successMessage": "Your email has been verified successfully.",
+        "redirecting": "Redirecting to sign in...",
+        "backToSignIn": "Back to sign in",
+        "errors": {
+          "codeLength": "Please enter the 6-digit code"
+        }
+      },
+      "forgotPassword": {
+        "title": "Reset your password",
+        "subtitle": "Enter your email and we'll send you a reset code",
+        "resetTitle": "Create new password",
+        "resetSubtitle": "Enter the code sent to {email} and choose a new password",
+        "sendCode": "Send Reset Code",
+        "newPassword": "New Password",
+        "resetPassword": "Reset Password",
+        "backToSignIn": "Back to sign in",
+        "successTitle": "Password reset!",
+        "successMessage": "Your password has been reset successfully. You can now sign in."
+      }
+    },
+    "onboarding": {
+      "progress": {
+        "ariaLabel": "Onboarding progress",
+        "steps": {
+          "profile": "Profile",
+          "integration": "Integration",
+          "welcome": "Welcome"
+        }
+      },
+      "completeProfile": {
+        "title": "Set up your workspace",
+        "subtitle": "Tell us a bit about yourself and your company to personalize your experience",
+        "fields": {
+          "fullName": "Your Full Name",
+          "fullNamePlaceholder": "e.g. Jane Smith",
+          "companyName": "Company Name",
+          "companyNamePlaceholder": "Your company name",
+          "companyWebsite": "Company Website",
+          "companyWebsitePlaceholder": "https://yourcompany.com",
+          "teamSize": "Team Size",
+          "teamSizePlaceholder": "Select team size",
+          "role": "Your Role / Title",
+          "rolePlaceholder": "e.g. Engineering Manager, CTO"
+        },
+        "teamSizeOptions": {
+          "1_5": "1–5 engineers",
+          "6_20": "6–20 engineers",
+          "21_50": "21–50 engineers",
+          "50plus": "50+ engineers"
+        },
+        "validation": {
+          "fullNameTooShort": "Full name must be at least 2 characters",
+          "fullNameTooLong": "Full name must be 100 characters or less",
+          "companyNameRequired": "Company name is required",
+          "companyNameTooShort": "Company name must be at least 2 characters",
+          "companyNameTooLong": "Company name must be 100 characters or less",
+          "websiteInvalid": "Please enter a valid URL (e.g. https://yourcompany.com)",
+          "teamSizeRequired": "Please select a team size",
+          "roleTooLong": "Role must be 100 characters or less"
+        },
+        "acceptTerms": "I accept the <termsLink>Terms of Service</termsLink>",
+        "acceptTermsError": "You must accept the Terms of Service to continue",
+        "submit": "Continue",
+        "submitting": "Saving...",
+        "errorGeneric": "Something went wrong. Please try again."
+      },
+      "connectIntegration": {
+        "title": "Connect your first integration",
+        "subtitle": "Connect your tools so CauseFlow can investigate incidents across all your data sources",
+        "skip": "Skip for now",
+        "continue": "Continue",
+        "connectButton": "Connect",
+        "connectedLabel": "Connected",
+        "connecting": "Connecting...",
+        "modal": {
+          "title": "Connect {name}",
+          "submit": "Connect",
+          "submitting": "Connecting...",
+          "cancel": "Cancel",
+          "successTitle": "Connected!",
+          "successMessage": "{name} has been connected successfully.",
+          "errorGeneric": "Something went wrong. Please try again.",
+          "fields": {
+            "apiToken": "API Token",
+            "apiKey": "API Key",
+            "applicationKey": "Application Key",
+            "botToken": "Bot Token",
+            "botTokenPlaceholder": "xoxb-...",
+            "email": "Email",
+            "domain": "Domain URL",
+            "domainPlaceholder": "https://yourcompany.atlassian.net",
+            "roleArn": "IAM Role ARN",
+            "roleArnPlaceholder": "arn:aws:iam::123456789012:role/CauseFlowReadOnly",
+            "externalId": "External ID",
+            "externalIdPlaceholder": "Auto-generated for security",
+            "integrationToken": "Integration Token",
+            "integrationTokenPlaceholder": "secret_...",
+            "installationId": "Installation ID",
+            "appId": "App ID",
+            "privateKey": "Private Key (PEM)",
+            "privateKeyPlaceholder": "-----BEGIN RSA PRIVATE KEY-----",
+            "accessToken": "Access Token",
+            "accessTokenPlaceholder": "pat-...",
+            "authToken": "Auth Token",
+            "organization": "Organization Slug",
+            "connectionString": "Connection String"
+          },
+          "validation": {
+            "required": "This field is required",
+            "urlInvalid": "Please enter a valid URL",
+            "emailInvalid": "Please enter a valid email address"
+          }
+        },
+        "integrations": {
+          "slack": {
+            "name": "Slack",
+            "description": "Get incident alerts and run investigations for engineering and support teams from Slack channels"
+          },
+          "pagerduty": {
+            "name": "PagerDuty",
+            "description": "Auto-trigger investigations from PagerDuty incidents"
+          },
+          "datadog": {
+            "name": "Datadog",
+            "description": "Correlate metrics and alerts with your incident investigations"
+          },
+          "github": {
+            "name": "GitHub",
+            "description": "Analyze commits, PRs and releases for root cause identification"
+          },
+          "jira": {
+            "name": "Jira",
+            "description": "Link investigations to tickets and auto-update issue status"
+          },
+          "cloudwatch": {
+            "name": "AWS CloudWatch",
+            "description": "Pull logs and metrics directly from CloudWatch for analysis"
+          }
+        }
+      },
+      "welcome": {
+        "title": "You're all set, {name}!",
+        "titleFallback": "You're all set!",
+        "subtitle": "Your workspace is ready. Here's what you can do next:",
+        "companyLabel": "Workspace",
+        "integrationsConnected": "{count} integration connected",
+        "integrationsConnectedPlural": "{count} integrations connected",
+        "noIntegrations": "No integrations yet — you can add them anytime",
+        "tips": {
+          "title": "Quick Tips",
+          "startAnalysis": {
+            "title": "Start your first analysis",
+            "description": "Describe a production issue and let CauseFlow investigate"
+          },
+          "inviteTeam": {
+            "title": "Invite your team",
+            "description": "Collaborate on investigations with your engineering team"
+          },
+          "exploreIntegrations": {
+            "title": "Explore integrations",
+            "description": "Connect more tools to get deeper insights"
+          }
+        },
+        "cta": "Go to Dashboard"
+      }
+    }
+  }
+}

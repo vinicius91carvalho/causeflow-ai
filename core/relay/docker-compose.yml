@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  relay:
+    build: .
+    image: causeflow/relay:2.0
+    restart: unless-stopped
+    read_only: true
+    security_opt:
+      - no-new-privileges
+    cap_drop: [ALL]
+    tmpfs:
+      - /tmp:size=64m
+    mem_limit: 512m
+    cpus: 0.5
+    depends_on:
+      - opa
+    environment:
+      - TENANT_ID=${TENANT_ID}
+      - RELAY_TOKEN=${RELAY_TOKEN}
+      - BREAK_GLASS_SECRET=${BREAK_GLASS_SECRET}
+    volumes:
+      - ./relay-config.yaml:/app/relay-config.yaml:ro
+      - ./plugins:/app/plugins:ro
+    ports:
+      - '127.0.0.1:8080:8080'
+
+  opa:
+    image: openpolicyagent/opa:latest-rootless
+    restart: unless-stopped
+    command:
+      - run
+      - --server
+      - --addr=0.0.0.0:8181
+      - --set=decision_logs.console=true
+      - /policies
+    volumes:
+      - ./policies:/policies:ro

@@ -1,0 +1,355 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "CauseFlow AI",
+  "appearance": {
+    "default": "light"
+  },
+  "colors": {
+    "primary": "#1A8B6F",
+    "light": "#4ECDC4",
+    "dark": "#26233E"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:support@causeflow.ai"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://dashboard.causeflow.ai"
+    }
+  },
+  "contextual": {
+    "options": ["copy", "view", "claude", "chatgpt"]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/causeflowai",
+      "github": "https://github.com/causeflow",
+      "linkedin": "https://linkedin.com/company/causeflow"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "index",
+              "getting-started/quickstart",
+              "getting-started/key-concepts",
+              "getting-started/how-it-works",
+              "getting-started/ai-transparency",
+              "getting-started/skills",
+              "getting-started/memory-and-chat",
+              "getting-started/triggers"
+            ]
+          },
+          {
+            "group": "Dashboard",
+            "pages": [
+              "dashboard/overview",
+              "dashboard/incidents",
+              "dashboard/analyses",
+              "dashboard/remediations",
+              "dashboard/audit-trail",
+              "dashboard/team-management",
+              "dashboard/settings"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/overview",
+              "integrations/monitoring",
+              "integrations/github",
+              "integrations/communication",
+              "integrations/project-management",
+              "integrations/databases",
+              "integrations/custom-webhooks",
+              "integrations/cloud-providers",
+              "integrations/hubspot"
+            ]
+          },
+          {
+            "group": "Billing",
+            "pages": [
+              "billing/plans",
+              "billing/usage-and-credits",
+              "billing/manage-subscription"
+            ]
+          },
+          {
+            "group": "Security",
+            "pages": [
+              "security/overview",
+              "security/authentication",
+              "security/rbac",
+              "security/data-privacy",
+              "security/compliance"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/authentication",
+              "api-reference/errors-and-pagination"
+            ]
+          },
+          {
+            "group": "Incidents",
+            "pages": [
+              "api-reference/incidents/list-incidents",
+              "api-reference/incidents/get-incident",
+              "api-reference/incidents/create-incident",
+              "api-reference/incidents/update-status"
+            ]
+          },
+          {
+            "group": "Triage",
+            "pages": [
+              "api-reference/triage/start-triage",
+              "api-reference/triage/classify-incident",
+              "api-reference/triage/get-evidence",
+              "api-reference/triage/list-evidence"
+            ]
+          },
+          {
+            "group": "Investigation",
+            "pages": [
+              "api-reference/investigation/start-investigation",
+              "api-reference/investigation/add-context",
+              "api-reference/investigation/get-results",
+              "api-reference/investigation/known-solution-response",
+              "api-reference/investigation/submit-feedback",
+              "api-reference/investigation/abort"
+            ]
+          },
+          {
+            "group": "Remediation",
+            "pages": [
+              "api-reference/remediation/list-remediations",
+              "api-reference/remediation/approve",
+              "api-reference/remediation/reject",
+              "api-reference/remediation/execute",
+              "api-reference/remediation/submit-feedback",
+              "api-reference/remediation/get-detail"
+            ]
+          },
+          {
+            "group": "Memory and Chat",
+            "pages": [
+              "api-reference/memory/chat",
+              "api-reference/memory/insights",
+              "api-reference/memory/runbooks",
+              "api-reference/memory/chat-history"
+            ]
+          },
+          {
+            "group": "Skills",
+            "pages": [
+              "api-reference/skills/create",
+              "api-reference/skills/list",
+              "api-reference/skills/get",
+              "api-reference/skills/update",
+              "api-reference/skills/delete"
+            ]
+          },
+          {
+            "group": "Triggers",
+            "pages": [
+              "api-reference/triggers/list",
+              "api-reference/triggers/create",
+              "api-reference/triggers/delete"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "api-reference/integrations/list",
+              "api-reference/integrations/catalog",
+              "api-reference/integrations/credentials",
+              "api-reference/integrations/connect"
+            ]
+          },
+          {
+            "group": "Knowledge",
+            "pages": [
+              "api-reference/knowledge/list-patterns",
+              "api-reference/knowledge/search-similar",
+              "api-reference/knowledge/submit-feedback"
+            ]
+          },
+          {
+            "group": "Graph",
+            "pages": [
+              "api-reference/graph/add-service",
+              "api-reference/graph/add-dependency",
+              "api-reference/graph/blast-radius",
+              "api-reference/graph/auto-discovery"
+            ]
+          },
+          {
+            "group": "Billing",
+            "pages": [
+              "api-reference/billing/plans",
+              "api-reference/billing/subscription",
+              "api-reference/billing/credits",
+              "api-reference/billing/usage",
+              "api-reference/billing/purchase"
+            ]
+          },
+          {
+            "group": "Notifications",
+            "pages": [
+              "api-reference/notifications/stream",
+              "api-reference/notifications/list",
+              "api-reference/notifications/mark-read",
+              "api-reference/notifications/approvals-pending",
+              "api-reference/notifications/approvals-respond",
+              "api-reference/notifications/list-notifications",
+              "api-reference/notifications/respond-approval"
+            ]
+          },
+          {
+            "group": "Audit",
+            "pages": [
+              "api-reference/audit/list",
+              "api-reference/audit/verify",
+              "api-reference/audit/export"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "api-reference/webhooks/receive-alert",
+              "api-reference/webhooks/payload-formats",
+              "api-reference/webhooks/outbound-events",
+              "api-reference/webhooks/subscribe"
+            ]
+          },
+          {
+            "group": "GitHub",
+            "pages": [
+              "api-reference/github/installation-details",
+              "api-reference/github/revoke-installation"
+            ]
+          },
+          {
+            "group": "Tenants",
+            "pages": [
+              "api-reference/tenants/get-tenant",
+              "api-reference/tenants/list-tenants",
+              "api-reference/tenants/create-tenant",
+              "api-reference/tenants/update-tenant"
+            ]
+          },
+          {
+            "group": "API keys",
+            "pages": [
+              "api-reference/api-keys/create-key",
+              "api-reference/api-keys/list-keys",
+              "api-reference/api-keys/revoke-key"
+            ]
+          },
+          {
+            "group": "Analytics",
+            "pages": [
+              "api-reference/analytics/incident-statistics"
+            ]
+          },
+          {
+            "group": "Health",
+            "pages": [
+              "api-reference/health/simple",
+              "api-reference/health/detailed"
+            ]
+          },
+          {
+            "group": "Widget (roadmap)",
+            "pages": [
+              "api-reference/widget/create-session",
+              "api-reference/widget/send-message",
+              "api-reference/widget/stream",
+              "api-reference/widget/push-subscribe",
+              "api-reference/widget/close"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Relay",
+        "groups": [
+          {
+            "group": "Privacy-preserving mode",
+            "pages": [
+              "relay/overview",
+              "relay/architecture",
+              "relay/quickstart",
+              "relay/configuration",
+              "relay/pii-masking",
+              "relay/policy-engine",
+              "relay/deployment",
+              "relay/troubleshooting"
+            ]
+          },
+          {
+            "group": "Relay API",
+            "pages": [
+              "api-reference/relay/status",
+              "api-reference/relay/connect"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelog/index"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Dashboard",
+          "href": "https://dashboard.causeflow.ai",
+          "icon": "gauge"
+        },
+        {
+          "anchor": "Status",
+          "href": "https://api.causeflow.ai/v1/health",
+          "icon": "signal"
+        }
+      ]
+    }
+  },
+  "redirects": [
+    {
+      "source": "/quickstart",
+      "destination": "/getting-started/quickstart"
+    }
+  ]
+}

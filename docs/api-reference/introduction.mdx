@@ -1,0 +1,93 @@
+---
+title: "API introduction"
+sidebarTitle: "Introduction"
+description: "Getting started with the CauseFlow API — base URL, versioning, and rate limits."
+---
+
+## Base URL
+
+All CauseFlow API requests are made to the following base URL:
+
+```
+https://api.causeflow.ai
+```
+
+## Versioning
+
+Every endpoint is prefixed with `/v1/`. The current version is **v1**.
+
+```
+https://api.causeflow.ai/v1/incidents
+```
+
+CauseFlow uses path-based versioning. When a new major version is released, existing `/v1/` endpoints remain available during the deprecation window.
+
+## Content type
+
+All requests and responses use JSON. Include the `Content-Type` header on requests that send a body:
+
+```
+Content-Type: application/json
+```
+
+## Rate limits
+
+Rate limits are enforced per tenant and vary by plan:
+
+| Plan       | Requests per minute |
+| ---------- | ------------------- |
+| Starter    | 100                 |
+| Pro        | 500                 |
+| Business   | 2,000               |
+| Enterprise | 2,000               |
+
+### Rate limit headers
+
+Every API response includes the following headers:
+
+| Header                  | Description                                                  |
+| ----------------------- | ------------------------------------------------------------ |
+| `X-RateLimit-Limit`     | The maximum number of requests allowed in the current window |
+| `X-RateLimit-Remaining` | The number of requests remaining in the current window       |
+| `X-RateLimit-Reset`     | Unix timestamp (seconds) when the rate limit window resets   |
+
+When you exceed your rate limit, the API returns a `429 Too Many Requests` response. Retry after the timestamp in `X-RateLimit-Reset`.
+
+```http
+HTTP/1.1 429 Too Many Requests
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1711929600
+
+{
+  "error": "rate_limit_exceeded",
+  "message": "Rate limit exceeded. Retry after 1711929600."
+}
+```
+
+## Authentication
+
+CauseFlow uses JWT Bearer tokens for authenticated API endpoints and API keys with HMAC signatures for webhook endpoints. See the [Authentication](/api-reference/authentication) page for full details.
+
+## Event subscriptions
+
+CauseFlow publishes 21 real-time events across seven domains — from incident creation to remediation execution. Events are delivered today via Server-Sent Events on `GET /v1/notifications/stream`. Programmatic webhook subscription is on the roadmap.
+
+See the [outbound event catalog](/api-reference/webhooks/outbound-events) for the full event list and payload samples.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" href="/api-reference/authentication">
+    Learn how to authenticate your API requests
+  </Card>
+  <Card title="Errors and pagination" href="/api-reference/errors-and-pagination">
+    Understand error responses and how to page through results
+  </Card>
+  <Card title="Outbound events" href="/api-reference/webhooks/outbound-events">
+    All 20 EventBus events with payload samples and delivery details
+  </Card>
+  <Card title="Notifications stream" href="/api-reference/notifications/stream">
+    Subscribe to real-time events via SSE
+  </Card>
+</CardGroup>

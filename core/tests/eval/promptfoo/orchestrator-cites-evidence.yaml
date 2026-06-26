@@ -1,0 +1,54 @@
+description: "CauseFlow — Orchestrator cite_evidence compliance eval"
+
+providers:
+  - id: "file://providers/pipeline-provider.ts"
+    label: "Orchestrator cite_evidence gate"
+
+prompts:
+  - "{{scenario}}"
+
+tests:
+  # Scenario 1: OOM Kill — orchestrator must call cite_evidence at least once
+  - vars:
+      scenario: '{"alert":{"source":"cloudwatch","externalId":"eval-cite-oom","payload":{"AlarmName":"payment-service-memory-critical","NewStateValue":"ALARM","NewStateReason":"Threshold Crossed: MemoryUtilization exceeded 90%. Container OOMKilled.","Trigger":{"MetricName":"MemoryUtilization","Namespace":"AWS/ECS","Threshold":90},"Region":"us-east-1","AWSAccountId":"000000000000"}},"inject":"oom","service":"payment-service","assertToolCalls":true}'
+    assert:
+      - type: is-json
+      - type: javascript
+        value: |
+          (() => {
+            const out = JSON.parse(output);
+            // toolCallTrace is emitted by the pipeline provider when assertToolCalls=true
+            const trace = out.toolCallTrace ?? [];
+            const citeCount = trace.filter(tc => tc.name === 'cite_evidence').length;
+            return citeCount >= 1;
+          })()
+        metric: "cite_evidence_called"
+      - type: javascript
+        value: "JSON.parse(output).status !== 'inconclusive'"
+        metric: "not_inconclusive"
+      - type: cost
+        threshold: 1.00
+      - type: latency
+        threshold: 180000
+
+  # Scenario 2: Latency Spike — orchestrator must call cite_evidence at least once
+  - vars:
+      scenario: '{"alert":{"source":"datadog","externalId":"eval-cite-latency","payload":{"alert_type":"error","title":"High latency on api-gateway","body":"Request latency exceeded 1200ms. Database connection pool exhausted. Circuit breaker triggered.","aggreg_key":"api-gateway","tags":["env:production","service:api-gateway"]}},"inject":"latency","service":"api-gateway","assertToolCalls":true}'
+    assert:
+      - type: is-json
+      - type: javascript
+        value: |
+          (() => {
+            const out = JSON.parse(output);
+            const trace = out.toolCallTrace ?? [];
+            const citeCount = trace.filter(tc => tc.name === 'cite_evidence').length;
+            return citeCount >= 1;
+          })()
+        metric: "cite_evidence_called"
+      - type: javascript
+        value: "JSON.parse(output).status !== 'inconclusive'"
+        metric: "not_inconclusive"
+      - type: cost
+        threshold: 1.00
+      - type: latency
+        threshold: 180000

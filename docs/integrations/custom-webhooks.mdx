@@ -1,0 +1,194 @@
+---
+title: "Custom webhooks"
+description: "Send alerts from any monitoring tool using the generic webhook endpoint."
+---
+
+If your monitoring tool is not in CauseFlow's integration catalog, or if you want to send alerts from a custom internal system, you can use the generic webhook endpoint. Any tool that can make an HTTP POST request with JSON can trigger a CauseFlow investigation.
+
+## Endpoint
+
+```
+POST https://api.causeflow.ai/v1/webhooks/:tenantId/custom
+```
+
+Replace `:tenantId` with your tenant ID, found in **Settings > General**.
+
+## Required headers
+
+| Header | Description |
+|---|---|
+| `X-API-Key` | Your CauseFlow API key, created in **Settings > API Keys** |
+| `X-Webhook-Signature` | HMAC-SHA256 signature of the raw request body |
+
+## Payload format
+
+The request body must be valid JSON. The only required fields are `title` and `description`. All other fields are optional but improve triage accuracy.
+
+```json
+{
+  "title": "High error rate on payment-service",
+  "description": "5xx error rate exceeded 5% for 3 consecutive minutes.",
+  "sourceAlertId": "alert-98765",
+  "severity": "high",
+  "service": "payment-service",
+  "environment": "production",
+  "tags": {
+    "team": "platform",
+    "region": "us-east-1"
+  },
+  "metadata": {
+    "errorRate": "5.3%",
+    "affectedEndpoints": ["/api/payments", "/api/checkout"]
+  }
+}
+```
+
+| Field | Required | Description |
+|---|---|---|
+| `title` | Yes | Short description of the alert |
+| `description` | Yes | Detailed description for triage |
+| `sourceAlertId` | No | Unique alert ID from your system, used for deduplication |
+| `severity` | No | `critical`, `high`, `medium`, `low`, or `info` |
+| `service` | No | Name of the affected service |
+| `environment` | No | `production`, `staging`, `development`, etc. |
+| `tags` | No | Key-value pairs for additional categorization |
+| `metadata` | No | Any additional structured data about the alert |
+
+## Generating the HMAC-SHA256 signature
+
+Sign the raw request body with your webhook secret using HMAC-SHA256. The signature must be hex-encoded.
+
+<CodeGroup>
+  ```bash Bash
+  WEBHOOK_SECRET="your_webhook_secret"
+  PAYLOAD='{"title":"High error rate","description":"Error rate exceeded threshold."}'
+
+  SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | awk '{print $2}')
+
+  curl -X POST "https://api.causeflow.ai/v1/webhooks/YOUR_TENANT_ID/custom" \
+    -H "Content-Type: application/json" \
+    -H "X-API-Key: YOUR_API_KEY" \
+    -H "X-Webhook-Signature: $SIGNATURE" \
+    -d "$PAYLOAD"
+  ```
+
+  ```typescript TypeScript
+  import crypto from "crypto";
+
+  const webhookSecret = "your_webhook_secret";
+  const apiKey = "your_api_key";
+  const tenantId = "your_tenant_id";
+
+  const payload = JSON.stringify({
+    title: "High error rate on payment-service",
+    description: "Error rate exceeded 5% for 3 consecutive minutes.",
+    sourceAlertId: "alert-98765",
+    severity: "high",
+    service: "payment-service",
+  });
+
+  const signature = crypto
+    .createHmac("sha256", webhookSecret)
+    .update(payload)
+    .digest("hex");
+
+  const response = await fetch(
+    `https://api.causeflow.ai/v1/webhooks/${tenantId}/custom`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": apiKey,
+        "X-Webhook-Signature": signature,
+      },
+      body: payload,
+    }
+  );
+
+  console.log(response.status); // 202 Accepted
+  ```
+</CodeGroup>
+
+## Full curl example
+
+```bash
+curl -X POST "https://api.causeflow.ai/v1/webhooks/YOUR_TENANT_ID/custom" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "X-Webhook-Signature: YOUR_HMAC_SIGNATURE" \
+  -d '{
+    "title": "Database connection pool exhausted",
+    "description": "All connections in the PostgreSQL pool are in use. New queries are queuing.",
+    "sourceAlertId": "alert-112233",
+    "severity": "critical",
+    "service": "orders-service",
+    "environment": "production"
+  }'
+```
+
+A successful request returns `202 Accepted` with the new incident ID:
+
+```json
+{
+  "incidentId": "inc_01j2x...",
+  "status": "triaging"
+}
+```
+
+## Deduplication
+
+If you send multiple alerts for the same firing condition, include the same `sourceAlertId` in each request. CauseFlow deduplicates on this field — subsequent requests with an already-seen `sourceAlertId` return `409 Conflict` and the original incident is not duplicated.
+
+```json
+{
+  "error": "duplicate_alert",
+  "message": "An incident with sourceAlertId 'alert-98765' already exists.",
+  "incidentId": "inc_01j2x..."
+}
+```
+
+## Testing
+
+You can test your webhook setup with curl before connecting your monitoring tool:
+
+```bash
+# Generate a test signature
+PAYLOAD='{"title":"Test alert","description":"Testing CauseFlow webhook integration."}'
+SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "YOUR_WEBHOOK_SECRET" | awk '{print $2}')
+
+# Send a test alert
+curl -X POST "https://api.causeflow.ai/v1/webhooks/YOUR_TENANT_ID/custom" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "X-Webhook-Signature: $SIGNATURE" \
+  -d "$PAYLOAD"
+```
+
+The resulting test incident will appear in the dashboard and go through the full triage pipeline.
+
+---
+
+## Receive outbound events
+
+In addition to sending alerts to CauseFlow, you can receive real-time event updates from CauseFlow when investigations progress, incidents are resolved, or remediations are proposed.
+
+**Today:** CauseFlow delivers outbound events via **Server-Sent Events (SSE)** using the `GET /v1/notifications/stream` endpoint. Connect to this stream from your backend or dashboard to receive live updates without polling.
+
+**Coming soon:** A programmatic webhook subscription API (`POST /v1/webhook-subscriptions`) is on the roadmap. This will let you register a delivery URL and receive outbound events as HTTP POST requests without maintaining a persistent SSE connection.
+
+For the full list of outbound event types and payload shapes, see the outbound events reference in the API reference section (`/api-reference/webhooks/outbound-events`).
+
+<CardGroup cols={2}>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    Explore the full CauseFlow REST API, including the SSE stream and webhook endpoints.
+  </Card>
+  <Card title="Monitoring integrations" icon="chart-line" href="/integrations/monitoring">
+    Connect your monitoring tools for automatic alert ingestion.
+  </Card>
+  <Card title="Integrations overview" icon="list" href="/integrations/overview">
+    See the full catalog of available integrations.
+  </Card>
+  <Card title="Security overview" icon="shield" href="/security/overview">
+    Learn how CauseFlow authenticates and secures webhook traffic.
+  </Card>
+</CardGroup>

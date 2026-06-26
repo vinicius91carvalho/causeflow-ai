@@ -1,0 +1,2035 @@
+openapi: 3.0.3
+info:
+  title: CauseFlow API
+  description: AI SRE Platform — Incident management, investigation, remediation, and knowledge base.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    PaginatedResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items: {}
+        cursor:
+          type: string
+          nullable: true
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+    Incident:
+      type: object
+      properties:
+        incidentId:
+          type: string
+        tenantId:
+          type: string
+        title:
+          type: string
+        severity:
+          type: string
+          enum: [critical, high, medium, low, info]
+        status:
+          type: string
+          enum: [open, triaging, investigating, awaiting_approval, remediating, resolved, closed]
+        source:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Tenant:
+      type: object
+      properties:
+        tenantId:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        ownerEmail:
+          type: string
+          format: email
+        plan:
+          type: string
+          enum: [free, starter, pro, enterprise]
+        status:
+          type: string
+          enum: [active, suspended, trial, cancelled]
+        settings:
+          type: object
+          properties:
+            maxIncidentsPerMonth:
+              type: integer
+            autoRemediation:
+              type: boolean
+            notificationChannels:
+              type: array
+              items:
+                type: string
+            awsRoleArn:
+              type: string
+            awsExternalId:
+              type: string
+            awsRegion:
+              type: string
+            chatProvider:
+              type: string
+              enum: [web_portal, slack, teams]
+        createdAt:
+          type: string
+          format: date-time
+
+    ApiKey:
+      type: object
+      properties:
+        keyId:
+          type: string
+        name:
+          type: string
+        prefix:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ServiceNode:
+      type: object
+      properties:
+        serviceId:
+          type: string
+        tenantId:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [api, database, cache, queue, storage, cdn, load_balancer, function, container, other]
+        runtime:
+          type: string
+        healthStatus:
+          type: string
+          enum: [healthy, degraded, unhealthy, unknown]
+        healthDetails:
+          type: string
+        blastRadius:
+          type: number
+        criticality:
+          type: string
+          enum: [critical, high, medium, low]
+        ownerTeam:
+          type: string
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+        metadata:
+          type: object
+
+    ServiceEdge:
+      type: object
+      properties:
+        edgeId:
+          type: string
+        sourceService:
+          type: string
+        targetService:
+          type: string
+        edgeType:
+          type: string
+          enum: [http, grpc, tcp, event, database, cache, queue]
+        protocol:
+          type: string
+        traffic:
+          type: object
+          properties:
+            requestsPerSecond:
+              type: number
+            avgLatencyMs:
+              type: number
+            errorRate:
+              type: number
+        isCriticalPath:
+          type: boolean
+
+    ChangeEvent:
+      type: object
+      properties:
+        changeId:
+          type: string
+        tenantId:
+          type: string
+        changeType:
+          type: string
+          enum: [deployment, config_change, scaling, rollback, infra_change, secret_rotation]
+        serviceId:
+          type: string
+        description:
+          type: string
+        source:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        riskScore:
+          type: number
+        diff:
+          type: object
+          properties:
+            before:
+              type: string
+            after:
+              type: string
+            summary:
+              type: string
+
+    Pattern:
+      type: object
+      properties:
+        patternId:
+          type: string
+        tenantId:
+          type: string
+        status:
+          type: string
+        category:
+          type: string
+        confidence:
+          type: number
+        symptoms:
+          type: array
+          items:
+            type: object
+        rootCause:
+          type: string
+        resolution:
+          type: string
+
+    Remediation:
+      type: object
+      properties:
+        remediationId:
+          type: string
+        tenantId:
+          type: string
+        incidentId:
+          type: string
+        rootCause:
+          type: string
+        recommendedActions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+              params:
+                type: object
+        status:
+          type: string
+        approvedBy:
+          type: string
+        rejectedBy:
+          type: string
+        reason:
+          type: string
+
+    Notification:
+      type: object
+      properties:
+        notificationId:
+          type: string
+        tenantId:
+          type: string
+        type:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    AuditEntry:
+      type: object
+      properties:
+        auditId:
+          type: string
+        tenantId:
+          type: string
+        action:
+          type: string
+        actor:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        details:
+          type: object
+
+    Feedback:
+      type: object
+      properties:
+        feedbackId:
+          type: string
+        tenantId:
+          type: string
+        incidentId:
+          type: string
+        patternId:
+          type: string
+        type:
+          type: string
+          enum: [confirm_rca, reject_rca, correct_rca, confirm_fix, reject_fix, add_context]
+        actor:
+          type: string
+        originalValue:
+          type: string
+        correctedValue:
+          type: string
+        freeText:
+          type: string
+
+paths:
+  # ──────────────────────────────────────────
+  # Health
+  # ──────────────────────────────────────────
+  /health:
+    get:
+      tags: [Health]
+      summary: Basic health check
+      security: []
+      responses:
+        "200":
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: up
+                  service:
+                    type: string
+                    example: causeflow
+                  timestamp:
+                    type: string
+                    format: date-time
+        "503":
+          description: Service unhealthy
+
+  /health/detailed:
+    get:
+      tags: [Health]
+      summary: Detailed health check with dependency status
+      security: []
+      responses:
+        "200":
+          description: Detailed health info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                  checks:
+                    type: object
+        "503":
+          description: Service unhealthy
+
+  # ──────────────────────────────────────────
+  # Auth
+  # ──────────────────────────────────────────
+  /v1/auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current authenticated user info
+      responses:
+        "200":
+          description: Current user details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenantId:
+                    type: string
+                  userId:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  roles:
+                    type: array
+                    items:
+                      type: string
+
+  # ──────────────────────────────────────────
+  # Tenants
+  # ──────────────────────────────────────────
+  /v1/tenants:
+    post:
+      tags: [Tenants]
+      summary: Create a new tenant
+      description: "Roles: admin, owner"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug, ownerEmail]
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                slug:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                  pattern: "^[a-z0-9-]+$"
+                ownerEmail:
+                  type: string
+                  format: email
+                plan:
+                  type: string
+                  enum: [free, starter, pro, enterprise]
+                settings:
+                  type: object
+                  properties:
+                    maxIncidentsPerMonth:
+                      type: integer
+                    autoRemediation:
+                      type: boolean
+                    notificationChannels:
+                      type: array
+                      items:
+                        type: string
+      responses:
+        "201":
+          description: Tenant created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+
+    get:
+      tags: [Tenants]
+      summary: List tenants for the authenticated owner
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated tenant list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Tenant"
+                  cursor:
+                    type: string
+                    nullable: true
+
+  /v1/tenants/{tenantId}:
+    get:
+      tags: [Tenants]
+      summary: Get tenant by ID
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tenant details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+
+    patch:
+      tags: [Tenants]
+      summary: Update tenant
+      description: "Roles: admin, owner"
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                plan:
+                  type: string
+                  enum: [free, starter, pro, enterprise]
+                status:
+                  type: string
+                  enum: [active, suspended, trial, cancelled]
+                settings:
+                  type: object
+                  properties:
+                    maxIncidentsPerMonth:
+                      type: integer
+                    autoRemediation:
+                      type: boolean
+                    notificationChannels:
+                      type: array
+                      items:
+                        type: string
+                    awsRoleArn:
+                      type: string
+                    awsExternalId:
+                      type: string
+                    awsRegion:
+                      type: string
+                    chatProvider:
+                      type: string
+                      enum: [web_portal, slack, teams]
+      responses:
+        "200":
+          description: Tenant updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+
+  # ──────────────────────────────────────────
+  # API Keys
+  # ──────────────────────────────────────────
+  /v1/api-keys:
+    post:
+      tags: [API Keys]
+      summary: Create a new API key
+      description: "Roles: admin, owner. Returns the plaintext key ONLY on creation."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+      responses:
+        "201":
+          description: API key created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keyId:
+                    type: string
+                  name:
+                    type: string
+                  prefix:
+                    type: string
+                  plaintext:
+                    type: string
+                    description: Only returned on creation
+                  createdAt:
+                    type: string
+                    format: date-time
+
+    get:
+      tags: [API Keys]
+      summary: List API keys (without hashes)
+      responses:
+        "200":
+          description: API key list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ApiKey"
+
+  /v1/api-keys/{keyId}:
+    delete:
+      tags: [API Keys]
+      summary: Revoke an API key
+      description: "Roles: admin, owner"
+      parameters:
+        - name: keyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: API key revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keyId:
+                    type: string
+                  status:
+                    type: string
+                  revokedAt:
+                    type: string
+                    format: date-time
+
+  # ──────────────────────────────────────────
+  # Webhooks (Alert Ingestion)
+  # ──────────────────────────────────────────
+  /v1/webhooks/{tenantId}/{provider}:
+    post:
+      tags: [Webhooks]
+      summary: Ingest alert from monitoring provider
+      description: "Auth: webhook secret (X-Webhook-Secret header). Providers: datadog, grafana, cloudwatch, sentry, etc."
+      security:
+        - {}
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            example: datadog
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Raw alert payload from the monitoring provider
+      responses:
+        "202":
+          description: Alert accepted for processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: accepted
+                  incidentId:
+                    type: string
+
+  # ──────────────────────────────────────────
+  # Incidents
+  # ──────────────────────────────────────────
+  /v1/incidents:
+    get:
+      tags: [Incidents]
+      summary: List incidents
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [critical, high, medium, low, info]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, triaging, investigating, awaiting_approval, remediating, resolved, closed]
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        "200":
+          description: Paginated incident list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Incident"
+                  cursor:
+                    type: string
+                    nullable: true
+
+  /v1/incidents/{id}:
+    get:
+      tags: [Incidents]
+      summary: Get incident by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Incident detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+
+    patch:
+      tags: [Incidents]
+      summary: Update incident status
+      description: "Roles: admin, owner, operator"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [open, triaging, investigating, awaiting_approval, remediating, resolved, closed]
+      responses:
+        "200":
+          description: Incident updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+
+  # ──────────────────────────────────────────
+  # Triage
+  # ──────────────────────────────────────────
+  /v1/triage/{incidentId}:
+    post:
+      tags: [Triage]
+      summary: Trigger triage for an incident
+      description: "Roles: admin, owner, operator"
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Triage result
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /v1/triage/{incidentId}/evidence:
+    get:
+      tags: [Triage]
+      summary: Get evidence collected during triage
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Evidence list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+
+  # ──────────────────────────────────────────
+  # Investigation
+  # ──────────────────────────────────────────
+  /v1/investigation/{incidentId}:
+    post:
+      tags: [Investigation]
+      summary: Trigger investigation for an incident
+      description: "Roles: admin, owner, operator. Spawns AI agents (log_analyst, metric_analyst, infra_inspector)."
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Investigation result
+          content:
+            application/json:
+              schema:
+                type: object
+
+    get:
+      tags: [Investigation]
+      summary: Get investigation result and evidence
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Investigation detail with evidence
+          content:
+            application/json:
+              schema:
+                type: object
+
+  # ──────────────────────────────────────────
+  # Remediation
+  # ──────────────────────────────────────────
+  /v1/remediation:
+    post:
+      tags: [Remediation]
+      summary: Propose a remediation
+      description: "Roles: admin, owner"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [incidentId, rootCause, recommendedActions]
+              properties:
+                incidentId:
+                  type: string
+                rootCause:
+                  type: string
+                recommendedActions:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [action]
+                    properties:
+                      action:
+                        type: string
+                      params:
+                        type: object
+                        default: {}
+      responses:
+        "201":
+          description: Remediation proposed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Remediation"
+
+  /v1/remediation/{incidentId}:
+    get:
+      tags: [Remediation]
+      summary: List remediations by incident
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Remediation list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Remediation"
+
+  /v1/remediation/detail/{remediationId}:
+    get:
+      tags: [Remediation]
+      summary: Get remediation detail
+      parameters:
+        - name: remediationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Remediation detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Remediation"
+
+  /v1/remediation/{remediationId}/approve:
+    post:
+      tags: [Remediation]
+      summary: Approve a remediation
+      description: "Roles: admin, owner"
+      parameters:
+        - name: remediationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Remediation approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Remediation"
+
+  /v1/remediation/{remediationId}/reject:
+    post:
+      tags: [Remediation]
+      summary: Reject a remediation
+      description: "Roles: admin, owner"
+      parameters:
+        - name: remediationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        "200":
+          description: Remediation rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Remediation"
+
+  /v1/remediation/{remediationId}/execute:
+    post:
+      tags: [Remediation]
+      summary: Execute an approved remediation
+      description: "Roles: admin, owner"
+      parameters:
+        - name: remediationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Remediation executed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Remediation"
+
+  # ──────────────────────────────────────────
+  # Knowledge (Patterns)
+  # ──────────────────────────────────────────
+  /v1/knowledge:
+    get:
+      tags: [Knowledge]
+      summary: List patterns
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: minConfidence
+          in: query
+          schema:
+            type: number
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Paginated pattern list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Pattern"
+                  cursor:
+                    type: string
+                    nullable: true
+
+  /v1/knowledge/{patternId}:
+    get:
+      tags: [Knowledge]
+      summary: Get pattern detail
+      parameters:
+        - name: patternId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Pattern detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pattern"
+
+  /v1/knowledge/feedback:
+    post:
+      tags: [Knowledge]
+      summary: Submit feedback on a pattern or RCA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [incidentId, type, actor]
+              properties:
+                incidentId:
+                  type: string
+                patternId:
+                  type: string
+                type:
+                  type: string
+                  enum: [confirm_rca, reject_rca, correct_rca, confirm_fix, reject_fix, add_context]
+                actor:
+                  type: string
+                originalValue:
+                  type: string
+                correctedValue:
+                  type: string
+                freeText:
+                  type: string
+      responses:
+        "201":
+          description: Feedback recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Feedback"
+
+  /v1/knowledge/feedback/{incidentId}:
+    get:
+      tags: [Knowledge]
+      summary: List feedback for an incident
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Feedback list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Feedback"
+
+  /v1/knowledge/similar:
+    post:
+      tags: [Knowledge]
+      summary: Find similar patterns by symptoms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [symptoms]
+              properties:
+                symptoms:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [signal, service]
+                    properties:
+                      signal:
+                        type: string
+                      service:
+                        type: string
+                      threshold:
+                        type: string
+                infraContext:
+                  type: string
+                limit:
+                  type: integer
+      responses:
+        "200":
+          description: Matching patterns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pattern"
+
+  # ──────────────────────────────────────────
+  # Code Knowledge
+  # ──────────────────────────────────────────
+  /v1/code-knowledge/repos:
+    get:
+      tags: [Code Knowledge]
+      summary: List indexed repositories
+      responses:
+        "200":
+          description: Repository list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /v1/code-knowledge/repos/{owner}/{repo}:
+    get:
+      tags: [Code Knowledge]
+      summary: Get repository details
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Repository detail
+          content:
+            application/json:
+              schema:
+                type: object
+        "404":
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/code-knowledge/repos/{owner}/{repo}/deps:
+    get:
+      tags: [Code Knowledge]
+      summary: Get repository dependencies
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Dependency list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /v1/code-knowledge/deps/{packageName}/dependents:
+    get:
+      tags: [Code Knowledge]
+      summary: Get dependents for a package
+      parameters:
+        - name: packageName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Dependent list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /v1/code-knowledge/repo-suggestions:
+    get:
+      tags: [Code Knowledge]
+      summary: Auto-suggest repo-to-service mappings
+      responses:
+        "200":
+          description: Mapping suggestions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /v1/code-knowledge/repo-mappings:
+    post:
+      tags: [Code Knowledge]
+      summary: Apply repo-to-service mappings (batch)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mappings]
+              properties:
+                mappings:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [repoFullName, serviceId]
+                    properties:
+                      repoFullName:
+                        type: string
+                      serviceId:
+                        type: string
+                      deployTarget:
+                        type: string
+                      environment:
+                        type: string
+      responses:
+        "201":
+          description: Mappings applied
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /v1/code-knowledge/services/{serviceId}/repos:
+    get:
+      tags: [Code Knowledge]
+      summary: Get repositories mapped to a service
+      parameters:
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Repository list for service
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  # ──────────────────────────────────────────
+  # Service Graph
+  # ──────────────────────────────────────────
+  /v1/graph:
+    get:
+      tags: [Graph]
+      summary: List service nodes
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [api, database, cache, queue, storage, cdn, load_balancer, function, container, other]
+        - name: ownerTeam
+          in: query
+          schema:
+            type: string
+        - name: healthStatus
+          in: query
+          schema:
+            type: string
+            enum: [healthy, degraded, unhealthy, unknown]
+      responses:
+        "200":
+          description: Service node list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceNode"
+
+  /v1/graph/nodes/{serviceId}:
+    get:
+      tags: [Graph]
+      summary: Get service node detail
+      parameters:
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Node detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceNode"
+        "404":
+          description: Node not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/graph/nodes:
+    post:
+      tags: [Graph]
+      summary: Upsert a service node
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, type]
+              properties:
+                serviceId:
+                  type: string
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum: [api, database, cache, queue, storage, cdn, load_balancer, function, container, other]
+                runtime:
+                  type: string
+                healthStatus:
+                  type: string
+                  enum: [healthy, degraded, unhealthy, unknown]
+                healthDetails:
+                  type: string
+                blastRadius:
+                  type: number
+                criticality:
+                  type: string
+                  enum: [critical, high, medium, low]
+                ownerTeam:
+                  type: string
+                tags:
+                  type: object
+                  additionalProperties:
+                    type: string
+                metadata:
+                  type: object
+      responses:
+        "200":
+          description: Node upserted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceNode"
+
+  /v1/graph/edges:
+    get:
+      tags: [Graph]
+      summary: List edges (filtered by source or target)
+      parameters:
+        - name: sourceService
+          in: query
+          schema:
+            type: string
+        - name: targetService
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Edge list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceEdge"
+
+    post:
+      tags: [Graph]
+      summary: Upsert a service edge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sourceService, targetService, edgeType]
+              properties:
+                edgeId:
+                  type: string
+                sourceService:
+                  type: string
+                targetService:
+                  type: string
+                edgeType:
+                  type: string
+                  enum: [http, grpc, tcp, event, database, cache, queue]
+                protocol:
+                  type: string
+                traffic:
+                  type: object
+                  properties:
+                    requestsPerSecond:
+                      type: number
+                    avgLatencyMs:
+                      type: number
+                    errorRate:
+                      type: number
+                isCriticalPath:
+                  type: boolean
+                metadata:
+                  type: object
+      responses:
+        "200":
+          description: Edge upserted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceEdge"
+
+  /v1/graph/changes:
+    post:
+      tags: [Graph]
+      summary: Add a change event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [changeType, serviceId, description, source]
+              properties:
+                changeType:
+                  type: string
+                  enum: [deployment, config_change, scaling, rollback, infra_change, secret_rotation]
+                serviceId:
+                  type: string
+                description:
+                  type: string
+                source:
+                  type: string
+                timestamp:
+                  type: string
+                  format: date-time
+                riskScore:
+                  type: number
+                diff:
+                  type: object
+                  required: [summary]
+                  properties:
+                    before:
+                      type: string
+                    after:
+                      type: string
+                    summary:
+                      type: string
+                linkedIncidentId:
+                  type: string
+                metadata:
+                  type: object
+      responses:
+        "201":
+          description: Change event created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangeEvent"
+
+    get:
+      tags: [Graph]
+      summary: List recent change events
+      parameters:
+        - name: serviceId
+          in: query
+          schema:
+            type: string
+        - name: since
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Change event list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChangeEvent"
+
+  /v1/graph/health:
+    get:
+      tags: [Graph]
+      summary: Get system health summary
+      responses:
+        "200":
+          description: Health summary
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /v1/graph/blast-radius/{serviceId}:
+    get:
+      tags: [Graph]
+      summary: Get blast radius for a service
+      parameters:
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: maxDepth
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blast radius result
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /v1/graph/correlate:
+    post:
+      tags: [Graph]
+      summary: Correlate changes with incident timestamp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [incidentTimestamp]
+              properties:
+                incidentTimestamp:
+                  type: string
+                  format: date-time
+                windowMinutes:
+                  type: number
+                incidentServiceId:
+                  type: string
+      responses:
+        "200":
+          description: Correlated changes
+          content:
+            application/json:
+              schema:
+                type: object
+
+  # ──────────────────────────────────────────
+  # Notifications
+  # ──────────────────────────────────────────
+  /v1/notifications:
+    get:
+      tags: [Notifications]
+      summary: List notifications
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Paginated notification list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Notification"
+                  cursor:
+                    type: string
+                    nullable: true
+
+  /v1/notifications/{id}:
+    get:
+      tags: [Notifications]
+      summary: Get notification detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Notification detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/notifications/{id}/read:
+    patch:
+      tags: [Notifications]
+      summary: Mark notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /v1/notifications/approvals/pending:
+    get:
+      tags: [Notifications]
+      summary: List pending approval requests
+      responses:
+        "200":
+          description: Pending approvals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+
+  /v1/notifications/approvals/{id}/respond:
+    post:
+      tags: [Notifications]
+      summary: Respond to an approval request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action, respondedBy]
+              properties:
+                action:
+                  type: string
+                respondedBy:
+                  type: string
+      responses:
+        "200":
+          description: Approval response recorded
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /v1/notifications/stream:
+    get:
+      tags: [Notifications]
+      summary: SSE stream for real-time notifications
+      description: Server-Sent Events stream. Sends heartbeats every 30s.
+      responses:
+        "200":
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  # ──────────────────────────────────────────
+  # Analytics
+  # ──────────────────────────────────────────
+  /v1/analytics/incidents:
+    get:
+      tags: [Analytics]
+      summary: Get incident analytics
+      responses:
+        "200":
+          description: Incident analytics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /v1/analytics/patterns:
+    get:
+      tags: [Analytics]
+      summary: Get pattern analytics
+      responses:
+        "200":
+          description: Pattern analytics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  # ──────────────────────────────────────────
+  # Audit
+  # ──────────────────────────────────────────
+  /v1/audit:
+    get:
+      tags: [Audit]
+      summary: List audit entries
+      parameters:
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated audit entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AuditEntry"
+                  cursor:
+                    type: string
+                    nullable: true
+
+  /v1/audit/verify:
+    get:
+      tags: [Audit]
+      summary: Verify audit hash chain integrity
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  totalEntries:
+                    type: integer
+                  brokenAt:
+                    type: string
+                    nullable: true
+
+  /v1/audit/export:
+    get:
+      tags: [Audit]
+      summary: Export audit log as NDJSON stream
+      parameters:
+        - name: action
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: NDJSON stream
+          content:
+            application/x-ndjson:
+              schema:
+                type: string
+
+  # ──────────────────────────────────────────
+  # Admin
+  # ──────────────────────────────────────────
+  /v1/admin/queues/redrive:
+    post:
+      tags: [Admin]
+      summary: Redrive messages from DLQ back to target queue
+      description: "Roles: admin"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [queue]
+              properties:
+                queue:
+                  type: string
+                  enum: [alerts, investigation, remediation]
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+      responses:
+        "200":
+          description: Redrive result
+          content:
+            application/json:
+              schema:
+                type: object
+
+  # ──────────────────────────────────────────
+  # GitHub Integration
+  # ──────────────────────────────────────────
+  /webhooks/github:
+    post:
+      tags: [GitHub]
+      summary: GitHub App webhook receiver
+      description: "Public endpoint. Validates HMAC signature via X-Hub-Signature-256 header."
+      security: []
+      parameters:
+        - name: X-Hub-Signature-256
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-GitHub-Event
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: GitHub webhook payload
+      responses:
+        "200":
+          description: Webhook received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+        "503":
+          description: GitHub integration not configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/github/callback:
+    get:
+      tags: [GitHub]
+      summary: GitHub App OAuth callback
+      parameters:
+        - name: installation_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: code
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: Tenant ID (fallback if not in auth context)
+          schema:
+            type: string
+      responses:
+        "201":
+          description: GitHub App installed
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "503":
+          description: GitHub integration not configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/github/installation:
+    get:
+      tags: [GitHub]
+      summary: Get GitHub App installation details
+      responses:
+        "200":
+          description: Installation details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  installationId:
+                    type: integer
+                  accountLogin:
+                    type: string
+                  accountType:
+                    type: string
+                  repositories:
+                    type: array
+                    items:
+                      type: string
+                  status:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+        "401":
+          description: No tenant context
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: No installation found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags: [GitHub]
+      summary: Revoke GitHub App installation
+      responses:
+        "200":
+          description: Installation revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revoked:
+                    type: boolean
+        "401":
+          description: No tenant context
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: No installation found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"

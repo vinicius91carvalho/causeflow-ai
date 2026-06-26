@@ -1,0 +1,130 @@
+---
+title: "Authentication"
+description: "How CauseFlow authenticates users and API requests — JWT tokens, API keys, and webhook signatures."
+---
+
+CauseFlow uses three authentication mechanisms depending on the request type: JWT Bearer tokens for user and API sessions, API keys for webhook ingestion, and HMAC-SHA256 signatures for webhook payload verification.
+
+## JWT authentication
+
+All authenticated API endpoints require a Bearer token in the `Authorization` header.
+
+```http
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+CauseFlow verifies the following on every request:
+
+| Claim | Description |
+|-------|-------------|
+| `sub` | User ID |
+| `email` | User email address |
+| `tenant_id` | Tenant the request is scoped to |
+| `roles` | Array of roles assigned to the user |
+| `iss` | Must be `causeflow` |
+| `aud` | Must be `causeflow-api` |
+| `exp` | Token expiry — expired tokens are rejected |
+
+If any claim fails verification, the request returns `401 Unauthorized`.
+
+## Sign-in methods
+
+CauseFlow supports three ways to authenticate:
+
+<CardGroup cols={3}>
+  <Card title="Email and password" icon="envelope">
+    Standard email/password sign-in backed by AWS Cognito. Passwords are never stored in plaintext.
+  </Card>
+  <Card title="Google OAuth" icon="google">
+    Sign in with your Google account via OAuth 2.0. No password required.
+  </Card>
+  <Card title="GitHub OAuth" icon="github">
+    Sign in with your GitHub account via OAuth 2.0. Useful for engineering teams already using GitHub.
+  </Card>
+</CardGroup>
+
+Enterprise plans can configure SSO / SAML for centralized identity provider integration. See your dedicated support engineer for setup instructions.
+
+## API key authentication
+
+API keys are used to authenticate webhook payloads from your monitoring tools. They are not intended for user-facing API calls.
+
+**Creating an API key:**
+
+1. Go to **Dashboard > Settings > API Keys**.
+2. Click **Create API key** and give it a descriptive name.
+3. Copy the key immediately — it is shown in plaintext only once.
+
+API keys have the prefix `cflo_`. Example:
+
+```
+cflo_a1b2c3d4e5f6...
+```
+
+<Warning>
+  CauseFlow stores only the SHA-256 hash of your API key. If you lose the key, you must revoke it and create a new one.
+</Warning>
+
+**Using an API key in a webhook:**
+
+Pass the API key in the `Authorization` header when configuring your monitoring tool:
+
+```http
+Authorization: Bearer cflo_a1b2c3d4e5f6...
+```
+
+Or include it as a query parameter for tools that do not support custom headers:
+
+```
+https://api.causeflow.ai/v1/webhooks/:tenantId/:provider?apiKey=cflo_a1b2c3d4e5f6...
+```
+
+## Webhook HMAC-SHA256 verification
+
+For monitoring tools that support request signing, CauseFlow verifies an HMAC-SHA256 signature over the raw request body. This ensures the webhook payload has not been tampered with in transit.
+
+**Verification flow:**
+
+```
+Monitoring tool signs request body with shared secret
+      │
+      ▼
+POST /v1/webhooks/:tenantId/:provider
+Headers:
+  X-Webhook-Signature: sha256=<HMAC-SHA256 of body>
+  Authorization: Bearer cflo_...
+      │
+      ▼
+CauseFlow looks up API key by SHA-256 hash
+      │
+      ▼
+Computes HMAC-SHA256 over raw request body using stored key
+      │
+      ├── Signature matches → request accepted
+      └── Signature mismatch → 401 Unauthorized
+```
+
+The `X-Webhook-Signature` header uses the format `sha256=<hex digest>`. CauseFlow uses a constant-time comparison to prevent timing attacks.
+
+## Public endpoints
+
+The following endpoints do not require authentication:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /health` | Simple health check |
+| `GET /health/detailed` | Detailed service health |
+| `POST /v1/webhooks/:tenantId/:provider` | Webhook ingestion (authenticated by API key, not JWT) |
+| `GET /auth/github/callback` | GitHub OAuth callback |
+| `GET /auth/google/callback` | Google OAuth callback |
+| OAuth initiation flows | Sign-in redirects |
+
+All other endpoints require a valid JWT Bearer token.
+
+## Session expiry
+
+JWT tokens expire after a configurable period (default: 1 hour). The dashboard automatically refreshes tokens using a secure refresh token. API clients should handle `401 Unauthorized` responses by re-authenticating.
+
+<Tip>
+  If you are building an integration against the CauseFlow API, use the [API reference](/api-reference/authentication) for token acquisition details and example requests.
+</Tip>

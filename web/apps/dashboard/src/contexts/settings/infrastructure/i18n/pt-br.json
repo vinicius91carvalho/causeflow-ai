@@ -1,0 +1,180 @@
+{
+  "dashboard": {
+    "settings": {
+      "title": "Configurações",
+      "description": "Configure as definições do seu espaço de trabalho",
+      "tabs": {
+        "profile": "Perfil",
+        "company": "Empresa",
+        "appearance": "Aparência",
+        "apiKeys": "Chaves de API",
+        "notifications": "Notificações"
+      },
+      "profile": {
+        "title": "Perfil",
+        "description": "Atualize suas informações pessoais",
+        "name": "Nome Completo",
+        "namePlaceholder": "Digite seu nome completo",
+        "email": "Endereço de E-mail",
+        "emailReadonly": "O e-mail não pode ser alterado",
+        "avatar": "Foto de Perfil",
+        "avatarDescription": "Suas iniciais são usadas como substituto",
+        "changePassword": "Alterar Senha",
+        "changePasswordDescription": "Use o fluxo de esqueci a senha para redefinir sua senha",
+        "resetPasswordLink": "Enviar E-mail de Redefinição",
+        "save": "Salvar Alterações",
+        "saving": "Salvando...",
+        "saved": "Perfil salvo com sucesso",
+        "errorSaving": "Falha ao salvar o perfil. Tente novamente.",
+        "validation": {
+          "nameRequired": "O nome é obrigatório",
+          "nameTooShort": "O nome deve ter pelo menos 2 caracteres"
+        }
+      },
+      "company": {
+        "title": "Configurações da Empresa",
+        "description": "Gerencie os detalhes da sua organização",
+        "adminOnly": "Somente administradores podem gerenciar as configurações da empresa",
+        "name": "Nome da Empresa",
+        "namePlaceholder": "Empresa Exemplo",
+        "website": "URL do Site",
+        "websitePlaceholder": "https://empresa.com.br",
+        "teamSize": "Tamanho do Time",
+        "plan": "Plano Atual",
+        "upgradePlan": "Fazer Upgrade",
+        "save": "Salvar Alterações",
+        "saving": "Salvando...",
+        "saved": "Configurações da empresa salvas",
+        "errorSaving": "Falha ao salvar configurações da empresa",
+        "validation": {
+          "nameRequired": "O nome da empresa é obrigatório",
+          "invalidUrl": "Por favor, insira uma URL válida"
+        },
+        "slug": "Identificador da Empresa",
+        "slugDescription": "Seu identificador único de empresa",
+        "autoRemediation": "Remediação Automática",
+        "autoRemediationDescription": "Aprovar automaticamente remediações propostas sem revisão manual"
+      },
+      "notifications": {
+        "emailSection": "Notificações por E-mail",
+        "analysisComplete": "Análise concluída",
+        "analysisCompleteDescription": "Receba notificações quando uma análise terminar",
+        "creditWarning": "Aviso de créditos",
+        "creditWarningDescription": "Receba notificações quando seus créditos estiverem baixos",
+        "teamInvite": "Convites de equipe",
+        "teamInviteDescription": "Receba notificações quando alguém entrar na sua equipe",
+        "weeklyDigest": "Resumo semanal",
+        "weeklyDigestDescription": "Receba um resumo semanal dos seus incidentes",
+        "saved": "Preferências de notificação salvas",
+        "errorSaving": "Falha ao salvar preferências. Tente novamente.",
+        "save": "Salvar Preferências",
+        "saving": "Salvando...",
+        "slackSection": "Notificações via Slack",
+        "slackDescription": "Receba alertas de incidentes e responda a investigações diretamente pelo Slack.",
+        "slackConnect": "Conectar ao Slack",
+        "slackConnected": "Conectado",
+        "slackWorkspace": "Workspace",
+        "slackChannel": "Canal",
+        "slackDisconnect": "Desconectar",
+        "slackConnecting": "Conectando...",
+        "slackDisconnecting": "Desconectando...",
+        "slackConnectSuccess": "Slack conectado com sucesso",
+        "slackConnectError": "Falha ao conectar o Slack. Tente novamente.",
+        "slackDisconnectSuccess": "Slack desconectado",
+        "slackDisconnectError": "Falha ao desconectar o Slack. Tente novamente.",
+        "slackAdminOnly": "Somente administradores podem gerenciar notificações do Slack"
+      },
+      "apiKeys": {
+        "title": "Chaves de API",
+        "description": "Gerencie chaves de API para integrações externas",
+        "create": "Criar Chave de API",
+        "name": "Nome da Chave",
+        "namePlaceholder": "ex.: Integração de Produção",
+        "prefix": "Prefixo",
+        "status": "Status",
+        "createdAt": "Criado em",
+        "lastUsed": "Último uso",
+        "revoke": "Revogar",
+        "revokeConfirm": "Revogar Chave de API",
+        "revokeConfirmMessage": "Tem certeza que deseja revogar \"{name}\"? Esta ação não pode ser desfeita. Todas as requisições usando esta chave pararão de funcionar imediatamente.",
+        "createSuccess": "Chave de API criada com sucesso",
+        "revokeSuccess": "Chave de API revogada",
+        "errorCreating": "Falha ao criar chave de API. Tente novamente.",
+        "errorRevoking": "Falha ao revogar chave de API. Tente novamente.",
+        "copyKey": "Copiar",
+        "copied": "Copiado!",
+        "keyWarning": "Salve esta chave agora. Você não poderá vê-la novamente.",
+        "yourNewKey": "Sua nova chave de API",
+        "done": "Concluído",
+        "cancel": "Cancelar",
+        "empty": "Nenhuma chave de API ainda. Crie uma para começar.",
+        "adminOnly": "Apenas administradores podem gerenciar chaves de API.",
+        "active": "Ativa",
+        "revoked": "Revogada"
+      },
+      "appearance": {
+        "title": "Aparência",
+        "description": "Personalize como o CauseFlow AI aparece para você",
+        "theme": "Tema",
+        "themeDescription": "Selecione seu esquema de cores preferido",
+        "themeLight": "Claro",
+        "themeDark": "Escuro",
+        "themeSystem": "Sistema",
+        "language": "Idioma",
+        "languageDescription": "Escolha seu idioma preferido",
+        "previewTitle": "Visualização",
+        "appliedImmediately": "As alterações são aplicadas imediatamente",
+        "languageSaveError": "Falha ao salvar preferência de idioma. Tente novamente."
+      },
+      "commandPalette": {
+        "placeholder": "Pesquisar ações ou navegar...",
+        "noResults": "Nenhum resultado encontrado",
+        "hint": "Pressione {key} para abrir",
+        "sections": {
+          "actions": "Ações Rápidas",
+          "navigation": "Navegação"
+        },
+        "actions": {
+          "newAnalysis": "Nova Análise",
+          "viewIntegrations": "Ver Integrações",
+          "manageTeam": "Gerenciar Equipe",
+          "openSettings": "Abrir Configurações",
+          "toggleTheme": "Alternar Tema"
+        },
+        "navigation": {
+          "dashboard": "Ir para o Painel",
+          "analyses": "Ir para Análises",
+          "integrations": "Ir para Integrações",
+          "team": "Ir para Equipe",
+          "settings": "Ir para Configurações",
+          "incidents": "Ir para Incidentes",
+          "remediations": "Ir para Remediações",
+          "approvals": "Ir para Aprovações",
+          "auditLog": "Ir para Log de Auditoria"
+        }
+      },
+      "breadcrumbs": {
+        "dashboard": "Painel",
+        "analyses": "Análises",
+        "newAnalysis": "Nova Análise",
+        "integrations": "Integrações",
+        "team": "Equipe",
+        "settings": "Configurações"
+      },
+      "errorBoundary": {
+        "title": "Algo deu errado",
+        "description": "Ocorreu um erro inesperado. Por favor, tente novamente.",
+        "tryAgain": "Tentar Novamente",
+        "goToDashboard": "Ir para o Painel",
+        "errorDetails": "Detalhes do Erro"
+      },
+      "toast": {
+        "success": "Sucesso",
+        "error": "Erro",
+        "info": "Info",
+        "warning": "Aviso",
+        "dismiss": "Dispensar"
+      }
+    }
+  }
+}

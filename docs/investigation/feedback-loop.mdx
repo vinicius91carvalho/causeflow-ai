@@ -1,0 +1,84 @@
+---
+title: "Feedback loop"
+description: "Improve CauseFlow's accuracy by confirming, rejecting, or correcting investigation results."
+---
+
+CauseFlow's accuracy improves with every piece of feedback you provide. When you confirm a correct root cause, reject a wrong one, or add context that helps explain what happened, CauseFlow updates its knowledge base patterns so future investigations start with better hypotheses.
+
+## Why feedback matters
+
+Each feedback action triggers a pattern update:
+
+- Confirmations increase pattern confidence scores
+- Rejections decrease confidence and flag patterns for review
+- Corrections update patterns with accurate root cause information
+- Context additions enrich patterns with operational knowledge that logs and metrics alone cannot capture
+
+Over time, feedback shifts CauseFlow from a reactive investigation tool into a proactive one — recognizing known failure modes at triage time and resolving them faster.
+
+## Feedback types
+
+| Type | When to use |
+|---|---|
+| `confirm_rca` | The root cause analysis was correct |
+| `reject_rca` | The identified root cause was wrong |
+| `correct_rca` | The root cause was partially right — use this to provide the correct explanation |
+| `confirm_fix` | The proposed remediation fixed the issue |
+| `reject_fix` | The proposed remediation did not fix the issue |
+| `add_context` | You have additional information that would help future investigations of similar incidents |
+
+## How to provide feedback
+
+**From the dashboard:**
+
+1. Open the incident detail page.
+2. Scroll to the **Root cause analysis** section.
+3. Click **Provide Feedback**.
+4. Select the feedback type and, for `correct_rca` or `add_context`, enter your text.
+5. Click **Submit**.
+
+## Via API
+
+Submit feedback programmatically using the knowledge feedback endpoint.
+
+```bash
+curl -X POST "https://api.causeflow.ai/v1/knowledge/feedback" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "incidentId": "inc_01j2x...",
+    "type": "confirm_rca",
+    "comment": "Confirmed — database connection pool was exhausted. Fixed by increasing pool size from 10 to 25."
+  }'
+```
+
+For `correct_rca`, include the corrected root cause in the `correction` field:
+
+```bash
+curl -X POST "https://api.causeflow.ai/v1/knowledge/feedback" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "incidentId": "inc_01j2x...",
+    "type": "correct_rca",
+    "correction": "Root cause was not the database pool size. It was a missing index on the orders table causing full table scans under load. Added index on (customer_id, created_at) to fix."
+  }'
+```
+
+**API reference:** See [POST /v1/knowledge/feedback](/api-reference/knowledge/submit-feedback) for full request and response documentation.
+
+## What happens after feedback
+
+After you submit feedback, CauseFlow processes it in the background:
+
+1. The incident's pattern match record is updated with your feedback type and timestamp.
+2. The pattern's confidence score is adjusted — up for confirmations, down for rejections.
+3. For `correct_rca`, the pattern's root cause description is updated with your correction and confidence is reset to the emerging threshold.
+4. For `add_context`, the additional text is appended to the pattern's symptom list and will appear in future triage enrichment for similar incidents.
+5. If a pattern's confidence drops below 0.20 after rejection, it is marked for review and downweighted in future triage — it will not be removed automatically, giving you a chance to archive or correct it manually.
+
+These updates take effect on the next investigation. There is no need to trigger a reindex or rebuild — the knowledge base is updated in real time.
+
+<Tip>
+  Even a quick `confirm_rca` on a correctly resolved incident contributes to accuracy. It takes seconds and compounds over time into a significantly smarter knowledge base.
+</Tip>

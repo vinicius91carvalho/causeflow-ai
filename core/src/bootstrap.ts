@@ -1,0 +1,1153 @@
+import { EventBus } from './shared/domain/events.js';
+import { DynamoTenantRepository } from './modules/tenant/infra/dynamo-tenant.repository.js';
+import { CreateTenantUseCase } from './modules/tenant/application/create-tenant.usecase.js';
+import { GetTenantUseCase } from './modules/tenant/application/get-tenant.usecase.js';
+import { UpdateTenantUseCase } from './modules/tenant/application/update-tenant.usecase.js';
+import { ListTenantsUseCase } from './modules/tenant/application/list-tenants.usecase.js';
+import { DynamoAuditRepository } from './modules/audit/infra/dynamo-audit.repository.js';
+import { ClerkUserEmailResolver } from './modules/audit/infra/clerk-user-email-resolver.js';
+import { CreateAuditEntryUseCase } from './modules/audit/application/create-audit-entry.usecase.js';
+import { VerifyHashChainUseCase } from './modules/audit/application/verify-hash-chain.usecase.js';
+import { ListAuditEntriesUseCase } from './modules/audit/application/list-audit-entries.usecase.js';
+import { ExportAuditUseCase } from './modules/audit/application/export-audit.usecase.js';
+import {
+  resolveIncidentCreatedActor,
+  resolveIncidentStatusChangedActor,
+  resolveInvestigationCompletedActor,
+  extractEvidencesFromPayload,
+  resolveTenantActor,
+  resolveRemediationActor,
+  resolveRemediationApprovedActor,
+  resolveRemediationRejectedActor,
+  resolveApiKeyCreatedActor,
+  resolveApiKeyRevokedActor,
+} from './modules/audit/application/resolve-actor.js';
+import { ProviderRegistry } from './shared/application/provider-registry.js';
+import { DynamoIncidentRepository } from './modules/ingestion/infra/dynamo-incident.repository.js';
+import { IngestAlertUseCase } from './modules/ingestion/application/ingest-alert.usecase.js';
+import { GetIncidentUseCase } from './modules/ingestion/application/get-incident.usecase.js';
+import { ListIncidentsUseCase } from './modules/ingestion/application/list-incidents.usecase.js';
+import { UpdateIncidentStatusUseCase } from './modules/ingestion/application/update-incident-status.usecase.js';
+import { GetIncidentAnalyticsUseCase } from './modules/ingestion/application/get-incident-analytics.usecase.js';
+import { DatadogParser } from './modules/ingestion/infra/parsers/datadog.parser.js';
+import { GrafanaParser } from './modules/ingestion/infra/parsers/grafana.parser.js';
+import { CloudWatchParser } from './modules/ingestion/infra/parsers/cloudwatch.parser.js';
+import { SentryParser } from './modules/ingestion/infra/parsers/sentry.parser.js';
+import { AnthropicClient } from './shared/infra/llm/anthropic-client.js';
+import { AnthropicAgentRunner } from './shared/infra/llm/anthropic-agent-runner.js';
+import { AnthropicPTCAgentRunner } from './shared/infra/llm/anthropic-ptc-agent-runner.js';
+import { KmsTokenEncryption } from './shared/infra/credentials/kms-token-encryption.js';
+import { StubCloudProvider } from './shared/infra/cloud/stub-cloud-provider.js';
+import { AWSCloudProvider } from './shared/infra/cloud/aws-cloud-provider.js';
+import { AzureCloudProviderStub } from './shared/infra/cloud/azure-cloud-provider-stub.js';
+import { STSCredentialVendor } from './shared/infra/credentials/sts-credential-vendor.js';
+import type { LLMClient } from './shared/application/ports/llm-client.port.js';
+import { GetCloudIntegrationUseCase } from './modules/integration/application/get-cloud-integration.usecase.js';
+import { StubCredentialVendor } from './shared/infra/credentials/stub-credential-vendor.js';
+import type { CredentialVendor } from './shared/application/ports/credential-vendor.port.js';
+import { SQSMessageQueue } from './shared/infra/queue/sqs-message-queue.js';
+import { DynamoEvidenceRepository } from './modules/triage/infra/dynamo-evidence.repository.js';
+import { DynamoToolCallRepository } from './modules/triage/infra/dynamo-tool-call.repository.js';
+import { TriageIncidentUseCase } from './modules/triage/application/triage-incident.usecase.js';
+import { InvestigateIncidentUseCase } from './modules/investigation/application/investigate-incident.usecase.js';
+import { DispatchInvestigationUseCase } from './modules/investigation/application/dispatch-investigation.usecase.js';
+import { OrchestratorMode } from './modules/investigation/application/modes/orchestrator-mode.js';
+import { HypothesisMode } from './modules/investigation/application/modes/hypothesis/index.js';
+import { DebateMode } from './modules/investigation/application/modes/debate/index.js';
+import { OrchestratorToolsetAdapter } from './modules/investigation/application/modes/shared/orchestrator-toolset.adapter.js';
+import { InvestigationModeRegistry } from './modules/investigation/application/modes/registry.js';
+import { DynamoHypothesisRepository } from './modules/investigation/infra/dynamo-hypothesis.repository.js';
+import { ListHypothesesUseCase } from './modules/investigation/application/list-hypotheses.usecase.js';
+import { GetInvestigationUseCase } from './modules/investigation/application/get-investigation.usecase.js';
+import { createToolHandler } from './modules/investigation/infra/investigation-tools.js';
+import { startTriageConsumer } from './modules/triage/infra/triage-consumer.js';
+import { startInvestigationConsumer } from './modules/investigation/infra/investigation-consumer.js';
+import { DynamoRemediationRepository } from './modules/remediation/infra/dynamo-remediation.repository.js';
+import { ProposeRemediationUseCase } from './modules/remediation/application/propose-remediation.usecase.js';
+import { ApproveRemediationUseCase } from './modules/remediation/application/approve-remediation.usecase.js';
+import { RejectRemediationUseCase } from './modules/remediation/application/reject-remediation.usecase.js';
+import { ExecuteRemediationUseCase } from './modules/remediation/application/execute-remediation.usecase.js';
+import { GetRemediationUseCase } from './modules/remediation/application/get-remediation.usecase.js';
+import { WebPortalChatPlatform } from './shared/infra/chat/web-portal-chat-platform.js';
+import { SSEManager } from './shared/infra/chat/sse-manager.js';
+import { DynamoNotificationRepository } from './modules/notification/infra/dynamo-notification.repository.js';
+import { DynamoApprovalRepository } from './modules/notification/infra/dynamo-approval.repository.js';
+import { ListNotificationsUseCase } from './modules/notification/application/list-notifications.usecase.js';
+import { ListPendingApprovalsUseCase } from './modules/notification/application/list-pending-approvals.usecase.js';
+import { RespondApprovalUseCase } from './modules/notification/application/respond-approval.usecase.js';
+import { MarkNotificationReadUseCase } from './modules/notification/application/mark-notification-read.usecase.js';
+import type { NotificationUseCases } from './modules/notification/infra/notification.routes.js';
+import { startRemediationConsumer } from './modules/remediation/infra/remediation-consumer.js';
+import { startProgressConsumer } from './shared/infra/pubsub/progress-consumer.js';
+import { createObservabilityStack } from './shared/infra/observability/observability-factory.js';
+import { ObservedAnthropicClient } from './shared/infra/llm/observed-anthropic-client.js';
+import { ObservedAgentRunner } from './shared/infra/llm/observed-agent-runner.js';
+import { HealthChecker } from './shared/infra/health/health-checker.js';
+import { DynamoDBHealthCheck } from './shared/infra/health/checks/dynamodb-check.js';
+import { RedisHealthCheck } from './shared/infra/health/checks/redis-check.js';
+import { SQSHealthCheck } from './shared/infra/health/checks/sqs-check.js';
+import { getRedisClient } from './shared/infra/cache/redis-client.js';
+import { DynamoApiKeyRepository } from './modules/tenant/infra/dynamo-api-key.repository.js';
+import { CreateApiKeyUseCase } from './modules/tenant/application/create-api-key.usecase.js';
+import { ListApiKeysUseCase } from './modules/tenant/application/list-api-keys.usecase.js';
+import { RevokeApiKeyUseCase } from './modules/tenant/application/revoke-api-key.usecase.js';
+import type { AgentRunner } from './shared/application/ports/agent-runner.port.js';
+import { config } from './shared/config/index.js';
+import { logger } from './shared/infra/logger.js';
+import { tenantId, incidentId } from './shared/domain/value-objects.js';
+import type { TenantUseCases } from './modules/tenant/infra/tenant.routes.js';
+import type { AuditUseCases } from './modules/audit/infra/audit.routes.js';
+import type { WebhookUseCases } from './modules/ingestion/infra/webhook.routes.js';
+import type { IncidentUseCases } from './modules/ingestion/infra/incident.routes.js';
+import type { TriageUseCases } from './modules/triage/infra/triage.routes.js';
+import type { InvestigationUseCases } from './modules/investigation/infra/investigation.routes.js';
+import type { RemediationUseCases } from './modules/remediation/infra/remediation.routes.js';
+import type { AnalyticsUseCases } from './modules/ingestion/infra/analytics.routes.js';
+import type { AdminDeps } from './modules/ingestion/infra/admin.routes.js';
+import type { ApiKeyUseCases } from './modules/tenant/infra/api-key.routes.js';
+import { CreateManualIncidentUseCase } from './modules/ingestion/application/create-manual-incident.usecase.js';
+import { AddInvestigationContextUseCase } from './modules/investigation/application/add-investigation-context.usecase.js';
+import { AbortInvestigationUseCase } from './modules/investigation/application/abort-investigation.usecase.js';
+import { RespondKnownSolutionUseCase } from './modules/investigation/application/respond-known-solution.usecase.js';
+import { RecordInvestigationFeedbackUseCase } from './modules/investigation/application/record-investigation-feedback.usecase.js';
+import { ChatInvestigationUseCase } from './modules/investigation/application/chat-investigation.usecase.js';
+import { InvestigationRegistry } from './modules/investigation/application/investigation-registry.js';
+import { RecordRemediationFeedbackUseCase } from './modules/remediation/application/record-remediation-feedback.usecase.js';
+import { DynamoRunbookRegistryRepository } from './shared/infra/db/dynamo-runbook-registry.repository.js';
+import { HindsightAgentMemory } from './shared/infra/memory/hindsight-agent-memory.js';
+import { ComposioToolProvider } from './shared/infra/integrations/composio-tool-provider.js';
+import { ComposioTriggerService } from './shared/infra/integrations/composio-trigger-service.js';
+import { DynamoTriggerRepository } from './modules/integration/infra/dynamo-trigger.repository.js';
+import { ComposioWebhookValidator } from './modules/integration/infra/composio-webhook-validator.js';
+import { CreateTriggerUseCase } from './modules/integration/application/create-trigger.usecase.js';
+import { DeleteTriggerUseCase } from './modules/integration/application/delete-trigger.usecase.js';
+import { ListTriggersUseCase } from './modules/integration/application/list-triggers.usecase.js';
+import { HandleComposioWebhookUseCase } from './modules/integration/application/handle-composio-webhook.usecase.js';
+import { ConnectCredentialUseCase } from './modules/integration/application/connect-credential.usecase.js';
+import { DisconnectIntegrationUseCase } from './modules/integration/application/disconnect-integration.usecase.js';
+import { ListAllIntegrationsUseCase } from './modules/integration/application/list-all-integrations.usecase.js';
+import { ConnectSlackUseCase } from './modules/integration/application/connect-slack.usecase.js';
+import { DisconnectSlackUseCase } from './modules/integration/application/disconnect-slack.usecase.js';
+import { UpdateSlackConfigUseCase } from './modules/integration/application/update-slack-config.usecase.js';
+import { DynamoSentryIntegrationRepository } from './modules/integration/infra/dynamo-sentry-integration.repository.js';
+import { SaveSentryClientSecretUseCase } from './modules/integration/application/save-sentry-client-secret.usecase.js';
+import { GetSentryIntegrationStatusUseCase } from './modules/integration/application/get-sentry-integration-status.usecase.js';
+import { SlackNotificationRepository } from './modules/integration/infra/slack-notification.repository.js';
+import { SlackNotificationSubscriber } from './shared/application/subscribers/slack-notification.subscriber.js';
+import { FinalizeConnectionUseCase } from './modules/integration/application/finalize-connection.usecase.js';
+import { DynamoBillingAccountRepository } from './modules/billing/infra/dynamo-billing-account.repository.js';
+import { DynamoUsageRecordRepository } from './modules/billing/infra/dynamo-usage-record.repository.js';
+import { StripeMeterEventService } from './modules/billing/infra/stripe-meter.service.js';
+import { StripePlanCatalogService } from './modules/billing/infra/stripe-plan-catalog.service.js';
+import { StripeCustomerService } from './modules/billing/infra/stripe-customer.service.js';
+import { CreateCheckoutUseCase } from './modules/billing/application/create-checkout.usecase.js';
+import { HandleWebhookUseCase as HandleBillingWebhookUseCase } from './modules/billing/application/handle-webhook.usecase.js';
+import { GetCreditsUseCase } from './modules/billing/application/get-credits.usecase.js';
+import { GetSubscriptionUseCase } from './modules/billing/application/get-subscription.usecase.js';
+import { CreatePortalUseCase } from './modules/billing/application/create-portal.usecase.js';
+import { SignupUseCase } from './modules/billing/application/signup.usecase.js';
+import { PurchaseQuotaPackUseCase } from './modules/billing/application/purchase-quota-pack.usecase.js';
+import { UpdateBillingSettingsUseCase } from './modules/billing/application/update-billing-settings.usecase.js';
+import { GetUsageUseCase } from './modules/billing/application/get-usage.usecase.js';
+import { ReserveInvestigationUseCase } from './modules/billing/application/reserve-investigation.usecase.js';
+import { ListPlansUseCase } from './modules/billing/application/list-plans.usecase.js';
+import { UpgradeSubscriptionUseCase } from './modules/billing/application/upgrade-subscription.usecase.js';
+import { CancelSubscriptionUseCase } from './modules/billing/application/cancel-subscription.usecase.js';
+import { CreateSubscriptionUseCase } from './modules/billing/application/create-subscription.usecase.js';
+import { ReactivateSubscriptionUseCase } from './modules/billing/application/reactivate-subscription.usecase.js';
+import { ListInvoicesUseCase } from './modules/billing/application/list-invoices.usecase.js';
+import { HandleClerkWebhookUseCase } from './modules/auth/application/handle-clerk-webhook.usecase.js';
+import { DynamoUserRepository } from './modules/user/infra/dynamo-user.repository.js';
+import { DynamoInviteRepository } from './modules/user/infra/dynamo-invite.repository.js';
+import { CreateUserUseCase } from './modules/user/application/create-user.usecase.js';
+import { ListUsersUseCase } from './modules/user/application/list-users.usecase.js';
+import { UpdateUserUseCase } from './modules/user/application/update-user.usecase.js';
+import { DeleteUserUseCase } from './modules/user/application/delete-user.usecase.js';
+import { CreateInviteUseCase } from './modules/user/application/create-invite.usecase.js';
+import { ListInvitesUseCase } from './modules/user/application/list-invites.usecase.js';
+import { RevokeInviteUseCase } from './modules/user/application/revoke-invite.usecase.js';
+import { GetSettingsUseCase } from './modules/user/application/get-settings.usecase.js';
+import { UpdateSettingsUseCase } from './modules/user/application/update-settings.usecase.js';
+import { GetUserByEmailUseCase } from './modules/user/application/get-user-by-email.usecase.js';
+import { AcceptInviteUseCase } from './modules/user/application/accept-invite.usecase.js';
+import { ChatUseCase } from './modules/memory/application/chat.usecase.js';
+import { DynamoChatHistoryRepository } from './modules/memory/infra/dynamo-chat-history.repository.js';
+import { DynamoCodeKnowledgeRepository } from './modules/code-intelligence/infra/dynamo-code-knowledge.repository.js';
+import { IndexRepositoryUseCase } from './modules/code-intelligence/application/index-repository.usecase.js';
+import { SuggestRepoMappingUseCase } from './modules/code-intelligence/application/suggest-repo-mapping.usecase.js';
+import type { CodeKnowledgeUseCases } from './modules/code-intelligence/infra/code-knowledge.routes.js';
+import type { IRelayGateway } from './shared/application/ports/relay-gateway.port.js';
+import type { RemediationId } from './shared/domain/value-objects.js';
+import type { StructuredAction, ProposedFix } from './modules/investigation/domain/investigation.types.js';
+import type { BillingUseCases } from './modules/billing/infra/billing.routes.js';
+import type { WidgetRouteDeps } from './modules/widget/infra/widget.routes.js';
+import type { TriggerUseCases, ComposioWebhookDeps } from './modules/integration/infra/trigger.routes.js';
+import type { IntegrationUseCases } from './modules/integration/infra/integration.routes.js';
+import type { AuthUseCases } from './modules/auth/infra/auth.routes.js';
+import type { UserUseCases } from './modules/user/infra/user.routes.js';
+import type { MemoryUseCases } from './modules/memory/infra/memory.routes.js';
+import type { Hono } from 'hono';
+import type { AppEnv } from './shared/infra/http/hono-types.js';
+
+export interface ConsumerHandle {
+  stop: () => void;
+}
+
+export interface AppContext {
+  eventBus: EventBus;
+  providerRegistry: ProviderRegistry;
+  tenantUseCases: TenantUseCases;
+  auditUseCases: AuditUseCases;
+  createAuditEntry: CreateAuditEntryUseCase;
+  webhookUseCases: WebhookUseCases;
+  incidentUseCases: IncidentUseCases;
+  triageUseCases: TriageUseCases;
+  investigationUseCases: InvestigationUseCases;
+  remediationUseCases: RemediationUseCases;
+  notificationUseCases: NotificationUseCases;
+  analyticsUseCases: AnalyticsUseCases;
+  adminDeps: AdminDeps;
+  apiKeyUseCases: ApiKeyUseCases;
+  codeKnowledgeUseCases: CodeKnowledgeUseCases;
+  relayGateway?: IRelayGateway;
+  sseManager: SSEManager;
+  healthChecker: HealthChecker;
+  consumers: ConsumerHandle[];
+  corsOrigins: string[];
+  billingUseCases: BillingUseCases;
+  widgetUseCases?: WidgetRouteDeps;
+  triggerUseCases?: TriggerUseCases;
+  integrationUseCases: IntegrationUseCases;
+  skillRoutes?: Hono<AppEnv>;
+  betaAllowlistRoutes?: Hono<AppEnv>;
+  composioWebhookDeps?: ComposioWebhookDeps;
+  authUseCases: AuthUseCases;
+  userUseCases: UserUseCases;
+  memoryUseCases: MemoryUseCases;
+}
+
+export interface BootstrapOverrides {
+  llmClient?: LLMClient;
+  agentRunner?: AgentRunner;
+  relayGateway?: IRelayGateway;
+}
+
+export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppContext> {
+  // Shared
+  const eventBus = new EventBus();
+  eventBus.setErrorLogger((eventType, err) => {
+    logger.error({ err, eventType }, 'EventBus handler error');
+  });
+  const providerRegistry = new ProviderRegistry();
+  const messageQueue = new SQSMessageQueue();
+
+  // Register Alert Parsers
+  const datadogParser = new DatadogParser();
+  const grafanaParser = new GrafanaParser();
+  const cloudwatchParser = new CloudWatchParser();
+  const sentryParser = new SentryParser();
+  providerRegistry.registerAlertParser(datadogParser.source, datadogParser);
+  providerRegistry.registerAlertParser(grafanaParser.source, grafanaParser);
+  providerRegistry.registerAlertParser(cloudwatchParser.source, cloudwatchParser);
+  providerRegistry.registerAlertParser(sentryParser.source, sentryParser);
+
+  // Repositories
+  const tenantRepo = new DynamoTenantRepository();
+  const auditRepo = new DynamoAuditRepository();
+  const incidentRepo = new DynamoIncidentRepository();
+  const evidenceRepo = new DynamoEvidenceRepository();
+  const toolCallRepo = new DynamoToolCallRepository();
+
+  // Code Intelligence Repository
+  const codeKnowledgeRepo = new DynamoCodeKnowledgeRepository();
+
+  // Observability Stack
+  const { tracer, metrics } = await createObservabilityStack();
+
+  // LLM Client + Agent Runner (wrapped with observability decorators)
+  const rawLlmClient = overrides?.llmClient ?? new AnthropicClient();
+  const rawAgentRunner = overrides?.agentRunner
+    ?? (config.ptc.enabled ? new AnthropicPTCAgentRunner() : new AnthropicAgentRunner());
+  const llmClient = new ObservedAnthropicClient(rawLlmClient, tracer, metrics);
+  const agentRunner = new ObservedAgentRunner(rawAgentRunner, tracer, metrics);
+
+  // Token Encryption (KMS envelope encryption — used by credential-based integrations)
+  const tokenEncryption = new KmsTokenEncryption(config.kms.tokenEncryptionKeyId, {
+    endpoint: config.kms.endpoint,
+    region: config.aws.region,
+  });
+
+  // Sentry Integration Repository + Use Cases (envelope-encrypted Client Secret)
+  const sentryIntegrationRepo = new DynamoSentryIntegrationRepository(tokenEncryption);
+  const saveSentryClientSecret = new SaveSentryClientSecretUseCase(tokenEncryption, sentryIntegrationRepo);
+  const getSentryIntegrationStatus = new GetSentryIntegrationStatusUseCase(sentryIntegrationRepo);
+
+  // Cloud Provider (AWS real in prod, Stub in dev)
+  const cloudProvider = config.isProd() || config.sts.roleArn
+    ? new AWSCloudProvider()
+    : new StubCloudProvider();
+  providerRegistry.registerCloudProvider('aws', cloudProvider);
+  providerRegistry.registerCloudProvider('azure', new AzureCloudProviderStub());
+
+  // Credential Vendor (STS in prod, Stub in dev)
+  const getCloudIntegration = new GetCloudIntegrationUseCase(tokenEncryption);
+  const credentialVendor: CredentialVendor = config.isDev() || config.isTest()
+    ? new StubCredentialVendor()
+    : new STSCredentialVendor(undefined, tenantRepo, getCloudIntegration);
+  providerRegistry.registerCredentialVendor(credentialVendor);
+
+  // Tenant Use Cases
+  const tenantUseCases: TenantUseCases = {
+    createTenant: new CreateTenantUseCase(tenantRepo, eventBus),
+    getTenant: new GetTenantUseCase(tenantRepo),
+    updateTenant: new UpdateTenantUseCase(tenantRepo, eventBus),
+    listTenants: new ListTenantsUseCase(tenantRepo),
+  };
+
+  // Audit Use Cases
+  const createAuditEntry = new CreateAuditEntryUseCase(auditRepo);
+  const userEmailResolver = new ClerkUserEmailResolver();
+  const auditUseCases: AuditUseCases = {
+    listAuditEntries: new ListAuditEntriesUseCase(auditRepo, userEmailResolver),
+    verifyHashChain: new VerifyHashChainUseCase(auditRepo),
+    exportAudit: new ExportAuditUseCase(auditRepo),
+  };
+
+  // Reserve/Refund — needed by ingestion routes (created early, before billing block)
+  const billingAccountRepoEarly = new DynamoBillingAccountRepository();
+  const stripeMeterServiceEarly = config.stripe.secretKey ? new StripeMeterEventService() : undefined;
+  const reserveInvestigation = new ReserveInvestigationUseCase(billingAccountRepoEarly, stripeMeterServiceEarly, tenantRepo);
+
+  // Ingestion Use Cases
+  const webhookUseCases: WebhookUseCases = {
+    ingestAlert: new IngestAlertUseCase(
+      incidentRepo,
+      eventBus,
+      providerRegistry,
+      messageQueue,
+      config.sqs.alertQueueUrl,
+    ),
+    reserveInvestigation,
+    sentryIntegrationRepo,
+  };
+
+  const createManualIncident = new CreateManualIncidentUseCase(
+    incidentRepo,
+    eventBus,
+    messageQueue,
+    config.sqs.alertQueueUrl,
+    config.sqs.investigationQueueUrl,
+  );
+
+  const incidentUseCases: IncidentUseCases = {
+    getIncident: new GetIncidentUseCase(incidentRepo),
+    listIncidents: new ListIncidentsUseCase(incidentRepo),
+    updateIncidentStatus: new UpdateIncidentStatusUseCase(incidentRepo, eventBus),
+    createManualIncident,
+    incidentRepo,
+    reserveInvestigation,
+  };
+
+  // Triage Use Cases
+  const triageIncident = new TriageIncidentUseCase({
+    incidentRepo,
+    evidenceRepo,
+    eventBus,
+    llmClient,
+    messageQueue,
+    investigationQueueUrl: config.sqs.investigationQueueUrl,
+    minInvestigationSeverity: config.triage.minInvestigationSeverity,
+    updateIncidentStatus: incidentUseCases.updateIncidentStatus,
+  });
+  const triageUseCases: TriageUseCases = {
+    triageIncident,
+    evidenceRepo,
+  };
+
+
+  // Code Knowledge Use Cases (no native GitHub — code indexing via Composio)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const indexRepository = new IndexRepositoryUseCase(codeKnowledgeRepo, () => undefined, eventBus);
+  const suggestRepoMapping = new SuggestRepoMappingUseCase(codeKnowledgeRepo);
+
+  const codeKnowledgeUseCases: CodeKnowledgeUseCases = {
+    codeKnowledgeRepo,
+    suggestRepoMapping,
+  };
+
+  // Composio Integration
+  const composioToolProvider = config.composio.apiKey
+    ? new ComposioToolProvider()
+    : undefined;
+
+  // Core dependencies (Hindsight + RunbookRegistry)
+  const runbookRegistry = new DynamoRunbookRegistryRepository();
+  const agentMemory = new HindsightAgentMemory({ baseUrl: config.hindsight.baseUrl, apiKey: config.hindsight.apiKey });
+
+  // Investigation Use Cases
+  const investigateIncident = new InvestigateIncidentUseCase({
+    incidentRepo,
+    evidenceRepo,
+    toolCallRepo,
+    eventBus,
+    agentRunner,
+    llmClient,
+    cloudProvider,
+    credentialVendor,
+    toolHandlerFactory: createToolHandler,
+    messageQueue,
+    remediationQueueUrl: config.sqs.remediationQueueUrl,
+    defaultRegion: config.aws.region,
+    synthesisModel: config.anthropic.synthesisModel,
+    relayGateway: overrides?.relayGateway,
+    integrationToolProvider: composioToolProvider,
+    agentMemory,
+  });
+  const getInvestigation = new GetInvestigationUseCase(incidentRepo, evidenceRepo);
+  const addInvestigationContext = new AddInvestigationContextUseCase({
+    incidentRepo,
+    evidenceRepo,
+    eventBus,
+    messageQueue,
+    investigationQueueUrl: config.sqs.investigationQueueUrl,
+  });
+  // Investigation mode registry — pluggable reasoning strategies.
+  // Orchestrator is default; hypothesis-driven mode is available for staff
+  // to toggle via the admin endpoint without a deploy.
+  const orchestratorMode = new OrchestratorMode(investigateIncident);
+  const hypothesisRepo = new DynamoHypothesisRepository();
+  const toolsetAdapter = new OrchestratorToolsetAdapter(investigateIncident);
+  const hypothesisMode = new HypothesisMode({
+    toolset: toolsetAdapter,
+    hypothesisRepo,
+    incidentRepo,
+    evidenceRepo,
+    eventBus,
+    agentRunner,
+    llmClient,
+    cloudProvider,
+    credentialVendor,
+    toolHandlerFactory: createToolHandler,
+    integrationToolProvider: composioToolProvider,
+    relayGateway: overrides?.relayGateway,
+    agentMemory,
+    seekerModel: config.anthropic.seekerModel,
+    seekerColdStartModel: config.anthropic.seekerColdStartModel,
+    validatorModel: config.anthropic.agentModels.orchestrator,
+    judgeModel: config.anthropic.synthesisModel,
+    metrics,
+  });
+  const debateMode = new DebateMode({
+    toolset: toolsetAdapter,
+    hypothesisRepo,
+    incidentRepo,
+    evidenceRepo,
+    eventBus,
+    agentRunner,
+    llmClient,
+    cloudProvider,
+    credentialVendor,
+    toolHandlerFactory: createToolHandler,
+    integrationToolProvider: composioToolProvider,
+    relayGateway: overrides?.relayGateway,
+    agentMemory,
+    seekerModel: config.anthropic.seekerModel,
+    seekerColdStartModel: config.anthropic.seekerColdStartModel,
+    advocateModel: config.anthropic.agentModels.orchestrator,
+    prosecutorModel: config.anthropic.agentModels.orchestrator,
+    judgeModel: config.anthropic.synthesisModel,
+    metrics,
+  });
+  const modeRegistry = new InvestigationModeRegistry([orchestratorMode, hypothesisMode, debateMode]);
+  const dispatchInvestigation = new DispatchInvestigationUseCase({
+    incidentRepo,
+    registry: modeRegistry,
+    metrics,
+  });
+  const investigationRegistry = new InvestigationRegistry();
+  const abortInvestigation = new AbortInvestigationUseCase(incidentRepo, eventBus, investigationRegistry);
+  const respondKnownSolution = new RespondKnownSolutionUseCase(incidentRepo, eventBus, runbookRegistry);
+  const recordInvestigationFeedback = new RecordInvestigationFeedbackUseCase(eventBus, agentMemory, runbookRegistry);
+  const chatInvestigation = new ChatInvestigationUseCase({
+    incidentRepo, evidenceRepo, agentRunner, agentMemory,
+    llmClient: llmClient as unknown as LLMClient,
+    chatHistory: new DynamoChatHistoryRepository(),
+    addInvestigationContext,
+    dispatchFollowupWorker: config.ecs.cluster ? async (iid, tid) => {
+      const { dispatchInvestigation } = await import('./shared/infra/ecs/task-dispatcher.js');
+      await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
+    } : undefined,
+  });
+  const listHypotheses = new ListHypothesesUseCase(hypothesisRepo);
+  const investigationUseCases: InvestigationUseCases = {
+    investigateIncident: dispatchInvestigation,
+    getInvestigation,
+    addInvestigationContext,
+    abortInvestigation,
+    respondKnownSolution,
+    recordInvestigationFeedback,
+    chatInvestigation,
+    listHypotheses,
+    evidenceRepo,
+    toolCallRepo,
+    incidentRepo,
+  };
+
+  // Notification Module
+  const notificationRepo = new DynamoNotificationRepository();
+  const approvalRepo = new DynamoApprovalRepository();
+  const sseManager = new SSEManager();
+
+  // Chat Platform (Web Portal replaces Stub)
+  const chatPlatform = new WebPortalChatPlatform(notificationRepo, approvalRepo, sseManager);
+
+  // Remediation Use Cases
+  const remediationRepo = new DynamoRemediationRepository();
+
+  const proposeRemediation = new ProposeRemediationUseCase(
+    remediationRepo,
+    incidentRepo,
+    eventBus,
+    chatPlatform,
+  );
+  const approveRemediation = new ApproveRemediationUseCase(remediationRepo, eventBus);
+  const rejectRemediation = new RejectRemediationUseCase(remediationRepo, incidentRepo, eventBus);
+  const executeRemediation = new ExecuteRemediationUseCase(
+    remediationRepo,
+    incidentRepo,
+    eventBus,
+    cloudProvider,
+    credentialVendor,
+  );
+  const getRemediation = new GetRemediationUseCase(remediationRepo);
+
+  const recordRemediationFeedback = new RecordRemediationFeedbackUseCase(eventBus, agentMemory);
+  const remediationUseCases: RemediationUseCases = {
+    proposeRemediation,
+    approveRemediation,
+    rejectRemediation,
+    executeRemediation,
+    getRemediation,
+    recordRemediationFeedback,
+  };
+
+  // Composio Triggers + Integration Use Cases
+  const triggerRepo = new DynamoTriggerRepository();
+  const composioTriggerService = new ComposioTriggerService();
+
+  const createTrigger = new CreateTriggerUseCase(triggerRepo, composioTriggerService, eventBus);
+  const deleteTrigger = new DeleteTriggerUseCase(triggerRepo, composioTriggerService, eventBus);
+  const listTriggers = new ListTriggersUseCase(triggerRepo);
+
+  const triggerUseCases: TriggerUseCases | undefined = config.composio.apiKey
+    ? { createTrigger, deleteTrigger, listTriggers, composioTriggerService }
+    : undefined;
+
+  const composioWebhookDeps: ComposioWebhookDeps | undefined = config.composio.apiKey
+    ? {
+        handleComposioWebhook: new HandleComposioWebhookUseCase(
+          new ComposioWebhookValidator(config.composio.webhookSecret),
+          triggerRepo,
+          webhookUseCases.ingestAlert,
+          eventBus,
+        ),
+      }
+    : undefined;
+
+  const connectCredential = new ConnectCredentialUseCase(tokenEncryption, eventBus);
+  const disconnectIntegration = new DisconnectIntegrationUseCase(eventBus);
+  const listAllIntegrations = new ListAllIntegrationsUseCase();
+
+  // Slack integration
+  const slackNotificationRepo = new SlackNotificationRepository();
+  const slackOAuthConfig = {
+    clientId: config.slack.clientId,
+    clientSecret: config.slack.clientSecret,
+    redirectUri: config.slack.redirectUri,
+  };
+  const connectSlack = new ConnectSlackUseCase(tenantRepo, slackOAuthConfig);
+  const disconnectSlack = new DisconnectSlackUseCase(tenantRepo);
+  const updateSlackConfig = new UpdateSlackConfigUseCase(tenantRepo);
+  const slackDeps = config.slack.clientId ? {
+    connectSlack,
+    disconnectSlack,
+    updateSlackConfig,
+    tenantRepo,
+    slackConfig: {
+      clientId: config.slack.clientId,
+      clientSecret: config.slack.clientSecret,
+      redirectUri: config.slack.redirectUri,
+      stateSecret: config.slack.stateSecret,
+    },
+  } : undefined;
+
+  const finalizeConnection = new FinalizeConnectionUseCase(eventBus);
+  const integrationUseCases: IntegrationUseCases = {
+    connectCredential,
+    disconnectIntegration,
+    listAllIntegrations,
+    getCloudIntegration,
+    composioToolProvider,
+    slackDeps,
+    finalizeConnection,
+    saveSentryClientSecret,
+    getSentryIntegrationStatus,
+  };
+
+  // Billing Use Cases (reuse early billing repo)
+  const billingAccountRepo = billingAccountRepoEarly;
+  const usageRecordRepo = new DynamoUsageRecordRepository();
+  const planCatalog = new StripePlanCatalogService();
+  const stripeCustomerService = config.stripe.secretKey ? new StripeCustomerService() : undefined;
+
+  const billingUseCases: BillingUseCases = {
+    createCheckout: new CreateCheckoutUseCase(tenantRepo, planCatalog),
+    createPortal: new CreatePortalUseCase(tenantRepo),
+    getSubscription: new GetSubscriptionUseCase(tenantRepo, billingAccountRepo, planCatalog),
+    handleWebhook: new HandleBillingWebhookUseCase(tenantRepo, planCatalog, billingAccountRepo),
+    getUsage: new GetUsageUseCase(billingAccountRepo, usageRecordRepo),
+    getCredits: new GetCreditsUseCase(billingAccountRepo),
+    signup: new SignupUseCase(tenantRepo, billingAccountRepo, eventBus, planCatalog),
+    purchaseQuotaPack: new PurchaseQuotaPackUseCase(billingAccountRepo, tenantRepo, planCatalog),
+    updateBillingSettings: new UpdateBillingSettingsUseCase(billingAccountRepo),
+    listPlans: new ListPlansUseCase(planCatalog),
+    upgradeSubscription: new UpgradeSubscriptionUseCase(tenantRepo, planCatalog, billingAccountRepo),
+    listInvoices: new ListInvoicesUseCase(tenantRepo),
+    cancelSubscription: new CancelSubscriptionUseCase(tenantRepo),
+    reactivateSubscription: new ReactivateSubscriptionUseCase(tenantRepo),
+    createSubscription: new CreateSubscriptionUseCase(tenantRepo, planCatalog),
+  };
+
+  // Auth Use Cases (Clerk webhook)
+  const userRepo = new DynamoUserRepository();
+  const authUseCases: AuthUseCases = {
+    handleClerkWebhook: new HandleClerkWebhookUseCase(tenantRepo, userRepo, stripeCustomerService, planCatalog, billingAccountRepo),
+  };
+
+  // User Use Cases
+  const inviteRepo = new DynamoInviteRepository();
+  const userUseCases: UserUseCases = {
+    createUser: new CreateUserUseCase(userRepo, eventBus),
+    listUsers: new ListUsersUseCase(userRepo),
+    updateUser: new UpdateUserUseCase(userRepo, eventBus),
+    deleteUser: new DeleteUserUseCase(userRepo, eventBus),
+    createInvite: new CreateInviteUseCase(inviteRepo, eventBus),
+    listInvites: new ListInvitesUseCase(inviteRepo),
+    revokeInvite: new RevokeInviteUseCase(inviteRepo, eventBus),
+    getSettings: new GetSettingsUseCase(userRepo, tenantRepo),
+    updateSettings: new UpdateSettingsUseCase(userRepo, tenantRepo),
+    getUserByEmail: new GetUserByEmailUseCase(userRepo),
+    acceptInvite: new AcceptInviteUseCase(inviteRepo, userRepo, eventBus),
+  };
+
+  // Memory Use Cases (Hindsight-backed)
+  const chatHistoryRepo = new DynamoChatHistoryRepository();
+  const memoryUseCases: MemoryUseCases = {
+    agentMemory,
+    runbookRegistry,
+    chatHistory: chatHistoryRepo,
+    chat: new ChatUseCase({
+      agentRunner,
+      llmClient,
+      cloudProvider,
+      credentialVendor,
+      agentMemory,
+      incidentRepo,
+      eventBus,
+      sseManager,
+      toolHandlerFactory: createToolHandler,
+      messageQueue,
+      investigationQueueUrl: config.sqs.investigationQueueUrl,
+      defaultRegion: config.aws.region,
+      chatHistory: chatHistoryRepo,
+      reserveInvestigation,
+    }),
+  };
+
+  // Notification Use Cases
+  const listNotifications = new ListNotificationsUseCase(notificationRepo);
+  const listPendingApprovals = new ListPendingApprovalsUseCase(approvalRepo);
+  const respondApproval = new RespondApprovalUseCase(approvalRepo, eventBus, {
+    onApprove: async (approval) => {
+      if (approval.remediationId) {
+        await approveRemediation.execute({
+          tenantId: approval.tenantId,
+          remediationId: approval.remediationId,
+          approvedBy: approval.respondedBy ?? 'web-portal',
+        });
+      }
+    },
+    onReject: async (approval) => {
+      if (approval.remediationId) {
+        await rejectRemediation.execute({
+          tenantId: approval.tenantId,
+          remediationId: approval.remediationId,
+          rejectedBy: approval.respondedBy ?? 'web-portal',
+          reason: `Rejected via web portal: ${approval.selectedAction ?? 'reject'}`,
+        });
+      }
+    },
+  });
+  const markNotificationRead = new MarkNotificationReadUseCase(notificationRepo);
+
+  const notificationUseCases: NotificationUseCases = {
+    listNotifications,
+    listPendingApprovals,
+    respondApproval,
+    markNotificationRead,
+    notificationRepo,
+    sseManager,
+  };
+
+  // === EventBus Wiring: Audit Trail ===
+  eventBus.subscribe('incident.created', async (event) => {
+    const actor = resolveIncidentCreatedActor(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'incident.created',
+      actorType: actor.actorType,
+      ...(actor.actorUserId ? { actorUserId: actor.actorUserId } : {}),
+      actorEmail: actor.actorEmail,
+      resourceType: 'incident',
+      resourceId: (event.payload['incidentId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+  eventBus.subscribe('incident.status_changed', async (event) => {
+    const actor = resolveIncidentStatusChangedActor(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'incident.status_changed',
+      actorType: actor.actorType,
+      ...(actor.actorUserId ? { actorUserId: actor.actorUserId } : {}),
+      actorEmail: actor.actorEmail,
+      resourceType: 'incident',
+      resourceId: (event.payload['incidentId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+  eventBus.subscribe('investigation.completed', async (event) => {
+    const actor = resolveInvestigationCompletedActor(event.payload);
+    // Defensively extract evidences from the event payload (future-proof: producers
+    // may not yet include this field; absence is safe — treated as no evidences).
+    const evidences = extractEvidencesFromPayload(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'investigation.completed',
+      actorType: actor.actorType,
+      actorEmail: actor.actorEmail,
+      resourceType: 'incident',
+      resourceId: (event.payload['incidentId'] as string) ?? '',
+      changes: event.payload,
+      ...(evidences !== undefined && { evidences }),
+    });
+  });
+
+  eventBus.subscribe('tenant.created', async (event) => {
+    const actor = resolveTenantActor(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'tenant.created',
+      actorType: actor.actorType,
+      ...(actor.actorUserId ? { actorUserId: actor.actorUserId } : {}),
+      actorEmail: actor.actorEmail,
+      resourceType: 'tenant',
+      resourceId: event.tenantId,
+      changes: event.payload,
+    });
+  });
+
+  eventBus.subscribe('tenant.updated', async (event) => {
+    const actor = resolveTenantActor(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'tenant.updated',
+      actorType: actor.actorType,
+      ...(actor.actorUserId ? { actorUserId: actor.actorUserId } : {}),
+      actorEmail: actor.actorEmail,
+      resourceType: 'tenant',
+      resourceId: event.tenantId,
+      changes: event.payload,
+    });
+  });
+
+  eventBus.subscribe('remediation.proposed', async (event) => {
+    const actor = resolveRemediationActor(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'remediation.proposed',
+      actorType: actor.actorType,
+      ...(actor.actorUserId ? { actorUserId: actor.actorUserId } : {}),
+      actorEmail: actor.actorEmail,
+      resourceType: 'remediation',
+      resourceId: (event.payload['remediationId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+  eventBus.subscribe('remediation.approved', async (event) => {
+    const actor = resolveRemediationApprovedActor(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'remediation.approved',
+      actorType: actor.actorType,
+      actorEmail: actor.actorEmail,
+      resourceType: 'remediation',
+      resourceId: (event.payload['remediationId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+  // Auto-execute remediation after approval
+  eventBus.subscribe('remediation.approved', async (event) => {
+    const rid = event.payload['remediationId'] as string;
+    if (!rid) return;
+    try {
+      await executeRemediation.execute({
+        tenantId: tenantId(event.tenantId),
+        remediationId: rid as RemediationId,
+      });
+    } catch (err) {
+      logger.error({ err, remediationId: rid }, 'Auto-execute after approval failed');
+    }
+  });
+
+  eventBus.subscribe('remediation.rejected', async (event) => {
+    const actor = resolveRemediationRejectedActor(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'remediation.rejected',
+      actorType: actor.actorType,
+      actorEmail: actor.actorEmail,
+      resourceType: 'remediation',
+      resourceId: (event.payload['remediationId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+  eventBus.subscribe('remediation.executed', async (event) => {
+    const actor = resolveRemediationActor(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'remediation.executed',
+      actorType: actor.actorType,
+      ...(actor.actorUserId ? { actorUserId: actor.actorUserId } : {}),
+      actorEmail: actor.actorEmail,
+      resourceType: 'remediation',
+      resourceId: (event.payload['remediationId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+
+  // === EventBus Wiring: Notification SSE Broadcasts ===
+  eventBus.subscribe('remediation.proposed', async (event) => {
+    await sseManager.broadcast(event.tenantId, {
+      event: 'remediation_proposed',
+      data: event.payload,
+    });
+  });
+
+  eventBus.subscribe('investigation.completed', async (event) => {
+    await sseManager.broadcast(event.tenantId, {
+      event: 'investigation_completed',
+      data: event.payload,
+    });
+  });
+
+  eventBus.subscribe('notification.approval_responded', async (event) => {
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'notification.approval_responded',
+      actorType: 'user',
+      actorEmail: (event.payload['respondedBy'] as string) ?? 'system@causeflow.ai',
+      resourceType: 'approval',
+      resourceId: (event.payload['approvalId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+
+  // === EventBus Wiring: Investigation Progress SSE ===
+  eventBus.subscribe('investigation.progress', async (event) => {
+    await sseManager.broadcast(event.tenantId, {
+      event: 'investigation_progress',
+      data: event.payload,
+    });
+  });
+
+  // === EventBus Wiring: Slack Notifications ===
+  const slackNotificationSubscriber = new SlackNotificationSubscriber(
+    tenantRepo,
+    incidentRepo,
+    slackNotificationRepo,
+    logger,
+  );
+  eventBus.subscribe('incident.created', async (event) => {
+    await slackNotificationSubscriber.onIncidentCreated(event);
+  });
+  eventBus.subscribe('investigation.completed', async (event) => {
+    await slackNotificationSubscriber.onInvestigationCompleted(event);
+  });
+  eventBus.subscribe('investigation.progress', async (event) => {
+    if (event.payload['stage'] === 'started') {
+      await slackNotificationSubscriber.onInvestigationStarted(event);
+    }
+  });
+
+  // === EventBus Wiring: Credential Audit Trail ===
+  eventBus.subscribe('credential.vended', async (event) => {
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'credential.vended',
+      actorType: 'system',
+      actorEmail: 'system@causeflow.ai',
+      resourceType: 'credential',
+      resourceId: (event.payload['incidentId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+  eventBus.subscribe('credential.revoked', async (event) => {
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'credential.revoked',
+      actorType: 'system',
+      actorEmail: 'system@causeflow.ai',
+      resourceType: 'credential',
+      resourceId: (event.payload['incidentId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+  // Analytics Use Cases
+  const analyticsUseCases: AnalyticsUseCases = {
+    getIncidentAnalytics: new GetIncidentAnalyticsUseCase(incidentRepo),
+  };
+
+  // API Key Use Cases
+  const apiKeyRepo = new DynamoApiKeyRepository();
+  const apiKeyUseCases: ApiKeyUseCases = {
+    createApiKey: new CreateApiKeyUseCase(apiKeyRepo, eventBus),
+    listApiKeys: new ListApiKeysUseCase(apiKeyRepo),
+    revokeApiKey: new RevokeApiKeyUseCase(apiKeyRepo, eventBus),
+  };
+
+  // === EventBus Wiring: API Key Audit Trail ===
+  eventBus.subscribe('apikey.created', async (event) => {
+    const actor = resolveApiKeyCreatedActor(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'apikey.created',
+      actorType: actor.actorType,
+      actorEmail: actor.actorEmail,
+      resourceType: 'api_key',
+      resourceId: (event.payload['keyId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+  eventBus.subscribe('apikey.revoked', async (event) => {
+    const actor = resolveApiKeyRevokedActor(event.payload);
+    await createAuditEntry.execute({
+      tenantId: tenantId(event.tenantId),
+      action: 'apikey.revoked',
+      actorType: actor.actorType,
+      actorEmail: actor.actorEmail,
+      resourceType: 'api_key',
+      resourceId: (event.payload['keyId'] as string) ?? '',
+      changes: event.payload,
+    });
+  });
+
+  // === Health Checker ===
+  const healthChecker = new HealthChecker();
+  healthChecker.register(new DynamoDBHealthCheck());
+  healthChecker.register(new RedisHealthCheck(() => getRedisClient()));
+  healthChecker.register(new SQSHealthCheck([config.sqs.alertQueueUrl, config.sqs.investigationQueueUrl, config.sqs.remediationQueueUrl]));
+
+  // === In-Process Fallback (dev without SQS) ===
+  // When SQS is not configured, wire EventBus to dispatch the pipeline in-process.
+  // This ensures the full flow works in dev without docker-compose.
+  const sqsConfigured = !!(config.sqs.alertQueueUrl && config.sqs.investigationQueueUrl && config.sqs.remediationQueueUrl);
+
+  if (!sqsConfigured && !config.isProd()) {
+    logger.info('[STARTUP] SQS not configured — enabling in-process pipeline fallback');
+
+    // incident.created → triage (replaces alert queue consumer)
+    eventBus.subscribe('incident.created', async (event) => {
+      if (!config.anthropic.apiKey) return;
+      try {
+        await triageIncident.execute(
+          tenantId(event.tenantId),
+          incidentId((event.payload['incidentId'] as string) ?? ''),
+        );
+      } catch (err) {
+        logger.error({ err, event }, 'In-process triage failed');
+      }
+    });
+
+    // incident.status_changed (to triaging) → investigation (replaces investigation queue consumer)
+    eventBus.subscribe('incident.status_changed', async (event) => {
+      if (!config.anthropic.apiKey) return;
+      if (event.payload['to'] !== 'triaging') return;
+      const iid = (event.payload['incidentId'] as string) ?? '';
+      const incident = await incidentRepo.findById(tenantId(event.tenantId), incidentId(iid));
+      if (!incident) return;
+      const sevRank: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
+      const threshold = sevRank[config.triage.minInvestigationSeverity] ?? 1;
+      if ((sevRank[incident.severity] ?? 4) > threshold) return;
+      try {
+        await dispatchInvestigation.execute({
+          tenantId: tenantId(event.tenantId),
+          incidentId: incidentId(iid),
+          suggestedAgents: incident.assignedAgents ?? ['log_analyst', 'metric_analyst', 'infra_inspector'],
+        });
+      } catch (err) {
+        logger.error({ err, event }, 'In-process investigation failed');
+      }
+    });
+
+    // investigation.completed → propose remediation (manual approval)
+    eventBus.subscribe('investigation.completed', async (event) => {
+      const iid = (event.payload['incidentId'] as string) ?? '';
+      const tid = tenantId(event.tenantId);
+      const iidTyped = incidentId(iid);
+
+      const incident = await incidentRepo.findById(tid, iidTyped);
+      if (!incident) return;
+      const rootCause = (event.payload['rootCause'] as string) ?? '';
+      const actions = (event.payload['recommendedActions'] as StructuredAction[]) ?? [];
+      if (actions.length === 0) return;
+      const proposedFix = event.payload['proposedFix'] as ProposedFix | undefined;
+      try {
+        await proposeRemediation.execute({
+          tenantId: tid,
+          incidentId: iidTyped,
+          rootCause,
+          recommendedActions: actions,
+          proposedFix,
+        });
+      } catch (err) {
+        logger.error({ err, event }, 'In-process propose remediation failed');
+      }
+    });
+  }
+
+  // === EventBus Wiring: GitHub/Composio Change Events → Hindsight Memory ===
+  eventBus.subscribe('graph.change_added', async (event) => {
+    const tid = event.tenantId;
+    const payload = event.payload;
+    const changeType = (payload['changeType'] as string) ?? 'unknown';
+    const description = (payload['description'] as string) ?? '';
+    const source = (payload['source'] as string) ?? '';
+    const metadata = (payload['metadata'] as Record<string, unknown>) ?? {};
+    const serviceId = (payload['serviceId'] as string) ?? 'unknown';
+
+    const content = `[CHANGE] ${description}. ` +
+      `Service: ${serviceId}, type: ${changeType}, source: ${source}. ` +
+      (metadata['branch'] ? `Branch: ${metadata['branch'] as string}. ` : '') +
+      (metadata['commitSha'] ? `Commit: ${(metadata['commitSha'] as string).slice(0, 8)}. ` : '') +
+      (metadata['prNumber'] ? `PR #${metadata['prNumber'] as number}. ` : '') +
+      (metadata['merged'] === true ? 'Merged to production. ' : '');
+
+    try {
+      await agentMemory.retain(tid, content, {
+        tags: ['change', changeType, `service:${serviceId}`, source],
+        context: `change:${payload['changeId'] as string ?? event.occurredAt}`,
+        metadata: {
+          serviceId,
+          changeType,
+          ...Object.fromEntries(Object.entries(metadata).map(([k, v]) => [k, String(v)])),
+        },
+      });
+      logger.info({ tenantId: tid, serviceId, changeType }, 'Change event retained in Hindsight memory');
+    } catch (err) {
+      logger.warn({ err, tenantId: tid }, 'Failed to retain change event in memory — non-critical');
+    }
+  });
+
+  // Queue consumer startup with environment-aware validation
+  const consumers: ConsumerHandle[] = [];
+
+  function startQueueConsumer(name: string, url: string | undefined, requiresApiKey: boolean, start: (url: string) => ConsumerHandle): void {
+    if (!url) {
+      if (config.isProd()) {
+        throw new Error(`[FATAL] ${name} queue URL required in production`);
+      }
+      logger.warn(`[STARTUP] ${name} consumer disabled - queue URL not configured`);
+      return;
+    }
+    if (requiresApiKey && !config.anthropic.apiKey) {
+      logger.warn(`[STARTUP] ${name} consumer disabled - ANTHROPIC_API_KEY not set`);
+      return;
+    }
+    logger.info(`[STARTUP] ${name} consumer starting`);
+    consumers.push(start(url));
+  }
+
+  startQueueConsumer('triage', config.sqs.alertQueueUrl, true, (url) => {
+    return startTriageConsumer(url, triageIncident);
+  });
+
+  startQueueConsumer('investigation', config.sqs.investigationQueueUrl, true, (url) => {
+    return startInvestigationConsumer(url);
+  });
+
+  startQueueConsumer('remediation', config.sqs.remediationQueueUrl, false, (url) => {
+    return startRemediationConsumer(url, proposeRemediation);
+  });
+
+  startQueueConsumer('progress', config.sqs.progressQueueUrl, false, (url) => {
+    return startProgressConsumer(url, sseManager);
+  });
+
+  // Register Composio webhook subscription if apiKey is configured
+  if (config.composio.apiKey) {
+    const webhookUrl = config.composio.webhookUrl ||
+      `${process.env['APP_BASE_URL'] ?? 'https://api.causeflow.io'}/webhooks/composio`;
+    composioTriggerService.registerWebhookSubscription(webhookUrl)
+      .then(({ registered, url }) => {
+        if (registered) {
+          logger.info({ url }, 'composio.webhook.registered');
+        } else {
+          logger.info({ url }, 'composio.webhook.already_registered');
+        }
+      })
+      .catch((err) => {
+        logger.warn({ err: err instanceof Error ? err.message : err }, 'composio.webhook.registration_failed');
+      });
+  }
+
+  return {
+    eventBus,
+    providerRegistry,
+    tenantUseCases,
+    auditUseCases,
+    createAuditEntry,
+    webhookUseCases,
+    incidentUseCases,
+    triageUseCases,
+    investigationUseCases,
+    remediationUseCases,
+    notificationUseCases,
+    analyticsUseCases,
+    adminDeps: { incidentRepo, ingestAlert: webhookUseCases.ingestAlert },
+    apiKeyUseCases,
+    codeKnowledgeUseCases,
+    relayGateway: overrides?.relayGateway,
+    sseManager,
+    healthChecker,
+    consumers,
+    corsOrigins: config.cors.allowedOrigins,
+    billingUseCases,
+    integrationUseCases,
+    triggerUseCases,
+    composioWebhookDeps,
+    authUseCases,
+    userUseCases,
+    memoryUseCases,
+  };
+}

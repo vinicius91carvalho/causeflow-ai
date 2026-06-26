@@ -1,0 +1,128 @@
+---
+title: "Chat history"
+api: "GET /v1/memory/chat/history"
+description: "Retrieve past memory chat sessions and message history."
+---
+
+## Overview
+
+Returns a list of past chat sessions with the CauseFlow AI assistant. Each session contains the full message thread. Useful for reviewing previous analyses and sharing context with teammates.
+
+**Required role:** `admin` or `member`
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="sessionId" type="string">
+  Retrieve a specific session's messages. If omitted, returns a list of session summaries.
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  Maximum number of sessions (or messages within a session) to return. Default: `20`. Maximum: `100`.
+</ParamField>
+
+<ParamField query="cursor" type="string">
+  Pagination cursor from a previous response.
+</ParamField>
+
+## Response
+
+Returns `200 OK`.
+
+**Session list (no `sessionId`):**
+
+```json
+{
+  "items": [
+    {
+      "sessionId": "sess_01HX9VTPQR3KF8MZWBYD5N6JCE",
+      "summary": "Root cause analysis for checkout 503 incidents",
+      "messageCount": 6,
+      "lastMessageAt": "2024-04-01T16:05:00Z"
+    }
+  ],
+  "nextCursor": null
+}
+```
+
+**Session messages (`?sessionId=...`):**
+
+```json
+{
+  "sessionId": "sess_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "messages": [
+    {
+      "messageId": "msg_01HX9VTPQR3KF8MZWBYD5N6JCE",
+      "role": "user",
+      "content": "What caused the checkout 503 errors this morning?",
+      "timestamp": "2024-04-01T16:00:00Z"
+    },
+    {
+      "messageId": "msg_01HX9VTPQR3KF8MZWBYD5N6JCF",
+      "role": "assistant",
+      "content": "The root cause was a connection pool exhaustion triggered by the 14:25 deploy...",
+      "timestamp": "2024-04-01T16:00:02Z"
+    }
+  ]
+}
+```
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `401` | `unauthorized` | Missing or invalid JWT |
+| `403` | `forbidden` | Caller lacks required role |
+| `404` | `session_not_found` | No session with the given `sessionId` |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+# List sessions
+curl "https://api.causeflow.ai/v1/memory/chat/history" \
+  -H "Authorization: Bearer eyJhbGc..."
+
+# Get messages for a session
+curl "https://api.causeflow.ai/v1/memory/chat/history?sessionId=sess_01HX9VTPQR3KF8MZWBYD5N6JCE" \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+```typescript TypeScript
+// List sessions
+const sessionsResp = await fetch(
+  "https://api.causeflow.ai/v1/memory/chat/history",
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+const { items } = await sessionsResp.json();
+
+// Get messages for the latest session
+if (items.length > 0) {
+  const params = new URLSearchParams({ sessionId: items[0].sessionId });
+  const msgResp = await fetch(
+    `https://api.causeflow.ai/v1/memory/chat/history?${params}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  const { messages } = await msgResp.json();
+  messages.forEach((m: { role: string; content: string }) =>
+    console.log(`[${m.role}] ${m.content}`)
+  );
+}
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Chat with memory" href="/api-reference/memory/chat">
+    Start or continue a conversation
+  </Card>
+  <Card title="Memory insights" href="/api-reference/memory/insights">
+    AI-generated insights from your history
+  </Card>
+</CardGroup>

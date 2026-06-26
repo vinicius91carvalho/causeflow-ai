@@ -1,0 +1,86 @@
+---
+title: "How it works"
+description: "A high-level look at how CauseFlow AI investigates incidents from alert to resolution."
+---
+
+CauseFlow turns a raw monitoring alert into a root cause analysis and remediation proposal — without requiring manual investigation. Here is what happens at each stage.
+
+## 1. Alert ingestion
+
+CauseFlow receives alerts via webhooks from your connected monitoring tools, or through incidents created manually from the dashboard, via the chat interface, or through third-party triggers (Sentry, GitHub, PagerDuty).
+
+Each incoming alert is validated, deduplicated, and stored as an incident record ready for analysis. Duplicate alerts with the same source ID are silently discarded.
+
+See [Integrations](/integrations/overview) for setup instructions.
+
+---
+
+## 2. AI analysis
+
+CauseFlow's AI analyzes the alert and classifies its severity. Based on the incident type and your connected integrations, it gathers evidence from the relevant data sources — logs, metrics, infrastructure state, recent code changes, and database health.
+
+AI triage typically completes in 5 to 30 seconds. The full multi-agent investigation — logs, metrics, infrastructure state, and code analysis running in parallel — typically completes in 1 to 5 minutes.
+
+<Note>
+  **Known solution short-circuit.** Before starting a full investigation, CauseFlow checks its memory for past incidents with a similar signature. If a high-confidence match is found (85% or above), CauseFlow skips the full agent pipeline and applies the known solution immediately. This brings resolution time from minutes down to seconds for repeat incidents and does not consume additional AI analysis cost.
+</Note>
+
+---
+
+## 3. Root cause report
+
+Once the analysis is complete, CauseFlow produces a unified root cause report that includes:
+
+- **Root cause explanation** — a plain-language description of why the incident occurred
+- **Confidence score** — a measure of how well the evidence supports the conclusion
+- **Supporting evidence** — citations from the analysis findings
+
+---
+
+## 4. Remediation
+
+CauseFlow proposes one or more specific actions to resolve the incident. Examples:
+
+- Restart a service or container
+- Rollback a deployment to a previous version
+- Scale a resource (increase instance count, adjust memory limits)
+- Create a pull request with a targeted code fix
+
+<Warning>
+  Remediations never execute automatically unless you explicitly enable auto-remediation in your settings. By default, every action requires human approval before it runs.
+</Warning>
+
+Review proposed remediations on the incident detail page. Each action shows what it will do and the evidence supporting it. You can approve, reject, or request additional investigation before deciding.
+
+---
+
+## 5. Learning
+
+After an incident is resolved, CauseFlow extracts a **pattern** from the investigation. Patterns capture the relationship between alert signals and root causes.
+
+Patterns are matched against future incidents to accelerate analysis and surface known solutions. They improve in accuracy over time as your team resolves more incidents and provides feedback.
+
+---
+
+## How the AI gets its answers
+
+CauseFlow runs multiple AI agents in parallel, each focused on one category of data — logs, metrics, infrastructure, code history, and databases. Each agent queries real data from your connected systems using temporary, least-privilege credentials, then summarizes its findings. A synthesis step combines all findings into a single root cause conclusion.
+
+For incidents that follow an unusual or complex pattern, CauseFlow can alternatively run a single AI agent that carries a full view of all available tools and drives its own investigation step by step. Both approaches produce the same output — a root cause, confidence score, and recommended actions — and the choice is made automatically based on incident characteristics and your configuration.
+
+---
+
+<CardGroup cols={2}>
+  <Card title="AI transparency" icon="eye" href="/getting-started/ai-transparency">
+    Which models run, what they access, and how every decision is made.
+  </Card>
+  <Card title="Key concepts" icon="book" href="/getting-started/key-concepts">
+    Definitions for incidents, agents, skills, memory, triggers, and more.
+  </Card>
+  <Card title="Skills" icon="wand-magic-sparkles" href="/getting-started/skills">
+    Customize how CauseFlow investigates your specific systems.
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/getting-started/quickstart">
+    Set up your first integration and trigger your first investigation.
+  </Card>
+</CardGroup>

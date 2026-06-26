@@ -1,0 +1,64 @@
+{
+  "prd_id": "2026-04-07_1838-dashboard-ui-polish",
+  "prd_title": "Dashboard Fixes: Clerk, Confetti, Integrations, Overview Branching",
+  "created_at": "2026-04-07T18:38:00Z",
+  "status": "build_candidate",
+  "build_candidate_tag": null,
+  "current_sprint": null,
+  "sprints": [
+    {
+      "id": "01-ui-polish-fixes",
+      "title": "Clerk invite colors + OTP centering + end-of-tutorial confetti",
+      "status": "complete",
+      "depends_on": [],
+      "files_to_create": [],
+      "files_to_modify": [
+        "apps/dashboard/src/styles/clerk-overrides.css",
+        "apps/dashboard/src/contexts/shared/lib/confetti.ts"
+      ],
+      "files_read_only": [
+        "packages/ui/src/themes/original/tokens/light.css",
+        "packages/ui/src/themes/original/tokens/dark.css"
+      ],
+      "shared_contracts": []
+    },
+    {
+      "id": "02-integrations-fixes",
+      "title": "AWS setup hint + Test Connection toast + hide OAuth reconfigure button",
+      "status": "complete",
+      "depends_on": [],
+      "files_to_create": [],
+      "files_to_modify": [
+        "apps/dashboard/src/contexts/integrations/infrastructure/i18n/en.json",
+        "apps/dashboard/src/contexts/integrations/infrastructure/i18n/pt-br.json",
+        "apps/dashboard/src/contexts/integrations/presentation/components/integration-card.tsx",
+        "apps/dashboard/src/contexts/integrations/presentation/components/integrations-client.tsx"
+      ],
+      "files_read_only": [
+        "apps/dashboard/src/contexts/integrations/presentation/components/connection-modal.tsx",
+        "apps/dashboard/src/contexts/integrations/domain/types.ts"
+      ],
+      "shared_contracts": []
+    },
+    {
+      "id": "03-overview-branching-bug",
+      "title": "Fix /api/integrations response extraction in DashboardOverview",
+      "status": "complete",
+      "depends_on": [],
+      "files_to_create": [
+        "apps/dashboard/src/contexts/shared/presentation/components/dashboard-overview.test.tsx"
+      ],
+      "files_to_modify": [
+        "apps/dashboard/src/contexts/shared/presentation/components/dashboard-overview.tsx",
+        "apps/dashboard/src/contexts/integrations/api/integrations-handler.ts",
+        "tests/dashboard/dashboard-overview.spec.ts"
+      ],
+      "files_read_only": [
+        "apps/dashboard/src/contexts/shared/presentation/lib/empty-state-branch.ts"
+      ],
+      "shared_contracts": [
+        "GET /api/integrations response shape: { integrations: ApiIntegration[] }"
+      ]
+    }
+  ]
+}

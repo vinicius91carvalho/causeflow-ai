@@ -1,0 +1,147 @@
+---
+title: "Export audit log"
+api: "POST /v1/audit/export"
+description: "Request an asynchronous export of the audit log for compliance or archiving."
+---
+
+## Overview
+
+Triggers an asynchronous export of your tenant's audit log. Exports are delivered as a compressed NDJSON file to the specified destination. Large exports may take several minutes to generate.
+
+**Required role:** `admin`
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Request body
+
+<ParamField body="format" type="string" required>
+  Export format. One of: `ndjson`, `csv`.
+</ParamField>
+
+<ParamField body="from" type="string" required>
+  ISO 8601 start timestamp (inclusive). Must be within your plan's retention window.
+</ParamField>
+
+<ParamField body="to" type="string" required>
+  ISO 8601 end timestamp (inclusive).
+</ParamField>
+
+<ParamField body="destination" type="object">
+  Optional delivery destination. If omitted, the export is available via a signed download URL in the response. For S3: `{ "type": "s3", "bucket": "...", "prefix": "..." }`.
+</ParamField>
+
+<ParamField body="filters" type="object">
+  Optional filters to apply. Same filter keys as [List audit log](/api-reference/audit/list): `actorType`, `action`, `incidentId`.
+</ParamField>
+
+## Response
+
+Returns `202 Accepted` — the export is queued.
+
+```json
+{
+  "exportId": "exp_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "status": "queued",
+  "estimatedRows": 18420,
+  "format": "ndjson",
+  "submittedAt": "2024-04-01T14:30:00Z",
+  "downloadUrl": null
+}
+```
+
+Poll `GET /v1/audit/export/{exportId}` until `status` is `completed`:
+
+```json
+{
+  "exportId": "exp_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "status": "completed",
+  "rowCount": 18420,
+  "downloadUrl": "https://exports.causeflow.ai/signed/exp_01HX9VTPQR...?expires=...",
+  "downloadUrlExpiresAt": "2024-04-01T16:30:00Z",
+  "completedAt": "2024-04-01T14:34:22Z"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `exportId` | string | Unique export job identifier |
+| `status` | string | Job status: `queued`, `running`, `completed`, `failed` |
+| `downloadUrl` | string | Signed URL to download the export file. `null` until completed |
+| `downloadUrlExpiresAt` | string | Expiry for the signed download URL (2 hours from completion) |
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `400` | `validation_error` | Invalid date range or format |
+| `401` | `unauthorized` | Missing or invalid JWT |
+| `403` | `forbidden` | Caller lacks `admin` role |
+| `400` | `range_exceeds_retention` | Requested date range exceeds plan retention window |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+# Submit export
+curl https://api.causeflow.ai/v1/audit/export \
+  -X POST \
+  -H "Authorization: Bearer eyJhbGc..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "format": "ndjson",
+    "from": "2024-03-01T00:00:00Z",
+    "to": "2024-04-01T00:00:00Z"
+  }'
+
+# Poll status
+curl https://api.causeflow.ai/v1/audit/export/exp_01HX9VTPQR3KF8MZWBYD5N6JCE \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+```typescript TypeScript
+// Submit export
+const submit = await fetch("https://api.causeflow.ai/v1/audit/export", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    format: "ndjson",
+    from: "2024-03-01T00:00:00Z",
+    to: "2024-04-01T00:00:00Z",
+  }),
+});
+const { exportId } = await submit.json();
+
+// Poll for completion
+let exportResult;
+do {
+  await new Promise((r) => setTimeout(r, 5000));
+  const poll = await fetch(
+    `https://api.causeflow.ai/v1/audit/export/${exportId}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  exportResult = await poll.json();
+} while (exportResult.status !== "completed" && exportResult.status !== "failed");
+
+if (exportResult.status === "completed") {
+  console.log("Download:", exportResult.downloadUrl);
+}
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="List audit log" href="/api-reference/audit/list">
+    Browse audit entries interactively
+  </Card>
+  <Card title="Verify integrity" href="/api-reference/audit/verify">
+    Verify tamper-evidence hashes
+  </Card>
+</CardGroup>

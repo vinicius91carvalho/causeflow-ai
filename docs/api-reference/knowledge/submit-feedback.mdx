@@ -1,0 +1,111 @@
+---
+title: "Submit feedback"
+api: "POST /v1/knowledge/feedback"
+description: "Submit feedback on an investigation result to improve future accuracy."
+---
+
+## Overview
+
+Submits human feedback on an AI-generated root cause analysis. Feedback directly influences the confidence scores of existing patterns and may generate new patterns over time. This is the primary mechanism for closing the learning loop — confirmed root causes strengthen pattern confidence, while rejections reduce it.
+
+**Required role:** `admin` or `member`
+
+## Request body
+
+<ParamField body="incidentId" type="string" required>
+  The identifier of the incident whose investigation result you are providing feedback on.
+</ParamField>
+
+<ParamField body="patternId" type="string">
+  The identifier of the specific pattern you are confirming, rejecting, or correcting. Omit if no pattern was matched or if you are providing free-form feedback only.
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  The type of feedback. One of:
+
+  - `confirm_rca` — the AI's root cause analysis was correct
+  - `reject_rca` — the AI's root cause analysis was incorrect
+  - `correct_rca` — the AI was partially correct; use `comment` to describe the true root cause
+</ParamField>
+
+<ParamField body="comment" type="string">
+  Optional free-form text. Required when `type` is `correct_rca` — describe the actual root cause so the system can learn from the correction.
+</ParamField>
+
+## Response
+
+Returns `201 Created` confirming the feedback was recorded and indicating the updated confidence score.
+
+```json
+{
+  "feedbackId": "fbk_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "incidentId": "inc_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "patternId": "pat_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "type": "confirm_rca",
+  "updatedConfidence": 0.97,
+  "createdAt": "2024-04-01T15:00:00Z"
+}
+```
+
+| Field               | Type   | Description                                                              |
+| ------------------- | ------ | ------------------------------------------------------------------------ |
+| `feedbackId`        | string | Unique identifier for the submitted feedback record                      |
+| `incidentId`        | string | The incident this feedback applies to                                    |
+| `patternId`         | string | The pattern whose confidence was updated. `null` if no pattern matched   |
+| `type`              | string | The feedback type as submitted                                           |
+| `updatedConfidence` | number | New confidence score for the pattern after applying this feedback        |
+| `createdAt`         | string | ISO 8601 timestamp when the feedback was recorded                        |
+
+### Error responses
+
+| Status | Error code         | Description                                                            |
+| ------ | ------------------ | ---------------------------------------------------------------------- |
+| `400`  | `validation_error` | `incidentId` or `type` is missing, or `type` is not a valid value      |
+| `400`  | `comment_required` | `type` is `correct_rca` but no `comment` was provided                  |
+| `404`  | `not_found`        | The specified `incidentId` or `patternId` does not exist               |
+
+<Note>
+  Submitting `correct_rca` feedback with a detailed `comment` is the most valuable signal you can provide. The AI uses correction comments to refine its understanding of failure signatures that it previously misclassified.
+</Note>
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+# Confirm a correct root cause analysis
+curl https://api.causeflow.ai/v1/knowledge/feedback \
+  -X POST \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "incidentId": "inc_01HX9VTPQR3KF8MZWBYD5N6JCE",
+    "patternId": "pat_01HX9VTPQR3KF8MZWBYD5N6JCE",
+    "type": "confirm_rca"
+  }'
+```
+
+```typescript TypeScript
+// Example: submit a correction with the true root cause
+const response = await fetch("https://api.causeflow.ai/v1/knowledge/feedback", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    incidentId: "inc_01HX9VTPQR3KF8MZWBYD5N6JCE",
+    patternId: "pat_01HX9VTPQR3KF8MZWBYD5N6JCE",
+    type: "correct_rca",
+    comment:
+      "The root cause was not connection pool exhaustion — it was a misconfigured read replica endpoint after the 14:25 deployment. The pool appeared exhausted because requests were timing out waiting for a non-existent replica.",
+  }),
+});
+
+const feedback = await response.json();
+console.log(
+  `Feedback recorded. Pattern confidence updated to: ${feedback.updatedConfidence}`
+);
+```
+
+</CodeGroup>

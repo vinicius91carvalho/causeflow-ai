@@ -1,0 +1,370 @@
+---
+title: "Monitoring integrations"
+sidebarTitle: "Monitoring"
+description: "Connect Datadog, Grafana, CloudWatch, Sentry, PagerDuty, and New Relic to automatically ingest alerts and trigger investigations."
+---
+
+Monitoring integrations work by sending alerts to CauseFlow via webhooks. When an alert arrives, CauseFlow immediately triages it and — depending on severity — dispatches specialized agents to investigate root cause, inspect infrastructure, and propose a fix.
+
+## How it works
+
+Every monitoring integration uses the same inbound webhook path. CauseFlow parses each provider's native alert format, normalizes it into a single incident shape, and runs the same investigation pipeline regardless of source.
+
+## Required information
+
+| Item | Where to find it |
+|---|---|
+| **Tenant ID** | **Settings > General** |
+| **API key** | **Settings > API Keys > Create key** |
+| **Webhook secret** | Generated alongside the API key; used for HMAC-SHA256 signature verification |
+
+## Webhook endpoint
+
+```
+POST https://api.causeflow.ai/v1/webhooks/{tenantId}/{provider}
+```
+
+Replace `{tenantId}` with your tenant ID and `{provider}` with the provider slug for your tool (see provider-specific sections below).
+
+## Authentication
+
+Every webhook request must include two headers:
+
+| Header | Description |
+|---|---|
+| `X-API-Key` | Your CauseFlow API key |
+| `X-Webhook-Signature` | HMAC-SHA256 signature of the raw request body, signed with your webhook secret |
+
+CauseFlow verifies both headers on every request. Requests missing either header are rejected with `401 Unauthorized`.
+
+## General setup steps
+
+<Steps>
+  <Step title="Create an API key">
+    Go to **Settings > API Keys** and click **Create key**. Give it a descriptive name (for example, "Datadog monitoring"). Copy the key — it will not be shown again.
+  </Step>
+  <Step title="Note your webhook secret">
+    When you create the API key, CauseFlow also generates a webhook secret for HMAC signature verification. Copy it too.
+  </Step>
+  <Step title="Configure the webhook in your monitoring tool">
+    Use the webhook URL for your provider and add the required headers. See the provider-specific sections below.
+  </Step>
+  <Step title="Test the connection">
+    Send a test alert from your monitoring tool. The incoming event should appear in **Dashboard > Incidents** within a few seconds.
+  </Step>
+</Steps>
+
+## Deduplication
+
+CauseFlow deduplicates alerts using the `sourceAlertId` field in the normalized payload. Duplicate alerts return `409 Conflict` — the original incident remains open and is not duplicated.
+
+---
+
+## Provider setup
+
+<Tabs>
+  <Tab title="Datadog">
+    **Provider slug:** `datadog`
+
+    **Webhook URL:** `https://api.causeflow.ai/v1/webhooks/{tenantId}/datadog`
+
+    ### How it works
+
+    CauseFlow receives Datadog monitor alerts as webhook notifications. When a monitor triggers, Datadog sends a JSON payload to your CauseFlow webhook URL. CauseFlow parses the Datadog format and creates an incident immediately.
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Create an API key">
+        Go to **Settings > API Keys** and click **Create key**. Name it "Datadog webhook".
+      </Step>
+      <Step title="Open Datadog webhooks">
+        In Datadog, go to **Integrations > Webhooks** and click **New**.
+      </Step>
+      <Step title="Set the webhook URL">
+        Enter your CauseFlow Datadog webhook URL.
+      </Step>
+      <Step title="Add custom headers">
+        Under **Custom Headers**, add:
+        - `X-API-Key`: your CauseFlow API key
+      </Step>
+      <Step title="Set the payload">
+        Use the default Datadog JSON payload template. CauseFlow accepts the standard Datadog monitor notification format.
+      </Step>
+      <Step title="Test and save">
+        Click **Test** from any active monitor, then save the webhook.
+      </Step>
+    </Steps>
+
+    **Example Datadog payload:**
+
+    ```json
+    {
+      "alert_id": "12345678",
+      "title": "High error rate on payment-service",
+      "text": "Error rate exceeded 5% threshold for 5 minutes.",
+      "alert_type": "error",
+      "priority": "P1",
+      "tags": "env:production,service:payment-service,team:platform"
+    }
+    ```
+
+    ### What this enables
+
+    - Automatic incident creation when monitors fire
+    - Metric and log context from Datadog during investigation (if your AWS CloudWatch is also connected)
+    - Alert deduplication based on Datadog's `alert_id`
+
+    ### Troubleshooting
+
+    **Alerts not appearing:** Confirm the `X-API-Key` header is present and correct. Datadog does not support HMAC-signed payloads natively — the `X-Webhook-Signature` header is not required for Datadog. Contact [support@causeflow.ai](mailto:support@causeflow.ai) if you need signature enforcement for Datadog.
+
+    **Duplicate incidents:** Check that the same monitor is not sending to multiple CauseFlow webhook URLs.
+  </Tab>
+
+  <Tab title="Grafana">
+    **Provider slug:** `grafana`
+
+    **Webhook URL:** `https://api.causeflow.ai/v1/webhooks/{tenantId}/grafana`
+
+    ### How it works
+
+    CauseFlow registers as a Grafana contact point. When an alert rule fires, Grafana sends a notification to your CauseFlow webhook URL. CauseFlow parses the Grafana alerting format and creates an incident.
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Create an API key">
+        Go to **Settings > API Keys** and click **Create key**. Name it "Grafana webhook".
+      </Step>
+      <Step title="Open Grafana contact points">
+        In Grafana, go to **Alerting > Contact points** and click **Add contact point**.
+      </Step>
+      <Step title="Select Webhook type">
+        Choose **Webhook** as the contact point type.
+      </Step>
+      <Step title="Set the URL and headers">
+        Enter your CauseFlow Grafana webhook URL. Under **Optional webhook settings**, add HTTP headers:
+        - `X-API-Key`: your CauseFlow API key
+        - `X-Webhook-Signature`: your HMAC-SHA256 signature
+      </Step>
+      <Step title="Test the contact point">
+        Click **Test** to send a test notification and confirm the connection.
+      </Step>
+      <Step title="Attach to notification policies">
+        Add the contact point to an alert rule via a notification policy so it receives real alerts.
+      </Step>
+    </Steps>
+
+    ### What this enables
+
+    - Automatic incident creation when Grafana alert rules fire
+    - Integration with Grafana OnCall by adding CauseFlow as an outgoing webhook in your OnCall integration settings
+
+    ### Troubleshooting
+
+    **`401 Unauthorized`:** Confirm both `X-API-Key` and `X-Webhook-Signature` headers are present. For the HMAC signature, sign the raw request body with your webhook secret using HMAC-SHA256.
+
+    **Grafana OnCall not triggering:** Add the webhook contact point as an outgoing webhook in **Grafana OnCall > Integrations > Outgoing webhooks**.
+  </Tab>
+
+  <Tab title="CloudWatch">
+    **Provider slug:** `cloudwatch`
+
+    **Webhook URL:** `https://api.causeflow.ai/v1/webhooks/{tenantId}/cloudwatch`
+
+    ### How it works
+
+    CauseFlow receives CloudWatch alarms via Amazon SNS HTTP subscriptions. Your CloudWatch alarm notifies an SNS topic, and the topic delivers the notification to CauseFlow via an HTTPS subscription.
+
+    <Note>
+      To use CloudWatch as a monitoring trigger, you must also complete the [AWS cloud provider setup](/integrations/cloud-providers#aws). The cloud provider connection gives CauseFlow the read-only IAM role it needs to pull logs and metrics during investigation.
+    </Note>
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Create an API key">
+        Go to **Settings > API Keys** and click **Create key**. Name it "CloudWatch webhook".
+      </Step>
+      <Step title="Create an SNS topic">
+        In your AWS account, create an SNS topic (or use an existing topic connected to your CloudWatch alarms).
+      </Step>
+      <Step title="Create an HTTPS subscription">
+        Create an HTTPS subscription on the topic with the endpoint set to your CauseFlow CloudWatch webhook URL. CauseFlow automatically confirms the SNS subscription when the confirmation request arrives.
+      </Step>
+      <Step title="Add the API key header">
+        SNS HTTPS subscriptions do not support custom headers natively. For production use, deploy a lightweight proxy (AWS Lambda or API Gateway) that adds the `X-API-Key` header before forwarding to CauseFlow.
+      </Step>
+      <Step title="Connect CloudWatch alarms to the SNS topic">
+        In CloudWatch, edit your alarm actions to notify the SNS topic you created.
+      </Step>
+    </Steps>
+
+    <Tip>
+      A sample Lambda proxy template is available in the [CauseFlow examples repository](https://github.com/causeflow/examples). It adds the required `X-API-Key` header to every SNS notification before forwarding to CauseFlow.
+    </Tip>
+
+    ### What this enables
+
+    - Automatic incident creation when CloudWatch alarms fire
+    - CloudWatch Logs and metrics retrieval during investigation (via the AWS cloud provider connection)
+
+    ### Troubleshooting
+
+    **Subscription confirmation not received:** Confirm the webhook URL is correct and publicly reachable. CauseFlow confirms SNS subscriptions automatically on receipt of the `SubscriptionConfirmation` message type.
+
+    **`401 Unauthorized`:** SNS sends requests without custom headers. Deploy the Lambda proxy to add the `X-API-Key` header.
+  </Tab>
+
+  <Tab title="Sentry">
+    **Provider slug:** `sentry`
+
+    **Webhook URL:** `https://api.causeflow.ai/v1/webhooks/{tenantId}/sentry`
+
+    ### How it works
+
+    CauseFlow receives Sentry issue and alert events via Sentry's webhooks integration. When an issue is created or an alert fires, Sentry sends a notification to your CauseFlow webhook URL.
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Create an API key">
+        Go to **Settings > API Keys** and click **Create key**. Name it "Sentry webhook".
+      </Step>
+      <Step title="Open Sentry webhooks">
+        In Sentry, go to **Settings > Integrations > WebHooks** for your organization.
+      </Step>
+      <Step title="Add to project">
+        Click **Add to Project** and select the project you want to monitor.
+      </Step>
+      <Step title="Set callback URL and headers">
+        Set the **Callback URL** to your CauseFlow Sentry webhook URL. Under **Request Headers**, add:
+        - `X-API-Key`: your CauseFlow API key
+        - `X-Webhook-Signature`: your HMAC-SHA256 signature
+      </Step>
+      <Step title="Select event types">
+        At minimum, enable **Issue** events. Optionally enable **Error** events for higher-volume alert coverage.
+      </Step>
+      <Step title="Save and test">
+        Click **Save Changes**, then **Test Plugin** to verify the connection.
+      </Step>
+    </Steps>
+
+    ### What this enables
+
+    - Automatic incident creation when Sentry issues are created or alert rules fire
+    - Error frequency and stack trace context during investigation
+
+    ### Troubleshooting
+
+    **Noisy alerts:** Configure Sentry alert rules with a frequency threshold (for example, "at least 10 occurrences in 5 minutes") before forwarding to CauseFlow to reduce noise.
+
+    **Signature mismatch:** Confirm the HMAC-SHA256 signature is computed over the raw request body (before JSON parsing) and hex-encoded.
+  </Tab>
+
+  <Tab title="PagerDuty">
+    **Provider slug:** `pagerduty`
+
+    **Webhook URL:** `https://api.causeflow.ai/v1/webhooks/{tenantId}/pagerduty`
+
+    ### How it works
+
+    CauseFlow receives PagerDuty incident events via webhooks. When a PagerDuty incident is triggered or acknowledged, the event is forwarded to CauseFlow, which creates or updates the corresponding investigation.
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Create an API key">
+        Go to **Settings > API Keys** and click **Create key**. Name it "PagerDuty webhook".
+      </Step>
+      <Step title="Open PagerDuty webhooks">
+        In PagerDuty, go to **Integrations > Generic Webhooks (V3)** and click **New Webhook**.
+      </Step>
+      <Step title="Set the webhook URL">
+        Enter your CauseFlow PagerDuty webhook URL.
+      </Step>
+      <Step title="Add custom headers">
+        Add the following headers:
+        - `X-API-Key`: your CauseFlow API key
+        - `X-Webhook-Signature`: your HMAC-SHA256 signature
+      </Step>
+      <Step title="Select event types">
+        Select **incident.triggered** and **incident.acknowledged** at minimum.
+      </Step>
+      <Step title="Save and test">
+        Click **Add Webhook** and use the **Test** button to send a sample payload.
+      </Step>
+    </Steps>
+
+    ### What this enables
+
+    - Automatic incident creation when PagerDuty incidents fire
+    - Bidirectional status: when CauseFlow resolves an incident, the status is updated in the dashboard
+
+    ### Troubleshooting
+
+    **Events not appearing:** Confirm the webhook is scoped to the correct PagerDuty service. Webhooks scoped at the account level will receive events from all services.
+  </Tab>
+
+  <Tab title="New Relic">
+    **Provider slug:** `newrelic`
+
+    **Webhook URL:** `https://api.causeflow.ai/v1/webhooks/{tenantId}/newrelic`
+
+    ### How it works
+
+    CauseFlow receives New Relic alert notifications via a webhook notification channel. When an alert policy fires, New Relic sends a JSON payload to your CauseFlow webhook URL.
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Create an API key">
+        Go to **Settings > API Keys** and click **Create key**. Name it "New Relic webhook".
+      </Step>
+      <Step title="Open New Relic notification channels">
+        In New Relic, go to **Alerts > Notification channels** and click **New notification channel**.
+      </Step>
+      <Step title="Select Webhook">
+        Choose **Webhook** as the channel type.
+      </Step>
+      <Step title="Set the base URL and custom headers">
+        Enter your CauseFlow New Relic webhook URL as the base URL. Add custom headers:
+        - `X-API-Key`: your CauseFlow API key
+        - `X-Webhook-Signature`: your HMAC-SHA256 signature
+      </Step>
+      <Step title="Attach to alert policies">
+        Add the notification channel to the alert policies you want to forward to CauseFlow.
+      </Step>
+      <Step title="Test the channel">
+        Click **Send test notification** to confirm delivery.
+      </Step>
+    </Steps>
+
+    ### What this enables
+
+    - Automatic incident creation when New Relic alert policies fire
+    - APM metric and trace context during investigation
+
+    ### Troubleshooting
+
+    **`401 Unauthorized`:** Confirm the `X-API-Key` header value matches the API key shown in CauseFlow's **Settings > API Keys**.
+
+    **No incidents appearing:** Confirm the notification channel is attached to at least one alert policy and that the policy has at least one active condition.
+  </Tab>
+</Tabs>
+
+<CardGroup cols={2}>
+  <Card title="Cloud providers" icon="cloud" href="/integrations/cloud-providers">
+    Set up cross-account IAM roles for AWS, Azure, and GCP infrastructure access.
+  </Card>
+  <Card title="Custom webhooks" icon="webhook" href="/integrations/custom-webhooks">
+    Send alerts from any tool not in this list using the generic webhook endpoint.
+  </Card>
+  <Card title="Integrations overview" icon="plug" href="/integrations/overview">
+    See the full catalog of available integrations.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    Manage monitoring integrations via the REST API.
+  </Card>
+</CardGroup>

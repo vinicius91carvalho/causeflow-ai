@@ -1,0 +1,437 @@
+{
+  "dashboard": {
+    "analyses": {
+      "title": "Análises",
+      "description": "Visualize e gerencie suas análises de incidentes",
+      "newAnalysis": "Nova Análise",
+      "status": {
+        "queued": "Na Fila",
+        "running": "Executando",
+        "completed": "Concluído",
+        "failed": "Falhou"
+      },
+      "severity": {
+        "low": "Baixa",
+        "medium": "Média",
+        "high": "Alta",
+        "critical": "Crítica"
+      },
+      "filters": {
+        "allStatuses": "Todos os Status",
+        "allSeverities": "Todas as Severidades",
+        "status": "Status",
+        "severity": "Severidade"
+      },
+      "list": {
+        "loadMore": "Carregar Mais",
+        "showingOf": "Exibindo {count} de {total}",
+        "total": "{count} análises"
+      },
+      "empty": {
+        "title": "Nenhuma análise ainda",
+        "description": "Inicie sua primeira investigação de incidente para ver os resultados aqui.",
+        "cta": "Criar sua primeira análise"
+      },
+      "card": {
+        "confidence": "Confiança",
+        "viewDetails": "Ver Detalhes"
+      },
+      "new": {
+        "title": "Nova Análise",
+        "description": "Iniciar uma nova investigação de incidente",
+        "promptLabel": "Descreva o incidente",
+        "promptPlaceholder": "Descreva o incidente que deseja investigar. Inclua sintomas, serviços afetados e mensagens de erro observadas...",
+        "promptHint": "Mínimo de 10 caracteres. Seja o mais específico possível para melhores resultados.",
+        "severityLabel": "Severidade",
+        "severityPlaceholder": "Selecione a severidade",
+        "integrationsLabel": "Fontes de Dados",
+        "integrationsHint": "Selecione as integrações para incluir como contexto da análise.",
+        "submit": "Iniciar Análise",
+        "submitting": "Iniciando...",
+        "validation": {
+          "promptRequired": "A descrição é obrigatória",
+          "promptTooShort": "A descrição deve ter pelo menos 10 caracteres",
+          "promptTooLong": "A descrição deve ter no máximo 4000 caracteres"
+        },
+        "error": "Falha ao criar análise. Por favor, tente novamente.",
+        "successRedirecting": "Análise criada! Redirecionando..."
+      },
+      "detail": {
+        "backToHistory": "Voltar para Análises",
+        "status": "Status",
+        "severity": "Severidade",
+        "created": "Criado",
+        "completed": "Concluído",
+        "prompt": "Descrição do Incidente",
+        "rootCause": "Análise de Causa Raiz",
+        "confidence": "Pontuação de Confiança",
+        "confidenceLow": "Baixa confiança",
+        "confidenceMedium": "Confiança média",
+        "confidenceHigh": "Alta confiança",
+        "timeline": "Linha do Tempo de Eventos",
+        "recommendations": "Recomendações",
+        "dataSources": "Fontes de Dados Consultadas",
+        "auditTrail": "Trilha de Auditoria da Investigação",
+        "auditTrailExpand": "Mostrar trilha de auditoria",
+        "auditTrailCollapse": "Ocultar trilha de auditoria",
+        "records": "{count} registros ingeridos",
+        "noResult": "Análise em andamento...",
+        "noTimeline": "Nenhum evento de linha do tempo registrado.",
+        "noRecommendations": "Nenhuma recomendação disponível ainda.",
+        "noDataSources": "Nenhuma fonte de dados registrada.",
+        "pollingMessage": "Análise em execução. Atualizando automaticamente...",
+        "completedToast": "Análise concluída!",
+        "rerun": "Reanalisar",
+        "rerunning": "Reanalisando..."
+      }
+    },
+    "incidents": {
+      "title": "Incidentes",
+      "description": "Visualize e gerencie seus incidentes",
+      "newIncident": "Novo Incidente",
+      "empty": "Nenhum incidente ainda",
+      "emptyDescription": "Crie seu primeiro incidente para começar",
+      "loadMore": "Carregar mais",
+      "filters": {
+        "allStatuses": "Todos os Status",
+        "allSeverities": "Todas as Severidades",
+        "status": "Status",
+        "severity": "Severidade"
+      },
+      "status": {
+        "open": "Aberto",
+        "triaging": "Triagem",
+        "investigating": "Investigando",
+        "awaiting_approval": "Aguardando Aprovação",
+        "remediating": "Remediando",
+        "resolved": "Resolvido",
+        "closed": "Encerrado",
+        "failed": "Falhou",
+        "aborted": "Abortado",
+        "inconclusive": "Inconclusivo — Evidências Insuficientes"
+      },
+      "severity": {
+        "critical": "Crítica",
+        "high": "Alta",
+        "medium": "Média",
+        "low": "Baixa",
+        "info": "Info"
+      },
+      "new": {
+        "title": "Novo Incidente",
+        "description": "Registrar um novo incidente para investigação",
+        "back": "Voltar para Incidentes",
+        "form": {
+          "title": "Título do Incidente",
+          "titlePlaceholder": "ex.: Esgotamento do Pool de Conexões do Banco de Dados",
+          "description": "Descrição",
+          "descriptionPlaceholder": "Descreva o incidente em detalhes...",
+          "severity": "Severidade",
+          "submit": "Criar Incidente",
+          "submitting": "Criando..."
+        }
+      },
+      "detail": {
+        "title": "Detalhes do Incidente",
+        "liveProgress": "Incidente sendo investigado. Atualizando automaticamente...",
+        "description": "Descrição",
+        "rootCause": "Causa Raiz",
+        "rootCauseIdentified": "Causa Raiz Identificada",
+        "rootCauseInvestigating": "Investigando causa raiz…",
+        "rootCauseInvestigatingHint": "Os agentes estão analisando os sinais. A causa raiz aparecerá aqui assim que for identificada.",
+        "showMore": "Ver mais",
+        "showLess": "Ver menos",
+        "resolution": "Resolução",
+        "assignedAgents": "Agentes Atribuídos",
+        "sourceProvider": "Fonte do Alerta",
+        "sourceAlertId": "ID do Alerta de Origem",
+        "sourceManual": "Criado manualmente",
+        "sourceWebhook": "Disparado por {provider}",
+        "createdAt": "Criado em",
+        "updatedAt": "Atualizado em",
+        "resolvedAt": "Resolvido em",
+        "rerun": "Criar Similar",
+        "rerunFailed": "Falha ao criar incidente similar. Por favor, tente novamente.",
+        "incidentResolved": "Incidente resolvido!",
+        "timestamps": "Datas",
+        "back": "Voltar para Incidentes",
+        "inconclusive": {
+          "headline": "A investigação não conseguiu chegar a uma conclusão",
+          "body": "O agente de investigação foi executado, mas não encontrou evidências suficientes para apoiar uma conclusão. Isso pode ocorrer quando a retenção de logs é curta, o alerta é ambíguo ou as fontes de dados relevantes estavam indisponíveis.",
+          "nextStepsTitle": "Próximos passos sugeridos",
+          "nextStep1": "Forneça contexto adicional (ex.: anexe um runbook, vincule um incidente relacionado)",
+          "nextStep2": "Re-execute a investigação com escopo maior de logs/métricas",
+          "nextStep3": "Escale para um SRE humano para diagnóstico manual",
+          "reasonLabel": "Motivo"
+        },
+        "remediations": {
+          "title": "Remediações",
+          "approve": "Aprovar",
+          "reject": "Rejeitar",
+          "execute": "Executar",
+          "autoApproveEnabled": "Auto-aprovação habilitada",
+          "rootCause": "Causa Raiz",
+          "recommendedActions": "Ações Recomendadas",
+          "approvedBy": "Aprovado por {user}",
+          "rejectedBy": "Rejeitado por {user}",
+          "reason": "Motivo",
+          "noRemediations": "Nenhuma remediação proposta ainda",
+          "approving": "Aprovando...",
+          "executing": "Executando...",
+          "errorState": "Não foi possível carregar as remediações.",
+          "retry": "Tentar novamente",
+          "investigationPending": "Aguardando a investigação propor remediações...",
+          "completedEmpty": "Investigação concluída — nenhuma remediação necessária.",
+          "completedEmptyWithCause": "Investigação concluída — nenhuma remediação necessária. Causa raiz: {rootCause}",
+          "loading": "Carregando remediações...",
+          "actionFailed": "Falha ao {action} remediação",
+          "actionFailedRetry": "Falha ao {action} remediação. Por favor, tente novamente.",
+          "actionApproved": "Remediação aprovada",
+          "actionRejected": "Remediação rejeitada",
+          "actionExecuting": "Remediação em execução",
+          "statusProposed": "Proposta",
+          "statusApproved": "Aprovada",
+          "statusRejected": "Rejeitada",
+          "statusExecuting": "Executando",
+          "statusCompleted": "Concluída",
+          "statusFailed": "Falhou"
+        },
+        "knownSolution": {
+          "title": "Solucao Conhecida Encontrada",
+          "confidence": "com {confidence}% de confianca",
+          "rootCause": "Causa Raiz",
+          "recommendedFix": "Correcao Recomendada",
+          "accept": "Aceitar Solucao",
+          "decline": "Recusar e Investigar",
+          "accepting": "Aceitando...",
+          "declining": "Recusando...",
+          "accepted": "Solucao conhecida aceita",
+          "declined": "Solucao conhecida recusada, iniciando investigacao",
+          "failed": "Falha ao responder a solucao conhecida"
+        },
+        "actions": {
+          "startTriage": "Iniciar Triagem",
+          "startInvestigation": "Iniciar Investigacao",
+          "abortInvestigation": "Cancelar Investigacao",
+          "abortConfirm": "Tem certeza? Isso interrompera a investigacao.",
+          "abortYes": "Sim, cancelar",
+          "abortCancel": "Cancelar",
+          "creating": "Criando...",
+          "triageStarted": "Triagem iniciada",
+          "investigationStarted": "Investigacao iniciada",
+          "investigationAborted": "Investigacao cancelada",
+          "triageFailed": "Falha ao iniciar triagem",
+          "investigationFailed": "Falha ao iniciar investigacao",
+          "abortFailed": "Falha ao cancelar investigacao",
+          "starting": "Iniciando...",
+          "aborting": "Cancelando..."
+        },
+        "modeSelector": {
+          "staffLabel": "Staff",
+          "run": "Executar",
+          "running": "Executando…",
+          "orchestrator": "Orchestrator",
+          "orchestratorDescription": "Symptom-driven, mais rápido",
+          "hypothesis": "Hypothesis-driven",
+          "hypothesisDescription": "3 hipóteses → validator → judge",
+          "debate": "Debate multi-agente",
+          "debateDescription": "Advocates vs prosecutors, mais lento"
+        },
+        "hypotheses": {
+          "winnerBadge": "Causa raiz confirmada",
+          "pendingTitle": "Ainda avaliando",
+          "rejectedTitle": "Hipóteses rejeitadas",
+          "rejectedReasonLabel": "Rejeitada porque",
+          "informedBy": "Informada por",
+          "evidenceFor": "Evidências a favor",
+          "evidenceAgainst": "Contra-evidências",
+          "confidence": "Confiança",
+          "confidenceLabel": "Confiança {pct}%",
+          "scoreLabel": "Pontuação {score} de 100",
+          "priorLabel": "Prior",
+          "waitingForSeeker": "Modo {mode} selecionado — gerando hipóteses…",
+          "errorLoading": "Não foi possível carregar as hipóteses.",
+          "mode": {
+            "orchestrator": "Orchestrator",
+            "hypothesis": "Hypothesis-driven",
+            "debate": "Debate multi-agente"
+          }
+        },
+        "feedback": {
+          "title": "Feedback",
+          "confirm": "Confirmar",
+          "reject": "Rejeitar",
+          "comment": "Comentário",
+          "commentPlaceholder": "Adicione um comentário opcional...",
+          "submit": "Enviar",
+          "success": "Feedback enviado",
+          "empty": "Nenhum feedback ainda",
+          "confirmed": "Confirmado",
+          "rejected": "Rejeitado",
+          "context": "Contexto Adicionado",
+          "errorState": "Não foi possível carregar o feedback.",
+          "retry": "Tentar novamente"
+        },
+        "stream": {
+          "connecting": "Conectando às atualizações ao vivo...",
+          "connected": "Atualizações ao vivo conectadas",
+          "disconnected": "Atualizações ao vivo desconectadas",
+          "error": "Não foi possível conectar às atualizações ao vivo",
+          "reconnect": "Reconectar",
+          "devUnavailable": "Atualizações ao vivo não disponíveis em modo de desenvolvimento"
+        },
+        "liveActivity": {
+          "title": "Atividade ao Vivo",
+          "empty": "Nenhuma atividade de agente registrada ainda",
+          "history": "Histórico",
+          "errorState": "Não foi possível carregar o histórico de atividades.",
+          "retry": "Tentar novamente"
+        },
+        "agents": {
+          "log_analyst": "Analista de Logs",
+          "metric_analyst": "Analista de Métricas",
+          "infra_inspector": "Inspetor de Infraestrutura",
+          "orchestrator": "Orquestrador",
+          "scout": "Explorador",
+          "diagnosis_verifier": "Verificador de Diagnóstico"
+        },
+        "evidenceReview": {
+          "status": {
+            "awaitingApproval": "Aguardando aprovação",
+            "resolved": "Resolvido",
+            "readyForApproval": "Pronto p/ aprovação"
+          },
+          "severity": {
+            "critical": "Crítica",
+            "high": "Alta",
+            "medium": "Média",
+            "low": "Baixa",
+            "info": "Info"
+          },
+          "incidentRefLabel": "ref",
+          "rootCause": {
+            "label": "Causa raiz · consolidada",
+            "resolutionLabel": "Resolução",
+            "empty": "A causa raiz consolidada aparece aqui quando a investigação conclui."
+          },
+          "summary": {
+            "duration": "Duração",
+            "evidences": "Evidências",
+            "toolCalls": "Tool calls",
+            "actions": "Ações propostas",
+            "evidencePieces": "peças",
+            "evidenceCollectionOnly": "{count} coletas",
+            "evidenceCollectionAndSynthesis": "{collected} coletas · {synthesis} síntese",
+            "actionsAutoManual": "{auto} auto · {manual} manuais",
+            "loading": "carregando…",
+            "empty": "—"
+          },
+          "tabs": {
+            "evidences": "Evidências",
+            "actions": "Ações recomendadas",
+            "discussion": "Discussão"
+          },
+          "toolbar": {
+            "searchPlaceholder": "Buscar por claim, quote, recurso…",
+            "allLabel": "Todas · {count}"
+          },
+          "groups": {
+            "investigationLabel": "INVESTIGAÇÃO · coleta",
+            "investigationSub": "Coleta primária de logs, métricas e estado de recursos",
+            "synthesisLabel": "SÍNTESE · consolidação",
+            "synthesisSub": "Raciocínio consolidado a partir das evidências coletadas",
+            "pieceOne": "peça",
+            "pieceMany": "peças"
+          },
+          "item": {
+            "plusRootCause": "+ causa raiz",
+            "plusSupports": "+ suporta",
+            "toolCallIdLabel": "toolCallId:",
+            "evidenceIdLabel": "evid:"
+          },
+          "empty": {
+            "loadFailed": "Falha ao carregar",
+            "loadFailedSub": "Algo deu errado ao carregar a investigação.",
+            "evidenceEmpty": "Sem evidências",
+            "evidenceEmptySub": "Esta investigação ainda não produziu evidências coletadas.",
+            "filterNoMatch": "Nada casa com o filtro",
+            "filterNoMatchSub": "Ajuste a busca ou limpe os filtros.",
+            "actionsEmpty": "Sem ações recomendadas",
+            "actionsEmptySub": "A investigação ainda não propôs ações de remediação.",
+            "actionsRailEmpty": "Nenhuma ação recomendada ainda."
+          },
+          "action": {
+            "auto": "Auto",
+            "manual": "Manual",
+            "risk": "Risk",
+            "readyToRun": "pronta p/ executar",
+            "needsOnCall": "requer on-call",
+            "execute": "Executar",
+            "assign": "Atribuir"
+          },
+          "rail": {
+            "title": "Ações recomendadas",
+            "planLabel": "Plano de remediação",
+            "planCountOne": "{count} ação proposta",
+            "planCountMany": "{count} ações propostas",
+            "planAutoSuffix": "· {count} automáticas",
+            "planDescription": "O plano consolida as ações recomendadas. Revise cada item antes de autorizar a execução.",
+            "pendingApproval": "Aprovação pendente"
+          },
+          "chat": {
+            "loadingHistory": "Carregando histórico…",
+            "empty": "Nenhuma mensagem ainda",
+            "emptySub": "Use este espaço para perguntar detalhes sobre a investigação ou solicitar uma reanálise.",
+            "sendFailed": "Não foi possível enviar a mensagem. Tente novamente.",
+            "placeholder": "Pergunte algo sobre a investigação…",
+            "hint": "Enter envia · Shift+Enter nova linha",
+            "send": "Enviar",
+            "userLabel": "Você",
+            "assistantLabel": "CauseFlow AI"
+          }
+        }
+      }
+    },
+    "remediations": {
+      "title": "Remediações",
+      "description": "Visualize e gerencie remediações de incidentes",
+      "empty": "Nenhuma remediação encontrada",
+      "emptyDescription": "Remediações aparecerão quando propostas para incidentes",
+      "status": {
+        "proposed": "Proposta",
+        "approved": "Aprovada",
+        "rejected": "Rejeitada",
+        "executing": "Executando",
+        "completed": "Concluída",
+        "failed": "Falhou"
+      },
+      "detail": {
+        "title": "Detalhes da Remediação",
+        "rootCause": "Causa Raiz",
+        "steps": "Etapas de Remediação",
+        "pullRequests": "Pull Requests",
+        "proposedBy": "Proposta por",
+        "approvedBy": "Aprovada por",
+        "rejectedBy": "Rejeitada por",
+        "rejectionReason": "Motivo da Rejeição",
+        "approve": "Aprovar",
+        "reject": "Rejeitar",
+        "execute": "Executar",
+        "back": "Voltar para Remediações",
+        "incidentLink": "Ver Incidente",
+        "stepStatus": {
+          "pending": "Pendente",
+          "running": "Executando",
+          "completed": "Concluído",
+          "failed": "Falhou",
+          "skipped": "Ignorado"
+        },
+        "prStatus": {
+          "open": "Aberto",
+          "merged": "Mesclado",
+          "closed": "Fechado"
+        }
+      }
+    }
+  }
+}

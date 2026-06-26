@@ -1,0 +1,81 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary "Main navigation" [ref=e3]:
+      - generic [ref=e4]:
+        - link "CauseFlow AI" [ref=e5] [cursor=pointer]:
+          - /url: /dashboard
+          - img "CauseFlow AI" [ref=e6]
+          - generic [ref=e7]: CauseFlow AI
+        - button "Close menu" [ref=e8]:
+          - img [ref=e9]
+      - navigation [ref=e12]:
+        - link "Overview" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e14]
+          - generic [ref=e19]: Overview
+        - link "Incidents" [ref=e20] [cursor=pointer]:
+          - /url: /dashboard/incidents
+          - img [ref=e21]
+          - generic [ref=e23]: Incidents
+        - link "Intelligence" [ref=e24] [cursor=pointer]:
+          - /url: /dashboard/intelligence
+          - img [ref=e25]
+          - generic [ref=e35]: Intelligence
+        - link "Integrations" [ref=e36] [cursor=pointer]:
+          - /url: /dashboard/integrations
+          - img [ref=e37]
+          - generic [ref=e39]: Integrations
+        - link "Relay" [ref=e40] [cursor=pointer]:
+          - /url: /dashboard/relay
+          - img [ref=e41]
+          - generic [ref=e47]: Relay
+        - link "Audit Log" [ref=e48] [cursor=pointer]:
+          - /url: /dashboard/audit
+          - img [ref=e49]
+          - generic [ref=e52]: Audit Log
+        - link "Team" [ref=e53] [cursor=pointer]:
+          - /url: /dashboard/team
+          - img [ref=e54]
+          - generic [ref=e59]: Team
+        - link "Billing" [ref=e60] [cursor=pointer]:
+          - /url: /dashboard/billing
+          - img [ref=e61]
+          - generic [ref=e63]: Billing
+        - link "Settings" [ref=e64] [cursor=pointer]:
+          - /url: /dashboard/settings
+          - img [ref=e65]
+          - generic [ref=e68]: Settings
+      - generic [ref=e71]:
+        - img [ref=e72]
+        - generic [ref=e74]: Loading...
+    - generic [ref=e75]:
+      - banner [ref=e76]:
+        - button "Open navigation menu" [ref=e77]:
+          - img [ref=e78]
+        - link "CauseFlow AI" [ref=e79] [cursor=pointer]:
+          - /url: /dashboard
+          - img "CauseFlow AI" [ref=e80]
+        - generic [ref=e81]:
+          - button "Toggle theme" [ref=e82]:
+            - img [ref=e83]
+          - button "Language" [ref=e86]:
+            - img [ref=e87]
+      - main [ref=e91]:
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - heading "Audit Log" [level=2] [ref=e94]
+            - paragraph [ref=e95]: View all system activity and changes
+          - generic [ref=e96]:
+            - generic [ref=e97]:
+              - generic [ref=e98]:
+                - generic [ref=e99]: "Action:"
+                - combobox "Action:" [ref=e100]:
+                  - generic: All Actions
+                  - img [ref=e101]
+              - generic [ref=e103]:
+                - generic [ref=e104]: "Actor type:"
+                - combobox "Actor type:" [ref=e105]:
+                  - generic: All
+                  - img [ref=e106]
+            - status [ref=e109]: Loading audit entries...
+  - alert [ref=e151]

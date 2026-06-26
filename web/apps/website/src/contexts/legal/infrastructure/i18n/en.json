@@ -1,0 +1,36 @@
+{
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "How we collect, use, and protect your data.",
+    "lastUpdated": "Last updated: February 2026",
+    "sections": {
+      "dataCollected": "Data Collected",
+      "howWeUse": "How We Use Data",
+      "customerData": "Customer Data",
+      "sharing": "Data Sharing",
+      "retention": "Data Retention",
+      "lgpdRights": "LGPD Rights",
+      "gdprRights": "GDPR Rights",
+      "internationalTransfers": "International Transfers",
+      "contact": "DPO / Data Controller Contact"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "subtitle": "Please read these terms carefully before using CauseFlow AI.",
+    "lastUpdated": "Last updated: March 2026",
+    "version": "Version {version}",
+    "effectiveDate": "Effective {date}",
+    "sections": {
+      "serviceDefinition": "Service Definition and Limitations",
+      "plansAndBilling": "Plans, Pricing and Billing",
+      "intellectualProperty": "Intellectual Property",
+      "sla": "Service Level Agreement",
+      "liability": "Limitation of Liability",
+      "cancellation": "Cancellation and Refund Policy",
+      "acceptableUse": "Acceptable Use",
+      "dataCollection": "Data Collection & Usage",
+      "jurisdiction": "Jurisdiction and Venue"
+    }
+  }
+}

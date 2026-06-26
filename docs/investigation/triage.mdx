@@ -1,0 +1,76 @@
+---
+title: "AI triage"
+sidebarTitle: "Triage"
+description: "How CauseFlow classifies incident severity and selects investigation agents."
+---
+
+Triage is the first step in every investigation. Before any specialized agents are dispatched, the Triage Agent analyzes the incoming alert, classifies its severity, and decides which agents are most likely to find the root cause. This step determines how fast and how accurately the investigation proceeds.
+
+## What triage does
+
+The Triage Agent performs four tasks on every incoming alert:
+
+1. **Severity classification** — assigns a priority level based on the alert content and service context
+2. **Summary generation** — produces a concise one-paragraph description of the likely problem
+3. **Confidence scoring** — estimates how certain it is about the classification (0.0 to 1.0)
+4. **Agent selection** — recommends which specialized agents to activate for the investigation
+
+## The Triage Agent
+
+| Property | Details |
+|---|---|
+| **Model** | High-capability reasoning model (deterministic per task) |
+| **Output format** | Structured JSON, validated with Zod schema |
+| **Tools used** | None — text analysis only |
+| **Input** | Alert payload, historical pattern context, service metadata |
+
+Using a structured output format means triage results are always machine-readable. Every field is validated before the investigation proceeds — a malformed triage response blocks dispatch rather than producing a partially initialized investigation.
+
+## Triage output
+
+```json
+{
+  "priority": "high",
+  "summary": "Payment service is experiencing elevated 5xx error rates. Pattern matches a known database connection pool exhaustion signature from 2 weeks ago.",
+  "confidence": 0.87,
+  "suggestedFocus": ["logs", "metrics", "database"]
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `priority` | `critical` \| `high` \| `medium` \| `low` \| `info` | Severity classification |
+| `summary` | string | Human-readable description of the likely problem |
+| `confidence` | number (0.0–1.0) | How certain the triage model is about the classification |
+| `suggestedFocus` | string[] | Data sources the orchestrator should inspect first |
+
+## Historical pattern matching
+
+Before classifying severity, the Triage Agent checks the incident against patterns in CauseFlow's knowledge base. If a similar incident occurred before — same service, similar symptoms, similarity score above 85% — the triage output includes the matching pattern and its historical root cause.
+
+This has two effects:
+
+- **Confidence increases** when a known pattern matches, because the model has more signal
+- **Suggested agents** may be refined to focus on the agents most relevant to the known root cause
+
+If a pattern match is found with high confidence, the investigation may proceed directly to remediation suggestion without running all agents. See [Knowledge base](/investigation/knowledge-base) for more details.
+
+## When investigation proceeds automatically
+
+CauseFlow uses priority thresholds to decide whether to start investigation automatically or wait for manual trigger:
+
+| Priority | Automatic investigation |
+|---|---|
+| `critical` | Yes — immediately |
+| `high` | Yes — immediately |
+| `medium` | No — requires manual trigger from the dashboard |
+| `low` | No — requires manual trigger |
+| `info` | No — informational only, no investigation |
+
+You can override these defaults in **Settings > Investigation Thresholds**.
+
+## Credit consumption
+
+Each triage step consumes **1 event** from your plan, regardless of whether an investigation follows. This reflects the model inference cost even when the alert is classified as low priority or deduplicated against an existing incident.
+
+See [Usage and credits](/billing/usage-and-credits) for details on event vs. investigation credit counting.

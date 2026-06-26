@@ -1,0 +1,68 @@
+/*
+ * CauseFlow AI Design System — Cleric Theme — Dark Mode
+ * Deep Indigo + Electric Teal palette, warmer tone, Space Grotesk display.
+ * HSL-based CSS variables following shadcn/ui convention.
+ * Values are bare <h> <s>% <l>% — no wrapper function, just raw channel values (Tailwind v4).
+ */
+
+[data-theme="cleric"].dark,
+.dark [data-theme="cleric"],
+.dark {
+  /* Background & Foreground */
+  --background: 232 35% 6%;
+  --foreground: 210 40% 96%;
+
+  /* Card */
+  --card: 232 30% 10%;
+  --card-foreground: 210 40% 96%;
+
+  /* Popover */
+  --popover: 232 30% 10%;
+  --popover-foreground: 210 40% 96%;
+
+  /* Primary — Electric Teal (luminous in dark) */
+  --primary: 172 66% 50%;
+  --primary-foreground: 232 35% 6%;
+
+  /* Secondary */
+  --secondary: 232 25% 16%;
+  --secondary-foreground: 210 40% 96%;
+
+  /* Muted */
+  --muted: 232 25% 16%;
+  --muted-foreground: 232 12% 68%;
+
+  /* Accent — Electric Teal */
+  --accent: 172 66% 50%;
+  --accent-foreground: 232 35% 6%;
+
+  /* Violet accent partner + brand trio (same hues as light, slightly lifted for dark) */
+  --violet: 274 65% 72%;
+  --brand-green: 160 70% 48%;
+  --brand-purple: 274 65% 72%;
+  --brand-orange: 23 90% 58%;
+
+  /* Warning — Amber */
+  --warning: 23 90% 58%;
+  --warning-foreground: 0 0% 100%;
+
+  /* Destructive */
+  --destructive: 0 63% 51%;
+  --destructive-foreground: 210 40% 96%;
+
+  /* Success — Emerald */
+  --success: 160 84% 42%;
+  --success-foreground: 210 40% 96%;
+
+  /* Border, Input, Ring */
+  --border: 232 25% 18%;
+  --input: 232 25% 18%;
+  --ring: 172 66% 50%;
+
+  /* Chart Colors */
+  --chart-1: 172 66% 50%;
+  --chart-2: 232 50% 65%;
+  --chart-3: 43 96% 66%;
+  --chart-4: 280 65% 70%;
+  --chart-5: 0 72% 61%;
+}

@@ -1,0 +1,107 @@
+---
+title: "Get investigation results"
+api: "GET /v1/investigation/{incidentId}"
+description: "View the investigation results including root cause analysis and evidence from each agent."
+---
+
+## Overview
+
+Returns the aggregated results from a completed investigation, including the root cause determination, confidence score, per-agent evidence, and recommended remediation actions.
+
+**Required role:** `admin` or `member`
+
+## Path parameters
+
+<ParamField path="incidentId" type="string" required>
+  The unique identifier of the incident whose investigation results you want to retrieve. Example: `inc_01HX9VTPQR3KF8MZWBYD5N6JCE`.
+</ParamField>
+
+## Response
+
+Returns `200 OK` with the investigation results.
+
+```json
+{
+  "incidentId": "inc_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "rootCause": "Unindexed query on the orders table introduced in deploy d9f3a21. The query performs a full table scan for every checkout request, causing latency to spike from 45ms to over 4800ms under normal load.",
+  "confidence": 0.94,
+  "evidence": [
+    {
+      "agentRole": "database-specialist",
+      "content": "Analyzed slow query log. Query `SELECT * FROM orders WHERE tenant_id = ?` lacks a covering index on (tenant_id, created_at). Query plan shows Seq Scan on orders (rows=1847293). Index creation will reduce this to an Index Scan with estimated cost reduction of 99.7%."
+    },
+    {
+      "agentRole": "deployment-tracker",
+      "content": "Deploy d9f3a21 (2024-04-01 14:25 UTC) modified the OrderRepository query builder, removing the `.withIndex('tenant_created_idx')` hint. This corresponds exactly to the latency spike onset at 14:27 UTC."
+    },
+    {
+      "agentRole": "performance-analyzer",
+      "content": "P99 latency increased from 45ms to 4823ms at 14:27 UTC. CPU utilization on prod-db-01 reached 94% at peak. Pattern is consistent with a missing index causing sequential scans under load."
+    }
+  ],
+  "recommendedActions": [
+    "Add composite index: `CREATE INDEX CONCURRENTLY idx_orders_tenant_created ON orders (tenant_id, created_at DESC);`",
+    "Roll back deploy d9f3a21 if the index migration cannot be applied within the current SLA window.",
+    "Add query performance monitoring alert for queries exceeding 500ms on the orders table."
+  ]
+}
+```
+
+| Field                       | Type     | Description                                                              |
+| --------------------------- | -------- | ------------------------------------------------------------------------ |
+| `incidentId`                | string   | The incident this investigation belongs to                               |
+| `rootCause`                 | string   | Synthesized root cause narrative from all agent findings                 |
+| `confidence`                | number   | Overall confidence score from `0.0` to `1.0`                            |
+| `evidence`                  | array    | Per-agent findings. Each entry includes `agentRole` and `content`.       |
+| `evidence[].agentRole`      | string   | The specialist agent that produced this evidence                         |
+| `evidence[].content`        | string   | The agent's detailed findings for this incident                          |
+| `recommendedActions`        | string[] | Ordered list of recommended remediation steps                            |
+
+Returns `404 Not Found` if the incident does not exist or investigation has not started.
+
+<Note>
+  If `rootCause` is `null`, the investigation is still in progress. Poll this endpoint until `rootCause` is populated, or listen for the `investigation.completed` webhook event.
+</Note>
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/v1/investigation/inc_01HX9VTPQR3KF8MZWBYD5N6JCE \
+  -H "Authorization: Bearer <token>"
+```
+
+```typescript TypeScript
+const incidentId = "inc_01HX9VTPQR3KF8MZWBYD5N6JCE";
+
+async function waitForResults(token: string, incidentId: string) {
+  while (true) {
+    const response = await fetch(
+      `https://api.causeflow.ai/v1/investigation/${incidentId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.rootCause !== null) {
+      return data;
+    }
+
+    // Investigation still running — wait and retry
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+}
+
+const results = await waitForResults(token, incidentId);
+console.log(`Root cause (${Math.round(results.confidence * 100)}% confidence):`);
+console.log(results.rootCause);
+console.log("\nRecommended actions:");
+results.recommendedActions.forEach((action: string, i: number) => {
+  console.log(`${i + 1}. ${action}`);
+});
+```
+
+</CodeGroup>

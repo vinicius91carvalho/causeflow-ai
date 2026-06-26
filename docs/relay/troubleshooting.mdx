@@ -1,0 +1,225 @@
+---
+title: "Troubleshooting"
+description: "Common issues and solutions when running CauseFlow Relay."
+---
+
+<Tip>
+  Set `audit.level: debug` in `relay-config.yaml` for verbose logging during troubleshooting. Remember to set it back to `info` in production.
+</Tip>
+
+Read the Relay logs first. Almost every issue produces a structured log entry with a clear message and context:
+
+```bash
+docker logs causeflow-relay
+# or for Kubernetes:
+kubectl logs -n causeflow deployment/causeflow-relay
+```
+
+Each log line is a JSON object. Key fields: `level`, `msg`, `resourceId`, `reason`, `error`.
+
+---
+
+<AccordionGroup>
+  <Accordion title="Relay won't connect to the control plane">
+    The most common startup failure. The Relay logs will show the connection attempt and the specific error.
+
+    **Check the control plane URL.** The URL must use the `wss://` scheme, not `ws://` or `https://`. Verify your config:
+
+    ```yaml
+    controlPlane:
+      url: wss://api.causeflow.ai/v1/relay/connect
+    ```
+
+    **Verify the relay token.** An invalid or expired token causes an authentication failure immediately after the WebSocket handshake. Regenerate the token in **Dashboard → Settings → Relay** and update your secret.
+
+    **Check outbound firewall rules.** The Relay needs outbound TCP access to `api.causeflow.ai` on port 443. Test from the host:
+
+    ```bash
+    curl -v https://api.causeflow.ai/health
+    # or
+    openssl s_client -connect api.causeflow.ai:443
+    ```
+
+    If the connection is refused or times out, work with your network team to allow outbound TCP/443 to `api.causeflow.ai`.
+
+    **Check DNS resolution.** Ensure `api.causeflow.ai` resolves from inside your network:
+
+    ```bash
+    nslookup api.causeflow.ai
+    # or
+    dig api.causeflow.ai
+    ```
+
+    If DNS fails, configure your container or host to use a working resolver, or add a hosts entry.
+
+    **Check for proxy interference.** If your network routes outbound traffic through an HTTP proxy, the WebSocket upgrade may be blocked. The Relay does not support HTTP proxies — traffic must reach `api.causeflow.ai:443` directly.
+  </Accordion>
+
+  <Accordion title="Database connection errors">
+    The Relay connects to your database when it starts and during health checks. Connection errors appear in the logs with the resource ID and the underlying error message.
+
+    **Verify the connection parameters.** Check `host`, `port`, `database`, `user`, and `password` in your config. For PostgreSQL, test the connection from the Relay host:
+
+    ```bash
+    psql -h your-db-host -p 5432 -U readonly_user -d yourdb -c "SELECT 1;"
+    ```
+
+    For MongoDB:
+
+    ```bash
+    mongosh "mongodb://readonly_user:password@your-mongo-host:27017/yourdb" --eval "db.runCommand({ping: 1})"
+    ```
+
+    **Ensure the Relay can reach the database host.** If the Relay runs in a container or a different network segment, it must have network access to the database. Common causes:
+    - The database is in a different VPC or subnet with no peering
+    - A security group or firewall rule blocks inbound connections from the Relay
+    - The database host resolves to a private IP that is not routable from the Relay
+
+    **Check database user permissions.** The database user must have at minimum `SELECT` privilege on the tables you want to query. For PostgreSQL:
+
+    ```sql
+    -- Grant SELECT on all tables in the public schema
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO readonly_user;
+    -- Grant USAGE on the schema itself
+    GRANT USAGE ON SCHEMA public TO readonly_user;
+    ```
+
+    **Check for SSL/TLS requirements.** If your database requires SSL connections, add the relevant SSL parameters to the connection config. Contact [support@causeflow.ai](mailto:support@causeflow.ai) for SSL configuration guidance.
+  </Accordion>
+
+  <Accordion title="SQL queries being rejected">
+    If a query is rejected by the policy engine, the Relay returns an error response and writes a `warn`-level audit log entry with the rejection reason.
+
+    **Read the audit log first.** The log entry includes the `reason` field and a `detail` field explaining exactly what was blocked:
+
+    ```json
+    {
+      "level": "warn",
+      "msg": "Request rejected by policy engine",
+      "reason": "QUERY_BLOCKED",
+      "detail": "Statement contains blocked keyword: DELETE"
+    }
+    ```
+
+    **Only SELECT queries are allowed.** The policy engine blocks all DDL (`CREATE`, `ALTER`, `DROP`) and DML (`INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`) statements. If you need to run anything other than a `SELECT`, the Relay is not the right tool for that operation.
+
+    **Multi-statement queries are blocked.** Queries containing semicolons are rejected to prevent SQL injection. Send each statement as a separate request.
+
+    **Certain PostgreSQL functions are blocked.** The following functions cannot appear anywhere in a query: `pg_sleep`, `pg_read_file`, `pg_write_file`, `pg_ls_dir`, `pg_stat_file`, `pg_terminate_backend`, `pg_cancel_backend`, `pg_reload_conf`, `dblink`, `dblink_exec`. Rewrite the query to avoid them.
+
+    **Check the allowed operations list.** If you're getting `OPERATION_NOT_ALLOWED` errors, the operation (`describe_table`, `list_tables`, etc.) may not be in your resource's `allowedOperations` list. Add it to the config and restart the Relay.
+  </Accordion>
+
+  <Accordion title="PII masking not working">
+    If you expect values to be masked but see raw data in query results, work through these checks in order.
+
+    **Confirm masking is enabled.** Check `relay-config.yaml`:
+
+    ```yaml
+    masking:
+      enabled: true
+    ```
+
+    Also check the `metadata.masked` field in the query response — it will be `false` if masking is disabled.
+
+    **Check your custom regex patterns.** Invalid regex syntax causes the Relay to skip the pattern silently. Test your patterns against sample data using a tool like [regex101.com](https://regex101.com) before adding them to the config.
+
+    **Verify the data format matches the pattern.** Built-in patterns match common formats. If your data uses a non-standard format — for example, a CPF stored without dots and hyphens (`12345678900` instead of `123.456.789-00`) — the built-in pattern will not match. Add a custom pattern for your specific format.
+
+    **Confirm the field contains a string value.** Masking applies to string fields. Numeric fields are stringified before matching — if the result is a `bigint` or `float`, it may serialize in a format that doesn't match the expected pattern. Cast the field to text in the query if needed.
+
+    **Enable debug logging** to see which patterns are evaluated and which fire:
+
+    ```yaml
+    audit:
+      level: debug
+    ```
+
+    Debug logs include per-field masking decisions.
+  </Accordion>
+
+  <Accordion title="Health check failures">
+    The Relay runs a health check against each configured database on startup and every 30 seconds thereafter. Health check failures appear in the logs and are reported to the control plane (visible in **Dashboard → Settings → Relay**).
+
+    A failed health check does not stop the Relay — it continues attempting to reconnect and will recover automatically when the database becomes reachable again.
+
+    **Read the structured log.** Health check failures include the resource ID and the underlying error:
+
+    ```json
+    {
+      "level": "error",
+      "msg": "Health check failed",
+      "resourceId": "main-pg",
+      "error": "connect ETIMEDOUT 10.0.1.100:5432"
+    }
+    ```
+
+    **Common causes:**
+    - Database server is down or restarting
+    - Network connectivity lost between the Relay and the database
+    - Database user credentials changed or the user was revoked
+    - Connection pool exhausted (unlikely with max 5 connections, but possible under very high load)
+    - Database port is blocked by a security group or firewall that was recently modified
+
+    If health checks consistently fail for a resource, treat it as a database connectivity or credentials issue and work through the [Database connection errors](#database-connection-errors) steps above.
+  </Accordion>
+
+  <Accordion title="Reading and interpreting logs">
+    The Relay uses [Pino](https://getpino.io) for structured JSON logging. Every log line is a complete JSON object.
+
+    **Fetch logs from Docker:**
+
+    ```bash
+    docker logs causeflow-relay
+    docker logs causeflow-relay --since 1h  # last hour only
+    docker logs causeflow-relay -f           # follow in real time
+    ```
+
+    **Fetch logs from Kubernetes:**
+
+    ```bash
+    kubectl logs -n causeflow deployment/causeflow-relay
+    kubectl logs -n causeflow deployment/causeflow-relay --since=1h
+    kubectl logs -n causeflow deployment/causeflow-relay -f
+    ```
+
+    **Key fields in every log entry:**
+
+    | Field | Description |
+    |---|---|
+    | `time` | ISO 8601 timestamp |
+    | `level` | `debug`, `info`, `warn`, or `error` |
+    | `msg` | Human-readable message |
+    | `requestId` | Unique ID for the query request (present on query-related entries) |
+    | `resourceId` | Which database resource this entry relates to |
+    | `reason` | Policy engine rejection reason (e.g., `QUERY_BLOCKED`, `OPERATION_NOT_ALLOWED`) |
+    | `error` | Underlying error message for failures |
+    | `executionMs` | Query execution time in milliseconds |
+
+    **Filtering logs with `jq`:**
+
+    ```bash
+    # Show only errors
+    docker logs causeflow-relay 2>&1 | jq 'select(.level == "error")'
+
+    # Show all entries for a specific resource
+    docker logs causeflow-relay 2>&1 | jq 'select(.resourceId == "main-pg")'
+
+    # Show policy rejections
+    docker logs causeflow-relay 2>&1 | jq 'select(.reason != null)'
+    ```
+
+    If your log aggregator (Datadog, CloudWatch, Splunk, Loki) receives the Relay's stdout, all these fields are available for structured querying and alerting.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Getting help
+
+If you've worked through the relevant section above and the issue persists, contact [support@causeflow.ai](mailto:support@causeflow.ai) with:
+
+1. The full output of `docker logs causeflow-relay` (or equivalent)
+2. Your `relay-config.yaml` with secrets redacted
+3. The Relay version (`docker inspect causeflow/relay:latest --format '{{.RepoDigests}}'`)
+4. A description of what you expected vs. what happened

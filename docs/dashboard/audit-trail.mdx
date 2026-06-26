@@ -1,0 +1,75 @@
+---
+title: "Audit trail"
+description: "Track all actions taken in your CauseFlow tenant with a tamper-proof audit log."
+---
+
+The audit trail is a complete, tamper-proof record of every action taken in your CauseFlow tenant. Every change — from creating an incident to approving a remediation to inviting a team member — is logged automatically with the actor, timestamp, and relevant data.
+
+Go to **Dashboard > Audit** to access the audit trail.
+
+<Tip>
+  The audit trail is essential for compliance requirements like SOC 2. All entries are retained for the lifetime of your tenant.
+</Tip>
+
+## What is logged
+
+CauseFlow tracks **67 action types** across **8 categories**:
+
+| Category | Examples |
+|----------|---------|
+| `tenant.*` | Tenant created, configuration changed |
+| `incident.*` | Incident created, severity updated, status changed, closed |
+| `investigation.*` | Investigation started, findings submitted, root cause confirmed |
+| `remediation.*` | Remediation proposed, approved, rejected, executed |
+| `credential.*` | STS credentials issued, revoked |
+| `auth.*` | User signed in, token issued, API key created or revoked |
+| `github.*` | GitHub installation connected, pull request created |
+| `notification.*` | Alert sent, approval request delivered |
+
+System-generated actions (such as the AI orchestrator completing an investigation step) are attributed to the `ai_agent` actor rather than a specific user.
+
+## Viewing entries
+
+The audit trail displays entries in reverse chronological order — most recent first. Each entry shows:
+
+| Field | Description |
+|-------|-------------|
+| **Action** | What happened (for example, `incident.status_changed` or `remediation.approved`) |
+| **Actor** | The user who performed the action, or `system` for automated actions |
+| **Timestamp** | Exact date and time of the action (UTC) |
+| **Details** | Related data — for example, the previous and new status for a status change, or the member email for an invitation |
+
+### Filtering entries
+
+Use the filters above the list to narrow the audit trail:
+
+- **Action type** — Filter by a specific event category (incident, remediation, team, and so on)
+- **Date range** — Select a start and end date to view entries within a specific window
+
+## Tamper-proof integrity
+
+Each audit entry includes a cryptographic hash computed from the entry's data and the hash of the previous entry. This forms a chain — modifying any entry would invalidate the hash of every subsequent entry, making tampering detectable.
+
+To verify the chain integrity, click **Verify integrity** on the audit trail page. CauseFlow recomputes the hashes and confirms that the chain is unbroken. If any entry has been altered, the verification will report which entry broke the chain.
+
+<Note>
+  The integrity check runs server-side and covers all entries in your tenant's history, not just the visible page.
+</Note>
+
+## Exporting
+
+Export your audit log for compliance reporting, external SIEM integration, or long-term archival.
+
+<Steps>
+  <Step title="Open the export dialog">
+    Click **Export** on the audit trail page.
+  </Step>
+  <Step title="Select a date range">
+    Choose the start and end dates for the export. Leave both blank to export the full history.
+  </Step>
+  <Step title="Download">
+    Click **Export**. CauseFlow generates a file in **NDJSON format** (newline-delimited JSON) — one JSON object per line. This format is compatible with most SIEM platforms and log ingestion pipelines.
+  </Step>
+</Steps>
+
+Each exported entry contains the same fields visible in the UI plus the cryptographic hash, enabling you to verify chain integrity on your own infrastructure.

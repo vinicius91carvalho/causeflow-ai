@@ -1,0 +1,57 @@
+{
+  "dashboard": {
+    "onboarding": {
+      "businessProfile": {
+        "loadError": "Falha ao carregar o formulário de perfil empresarial. Tente novamente.",
+        "submitError": "Falha ao salvar seu perfil. Tente novamente.",
+        "hindsightWarning": "Perfil salvo, mas a sincronização com a memória de IA falhou. Você pode ressincronizar nas Configurações.",
+        "skipCta": "Pular por enquanto"
+      },
+      "wizard": {
+        "stepOf": "Passo {current} de {total}",
+        "next": "Próximo",
+        "previous": "Anterior",
+        "begin": "Vamos Lá",
+        "finish": "Começar",
+        "skip": "Pular Tutorial"
+      },
+      "integrations": {
+        "title": "Configure Suas Integrações",
+        "description": "Conecte suas ferramentas para aproveitar ao máximo o CauseFlow. Você sempre pode adicionar mais nas Configurações.",
+        "connect": "Conectar",
+        "authorize": "Autorizar",
+        "connected": "Conectado",
+        "moreIntegrations": "Mais integrações",
+        "skip": "Pular por agora",
+        "continue": "Continuar",
+        "progress": "{count} de {total} conectados"
+      },
+      "steps": {
+        "welcome": {
+          "title": "Bem-vindo, Detetive",
+          "description": "Seu centro de comando com IA está totalmente operacional. Este tour rápido vai guiá-lo pelos sistemas principais — desde conectar suas fontes de evidência até abrir sua primeira investigação. Leva apenas um minuto."
+        },
+        "integrations": {
+          "title": "Integrações",
+          "description": "As integrações conectam o CauseFlow às ferramentas que sua equipe já usa — Slack, GitHub, Jira, PagerDuty, Datadog e mais. Quando um incidente acontece, o CauseFlow busca contexto dessas ferramentas automaticamente para acelerar sua investigação. Você pode conectar quantas precisar pela página de Integrações."
+        },
+        "relay": {
+          "title": "CauseFlow Relay",
+          "description": "O Relay é um agente leve que transmite dados em tempo real da sua infraestrutura — logs, métricas e eventos — diretamente para o CauseFlow. Enquanto as Integrações buscam dados de ferramentas terceiras, o Relay captura sinais ao vivo dos seus próprios sistemas. Você pode começar apenas com Integrações, apenas com o Relay, ou ambos juntos — o que melhor se encaixar no seu ambiente."
+        },
+        "firstIncident": {
+          "title": "Sua Primeira Investigação",
+          "description": "Quando algo dá errado, crie uma nova investigação de incidente. A IA do CauseFlow analisa os dados das suas fontes conectadas, identifica causas raiz e sugere passos de remediação. Você também pode conversar com a IA para aprofundar em áreas específicas."
+        },
+        "billing": {
+          "title": "Créditos e Planos",
+          "description": "Cada investigação usa um crédito. Seu plano determina quantos créditos você recebe por mês. Você pode verificar seu saldo, fazer upgrade do plano ou gerenciar sua assinatura pela página de Cobrança."
+        },
+        "complete": {
+          "title": "Tudo Pronto",
+          "description": "Seu centro de comando está pronto para ação. Comece conectando suas ferramentas na página de Integrações, ou pule direto para sua primeira investigação. Você pode ver este tutorial novamente a qualquer momento pelo menu do perfil."
+        }
+      }
+    }
+  }
+}

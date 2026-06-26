@@ -1,0 +1,60 @@
+/*
+ * CauseFlow AI Design System — Dark Mode
+ * Deep Indigo + Electric Teal palette.
+ * HSL-based CSS variables following shadcn/ui convention.
+ */
+
+.dark,
+[data-theme="original"].dark {
+  /* Background & Foreground */
+  --background: 232 35% 6%;
+  --foreground: 210 40% 96%;
+
+  /* Card */
+  --card: 232 30% 10%;
+  --card-foreground: 210 40% 96%;
+
+  /* Popover */
+  --popover: 232 30% 10%;
+  --popover-foreground: 210 40% 96%;
+
+  /* Primary — Electric Teal */
+  --primary: 172 66% 50%;
+  --primary-foreground: 232 35% 6%;
+
+  /* Secondary */
+  --secondary: 232 25% 16%;
+  --secondary-foreground: 210 40% 96%;
+
+  /* Muted */
+  --muted: 232 25% 16%;
+  --muted-foreground: 232 12% 68%;
+
+  /* Accent — Electric Teal */
+  --accent: 172 66% 50%;
+  --accent-foreground: 232 35% 6%;
+
+  /* Warning — Clerk Orange (CTA, attention) */
+  --warning: 23 90% 52%;
+  --warning-foreground: 0 0% 100%;
+
+  /* Destructive */
+  --destructive: 0 63% 51%;
+  --destructive-foreground: 210 40% 96%;
+
+  /* Success — Emerald */
+  --success: 160 84% 42%;
+  --success-foreground: 210 40% 96%;
+
+  /* Border, Input, Ring */
+  --border: 232 25% 18%;
+  --input: 232 25% 18%;
+  --ring: 172 66% 50%;
+
+  /* Chart Colors */
+  --chart-1: 172 66% 55%;
+  --chart-2: 232 50% 60%;
+  --chart-3: 43 96% 62%;
+  --chart-4: 280 65% 65%;
+  --chart-5: 0 72% 58%;
+}

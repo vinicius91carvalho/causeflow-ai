@@ -1,0 +1,128 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-07T20:49:00Z",
+  "title": "Incident Detail Page: Redesign + SSE + Live Audit Trail",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-sse-hook-and-bugfixes.md",
+      "title": "SSE Hook + Bug Fixes",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": false,
+      "completed_at": "2026-04-07T21:50:00Z",
+      "notes": "Created use-incident-stream hook (incidentId-filtered SSE consumer for /api/notifications/stream, manual reconnect, graceful EventSource missing fallback). Created DisconnectedBanner. Refactored incident-detail.tsx: removed setInterval/POLL_INTERVAL_MS/IN_PROGRESS_STATUSES, wired stream.on for incident.status_changed/incident.updated/investigation.completed/.failed/.aborted/remediation.proposed re-fetch. Fixed incident-feedback.tsx and remediations-section.tsx: replaced if(!res.ok)return early-returns with explicit setError + UI error branch + Retry button; removed literal 'Loading...' (skeleton divs instead). Inverted polling.test.ts to assert polling is gone. Added i18n keys: detail.liveProgress, detail.stream.{connecting,disconnected,error,reconnect,devUnavailable}, detail.feedback.{errorState,retry}, detail.remediations.{errorState,retry,investigationPending,completedEmpty,completedEmptyWithCause,loading} in en + pt-br. 32 new tests across 8 files (incident-stream-types, use-incident-stream, disconnected-banner, incident-detail, incident-feedback, remediations-section, polling regression). All 69 investigation tests pass. RemediationsSection contract extended with optional incidentStatus + rootCause props (Sprint 4 will wire branching).",
+      "files_to_create": [
+        "apps/dashboard/src/contexts/investigation/domain/incident-stream-types.ts",
+        "apps/dashboard/src/contexts/investigation/presentation/hooks/use-incident-stream.ts",
+        "apps/dashboard/src/contexts/investigation/presentation/hooks/__tests__/use-incident-stream.test.ts",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/disconnected-banner.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/__tests__/disconnected-banner.test.tsx"
+      ],
+      "files_to_modify": [
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-feedback.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/remediations-section.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/__tests__/polling.test.ts"
+      ]
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-audit-bff-passthrough.md",
+      "title": "Audit BFF Passthrough + Action Registry",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": false,
+      "completed_at": "2026-04-07T21:50:00Z",
+      "notes": "Extended VALID_ACTIONS with 7 new agent/investigation actions (investigation.{started,completed,aborted,failed}, agent.{started,evidence_appended,completed}). Added ALLOWED_AUDIT_RESOURCE_TYPES = ['incident','remediation','approval'] const. Extended ListAuditParams with optional resourceType + resourceId. Updated http-api-client.listAuditEntries to forward both. Updated audit-handler.ts to parse resourceType/resourceId, validate resourceType against allowlist (returns 400 with descriptive error), forward both to client.listAuditEntries. Backwards compatible: existing action filter + pagination unchanged when new params absent. 19 new tests across 2 files (12 audit-handler + 7 audit/types). All audit + investigation tests green.",
+      "files_to_create": ["apps/dashboard/src/contexts/audit/api/__tests__/audit-handler.test.ts"],
+      "files_to_modify": [
+        "apps/dashboard/src/contexts/audit/api/audit-handler.ts",
+        "apps/dashboard/src/contexts/audit/domain/types.ts",
+        "apps/dashboard/src/lib/api/core-api-types.ts",
+        "apps/dashboard/src/lib/api/http-api-client.ts"
+      ]
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-live-activity-timeline.md",
+      "title": "Live Activity Timeline Component",
+      "status": "complete",
+      "depends_on": [1, 2],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": false,
+      "completed_at": "2026-04-07T21:55:00Z",
+      "notes": "Created incident-detail/lib/agent-role-meta.ts (Record<AgentRole, {icon, colorClasses, labelKey}> with distinct icons/colors per role), agent-step-mappers.ts (pure mapAuditEntryToAgentStep + mapSseEventToAgentStep, parses agent.<role>.<verb> format, handles audit.appended SSE events with action passthrough or thin generic fallback, derives status from verb), agent-step-card.tsx (renders icon + label + relative time + summary, falls back to system Activity icon when agentRole=null), live-activity-timeline.tsx (fetches /api/audit?resourceType=incident&resourceId=&limit=50 on mount via Sprint 2 BFF, dedups by step.id with seenIdsRef Set, sorts createdAt DESC defensively per PRD Q4, subscribes to audit.appended/agent.*/investigation.* SSE events, four states loading/error/empty/populated with aria-live=polite). Added i18n: detail.liveActivity.{title,empty,history,errorState,retry} and detail.agents.{log_analyst,metric_analyst,infra_inspector,orchestrator,scout,diagnosis_verifier} in en + pt-br. 38 new tests across 6 files (16 mappers + 4 role-meta + 5 card + 8 timeline + 5 sources for sprint files). All 130 investigation+audit tests green.",
+      "files_to_create": [
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/live-activity-timeline.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/agent-step-card.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/lib/agent-step-mappers.ts",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/lib/agent-role-meta.ts",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/__tests__/live-activity-timeline.test.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/__tests__/agent-step-card.test.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/__tests__/agent-step-mappers.test.ts"
+      ],
+      "files_to_modify": []
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-remediations-feedback-four-state.md",
+      "title": "Remediations + Feedback Four-State UX",
+      "status": "complete",
+      "depends_on": [1],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": false,
+      "completed_at": "2026-04-07T21:57:00Z",
+      "notes": "Created RemediationsEmptyState (3 states: pending/completed-empty/error with rootCause inline copy support via completedEmptyWithCause i18n key, Retry button only on error+onRetry) and FeedbackEmptyState (empty/error states). Modified remediations-section.tsx to use RemediationsEmptyState: defines IN_PROGRESS_INCIDENT_STATUSES = open|triaging|investigating|awaiting_approval|remediating, branches based on incidentStatus (defaults to safer pending state when undefined). Modified incident-feedback.tsx to use FeedbackEmptyState. The 'noRemediations' i18n key is preserved (other consumers may still use it). 9 new tests across 2 files (5 remediations-empty-state + 4 feedback-empty-state). All 130 investigation+audit tests still pass.",
+      "files_to_create": [
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/remediations-empty-state.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/feedback-empty-state.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/__tests__/remediations-empty-state.test.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/__tests__/feedback-empty-state.test.tsx"
+      ],
+      "files_to_modify": [
+        "apps/dashboard/src/contexts/investigation/presentation/components/remediations-section.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-feedback.tsx",
+        "apps/dashboard/src/contexts/investigation/infrastructure/i18n/en.json",
+        "apps/dashboard/src/contexts/investigation/infrastructure/i18n/pt-br.json"
+      ]
+    },
+    {
+      "id": 5,
+      "file": "sprints/05-layout-redesign-integration.md",
+      "title": "Layout Redesign + Integration",
+      "status": "complete",
+      "depends_on": [3, 4],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": false,
+      "completed_at": "2026-04-07T22:05:00Z",
+      "notes": "Created IncidentActionBar (pure presentational, all handlers via props), IncidentNarrative (Description/RootCause/Resolution/AssignedAgents/Timestamps with conditional empty section omission), IncidentStatusPanel (lg:sticky lg:top-4, connection-state pill, accepts actionBar as ReactNode prop). Refactored incident-detail.tsx into 2-column responsive grid (lg:col-span-8 narrative + lg:col-span-4 status panel/timeline) with Back link, DisconnectedBanner, live progress indicator, KnownSolutionBanner, mobile-first stacking via grid-cols-1 lg:grid-cols-12. Created use-incident-actions hook to extract POST handlers (handleRerun/handleStartTriage/handleStartInvestigation/handleAbortInvestigation/handleKnownSolutionResponse) and per-action loading state — this reduced incident-detail.tsx from 442 to 180 lines (well under PRD's 250 budget). Added 4 i18n actions keys (abortConfirm/abortYes/abortCancel/creating) + stream.connected. Updated apps/dashboard/CLAUDE.md investigation context entry with the new incident-detail/ sub-folder + hooks/ files. 19 new tests across 5 files (5 action-bar + 3 narrative + 5 status-panel + 1 use-incident-actions smoke + tests for Sprint 5 layout invariants). All 144 investigation+audit tests green. All 7 INVARIANTS.md verify commands pass (polling forbidden, Loading literal banned in production source, agent roles cardinality=6, SSE proxy generic, BFF audit allowlist, no barrel imports, tenant+incident isolation in hook). Pre-existing dashboard lint warnings (noExplicitAny in http-api-client submitRemediationFeedback, noImplicitAnyLet in remediations-id-handler) and one TS error in services.test.ts (unrelated TenantPlan 'free') were NOT introduced by this PRD.",
+      "files_to_create": [
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/incident-status-panel.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/incident-narrative.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/incident-action-bar.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/__tests__/incident-status-panel.test.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/__tests__/incident-narrative.test.tsx",
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail/__tests__/incident-action-bar.test.tsx"
+      ],
+      "files_to_modify": [
+        "apps/dashboard/src/contexts/investigation/presentation/components/incident-detail.tsx",
+        "apps/dashboard/src/contexts/investigation/infrastructure/i18n/en.json",
+        "apps/dashboard/src/contexts/investigation/infrastructure/i18n/pt-br.json",
+        "apps/dashboard/CLAUDE.md"
+      ]
+    }
+  ]
+}

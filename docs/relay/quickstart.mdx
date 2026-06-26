@@ -1,0 +1,166 @@
+---
+title: "Quickstart"
+description: "Deploy CauseFlow Relay in your private network in under 10 minutes."
+---
+
+<Note>
+  The Relay container image is currently in early access. Contact [support@causeflow.ai](mailto:support@causeflow.ai) to request access before following this guide.
+</Note>
+
+<Steps>
+  <Step title="Prerequisites">
+    Before you begin, make sure you have:
+
+    - **Docker >= 20** installed on the host where you'll run the Relay
+    - A **CauseFlow account** with Relay enabled on your tenant (contact support if you're unsure)
+    - **Network access** from the Relay host to your database(s) and to `api.causeflow.ai:443` (outbound)
+    - The **Relay container image** — request access at [support@causeflow.ai](mailto:support@causeflow.ai)
+
+    The Relay needs no inbound ports. Your firewall only needs to allow outbound TCP to `api.causeflow.ai` on port 443.
+  </Step>
+
+  <Step title="Get your relay token">
+    1. Log in to the [CauseFlow Dashboard](https://dashboard.causeflow.ai).
+    2. Go to **Settings** → **Relay**.
+    3. Click **Create relay token**.
+    4. Copy the **Relay Token** and **Tenant ID** — you'll need both in the next step.
+
+    <Warning>
+      The relay token is shown once. Store it in your secrets manager (AWS Secrets Manager, HashiCorp Vault, Kubernetes Secret, etc.) immediately.
+    </Warning>
+  </Step>
+
+  <Step title="Create your configuration file">
+    Create `relay-config.yaml` on the host where you'll run the Relay. Use the example below as a starting point:
+
+    ```yaml relay-config.yaml
+    controlPlane:
+      url: wss://api.causeflow.ai/v1/relay/connect
+      token: ${RELAY_TOKEN}
+      tenantId: ${TENANT_ID}
+
+    resources:
+      - id: main-pg
+        type: postgres
+        name: Main PostgreSQL
+        connection:
+          host: ${PG_HOST}
+          port: 5432
+          database: ${PG_DATABASE}
+          user: ${PG_USER}
+          password: ${PG_PASSWORD}
+        allowedOperations: [query, describe_table, list_tables, explain]
+        maxRowsPerQuery: 1000
+
+    masking:
+      enabled: true
+      patterns:
+        - name: cpf
+          regex: '\d{3}\.\d{3}\.\d{3}-\d{2}'
+          replacement: '***.***.***-**'
+        - name: email
+          regex: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+          replacement: '***@***.***'
+
+    audit:
+      enabled: true
+      level: info
+    ```
+
+    Replace the `${...}` placeholders with your actual values, or pass them as environment variables when you start the container (recommended — never hardcode credentials in the config file).
+
+    See the [configuration reference](/relay/configuration) for a full description of every option.
+  </Step>
+
+  <Step title="Run the container">
+    Start the Relay with all recommended security flags:
+
+    ```bash
+    docker run -d \
+      --name causeflow-relay \
+      --restart unless-stopped \
+      -v $(pwd)/relay-config.yaml:/app/relay-config.yaml:ro \
+      -e RELAY_TOKEN=<your-relay-token> \
+      -e TENANT_ID=<your-tenant-id> \
+      -e PG_HOST=your-db-host \
+      -e PG_DATABASE=yourdb \
+      -e PG_USER=readonly_user \
+      -e PG_PASSWORD=secret \
+      --memory=512m \
+      --cpus=0.5 \
+      --read-only \
+      --tmpfs /tmp:size=64m \
+      --security-opt no-new-privileges \
+      --cap-drop ALL \
+      causeflow/relay:latest
+    ```
+
+    <Tip>
+      Create a database user with `SELECT`-only privileges specifically for the Relay. Never use your application's primary database user.
+    </Tip>
+
+    The container starts, reads your config, connects to the control plane, and begins responding to queries. It logs structured JSON to stdout.
+  </Step>
+
+  <Step title="Verify the connection">
+    **Option 1 — Dashboard:** Open the [CauseFlow Dashboard](https://dashboard.causeflow.ai) and go to **Settings** → **Relay**. Your relay should appear in the connections list within a few seconds with a green status indicator.
+
+    **Option 2 — API:** Check relay status via the CauseFlow API:
+
+    ```bash
+    curl -s \
+      -H "Authorization: Bearer <your-api-key>" \
+      https://api.causeflow.ai/v1/relay/status | jq .
+    ```
+
+    A healthy response looks like:
+
+    ```json
+    {
+      "status": "connected",
+      "tenantId": "your-tenant-id",
+      "resources": [
+        {
+          "id": "main-pg",
+          "name": "Main PostgreSQL",
+          "status": "healthy",
+          "lastCheckedAt": "2024-01-15T10:30:00Z"
+        }
+      ],
+      "connectedAt": "2024-01-15T10:29:55Z"
+    }
+    ```
+
+    **Option 3 — Container logs:** Check the container logs directly:
+
+    ```bash
+    docker logs causeflow-relay
+    ```
+
+    A successful startup looks like:
+
+    ```
+    {"level":"info","time":"...","msg":"Relay starting","version":"1.0.0"}
+    {"level":"info","time":"...","msg":"Connected to control plane","url":"wss://api.causeflow.ai/v1/relay/connect"}
+    {"level":"info","time":"...","msg":"Resource healthy","resourceId":"main-pg","type":"postgres"}
+    {"level":"info","time":"...","msg":"Relay ready"}
+    ```
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration reference" icon="sliders" href="/relay/configuration">
+    Explore all configuration options for resources, masking, and audit settings.
+  </Card>
+  <Card title="Deployment options" icon="server" href="/relay/deployment">
+    Deploy with Docker Compose, Kubernetes, or ECS Fargate.
+  </Card>
+  <Card title="PII masking" icon="eye-slash" href="/relay/pii-masking">
+    Configure built-in and custom masking patterns.
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/relay/troubleshooting">
+    Common issues and how to resolve them.
+  </Card>
+</CardGroup>

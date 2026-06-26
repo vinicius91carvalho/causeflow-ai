@@ -1,0 +1,107 @@
+[
+  {
+    "tag": "header",
+    "classes": "site-header",
+    "id": "",
+    "innerText_first_100_chars": "CauseFlow.AI Produto Casos de uso Integrações Preços Docs PT EN Entrar Agendar demo →",
+    "childCount": 1
+  },
+  {
+    "tag": "section",
+    "classes": "hero",
+    "id": "",
+    "innerText_first_100_chars": "Para Engenharia Para Customer Ops Investigue incidentes em minutos, não horas. Seis agentes de IA e",
+    "childCount": 2
+  },
+  {
+    "tag": "section",
+    "classes": "logo-belt",
+    "id": "",
+    "innerText_first_100_chars": "CONECTADO À INFRAESTRUTURA QUE VOCÊ JÁ USA CLIENTES Fotop Pinubi + sua empresa",
+    "childCount": 1
+  },
+  {
+    "tag": "section",
+    "classes": "section",
+    "id": "product",
+    "innerText_first_100_chars": "COMO FUNCIONA Conecta. Investiga. Explica. Read-only, permissão mínima, certificado. O resto aconte",
+    "childCount": 1
+  },
+  {
+    "tag": "section",
+    "classes": "section duo-section",
+    "id": "",
+    "innerText_first_100_chars": "DOIS PRODUTOS, UM FRAMEWORK Problemas de tech ou de cliente. O mesmo raciocínio. Bug em produção ou",
+    "childCount": 1
+  },
+  {
+    "tag": "section",
+    "classes": "section",
+    "id": "integrations",
+    "innerText_first_100_chars": "INTEGRAÇÕES +200 ferramentas. Zero wrapper custom. Se a sua stack não está na lista, a maioria das",
+    "childCount": 1
+  },
+  {
+    "tag": "section",
+    "classes": "section time-saved",
+    "id": "",
+    "innerText_first_100_chars": "TEMPO DO SEU TIME A maior parte do tempo de um incidente é investigação. Engenheiros revisando logs",
+    "childCount": 1
+  },
+  {
+    "tag": "section",
+    "classes": "section",
+    "id": "use-cases",
+    "innerText_first_100_chars": "CASOS DE USO Cenários reais, resolvidos em minutos. INV-2847 MEDIUM Pricing page exibindo preços des",
+    "childCount": 1
+  },
+  {
+    "tag": "section",
+    "classes": "section duo-section",
+    "id": "alerts",
+    "innerText_first_100_chars": "INVESTIGAÇÃO DE ALERTAS Do alerta crítico à resposta acionável. CauseFlow classifica cada evento. A",
+    "childCount": 1
+  },
+  {
+    "tag": "section",
+    "classes": "section notif-section",
+    "id": "",
+    "innerText_first_100_chars": "NOTIFICAÇÃO O resultado chega onde você já está. Slack, email ou Teams — com o raciocínio, evidênci",
+    "childCount": 1
+  },
+  {
+    "tag": "section",
+    "classes": "quote-section",
+    "id": "",
+    "innerText_first_100_chars": "\"Antes, levávamos 3 horas pra entender o que quebrou. Hoje o CauseFlow me manda a causa raiz no Slac",
+    "childCount": 1
+  },
+  {
+    "tag": "section",
+    "classes": "cta-section",
+    "id": "",
+    "innerText_first_100_chars": "Pare de caçar logs. Comece a construir produto. Demo de 20 minutos com uma investigação real na sua",
+    "childCount": 1
+  },
+  {
+    "tag": "footer",
+    "classes": "",
+    "id": "",
+    "innerText_first_100_chars": "CauseFlow.AI Investigações produção-grade, em paralelo, com human-in-the-loop. Read-only por padrão",
+    "childCount": 1
+  },
+  {
+    "tag": "div",
+    "classes": "open",
+    "id": "tweaks-panel",
+    "innerText_first_100_chars": "Tweaks COR DE ACCENT TOM DO FUNDO HEADLINE PRINCIPAL",
+    "childCount": 4
+  },
+  {
+    "tag": "script",
+    "classes": "",
+    "id": "",
+    "innerText_first_100_chars": "/*EDITMODE-BEGIN*/ const TWEAK_DEFAULTS = { \"accentH\": 172, \"accentS\": \"66%\", \"accentL\": \"30%",
+    "childCount": 0
+  }
+]

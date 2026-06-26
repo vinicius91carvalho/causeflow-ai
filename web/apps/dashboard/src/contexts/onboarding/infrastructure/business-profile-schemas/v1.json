@@ -1,0 +1,390 @@
+{
+  "version": "v1",
+  "supportedLocales": ["en", "pt-br"],
+  "defaultLocale": "en",
+  "title": {
+    "en": "Tell us about your business",
+    "pt-br": "Conte-nos sobre o seu negócio"
+  },
+  "subtitle": {
+    "en": "This helps our AI agents analyze incidents in the context of your company.",
+    "pt-br": "Isso ajuda nossos agentes de IA a analisar incidentes no contexto da sua empresa."
+  },
+  "submitLabel": { "en": "Finish setup", "pt-br": "Concluir configuração" },
+  "skipLabel": { "en": "Skip for now", "pt-br": "Pular por enquanto" },
+  "markdownTemplate": {
+    "heading": { "en": "Company Context", "pt-br": "Contexto da Empresa" },
+    "sectionPerStep": true
+  },
+  "steps": [
+    {
+      "id": "company",
+      "title": { "en": "Your company", "pt-br": "Sua empresa" },
+      "description": {
+        "en": "A quick snapshot of who you are.",
+        "pt-br": "Um resumo rápido de quem vocês são."
+      },
+      "fields": [
+        {
+          "id": "industry",
+          "type": "select",
+          "label": { "en": "Primary industry", "pt-br": "Setor principal" },
+          "required": true,
+          "options": [
+            {
+              "value": "fintech",
+              "label": { "en": "Fintech / Banking", "pt-br": "Fintech / Bancário" }
+            },
+            { "value": "saas", "label": { "en": "B2B SaaS", "pt-br": "SaaS B2B" } },
+            {
+              "value": "ecommerce",
+              "label": { "en": "E-commerce / Retail", "pt-br": "E-commerce / Varejo" }
+            },
+            {
+              "value": "health",
+              "label": { "en": "Healthcare / HealthTech", "pt-br": "Saúde / HealthTech" }
+            },
+            {
+              "value": "media",
+              "label": { "en": "Media / Streaming", "pt-br": "Mídia / Streaming" }
+            },
+            {
+              "value": "logistics",
+              "label": {
+                "en": "Logistics / Supply chain",
+                "pt-br": "Logística / Cadeia de suprimentos"
+              }
+            },
+            { "value": "gaming", "label": { "en": "Gaming", "pt-br": "Jogos" } },
+            { "value": "other", "label": { "en": "Other", "pt-br": "Outro" } }
+          ]
+        },
+        {
+          "id": "industryOther",
+          "type": "text",
+          "label": { "en": "Describe your industry", "pt-br": "Descreva o seu setor" },
+          "required": true,
+          "visibleWhen": { "fieldId": "industry", "equals": "other" }
+        },
+        {
+          "id": "companySize",
+          "type": "radio",
+          "label": { "en": "Company size", "pt-br": "Tamanho da empresa" },
+          "required": true,
+          "options": [
+            { "value": "1-10", "label": { "en": "1–10 employees", "pt-br": "1–10 funcionários" } },
+            { "value": "11-50", "label": { "en": "11–50", "pt-br": "11–50" } },
+            { "value": "51-200", "label": { "en": "51–200", "pt-br": "51–200" } },
+            { "value": "201-500", "label": { "en": "201–500", "pt-br": "201–500" } },
+            { "value": "500+", "label": { "en": "500+", "pt-br": "500+" } }
+          ]
+        },
+        {
+          "id": "businessDescription",
+          "type": "textarea",
+          "label": {
+            "en": "Describe your business in a few sentences",
+            "pt-br": "Descreva o seu negócio em algumas frases"
+          },
+          "help": {
+            "en": "What do you do, for whom, and what problem do you solve?",
+            "pt-br": "O que vocês fazem, para quem, e qual problema resolvem?"
+          },
+          "required": true,
+          "minLength": 40,
+          "maxLength": 1000
+        }
+      ]
+    },
+    {
+      "id": "products",
+      "title": { "en": "Your products", "pt-br": "Seus produtos" },
+      "description": {
+        "en": "Tell us about what you build and ship.",
+        "pt-br": "Conte-nos sobre o que vocês constroem e entregam."
+      },
+      "fields": [
+        {
+          "id": "productsOverview",
+          "type": "textarea",
+          "label": {
+            "en": "Your products and services",
+            "pt-br": "Seus produtos e serviços"
+          },
+          "help": {
+            "en": "List your products or services and briefly describe what each one does.",
+            "pt-br": "Liste seus produtos ou serviços e descreva brevemente o que cada um faz."
+          },
+          "required": true,
+          "minLength": 20,
+          "maxLength": 2000
+        }
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "title": { "en": "Your infrastructure", "pt-br": "Sua infraestrutura" },
+      "description": {
+        "en": "Help us understand your technical environment.",
+        "pt-br": "Ajude-nos a entender o seu ambiente técnico."
+      },
+      "fields": [
+        {
+          "id": "cloudProviders",
+          "type": "multiselect",
+          "label": { "en": "Cloud providers", "pt-br": "Provedores de nuvem" },
+          "required": true,
+          "options": [
+            {
+              "value": "aws",
+              "label": { "en": "Amazon Web Services (AWS)", "pt-br": "Amazon Web Services (AWS)" }
+            },
+            {
+              "value": "gcp",
+              "label": { "en": "Google Cloud Platform", "pt-br": "Google Cloud Platform" }
+            },
+            { "value": "azure", "label": { "en": "Microsoft Azure", "pt-br": "Microsoft Azure" } },
+            { "value": "cloudflare", "label": { "en": "Cloudflare", "pt-br": "Cloudflare" } },
+            { "value": "vercel", "label": { "en": "Vercel", "pt-br": "Vercel" } },
+            {
+              "value": "on-prem",
+              "label": {
+                "en": "On-premises / self-hosted",
+                "pt-br": "On-premises / auto-hospedado"
+              }
+            },
+            { "value": "other", "label": { "en": "Other", "pt-br": "Outro" } }
+          ]
+        },
+        {
+          "id": "cloudProvidersOther",
+          "type": "text",
+          "label": { "en": "Other cloud provider(s)", "pt-br": "Outro(s) provedor(es) de nuvem" },
+          "required": true,
+          "visibleWhen": { "fieldId": "cloudProviders", "includes": "other" },
+          "maxLength": 200
+        },
+        {
+          "id": "primaryLanguages",
+          "type": "multiselect",
+          "label": {
+            "en": "Primary programming languages",
+            "pt-br": "Linguagens de programação principais"
+          },
+          "required": true,
+          "options": [
+            {
+              "value": "typescript",
+              "label": { "en": "TypeScript / JavaScript", "pt-br": "TypeScript / JavaScript" }
+            },
+            { "value": "python", "label": { "en": "Python", "pt-br": "Python" } },
+            { "value": "go", "label": { "en": "Go", "pt-br": "Go" } },
+            { "value": "java", "label": { "en": "Java / Kotlin", "pt-br": "Java / Kotlin" } },
+            { "value": "ruby", "label": { "en": "Ruby", "pt-br": "Ruby" } },
+            { "value": "rust", "label": { "en": "Rust", "pt-br": "Rust" } },
+            { "value": "php", "label": { "en": "PHP", "pt-br": "PHP" } },
+            { "value": "dotnet", "label": { "en": ".NET / C#", "pt-br": ".NET / C#" } },
+            { "value": "other", "label": { "en": "Other", "pt-br": "Outro" } }
+          ]
+        },
+        {
+          "id": "primaryLanguagesOther",
+          "type": "text",
+          "label": { "en": "Other language(s)", "pt-br": "Outra(s) linguagem(ns)" },
+          "required": true,
+          "visibleWhen": { "fieldId": "primaryLanguages", "includes": "other" },
+          "maxLength": 200
+        },
+        {
+          "id": "datastores",
+          "type": "multiselect",
+          "label": { "en": "Datastores", "pt-br": "Armazenamentos de dados" },
+          "required": true,
+          "options": [
+            { "value": "postgres", "label": { "en": "PostgreSQL", "pt-br": "PostgreSQL" } },
+            { "value": "mysql", "label": { "en": "MySQL / MariaDB", "pt-br": "MySQL / MariaDB" } },
+            { "value": "dynamodb", "label": { "en": "DynamoDB", "pt-br": "DynamoDB" } },
+            { "value": "mongodb", "label": { "en": "MongoDB", "pt-br": "MongoDB" } },
+            { "value": "redis", "label": { "en": "Redis", "pt-br": "Redis" } },
+            { "value": "clickhouse", "label": { "en": "ClickHouse", "pt-br": "ClickHouse" } },
+            { "value": "bigquery", "label": { "en": "BigQuery", "pt-br": "BigQuery" } },
+            { "value": "kafka", "label": { "en": "Kafka", "pt-br": "Kafka" } },
+            { "value": "other", "label": { "en": "Other", "pt-br": "Outro" } }
+          ]
+        },
+        {
+          "id": "datastoresOther",
+          "type": "text",
+          "label": { "en": "Other datastore(s)", "pt-br": "Outro(s) armazenamento(s) de dados" },
+          "required": true,
+          "visibleWhen": { "fieldId": "datastores", "includes": "other" },
+          "maxLength": 200
+        },
+        {
+          "id": "architectureStyle",
+          "type": "radio",
+          "label": { "en": "Architecture style", "pt-br": "Estilo de arquitetura" },
+          "required": true,
+          "options": [
+            { "value": "monolith", "label": { "en": "Monolith", "pt-br": "Monólito" } },
+            {
+              "value": "modular-mono",
+              "label": { "en": "Modular monolith", "pt-br": "Monólito modular" }
+            },
+            {
+              "value": "microservices",
+              "label": { "en": "Microservices", "pt-br": "Microsserviços" }
+            },
+            {
+              "value": "serverless",
+              "label": {
+                "en": "Serverless / event-driven",
+                "pt-br": "Serverless / orientado a eventos"
+              }
+            },
+            {
+              "value": "hybrid",
+              "label": {
+                "en": "Hybrid (mix of the above)",
+                "pt-br": "Híbrido (combinação dos anteriores)"
+              }
+            }
+          ]
+        },
+        {
+          "id": "infraDescription",
+          "type": "textarea",
+          "label": {
+            "en": "Anything else about your infrastructure?",
+            "pt-br": "Mais alguma coisa sobre a sua infraestrutura?"
+          },
+          "help": {
+            "en": "Optional — e.g. specific tooling, observability stack, networking setup.",
+            "pt-br": "Opcional — ex: ferramentas específicas, stack de observabilidade, configuração de rede."
+          },
+          "maxLength": 1000
+        },
+        {
+          "id": "infrastructureRegion",
+          "type": "text",
+          "label": {
+            "en": "Primary infrastructure region",
+            "pt-br": "Região principal da infraestrutura"
+          },
+          "help": {
+            "en": "e.g. us-east-1, eu-west-1, ap-southeast-1, or a description like 'US East Coast'.",
+            "pt-br": "ex: us-east-1, eu-west-1, sa-east-1, ou uma descrição como 'Leste dos EUA'."
+          },
+          "required": true,
+          "maxLength": 100
+        }
+      ]
+    },
+    {
+      "id": "customers",
+      "title": { "en": "Your customers", "pt-br": "Seus clientes" },
+      "description": {
+        "en": "Help us understand who you serve.",
+        "pt-br": "Ajude-nos a entender quem você serve."
+      },
+      "fields": [
+        {
+          "id": "customerType",
+          "type": "multiselect",
+          "label": { "en": "Customer type", "pt-br": "Tipo de cliente" },
+          "required": true,
+          "options": [
+            { "value": "b2b", "label": { "en": "B2B (businesses)", "pt-br": "B2B (empresas)" } },
+            { "value": "b2c", "label": { "en": "B2C (consumers)", "pt-br": "B2C (consumidores)" } },
+            { "value": "b2b2c", "label": { "en": "B2B2C", "pt-br": "B2B2C" } },
+            {
+              "value": "internal",
+              "label": { "en": "Internal (employees)", "pt-br": "Interno (funcionários)" }
+            }
+          ]
+        },
+        {
+          "id": "customerGeography",
+          "type": "multiselect",
+          "label": { "en": "Customer geography", "pt-br": "Localização dos clientes" },
+          "required": true,
+          "options": [
+            {
+              "value": "north-america",
+              "label": { "en": "North America", "pt-br": "América do Norte" }
+            },
+            { "value": "latam", "label": { "en": "Latin America", "pt-br": "América Latina" } },
+            { "value": "europe", "label": { "en": "Europe", "pt-br": "Europa" } },
+            { "value": "apac", "label": { "en": "Asia-Pacific", "pt-br": "Ásia-Pacífico" } },
+            {
+              "value": "mea",
+              "label": { "en": "Middle East & Africa", "pt-br": "Oriente Médio e África" }
+            },
+            { "value": "global", "label": { "en": "Global", "pt-br": "Global" } }
+          ]
+        },
+        {
+          "id": "customerDescription",
+          "type": "textarea",
+          "label": {
+            "en": "Describe your typical customer",
+            "pt-br": "Descreva seu cliente típico"
+          },
+          "help": {
+            "en": "Who are they, what's their role, what's their biggest pain point you solve?",
+            "pt-br": "Quem são eles, qual é o papel deles, qual é a maior dor que você resolve?"
+          },
+          "required": true,
+          "minLength": 20,
+          "maxLength": 1000
+        }
+      ]
+    },
+    {
+      "id": "extras",
+      "title": { "en": "Anything else?", "pt-br": "Algo mais?" },
+      "description": {
+        "en": "Optional extra context to help our AI agents.",
+        "pt-br": "Contexto extra opcional para ajudar nossos agentes de IA."
+      },
+      "fields": [
+        {
+          "id": "knownPainPoints",
+          "type": "textarea",
+          "label": {
+            "en": "Known pain points or recurring issues",
+            "pt-br": "Pontos de dor conhecidos ou problemas recorrentes"
+          },
+          "help": {
+            "en": "Optional — e.g. 'we have frequent DB connection storms' or 'deployments sometimes lock tables'.",
+            "pt-br": "Opcional — ex: 'temos tempestades frequentes de conexão DB' ou 'deploys às vezes travam tabelas'."
+          },
+          "maxLength": 1000
+        },
+        {
+          "id": "teamPractices",
+          "type": "textarea",
+          "label": {
+            "en": "Engineering team practices",
+            "pt-br": "Práticas da equipe de engenharia"
+          },
+          "help": {
+            "en": "Optional — e.g. on-call rotation, incident runbooks, SLA targets, alerting tools.",
+            "pt-br": "Opcional — ex: rotação de plantão, runbooks de incidente, metas de SLA, ferramentas de alerta."
+          },
+          "maxLength": 1000
+        },
+        {
+          "id": "additionalContext",
+          "type": "textarea",
+          "label": { "en": "Additional context", "pt-br": "Contexto adicional" },
+          "help": {
+            "en": "Optional — anything else you'd like our AI to know about your company or systems.",
+            "pt-br": "Opcional — qualquer outra coisa que nosso AI deva saber sobre sua empresa ou sistemas."
+          },
+          "maxLength": 2000
+        }
+      ]
+    }
+  ]
+}

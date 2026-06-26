@@ -1,0 +1,66 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-08T12:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-domain-schema-markdown.md",
+      "title": "Domain, Schema Dialect, v1.json, Markdown Transformer",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": null,
+      "merged": true,
+      "notes": "All domain types, zod validator, v1.json (fully bilingual EN+PT-BR), resolve-localized-schema helper, markdown transformer, validator, and registry created. All tests green."
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-repository-api-core-client.md",
+      "title": "Repository, BFF API Routes, Core API Client Extension",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": null,
+      "merged": true,
+      "notes": "BusinessProfileRepository (direct AWS SDK), BFF handlers (schema/submit/skip/resync), ICoreApiClient.seedMemoryContext added, http-api-client and mock-api-client implemented. TODO(core-api-seed-endpoint) comment present. All tests green."
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-schema-renderer.md",
+      "title": "Schema-Driven Form Renderer & Wizard Shell",
+      "status": "complete",
+      "depends_on": [1],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": null,
+      "merged": true,
+      "notes": "field-renderer, tags-input, step-renderer, wizard, use-business-profile-draft hook, build-zod-from-schema all created. Draft uses localStorage keyed per schema version. Bilingual rendering via resolveLocalizedSchema. All tests green."
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-page-guard-checkout-redirect.md",
+      "title": "Page, Middleware Guard, Checkout Redirect",
+      "status": "complete",
+      "depends_on": [2, 3],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": null,
+      "merged": true,
+      "notes": "business-profile-page.tsx client component, app/[locale]/onboarding/business-profile/page.tsx route, checkout-complete-handler redirect updated to /onboarding/business-profile?welcome=1, Sprint 2 buildMarkdownStub replaced with real generateBusinessProfileMarkdown, i18n keys added. Fixed useToast API mismatch (addToast vs toast). All tests green."
+    },
+    {
+      "id": 5,
+      "file": "sprints/05-e2e-settings-resync.md",
+      "title": "E2E, Settings Resume, Resync Action",
+      "status": "complete",
+      "depends_on": [4],
+      "batch": 4,
+      "model": "sonnet",
+      "branch": null,
+      "merged": true,
+      "notes": "business-profile-card.tsx added to settings, settings-content.tsx updated with BusinessProfileCard under Agent context section, middleware ?edit=1 bypass, resync handler unit tests. Fixed useToast API mismatch. All tests green. NOTE: Playwright E2E spec (onboarding-business-profile.spec.ts) requires seeded test users with trialing subscriptions — left as manual verification step."
+    }
+  ]
+}

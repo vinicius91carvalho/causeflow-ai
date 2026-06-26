@@ -1,0 +1,83 @@
+---
+title: "Settings"
+description: "Configure your profile, company settings, notifications, and API keys."
+---
+
+Go to **Dashboard > Settings** to manage your personal preferences and tenant-level configuration.
+
+## Profile
+
+Update your personal account information.
+
+- **Name** — Your display name, shown in the team list and audit trail entries.
+- **Email** — The email address associated with your account. Changing your email requires confirmation from the new address.
+- **Avatar** — Upload a profile photo. Supported formats: JPG, PNG. Maximum size: 2 MB.
+
+Click **Save** after making changes.
+
+## Company
+
+Update your tenant's information. These settings apply to the entire tenant, not just your account. Only admins can change company settings.
+
+- **Company name** — Your organization's name. Shown in the tenant selector and billing information.
+- **Team size** — The approximate size of your engineering team. Used to tailor the onboarding experience and default investigation settings.
+
+## Notifications
+
+Configure how CauseFlow notifies you about activity in your tenant.
+
+Email notifications are available for the following events:
+
+- **New incident** — Receive an email when a new incident is created (manually or from an automated alert).
+- **Investigation complete** — Receive an email when an AI investigation finishes and results are ready to review.
+- **Pending approval** — Receive an email when a remediation proposal is waiting for your approval (sent to admins only).
+
+Toggle each notification on or off individually. Changes take effect immediately.
+
+<Note>
+  Notifications are per-account — each team member configures their own preferences independently.
+</Note>
+
+## Appearance
+
+Switch between **light** and **dark** themes. Select your preference and it is applied immediately to the dashboard. The theme setting is stored per account and persists across sessions and devices.
+
+## API keys
+
+API keys authenticate requests to the CauseFlow REST API and webhook endpoints. Use them to integrate CauseFlow with your monitoring tools, CI/CD pipelines, or internal automation.
+
+Go to **Settings > API Keys** to manage your keys.
+
+<Warning>
+  API key plaintext is shown only once when created. Store it securely immediately. If you lose a key, revoke it and create a new one.
+</Warning>
+
+### Creating an API key
+
+<Steps>
+  <Step title="Open the create form">
+    On the API Keys page, click **Create API Key**.
+  </Step>
+  <Step title="Name your key">
+    Enter a descriptive name so you can identify the key's purpose later — for example, `datadog-webhook` or `ci-pipeline`.
+  </Step>
+  <Step title="Copy the key">
+    After creation, CauseFlow displays the key plaintext once. **Copy it now and store it in a secret manager or password vault.** You will not be able to view the plaintext again after closing this dialog.
+  </Step>
+</Steps>
+
+### Using API keys
+
+Include your API key in the `Authorization` header as a Bearer token for API requests:
+
+```
+Authorization: Bearer <your-api-key>
+```
+
+For webhook authentication, use the same key when configuring your monitoring tool to sign webhook payloads sent to CauseFlow.
+
+### Revoking an API key
+
+If a key is compromised or no longer needed, revoke it immediately. On the API Keys page, find the key by name and click **Revoke**. The key stops working instantly — any requests using the revoked key will return a `401 Unauthorized` response.
+
+After revoking, create a new key and update any integrations that were using the old one.

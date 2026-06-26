@@ -1,0 +1,91 @@
+---
+title: "Integrations overview"
+sidebarTitle: "Overview"
+description: "Connect CauseFlow to your monitoring stack, code, communication tools, and more. Every plan includes all integrations."
+---
+
+CauseFlow integrates with your entire toolchain so agents can investigate incidents with full context — logs, metrics, infrastructure state, code history, and database queries all in one place. Every plan includes access to every integration.
+
+## Connect an integration
+
+<Steps>
+  <Step title="Open the integrations catalog">
+    Go to **Dashboard > Integrations**. You'll see a searchable catalog organized by category.
+  </Step>
+  <Step title="Find and click Connect">
+    Browse by category or search by tool name. Click **Connect** on the integration you want to add.
+  </Step>
+  <Step title="Complete the authorization flow">
+    Depending on the integration, you'll complete one of the following:
+    - **OAuth** — you'll be redirected to the tool to authorize access, then returned to CauseFlow.
+    - **Webhook** — CauseFlow provides a webhook URL that you configure in your monitoring tool.
+    - **IAM role** — for cloud providers, you'll configure a cross-account IAM role, service principal, or service account.
+  </Step>
+  <Step title="Verify the connection">
+    CauseFlow runs a connectivity check and shows a green status indicator. The relevant AI agents are automatically activated for future investigations.
+  </Step>
+</Steps>
+
+<Info>
+  All plans — Starter, Pro, Business, and Enterprise — include every integration listed in this catalog. There are no integration-gated tiers.
+</Info>
+
+## Integration categories
+
+<CardGroup cols={2}>
+  <Card title="Cloud providers" icon="cloud" href="/integrations/cloud-providers">
+    Connect AWS, Azure, and GCP using cross-account IAM roles, service principals, and service accounts so agents can inspect infrastructure state.
+  </Card>
+  <Card title="Monitoring" icon="chart-line" href="/integrations/monitoring">
+    Connect Datadog, Grafana, CloudWatch, Sentry, PagerDuty, and New Relic to automatically ingest alerts and trigger investigations.
+  </Card>
+  <Card title="GitHub" icon="code-branch" href="/integrations/github">
+    Install the CauseFlow GitHub App to enable code analysis and automated pull request creation during investigations.
+  </Card>
+  <Card title="Communication" icon="bell" href="/integrations/communication">
+    Receive incident notifications and investigation updates through Slack and Microsoft Teams.
+  </Card>
+  <Card title="Project management" icon="list-check" href="/integrations/project-management">
+    Connect Jira, Linear, Trello, Shortcut, Notion, and Confluence so agents can find related tickets and runbooks.
+  </Card>
+  <Card title="Databases" icon="database" href="/integrations/databases">
+    Give the DB Analyst agent read-only access to PostgreSQL and MongoDB through the privacy-preserving CauseFlow Relay.
+  </Card>
+  <Card title="HubSpot" icon="headset" href="/integrations/hubspot">
+    Bridge your customer support layer — CauseFlow correlates HubSpot tickets and contact history with active incidents.
+  </Card>
+  <Card title="Custom webhooks" icon="webhook" href="/integrations/custom-webhooks">
+    Send alerts from any monitoring tool or internal system using the generic webhook endpoint.
+  </Card>
+</CardGroup>
+
+## How integrations affect investigations
+
+The CauseFlow orchestrator agent uses each connected integration as a data source during investigation. More tools connected = broader investigation coverage.
+
+| Connected integration | What the orchestrator can do |
+|---|---|
+| CloudWatch / AWS cloud | Read logs, metrics, and infrastructure state (ECS, EC2, Lambda) |
+| GitHub | Read source, review recent commits, propose draft pull requests |
+| CauseFlow Relay (databases) | Run read-only queries for database diagnostics |
+| Any monitoring tool | Receive alerts and trigger investigations |
+| HubSpot | Enrich investigations with customer context (company, plan, tickets) |
+
+An incident investigated with logs, metrics, infrastructure state, code history, and database queries has a higher-confidence root cause than one investigated with only logs.
+
+<Tip>
+  Start by connecting your primary monitoring tool and GitHub. Those two cover the most common root cause categories.
+</Tip>
+
+## Integration platform
+
+CauseFlow's managed OAuth layer handles token authorization, automatic refresh, and encrypted storage for every third-party tool connection. You connect each tool once from **Dashboard > Integrations** and CauseFlow handles the rest — no long-lived credentials stored by you, no token rotation to manage.
+
+<CardGroup cols={2}>
+  <Card title="Security overview" icon="shield" href="/security/overview">
+    Learn how CauseFlow stores and protects your integration credentials.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    Manage integrations programmatically via the REST API.
+  </Card>
+</CardGroup>

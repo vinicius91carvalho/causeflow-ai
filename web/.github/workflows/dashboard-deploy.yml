@@ -1,0 +1,139 @@
+name: Dashboard Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Deployment stage'
+        required: false
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: dashboard-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build & Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Type check
+        run: pnpm turbo check-types --filter=@causeflow/dashboard...
+      - name: Unit tests
+        run: pnpm turbo test --filter=@causeflow/dashboard...
+      - name: Build
+        run: pnpm turbo build --filter=@causeflow/dashboard...
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          APP_VERSION: ${{ github.sha }}
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-2
+      - name: Install SST
+        run: curl -fsSL https://sst.dev/install | VERSION=3.19.0 bash
+      - name: Build dashboard
+        run: pnpm turbo build --filter=@causeflow/dashboard... --force
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          APP_VERSION: ${{ github.sha }}
+      - name: Deploy to staging
+        working-directory: apps/dashboard
+        run: sst deploy --stage staging
+        env:
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CORE_API_URL: ${{ secrets.CORE_API_URL }}
+          APP_VERSION: ${{ github.sha }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id E3KI6QMN6WF9N8 --paths "/*"
+      - name: Deployment summary
+        run: |
+          echo "### Dashboard Staging Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://dashboard-staging.causeflow.ai" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+  
+  deploy-production:
+    name: Deploy to Production
+    needs: deploy-staging
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.stage == 'production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-2
+      - name: Install SST
+        run: curl -fsSL https://sst.dev/install | VERSION=3.19.0 bash
+      - name: Build dashboard
+        run: pnpm turbo build --filter=@causeflow/dashboard... --force
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          APP_VERSION: ${{ github.sha }}
+      - name: Deploy to production
+        working-directory: apps/dashboard
+        run: sst deploy --stage production
+        env:
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CORE_API_URL: ${{ secrets.CORE_API_URL }}
+          APP_VERSION: ${{ github.sha }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id E2M44RHG1PPOR6 --paths "/*"
+      - name: Deployment summary
+        run: |
+          echo "### Dashboard Production Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://dashboard.causeflow.ai" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

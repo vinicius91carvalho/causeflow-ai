@@ -1,0 +1,9 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/causeflow.ts",
+  "_comment": "This file drives the app-stack entry point (bin/causeflow.ts). The bootstrap stack lives in bin/bootstrap.ts and MUST be deployed via its own command: `npx cdk --app 'npx ts-node --prefer-ts-exts bin/bootstrap.ts' deploy causeflow-bootstrap`. See infra/cdk/README.md.",
+  "context": {
+    "@aws-cdk/core:stackRelativeExports": true,
+    "certId": "1b29245a-f8c9-45e8-aebe-2f5cf552f231",
+    "vpcId": "vpc-02b09ee70f36aa18e"
+  }
+}

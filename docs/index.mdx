@@ -1,0 +1,81 @@
+---
+title: "CauseFlow AI Documentation"
+sidebarTitle: "Introduction"
+description: "AI-powered incident investigation for Engineering and Support teams. Automate root cause analysis, get remediation proposals, and resolve incidents in minutes."
+---
+
+CauseFlow AI automates the entire incident investigation lifecycle — from alert ingestion to root cause analysis to remediation. Connect your tools and let CauseFlow's AI analyze logs, metrics, infrastructure, code, and databases, then synthesize findings into actionable insights.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/getting-started/quickstart">
+    Create your account and investigate your first incident in under 5 minutes.
+  </Card>
+  <Card title="Dashboard guide" icon="gauge" href="/dashboard/overview">
+    Learn how to use the CauseFlow dashboard to manage incidents and your team.
+  </Card>
+  <Card title="AI transparency" icon="eye" href="/getting-started/ai-transparency">
+    Which models run, what they access, and how every decision is made.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    Integrate CauseFlow into your workflows with the REST API.
+  </Card>
+</CardGroup>
+
+## How it works
+
+<Steps>
+  <Step title="Alert received">
+    CauseFlow receives alerts from your monitoring tools via webhooks, or you create an incident manually from the dashboard.
+  </Step>
+  <Step title="AI analysis">
+    CauseFlow's AI classifies the incident severity and analyzes the relevant data sources — logs, metrics, infrastructure, code, and databases.
+  </Step>
+  <Step title="Root cause report">
+    Findings are synthesized into a root cause explanation with supporting evidence and a confidence score.
+  </Step>
+  <Step title="Remediation proposal">
+    CauseFlow proposes specific remediation actions — restart a service, rollback a deployment, or create a pull request with a fix.
+  </Step>
+  <Step title="Human approval">
+    Nothing executes without your approval. Review the proposed actions and approve, reject, or request more investigation.
+  </Step>
+  <Step title="Continuous learning">
+    After each resolved incident, CauseFlow extracts patterns from the investigation. These patterns accelerate future analyses and surface known solutions automatically — so every investigation makes the next one faster and more accurate.
+  </Step>
+</Steps>
+
+## Connect your tools
+
+CauseFlow integrates with your existing stack through cloud provider roles (AWS, Azure, GCP) or direct tool connections. Connect your monitoring, code repositories, communication tools, and more from the [Integrations](/integrations/overview) page in the dashboard.
+
+<CardGroup cols={3}>
+  <Card title="Cloud providers" icon="cloud" href="/integrations/cloud-providers">
+    AWS, Azure, GCP — connect with a read-only role
+  </Card>
+  <Card title="Monitoring" icon="chart-line" href="/integrations/monitoring">
+    Datadog, Grafana, CloudWatch, Sentry, PagerDuty
+  </Card>
+  <Card title="Code" icon="code-branch" href="/integrations/github">
+    GitHub
+  </Card>
+  <Card title="Messaging" icon="comments" href="/integrations/communication">
+    Slack, Microsoft Teams
+  </Card>
+  <Card title="Management" icon="list-check" href="/integrations/project-management">
+    Jira, Linear, Trello, Shortcut, Notion, Confluence
+  </Card>
+  <Card title="Customer support" icon="headset" href="/integrations/hubspot">
+    HubSpot — bridge tickets to investigations
+  </Card>
+  <Card title="Databases" icon="database" href="/integrations/databases">
+    PostgreSQL, MongoDB via Relay
+  </Card>
+</CardGroup>
+
+## Privacy and security
+
+CauseFlow is built with security as a foundation. Your data stays protected with tenant isolation, encrypted credentials, read-only infrastructure access, and a tamper-proof audit trail.
+
+<Card title="Security overview" icon="lock" href="/security/overview">
+  Learn about our security architecture, RBAC, data privacy, and compliance readiness.
+</Card>

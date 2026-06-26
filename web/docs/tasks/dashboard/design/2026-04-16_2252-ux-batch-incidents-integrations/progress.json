@@ -1,0 +1,61 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-16T22:52:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-ui-polish.md",
+      "title": "UI Polish — Unplug icon, new-incident form, feedback labels, timestamps move",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "sprint/ux-batch-1-ui-polish",
+      "merged": true
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-incident-detail-layout.md",
+      "title": "Incident Detail Fixed-Viewport Layout",
+      "status": "complete",
+      "depends_on": [1],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "sprint/ux-batch-2-incident-detail-layout",
+      "merged": true
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-styled-selects-pagination.md",
+      "title": "Styled Selects + First-Page Limit = 10",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "sprint/ux-batch-3-selects-pagination",
+      "merged": true
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-aws-onboarding-persist.md",
+      "title": "AWS Onboarding Persistence Fix",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "sprint/ux-batch-4-aws-onboarding-persist",
+      "merged": true
+    },
+    {
+      "id": 5,
+      "file": "sprints/05-composio-oauth-redirect.md",
+      "title": "Composio OAuth Callback — Redirect + Toast",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "sprint/ux-batch-5-composio-oauth-redirect",
+      "merged": true
+    }
+  ]
+}

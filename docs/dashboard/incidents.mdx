@@ -1,0 +1,100 @@
+---
+title: "Incidents"
+description: "Create, manage, and investigate incidents from the CauseFlow dashboard."
+---
+
+Incidents are the core unit of work in CauseFlow. Each incident represents an issue in your system — whether triggered automatically by a monitoring alert or created manually — and drives the full investigation lifecycle.
+
+## Incident list
+
+Go to **Dashboard > Incidents** to see all incidents in your tenant.
+
+The list shows each incident's title, severity badge, status badge, source (the monitoring tool or "Manual"), and creation time. Use the filters at the top to narrow the list:
+
+- **Severity** — Filter by critical, high, medium, low, or info.
+- **Status** — Filter by open, triaging, investigating, awaiting approval, remediating, resolved, or closed.
+- **Sort** — Sort by newest first (default) or oldest first.
+
+Click any incident row to open the detail view.
+
+## Creating a manual incident
+
+When you detect an issue that hasn't triggered an automated alert, you can open an incident directly from the dashboard.
+
+<Steps>
+  <Step title="Open the create form">
+    Click **New Incident** from the dashboard home or the Incidents page.
+  </Step>
+  <Step title="Enter incident details">
+    Fill in the form:
+    - **Title** — A short description of the issue. Used to identify the incident in lists and notifications.
+    - **Description** — A detailed explanation of what you're seeing (10–4000 characters). Include context like affected services, recent changes, error messages, and observed behavior. The more detail you provide, the more accurately CauseFlow can direct its investigation.
+    - **Severity** — Choose critical, high, medium, low, or info based on the impact to your users and systems.
+  </Step>
+  <Step title="Select integrations (optional)">
+    Choose which connected integrations CauseFlow should query during investigation. By default, all connected integrations are available. Limit the selection if you know the issue is isolated to specific systems.
+  </Step>
+  <Step title="Submit">
+    Click **Create Incident**. CauseFlow starts the investigation immediately — triage runs first, then specialized agents are dispatched in parallel.
+  </Step>
+</Steps>
+
+## Incident detail view
+
+The detail view is the central hub for a single incident. It shows everything CauseFlow knows and is doing about the issue.
+
+### Header
+
+At the top of the page you'll see:
+
+- **Title and severity** — The incident name and color-coded severity badge.
+- **Status** — The current status badge, updated in real time as the investigation progresses.
+- **Source** — Where the incident originated: a monitoring tool (Datadog, Grafana, CloudWatch, Sentry) or manual creation.
+- **Created at** — Timestamp of when the incident was opened.
+
+### Investigation timeline
+
+The timeline tracks every step of the investigation in chronological order — when triage started, which agents were activated, when findings were reported, and when the root cause analysis was completed.
+
+While the investigation is in progress, the page refreshes automatically every 5 seconds so you see findings as they arrive without having to reload.
+
+### Agent findings
+
+As each AI agent completes its analysis, its findings appear in the **Findings** section. Each entry shows which agent reported the finding, what it discovered, and the supporting evidence (log excerpts, metric anomalies, recent commits, and so on).
+
+### Root cause analysis
+
+When all agents have reported, CauseFlow synthesizes the findings into a **Root cause analysis** — a structured explanation of why the incident occurred, which systems were involved, and what chain of events led to it.
+
+### Resolution information
+
+For resolved or closed incidents, this section shows when the incident was resolved, what remediation was applied, and any notes added during closure.
+
+## Providing feedback
+
+After the investigation completes, you can provide feedback on the root cause analysis.
+
+- **Confirm** the root cause if CauseFlow got it right.
+- **Reject** the root cause if the analysis was incorrect or incomplete, and optionally explain what was missed.
+
+Your feedback trains CauseFlow's investigation models, improving accuracy for future incidents in your tenant.
+
+## Managing incident status
+
+Any member can manually update an incident's status. The full status progression is:
+
+| Status | Meaning |
+|--------|---------|
+| `open` | Incident created, investigation not yet started |
+| `triaging` | AI triage agent is classifying severity and dispatching agents |
+| `investigating` | Specialized agents are actively running |
+| `awaiting_approval` | Investigation complete, remediation proposals pending approval |
+| `remediating` | Approved remediations are executing |
+| `resolved` | Issue has been fixed |
+| `closed` | Incident closed and archived |
+
+To update the status manually, open the incident detail view and click the status badge. Select the new status from the dropdown. Use this when you've resolved an issue outside of CauseFlow and want to mark it closed, or to reopen an incident that needs further investigation.
+
+<Note>
+  All team members with the admin or member role can update incident status.
+</Note>

@@ -1,0 +1,109 @@
+---
+title: "List memory insights"
+api: "GET /v1/memory/insights"
+description: "Retrieve AI-generated insights derived from your tenant's incident history."
+---
+
+## Overview
+
+Returns a list of AI-generated insights about your system's health, recurring failure patterns, and improvement opportunities. Insights are computed periodically from resolved incidents, knowledge patterns, and remediation outcomes.
+
+**Required role:** `admin` or `member`
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="category" type="string">
+  Filter by insight category. One of: `reliability`, `performance`, `security`, `cost`, `toil`.
+</ParamField>
+
+<ParamField query="severity" type="string">
+  Filter by insight severity. One of: `critical`, `high`, `medium`, `low`, `info`.
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  Maximum number of insights to return. Default: `20`. Maximum: `100`.
+</ParamField>
+
+<ParamField query="cursor" type="string">
+  Pagination cursor from a previous response.
+</ParamField>
+
+## Response
+
+Returns `200 OK`.
+
+```json
+{
+  "items": [
+    {
+      "insightId": "ins_01HX9VTPQR3KF8MZWBYD5N6JCE",
+      "category": "reliability",
+      "severity": "high",
+      "title": "Connection pool exhaustion — recurring pattern",
+      "summary": "Your checkout service has hit connection pool limits 3 times in the last 90 days, always within 10 minutes of a new deployment. Consider setting a higher default or adding a pre-deploy canary check.",
+      "affectedServices": ["checkout-service", "payment-processor"],
+      "incidentCount": 3,
+      "generatedAt": "2024-04-01T06:00:00Z"
+    }
+  ],
+  "total": 7,
+  "nextCursor": null
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `insightId` | string | Unique insight identifier |
+| `category` | string | Insight domain: `reliability`, `performance`, `security`, `cost`, `toil` |
+| `severity` | string | Importance: `critical`, `high`, `medium`, `low`, `info` |
+| `title` | string | Short insight summary |
+| `summary` | string | Full insight with recommended action |
+| `affectedServices` | string[] | Services involved in this pattern |
+| `incidentCount` | integer | Number of incidents that contributed to this insight |
+| `generatedAt` | string | ISO 8601 timestamp when the insight was generated |
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `401` | `unauthorized` | Missing or invalid JWT |
+| `403` | `forbidden` | Caller lacks required role |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl "https://api.causeflow.ai/v1/memory/insights?category=reliability&severity=high" \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+```typescript TypeScript
+const params = new URLSearchParams({ category: "reliability", severity: "high" });
+const response = await fetch(
+  `https://api.causeflow.ai/v1/memory/insights?${params}`,
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+
+const { items } = await response.json();
+items.forEach((i: { title: string; incidentCount: number }) =>
+  console.log(`[${i.incidentCount} incidents] ${i.title}`)
+);
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Chat with memory" href="/api-reference/memory/chat">
+    Ask questions about your incident history
+  </Card>
+  <Card title="Knowledge patterns" href="/api-reference/knowledge/list-patterns">
+    View extracted failure patterns
+  </Card>
+</CardGroup>

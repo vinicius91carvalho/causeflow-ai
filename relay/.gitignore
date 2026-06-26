@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.VERSION
+*.tgz
+.env
+.env.*
+.artifacts/

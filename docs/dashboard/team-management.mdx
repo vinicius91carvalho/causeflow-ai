@@ -1,0 +1,59 @@
+---
+title: "Team management"
+description: "Invite team members, assign roles, and manage access to your CauseFlow tenant."
+---
+
+CauseFlow uses role-based access control to ensure team members have the right level of access for their responsibilities. Go to **Dashboard > Team** to manage your team.
+
+## Roles
+
+Every team member is assigned one of two roles.
+
+| Role | Can investigate | Can approve remediations | Can manage team | Can manage billing |
+|------|:-:|:-:|:-:|:-:|
+| **Admin** | Yes | Yes | Yes | Yes |
+| **Member** | Yes | No | No | No |
+
+- **Admin** has full access to the tenant, including approving remediations, managing team membership, and managing billing. The first user in a tenant is assigned the admin role automatically.
+- **Member** can create incidents, run investigations, and view remediations, but cannot approve or reject remediation proposals and cannot manage the team or billing.
+
+<Note>
+  Only admins can invite new members, change roles, or remove members from the tenant.
+</Note>
+
+## Inviting members
+
+<Steps>
+  <Step title="Open the invite form">
+    Go to **Dashboard > Team** and click **Invite Member**.
+  </Step>
+  <Step title="Enter the email address">
+    Type the email address of the person you want to invite. They must use this address when accepting the invitation.
+  </Step>
+  <Step title="Assign a role">
+    Select the role for this member — **Admin** or **Member**. You can change the role later from the team management page.
+  </Step>
+  <Step title="Send the invitation">
+    Click **Send Invite**. CauseFlow sends an email to the address with a link to accept the invitation and create their account (or sign in with an existing account).
+  </Step>
+</Steps>
+
+The invited member will be prompted to sign up with email, Google, or GitHub. Once they accept, they are added to your tenant with the assigned role and can sign in immediately.
+
+## Managing members
+
+The team page lists all current members with their name, email, role, and the date they joined. From this page you can:
+
+- **Change a role** — Click the role badge next to a member's name and select the new role from the dropdown.
+- **Remove a member** — Click the menu on a member row and select **Remove**. The member loses access to your tenant immediately. Their past actions remain in the audit trail.
+
+Role changes and removals take effect immediately — no confirmation email is sent to the affected member.
+
+## Pending invitations
+
+The **Pending Invites** section shows all invitations that have been sent but not yet accepted. For each pending invite you can:
+
+- **Resend** — Send the invitation email again if the original was missed or expired.
+- **Revoke** — Cancel the invitation. The link in the original email will no longer work.
+
+If an invitation is revoked before it is accepted, the recipient will not be able to join the tenant using that link. You can send a new invitation at any time.

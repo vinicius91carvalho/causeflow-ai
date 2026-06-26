@@ -1,0 +1,16 @@
+/*
+ * hljs theme overrides — inherit container tone.
+ *
+ * github.css ships with an opaque white .hljs background that fights
+ * the tone-tinted CodeBlock container (error → bg-red-500/5, default →
+ * bg-card). We neutralize it here so the parent shows through and the
+ * whole card reads as one surface.
+ */
+
+.hljs,
+pre code.hljs,
+code.hljs {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}

@@ -1,0 +1,81 @@
+---
+title: "Dashboard overview"
+description: "Navigate the CauseFlow dashboard — your command center for incident investigation."
+---
+
+The CauseFlow dashboard at [dashboard.causeflow.ai](https://dashboard.causeflow.ai) is where you manage every aspect of incident investigation — from monitoring active issues to approving remediations and reviewing team activity.
+
+## Home screen
+
+When you sign in, the dashboard home gives you an immediate read on the health of your systems.
+
+### Metrics
+
+Three key metrics appear at the top of the home screen:
+
+- **Active incidents** — The number of incidents currently in progress (open, triaging, investigating, or remediating). A severity breakdown shows how many are critical, high, medium, low, or informational at a glance.
+- **MTTR** — Mean time to resolve. The rolling average time from incident creation to resolution, calculated across your closed incidents.
+- **Resolution rate** — The percentage of incidents that reached a resolved or closed state, helping you track whether investigations are completing successfully.
+
+### Recent incidents
+
+Below the metrics, the **Recent incidents** list shows your most recently created incidents. Each row displays:
+
+- Incident title
+- Severity badge (color-coded: critical in red, high in orange, medium in yellow, low in blue, info in gray)
+- Status badge (open, triaging, investigating, awaiting approval, remediating, resolved, closed)
+- Source — where the incident originated (a monitoring integration, trigger, chat, or manual creation)
+- Time elapsed since creation
+
+Click any row to open the full incident detail view.
+
+### Quick actions
+
+<CardGroup cols={2}>
+  <Card title="Create new incident" icon="plus" href="/dashboard/incidents">
+    Manually open an incident and start an AI investigation immediately. Use this when you detect an issue that has not triggered an automated alert.
+  </Card>
+  <Card title="View pending approvals" icon="circle-check" href="/dashboard/remediations">
+    Review remediation proposals waiting for your approval. Admins are notified when new approvals are needed.
+  </Card>
+</CardGroup>
+
+## Sidebar navigation
+
+The sidebar is your primary navigation across the platform. It is available on every page.
+
+| Section | What you find there |
+|---------|---------------------|
+| **Dashboard** | Home screen with metrics, recent incidents, and quick actions |
+| **Incidents** | Full incident list — create, filter, and investigate incidents |
+| **Integrations** | Connect and manage your monitoring tools, cloud providers, and third-party services |
+| **Skills** | Create and manage custom investigation profiles for your specific systems |
+| **Team** | Invite members, assign roles, and manage pending invitations |
+| **Settings** | Profile, company info, notifications, API keys, and remediation settings |
+| **Billing** | View your plan, usage, and manage your subscription |
+| **Audit** | Tamper-proof log of every action taken in your tenant |
+
+### Settings > API Keys
+
+Your API keys for authenticating inbound webhooks are managed from **Settings > API Keys**. From this page you can create new keys, view existing key names and prefixes, and revoke keys that are no longer in use.
+
+<Warning>
+  An API key's plaintext value is shown only once at creation time. Copy it immediately — it cannot be retrieved after you close the creation dialog. If a key is lost, revoke it and create a new one.
+</Warning>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Manage incidents" icon="triangle-exclamation" href="/dashboard/incidents">
+    Learn how to create, filter, and investigate incidents.
+  </Card>
+  <Card title="Connect integrations" icon="plug" href="/integrations/overview">
+    Connect your monitoring tools to receive automatic alerts.
+  </Card>
+  <Card title="Set up your team" icon="users" href="/dashboard/team-management">
+    Invite members and assign roles.
+  </Card>
+  <Card title="Configure skills" icon="wand-magic-sparkles" href="/getting-started/skills">
+    Define custom investigation profiles for your specific systems.
+  </Card>
+</CardGroup>

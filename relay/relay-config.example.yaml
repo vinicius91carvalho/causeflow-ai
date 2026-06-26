@@ -1,0 +1,54 @@
+# CauseFlow Relay Configuration
+# Copy to relay-config.yaml and adjust values
+
+controlPlane:
+  url: ws://localhost:3000/v1/relay/connect
+  token: ${RELAY_TOKEN}
+  tenantId: ${TENANT_ID}
+
+resources:
+  - id: order-pg
+    type: postgres
+    name: Order Service PostgreSQL
+    connection:
+      host: ${PG_HOST}
+      port: 5432
+      database: ${PG_DATABASE}
+      user: ${PG_USER}
+      password: ${PG_PASSWORD}
+    allowedOperations:
+      - query
+      - describe_table
+      - list_tables
+      - explain
+    maxRowsPerQuery: 1000
+
+  - id: order-mongo
+    type: mongodb
+    name: Order Service MongoDB
+    connection:
+      uri: ${MONGO_URI}
+      database: ${MONGO_DATABASE}
+    allowedOperations:
+      - query
+      - describe_table
+      - list_tables
+      - explain
+    maxRowsPerQuery: 1000
+
+masking:
+  enabled: true
+  patterns:
+    - name: cpf
+      regex: '\d{3}\.\d{3}\.\d{3}-\d{2}'
+      replacement: '***.***.***-**'
+    - name: email
+      regex: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+      replacement: '***@***.***'
+    - name: credit_card
+      regex: '\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}'
+      replacement: '****-****-****-****'
+
+audit:
+  enabled: true
+  level: info

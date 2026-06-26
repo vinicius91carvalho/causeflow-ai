@@ -1,0 +1,110 @@
+---
+title: "Integration catalog"
+api: "GET /v1/integrations/catalog"
+description: "Browse all available integrations and their required configuration."
+---
+
+## Overview
+
+Returns the full catalog of integrations available to connect. Each entry describes the provider, required credentials, and OAuth scopes needed.
+
+**Authentication:** Public endpoint — no JWT required for browsing the catalog.
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="category" type="string">
+  Filter by integration category. One of: `monitoring`, `code`, `ticketing`, `communication`, `cloud`.
+</ParamField>
+
+## Response
+
+Returns `200 OK`.
+
+```json
+{
+  "items": [
+    {
+      "provider": "github",
+      "displayName": "GitHub",
+      "category": "code",
+      "description": "Connect GitHub to correlate deployments with incidents and fetch code context.",
+      "authType": "oauth2",
+      "scopes": ["repo", "read:org"],
+      "connectUrl": "https://api.causeflow.ai/v1/integrations/connect/github"
+    },
+    {
+      "provider": "datadog",
+      "displayName": "Datadog",
+      "category": "monitoring",
+      "description": "Pull metrics and logs from Datadog for AI-enriched investigations.",
+      "authType": "api_key",
+      "requiredFields": ["api_key", "application_key"],
+      "connectUrl": "https://api.causeflow.ai/v1/integrations/connect/datadog"
+    },
+    {
+      "provider": "pagerduty",
+      "displayName": "PagerDuty",
+      "category": "monitoring",
+      "description": "Sync PagerDuty incidents and escalation policies with CauseFlow.",
+      "authType": "oauth2",
+      "scopes": ["read", "write"],
+      "connectUrl": "https://api.causeflow.ai/v1/integrations/connect/pagerduty"
+    }
+  ],
+  "total": 14
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `provider` | string | Unique provider key |
+| `displayName` | string | Human-readable provider name |
+| `category` | string | Integration category |
+| `description` | string | What this integration provides |
+| `authType` | string | Authentication method: `oauth2`, `api_key`, `webhook_only` |
+| `scopes` | string[] | OAuth scopes (for `oauth2` providers) |
+| `requiredFields` | string[] | Required credential fields (for `api_key` providers) |
+| `connectUrl` | string | URL to initiate the connection flow |
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `429` | `rate_limit_exceeded` | Too many catalog requests |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl "https://api.causeflow.ai/v1/integrations/catalog?category=monitoring"
+```
+
+```typescript TypeScript
+const params = new URLSearchParams({ category: "monitoring" });
+const response = await fetch(
+  `https://api.causeflow.ai/v1/integrations/catalog?${params}`
+);
+
+const { items } = await response.json();
+items.forEach((i: { displayName: string; authType: string }) =>
+  console.log(`${i.displayName} (${i.authType})`)
+);
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Connect integration" href="/api-reference/integrations/connect">
+    Connect an integration from the catalog
+  </Card>
+  <Card title="List integrations" href="/api-reference/integrations/list">
+    View already-connected integrations
+  </Card>
+</CardGroup>

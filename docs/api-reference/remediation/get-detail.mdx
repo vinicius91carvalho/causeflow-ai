@@ -1,0 +1,114 @@
+---
+title: "Get remediation detail"
+api: "GET /v1/remediation/{remediationId}"
+description: "Get the full remediation plan, execution log, and current status."
+---
+
+## Overview
+
+Returns the complete detail for a single remediation, including the AI-proposed plan, step-by-step execution log, approval history, and final outcome.
+
+**Required role:** `admin` or `member`
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Path parameters
+
+<ParamField path="remediationId" type="string" required>
+  The unique identifier of the remediation. Example: `rem_01HX9VTPQR3KF8MZWBYD5N6JCE`.
+</ParamField>
+
+## Response
+
+Returns `200 OK` with the full remediation object.
+
+```json
+{
+  "remediationId": "rem_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "incidentId": "inc_EXAMPLE_01JX",
+  "title": "Scale payment processor connection pool from 50 to 150",
+  "status": "executed",
+  "requiresApproval": true,
+  "approvedBy": "user_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "approvedAt": "2024-04-01T14:36:00Z",
+  "steps": [
+    {
+      "stepId": "step_01",
+      "description": "Update ECS task definition — increase `DB_POOL_SIZE` from 50 to 150",
+      "status": "completed",
+      "completedAt": "2024-04-01T14:37:00Z",
+      "output": "Task definition arn:aws:ecs:us-east-1:<your-aws-account-id>:task-definition/checkout-service:47 registered"
+    },
+    {
+      "stepId": "step_02",
+      "description": "Trigger rolling deploy of checkout-service",
+      "status": "completed",
+      "completedAt": "2024-04-01T14:37:30Z",
+      "output": "3/3 tasks replaced successfully"
+    }
+  ],
+  "outcome": "resolved",
+  "proposedAt": "2024-04-01T14:35:00Z",
+  "executedAt": "2024-04-01T14:37:30Z"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `remediationId` | string | Unique identifier |
+| `incidentId` | string | Related incident |
+| `title` | string | Short description of the remediation action |
+| `status` | string | One of: `proposed`, `approved`, `executing`, `executed`, `rejected`, `failed` |
+| `requiresApproval` | boolean | Whether human approval was required |
+| `approvedBy` | string | User ID who approved. `null` if not yet approved |
+| `steps` | array | Ordered list of execution steps with status and output |
+| `outcome` | string | Final outcome: `resolved`, `partial`, `failed`. `null` if not yet executed |
+| `proposedAt` | string | ISO 8601 timestamp |
+| `executedAt` | string | ISO 8601 timestamp. `null` if not yet executed |
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `401` | `unauthorized` | Missing or invalid JWT |
+| `403` | `forbidden` | Caller lacks required role |
+| `404` | `remediation_not_found` | No remediation with the given ID |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/v1/remediation/rem_01HX9VTPQR3KF8MZWBYD5N6JCE \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+```typescript TypeScript
+const response = await fetch(
+  "https://api.causeflow.ai/v1/remediation/rem_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  {
+    headers: { Authorization: `Bearer ${token}` },
+  }
+);
+
+const remediation = await response.json();
+console.log("Status:", remediation.status);
+remediation.steps.forEach((s: { description: string; status: string }) =>
+  console.log(`  [${s.status}] ${s.description}`)
+);
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Approve remediation" href="/api-reference/remediation/approve">
+    Approve the remediation plan for execution
+  </Card>
+  <Card title="Submit feedback" href="/api-reference/remediation/submit-feedback">
+    Rate the effectiveness of a completed remediation
+  </Card>
+</CardGroup>

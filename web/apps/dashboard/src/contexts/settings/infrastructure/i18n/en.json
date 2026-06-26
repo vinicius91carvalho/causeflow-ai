@@ -1,0 +1,180 @@
+{
+  "dashboard": {
+    "settings": {
+      "title": "Settings",
+      "description": "Configure your workspace settings",
+      "tabs": {
+        "profile": "Profile",
+        "company": "Company",
+        "appearance": "Appearance",
+        "apiKeys": "API Keys",
+        "notifications": "Notifications"
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Update your personal information",
+        "name": "Full Name",
+        "namePlaceholder": "Enter your full name",
+        "email": "Email Address",
+        "emailReadonly": "Email cannot be changed",
+        "avatar": "Profile Photo",
+        "avatarDescription": "Your initials are used as a placeholder",
+        "changePassword": "Change Password",
+        "changePasswordDescription": "Use the forgot password flow to reset your password",
+        "resetPasswordLink": "Send Reset Email",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "saved": "Profile saved successfully",
+        "errorSaving": "Failed to save profile. Please try again.",
+        "validation": {
+          "nameRequired": "Name is required",
+          "nameTooShort": "Name must be at least 2 characters"
+        }
+      },
+      "company": {
+        "title": "Company Settings",
+        "description": "Manage your organization details",
+        "adminOnly": "Only admins can manage company settings",
+        "name": "Company Name",
+        "namePlaceholder": "Acme Corp",
+        "website": "Website URL",
+        "websitePlaceholder": "https://acme.com",
+        "teamSize": "Team Size",
+        "plan": "Current Plan",
+        "upgradePlan": "Upgrade Plan",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "saved": "Company settings saved",
+        "errorSaving": "Failed to save company settings",
+        "validation": {
+          "nameRequired": "Company name is required",
+          "invalidUrl": "Please enter a valid URL"
+        },
+        "slug": "Company Slug",
+        "slugDescription": "Your unique company identifier",
+        "autoRemediation": "Auto Remediation",
+        "autoRemediationDescription": "Automatically approve proposed remediations without manual review"
+      },
+      "notifications": {
+        "emailSection": "Email Notifications",
+        "analysisComplete": "Analysis complete",
+        "analysisCompleteDescription": "Get notified when an analysis finishes",
+        "creditWarning": "Credit warning",
+        "creditWarningDescription": "Get notified when your credits are running low",
+        "teamInvite": "Team invites",
+        "teamInviteDescription": "Get notified when someone joins your team",
+        "weeklyDigest": "Weekly digest",
+        "weeklyDigestDescription": "Receive a weekly summary of your incidents",
+        "saved": "Notification preferences saved",
+        "errorSaving": "Failed to save preferences. Please try again.",
+        "save": "Save Preferences",
+        "saving": "Saving...",
+        "slackSection": "Slack Notifications",
+        "slackDescription": "Receive incident alerts and respond to investigations directly from Slack.",
+        "slackConnect": "Connect to Slack",
+        "slackConnected": "Connected",
+        "slackWorkspace": "Workspace",
+        "slackChannel": "Channel",
+        "slackDisconnect": "Disconnect",
+        "slackConnecting": "Connecting...",
+        "slackDisconnecting": "Disconnecting...",
+        "slackConnectSuccess": "Slack connected successfully",
+        "slackConnectError": "Failed to connect Slack. Please try again.",
+        "slackDisconnectSuccess": "Slack disconnected",
+        "slackDisconnectError": "Failed to disconnect Slack. Please try again.",
+        "slackAdminOnly": "Only admins can manage Slack notifications"
+      },
+      "apiKeys": {
+        "title": "API Keys",
+        "description": "Manage API keys for external integrations",
+        "create": "Create API Key",
+        "name": "Key Name",
+        "namePlaceholder": "e.g. Production Integration",
+        "prefix": "Key Prefix",
+        "status": "Status",
+        "createdAt": "Created",
+        "lastUsed": "Last Used",
+        "revoke": "Revoke",
+        "revokeConfirm": "Revoke API Key",
+        "revokeConfirmMessage": "Are you sure you want to revoke \"{name}\"? This action cannot be undone. All requests using this key will stop working immediately.",
+        "createSuccess": "API key created successfully",
+        "revokeSuccess": "API key revoked",
+        "errorCreating": "Failed to create API key. Please try again.",
+        "errorRevoking": "Failed to revoke API key. Please try again.",
+        "copyKey": "Copy",
+        "copied": "Copied!",
+        "keyWarning": "Save this key now. You won\u2019t be able to see it again.",
+        "yourNewKey": "Your new API key",
+        "done": "Done",
+        "cancel": "Cancel",
+        "empty": "No API keys yet. Create one to get started.",
+        "adminOnly": "Only admins can manage API keys.",
+        "active": "Active",
+        "revoked": "Revoked"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Customize how CauseFlow AI looks for you",
+        "theme": "Theme",
+        "themeDescription": "Select your preferred color scheme",
+        "themeLight": "Light",
+        "themeDark": "Dark",
+        "themeSystem": "System",
+        "language": "Language",
+        "languageDescription": "Choose your preferred language",
+        "previewTitle": "Preview",
+        "appliedImmediately": "Changes apply immediately",
+        "languageSaveError": "Failed to save language preference. Please try again."
+      },
+      "commandPalette": {
+        "placeholder": "Search actions or navigate...",
+        "noResults": "No results found",
+        "hint": "Press {key} to open",
+        "sections": {
+          "actions": "Quick Actions",
+          "navigation": "Navigation"
+        },
+        "actions": {
+          "newAnalysis": "New Analysis",
+          "viewIntegrations": "View Integrations",
+          "manageTeam": "Manage Team",
+          "openSettings": "Open Settings",
+          "toggleTheme": "Toggle Theme"
+        },
+        "navigation": {
+          "dashboard": "Go to Dashboard",
+          "analyses": "Go to Analyses",
+          "integrations": "Go to Integrations",
+          "team": "Go to Team",
+          "settings": "Go to Settings",
+          "incidents": "Go to Incidents",
+          "remediations": "Go to Remediations",
+          "approvals": "Go to Approvals",
+          "auditLog": "Go to Audit Log"
+        }
+      },
+      "breadcrumbs": {
+        "dashboard": "Dashboard",
+        "analyses": "Analyses",
+        "newAnalysis": "New Analysis",
+        "integrations": "Integrations",
+        "team": "Team",
+        "settings": "Settings"
+      },
+      "errorBoundary": {
+        "title": "Something went wrong",
+        "description": "An unexpected error occurred. Please try again.",
+        "tryAgain": "Try Again",
+        "goToDashboard": "Go to Dashboard",
+        "errorDetails": "Error Details"
+      },
+      "toast": {
+        "success": "Success",
+        "error": "Error",
+        "info": "Info",
+        "warning": "Warning",
+        "dismiss": "Dismiss"
+      }
+    }
+  }
+}

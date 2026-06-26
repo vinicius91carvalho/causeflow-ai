@@ -1,0 +1,50 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-26T20:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-core-trigger-pipeline.md",
+      "title": "Core trigger pipeline correctness",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "worktree-agent-a609dda5a3dd6d6fa",
+      "merged": true
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-dashboard-catalog-ux.md",
+      "title": "Dashboard trigger catalog + UX fixes",
+      "status": "complete",
+      "depends_on": [1],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "ship/20260424-1905-fire-single-random-error",
+      "merged": true
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-fire-test-error.md",
+      "title": "Fire Test Error refactor",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "ship/20260424-1905-fire-single-random-error",
+      "merged": true
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-sqs-log-demotion.md",
+      "title": "SQS operational log demotion",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "worktree-agent-a276676deb39f3dd2",
+      "merged": true
+    }
+  ]
+}

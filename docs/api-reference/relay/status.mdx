@@ -1,0 +1,74 @@
+---
+title: "Relay status"
+api: "GET /v1/relay/status"
+description: "Check the status of the CauseFlow Relay service."
+---
+
+## Overview
+
+Returns the current status of the Relay WebSocket service, including connection counts and service health. Use this before establishing a WebSocket connection to verify the relay is available.
+
+**Required role:** `admin` or `member`
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Response
+
+Returns `200 OK`.
+
+```json
+{
+  "status": "healthy",
+  "activeConnections": 142,
+  "region": "us-east-1",
+  "version": "1.4.2",
+  "checkedAt": "2024-04-01T14:30:00Z"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | string | Service health: `healthy`, `degraded`, `unavailable` |
+| `activeConnections` | integer | Number of active WebSocket connections across all tenants |
+| `region` | string | AWS region serving this request |
+| `version` | string | Relay service version |
+| `checkedAt` | string | ISO 8601 timestamp of this status check |
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `401` | `unauthorized` | Missing or invalid JWT |
+| `503` | `service_unavailable` | Relay is temporarily unavailable |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/v1/relay/status \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+```typescript TypeScript
+const response = await fetch("https://api.causeflow.ai/v1/relay/status", {
+  headers: { Authorization: `Bearer ${token}` },
+});
+
+const status = await response.json();
+if (status.status !== "healthy") {
+  console.warn("Relay degraded — WebSocket connections may be unreliable");
+}
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Connect relay" href="/api-reference/relay/connect">
+    Establish a WebSocket connection to the relay
+  </Card>
+</CardGroup>

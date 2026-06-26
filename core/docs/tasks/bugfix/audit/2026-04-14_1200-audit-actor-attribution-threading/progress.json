@@ -1,0 +1,44 @@
+{
+  "task": "audit-actor-attribution-threading",
+  "created": "2026-04-14T12:00:00Z",
+  "status": "complete",
+  "execution_mode": "autonomous",
+  "sprints": [
+    {
+      "id": "01",
+      "title": "Red tests for actor threading",
+      "spec": "sprints/01-red-tests.md",
+      "status": "complete",
+      "batch": 1,
+      "depends_on": [],
+      "model": "sonnet"
+    },
+    {
+      "id": "02",
+      "title": "Producer threading (routes + use cases)",
+      "spec": "sprints/02-producer-threading.md",
+      "status": "complete",
+      "batch": 2,
+      "depends_on": ["01"],
+      "model": "sonnet"
+    },
+    {
+      "id": "03",
+      "title": "Handler updates in bootstrap.ts",
+      "spec": "sprints/03-handler-updates.md",
+      "status": "complete",
+      "batch": 3,
+      "depends_on": ["02"],
+      "model": "sonnet"
+    },
+    {
+      "id": "04",
+      "title": "Retention policy + schema + pseudonymize",
+      "spec": "sprints/04-retention-policy.md",
+      "status": "complete",
+      "batch": 4,
+      "depends_on": ["03"],
+      "model": "sonnet"
+    }
+  ]
+}

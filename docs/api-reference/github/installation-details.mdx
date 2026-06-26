@@ -1,0 +1,90 @@
+---
+title: "Get GitHub installation"
+api: "GET /v1/github/installation"
+description: "Get details about the GitHub App installation for your tenant."
+---
+
+## Overview
+
+Returns details about the GitHub App installation associated with the current tenant, including which repositories are accessible and what permissions have been granted.
+
+**Required role:** `admin`
+
+## Response
+
+Returns `200 OK` with the GitHub App installation details.
+
+```json
+{
+  "installationId": 12345678,
+  "accountLogin": "acme-corp",
+  "repositories": [
+    {
+      "repositoryId": 987654321,
+      "name": "backend-api",
+      "fullName": "acme-corp/backend-api",
+      "private": true
+    },
+    {
+      "repositoryId": 987654322,
+      "name": "frontend",
+      "fullName": "acme-corp/frontend",
+      "private": false
+    }
+  ],
+  "permissions": {
+    "contents": "read",
+    "pull_requests": "write"
+  }
+}
+```
+
+| Field                     | Type    | Description                                                          |
+| ------------------------- | ------- | -------------------------------------------------------------------- |
+| `installationId`          | integer | The GitHub App installation ID                                       |
+| `accountLogin`            | string  | The GitHub account (organization or user) that installed the app     |
+| `repositories`            | array   | List of repositories the installation has access to                  |
+| `repositories[].repositoryId` | integer | The GitHub repository ID                                        |
+| `repositories[].name`     | string  | The repository name                                                  |
+| `repositories[].fullName` | string  | The full repository name including owner: `owner/repo`               |
+| `repositories[].private`  | boolean | Whether the repository is private                                    |
+| `permissions.contents`    | string  | Permission level for repository contents: `read` or `write`          |
+| `permissions.pull_requests` | string | Permission level for pull requests: `read` or `write`              |
+
+### Error responses
+
+| Status | Error code     | Description                                                   |
+| ------ | -------------- | ------------------------------------------------------------- |
+| `403`  | `forbidden`    | The authenticated user does not have `admin` role  |
+| `404`  | `not_found`    | No GitHub App installation exists for this tenant             |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/v1/github/installation \
+  -H "Authorization: Bearer <token>"
+```
+
+```typescript TypeScript
+const response = await fetch(
+  "https://api.causeflow.ai/v1/github/installation",
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }
+);
+
+if (response.status === 404) {
+  console.log("No GitHub App installed. Visit the dashboard to connect GitHub.");
+} else {
+  const installation = await response.json();
+  console.log(`GitHub App installed on: ${installation.accountLogin}`);
+  console.log(`Repositories accessible: ${installation.repositories.length}`);
+}
+```
+
+</CodeGroup>

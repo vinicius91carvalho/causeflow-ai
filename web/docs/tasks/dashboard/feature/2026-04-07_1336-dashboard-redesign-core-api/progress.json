@@ -1,0 +1,71 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-07T13:36:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-schema-fix-and-health-endpoint.md",
+      "title": "Schema Remap + SystemStatus Endpoint Fix",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": true,
+      "completed_at": "2026-04-07T14:04:00Z",
+      "notes": "Wire remap (CoreIncidentAnalyticsWire -> IncidentAnalytics) added in http-api-client.ts; SystemStatus component now fetches /api/health (HealthStatus shape, version-only UI, dependencies list removed); /api/health route and health-handler.ts already existed. IncidentAnalytics type fixed to PRD S8 shape (removed resolvedIncidents, added totalCostUsd/avgCostUsd); metrics-handler now derives resolvedAnalyses from byStatus.resolved. 15 new tests across 3 files, 505/505 dashboard vitest pass. Pre-existing tsc errors in intelligence-page.tsx (missing react-markdown) and services.test.ts (TenantPlan 'free') are unrelated and exist on main."
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-empty-state-branching.md",
+      "title": "Empty-State Branching: Pure Function + Branch Components",
+      "status": "complete",
+      "depends_on": [1],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "worktree-agent-a41c7697",
+      "merged": true,
+      "completed_at": "2026-04-07T15:05:00Z",
+      "notes": "selectEmptyStateBranch pure function + BranchA/BranchBEmptyState components delivered with 19 tests (4 truth-table + 6 branch-a + 6 branch-b + 3 dashboard-page messages). i18n keys added to en.json and pt-br.json under dashboard.home.emptyState.branchA/branchB. dashboard-page.tsx messages object extended. BranchA/B reuse feature-highlight layout via feature1/2/3 messages props so Sprint 4 wiring only needs to pass keys. Note for Sprint 4: /dashboard/relay route may not exist — per PRD §12, swap to /dashboard/integrations?type=relay if missing. Merged to main via worktree."
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-bff-routes-core-endpoints.md",
+      "title": "BFF Routes for Previously-Unused Core Endpoints",
+      "status": "complete",
+      "depends_on": [1],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "worktree-agent-ad441639",
+      "merged": true,
+      "completed_at": "2026-04-07T15:05:00Z",
+      "notes": "Added BFF handlers: approvals-pending, billing/usage, topology/health (all new in owning contexts), plus incidents-list-handler (no prior /api/incidents GET route existed — new handler forwards ?status/?limit/?cursor to listIncidents). relay-status-handler and memory-insights-handler already existed in contexts/shared/api/ — added test coverage only. /api/notifications already supports ?limit. All handlers use withAuth() and proxy apiClient. 26 targeted tests passing. apps/dashboard/CLAUDE.md API table updated (37→44 endpoints). Merged to main via worktree."
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-dashboard-overview-rebuild.md",
+      "title": "DashboardOverview Rebuild: Branch C Sections + Wiring",
+      "status": "complete",
+      "depends_on": [2, 3],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": "worktree-agent-sprint4",
+      "merged": true,
+      "completed_at": "2026-04-07T17:00:00Z",
+      "notes": "Merged via 22ce7c9 + merge commit 5c7b023. +1708 lines across 21 files: dashboard-overview rebuilt with Branch A/B/C, 7 dashboard-sections (active-incidents, pending-approvals, recent-notifications, system-health, relay-status, memory-insights, usage-history), system-operational-card. progress.json was stale — backfilled by orchestrator."
+    },
+    {
+      "id": 5,
+      "file": "sprints/05-playwright-e2e-and-smoke.md",
+      "title": "Playwright E2E + Dev-Server Smoke",
+      "status": "complete",
+      "depends_on": [4],
+      "batch": 4,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": false,
+      "completed_at": "2026-04-07T18:00:00Z",
+      "notes": "tests/dashboard/dashboard-overview.spec.ts: 5 tests, all green (1.1m wall, dev server). Auth uses @clerk/testing setupClerkTestingToken (added as devDep) + Clerk sign-in token, mirroring dark-mode-settings.spec.ts. Dashboard runs in dev mode (next dev --hostname localhost --port 3001) — Clerk dev keys reject 127.0.0.1 host and require dev_browser sync, which only works under next dev. Test stubs all /api/* via page.route() so no Core API contact. To run: pkill -f 'next-server|next start|next dev' && pnpm --filter dashboard exec next dev --hostname localhost --port 3001 & ; CLERK_PUBLISHABLE_KEY=... CLERK_SECRET_KEY=... BASE_URL=https://stub.local DASHBOARD_URL=http://localhost:3001 pnpm exec playwright test tests/dashboard/dashboard-overview.spec.ts --project=chromium-desktop --workers=1"
+    }
+  ]
+}

@@ -1,0 +1,235 @@
+---
+title: "Connect relay"
+description: "Establish a JSON-RPC 2.0 WebSocket connection to the CauseFlow Relay."
+---
+
+## Overview
+
+The CauseFlow Relay exposes a bidirectional WebSocket endpoint using JSON-RPC 2.0 over WSS. Clients use the relay to send commands to AI agents and receive streaming responses without polling.
+
+**WebSocket URL:** `wss://relay.causeflow.ai/v1/connect`
+
+**Required role:** `admin` or `member`
+
+<Note>
+  This is a WebSocket endpoint, not a standard HTTP endpoint. Authenticate using JWT in the `Authorization` header during the initial HTTP upgrade handshake.
+</Note>
+
+---
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Connection handshake
+
+Connect with the `Authorization` header and optional `X-Tenant-Id` header:
+
+```
+GET wss://relay.causeflow.ai/v1/connect HTTP/1.1
+Upgrade: websocket
+Connection: Upgrade
+Authorization: Bearer eyJhbGc...
+X-Tenant-Id: ten_EXAMPLE_ABC123
+Sec-WebSocket-Key: <key>
+```
+
+On successful upgrade, the server sends a `connected` notification:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "connected",
+  "params": {
+    "connectionId": "conn_01HX9VTPQR3KF8MZWBYD5N6JCE",
+    "tenantId": "ten_EXAMPLE_ABC123",
+    "serverTime": "2024-04-01T14:30:00Z"
+  }
+}
+```
+
+---
+
+## JSON-RPC 2.0 protocol
+
+All messages follow the JSON-RPC 2.0 specification. Requests include an `id` field; notifications omit it.
+
+### Send a command (client → server)
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "req_001",
+  "method": "investigation.subscribe",
+  "params": {
+    "incidentId": "inc_EXAMPLE_01JX"
+  }
+}
+```
+
+### Receive a response (server → client)
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "req_001",
+  "result": {
+    "subscriptionId": "sub_01HX9VTPQR3KF8MZWBYD5N6JCE",
+    "incidentId": "inc_EXAMPLE_01JX"
+  }
+}
+```
+
+### Receive a push notification (server → client, no `id`)
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "investigation.progress",
+  "params": {
+    "incidentId": "inc_EXAMPLE_01JX",
+    "message": "AI agent found 10,000 errors in the last 30 minutes",
+    "agentName": "log analysis",
+    "timestamp": "2024-04-01T14:32:10Z"
+  }
+}
+```
+
+---
+
+## Supported methods
+
+| Method | Direction | Description |
+| --- | --- | --- |
+| `investigation.subscribe` | Client → Server | Subscribe to live updates for an incident investigation |
+| `investigation.unsubscribe` | Client → Server | Stop receiving updates for an investigation |
+| `remediation.subscribe` | Client → Server | Subscribe to remediation events for an incident |
+| `ping` | Client → Server | Send a keepalive ping |
+| `connected` | Server → Client | Sent on successful connection |
+| `investigation.progress` | Server → Client | Investigation step completed |
+| `investigation.completed` | Server → Client | Full investigation pipeline done |
+| `remediation.proposed` | Server → Client | Remediation plan ready for approval |
+| `pong` | Server → Client | Response to client `ping` |
+
+---
+
+## Heartbeat
+
+Send a `ping` every 30 seconds to keep the connection alive through proxies:
+
+```json
+{ "jsonrpc": "2.0", "id": "ping_001", "method": "ping", "params": {} }
+```
+
+Server responds:
+
+```json
+{ "jsonrpc": "2.0", "id": "ping_001", "result": { "pong": true } }
+```
+
+If no heartbeat is received within 60 seconds, the server closes the connection with code `1008` (Policy Violation).
+
+---
+
+## Error codes
+
+| Code | Meaning |
+| --- | --- |
+| `-32700` | Parse error — malformed JSON |
+| `-32600` | Invalid request — missing `jsonrpc` or `method` |
+| `-32601` | Method not found |
+| `-32602` | Invalid params |
+| `-32001` | Authentication expired — reconnect with fresh JWT |
+| `-32002` | Subscription not found |
+
+---
+
+## Examples
+
+<CodeGroup>
+
+```javascript JavaScript (WebSocket)
+const token = "eyJhbGc...";
+const ws = new WebSocket(
+  "wss://relay.causeflow.ai/v1/connect",
+  [],
+);
+
+// Note: browser WebSocket does not support custom headers.
+// Use a server-side proxy or query param token for browser clients.
+
+ws.onopen = () => {
+  // Subscribe to investigation updates
+  ws.send(JSON.stringify({
+    jsonrpc: "2.0",
+    id: "req_001",
+    method: "investigation.subscribe",
+    params: { incidentId: "inc_EXAMPLE_01JX" },
+  }));
+
+  // Start heartbeat
+  setInterval(() => {
+    ws.send(JSON.stringify({ jsonrpc: "2.0", id: "ping", method: "ping", params: {} }));
+  }, 30000);
+};
+
+ws.onmessage = (event) => {
+  const msg = JSON.parse(event.data);
+  if (msg.method === "investigation.progress") {
+    console.log(`[${msg.params.agentName}] ${msg.params.message}`);
+  }
+  if (msg.method === "investigation.completed") {
+    console.log("Investigation complete — root cause:", msg.params.rootCause);
+  }
+};
+
+ws.onclose = (event) => {
+  if (event.code === 1008) {
+    console.log("Connection closed by server (policy violation) — check heartbeat");
+  }
+};
+```
+
+```typescript TypeScript (ws library, Node.js)
+import WebSocket from "ws";
+
+const token = process.env.CAUSEFLOW_JWT!;
+const ws = new WebSocket("wss://relay.causeflow.ai/v1/connect", {
+  headers: { Authorization: `Bearer ${token}` },
+});
+
+ws.on("open", () => {
+  ws.send(JSON.stringify({
+    jsonrpc: "2.0",
+    id: "req_001",
+    method: "investigation.subscribe",
+    params: { incidentId: "inc_EXAMPLE_01JX" },
+  }));
+});
+
+ws.on("message", (data: Buffer) => {
+  const msg = JSON.parse(data.toString());
+  if (msg.method === "investigation.progress") {
+    console.log(`Progress: ${msg.params.message}`);
+  }
+  if (msg.result?.subscriptionId) {
+    console.log("Subscribed:", msg.result.subscriptionId);
+  }
+  if (msg.error) {
+    console.error("RPC error:", msg.error.code, msg.error.message);
+  }
+});
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Relay status" href="/api-reference/relay/status">
+    Check relay health before connecting
+  </Card>
+  <Card title="Notifications stream" href="/api-reference/notifications/stream">
+    Alternative: SSE-based event delivery
+  </Card>
+</CardGroup>

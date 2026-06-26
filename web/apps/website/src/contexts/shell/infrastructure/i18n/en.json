@@ -1,0 +1,65 @@
+{
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "cta": "Go back to homepage"
+  },
+  "common": {
+    "nav": {
+      "product": "Product",
+      "integrations": "Integrations",
+      "pricing": "Pricing",
+      "security": "Security",
+      "signIn": "Sign In",
+      "getStartedFree": "Get Early Access",
+      "dashboard": "Dashboard",
+      "usecases": "Use Cases",
+      "about": "About",
+      "docs": "Docs"
+    },
+    "cta": {
+      "getStartedFree": "Get Early Access",
+      "watchDemo": "See How It Works",
+      "scheduleDemo": "Contact Us",
+      "createAccount": "Create Account",
+      "talkToSales": "Talk to Sales",
+      "learnMore": "Learn More About the Product",
+      "startNow": "Join the Beta"
+    },
+    "footer": {
+      "description": "Intelligent incident investigation for engineering and L2/L3 support teams.",
+      "productColumn": "Product",
+      "companyColumn": "Company",
+      "legalColumn": "Legal",
+      "howItWorks": "How It Works",
+      "integrations": "Integrations",
+      "security": "Security",
+      "pricing": "Pricing",
+      "contact": "Contact",
+      "platformStatus": "Platform Status",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "lgpdGdpr": "LGPD/GDPR",
+      "copyright": "2026 CauseFlow AI. All rights reserved.",
+      "lgpdCompliant": "LGPD Compliant",
+      "gdprCompliant": "GDPR Compliant",
+      "soc2TypeII": "SOC 2 Type II (In Progress)",
+      "iso27001": "ISO 27001 (On Roadmap)",
+      "hipaa": "HIPAA (On Roadmap)",
+      "connectColumn": "Connect",
+      "talkToFounder": "Talk to the Co-Founder",
+      "about": "About"
+    },
+    "languageSelector": {
+      "en": "English",
+      "ptBr": "Português (BR)"
+    },
+    "cofounderCta": {
+      "headline": "Let's Talk About Your Incident Workflow",
+      "description": "We're Engineering Managers and AI Specialists who spent years investigating incidents across disconnected tools. We built CauseFlow because we lived the same pain you're dealing with right now.",
+      "connectLinkedIn": "Connect on LinkedIn",
+      "bookCall": "Book a 15-min Call",
+      "personalNote": "No sales pitch — just a conversation about your team's biggest pain points."
+    }
+  }
+}

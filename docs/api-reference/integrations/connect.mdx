@@ -1,0 +1,131 @@
+---
+title: "Connect integration"
+api: "POST /v1/integrations/{provider}/connect"
+description: "Activate an integration for the current tenant."
+---
+
+## Overview
+
+Activates an integration for your tenant. For OAuth-based integrations, this initiates the OAuth authorization flow and returns a redirect URL. For API key integrations, this activates the previously stored credentials. Emits an `integration.connected` event on success.
+
+**Required role:** `admin`
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Path parameters
+
+<ParamField path="provider" type="string" required>
+  The integration provider to connect. Example: `github`, `datadog`, `pagerduty`.
+</ParamField>
+
+## Request body
+
+<ParamField body="credentialId" type="string">
+  Required for `api_key` providers. The credential ID from [Store credentials](/api-reference/integrations/credentials).
+</ParamField>
+
+<ParamField body="redirectUrl" type="string">
+  Required for `oauth2` providers. The URL CauseFlow redirects back to after the user authorizes the OAuth application.
+</ParamField>
+
+## Response
+
+Returns `200 OK`.
+
+**For OAuth providers:**
+
+```json
+{
+  "authorizationUrl": "https://github.com/login/oauth/authorize?client_id=...&state=...",
+  "state": "oauth_state_token_for_csrf_validation"
+}
+```
+
+**For API key providers:**
+
+```json
+{
+  "integrationId": "int_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "provider": "datadog",
+  "status": "connected",
+  "connectedAt": "2024-04-01T10:05:00Z"
+}
+```
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `400` | `validation_error` | Missing required fields for this provider |
+| `401` | `unauthorized` | Missing or invalid JWT |
+| `403` | `forbidden` | Caller lacks `admin` role |
+| `404` | `credential_not_found` | Referenced `credentialId` does not exist |
+| `409` | `already_connected` | This provider is already connected to your tenant |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+# OAuth provider (GitHub)
+curl https://api.causeflow.ai/v1/integrations/github/connect \
+  -X POST \
+  -H "Authorization: Bearer eyJhbGc..." \
+  -H "Content-Type: application/json" \
+  -d '{ "redirectUrl": "https://app.example.com/integrations/callback" }'
+
+# API key provider (Datadog)
+curl https://api.causeflow.ai/v1/integrations/datadog/connect \
+  -X POST \
+  -H "Authorization: Bearer eyJhbGc..." \
+  -H "Content-Type: application/json" \
+  -d '{ "credentialId": "crd_01HX9VTPQR3KF8MZWBYD5N6JCE" }'
+```
+
+```typescript TypeScript
+// OAuth provider
+const oauthResp = await fetch(
+  "https://api.causeflow.ai/v1/integrations/github/connect",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ redirectUrl: "https://app.example.com/integrations/callback" }),
+  }
+);
+const { authorizationUrl } = await oauthResp.json();
+// Redirect user to authorizationUrl
+window.location.href = authorizationUrl;
+
+// API key provider
+const apiKeyResp = await fetch(
+  "https://api.causeflow.ai/v1/integrations/datadog/connect",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ credentialId: "crd_01HX9VTPQR3KF8MZWBYD5N6JCE" }),
+  }
+);
+const integration = await apiKeyResp.json();
+console.log("Connected:", integration.integrationId);
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="List integrations" href="/api-reference/integrations/list">
+    View all active integrations
+  </Card>
+  <Card title="Store credentials" href="/api-reference/integrations/credentials">
+    Store API key credentials before connecting
+  </Card>
+</CardGroup>

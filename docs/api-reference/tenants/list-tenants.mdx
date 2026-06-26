@@ -1,0 +1,64 @@
+---
+title: "List tenants"
+api: "GET /v1/tenants"
+description: "List tenants accessible to the authenticated user."
+---
+
+## Overview
+
+Returns all tenants the authenticated user has access to. Most users belong to a single tenant; users with cross-tenant access (such as CauseFlow support staff) may see multiple.
+
+**Required role:** Any authenticated user
+
+## Response
+
+Returns `200 OK` with an array of tenants.
+
+```json
+{
+  "tenants": [
+    {
+      "tenantId": "ten_EXAMPLE_01HX9VTPQR3KF8MZ",
+      "name": "Acme Corp",
+      "plan": "pro",
+      "status": "active"
+    },
+    {
+      "tenantId": "ten_EXAMPLE_02JY0WUQRS4LG9NA",
+      "name": "Globex Systems",
+      "plan": "business",
+      "status": "active"
+    }
+  ]
+}
+```
+
+| Field      | Type   | Description                                                         |
+| ---------- | ------ | ------------------------------------------------------------------- |
+| `tenantId` | string | Unique identifier for the tenant                                    |
+| `name`     | string | The tenant display name                                             |
+| `plan`     | string | The subscription plan: `starter`, `pro`, `business`, or `enterprise` |
+| `status`   | string | Tenant status: `active` or `suspended`                              |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/v1/tenants \
+  -H "Authorization: Bearer <token>"
+```
+
+```typescript TypeScript
+const response = await fetch("https://api.causeflow.ai/v1/tenants", {
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
+});
+
+const { tenants } = await response.json();
+console.log(`You have access to ${tenants.length} tenant(s).`);
+```
+
+</CodeGroup>

@@ -1,0 +1,80 @@
+---
+title: "Auto-discover services"
+api: "POST /v1/graph/discover"
+description: "Automatically discover services from your AWS infrastructure."
+---
+
+Scan your AWS infrastructure to automatically discover services and populate the topology graph. Discovers ECS services, EC2 instances, RDS databases, and other resources.
+
+## Authentication
+
+Requires a valid JWT token with `admin` role.
+
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+<Note>
+  This endpoint requires AWS credentials configured in your tenant settings (`awsRoleArn`, `awsExternalId`, `awsRegion`). See [Update tenant](/api-reference/tenants/update-tenant) to configure AWS access.
+</Note>
+
+## Response
+
+<ResponseField name="discovered" type="number">
+  Total number of services discovered.
+</ResponseField>
+
+<ResponseField name="services" type="array">
+  List of discovered services.
+  <Expandable title="Service object">
+    <ResponseField name="name" type="string">The discovered service name.</ResponseField>
+    <ResponseField name="type" type="string">The service type (e.g., `ecs_service`, `ec2_instance`, `rds_instance`).</ResponseField>
+    <ResponseField name="arn" type="string">The AWS ARN of the discovered resource.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<CodeGroup>
+```bash curl
+curl -X POST "https://api.causeflow.ai/v1/graph/discover" \
+  -H "Authorization: Bearer <your-jwt-token>"
+```
+
+```typescript TypeScript
+const response = await fetch(
+  "https://api.causeflow.ai/v1/graph/discover",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer <your-jwt-token>",
+    },
+  }
+);
+
+const data = await response.json();
+console.log(`Discovered ${data.discovered} services`);
+```
+</CodeGroup>
+
+### Example response
+
+```json
+{
+  "discovered": 12,
+  "services": [
+    {
+      "name": "payment-service",
+      "type": "ecs_service",
+      "arn": "arn:aws:ecs:us-east-1:123456789:service/production/payment-service"
+    },
+    {
+      "name": "order-db",
+      "type": "rds_instance",
+      "arn": "arn:aws:rds:us-east-1:123456789:db:order-db"
+    }
+  ]
+}
+```
+
+<Warning>
+  Only `admin` role can trigger auto-discovery. The discovery process uses temporary STS credentials with read-only permissions to scan your AWS infrastructure.
+</Warning>

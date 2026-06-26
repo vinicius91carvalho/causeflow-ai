@@ -1,0 +1,87 @@
+---
+title: "HubSpot"
+description: "Bridge your customer support layer with incident investigation — CauseFlow correlates HubSpot tickets and contact history with active incidents."
+---
+
+HubSpot is CauseFlow's customer support bridge. While most integrations give agents visibility into your infrastructure and code, HubSpot gives them the customer side of the story: who is affected, how severe their experience is, what support tickets are open, and what the account history looks like.
+
+When an incident fires, agents automatically pull the relevant HubSpot context and include it in the root cause analysis. This means investigations account for customer impact — not just technical signals.
+
+## How it works
+
+HubSpot connects via OAuth through CauseFlow's managed integration layer. After you authorize CauseFlow from your HubSpot portal, the orchestrator can read contact records, company profiles, and support tickets linked to the affected service or tenant.
+
+CauseFlow uses HubSpot as a trigger source: when ticket or contact events fire (for example, a support ticket is created or a contact is escalated), those events arrive at CauseFlow through the integration webhook path and can automatically open or enrich an active investigation.
+
+## Required information
+
+| Item | Description |
+|---|---|
+| **HubSpot portal** | The HubSpot portal (account) you want to connect |
+| **Portal admin access** | Required to authorize the OAuth connection |
+
+## Steps to obtain credentials
+
+No credentials are needed ahead of time — the OAuth flow handles everything. You will need to be a HubSpot portal admin (or have "App Marketplace Access" permissions) to complete the authorization.
+
+## Steps to configure in CauseFlow
+
+<Steps>
+  <Step title="Open the HubSpot integration">
+    Go to **Dashboard > Integrations > HubSpot** and click **Connect**.
+  </Step>
+  <Step title="Authorize on HubSpot">
+    You'll be redirected to HubSpot's OAuth authorization page. Sign in as a portal admin and click **Connect app** to grant CauseFlow access.
+  </Step>
+  <Step title="Return to CauseFlow">
+    You'll be redirected back to the CauseFlow dashboard. The HubSpot integration will show as connected with a green status indicator.
+  </Step>
+  <Step title="Configure trigger events (optional)">
+    Go to **Dashboard > Integrations > HubSpot > Triggers** to configure which HubSpot events automatically open or enrich investigations in CauseFlow.
+  </Step>
+</Steps>
+
+## Trigger events
+
+CauseFlow can respond to the following HubSpot events:
+
+| Event | What happens in CauseFlow |
+|---|---|
+| **Ticket created** | Creates or enriches an active incident with the new support ticket |
+| **Contact escalated** | Adds customer escalation context to an active investigation |
+
+These events are delivered through CauseFlow's integration webhook path and processed by the ingestion pipeline.
+
+## What this enables
+
+When HubSpot is connected, the investigation engine enriches every incident with:
+
+- **Customer context** — which companies and contacts are affected, their subscription plan, and their account tier
+- **Support ticket history** — open and recent tickets for the affected customer segment
+- **Contact escalation signals** — whether any contacts have been marked as escalated during the incident window
+- **Interaction history** — recent email and call activity for key affected accounts
+
+This context helps agents distinguish between a widespread infrastructure failure (many customers affected, no prior complaints) and a customer-specific configuration issue (one account, long history of related tickets).
+
+## Troubleshooting
+
+**"Not authorized" during OAuth:** Confirm the HubSpot account used for authorization has portal admin access or the "App Marketplace Access" permission enabled.
+
+**Trigger events not appearing:** Go to **Dashboard > Integrations > HubSpot > Triggers** and confirm at least one trigger type is enabled. If triggers are enabled but events are not arriving, check the connection status at **Dashboard > Integrations**.
+
+**Missing customer context in investigations:** CauseFlow matches customer records by service name and tenant identifiers. Confirm your services are named consistently in both CauseFlow and HubSpot (for example, using the same company domain or account ID).
+
+<CardGroup cols={2}>
+  <Card title="Integrations overview" icon="list" href="/integrations/overview">
+    See the full catalog of supported tools and how OAuth connections are managed.
+  </Card>
+  <Card title="Integrations overview" icon="list" href="/integrations/overview">
+    See the full catalog of available integrations.
+  </Card>
+  <Card title="Security overview" icon="shield" href="/security/overview">
+    Learn how CauseFlow stores and protects your HubSpot credentials.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    Manage integrations and triggers programmatically.
+  </Card>
+</CardGroup>

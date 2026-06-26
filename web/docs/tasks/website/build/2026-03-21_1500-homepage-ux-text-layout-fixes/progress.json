@@ -1,0 +1,17 @@
+{
+  "prd": "spec.md",
+  "created": "2026-03-21T15:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-text-reduction-layout-fixes.md",
+      "title": "Text Reduction + Layout Fixes + Verification",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": null,
+      "merged": false
+    }
+  ]
+}

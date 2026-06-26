@@ -1,0 +1,112 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e3]: Overview | CauseFlow AI
+  - generic [ref=e67]:
+    - complementary "Main navigation" [ref=e68]:
+      - generic [ref=e69]:
+        - link "CauseFlow AI" [ref=e70] [cursor=pointer]:
+          - /url: /dashboard
+          - img "CauseFlow AI" [ref=e71]
+          - generic [ref=e72]: CauseFlow AI
+        - button "Close menu" [ref=e73]:
+          - img [ref=e74]
+      - navigation [ref=e77]:
+        - link "Overview" [ref=e78] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e79]
+          - generic [ref=e84]: Overview
+        - link "Incidents" [ref=e85] [cursor=pointer]:
+          - /url: /dashboard/incidents
+          - img [ref=e86]
+          - generic [ref=e88]: Incidents
+        - link "Intelligence" [ref=e89] [cursor=pointer]:
+          - /url: /dashboard/intelligence
+          - img [ref=e90]
+          - generic [ref=e100]: Intelligence
+        - link "Integrations" [ref=e101] [cursor=pointer]:
+          - /url: /dashboard/integrations
+          - img [ref=e102]
+          - generic [ref=e104]: Integrations
+        - link "Relay" [ref=e105] [cursor=pointer]:
+          - /url: /dashboard/relay
+          - img [ref=e106]
+          - generic [ref=e112]: Relay
+        - link "Audit Log" [ref=e113] [cursor=pointer]:
+          - /url: /dashboard/audit
+          - img [ref=e114]
+          - generic [ref=e117]: Audit Log
+        - link "Team" [ref=e118] [cursor=pointer]:
+          - /url: /dashboard/team
+          - img [ref=e119]
+          - generic [ref=e124]: Team
+        - link "Billing" [ref=e125] [cursor=pointer]:
+          - /url: /dashboard/billing
+          - img [ref=e126]
+          - generic [ref=e128]: Billing
+        - link "Settings" [ref=e129] [cursor=pointer]:
+          - /url: /dashboard/settings
+          - img [ref=e130]
+          - generic [ref=e133]: Settings
+      - generic [ref=e135]:
+        - generic [ref=e136]:
+          - img [ref=e137]
+          - generic [ref=e139]: 45 investigations left
+        - generic [ref=e142]: pro — 15/60 used
+    - generic [ref=e143]:
+      - banner [ref=e144]:
+        - button "Open navigation menu" [ref=e145]:
+          - img [ref=e146]
+        - link "CauseFlow AI" [ref=e147] [cursor=pointer]:
+          - /url: /dashboard
+          - img "CauseFlow AI" [ref=e148]
+        - generic [ref=e149]:
+          - button "Toggle theme" [ref=e150]:
+            - img [ref=e151]
+          - button "Language" [ref=e154]:
+            - img [ref=e155]
+          - button "Open organization switcher" [ref=e159] [cursor=pointer]:
+            - generic [ref=e160]:
+              - img "SimUser AI's logo" [ref=e163]
+              - generic "SimUser AI" [ref=e166]
+            - img [ref=e167]
+          - button "Open user menu" [ref=e170] [cursor=pointer]:
+            - img "Vinicius Carvalho's logo" [ref=e173]
+      - main [ref=e176]:
+        - generic [ref=e177]:
+          - generic [ref=e178]:
+            - heading "Overview" [level=2] [ref=e179]
+            - paragraph [ref=e180]: Welcome to your CauseFlow AI dashboard
+          - generic [ref=e181]:
+            - link "New Analysis" [ref=e183] [cursor=pointer]:
+              - /url: /dashboard/analyses/new
+              - img [ref=e184]
+              - text: New Analysis
+            - region "Key metrics" [ref=e185]:
+              - generic [ref=e186]:
+                - generic [ref=e188]:
+                  - generic [ref=e189]:
+                    - paragraph [ref=e190]: Total Analyses
+                    - img [ref=e192]
+                  - paragraph [ref=e193]: "42"
+                - generic [ref=e194]:
+                  - generic [ref=e195]:
+                    - paragraph [ref=e196]: Active Integrations
+                    - img [ref=e198]
+                  - paragraph [ref=e200]: "7"
+                - generic [ref=e201]:
+                  - generic [ref=e202]:
+                    - paragraph [ref=e203]: Team Members
+                    - img [ref=e205]
+                  - paragraph [ref=e210]: "1"
+            - region "Credits" [ref=e211]:
+              - region "Credits status" [ref=e212]:
+                - generic [ref=e213]:
+                  - generic [ref=e214]:
+                    - img [ref=e216]
+                    - generic [ref=e218]:
+                      - paragraph [ref=e219]: 45 Credits Remaining
+                      - progressbar "45 of 60 credits remaining" [ref=e221]
+                      - paragraph [ref=e222]: 15 / 60 used
+                  - link "Upgrade Plan" [ref=e223] [cursor=pointer]:
+                    - /url: /dashboard/billing
+                    - img [ref=e224]
+                    - text: Upgrade Plan

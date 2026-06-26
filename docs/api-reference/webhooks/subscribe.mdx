@@ -1,0 +1,83 @@
+---
+title: "Webhook subscriptions (roadmap)"
+description: "Programmatic webhook subscription for outbound events — planned feature, not yet available."
+---
+
+## Status: roadmap
+
+Programmatic webhook subscription — registering an HTTPS endpoint to receive CauseFlow outbound events as HTTP POST payloads — is **not yet shipped**. This page describes the planned design so you can prepare your integration in advance.
+
+<Warning>
+  There is no `POST /v1/webhook-subscriptions` endpoint today. Do not build against this page as a live reference. When the feature ships, this page will be updated with the real request/response contract.
+</Warning>
+
+---
+
+## Real-time delivery today
+
+While programmatic webhook registration is in development, you can receive all 21 outbound events in real time via Server-Sent Events:
+
+**Endpoint:** `GET /v1/notifications/stream`
+
+This is a persistent SSE connection authenticated with your JWT. Events arrive in real time as they occur. See the [SSE stream reference](/api-reference/notifications/stream) for connection details, event format, and reconnection semantics.
+
+---
+
+## Planned webhook subscription design
+
+When webhook subscriptions ship, the API will follow this pattern:
+
+**Register a subscription:**
+```
+POST /v1/webhook-subscriptions
+```
+
+**Payload (planned):**
+```json
+{
+  "url": "https://your-service.example.com/causeflow-events",
+  "events": ["incident.created", "remediation.proposed", "investigation.completed"],
+  "secret": "your-signing-secret"
+}
+```
+
+**Delivery (planned):**
+
+CauseFlow will send a `POST` to your `url` for each matching event. The request body will be the event payload (same schema as SSE `data:` fields — see the [event catalog](/api-reference/webhooks/outbound-events)). Each request will include an HMAC-SHA256 signature header:
+
+```
+X-CauseFlow-Signature: sha256=<hmac>
+```
+
+**Verification (planned):**
+
+```typescript TypeScript
+import { createHmac, timingSafeEqual } from "crypto";
+
+function verifySignature(
+  rawBody: string,
+  signatureHeader: string,
+  secret: string
+): boolean {
+  const expected = "sha256=" + createHmac("sha256", secret).update(rawBody).digest("hex");
+  return timingSafeEqual(Buffer.from(signatureHeader), Buffer.from(expected));
+}
+```
+
+---
+
+## Inbound webhooks (available now)
+
+If you are looking for the inbound alert ingestion endpoint — receiving alerts **from** your monitoring tools **into** CauseFlow — that is already available:
+
+- [Receive alert](/api-reference/webhooks/receive-alert) — `POST /v1/webhooks/{tenantId}/{provider}`
+- [Payload formats](/api-reference/webhooks/payload-formats) — per-provider schema reference
+
+<CardGroup cols={2}>
+  <Card title="SSE stream (live today)" href="/api-reference/notifications/stream">
+    Real-time outbound event delivery via Server-Sent Events
+  </Card>
+  <Card title="Outbound event catalog" href="/api-reference/webhooks/outbound-events">
+    All 20 events with payload samples
+  </Card>
+</CardGroup>

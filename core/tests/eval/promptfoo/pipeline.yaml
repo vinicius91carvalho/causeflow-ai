@@ -1,0 +1,43 @@
+description: "CauseFlow — Full Pipeline Eval"
+
+providers:
+  - id: "file://providers/pipeline-provider.ts"
+    label: "Full Pipeline"
+
+prompts:
+  - "{{scenario}}"
+
+tests:
+  # Cenário 1: OOM Kill — full pipeline
+  - vars:
+      scenario: '{"alert":{"source":"cloudwatch","externalId":"eval-oom","payload":{"AlarmName":"payment-service-memory-critical","NewStateValue":"ALARM","NewStateReason":"Threshold Crossed: MemoryUtilization exceeded 90%. Container OOMKilled.","Trigger":{"MetricName":"MemoryUtilization","Namespace":"AWS/ECS","Threshold":90},"Region":"us-east-1","AWSAccountId":"000000000000"}},"inject":"oom","service":"payment-service"}'
+    assert:
+      - type: is-json
+      - type: javascript
+        value: "JSON.parse(output).rootCause.toLowerCase().includes('oom') || JSON.parse(output).rootCause.toLowerCase().includes('memory')"
+      - type: javascript
+        value: "JSON.parse(output).severity === 'critical'"
+      - type: javascript
+        value: "JSON.parse(output).eventsEmitted.includes('incident.created')"
+      - type: javascript
+        value: "JSON.parse(output).eventsEmitted.includes('investigation.completed')"
+      - type: cost
+        threshold: 0.50
+      - type: latency
+        threshold: 120000
+      - type: llm-rubric
+        value: "The root cause analysis should identify memory exhaustion or OOM as the primary issue and recommend concrete remediation steps like restarting the service or increasing memory limits"
+
+  # Cenário 2: Latency Spike — full pipeline
+  - vars:
+      scenario: '{"alert":{"source":"datadog","externalId":"eval-latency","payload":{"alert_type":"error","title":"High latency on api-gateway","body":"Request latency exceeded 1200ms. Database connection pool exhausted. Circuit breaker triggered.","aggreg_key":"api-gateway","tags":["env:production","service:api-gateway"]}},"inject":"latency","service":"api-gateway"}'
+    assert:
+      - type: is-json
+      - type: javascript
+        value: "JSON.parse(output).rootCause.toLowerCase().includes('database') || JSON.parse(output).rootCause.toLowerCase().includes('connection') || JSON.parse(output).rootCause.toLowerCase().includes('latency')"
+      - type: javascript
+        value: "JSON.parse(output).eventsEmitted.includes('incident.created')"
+      - type: cost
+        threshold: 0.50
+      - type: latency
+        threshold: 120000

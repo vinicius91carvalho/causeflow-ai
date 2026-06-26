@@ -1,0 +1,43 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-01T12:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-data-foundation.md",
+      "title": "Data Foundation",
+      "status": "completed",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": null,
+      "merged": true
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-integrations-page.md",
+      "title": "Integrations Page Redesign",
+      "status": "completed",
+      "depends_on": [
+        1
+      ],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": null,
+      "merged": true
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-homepage-security.md",
+      "title": "Homepage + Security Page Updates",
+      "status": "completed",
+      "depends_on": [
+        1
+      ],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "worktree-agent-aec38652",
+      "merged": true
+    }
+  ]
+}

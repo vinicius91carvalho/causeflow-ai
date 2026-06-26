@@ -1,0 +1,93 @@
+---
+title: "Incident statistics"
+api: "GET /v1/analytics/incidents"
+description: "Get aggregated incident statistics for your tenant."
+---
+
+## Overview
+
+Returns aggregated incident statistics for the current tenant over a specified time period. Use this endpoint to track incident trends, resolution rates, and mean time to resolution (MTTR).
+
+**Required role:** Any authenticated user
+
+## Query parameters
+
+<ParamField query="period" type="string">
+  The time period to aggregate statistics over. One of: `7d`, `30d`, `90d`. Defaults to `30d`.
+</ParamField>
+
+## Response
+
+Returns `200 OK` with aggregated incident statistics.
+
+```json
+{
+  "totalIncidents": 47,
+  "resolvedIncidents": 43,
+  "mttr": 1800,
+  "resolutionRate": 0.915,
+  "bySeverity": {
+    "critical": 3,
+    "high": 12,
+    "medium": 22,
+    "low": 10
+  }
+}
+```
+
+| Field               | Type    | Description                                                                    |
+| ------------------- | ------- | ------------------------------------------------------------------------------ |
+| `totalIncidents`    | integer | Total number of incidents created in the period                                |
+| `resolvedIncidents` | integer | Number of incidents that reached `resolved` status in the period               |
+| `mttr`              | integer | Mean time to resolution in seconds, averaged across all resolved incidents     |
+| `resolutionRate`    | number  | Proportion of incidents resolved: `resolvedIncidents / totalIncidents` (0 to 1) |
+| `bySeverity.critical` | integer | Number of incidents with `critical` severity                                 |
+| `bySeverity.high`   | integer | Number of incidents with `high` severity                                       |
+| `bySeverity.medium` | integer | Number of incidents with `medium` severity                                     |
+| `bySeverity.low`    | integer | Number of incidents with `low` severity                                        |
+
+### Error responses
+
+| Status | Error code         | Description                                          |
+| ------ | ------------------ | ---------------------------------------------------- |
+| `400`  | `validation_error` | The `period` parameter is not one of the allowed values |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+# Default 30-day period
+curl "https://api.causeflow.ai/v1/analytics/incidents" \
+  -H "Authorization: Bearer <token>"
+
+# Last 90 days
+curl "https://api.causeflow.ai/v1/analytics/incidents?period=90d" \
+  -H "Authorization: Bearer <token>"
+```
+
+```typescript TypeScript
+const period = "30d"; // "7d" | "30d" | "90d"
+
+const response = await fetch(
+  `https://api.causeflow.ai/v1/analytics/incidents?period=${period}`,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }
+);
+
+const stats = await response.json();
+
+const mttrMinutes = Math.round(stats.mttr / 60);
+const resolutionPct = (stats.resolutionRate * 100).toFixed(1);
+
+console.log(`Total incidents (${period}): ${stats.totalIncidents}`);
+console.log(`Resolution rate: ${resolutionPct}%`);
+console.log(`MTTR: ${mttrMinutes} minutes`);
+console.log(`Critical incidents: ${stats.bySeverity.critical}`);
+```
+
+</CodeGroup>

@@ -1,0 +1,4 @@
+/* Cleric theme entry point — imported by top-level packages/ui/src/themes/entry.css */
+@import "./tokens/light.css";
+@import "./tokens/dark.css";
+@import "./fonts/font-stacks.css";

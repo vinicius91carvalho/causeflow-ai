@@ -1,0 +1,120 @@
+name: LLM Eval
+
+on:
+  pull_request:
+    paths:
+      - 'src/modules/triage/**'
+      - 'src/modules/investigation/**'
+      - 'src/shared/infra/llm/**'
+      - 'tests/eval/**'
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Which eval suite to run'
+        type: choice
+        options:
+          - triage
+          - pipeline
+          - all
+        default: triage
+
+jobs:
+  eval-triage:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' || inputs.suite != 'pipeline' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Run triage eval
+        run: pnpm eval:triage
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-triage-results
+          path: |
+            promptfoo-output/
+            .promptfoo/
+
+  eval-pipeline:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.suite == 'pipeline' || inputs.suite == 'all' }}
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    env:
+      NODE_ENV: test
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      DYNAMODB_ENDPOINT: http://localhost:4566
+      SQS_ENDPOINT: http://localhost:4566
+      DYNAMODB_TABLE_NAME: causeflow
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: eval-secret
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      STS_ENDPOINT: http://localhost:4567
+      CLOUD_PROVIDER_ENDPOINT: http://localhost:4567
+      AWS_ROLE_ARN: arn:aws:iam::000000000000:role/CauseFlowCrossAccountRole
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Start CauseFlow LocalStack
+        uses: LocalStack/setup-localstack@v0.2.3
+        with:
+          image-tag: latest
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+
+      - name: Init CauseFlow resources
+        run: bash infra/localstack/init/01-create-resources.sh
+
+      - name: Start Customer LocalStack
+        run: |
+          docker run -d --name localstack-customer \
+            -p 4567:4566 \
+            -e LOCALSTACK_AUTH_TOKEN=${{ secrets.LOCALSTACK_AUTH_TOKEN }} \
+            -e SERVICES=cloudwatch,logs,ecs,ec2,lambda,ssm,sts,iam \
+            -e DEFAULT_REGION=us-east-1 \
+            localstack/localstack-pro:latest
+
+      - name: Wait for Customer LocalStack
+        run: |
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:4567/_localstack/health | grep -q '"cloudwatch"'; then
+              echo "Customer LocalStack ready"
+              break
+            fi
+            echo "Waiting for Customer LocalStack... ($i/30)"
+            sleep 2
+          done
+
+      - name: Init Customer resources
+        run: |
+          export AWS_ENDPOINT_URL=http://localhost:4567
+          bash infra/localstack/init-customer/01-setup-customer-infra.sh
+
+      - name: Run pipeline eval
+        run: pnpm eval:pipeline
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-pipeline-results
+          path: |
+            promptfoo-output/
+            .promptfoo/

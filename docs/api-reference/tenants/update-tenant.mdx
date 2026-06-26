@@ -1,0 +1,129 @@
+---
+title: "Update tenant"
+api: "PATCH /v1/tenants/{tenantId}"
+description: "Update tenant settings."
+---
+
+## Overview
+
+Updates one or more fields on a tenant. Only the fields included in the request body are updated — omitted fields retain their current values.
+
+**Required role:** `admin`
+
+## Path parameters
+
+<ParamField path="tenantId" type="string" required>
+  The unique identifier of the tenant to update. Example: `ten_EXAMPLE_01HX9VTPQR3KF8MZ`.
+</ParamField>
+
+## Request body
+
+All fields are optional. Include only the fields you want to change.
+
+<ParamField body="name" type="string">
+  The new display name for the tenant.
+</ParamField>
+
+<ParamField body="settings" type="object">
+  Updated AWS integration settings. Provide only the sub-fields you want to change.
+
+  <Expandable title="settings properties">
+    <ParamField body="settings.awsRoleArn" type="string">
+      The ARN of the AWS IAM role CauseFlow will assume for AWS integrations. Example: `"arn:aws:iam::<your-aws-account-id>:role/CauseFlowRole"`.
+    </ParamField>
+
+    <ParamField body="settings.awsExternalId" type="string">
+      The external ID used when assuming the AWS IAM role.
+    </ParamField>
+
+    <ParamField body="settings.awsRegion" type="string">
+      The primary AWS region for this tenant's infrastructure. Example: `"us-west-2"`.
+    </ParamField>
+
+    <ParamField body="settings.autoRemediation" type="boolean">
+      When `true`, approved remediations execute automatically without requiring manual approval each time.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<Warning>
+  When `autoRemediation` is enabled, approved remediations execute automatically without requiring manual approval each time. Use with caution — this means AI-generated remediation steps will run against your production infrastructure without an additional human confirmation step.
+</Warning>
+
+## Response
+
+Returns `200 OK` with the full updated tenant object.
+
+```json
+{
+  "tenantId": "ten_EXAMPLE_01HX9VTPQR3KF8MZ",
+  "name": "Acme Corp (Updated)",
+  "slug": "acme-corp",
+  "status": "active",
+  "plan": "pro",
+  "createdAt": "2026-01-15T09:30:00Z",
+  "settings": {
+    "awsRoleArn": "arn:aws:iam::<your-aws-account-id>:role/CauseFlowRoleV2",
+    "awsExternalId": "causeflow-ext-id-acme",
+    "awsRegion": "us-west-2",
+    "autoRemediation": true
+  }
+}
+```
+
+### Error responses
+
+| Status | Error code         | Description                                            |
+| ------ | ------------------ | ------------------------------------------------------ |
+| `400`  | `validation_error` | A field value fails validation                         |
+| `403`  | `forbidden`        | The authenticated user does not have `admin` role |
+| `404`  | `not_found`        | No tenant exists with the provided `tenantId`          |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/v1/tenants/ten_EXAMPLE_01HX9VTPQR3KF8MZ \
+  -X PATCH \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Corp (Updated)",
+    "settings": {
+      "awsRegion": "us-west-2",
+      "autoRemediation": true
+    }
+  }'
+```
+
+```typescript TypeScript
+const tenantId = "ten_EXAMPLE_01HX9VTPQR3KF8MZ";
+
+const response = await fetch(
+  `https://api.causeflow.ai/v1/tenants/${tenantId}`,
+  {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: "Acme Corp (Updated)",
+      settings: {
+        awsRegion: "us-west-2",
+        autoRemediation: true,
+      },
+    }),
+  }
+);
+
+if (response.status === 403) {
+  throw new Error("Only admins can update tenant settings.");
+}
+
+const tenant = await response.json();
+console.log("Updated tenant:", tenant.name);
+```
+
+</CodeGroup>

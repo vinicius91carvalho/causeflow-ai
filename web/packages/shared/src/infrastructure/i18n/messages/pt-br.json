@@ -1,0 +1,1648 @@
+{
+  "common": {
+    "nav": {
+      "product": "Produto",
+      "integrations": "Integrações",
+      "pricing": "Preços",
+      "security": "Segurança",
+      "about": "Sobre",
+      "signIn": "Entrar",
+      "getStartedFree": "Acesso Antecipado",
+      "dashboard": "Painel"
+    },
+    "cta": {
+      "getStartedFree": "Acesso Antecipado",
+      "watchDemo": "Veja Como Funciona",
+      "scheduleDemo": "Fale Conosco",
+      "createAccount": "Criar Conta",
+      "talkToSales": "Falar com Vendas",
+      "learnMore": "Saiba Mais Sobre o Produto",
+      "startNow": "Participe do Beta"
+    },
+    "footer": {
+      "description": "Investigação inteligente de incidentes para times de engenharia e suporte L2/L3.",
+      "productColumn": "Produto",
+      "companyColumn": "Empresa",
+      "legalColumn": "Legal",
+      "howItWorks": "Como Funciona",
+      "integrations": "Integrações",
+      "security": "Segurança",
+      "pricing": "Preços",
+      "aboutUs": "Sobre Nós",
+      "contact": "Contato",
+      "platformStatus": "Status da Plataforma",
+      "privacyPolicy": "Política de Privacidade",
+      "termsOfService": "Termos de Serviço",
+      "lgpdGdpr": "LGPD/GDPR",
+      "copyright": "2026 CauseFlow AI. Todos os direitos reservados.",
+      "lgpdCompliant": "Em conformidade com a LGPD",
+      "gdprCompliant": "Em conformidade com o GDPR",
+      "soc2TypeII": "SOC 2 Tipo II (Em Andamento)",
+      "iso27001": "ISO 27001 (No Roadmap)",
+      "hipaa": "HIPAA (No Roadmap)",
+      "connectColumn": "Conectar",
+      "talkToFounder": "Fale com o Co-Fundador"
+    },
+    "languageSelector": {
+      "en": "English",
+      "ptBr": "Português (BR)"
+    },
+    "cofounderCta": {
+      "headline": "Vamos Conversar Sobre Seu Fluxo de Incidentes",
+      "description": "Somos Engineering Managers e Especialistas em IA que passaram anos investigando incidentes em ferramentas desconectadas. Construímos o CauseFlow porque vivemos a mesma dor que você enfrenta agora.",
+      "connectLinkedIn": "Conectar no LinkedIn",
+      "bookCall": "Agendar uma Conversa de 15 min",
+      "personalNote": "Sem papo de vendas — apenas uma conversa sobre os maiores desafios do seu time."
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "A primeira solução de investigação de incidentes com IA e suporte L2/L3",
+      "headline": "Investigue incidentes de produção em minutos, não horas",
+      "subheadline": "A primeira plataforma de investigação de incidentes com IA. O CauseFlow conecta ao Slack, GitHub, Jira, CloudWatch e HubSpot, cruza todas as fontes de dados e entrega a causa raiz com recomendações de correção — tudo em menos de 5 minutos.",
+      "metaDescription": "Investigação de incidentes com IA conectando engenharia e suporte L2/L3. CauseFlow cruza Slack, GitHub, Jira, CloudWatch e HubSpot para encontrar causas raiz em minutos.",
+      "ctaPrimary": "Acesso Antecipado",
+      "ctaSecondary": "Veja Como Funciona",
+      "trustText": "Seja um dos primeiros a investigar incidentes com IA. Lançamento em março de 2026.",
+      "vizRootCause": "Causa Raiz Identificada",
+      "vizConfidence": "97% confiança",
+      "vizFixDescription": "Vazamento de memória no pool de conexões — auto-scaling disparado às 3:42 AM causou overflow de max_connections do PostgreSQL.",
+      "vizFixButton": "Abrir Fix PR →",
+      "vizProcessing": "Investigando..."
+    },
+    "techBar": {
+      "title": "Conecta às ferramentas que seu time já usa"
+    },
+    "metrics": {
+      "title": "Métricas de Impacto",
+      "mttr": {
+        "label": "Estimativa de Redução do MTTR",
+        "value": "95%",
+        "description": "De 2-4 horas para menos de 5 minutos por investigação"
+      },
+      "cost": {
+        "label": "Estimativa de Custo por Investigação",
+        "value": "$0.50-$0.20",
+        "description": "Muito menos que as horas de engenharia gastas analisando o problema manualmente"
+      },
+      "downtime": {
+        "label": "Estimativa de Custo de Inatividade Evitado",
+        "value": "$14,000/min",
+        "description": "Custo médio de downtime para negócios digitais"
+      }
+    },
+    "howItWorks": {
+      "title": "Como o CauseFlow investiga seus problemas",
+      "subtitle": "De qualquer fonte de problema, passando por todas as suas ferramentas, até a causa raiz — em minutos.",
+      "steps": {
+        "receive": {
+          "title": "Recebe o problema de qualquer fonte",
+          "description": "Via interface web, Slack, Jira ou e-mail de cliente. Descreva o problema e o CauseFlow começa a investigar imediatamente."
+        },
+        "investigate": {
+          "title": "Investiga todas as fontes automaticamente",
+          "description": "Conecta ao GitHub (commits, PRs, releases), CloudWatch (logs de erro), Jira (tickets), Slack (mensagens) e HubSpot (impacto no cliente) simultaneamente."
+        },
+        "identify": {
+          "title": "Identifica a causa raiz com evidências",
+          "description": "Cruza logs, commits, tickets e métricas para entregar a causa raiz com score de confiança e timeline de eventos."
+        },
+        "recommend": {
+          "title": "Recomenda correções específicas",
+          "description": "Sugere a correção exata: reverter deploy, ajuste de configuração, PR de correção de código. Tudo com human-in-the-loop."
+        },
+        "learn": {
+          "title": "Aprende com cada investigação",
+          "description": "Constrói uma Knowledge Base que acelera resoluções futuras de problemas recorrentes."
+        },
+        "audit": {
+          "title": "Trilha de auditoria completa e transparente",
+          "description": "Cada ação do agente é registrada em um log imutável visível para o cliente. Você vê exatamente o que o agente fez, quando, e quais dados acessou."
+        }
+      }
+    },
+    "crossTool": {
+      "title": "O primeiro agente que cruza dados técnicos com ferramentas de negócio",
+      "description": "Enquanto concorrentes focam apenas em infraestrutura, o CauseFlow investiga o contexto completo do problema. Receba um relato de cliente 'Acho que meus dados foram deletados' e o CauseFlow automaticamente consulta a conta do cliente no banco de dados, verifica logs de auditoria para mudanças recentes, determina se um deploy causou o problema, e gera tanto a correção técnica quanto uma explicação para o cliente.",
+      "vizRootCause": "Causa Raiz Encontrada",
+      "vizConfidence": "87% de confiança",
+      "vizFixDescription": "O deploy v2.4.1 introduziu uma condição de corrida no serviço de sincronização de dados, causando exclusão intermitente de registros.",
+      "vizFixButton": "Abrir PR de Correção",
+      "vizProcessing": "Cruzando dados..."
+    },
+    "usageModes": {
+      "title": "Use o CauseFlow da forma que faz mais sentido para o seu time",
+      "slack": {
+        "title": "Via Slack",
+        "description": "Envie uma mensagem no Slack descrevendo o problema e o agente investiga direto no canal de incidentes. Resultados aparecem como thread."
+      },
+      "jira": {
+        "title": "Via Jira/Trello",
+        "description": "Atribua um card ao CauseFlow e ele investiga automaticamente. O relatório final vira um comentário no card."
+      },
+      "web": {
+        "title": "Via Interface Web",
+        "description": "Acesse o dashboard, descreva o problema e acompanhe a investigação em tempo real com trilha de auditoria visível."
+      },
+      "api": {
+        "title": "Via API",
+        "description": "Integre o CauseFlow ao seu pipeline de alertas. Dispare investigações via REST API com webhooks de resultado."
+      },
+      "mcp": {
+        "title": "Via MCP Server",
+        "description": "Use o CauseFlow como ferramenta MCP dentro do seu agente de código AI ou IDE."
+      },
+      "agent": {
+        "title": "Via AI Agent",
+        "description": "Deixe o agente CauseFlow trabalhar de forma autônoma dentro do seu workflow."
+      }
+    },
+    "security": {
+      "title": "Segurança Enterprise desde o Dia 1",
+      "commitments": {
+        "onDemandReading": {
+          "title": "Leitura sob demanda",
+          "description": "O agente lê, analisa e descarta. Seus dados nunca saem do perímetro."
+        },
+        "isolatedEncryption": {
+          "title": "Criptografia isolada",
+          "description": "Cada tenant possui criptografia KMS individual via AWS."
+        },
+        "immutableAuditTrail": {
+          "title": "Trilha de auditoria imutável",
+          "description": "Cada ação do agente é registrada e visível para o cliente."
+        },
+        "noExternalTraining": {
+          "title": "Sem treinamento externo",
+          "description": "Seus dados nunca são usados para treinar modelos de terceiros."
+        },
+        "readOnlyDefault": {
+          "title": "Somente leitura por padrão",
+          "description": "O agente nunca escreve sem aprovação explícita (human-in-the-loop)."
+        },
+        "rightToDeletion": {
+          "title": "Direito à exclusão",
+          "description": "Exclua todos os seus dados a qualquer momento."
+        }
+      },
+      "badges": "Em conformidade com LGPD e GDPR desde o lançamento. SOC 2 Type II no roadmap.",
+      "learnMore": "Saiba mais sobre Segurança"
+    },
+    "ctaFinal": {
+      "title": "Pronto para investigar problemas em minutos?",
+      "subtitle": "Seja um dos primeiros a investigar incidentes com IA. Membros do acesso antecipado ganham 5 investigações gratuitas/mês no lançamento.",
+      "ctaPrimary": "Acesso Antecipado",
+      "ctaSecondary": "Ou fale conosco para uma demonstração personalizada"
+    },
+    "whyDifferent": {
+      "title": "Por Que o CauseFlow é Diferente",
+      "subtitle": "Não somos mais uma ferramenta enterprise. Somos feitos por engenheiros, para engenheiros.",
+      "cards": {
+        "builtByEM": {
+          "title": "Criado por Quem Viveu o Problema",
+          "description": "Passamos anos como Engineering Managers e Especialistas em IA investigando incidentes com ferramentas fragmentadas. O CauseFlow nasceu dessa frustração compartilhada — construído por quem viveu isso na pele."
+        },
+        "minutesNotHours": {
+          "title": "Investigação em Minutos, Não Horas",
+          "description": "Análise com IA conecta os pontos em toda sua stack — logs, métricas, alertas e mudanças de código — em minutos ao invés de horas."
+        },
+        "crossTool": {
+          "title": "Inteligência Multi-Ferramenta",
+          "description": "O CauseFlow integra com suas ferramentas existentes e correlaciona dados entre elas. Chega de alternar entre 10 abas para encontrar a causa raiz."
+        },
+        "builtForStartups": {
+          "title": "Feito para Startups e PMEs",
+          "description": "Investigação de nível enterprise sem preço enterprise. Projetado para times de 2 a 50 engenheiros que precisam se mover rápido."
+        }
+      }
+    }
+  },
+  "product": {
+    "hero": {
+      "title": "Investigação Inteligente para Times de Engenharia",
+      "subtitle": "O CauseFlow conecta às ferramentas que seu time já usa, investiga automaticamente logs, commits, tickets e métricas, e entrega a causa raiz em minutos.",
+      "ctaPrimary": "Acesso Antecipado",
+      "ctaSecondary": "Explore o Produto"
+    },
+    "phases": {
+      "phase1": {
+        "title": "Fase 1 — Investigação Assistida + Remediação",
+        "step1": {
+          "title": "Recebe o problema",
+          "description": "Via interface web, mensagem no Slack, card do Jira/Trello ou e-mail de cliente. O usuário descreve o problema em linguagem natural e o agente inicia a investigação."
+        },
+        "step2": {
+          "title": "Conecta a todas as fontes",
+          "description": "Slack (mensagens do canal #incidents), GitHub (commits, PRs, releases recentes), Jira (tickets relacionados), CloudWatch (logs de erro), HubSpot (dados do cliente afetado). Tudo em paralelo."
+        },
+        "step3": {
+          "title": "Analisa e correlaciona",
+          "description": "Cruza dados de todas as fontes usando LLM multi-modelo com roteamento inteligente por complexidade. Gera hipóteses, testa contra evidências, classifica com score de confiança."
+        },
+        "step4": {
+          "title": "Entrega relatório completo",
+          "description": "Causa raiz provável + score de confiança (0-100%) + timeline cronológica de eventos + recomendações específicas de correção + impacto no cliente (quando aplicável)."
+        },
+        "remediation": "Com aprovação do usuário, o agente executa o plano de correção: gera PRs no GitHub, executa comandos kubectl, scripts de remediação, reverter deploy. Sempre com human-in-the-loop antes de qualquer ação destrutiva."
+      },
+      "phase2": {
+        "title": "Fase 2 — Knowledge Base Inteligente",
+        "headline": "Quanto mais você usa, mais rápido ele resolve",
+        "description": "O sistema aprende com cada investigação resolvida, construindo uma Knowledge Base que mapeia dependências de serviços e blast radius. Quando um problema similar é detectado, o CauseFlow sugere a solução anterior imediatamente — problemas recorrentes resolvidos em segundos, não horas."
+      },
+      "phase3": {
+        "title": "Fase 3 — Remediação Autônoma",
+        "badge": "No Roadmap",
+        "headline": "Auto-healing com guardrails",
+        "description": "Correção automática com aprovação configurável: reverter deploy, ajuste de configuração, escalonamento automático. Marketplace de integrações e resolução autônoma de tickets L1."
+      }
+    },
+    "auditTrail": {
+      "title": "Veja exatamente o que o agente fez",
+      "subtitle": "Transparência total. Cada ação do agente é registrada em um log imutável visível para você."
+    },
+    "architecture": {
+      "title": "Arquitetura Técnica",
+      "connectivity": "Camada de conectividade: MCP servers (10.000+ disponíveis no ecossistema, adotado por OpenAI, Google, Microsoft)",
+      "core": "Core proprietário: Motor de planejamento, geração de hipóteses, aprendizado e Knowledge Base",
+      "llm": "LLM Gateway: Roteador inteligente que seleciona o modelo ideal por complexidade da tarefa",
+      "security": "Segurança: AWS Bedrock (ISO/IEC 42001), KMS por tenant, PII Gateway (Presidio)"
+    }
+  },
+  "pricing": {
+    "hero": {
+      "title": "Preços simples. Pague pelo que usar.",
+      "subtitle": "Lançamento em março de 2026. Participe da lista de acesso antecipado e seja o primeiro a experimentar o CauseFlow."
+    },
+    "plans": {
+      "free": "Grátis",
+      "starter": "Starter",
+      "pro": "Pro",
+      "business": "Business",
+      "enterprise": "Enterprise",
+      "mostPopular": "Mais popular",
+      "perMonth": "/mês",
+      "investigationsIncluded": "investigações incluídas",
+      "overage": "excedente",
+      "targetLabel": "Ideal para"
+    },
+    "comparison": {
+      "title": "Por que pagar por usuário se apenas 2-3 pessoas investigam incidentes?",
+      "scenarioTeam5": "Time de 5 devs",
+      "scenarioTeam10": "Time de 10 devs",
+      "scenarioTeam20": "Time de 20 devs",
+      "scenarioTeam50": "Time de 50 devs",
+      "whatYouPayFor": "Pelo que você paga",
+      "customerIssues": "Issues de clientes",
+      "causeflowPayFor": "Por investigação realizada",
+      "perSeatPayFor": "Por usuário, mesmo sem investigar",
+      "platformPayFor": "Por usuário, mesmo sem investigar",
+      "enterprisePayFor": "Contrato enterprise",
+      "included": "Incluído",
+      "notAvailable": "Não disponível",
+      "doesntServe": "Não atende (somente enterprise)",
+      "openCore": "Open-core (self-host)"
+    },
+    "roi": {
+      "title": "Calculadora de ROI",
+      "incidentsLabel": "Quantos incidentes/investigações seu time faz por mês?",
+      "durationLabel": "Quanto tempo cada investigação leva em média?",
+      "engineersLabel": "Quantos engenheiros no time?",
+      "hoursSaved": "Horas economizadas por mês",
+      "causeflowCost": "Custo do CauseFlow",
+      "perSeatCost": "Custo equivalente em Ferramentas por Assento",
+      "platformCost": "Custo equivalente em Plataformas Enterprise",
+      "annualSavings": "Economia anual estimada",
+      "duration30min": "30 min",
+      "duration1h": "1 hora",
+      "duration2h": "2 horas",
+      "duration4h": "4 horas"
+    },
+    "faq": {
+      "title": "Perguntas Frequentes",
+      "q1": {
+        "question": "O que conta como uma investigação?",
+        "answer": "Toda vez que o CauseFlow recebe um problema e executa uma investigação completa (conectando às fontes, analisando dados, gerando relatório) conta como 1 investigação."
+      },
+      "q2": {
+        "question": "Posso mudar de plano?",
+        "answer": "Sim, a qualquer momento. Upgrade é imediato, downgrade no próximo ciclo."
+      },
+      "q3": {
+        "question": "Preciso de cartão de crédito para o plano Grátis?",
+        "answer": "Não. O plano Grátis não exige cartão de crédito."
+      },
+      "q4": {
+        "question": "Existe desconto anual?",
+        "answer": "Sim. Créditos pré-pagos oferecem 10-20% de desconto progressivo."
+      },
+      "q5": {
+        "question": "E se eu exceder o limite?",
+        "answer": "Você paga o preço de excedente do seu plano por investigação adicional. Sem surpresas — você configura alertas de consumo."
+      },
+      "q6": {
+        "question": "Como funciona para empresas brasileiras?",
+        "answer": "Aceitamos pagamento internacional via Stripe. Em conformidade com a LGPD desde o lançamento."
+      }
+    }
+  },
+  "security": {
+    "hero": {
+      "title": "Segurança que você pode auditar",
+      "subtitle": "Seus dados nunca saem do perímetro. O agente lê sob demanda, analisa e descarta. Tudo o que ele fez é registrado em uma trilha de auditoria imutável visível para você."
+    },
+    "commitments": {
+      "pillar1Title": "Acesso Mínimo com Controle Total",
+      "pillar2Title": "Isolamento e Transparência",
+      "onDemandReading": {
+        "title": "Leitura sob demanda, sem persistência",
+        "description": "O agente lê dados apenas durante a investigação ativa. Após a análise, os dados são descartados. Não armazenamos dados brutos de clientes.",
+        "technicalDetail": "Dados lidos sob demanda, analisados em memória, descartados após a conclusão da investigação."
+      },
+      "leastPrivilege": {
+        "title": "Acesso com privilégio mínimo",
+        "description": "Cada integração usa credenciais somente leitura com escopo mínimo via OAuth. O agente nunca tem acesso de escrita, a menos que explicitamente autorizado.",
+        "technicalDetail": "Escopos OAuth limitados a somente leitura; acesso de escrita requer aprovação humana explícita."
+      },
+      "noWriteDefault": {
+        "title": "Sem escrita por padrão",
+        "description": "O agente é somente leitura. Ações de remediação requerem aprovação explícita do usuário (human-in-the-loop) antes de qualquer ação destrutiva.",
+        "technicalDetail": "Todas as operações de escrita protegidas por fluxo de aprovação human-in-the-loop."
+      },
+      "tenantIsolation": {
+        "title": "Isolamento de tenant",
+        "description": "Cada cliente possui criptografia KMS individual via AWS. Dados nunca são misturados entre clientes. Chamadas LLM contêm dados de exatamente um tenant.",
+        "technicalDetail": "Chaves KMS por tenant, tarefas ECS isoladas, contextos LLM single-tenant."
+      },
+      "noCrossTraining": {
+        "title": "Sem treinamento cruzado",
+        "description": "Dados de clientes nunca são usados para treinar modelos para outros clientes. Fine-tuning é exclusivo por conta quando aplicável.",
+        "technicalDetail": "Zero compartilhamento de dados entre clientes; isolamento de fine-tuning por conta."
+      },
+      "immutableAuditTrail": {
+        "title": "Trilha de auditoria imutável",
+        "description": "Cada investigação gera log detalhado no S3 com Object Lock (WORM). O log é visível para o cliente e não pode ser alterado.",
+        "technicalDetail": "S3 Object Lock (WORM), inclui: fontes acessadas, dados lidos, tokens processados, resultado."
+      }
+    },
+    "compliance": {
+      "title": "Compliance e Certificações",
+      "lgpd": {
+        "name": "LGPD",
+        "status": "Em conformidade desde o lançamento",
+        "details": "KMS por tenant + TTL + direito à exclusão. Solicitações de titulares atendidas em 15 dias. Notificação de violação em 72h."
+      },
+      "gdpr": {
+        "name": "GDPR",
+        "status": "Em conformidade desde o lançamento",
+        "details": "Os mesmos mecanismos cobrem o GDPR. Cláusulas Contratuais Padrão para transferências internacionais."
+      },
+      "soc2Type1": {
+        "name": "SOC 2 Type I",
+        "status": "Roadmap: mês 6-9",
+        "details": "Plataforma automatizada de compliance. Cronograma alinhado com marcos de prontidão SOC 2."
+      },
+      "soc2Type2": {
+        "name": "SOC 2 Type II",
+        "status": "Roadmap: mês 12-18",
+        "details": "Ciclo completo de auditoria com assessor independente. Baseado nos controles do Type I."
+      },
+      "iso27001": {
+        "name": "ISO 27001 / HIPAA",
+        "status": "Roadmap: Ano 2+",
+        "details": "Conforme demanda enterprise exigir."
+      }
+    },
+    "architecture": {
+      "title": "Arquitetura de Segurança",
+      "waf": "Cliente (HTTPS) -> Web Application Firewall -> Load Balancer -> ECS Tasks (sub-redes privadas)",
+      "nat": "ECS Tasks -> Network Gateway -> APIs Externas (Slack, GitHub, etc.)",
+      "credentials": "Credenciais no AWS Secrets Manager com rotação automática",
+      "database": "Managed Database/NoSQL Database em sub-rede privada sem exposição à internet",
+      "logs": "Todos os logs centralizados em Monitoring & Alerting + Immutable Object Storage",
+      "encryption": "Dados em repouso: AES-256 por chaves de criptografia por tenant. Dados em trânsito: TLS 1.3"
+    },
+    "isolation": {
+      "title": "Isolamento de Dados (Multi-tenancy)",
+      "application": "Tenant ID obrigatório em cada consulta, log e registro. Chamadas LLM contendo dados de exatamente um tenant.",
+      "database": "Database com Row Level Security (RLS) por tenant_id.",
+      "vectorDb": "Armazenamento vetorial particionado com isolamento rígido por tenant. Projetado para escalar a milhões de tenants.",
+      "infrastructure": "Cada investigação roda em container efêmero com permissões restritas. Container destruído após conclusão.",
+      "piiGateway": "Microsoft Presidio detecta e anonimiza e-mails, telefones, CPFs, cartões. Anonimização reversível.",
+      "encryption": "Dados em repouso: AES-256 por chaves de criptografia por tenant. Dados em trânsito: TLS 1.3."
+    },
+    "bedrock": {
+      "title": "AWS Bedrock como Provedor de LLM",
+      "noTraining": "A AWS não usa dados de clientes para treinar modelos",
+      "zeroAccess": "Provedores de modelos têm acesso zero a prompts/completions",
+      "iso": "Certificação ISO/IEC 42001 (primeiro grande provedor de nuvem)",
+      "privateLink": "Suporte a PrivateLink para conectividade privada via VPC",
+      "guardrails": "Guardrails para detecção/redação de PII"
+    },
+    "cta": {
+      "title": "Segurança Enterprise. Preço de Startup.",
+      "ctaPrimary": "Acesso Antecipado",
+      "ctaSecondary": "Fale Conosco"
+    }
+  },
+  "integrations": {
+    "hero": {
+      "title": "Conecte suas ferramentas em minutos",
+      "subtitle": "O CauseFlow integra com as ferramentas que seu time já usa. OAuth ou API key — sem setup complexo, sem agente para instalar."
+    },
+    "categories": {
+      "all": "Todas",
+      "communication": "Comunicação",
+      "code": "Código",
+      "monitoring": "Monitoramento",
+      "management": "Gestão de Projetos",
+      "crm": "CRM e Negócios",
+      "database": "Banco de Dados",
+      "knowledge": "Conhecimento",
+      "api": "API"
+    },
+    "phases": {
+      "mvp": "Disponível Agora",
+      "v1": "Em breve na V1",
+      "v2": "Em breve na V2",
+      "v3": "Em breve na V3"
+    },
+    "principles": {
+      "title": "Princípios de Integração",
+      "setupMinutes": {
+        "title": "Setup em minutos",
+        "description": "OAuth ou API key — sem setup complexo, sem agente para instalar. Tempo médio de setup: 3 minutos por integração."
+      },
+      "readOnly": {
+        "title": "Somente leitura por padrão",
+        "description": "O agente apenas lê. Nunca modifica seus dados sem aprovação explícita."
+      },
+      "onlyNeeded": {
+        "title": "Somente o necessário",
+        "description": "Busca apenas os dados relevantes para a investigação ativa. Sem coleta em massa."
+      },
+      "noSensitiveData": {
+        "title": "Sem dados sensíveis",
+        "description": "Redação automática de PII/dados sensíveis via Microsoft Presidio."
+      },
+      "technicalBusiness": {
+        "title": "Técnico + Negócios",
+        "description": "Primeira plataforma a cruzar ferramentas técnicas (GitHub, CloudWatch) com CRM (HubSpot) e suporte."
+      },
+      "openApi": {
+        "title": "API Aberta",
+        "description": "REST API para integrações customizadas e webhooks de resultado."
+      }
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "Engenheiros resolvendo problemas para engenheiros",
+      "mission": "Acreditamos que investigar problemas de produção não deveria consumir horas do tempo do seu time. O CauseFlow existe para que engenheiros possam focar em construir, não em apagar incêndios."
+    },
+    "founders": {
+      "title": "Nosso Time",
+      "ceo": {
+        "role": "Fundador / CEO",
+        "background": "Engineering Manager liderando múltiplos squads, experiência em infra, observabilidade e métricas DORA.",
+        "responsibility": "Produto, operações, GTM, gestão financeira"
+      },
+      "cto": {
+        "role": "Co-fundador / CTO",
+        "background": "Especialista em desenvolvimento de AI Agents.",
+        "responsibility": "Arquitetura, desenvolvimento core, integrações com LLM"
+      }
+    },
+    "values": {
+      "title": "O Que Nos Diferencia",
+      "mvp": {
+        "title": "MVP em produção real",
+        "description": "O CauseFlow já está rodando em um ambiente de produção real. Não é vaporware."
+      },
+      "bootstrap": {
+        "title": "Bootstrapped & Lucrativo",
+        "description": "Sem dependência de investidores. Nossa arquitetura eficiente mantém custos baixos, permitindo crescimento sustentável desde o primeiro dia."
+      },
+      "category": {
+        "title": "Categoria não contestada",
+        "description": "Ponte entre investigação de SRE e resolução de issues de clientes — um gap que nenhum concorrente endereça."
+      }
+    },
+    "roadmap": {
+      "title": "Visão de Futuro",
+      "month1": {
+        "period": "Mês 1",
+        "product": "MVP Comercial: Slack + GitHub + Jira + Web + issues de clientes + PRs automáticos",
+        "business": "Primeiros 5 clientes"
+      },
+      "month2_3": {
+        "period": "Mês 2-3",
+        "product": "Novas integrações (CloudWatch, Trello, Linear, DBs) via MCP",
+        "business": "20 clientes"
+      },
+      "month4_6": {
+        "period": "Mês 4-6",
+        "product": "Knowledge Base, dashboard, alertas proativos, PII Gateway",
+        "business": "Escalando base de clientes pagantes"
+      },
+      "month7_12": {
+        "period": "Mês 7-12",
+        "product": "Remediação semi-autônoma, integração com CI/CD",
+        "business": "Expansão para clientes enterprise"
+      },
+      "year2": {
+        "period": "Ano 2",
+        "product": "Auto-healing, marketplace de integrações, resolução autônoma de L1",
+        "business": "Liderança de mercado em investigação de incidentes com AI"
+      }
+    }
+  },
+  "getStarted": {
+    "form": {
+      "title": "Comece a investigar em minutos",
+      "subtitle": "Participe do acesso antecipado. Lançamento em março de 2026.",
+      "fullName": "Nome completo",
+      "workEmail": "E-mail corporativo",
+      "companyName": "Nome da empresa",
+      "teamSize": "Tamanho do time",
+      "teamSizeOptions": {
+        "1_5": "1-5",
+        "6_20": "6-20",
+        "21_50": "21-50",
+        "50plus": "50+"
+      },
+      "submit": "Criar Conta Gratuita",
+      "socialGoogle": "Entrar com Google",
+      "socialGitHub": "Entrar com GitHub"
+    },
+    "benefits": {
+      "title": "O que você recebe",
+      "items": [
+        "Membros do acesso antecipado ganham 5 investigações gratuitas/mês no lançamento",
+        "Todas as integrações disponíveis",
+        "Setup em menos de 10 minutos",
+        "Sem cartão de crédito",
+        "Trilha de auditoria completa",
+        "Em conformidade com LGPD e GDPR"
+      ]
+    },
+    "alternative": {
+      "text": "Precisa de ajuda para avaliar? Agende uma demo personalizada de 15 minutos.",
+      "cta": "Fale Conosco"
+    },
+    "comingSoon": {
+      "badge": "Em Breve",
+      "title": "Estamos chegando",
+      "subtitle": "O CauseFlow AI está nos retoques finais. Deixe seus dados e avisamos assim que estiver no ar.",
+      "emailPlaceholder": "seu@email-corporativo.com",
+      "firstNamePlaceholder": "Maria",
+      "companyNamePlaceholder": "Empresa S.A.",
+      "companyWebsitePlaceholder": "https://empresa.com.br",
+      "firstNameLabel": "Primeiro Nome",
+      "companyNameLabel": "Nome da Empresa",
+      "companyWebsiteLabel": "Site da Empresa (opcional)",
+      "notify": "Me Avise",
+      "submitting": "Enviando...",
+      "success": "Você está na lista! Avisaremos assim que lançarmos.",
+      "alreadyOnList": "Você já está na lista! Já temos seus dados — fique tranquilo, avisaremos quando o CauseFlow estiver pronto.",
+      "close": "Fechar",
+      "error": "Algo deu errado. Tente novamente ou nos envie um e-mail diretamente."
+    },
+    "signIn": "Já tem uma conta? Entrar",
+    "noCreditCard": "Sem cartão de crédito. Setup em menos de 10 minutos."
+  },
+  "privacy": {
+    "title": "Política de Privacidade",
+    "subtitle": "Como coletamos, usamos e protegemos seus dados.",
+    "lastUpdated": "Última atualização: Fevereiro de 2026",
+    "sections": {
+      "dataCollected": "Dados Coletados",
+      "howWeUse": "Como Usamos os Dados",
+      "customerData": "Dados de Clientes",
+      "sharing": "Compartilhamento de Dados",
+      "retention": "Retenção de Dados",
+      "lgpdRights": "Direitos da LGPD",
+      "gdprRights": "Direitos do GDPR",
+      "internationalTransfers": "Transferências Internacionais",
+      "contact": "Contato do DPO / Controlador de Dados"
+    }
+  },
+  "terms": {
+    "title": "Termos de Serviço",
+    "subtitle": "Leia estes termos com atenção antes de usar o CauseFlow AI.",
+    "lastUpdated": "Última atualização: Fevereiro de 2026",
+    "sections": {
+      "serviceDefinition": "Definição e Limitações do Serviço",
+      "plansAndBilling": "Planos, Preços e Faturamento",
+      "intellectualProperty": "Propriedade Intelectual",
+      "sla": "Acordo de Nível de Serviço (SLA)",
+      "liability": "Limitação de Responsabilidade",
+      "cancellation": "Política de Cancelamento e Reembolso",
+      "acceptableUse": "Uso Aceitável",
+      "jurisdiction": "Jurisdição e Foro"
+    }
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "description": "A página que você está procurando não existe ou foi movida.",
+    "cta": "Voltar para a página inicial"
+  },
+  "dashboard": {
+    "sidebar": {
+      "overview": "Visão Geral",
+      "analyses": "Análises",
+      "incidents": "Incidentes",
+      "remediations": "Remediações",
+      "integrations": "Integrações",
+      "team": "Equipe",
+      "settings": "Configurações",
+      "billing": "Cobrança",
+      "credits": "Créditos",
+      "creditsValue": "{count} créditos",
+      "creditsLoading": "Carregando...",
+      "creditsError": "— créditos",
+      "collapse": "Recolher menu lateral",
+      "expand": "Expandir menu lateral",
+      "openMenu": "Abrir menu de navegação",
+      "approvals": "Aprovações",
+      "audit": "Registro de Auditoria"
+    },
+    "topbar": {
+      "logo": "CauseFlow AI",
+      "themeToggle": "Alternar tema",
+      "userMenu": "Menu do usuário",
+      "signOut": "Sair",
+      "profile": "Perfil",
+      "breadcrumbHome": "Painel",
+      "search": "Buscar ou navegar...",
+      "languageSelector": "Selecionar idioma"
+    },
+    "overview": {
+      "title": "Visão Geral",
+      "description": "Bem-vindo ao seu painel CauseFlow AI"
+    },
+    "home": {
+      "metrics": {
+        "totalAnalyses": "Total de Análises",
+        "monthlyAnalyses": "Análises Este Mês",
+        "activeIntegrations": "Integrações Ativas",
+        "teamMembers": "Membros da Equipe"
+      },
+      "credits": {
+        "remaining": "{count} Créditos Restantes",
+        "renews": "Renova em {date}",
+        "upgrade": "Atualizar Plano",
+        "warning": "Créditos Acabando",
+        "critical": "Crítico: Quase Sem Créditos"
+      },
+      "savingHours": {
+        "display": "Você economizou ~{hours} horas este mês com o CauseFlow AI ({analyses} investigações)"
+      },
+      "recentAnalyses": {
+        "heading": "Análises Recentes",
+        "viewAll": "Ver Todas",
+        "empty": "Nenhuma análise ainda. Comece sua primeira investigação abaixo."
+      },
+      "quickActions": {
+        "newAnalysis": "Nova Análise",
+        "connectIntegration": "Conectar Integração"
+      },
+      "emptyState": {
+        "title": "Bem-vindo ao CauseFlow AI",
+        "subtitle": "Comece sua primeira análise de incidente para obter insights de causa raiz em minutos.",
+        "createAnalysis": "Criar Sua Primeira Análise",
+        "feature1": "Análise de Causa Raiz com IA",
+        "feature2": "Insights Instantâneos",
+        "feature3": "Trilha de Auditoria"
+      }
+    },
+    "analyses": {
+      "title": "Análises",
+      "description": "Visualize e gerencie suas análises de incidentes",
+      "newAnalysis": "Nova Análise",
+      "status": {
+        "queued": "Na Fila",
+        "running": "Executando",
+        "completed": "Concluído",
+        "failed": "Falhou"
+      },
+      "severity": {
+        "low": "Baixa",
+        "medium": "Média",
+        "high": "Alta",
+        "critical": "Crítica"
+      },
+      "filters": {
+        "allStatuses": "Todos os Status",
+        "allSeverities": "Todas as Severidades",
+        "status": "Status",
+        "severity": "Severidade"
+      },
+      "list": {
+        "loadMore": "Carregar Mais",
+        "showingOf": "Exibindo {count} de {total}",
+        "total": "{count} análises"
+      },
+      "empty": {
+        "title": "Nenhuma análise ainda",
+        "description": "Inicie sua primeira investigação de incidente para ver os resultados aqui.",
+        "cta": "Criar sua primeira análise"
+      },
+      "card": {
+        "confidence": "Confiança",
+        "viewDetails": "Ver Detalhes"
+      },
+      "new": {
+        "title": "Nova Análise",
+        "description": "Iniciar uma nova investigação de incidente",
+        "promptLabel": "Descreva o incidente",
+        "promptPlaceholder": "Descreva o incidente que deseja investigar. Inclua sintomas, serviços afetados e mensagens de erro observadas...",
+        "promptHint": "Mínimo de 10 caracteres. Seja o mais específico possível para melhores resultados.",
+        "severityLabel": "Severidade",
+        "severityPlaceholder": "Selecione a severidade",
+        "integrationsLabel": "Fontes de Dados",
+        "integrationsHint": "Selecione as integrações para incluir como contexto da análise.",
+        "submit": "Iniciar Análise",
+        "submitting": "Iniciando...",
+        "validation": {
+          "promptRequired": "A descrição é obrigatória",
+          "promptTooShort": "A descrição deve ter pelo menos 10 caracteres",
+          "promptTooLong": "A descrição deve ter no máximo 4000 caracteres"
+        },
+        "error": "Falha ao criar análise. Por favor, tente novamente.",
+        "successRedirecting": "Análise criada! Redirecionando..."
+      },
+      "detail": {
+        "backToHistory": "Voltar para Análises",
+        "status": "Status",
+        "severity": "Severidade",
+        "created": "Criado",
+        "completed": "Concluído",
+        "prompt": "Descrição do Incidente",
+        "rootCause": "Análise de Causa Raiz",
+        "confidence": "Pontuação de Confiança",
+        "confidenceLow": "Baixa confiança",
+        "confidenceMedium": "Confiança média",
+        "confidenceHigh": "Alta confiança",
+        "timeline": "Linha do Tempo de Eventos",
+        "recommendations": "Recomendações",
+        "dataSources": "Fontes de Dados Consultadas",
+        "auditTrail": "Trilha de Auditoria da Investigação",
+        "auditTrailExpand": "Mostrar trilha de auditoria",
+        "auditTrailCollapse": "Ocultar trilha de auditoria",
+        "records": "{count} registros ingeridos",
+        "noResult": "Análise em andamento...",
+        "noTimeline": "Nenhum evento de linha do tempo registrado.",
+        "noRecommendations": "Nenhuma recomendação disponível ainda.",
+        "noDataSources": "Nenhuma fonte de dados registrada.",
+        "pollingMessage": "Análise em execução. Atualizando automaticamente...",
+        "completedToast": "Análise concluída!",
+        "rerun": "Reanalisar",
+        "rerunning": "Reanalisando..."
+      }
+    },
+    "incidents": {
+      "title": "Incidentes",
+      "description": "Visualize e gerencie seus incidentes",
+      "newIncident": "Novo Incidente",
+      "empty": "Nenhum incidente ainda",
+      "emptyDescription": "Crie seu primeiro incidente para começar",
+      "loadMore": "Carregar mais",
+      "filters": {
+        "allStatuses": "Todos os Status",
+        "allSeverities": "Todas as Severidades"
+      },
+      "status": {
+        "open": "Aberto",
+        "triaging": "Triagem",
+        "investigating": "Investigando",
+        "awaiting_approval": "Aguardando Aprovação",
+        "remediating": "Remediando",
+        "resolved": "Resolvido",
+        "closed": "Encerrado"
+      },
+      "severity": {
+        "critical": "Crítica",
+        "high": "Alta",
+        "medium": "Média",
+        "low": "Baixa",
+        "info": "Info"
+      },
+      "new": {
+        "title": "Novo Incidente",
+        "description": "Registrar um novo incidente para investigação",
+        "back": "Voltar para Incidentes",
+        "form": {
+          "title": "Título do Incidente",
+          "titlePlaceholder": "ex.: Esgotamento do Pool de Conexões do Banco de Dados",
+          "description": "Descrição",
+          "descriptionPlaceholder": "Descreva o incidente em detalhes...",
+          "severity": "Severidade",
+          "sourceProvider": "Fonte do Alerta",
+          "submit": "Criar Incidente",
+          "submitting": "Criando..."
+        }
+      },
+      "detail": {
+        "title": "Detalhes do Incidente",
+        "description": "Descrição",
+        "rootCause": "Causa Raiz",
+        "resolution": "Resolução",
+        "assignedAgents": "Agentes Atribuídos",
+        "sourceProvider": "Fonte do Alerta",
+        "sourceAlertId": "ID do Alerta de Origem",
+        "createdAt": "Criado em",
+        "updatedAt": "Atualizado em",
+        "resolvedAt": "Resolvido em",
+        "rerun": "Criar Similar",
+        "back": "Voltar para Incidentes",
+        "remediations": "Remediações",
+        "noRemediations": "Nenhuma remediação ainda"
+      }
+    },
+    "integrations": {
+      "title": "Integrações",
+      "description": "Conecte suas ferramentas e serviços para habilitar investigações de incidentes com IA",
+      "filter": {
+        "all": "Todos",
+        "communication": "Comunicação",
+        "monitoring": "Monitoramento",
+        "code": "Código",
+        "management": "Gestão",
+        "crm": "CRM",
+        "database": "Banco de Dados",
+        "knowledge": "Conhecimento",
+        "api": "API"
+      },
+      "search": {
+        "placeholder": "Pesquisar integrações..."
+      },
+      "status": {
+        "connected": "Conectado",
+        "disconnected": "Desconectado",
+        "error": "Erro",
+        "available": "Disponível"
+      },
+      "card": {
+        "connectButton": "Conectar",
+        "disconnectButton": "Desconectar",
+        "reconnectButton": "Reconectar",
+        "testButton": "Testar Conexão",
+        "lastTested": "Testado {time}",
+        "lastTestedNever": "Nunca testado",
+        "staleWarning": "Não testado há mais de 7 dias",
+        "connectedBy": "Conectado por {name}",
+        "errorTooltip": "Erro de conexão — clique em Reconectar"
+      },
+      "loading": {
+        "text": "Carregando integrações..."
+      },
+      "empty": {
+        "title": "Nenhuma integração encontrada",
+        "description": "Tente ajustar sua pesquisa ou filtro"
+      },
+      "modal": {
+        "connectTitle": "Conectar {name}",
+        "reconfigureTitle": "Reconfigurar {name}",
+        "testButton": "Testar Conexão",
+        "testing": "Testando...",
+        "testSuccess": "Conexão bem-sucedida",
+        "testError": "Falha na conexão — verifique suas credenciais",
+        "submit": "Salvar",
+        "submitting": "Salvando...",
+        "cancel": "Cancelar",
+        "successTitle": "Conectado!",
+        "successMessage": "{name} foi conectado com sucesso.",
+        "fields": {
+          "apiToken": "Token de API",
+          "apiKey": "Chave de API",
+          "applicationKey": "Chave de Aplicação",
+          "personalAccessToken": "Token de Acesso Pessoal",
+          "email": "E-mail",
+          "domain": "URL do Domínio",
+          "domainPlaceholder": "https://suaempresa.atlassian.net",
+          "accessKeyId": "ID da Chave de Acesso",
+          "secretAccessKey": "Chave de Acesso Secreta",
+          "region": "Região AWS",
+          "regionPlaceholder": "us-east-1",
+          "connectionString": "String de Conexão",
+          "authToken": "Token de Autenticação",
+          "grafanaUrlPlaceholder": "https://grafana.suaempresa.com",
+          "confluenceDomainPlaceholder": "https://suaempresa.atlassian.net",
+          "webhookUrl": "URL do Webhook",
+          "webhookUrlPlaceholder": "https://seu-servico.com/webhook"
+        },
+        "validation": {
+          "required": "Este campo é obrigatório",
+          "urlInvalid": "Por favor, insira uma URL válida",
+          "emailInvalid": "Por favor, insira um e-mail válido"
+        }
+      },
+      "disconnect": {
+        "title": "Desconectar {name}",
+        "warning": "Isso removerá a conexão com {name}. Investigações em andamento usando esta integração podem ser afetadas.",
+        "confirm": "Desconectar",
+        "cancel": "Cancelar",
+        "disconnecting": "Desconectando..."
+      },
+      "integrations": {
+        "slack": {
+          "name": "Slack",
+          "description": "Alertas de incidentes em tempo real para equipes de engenharia e suporte",
+          "category": "Comunicação"
+        },
+        "github": {
+          "name": "GitHub",
+          "description": "Mudanças de código, deploys e correlação de PRs",
+          "category": "Código"
+        },
+        "jira": {
+          "name": "Jira",
+          "description": "Tickets de incidentes, rastreamento de resolução e monitoramento de SLA",
+          "category": "Gestão"
+        },
+        "cloudwatch": {
+          "name": "AWS CloudWatch",
+          "description": "Métricas, alarmes e análise de logs da AWS",
+          "category": "Monitoramento"
+        },
+        "hubspot": {
+          "name": "HubSpot",
+          "description": "Rastreamento de impacto no cliente e automação de comunicação",
+          "category": "CRM"
+        },
+        "trello": {
+          "name": "Trello",
+          "description": "Quadros visuais de incidentes e rastreamento de tarefas",
+          "category": "Gestão"
+        },
+        "postgresql": {
+          "name": "PostgreSQL",
+          "description": "Monitoramento de desempenho de banco de dados e análise de queries",
+          "category": "Banco de Dados"
+        },
+        "linear": {
+          "name": "Linear",
+          "description": "Rastreamento de problemas e automação de fluxo de trabalho de engenharia",
+          "category": "Gestão"
+        },
+        "sentry": {
+          "name": "Sentry",
+          "description": "Rastreamento de erros e monitoramento de desempenho de aplicações",
+          "category": "Monitoramento"
+        },
+        "mongodb": {
+          "name": "MongoDB",
+          "description": "Monitoramento de banco de dados NoSQL e insights de desempenho",
+          "category": "Banco de Dados"
+        },
+        "datadog": {
+          "name": "Datadog",
+          "description": "Monitoramento de infraestrutura e correlação de APM",
+          "category": "Monitoramento"
+        },
+        "pagerduty": {
+          "name": "PagerDuty",
+          "description": "Gerenciamento de plantão e automação de escalonamento",
+          "category": "Monitoramento"
+        },
+        "grafana": {
+          "name": "Grafana",
+          "description": "Correlação de métricas e visualização de dashboards",
+          "category": "Monitoramento"
+        },
+        "confluence": {
+          "name": "Confluence",
+          "description": "Integração com base de conhecimento e runbooks",
+          "category": "Conhecimento"
+        },
+        "webhooks": {
+          "name": "Webhooks Personalizados",
+          "description": "Conecte qualquer ferramenta via webhooks HTTP",
+          "category": "API"
+        }
+      }
+    },
+    "team": {
+      "title": "Equipe",
+      "description": "Gerencie os membros e permissões da sua equipe",
+      "inviteButton": "Convidar Membro",
+      "table": {
+        "member": "Membro",
+        "email": "E-mail",
+        "role": "Função",
+        "lastActive": "Último Acesso",
+        "joined": "Entrou em",
+        "actions": "Ações",
+        "never": "Nunca",
+        "loading": "Carregando membros da equipe..."
+      },
+      "roles": {
+        "admin": "Admin",
+        "member": "Membro"
+      },
+      "invite": {
+        "title": "Convidar Membro da Equipe",
+        "description": "Envie um e-mail de convite para adicionar um novo membro à sua equipe.",
+        "emailLabel": "Endereço de E-mail",
+        "emailPlaceholder": "colega@empresa.com",
+        "roleLabel": "Função",
+        "rolePlaceholder": "Selecione a função",
+        "submit": "Enviar Convite",
+        "submitting": "Enviando...",
+        "cancel": "Cancelar",
+        "successTitle": "Convite enviado!",
+        "successMessage": "Um convite foi enviado para {email}.",
+        "errors": {
+          "duplicate": "Já existe um convite ativo para este endereço de e-mail.",
+          "generic": "Falha ao enviar convite. Por favor, tente novamente.",
+          "emailRequired": "E-mail é obrigatório",
+          "emailInvalid": "Por favor, insira um endereço de e-mail válido"
+        }
+      },
+      "changeRole": {
+        "title": "Alterar Função",
+        "description": "Altere a função de {name} na sua equipe.",
+        "roleLabel": "Nova Função",
+        "submit": "Salvar Alteração",
+        "submitting": "Salvando...",
+        "cancel": "Cancelar",
+        "selfWarning": "Você está alterando sua própria função. Você pode perder o acesso de administrador.",
+        "lastAdminWarning": "Você é o último administrador. Rebaixar-se deixará a equipe sem administrador.",
+        "success": "Função atualizada com sucesso.",
+        "error": "Falha ao atualizar a função. Por favor, tente novamente."
+      },
+      "removeMember": {
+        "title": "Remover Membro da Equipe",
+        "description": "Tem certeza de que deseja remover {name} da equipe? Esta ação não pode ser desfeita.",
+        "warning": "Eles perderão acesso a todos os recursos da equipe imediatamente.",
+        "confirm": "Remover Membro",
+        "cancel": "Cancelar",
+        "selfError": "Você não pode se remover da equipe."
+      },
+      "pendingInvites": {
+        "title": "Convites Pendentes",
+        "empty": "Nenhum convite pendente.",
+        "columns": {
+          "email": "E-mail",
+          "role": "Função",
+          "invitedBy": "Convidado Por",
+          "sent": "Enviado em",
+          "expires": "Expira em"
+        },
+        "status": {
+          "pending": "Pendente",
+          "expired": "Expirado"
+        },
+        "actions": {
+          "resend": "Reenviar",
+          "revoke": "Revogar"
+        }
+      },
+      "permissions": {
+        "adminOnly": "Apenas administradores podem realizar esta ação.",
+        "contactAdmin": "Entre em contato com seu administrador para fazer alterações.",
+        "adminBadge": "Somente admin",
+        "readOnly": "Você tem acesso somente leitura a esta seção."
+      }
+    },
+    "remediations": {
+      "title": "Remediações",
+      "description": "Visualize e gerencie remediações de incidentes",
+      "empty": "Nenhuma remediação encontrada",
+      "emptyDescription": "Remediações aparecerão quando propostas para incidentes",
+      "status": {
+        "proposed": "Proposta",
+        "approved": "Aprovada",
+        "rejected": "Rejeitada",
+        "executing": "Executando",
+        "completed": "Concluída",
+        "failed": "Falhou"
+      },
+      "detail": {
+        "title": "Detalhes da Remediação",
+        "rootCause": "Causa Raiz",
+        "steps": "Etapas de Remediação",
+        "pullRequests": "Pull Requests",
+        "proposedBy": "Proposta por",
+        "approvedBy": "Aprovada por",
+        "rejectedBy": "Rejeitada por",
+        "rejectionReason": "Motivo da Rejeição",
+        "approve": "Aprovar",
+        "reject": "Rejeitar",
+        "execute": "Executar",
+        "back": "Voltar para Remediações",
+        "incidentLink": "Ver Incidente",
+        "stepStatus": {
+          "pending": "Pendente",
+          "running": "Executando",
+          "completed": "Concluído",
+          "failed": "Falhou",
+          "skipped": "Ignorado"
+        },
+        "prStatus": {
+          "open": "Aberto",
+          "merged": "Mesclado",
+          "closed": "Fechado"
+        }
+      }
+    },
+    "billing": {
+      "title": "Cobrança",
+      "description": "Gerencie seu plano e créditos",
+      "currentPlan": "Plano Atual",
+      "upgrade": "Fazer Upgrade",
+      "downgrade": "Fazer Downgrade",
+      "downgradeToFree": "Voltar para o Plano Grátis",
+      "contactSales": "Falar com Vendas",
+      "manageSubscription": "Gerenciar Assinatura",
+      "creditsPerMonth": "{count} análises/mês",
+      "creditsUnlimited": "Análises ilimitadas",
+      "perMonth": "/mês",
+      "custom": "Personalizado",
+      "planFree": "Grátis",
+      "planStarter": "Starter",
+      "planPro": "Pro",
+      "planBusiness": "Business",
+      "planEnterprise": "Enterprise",
+      "renewsOn": "Renova em {date}",
+      "cancelsOn": "Cancela em {date}",
+      "creditsUsed": "{used} de {total} créditos usados neste período",
+      "upgradeMailSubject": "Upgrade para o plano {plan} — CauseFlow AI",
+      "upgradeMailBody": "Olá equipe CauseFlow,%0D%0A%0D%0AGostaria de fazer upgrade do meu plano para {plan}.%0D%0A%0D%0AE-mail da conta: {email}%0D%0A%0D%0AObrigado!",
+      "statusActive": "Ativo",
+      "statusCanceling": "Cancelando",
+      "statusPastDue": "Pagamento Falhou",
+      "statusCanceled": "Cancelado",
+      "statusCancelingMessage": "Sua assinatura encerrará em {date}. Você pode reativar a qualquer momento.",
+      "statusPastDueMessage": "Seu pagamento falhou. Atualize o método de pagamento para evitar interrupção do serviço.",
+      "popular": "Popular",
+      "overageNote": "+R${amount}/investigação extra",
+      "checkoutError": "Falha ao iniciar o checkout. Tente novamente.",
+      "portalError": "Falha ao abrir o portal de cobrança. Tente novamente.",
+      "loading": "Carregando..."
+    },
+    "settings": {
+      "title": "Configurações",
+      "description": "Configure as definições do seu espaço de trabalho",
+      "tabs": {
+        "profile": "Perfil",
+        "company": "Empresa",
+        "notifications": "Notificações",
+        "appearance": "Aparência"
+      },
+      "profile": {
+        "title": "Perfil",
+        "description": "Atualize suas informações pessoais",
+        "name": "Nome Completo",
+        "namePlaceholder": "Digite seu nome completo",
+        "email": "Endereço de E-mail",
+        "emailReadonly": "O e-mail não pode ser alterado",
+        "avatar": "Foto de Perfil",
+        "avatarDescription": "Suas iniciais são usadas como substituto",
+        "changePassword": "Alterar Senha",
+        "changePasswordDescription": "Use o fluxo de esqueci a senha para redefinir sua senha",
+        "resetPasswordLink": "Enviar E-mail de Redefinição",
+        "save": "Salvar Alterações",
+        "saving": "Salvando...",
+        "saved": "Perfil salvo com sucesso",
+        "errorSaving": "Falha ao salvar o perfil. Tente novamente.",
+        "validation": {
+          "nameRequired": "O nome é obrigatório",
+          "nameTooShort": "O nome deve ter pelo menos 2 caracteres"
+        }
+      },
+      "company": {
+        "title": "Configurações da Empresa",
+        "description": "Gerencie os detalhes da sua organização",
+        "adminOnly": "Somente administradores podem gerenciar as configurações da empresa",
+        "name": "Nome da Empresa",
+        "namePlaceholder": "Empresa Exemplo",
+        "website": "URL do Site",
+        "websitePlaceholder": "https://empresa.com.br",
+        "teamSize": "Tamanho do Time",
+        "plan": "Plano Atual",
+        "upgradePlan": "Fazer Upgrade",
+        "save": "Salvar Alterações",
+        "saving": "Salvando...",
+        "saved": "Configurações da empresa salvas",
+        "errorSaving": "Falha ao salvar configurações da empresa",
+        "validation": {
+          "nameRequired": "O nome da empresa é obrigatório",
+          "invalidUrl": "Por favor, insira uma URL válida"
+        },
+        "slug": "Identificador da Empresa",
+        "slugDescription": "Seu identificador único de empresa",
+        "autoRemediation": "Remediação Automática",
+        "autoRemediationDescription": "Aprovar automaticamente remediações propostas sem revisão manual"
+      },
+      "notifications": {
+        "title": "Notificações",
+        "description": "Controle quando e como você recebe notificações",
+        "emailSection": "Notificações por E-mail",
+        "analysisComplete": "Análise concluída",
+        "analysisCompleteDescription": "Seja notificado quando uma análise de incidente for concluída",
+        "creditWarning": "Aviso de crédito baixo",
+        "creditWarningDescription": "Alerta quando os créditos caírem abaixo de 20%",
+        "teamInvite": "Convites de equipe",
+        "teamInviteDescription": "Notificar quando alguém for convidado para o espaço de trabalho",
+        "weeklyDigest": "Resumo semanal",
+        "weeklyDigestDescription": "Receba um resumo semanal das suas análises",
+        "save": "Salvar Preferências",
+        "saving": "Salvando...",
+        "saved": "Preferências de notificação salvas",
+        "errorSaving": "Falha ao salvar preferências de notificação"
+      },
+      "appearance": {
+        "title": "Aparência",
+        "description": "Personalize como o CauseFlow AI aparece para você",
+        "theme": "Tema",
+        "themeDescription": "Selecione seu esquema de cores preferido",
+        "themeLight": "Claro",
+        "themeDark": "Escuro",
+        "themeSystem": "Sistema",
+        "language": "Idioma",
+        "languageDescription": "Escolha seu idioma preferido",
+        "previewTitle": "Visualização",
+        "appliedImmediately": "As alterações são aplicadas imediatamente"
+      },
+      "commandPalette": {
+        "placeholder": "Pesquisar ações ou navegar...",
+        "noResults": "Nenhum resultado encontrado",
+        "hint": "Pressione {key} para abrir",
+        "sections": {
+          "actions": "Ações Rápidas",
+          "navigation": "Navegação"
+        },
+        "actions": {
+          "newAnalysis": "Nova Análise",
+          "viewIntegrations": "Ver Integrações",
+          "manageTeam": "Gerenciar Equipe",
+          "openSettings": "Abrir Configurações",
+          "toggleTheme": "Alternar Tema"
+        },
+        "navigation": {
+          "dashboard": "Ir para o Painel",
+          "analyses": "Ir para Análises",
+          "integrations": "Ir para Integrações",
+          "team": "Ir para Equipe",
+          "settings": "Ir para Configurações",
+          "incidents": "Ir para Incidentes",
+          "remediations": "Ir para Remediações",
+          "approvals": "Ir para Aprovações",
+          "auditLog": "Ir para Log de Auditoria"
+        }
+      },
+      "breadcrumbs": {
+        "dashboard": "Painel",
+        "analyses": "Análises",
+        "newAnalysis": "Nova Análise",
+        "integrations": "Integrações",
+        "team": "Equipe",
+        "settings": "Configurações"
+      },
+      "errorBoundary": {
+        "title": "Algo deu errado",
+        "description": "Ocorreu um erro inesperado. Por favor, tente novamente.",
+        "tryAgain": "Tentar Novamente",
+        "goToDashboard": "Ir para o Painel",
+        "errorDetails": "Detalhes do Erro"
+      },
+      "toast": {
+        "success": "Sucesso",
+        "error": "Erro",
+        "info": "Info",
+        "warning": "Aviso",
+        "dismiss": "Dispensar"
+      }
+    },
+    "audit": {
+      "title": "Log de Auditoria",
+      "description": "Visualize toda a atividade do sistema e alterações",
+      "empty": "Nenhum registro de auditoria encontrado",
+      "emptyDescription": "As atividades aparecerão aqui conforme as ações forem realizadas",
+      "loadMore": "Carregar mais",
+      "filters": {
+        "allActions": "Todas as Ações"
+      },
+      "columns": {
+        "timestamp": "Data/Hora",
+        "action": "Ação",
+        "actor": "Autor",
+        "resource": "Recurso",
+        "hash": "Hash"
+      },
+      "verify": "Verificar Cadeia",
+      "verifySuccess": "Cadeia de auditoria válida",
+      "verifyFailed": "Cadeia de auditoria quebrada"
+    },
+    "auth": {
+      "fields": {
+        "email": "E-mail",
+        "password": "Senha",
+        "confirmPassword": "Confirmar Senha",
+        "name": "Nome Completo",
+        "showPassword": "Mostrar senha",
+        "hidePassword": "Ocultar senha"
+      },
+      "errors": {
+        "invalidCredentials": "E-mail ou senha inválidos",
+        "invalidEmail": "Por favor, insira um e-mail válido",
+        "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+        "generic": "Algo deu errado. Por favor, tente novamente.",
+        "accountNotLinked": "Este e-mail já está vinculado a outro método de login. Por favor, entre com o método original.",
+        "sessionRequired": "Você precisa estar autenticado para acessar esta página."
+      },
+      "signIn": {
+        "title": "Bem-vindo de volta",
+        "subtitle": "Entre na sua conta CauseFlow AI",
+        "continueWithGoogle": "Continuar com Google",
+        "continueWithGitHub": "Continuar com GitHub",
+        "orContinueWith": "ou continue com e-mail",
+        "forgotPassword": "Esqueceu a senha?",
+        "submit": "Entrar",
+        "noAccount": "Não tem uma conta?",
+        "signUpLink": "Cadastre-se"
+      },
+      "signUp": {
+        "title": "Crie sua conta",
+        "subtitle": "Comece a investigar incidentes em minutos",
+        "continueWithGoogle": "Cadastrar com Google",
+        "continueWithGitHub": "Cadastrar com GitHub",
+        "passwordStrength": "Força da senha",
+        "passwordsMatch": "Senhas coincidem",
+        "agreeToTerms": "Concordo com os",
+        "termsLink": "Termos de Serviço",
+        "and": "e com a",
+        "privacyLink": "Política de Privacidade",
+        "submit": "Criar Conta",
+        "haveAccount": "Já tem uma conta?",
+        "signInLink": "Entrar",
+        "successMessage": "Conta criada! Redirecionando para verificação de e-mail..."
+      },
+      "verifyEmail": {
+        "title": "Verifique seu e-mail",
+        "subtitle": "Enviamos um código de verificação de 6 dígitos para",
+        "codeLabel": "Código de Verificação",
+        "submit": "Verificar E-mail",
+        "noCode": "Não recebeu o código?",
+        "resend": "Reenviar código",
+        "resending": "Enviando...",
+        "resendIn": "Reenviar em {seconds}s",
+        "successTitle": "E-mail verificado!",
+        "successMessage": "Seu e-mail foi verificado com sucesso.",
+        "redirecting": "Redirecionando para entrar...",
+        "backToSignIn": "Voltar para entrar",
+        "errors": {
+          "codeLength": "Por favor, insira o código de 6 dígitos"
+        }
+      },
+      "forgotPassword": {
+        "title": "Redefinir sua senha",
+        "subtitle": "Insira seu e-mail e enviaremos um código de redefinição",
+        "resetTitle": "Criar nova senha",
+        "resetSubtitle": "Insira o código enviado para {email} e escolha uma nova senha",
+        "sendCode": "Enviar Código de Redefinição",
+        "newPassword": "Nova Senha",
+        "resetPassword": "Redefinir Senha",
+        "backToSignIn": "Voltar para entrar",
+        "successTitle": "Senha redefinida!",
+        "successMessage": "Sua senha foi redefinida com sucesso. Agora você pode entrar."
+      }
+    },
+    "onboarding": {
+      "progress": {
+        "ariaLabel": "Progresso do onboarding",
+        "steps": {
+          "profile": "Perfil",
+          "integration": "Integração",
+          "welcome": "Boas-vindas"
+        }
+      },
+      "completeProfile": {
+        "title": "Configure seu espaço de trabalho",
+        "subtitle": "Conte-nos um pouco sobre você e sua empresa para personalizar sua experiência",
+        "fields": {
+          "fullName": "Seu Nome Completo",
+          "fullNamePlaceholder": "ex.: João Silva",
+          "companyName": "Nome da Empresa",
+          "companyNamePlaceholder": "Nome da sua empresa",
+          "companyWebsite": "Site da Empresa",
+          "companyWebsitePlaceholder": "https://suaempresa.com.br",
+          "teamSize": "Tamanho da Equipe",
+          "teamSizePlaceholder": "Selecione o tamanho da equipe",
+          "role": "Seu Cargo / Título",
+          "rolePlaceholder": "ex.: Gerente de Engenharia, CTO"
+        },
+        "teamSizeOptions": {
+          "1_5": "1–5 engenheiros",
+          "6_20": "6–20 engenheiros",
+          "21_50": "21–50 engenheiros",
+          "50plus": "50+ engenheiros"
+        },
+        "validation": {
+          "fullNameTooShort": "O nome deve ter pelo menos 2 caracteres",
+          "fullNameTooLong": "O nome deve ter no máximo 100 caracteres",
+          "companyNameRequired": "O nome da empresa é obrigatório",
+          "companyNameTooShort": "O nome da empresa deve ter pelo menos 2 caracteres",
+          "companyNameTooLong": "O nome da empresa deve ter no máximo 100 caracteres",
+          "websiteInvalid": "Por favor, insira uma URL válida (ex.: https://suaempresa.com.br)",
+          "teamSizeRequired": "Por favor, selecione o tamanho da equipe",
+          "roleTooLong": "O cargo deve ter no máximo 100 caracteres"
+        },
+        "submit": "Continuar",
+        "submitting": "Salvando..."
+      },
+      "connectIntegration": {
+        "title": "Conecte sua primeira integração",
+        "subtitle": "Conecte suas ferramentas para que o CauseFlow possa investigar incidentes em todas as suas fontes de dados",
+        "skip": "Pular por enquanto",
+        "continue": "Continuar",
+        "connectButton": "Conectar",
+        "connectedLabel": "Conectado",
+        "connecting": "Conectando...",
+        "modal": {
+          "title": "Conectar {name}",
+          "submit": "Conectar",
+          "submitting": "Conectando...",
+          "cancel": "Cancelar",
+          "successTitle": "Conectado!",
+          "successMessage": "{name} foi conectado com sucesso.",
+          "fields": {
+            "apiToken": "Token de API",
+            "apiKey": "Chave de API",
+            "applicationKey": "Chave de Aplicação",
+            "personalAccessToken": "Token de Acesso Pessoal",
+            "email": "E-mail",
+            "domain": "URL do Domínio",
+            "domainPlaceholder": "https://suaempresa.atlassian.net",
+            "accessKeyId": "ID da Chave de Acesso",
+            "secretAccessKey": "Chave de Acesso Secreta",
+            "region": "Região AWS",
+            "regionPlaceholder": "us-east-1"
+          },
+          "validation": {
+            "required": "Este campo é obrigatório",
+            "urlInvalid": "Por favor, insira uma URL válida",
+            "emailInvalid": "Por favor, insira um e-mail válido"
+          }
+        },
+        "integrations": {
+          "slack": {
+            "name": "Slack",
+            "description": "Receba alertas de incidentes e execute investigações para equipes de engenharia e suporte nos canais do Slack"
+          },
+          "pagerduty": {
+            "name": "PagerDuty",
+            "description": "Dispare investigações automaticamente a partir de incidentes do PagerDuty"
+          },
+          "datadog": {
+            "name": "Datadog",
+            "description": "Correlacione métricas e alertas com suas investigações de incidentes"
+          },
+          "github": {
+            "name": "GitHub",
+            "description": "Analise commits, PRs e releases para identificação de causa raiz"
+          },
+          "jira": {
+            "name": "Jira",
+            "description": "Vincule investigações a tickets e atualize o status automaticamente"
+          },
+          "cloudwatch": {
+            "name": "AWS CloudWatch",
+            "description": "Obtenha logs e métricas diretamente do CloudWatch para análise"
+          }
+        }
+      },
+      "welcome": {
+        "title": "Tudo pronto, {name}!",
+        "titleFallback": "Tudo pronto!",
+        "subtitle": "Seu espaço de trabalho está pronto. Veja o que você pode fazer a seguir:",
+        "companyLabel": "Espaço de trabalho",
+        "integrationsConnected": "{count} integração conectada",
+        "integrationsConnectedPlural": "{count} integrações conectadas",
+        "noIntegrations": "Nenhuma integração ainda — você pode adicionar a qualquer momento",
+        "tips": {
+          "title": "Dicas Rápidas",
+          "startAnalysis": {
+            "title": "Inicie sua primeira análise",
+            "description": "Descreva um problema de produção e deixe o CauseFlow investigar"
+          },
+          "inviteTeam": {
+            "title": "Convide sua equipe",
+            "description": "Colabore nas investigações com sua equipe de engenharia"
+          },
+          "exploreIntegrations": {
+            "title": "Explore as integrações",
+            "description": "Conecte mais ferramentas para obter insights mais profundos"
+          }
+        },
+        "cta": "Ir para o Painel"
+      }
+    },
+    "approvals": {
+      "title": "Aprovações",
+      "description": "Revise e responda às aprovações pendentes",
+      "empty": "Nenhuma aprovação encontrada",
+      "emptyDescription": "Aprovações aparecerão quando remediações precisarem de autorização",
+      "status": {
+        "pending": "Pendente",
+        "approved": "Aprovada",
+        "rejected": "Rejeitada",
+        "expired": "Expirada"
+      },
+      "filters": {
+        "all": "Todas",
+        "pending": "Pendente",
+        "approved": "Aprovada",
+        "rejected": "Rejeitada",
+        "expired": "Expirada"
+      },
+      "card": {
+        "incident": "Incidente",
+        "remediation": "Remediação",
+        "expiresIn": "Expira em",
+        "expired": "Expirada",
+        "respondedBy": "Respondido por",
+        "selectedAction": "Ação tomada",
+        "timeout": "Tempo limite"
+      },
+      "actions": {
+        "approve": "Aprovar",
+        "reject": "Rejeitar",
+        "responding": "Respondendo..."
+      }
+    }
+  },
+  "deploymentApproaches": {
+    "sectionTitle": "Escolha Seu Modo de Deploy",
+    "sectionSubtitle": "Mesma IA. Mesma causa raiz. Você decide como seus dados trafegam.",
+    "freeBadge": "Grátis em Todos os Planos",
+    "connected": {
+      "title": "Modo Conectado",
+      "description": "Acesso direto somente-leitura aos seus sistemas via AWS IAM Role ou OAuth2. Setup mais rápido, análise em tempo real.",
+      "features": [
+        "Acesso somente-leitura — sem permissões de escrita",
+        "Análise em tempo real em todas as ferramentas conectadas",
+        "Velocidade máxima de investigação",
+        "Trilha de auditoria completa de cada acesso",
+        "Todas as integrações suportadas"
+      ],
+      "pricing": "Incluído em todos os planos",
+      "support": "Email + Slack (dependendo do plano)"
+    },
+    "privacyPreserving": {
+      "title": "Modo Preservação de Privacidade",
+      "badge": "Tecnologia de Proteção de Privacidade",
+      "description": "Um agente Docker leve roda dentro da sua infraestrutura — on-premise ou nuvem privada. Ele processa, mascara e anonimiza todos os dados sensíveis (PII, chaves de API, logs de debug) antes que qualquer coisa saia do seu ambiente. Isto é minimização de dados na borda, alinhada com o Artigo 25 do GDPR e a LGPD — uma Tecnologia de Proteção de Privacidade (PET) que permite ao seu time usar investigação com IA sem expor dados sensíveis de produção.",
+      "features": [
+        "Dados brutos nunca saem do seu ambiente",
+        "Todos os identificadores automaticamente anonimizados",
+        "Regras de mascaramento controladas pelo cliente",
+        "Mesma análise de causa raiz com IA",
+        "Minimização de dados em conformidade com Artigo 25 do GDPR e LGPD",
+        "Mapeamento reversível permanece na sua infraestrutura"
+      ],
+      "pricing": "Incluído em todos os planos",
+      "support": "Email + Slack (dependendo do plano)"
+    },
+    "cta": {
+      "talkWithUs": "Fale Conosco",
+      "learnMore": "Saiba Mais"
+    },
+    "product": {
+      "title": "Como o CauseFlow Conecta aos Seus Sistemas",
+      "subtitle": "Escolha acesso total para máxima velocidade, ou modo preservação de privacidade para máxima proteção de dados. Ambos entregam a mesma causa raiz."
+    },
+    "security": {
+      "title": "Arquitetura de Preservação de Privacidade: Seus Dados Nunca Saem",
+      "description": "CauseFlow é a única plataforma de investigação de incidentes que implanta uma Tecnologia de Proteção de Privacidade (PET) diretamente na sua infraestrutura. Um agente Docker processa, mascara e anonimiza dados sensíveis na borda — hostnames, IPs, IDs de usuários, chaves de API, nomes de serviços — antes de qualquer transmissão. Seus dados brutos nunca saem do seu perímetro de segurança. A nuvem de IA recebe apenas o necessário para análise de causa raiz, com identificadores sensíveis substituídos por tokens opacos.",
+      "guarantees": [
+        "Sem transmissão de dados brutos — nunca",
+        "Regras de mascaramento controladas pelo cliente",
+        "Mapeamento reversível permanece na sua infraestrutura"
+      ]
+    },
+    "compare": {
+      "badge": "Exclusivo CauseFlow",
+      "calloutTitle": "A Única Plataforma com Arquitetura de Preservação de Privacidade",
+      "calloutDescription": "Investigue incidentes com minimização de dados na borda — seus dados brutos nunca saem da sua infraestrutura. Uma Tecnologia de Proteção de Privacidade (PET) incluída grátis em todos os planos. Nenhuma outra plataforma de investigação de incidentes oferece este nível de proteção de dados."
+    },
+    "dataFlow": {
+      "heading": "Comparação do Fluxo de Dados",
+      "connected": {
+        "step1": "Seus Sistemas",
+        "step2": "Leitura Direta",
+        "step3": "CauseFlow AI",
+        "step4": "Causa Raiz"
+      },
+      "privacyPreserving": {
+        "step1": "Seus Sistemas",
+        "step2": "Agente Docker de Mascaramento",
+        "step3": "Dados Anonimizados",
+        "step4": "CauseFlow AI",
+        "step5": "Causa Raiz"
+      }
+    }
+  }
+}

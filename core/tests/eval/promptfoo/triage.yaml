@@ -1,0 +1,92 @@
+description: "CauseFlow — Triage Eval"
+
+providers:
+  - id: "file://providers/triage-provider.ts"
+    label: "Haiku 4.5"
+    config:
+      model: "claude-haiku-4-5-20251001"
+  - id: "file://providers/triage-provider.ts"
+    label: "Sonnet 4.5"
+    config:
+      model: "claude-sonnet-4-5-20250929"
+
+prompts:
+  - "Incident: {{title}}\nSource: {{source}}\nSeverity from source: {{sourceSeverity}}\nDetails: {{details}}"
+
+tests:
+  # Cenário 1: OOM Kill — must classify as critical
+  - vars:
+      title: "payment-service-memory-critical"
+      source: "cloudwatch"
+      sourceSeverity: "critical"
+      details: "Threshold Crossed: MemoryUtilization exceeded 90%. Container OOMKilled. Exit code 137. ECS task restarting."
+    assert:
+      - type: is-json
+      - type: javascript
+        value: "JSON.parse(output).priority === 'critical'"
+      - type: javascript
+        value: "JSON.parse(output).suggestedAgents.includes('log_analyst')"
+      - type: javascript
+        value: "JSON.parse(output).suggestedAgents.includes('infra_inspector')"
+      - type: javascript
+        value: "JSON.parse(output).confidence >= 0.7"
+      - type: cost
+        threshold: 0.01
+      - type: latency
+        threshold: 5000
+
+  # Cenário 2: Database Connection Timeout — must classify as critical or high
+  - vars:
+      title: "High latency on api-gateway"
+      source: "datadog"
+      sourceSeverity: "error"
+      details: "Request latency exceeded 1200ms. Database connection pool exhausted. Circuit breaker triggered. 47 requests returned 503 in last 60s."
+    assert:
+      - type: is-json
+      - type: javascript
+        value: "['critical','high'].includes(JSON.parse(output).priority)"
+      - type: javascript
+        value: "JSON.parse(output).suggestedAgents.length >= 2"
+      - type: javascript
+        value: "JSON.parse(output).confidence >= 0.6"
+      - type: cost
+        threshold: 0.01
+      - type: latency
+        threshold: 5000
+
+  # Cenário 3: Low severity false positive — must NOT classify as critical/high
+  - vars:
+      title: "staging-health-check-recovered"
+      source: "cloudwatch"
+      sourceSeverity: "info"
+      details: "Health check recovered after brief 502. Single data point. Staging environment. No user impact."
+    assert:
+      - type: is-json
+      - type: javascript
+        value: "['info','low'].includes(JSON.parse(output).priority)"
+        metric: "correct_low_priority"
+      - type: javascript
+        value: "JSON.parse(output).confidence >= 0.5"
+      - type: cost
+        threshold: 0.01
+
+  # Cenário 4: Cascading failure — must include change_detector agent
+  - vars:
+      title: "Multiple services degraded"
+      source: "grafana"
+      sourceSeverity: "critical"
+      details: "api-gateway: 503 errors >50%. payment-service: connection refused. order-service: timeout. Started 15 minutes ago. Correlated with deploy of payment-service v2.3.1."
+    assert:
+      - type: is-json
+      - type: javascript
+        value: "JSON.parse(output).priority === 'critical'"
+      - type: javascript
+        value: "JSON.parse(output).suggestedAgents.includes('change_detector')"
+      - type: javascript
+        value: "JSON.parse(output).suggestedAgents.length >= 3"
+      - type: llm-rubric
+        value: "The summary should mention cascading failure or multiple services affected and should reference the recent deploy as a possible cause"
+      - type: cost
+        threshold: 0.02
+      - type: latency
+        threshold: 8000

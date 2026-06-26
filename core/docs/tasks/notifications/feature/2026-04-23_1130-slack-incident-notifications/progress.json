@@ -1,0 +1,42 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-24T00:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-core-slack-oauth.md",
+      "title": "Core — Slack OAuth + Config API",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "sprint/01-core-slack-oauth",
+      "merged": true,
+      "agent_notes": "20/20 tests passing. All endpoints wired. KMS encryption of accessToken deferred to Sprint 2. Bootstrap conditional on SLACK_CLIENT_ID."
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-core-notification-service.md",
+      "title": "Core — Notification Service + Event Subscribers",
+      "status": "complete",
+      "depends_on": [1],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "sprint/02-core-notification-service",
+      "merged": true,
+      "agent_notes": "35/35 tests passing. SlackChatPlatform, formatters, dedup subscriber all wired. incident.service missing in domain — used sourceProvider as proxy. Environment hardcoded to 'production' pending environment tagging feature."
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-dashboard-slack-ui.md",
+      "title": "Dashboard — Slack Integration Card UI",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "sprint/03-dashboard-slack-ui",
+      "merged": true,
+      "agent_notes": "SlackIntegrationSettings component, 4 API route handlers, i18n keys en+pt-BR, integration-card.tsx wired. TypeScript clean. Fixed INVARIANTS.md W1 verify command to work from git root."
+    }
+  ]
+}

@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CauseFlow Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script type="module">
+    import * as jose from 'https://cdn.jsdelivr.net/npm/jose@5/+esm';
+    window.jose = jose;
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    [x-cloak] { display: none !important; }
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    .toast-enter { animation: fadeIn 0.25s ease-out; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+    .confidence-bar { height: 6px; border-radius: 3px; background: #1f2937; overflow: hidden; }
+    .confidence-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+    .nav-item { transition: all 0.15s ease; border-left: 3px solid transparent; }
+    .nav-item:hover { background: rgba(99,102,241,0.08); border-left-color: rgba(99,102,241,0.3); }
+    .nav-item.active { background: rgba(99,102,241,0.12); border-left-color: #6366f1; color: #a5b4fc; }
+    /* Markdown rendered content */
+    .md-content { font-size: 0.8rem; line-height: 1.6; color: #d1d5db; }
+    .md-content h1 { font-size: 1.1rem; font-weight: 600; color: #f3f4f6; margin: 1rem 0 0.5rem; border-bottom: 1px solid #374151; padding-bottom: 0.3rem; }
+    .md-content h2 { font-size: 1rem; font-weight: 600; color: #e5e7eb; margin: 0.8rem 0 0.4rem; }
+    .md-content h3 { font-size: 0.9rem; font-weight: 600; color: #e5e7eb; margin: 0.6rem 0 0.3rem; }
+    .md-content h4 { font-size: 0.85rem; font-weight: 500; color: #d1d5db; margin: 0.5rem 0 0.25rem; }
+    .md-content p { margin: 0.4rem 0; }
+    .md-content ul, .md-content ol { margin: 0.4rem 0; padding-left: 1.5rem; }
+    .md-content li { margin: 0.2rem 0; }
+    .md-content li::marker { color: #6b7280; }
+    .md-content code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; background: #1f2937; color: #a5b4fc; padding: 0.15rem 0.4rem; border-radius: 0.25rem; border: 1px solid #374151; }
+    .md-content pre { margin: 0.5rem 0; border-radius: 0.5rem; overflow-x: auto; }
+    .md-content pre code { display: block; padding: 0.75rem 1rem; background: #111827; border: 1px solid #1f2937; color: #e5e7eb; line-height: 1.5; white-space: pre; overflow-x: auto; }
+    .md-content strong { color: #f3f4f6; font-weight: 600; }
+    .md-content em { color: #d1d5db; }
+    .md-content blockquote { border-left: 3px solid #4f46e5; padding-left: 0.75rem; margin: 0.5rem 0; color: #9ca3af; }
+    .md-content a { color: #818cf8; text-decoration: underline; }
+    .md-content a:hover { color: #a5b4fc; }
+    .md-content table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; font-size: 0.75rem; }
+    .md-content th { background: #1f2937; color: #e5e7eb; padding: 0.4rem 0.6rem; text-align: left; border: 1px solid #374151; font-weight: 500; }
+    .md-content td { padding: 0.4rem 0.6rem; border: 1px solid #374151; color: #d1d5db; }
+    .md-content tr:nth-child(even) td { background: rgba(31,41,55,0.3); }
+    .md-content hr { border: 0; border-top: 1px solid #374151; margin: 0.75rem 0; }
+  </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen font-sans" x-data="dashboard()" x-cloak>
+
+  <!-- Toast Stack -->
+  <div class="fixed top-4 right-4 z-50 space-y-2 w-80">
+    <template x-for="(toast, i) in toasts" :key="toast.id">
+      <div class="toast-enter px-4 py-3 rounded-lg shadow-lg border text-sm flex items-start gap-2"
+           :class="{
+             'bg-green-900/90 border-green-700 text-green-200': toast.type === 'success',
+             'bg-red-900/90 border-red-700 text-red-200': toast.type === 'error',
+             'bg-blue-900/90 border-blue-700 text-blue-200': toast.type === 'info',
+             'bg-yellow-900/90 border-yellow-700 text-yellow-200': toast.type === 'warning'
+           }">
+        <span class="flex-1" x-text="toast.message"></span>
+        <button @click="removeToast(toast.id)" class="opacity-60 hover:opacity-100 text-xs ml-2">&#10005;</button>
+      </div>
+    </template>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-gray-900/80 backdrop-blur border-b border-gray-800 px-4 py-2.5 flex items-center justify-between h-12 fixed top-0 left-0 right-0 z-40">
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+        <svg class="w-6 h-6 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4m-2.93-7.07-2.83 2.83m-4.48 4.48-2.83 2.83m0-10.14 2.83 2.83m4.48 4.48 2.83 2.83"/></svg>
+        <span class="text-base font-semibold text-white tracking-tight">CauseFlow</span>
+      </div>
+      <span class="text-xs text-gray-500 hidden sm:inline" x-text="viewTitle()"></span>
+    </div>
+    <div class="flex items-center gap-4 text-xs">
+      <span class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full" :class="sseConnected ? 'bg-emerald-400 shadow-emerald-400/50 shadow-sm' : 'bg-gray-600'"></span>
+        <span class="text-gray-400" x-text="sseConnected ? 'SSE' : 'SSE Off'"></span>
+      </span>
+      <span class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full" :class="relayConnected ? 'bg-emerald-400 shadow-emerald-400/50 shadow-sm' : 'bg-gray-600'"></span>
+        <span class="text-gray-400" x-text="relayConnected ? 'Relay' : 'Relay Off'"></span>
+      </span>
+      <button x-show="pendingApprovalCount > 0" @click="navigate('remediation')"
+              class="flex items-center gap-1 bg-amber-600/20 text-amber-300 border border-amber-700/40 px-2 py-0.5 rounded-full hover:bg-amber-600/30 transition">
+        <span x-text="pendingApprovalCount"></span> <span>Approvals</span>
+      </button>
+      <button @click="drawerOpen = !drawerOpen" class="relative p-1.5 rounded hover:bg-gray-800 transition">
+        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span x-show="sseEvents.length > 0" class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-indigo-500 rounded-full text-[9px] flex items-center justify-center font-medium"
+              x-text="sseEvents.length > 9 ? '9+' : sseEvents.length"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="flex h-screen pt-12">
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-14 lg:w-48 bg-gray-900/60 border-r border-gray-800/60 flex flex-col shrink-0">
+      <div class="flex-1 py-3">
+        <template x-for="item in navItems" :key="item.view">
+          <button @click="navigate(item.view)"
+                  class="nav-item w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-400"
+                  :class="currentView === item.view && 'active'">
+            <span x-html="item.icon" class="w-5 h-5 shrink-0 flex items-center justify-center"></span>
+            <span class="hidden lg:inline truncate" x-text="item.label"></span>
+          </button>
+        </template>
+      </div>
+      <div class="p-3 border-t border-gray-800/60 hidden lg:block">
+        <div class="text-[10px] text-gray-600 text-center">CauseFlow v0.1</div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-5 lg:p-6" id="main-content">
+
+      <!-- ==================== OVERVIEW VIEW ==================== -->
+      <div x-show="currentView === 'overview'" x-data="overviewView()" x-effect="if(currentView==='overview') loadOverview()">
+        <div class="flex items-center justify-between mb-5">
+          <h1 class="text-lg font-semibold text-white">Overview</h1>
+          <button @click="loadOverview()" class="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800 transition">Refresh</button>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+          <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-xs text-gray-500 mb-2">System Health</div>
+            <div class="flex items-end gap-2">
+              <span class="text-2xl font-semibold text-white" x-text="healthStats.healthy"></span>
+              <span class="text-xs text-emerald-400 mb-1">healthy</span>
+            </div>
+            <div class="flex gap-3 mt-2 text-xs">
+              <span class="text-yellow-400" x-text="healthStats.degraded + ' degraded'"></span>
+              <span class="text-red-400" x-text="healthStats.unhealthy + ' unhealthy'"></span>
+            </div>
+          </div>
+          <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-xs text-gray-500 mb-2">Open Incidents</div>
+            <div class="text-2xl font-semibold text-white" x-text="incidentStats.total"></div>
+            <div class="flex gap-2 mt-2 text-xs flex-wrap">
+              <span class="text-red-400" x-text="(incidentStats.critical || 0) + ' crit'"></span>
+              <span class="text-orange-400" x-text="(incidentStats.high || 0) + ' high'"></span>
+              <span class="text-yellow-400" x-text="(incidentStats.medium || 0) + ' med'"></span>
+            </div>
+          </div>
+          <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 cursor-pointer hover:border-gray-700 transition" @click="navigate('remediation')">
+            <div class="text-xs text-gray-500 mb-2">Pending Approvals</div>
+            <div class="text-2xl font-semibold" :class="pendingApprovalCount > 0 ? 'text-amber-400' : 'text-white'" x-text="pendingApprovalCount"></div>
+            <div class="text-xs text-gray-500 mt-2" x-text="pendingApprovalCount > 0 ? 'Click to review' : 'All clear'"></div>
+          </div>
+          <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <div class="text-xs text-gray-500 mb-2">Relay</div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" :class="relayConnected ? 'bg-emerald-400' : 'bg-gray-600'"></span>
+              <span class="text-sm font-medium" :class="relayConnected ? 'text-emerald-300' : 'text-gray-500'" x-text="relayConnected ? 'Connected' : 'Disconnected'"></span>
+            </div>
+            <div class="text-xs text-gray-500 mt-2" x-text="relayResources.length + ' resources'"></div>
+          </div>
+        </div>
+
+        <!-- Quick Create Incident -->
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-4" x-data="{ title: '', description: '', severity: 'medium', creating: false }">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Report Incident</h3>
+          <div class="flex gap-3">
+            <input type="text" x-model="title" placeholder="What's happening? e.g. Customer reporting unexpected charges"
+                   class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                   @keydown.enter="if(title && !creating) { creating = true; api('POST', '/v1/incidents/chat', { title, description, severity }).then(d => { if(d?.incidentId) { showToast('Incident created: ' + d.incidentId.slice(0,12) + '...'); title = ''; description = ''; navigate('incidents'); } creating = false; }); }">
+            <select x-model="severity" class="bg-gray-800 border border-gray-700 rounded-lg px-2 py-2 text-xs focus:border-indigo-500 focus:outline-none w-28">
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <button @click="if(title && !creating) { creating = true; api('POST', '/v1/incidents/chat', { title, description, severity }).then(d => { if(d?.incidentId) { showToast('Incident created: ' + d.incidentId.slice(0,12) + '...'); title = ''; description = ''; navigate('incidents'); } creating = false; }); }"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-lg transition whitespace-nowrap"
+                    :disabled="!title || creating" :class="(!title || creating) && 'opacity-50 cursor-not-allowed'"
+                    x-text="creating ? 'Creating...' : 'Create'"></button>
+          </div>
+          <textarea x-model="description" rows="2" placeholder="Additional details (optional)..."
+                    class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none resize-none mt-2"
+                    x-show="title.length > 0" x-transition></textarea>
+        </div>
+
+        <!-- Chaos Engineering — Trigger & Investigate -->
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-4" x-data="chaosPanel()" x-effect="resolveTenantSlug()">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Chaos Engineering
+            </h3>
+            <span class="text-[10px] px-2 py-0.5 rounded-full border" :class="currentTenantSlug === 'billing-corp' ? 'bg-violet-900/30 border-violet-700/50 text-violet-300' : currentTenantSlug === 'marketplace-inc' ? 'bg-amber-900/30 border-amber-700/50 text-amber-300' : currentTenantSlug === 'techcorp' ? 'bg-cyan-900/30 border-cyan-700/50 text-cyan-300' : 'bg-gray-800 border-gray-700 text-gray-500'" x-text="currentTenantSlug === 'billing-corp' ? 'Relay Mode' : currentTenantSlug === 'marketplace-inc' ? 'AssumeRole Mode' : currentTenantSlug === 'techcorp' ? 'AssumeRole + PM Tools' : 'Select a tenant'"></span>
+          </div>
+
+          <!-- No tenant selected -->
+          <div x-show="!currentTenantSlug" class="text-xs text-gray-500 italic">Select a tenant in Settings to enable chaos scenarios.</div>
+
+          <!-- Billing Corp Scenarios -->
+          <div x-show="currentTenantSlug === 'billing-corp'" class="space-y-3">
+            <div class="bg-gray-800/50 border border-gray-700/30 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <span class="text-sm font-medium text-white">Enterprise Payment Failures</span>
+                  <p class="text-[11px] text-gray-500 mt-0.5">Runs billing cycle — enterprise plan hits gateway timeout, invoices fail.</p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span x-show="billingStatus" class="text-[10px] px-1.5 py-0.5 rounded-full" :class="billingStatus === 'triggered' ? 'bg-red-900/50 text-red-300 border border-red-700/50' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'" x-text="billingStatus === 'triggered' ? 'Bug Active' : 'Investigated'"></span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button @click="triggerBilling()" class="text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1.5" :class="billingRunning ? 'bg-gray-700 text-gray-400 cursor-wait' : 'bg-red-900/50 text-red-300 border border-red-700/40 hover:bg-red-900/80'" :disabled="billingRunning">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  <span x-text="billingRunning ? 'Running...' : 'Trigger Bug'"></span>
+                </button>
+                <button @click="investigateBilling()" x-show="billingStatus === 'triggered'" class="text-xs px-3 py-1.5 rounded-lg bg-indigo-900/50 text-indigo-300 border border-indigo-700/40 hover:bg-indigo-900/80 transition flex items-center gap-1.5" :disabled="billingInvestigating" :class="billingInvestigating && 'opacity-50 cursor-wait'">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <span x-text="billingInvestigating ? 'Creating...' : 'Investigate'"></span>
+                </button>
+              </div>
+              <div x-show="billingResult" class="mt-2 text-[11px] text-gray-400 bg-gray-900/60 rounded p-2 font-mono max-h-24 overflow-y-auto" x-text="billingResult"></div>
+            </div>
+          </div>
+
+          <!-- Marketplace Inc Scenarios -->
+          <div x-show="currentTenantSlug === 'marketplace-inc'" class="space-y-3">
+            <!-- Scenario 1: Order totals wrong + shipment mismatch -->
+            <div class="bg-gray-800/50 border border-gray-700/30 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <span class="text-sm font-medium text-white">Order & Shipment Mismatch</span>
+                  <p class="text-[11px] text-gray-500 mt-0.5">Creates order with qty&gt;1 — totals ignore quantity, shipments lose items, fulfillment always ships 1.</p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span x-show="marketplaceStatus" class="text-[10px] px-1.5 py-0.5 rounded-full" :class="marketplaceStatus === 'triggered' ? 'bg-red-900/50 text-red-300 border border-red-700/50' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'" x-text="marketplaceStatus === 'triggered' ? 'Bug Active' : 'Investigated'"></span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button @click="triggerMarketplace()" class="text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1.5" :class="marketplaceRunning ? 'bg-gray-700 text-gray-400 cursor-wait' : 'bg-red-900/50 text-red-300 border border-red-700/40 hover:bg-red-900/80'" :disabled="marketplaceRunning">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  <span x-text="marketplaceRunning ? 'Running...' : 'Trigger Bug'"></span>
+                </button>
+                <button @click="investigateMarketplace()" x-show="marketplaceStatus === 'triggered'" class="text-xs px-3 py-1.5 rounded-lg bg-indigo-900/50 text-indigo-300 border border-indigo-700/40 hover:bg-indigo-900/80 transition flex items-center gap-1.5" :disabled="marketplaceInvestigating" :class="marketplaceInvestigating && 'opacity-50 cursor-wait'">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <span x-text="marketplaceInvestigating ? 'Creating...' : 'Investigate'"></span>
+                </button>
+              </div>
+              <div x-show="marketplaceResult" class="mt-2 text-[11px] text-gray-400 bg-gray-900/60 rounded p-2 font-mono max-h-32 overflow-y-auto whitespace-pre-wrap" x-text="marketplaceResult"></div>
+            </div>
+          </div>
+
+          <!-- TechCorp Scenarios -->
+          <div x-show="currentTenantSlug === 'techcorp'" class="space-y-3">
+            <div class="bg-gray-800/50 border border-gray-700/30 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <span class="text-sm font-medium text-white">Push Storm — Infinite Retry Loop</span>
+                  <p class="text-[11px] text-gray-500 mt-0.5">Triggers 50 push notifications — 70% fail and retry infinitely due to a scoping bug. Emails backpressure, queue grows.</p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span x-show="techcorpStatus" class="text-[10px] px-1.5 py-0.5 rounded-full" :class="techcorpStatus === 'triggered' ? 'bg-red-900/50 text-red-300 border border-red-700/50' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'" x-text="techcorpStatus === 'triggered' ? 'Bug Active' : 'Investigated'"></span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button @click="triggerTechcorp()" class="text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1.5" :class="techcorpRunning ? 'bg-gray-700 text-gray-400 cursor-wait' : 'bg-red-900/50 text-red-300 border border-red-700/40 hover:bg-red-900/80'" :disabled="techcorpRunning">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  <span x-text="techcorpRunning ? 'Running...' : 'Trigger Push Storm'"></span>
+                </button>
+                <button @click="investigateTechcorp()" x-show="techcorpStatus === 'triggered'" class="text-xs px-3 py-1.5 rounded-lg bg-indigo-900/50 text-indigo-300 border border-indigo-700/40 hover:bg-indigo-900/80 transition flex items-center gap-1.5" :disabled="techcorpInvestigating" :class="techcorpInvestigating && 'opacity-50 cursor-wait'">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <span x-text="techcorpInvestigating ? 'Creating...' : 'Investigate'"></span>
+                </button>
+              </div>
+              <div x-show="techcorpResult" class="mt-2 text-[11px] text-gray-400 bg-gray-900/60 rounded p-2 font-mono max-h-32 overflow-y-auto whitespace-pre-wrap" x-text="techcorpResult"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Changes + Activity -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Recent Changes</h3>
+            <div class="space-y-2">
+              <template x-for="change in recentChanges" :key="change.changeId || Math.random()">
+                <div class="flex items-start gap-2 text-xs">
+                  <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span>
+                  <div>
+                    <span class="text-gray-300" x-text="change.description || change.changeType"></span>
+                    <span class="text-gray-600 ml-1" x-text="change.serviceId"></span>
+                  </div>
+                </div>
+              </template>
+              <p x-show="recentChanges.length === 0" class="text-xs text-gray-600 italic">No recent changes</p>
+            </div>
+          </div>
+          <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Live Activity</h3>
+            <div class="space-y-2 max-h-64 overflow-y-auto">
+              <template x-for="(evt, i) in sseEvents.slice(0, 20)" :key="i">
+                <div class="flex items-start gap-2 text-xs">
+                  <span class="text-gray-600 shrink-0 font-mono w-14" x-text="evt.time"></span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-medium shrink-0"
+                        :class="sseEventColor(evt.type)"
+                        x-text="evt.type"></span>
+                </div>
+              </template>
+              <p x-show="sseEvents.length === 0" class="text-xs text-gray-600 italic">Connect SSE to see live activity</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== INCIDENTS VIEW ==================== -->
+      <div x-show="currentView === 'incidents'" x-data="incidentsView()" x-effect="if(currentView==='incidents' && !loaded) loadIncidents()">
+        <div class="flex items-center justify-between mb-5">
+          <h1 class="text-lg font-semibold text-white">Incidents</h1>
+          <button @click="showCreateModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
+            New Incident
+          </button>
+        </div>
+
+        <div class="flex gap-4 h-[calc(100vh-140px)]">
+          <!-- List (40%) -->
+          <div class="w-2/5 flex flex-col">
+            <div class="flex gap-2 mb-3">
+              <select x-model="filterSeverity" @change="loadIncidents()" class="bg-gray-800 border border-gray-700 rounded text-xs px-2 py-1.5 focus:border-indigo-500 focus:outline-none">
+                <option value="">All Severity</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+              <select x-model="filterStatus" @change="loadIncidents()" class="bg-gray-800 border border-gray-700 rounded text-xs px-2 py-1.5 focus:border-indigo-500 focus:outline-none">
+                <option value="">All Status</option>
+                <option value="open">Open</option>
+                <option value="triaging">Triaging</option>
+                <option value="investigating">Investigating</option>
+                <option value="awaiting_approval">Awaiting Approval</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-1.5">
+              <template x-for="inc in incidents" :key="inc.incidentId">
+                <button @click="selectIncident(inc)"
+                        class="w-full text-left bg-gray-900 hover:bg-gray-800/80 border rounded-lg px-3 py-2.5 text-xs transition"
+                        :class="selectedIncident?.incidentId === inc.incidentId ? 'border-indigo-500/60 bg-indigo-950/20' : 'border-gray-800'">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="font-mono text-gray-400 text-[11px]" x-text="inc.incidentId.slice(0,12) + '...'"></span>
+                    <div class="flex gap-1.5">
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-medium"
+                            :class="severityColor(inc.severity)" x-text="inc.severity"></span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-medium"
+                            :class="statusColor(inc.status)" x-text="inc.status"></span>
+                    </div>
+                  </div>
+                  <div class="text-gray-300 truncate font-medium" x-text="inc.title"></div>
+                </button>
+              </template>
+              <p x-show="incidents.length === 0" class="text-gray-600 text-xs italic text-center mt-8">No incidents found</p>
+            </div>
+          </div>
+
+          <!-- Detail (60%) -->
+          <div class="w-3/5 overflow-y-auto">
+            <template x-if="selectedIncident">
+              <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 space-y-4">
+                <div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-medium" :class="severityColor(selectedIncident.severity)" x-text="selectedIncident.severity"></span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-medium" :class="statusColor(selectedIncident.status)" x-text="selectedIncident.status"></span>
+                  </div>
+                  <h2 class="text-base font-semibold text-white" x-text="selectedIncident.title"></h2>
+                  <p class="text-xs text-gray-400 mt-1 font-mono" x-text="selectedIncident.incidentId"></p>
+                </div>
+
+                <div x-show="selectedIncident.description" class="md-content" x-html="renderMarkdown(selectedIncident.description)"></div>
+
+                <div x-show="selectedIncident.rootCause" class="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                  <h3 class="text-xs font-semibold text-gray-400 mb-1.5">Root Cause</h3>
+                  <div class="md-content" x-html="renderMarkdown(selectedIncident.rootCause)"></div>
+                </div>
+
+                <div x-show="selectedIncident.recommendedActions?.length > 0" class="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                  <h3 class="text-xs font-semibold text-gray-400 mb-1.5">Recommended Actions</h3>
+                  <ol class="space-y-2">
+                    <template x-for="(act, i) in selectedIncident.recommendedActions || []" :key="i">
+                      <li class="flex items-start gap-2 text-xs">
+                        <span class="w-5 h-5 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center text-[9px] font-bold text-gray-400 shrink-0 mt-0.5" x-text="i+1"></span>
+                        <div>
+                          <span class="text-gray-200 font-medium" x-text="formatAction(act.action || act)"></span>
+                          <span x-show="act.params && Object.keys(act.params).length > 0" class="text-gray-500 ml-1" x-text="formatParams(act.params)"></span>
+                        </div>
+                      </li>
+                    </template>
+                  </ol>
+                </div>
+
+                <div class="flex flex-wrap gap-2 pt-2">
+                  <button @click="navigate('investigation'); $dispatch('load-investigation', { incidentId: selectedIncident.incidentId })"
+                          class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg transition">View Investigation</button>
+                  <button @click="navigate('remediation'); $dispatch('load-remediation', { incidentId: selectedIncident.incidentId })"
+                          class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1.5 rounded-lg transition">View Remediation</button>
+                  <button @click="showContextModal = true"
+                          class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1.5 rounded-lg transition">Add Context</button>
+                </div>
+              </div>
+            </template>
+            <div x-show="!selectedIncident" class="flex items-center justify-center h-full text-gray-600 text-sm">
+              Select an incident to view details
+            </div>
+          </div>
+        </div>
+
+        <!-- Create Modal -->
+        <div x-show="showCreateModal" x-transition.opacity class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center" @click.self="showCreateModal = false">
+          <div class="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-md shadow-2xl" @click.stop>
+            <h2 class="text-base font-semibold text-white mb-4">Create Incident</h2>
+            <div class="space-y-3">
+              <div>
+                <label class="text-xs text-gray-500">Title</label>
+                <input type="text" x-model="newIncident.title" placeholder="e.g. Customer reporting unexpected charges"
+                       class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="text-xs text-gray-500">Description</label>
+                <textarea x-model="newIncident.description" rows="3" placeholder="Describe the incident..."
+                          class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="text-xs text-gray-500">Severity</label>
+                <select x-model="newIncident.severity" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+              <div class="flex gap-2 pt-2">
+                <button @click="createIncident()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm py-2 rounded-lg transition"
+                        :disabled="!newIncident.title" :class="!newIncident.title && 'opacity-50 cursor-not-allowed'">Create</button>
+                <button @click="showCreateModal = false" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 rounded-lg transition">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Context Modal -->
+        <div x-show="showContextModal" x-transition.opacity class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center" @click.self="showContextModal = false">
+          <div class="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-md shadow-2xl" @click.stop>
+            <h2 class="text-base font-semibold text-white mb-4">Add Context</h2>
+            <div class="space-y-3">
+              <textarea x-model="contextText" rows="4" placeholder="Add additional context for investigation..."
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none resize-none"></textarea>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" x-model="reinvestigate" id="reinv" class="rounded bg-gray-800 border-gray-600">
+                <label for="reinv" class="text-xs text-gray-400">Reinvestigate after sending</label>
+              </div>
+              <div class="flex gap-2">
+                <button @click="sendContext()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm py-2 rounded-lg transition"
+                        :disabled="!contextText" :class="!contextText && 'opacity-50 cursor-not-allowed'">Send</button>
+                <button @click="showContextModal = false" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 rounded-lg transition">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== INVESTIGATION VIEW ==================== -->
+      <div x-show="currentView === 'investigation'" x-data="investigationView()"
+           @load-investigation.window="loadInvestigation($event.detail.incidentId)"
+           x-effect="if(currentView==='investigation' && !incidentsLoaded) loadIncidentList()">
+        <div class="flex items-center justify-between mb-5">
+          <h1 class="text-lg font-semibold text-white">Investigation</h1>
+        </div>
+
+        <div class="flex gap-4 h-[calc(100vh-140px)]">
+          <!-- Incident Sidebar (30%) -->
+          <div class="w-[280px] shrink-0 flex flex-col">
+            <div class="text-xs text-gray-500 mb-2">Select an incident to investigate</div>
+            <div class="flex-1 overflow-y-auto space-y-1.5">
+              <template x-for="inc in incidentList" :key="inc.incidentId">
+                <button @click="loadInvestigation(inc.incidentId)"
+                        class="w-full text-left bg-gray-900 hover:bg-gray-800/80 border rounded-lg px-3 py-2.5 text-xs transition"
+                        :class="targetIncidentId === inc.incidentId ? 'border-indigo-500/60 bg-indigo-950/20' : 'border-gray-800'">
+                  <div class="flex justify-between items-center mb-1">
+                    <div class="flex gap-1.5">
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-medium"
+                            :class="severityColor(inc.severity)" x-text="inc.severity"></span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-medium"
+                            :class="statusColor(inc.status)" x-text="inc.status"></span>
+                    </div>
+                  </div>
+                  <div class="text-gray-300 truncate font-medium" x-text="inc.title"></div>
+                  <div class="text-[10px] text-gray-600 font-mono mt-0.5" x-text="inc.incidentId.slice(0,12) + '...'"></div>
+                </button>
+              </template>
+              <p x-show="incidentList.length === 0" class="text-gray-600 text-xs italic text-center mt-8">No incidents</p>
+            </div>
+          </div>
+
+          <!-- Investigation Detail (70%) -->
+          <div class="flex-1 overflow-y-auto">
+            <template x-if="investigation">
+              <div class="space-y-4">
+                <!-- Incident Header -->
+                <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-medium" :class="severityColor(investigation.incident?.severity)" x-text="investigation.incident?.severity"></span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-medium" :class="statusColor(investigation.incident?.status)" x-text="investigation.incident?.status"></span>
+                    <span class="text-xs text-gray-500 font-mono ml-auto" x-text="targetIncidentId"></span>
+                  </div>
+                  <h2 class="text-sm font-semibold text-white" x-text="investigation.incident?.title"></h2>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="bg-gray-900 border border-gray-800 rounded-lg p-3 text-center">
+                    <div class="text-lg font-semibold text-white font-mono" x-text="investigation.totalEvidence || 0"></div>
+                    <div class="text-[10px] text-gray-500">Evidence</div>
+                  </div>
+                  <div class="bg-gray-900 border border-gray-800 rounded-lg p-3 text-center">
+                    <div class="text-lg font-semibold text-white font-mono" x-text="investigation.avgConfidence ? Math.round(investigation.avgConfidence * 100) + '%' : '—'"></div>
+                    <div class="text-[10px] text-gray-500">Confidence</div>
+                  </div>
+                  <div class="bg-gray-900 border border-gray-800 rounded-lg p-3 text-center">
+                    <div class="text-lg font-semibold text-white font-mono" x-text="Object.keys(investigation.evidenceByAgent || {}).length"></div>
+                    <div class="text-[10px] text-gray-500">Agents</div>
+                  </div>
+                </div>
+
+                <!-- Root Cause -->
+                <div x-show="investigation.incident?.rootCause" class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                  <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Root Cause Analysis</h3>
+                  <div class="md-content" x-html="renderMarkdown(investigation.incident?.rootCause)"></div>
+                </div>
+
+                <!-- Approve/Reject Remediation (inline, when awaiting_approval) -->
+                <div x-show="investigation.incident?.status === 'awaiting_approval' || remediation"
+                     class="bg-amber-950/30 border border-amber-800/40 rounded-lg p-4">
+                  <div class="flex items-center gap-2 mb-3">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+                    <h3 class="text-sm font-semibold text-amber-300">Remediation Pending Approval</h3>
+                  </div>
+                  <template x-if="remediation">
+                    <div>
+                      <p class="text-xs text-gray-300 mb-2" x-text="remediation.description || 'Automated remediation proposed based on investigation findings.'"></p>
+                      <div x-show="(remediation.steps || []).filter(s => s.action && (s.status !== 'pending' || (s.params && Object.keys(s.params).length > 0) || s.output)).length > 0" class="mb-3">
+                        <div class="text-[10px] text-gray-500 mb-1">Remediation steps:</div>
+                        <template x-for="(step, i) in (remediation.steps || []).filter(s => s.action && (s.status !== 'pending' || (s.params && Object.keys(s.params).length > 0) || s.output))" :key="i">
+                          <div class="flex items-start gap-2 text-xs py-1">
+                            <span class="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5"
+                                  :class="{
+                                    'bg-emerald-900/80 text-emerald-300 border border-emerald-700/50': step.status === 'completed',
+                                    'bg-blue-900/80 text-blue-300 border border-blue-700/50': step.status === 'running',
+                                    'bg-red-900/80 text-red-300 border border-red-700/50': step.status === 'failed',
+                                    'bg-gray-800 text-gray-400 border border-gray-600/50': !step.status || step.status === 'pending'
+                                  }" x-text="step.stepIndex || (i+1)"></span>
+                            <div class="flex-1 min-w-0">
+                              <div class="flex items-center gap-2">
+                                <span class="text-gray-200 font-medium" x-text="formatAction(step.action)"></span>
+                                <span x-show="step.status && step.status !== 'pending'" class="px-1.5 py-0.5 rounded text-[9px] font-medium"
+                                      :class="{
+                                        'bg-emerald-900/50 text-emerald-300': step.status === 'completed',
+                                        'bg-blue-900/50 text-blue-300': step.status === 'running',
+                                        'bg-red-900/50 text-red-300': step.status === 'failed'
+                                      }" x-text="step.status"></span>
+                              </div>
+                              <div x-show="hasParams(step.params)" class="mt-0.5">
+                                <template x-for="([pk, pv]) in Object.entries(step.params || {}).filter(([k,v]) => v !== null && v !== undefined && v !== '')" :key="pk">
+                                  <div class="text-[10px]">
+                                    <span class="text-gray-500" x-text="pk.replace(/_/g, ' ') + ':'"></span>
+                                    <span x-show="typeof pv !== 'object'" class="text-gray-400 ml-1" x-text="pv"></span>
+                                    <div x-show="typeof pv === 'object'" class="md-content text-[10px] ml-2" x-html="renderMarkdown(JSON.stringify(pv, null, 2))"></div>
+                                  </div>
+                                </template>
+                              </div>
+                              <div x-show="step.output" class="md-content text-[10px] mt-1 bg-gray-800/60 rounded px-2 py-1" x-html="renderMarkdown(step.output)"></div>
+                            </div>
+                          </div>
+                        </template>
+                      </div>
+                      <div x-show="remediation.pullRequests?.length > 0" class="mb-3">
+                        <div class="text-[10px] text-gray-500 mb-1">Pull Requests:</div>
+                        <template x-for="pr in remediation.pullRequests || []" :key="pr.prNumber">
+                          <div class="flex items-center gap-2 text-xs mb-0.5">
+                            <svg class="w-3.5 h-3.5 text-gray-500" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354Z"/></svg>
+                            <span class="font-mono text-gray-300" x-text="pr.repoFullName"></span>
+                            <a :href="pr.prUrl || pr.url" target="_blank" class="text-indigo-400 hover:text-indigo-300" x-text="'#' + pr.prNumber"></a>
+                            <span class="px-1.5 py-0.5 rounded text-[9px]"
+                                  :class="pr.status === 'merged' ? 'bg-purple-900/50 text-purple-300' : 'bg-green-900/50 text-green-300'"
+                                  x-text="pr.status"></span>
+                          </div>
+                        </template>
+                      </div>
+                      <div class="flex gap-2">
+                        <button x-show="remediation.status === 'proposed'" @click="approveRemediation()"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-lg transition font-medium">Approve Remediation</button>
+                        <button x-show="remediation.status === 'proposed'" @click="rejectRemediation()"
+                                class="bg-red-600 hover:bg-red-700 text-white text-xs px-4 py-2 rounded-lg transition font-medium">Reject</button>
+                        <button x-show="remediation.status === 'approved'" @click="executeRemediation()"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-lg transition font-medium">Execute Remediation</button>
+                        <span x-show="remediation.status === 'executed'" class="text-emerald-400 text-xs flex items-center gap-1">
+                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                          Remediation executed
+                        </span>
+                      </div>
+                    </div>
+                  </template>
+                  <div x-show="!remediation && investigation.incident?.status === 'awaiting_approval'" class="text-xs text-gray-500">
+                    Loading remediation details...
+                  </div>
+                </div>
+
+                <!-- Evidence by Agent -->
+                <div class="space-y-3">
+                  <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Evidence by Agent</h3>
+                  <template x-for="(agentData, agentName) in investigation.evidenceByAgent || {}" :key="agentName">
+                    <div class="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
+                      <button @click="toggleAgent(agentName)" class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-800/50 transition">
+                        <div class="flex items-center gap-2">
+                          <span class="w-2 h-2 rounded-full" :class="agentColor(agentName)"></span>
+                          <span class="text-sm font-medium text-gray-200" x-text="formatAgentName(agentName)"></span>
+                          <span class="text-xs text-gray-500" x-text="(Array.isArray(agentData) ? agentData.length : 0) + ' evidence items'"></span>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-500 transition-transform" :class="openAgents.includes(agentName) && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                      </button>
+                      <div x-show="openAgents.includes(agentName)" x-transition class="border-t border-gray-800 p-4 space-y-3">
+                        <template x-for="(ev, j) in (Array.isArray(agentData) ? agentData : [])" :key="j">
+                          <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
+                            <div class="flex items-center gap-2 mb-2">
+                              <span class="px-1.5 py-0.5 bg-indigo-900/50 text-indigo-300 rounded text-[10px] font-medium" x-text="ev.type || 'finding'"></span>
+                              <span x-show="ev.source" class="text-[10px] text-gray-500" x-text="ev.source"></span>
+                              <span x-show="ev.timeRange" class="text-[10px] text-gray-600" x-text="ev.timeRange"></span>
+                            </div>
+                            <div class="md-content" x-html="renderMarkdown(ev.content)"></div>
+                            <div x-show="ev.confidence != null" class="flex items-center gap-2">
+                              <span class="text-[10px] text-gray-500">Confidence</span>
+                              <div class="confidence-bar flex-1 max-w-32">
+                                <div class="confidence-fill" :class="ev.confidence > 0.7 ? 'bg-emerald-500' : ev.confidence > 0.4 ? 'bg-yellow-500' : 'bg-red-500'"
+                                     :style="'width:' + (ev.confidence * 100) + '%'"></div>
+                              </div>
+                              <span class="text-[10px] text-gray-400 font-mono" x-text="Math.round(ev.confidence * 100) + '%'"></span>
+                            </div>
+                          </div>
+                        </template>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+
+                <!-- Code Fixes -->
+                <div x-show="investigation.codeFixes?.length > 0" class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                  <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Code Fixes</h3>
+                  <template x-for="fix in investigation.codeFixes || []" :key="fix.repo || Math.random()">
+                    <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 mb-2">
+                      <div class="flex items-center gap-2 text-xs mb-1">
+                        <span class="font-mono text-indigo-400" x-text="fix.repo"></span>
+                      </div>
+                      <div class="md-content text-xs" x-html="renderMarkdown(fix.summary)"></div>
+                      <div x-show="fix.files?.length" class="mt-2 space-y-0.5">
+                        <template x-for="f in fix.files || []" :key="f">
+                          <div class="text-[11px] font-mono text-gray-500" x-text="f"></div>
+                        </template>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+
+                <!-- RCA Actions + Context -->
+                <div class="flex gap-2">
+                  <button @click="confirmRCA()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-4 py-2 rounded-lg transition">Confirm RCA</button>
+                  <button @click="rejectRCA()" class="bg-red-700 hover:bg-red-800 text-white text-xs px-4 py-2 rounded-lg transition">Reject RCA</button>
+                  <button @click="showAddContext = !showAddContext" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-4 py-2 rounded-lg transition">Add Context</button>
+                </div>
+                <div x-show="showAddContext" x-transition class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                  <textarea x-model="contextText" rows="3" placeholder="Additional context..."
+                            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none resize-none mb-2"></textarea>
+                  <div class="flex items-center gap-3">
+                    <button @click="sendContext()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg transition"
+                            :disabled="!contextText" :class="!contextText && 'opacity-50'">Send</button>
+                    <label class="flex items-center gap-1.5 text-xs text-gray-400">
+                      <input type="checkbox" x-model="reinvestigate" class="rounded bg-gray-800 border-gray-600"> Reinvestigate
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <div x-show="!investigation" class="flex items-center justify-center h-full text-gray-600 text-sm">
+              Select an incident from the list to view its investigation
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== REMEDIATION VIEW ==================== -->
+      <div x-show="currentView === 'remediation'" x-data="remediationView()"
+           @load-remediation.window="loadRemediation($event.detail.incidentId)">
+        <div class="flex items-center justify-between mb-5">
+          <h1 class="text-lg font-semibold text-white">Remediation</h1>
+          <div class="flex gap-2">
+            <input type="text" x-model="inputIncidentId" placeholder="Incident ID"
+                   class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-xs w-72 focus:border-indigo-500 focus:outline-none font-mono">
+            <button @click="loadRemediation(inputIncidentId)" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg transition">Load</button>
+          </div>
+        </div>
+
+        <template x-if="remediation">
+          <div class="space-y-4">
+            <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+              <div class="flex items-center gap-3 mb-3">
+                <span class="px-2 py-0.5 rounded text-[10px] font-medium" :class="remStatusColor(remediation.status)" x-text="remediation.status"></span>
+                <span class="text-xs text-gray-500 font-mono" x-text="remediation.remediationId"></span>
+              </div>
+              <div class="md-content text-sm mb-2" x-html="renderMarkdown(remediation.description || 'Remediation plan')"></div>
+              <div x-show="remediation.rootCause" class="mt-2">
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Root Cause</span>
+                <div class="md-content text-xs mt-1" x-html="renderMarkdown(remediation.rootCause)"></div>
+              </div>
+            </div>
+
+            <!-- Steps Timeline -->
+            <div x-show="(remediation.steps || []).filter(s => s.action && (s.status !== 'pending' || (s.params && Object.keys(s.params).length > 0) || s.output)).length > 0" class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Remediation Steps</h3>
+              <div class="space-y-0">
+                <template x-for="(step, i) in (remediation.steps || []).filter(s => s.action && (s.status !== 'pending' || (s.params && Object.keys(s.params).length > 0) || s.output))" :key="i">
+                  <div class="flex gap-3">
+                    <div class="flex flex-col items-center">
+                      <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+                           :class="{
+                             'bg-emerald-900/80 text-emerald-300 border border-emerald-700/60': step.status === 'completed',
+                             'bg-blue-900/80 text-blue-300 border border-blue-700/60 animate-pulse': step.status === 'running',
+                             'bg-gray-800 text-gray-400 border border-gray-600/50': step.status === 'pending' || !step.status,
+                             'bg-red-900/80 text-red-300 border border-red-700/60': step.status === 'failed',
+                             'bg-gray-700 text-gray-500 border border-gray-600/50': step.status === 'skipped'
+                           }">
+                        <span x-show="step.status === 'completed'" x-html="stepIcon('completed')"></span>
+                        <span x-show="step.status === 'failed'" x-html="stepIcon('failed')"></span>
+                        <span x-show="step.status !== 'completed' && step.status !== 'failed'" x-text="step.stepIndex || (i+1)"></span>
+                      </div>
+                      <div x-show="i < (remediation.steps || []).filter(s => s.action && (s.status !== 'pending' || (s.params && Object.keys(s.params).length > 0) || s.output)).length - 1" class="w-px flex-1 min-h-[16px] bg-gray-700/60 my-1"></div>
+                    </div>
+                    <div class="flex-1 pb-4">
+                      <div class="flex items-center gap-2 mb-0.5">
+                        <span class="text-sm text-gray-200 font-medium" x-text="formatAction(step.action)"></span>
+                        <span x-show="step.status && step.status !== 'pending'" class="px-1.5 py-0.5 rounded text-[9px] font-medium"
+                              :class="{
+                                'bg-emerald-900/50 text-emerald-300': step.status === 'completed',
+                                'bg-blue-900/50 text-blue-300': step.status === 'running',
+                                'bg-red-900/50 text-red-300': step.status === 'failed',
+                                'bg-gray-700/50 text-gray-400': step.status === 'skipped'
+                              }" x-text="step.status"></span>
+                      </div>
+                      <div x-show="hasParams(step.params)" class="mt-1">
+                        <template x-for="([pk, pv]) in Object.entries(step.params || {}).filter(([k,v]) => v !== null && v !== undefined && v !== '')" :key="pk">
+                          <div class="text-xs mt-0.5">
+                            <span class="text-gray-500" x-text="pk.replace(/_/g, ' ') + ':'"></span>
+                            <template x-if="typeof pv === 'string'"><span class="text-gray-300 ml-1" x-text="pv"></span></template>
+                            <template x-if="typeof pv === 'number' || typeof pv === 'boolean'"><span class="text-indigo-300 ml-1 font-mono" x-text="pv"></span></template>
+                            <template x-if="typeof pv === 'object'"><div class="md-content text-xs mt-0.5 ml-2" x-html="renderMarkdown(typeof pv === 'string' ? pv : JSON.stringify(pv, null, 2))"></div></template>
+                          </div>
+                        </template>
+                      </div>
+                      <div x-show="step.output" class="md-content text-xs mt-1.5 bg-gray-800/60 border border-gray-700/30 rounded-md px-3 py-2" x-html="renderMarkdown(step.output)"></div>
+                      <div x-show="step.completedAt" class="text-[10px] text-gray-600 mt-1" x-text="step.completedAt ? new Date(step.completedAt).toLocaleString('pt-BR') : ''"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Pull Requests -->
+            <div x-show="remediation.pullRequests?.length > 0" class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Pull Requests</h3>
+              <template x-for="pr in remediation.pullRequests || []" :key="pr.prNumber || Math.random()">
+                <div class="flex items-center justify-between bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2 mb-1.5">
+                  <div class="flex items-center gap-2 text-xs">
+                    <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354Z"/></svg>
+                    <span class="font-mono text-gray-300" x-text="pr.repoFullName"></span>
+                    <a :href="pr.prUrl || pr.url" target="_blank" class="text-indigo-400 hover:text-indigo-300" x-text="'#' + pr.prNumber"></a>
+                  </div>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-medium"
+                        :class="pr.status === 'merged' ? 'bg-purple-900/50 text-purple-300' : pr.status === 'open' ? 'bg-green-900/50 text-green-300' : 'bg-gray-700 text-gray-300'"
+                        x-text="pr.status"></span>
+                </div>
+              </template>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2">
+              <button x-show="remediation.status === 'proposed'" @click="approveRemediation()"
+                      class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-4 py-2 rounded-lg transition">Approve</button>
+              <button x-show="remediation.status === 'proposed'" @click="rejectRemediation()"
+                      class="bg-red-700 hover:bg-red-800 text-white text-xs px-4 py-2 rounded-lg transition">Reject</button>
+              <button x-show="remediation.status === 'approved'" @click="executeRemediation()"
+                      class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-lg transition">Execute</button>
+            </div>
+          </div>
+        </template>
+        <div x-show="!remediation" class="flex items-center justify-center h-64 text-gray-600 text-sm">
+          Enter an incident ID to load remediation data
+        </div>
+      </div>
+
+      <!-- ==================== SERVICES VIEW ==================== -->
+      <div x-show="currentView === 'services'" x-data="servicesView()" x-effect="if(currentView==='services' && !loaded) loadServices()">
+        <div class="flex items-center justify-between mb-5">
+          <h1 class="text-lg font-semibold text-white">Services</h1>
+          <button @click="loadServices()" class="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800 transition">Refresh</button>
+        </div>
+
+        <div class="flex gap-3 mb-4">
+          <div class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs">
+            <span class="text-gray-500">Total:</span> <span class="text-white font-medium" x-text="services.length"></span>
+          </div>
+          <div class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs">
+            <span class="text-emerald-400 font-medium" x-text="healthCounts.healthy"></span> <span class="text-gray-500">healthy</span>
+          </div>
+          <div class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs">
+            <span class="text-yellow-400 font-medium" x-text="healthCounts.degraded"></span> <span class="text-gray-500">degraded</span>
+          </div>
+          <div class="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs">
+            <span class="text-red-400 font-medium" x-text="healthCounts.unhealthy"></span> <span class="text-gray-500">unhealthy</span>
+          </div>
+        </div>
+
+        <div class="flex gap-4 h-[calc(100vh-200px)]">
+          <div class="w-2/5 flex flex-col">
+            <div class="flex gap-2 mb-3">
+              <select x-model="filterHealth" @change="applyFilter()" class="bg-gray-800 border border-gray-700 rounded text-xs px-2 py-1.5 focus:border-indigo-500 focus:outline-none">
+                <option value="">All Health</option>
+                <option value="healthy">Healthy</option>
+                <option value="degraded">Degraded</option>
+                <option value="unhealthy">Unhealthy</option>
+              </select>
+              <input type="text" x-model="searchTerm" @input="applyFilter()" placeholder="Search..."
+                     class="flex-1 bg-gray-800 border border-gray-700 rounded text-xs px-2 py-1.5 focus:border-indigo-500 focus:outline-none">
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-1.5">
+              <template x-for="svc in filteredServices" :key="svc.serviceId">
+                <button @click="selectService(svc)"
+                        class="w-full text-left bg-gray-900 hover:bg-gray-800/80 border rounded-lg px-3 py-2.5 text-xs transition"
+                        :class="selectedService?.serviceId === svc.serviceId ? 'border-indigo-500/60 bg-indigo-950/20' : 'border-gray-800'">
+                  <div class="flex justify-between items-center">
+                    <span class="text-gray-200 font-medium" x-text="svc.serviceId"></span>
+                    <span class="w-2 h-2 rounded-full"
+                          :class="svc.health === 'healthy' ? 'bg-emerald-400' : svc.health === 'degraded' ? 'bg-yellow-400' : 'bg-red-400'"></span>
+                  </div>
+                  <div class="text-gray-500 mt-0.5" x-text="svc.type || 'service'"></div>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <div class="w-3/5 overflow-y-auto">
+            <template x-if="selectedService">
+              <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 space-y-4">
+                <div>
+                  <h2 class="text-base font-semibold text-white" x-text="selectedService.serviceId"></h2>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-medium"
+                          :class="selectedService.health === 'healthy' ? 'bg-emerald-900 text-emerald-300' : selectedService.health === 'degraded' ? 'bg-yellow-900 text-yellow-300' : 'bg-red-900 text-red-300'"
+                          x-text="selectedService.health"></span>
+                    <span x-show="selectedService.type" class="text-xs text-gray-500" x-text="selectedService.type"></span>
+                  </div>
+                </div>
+
+                <div x-show="blastRadius" class="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                  <h3 class="text-xs font-semibold text-gray-400 mb-2">Blast Radius</h3>
+                  <div class="flex items-center gap-3">
+                    <span class="text-lg font-semibold" :class="blastRadius.score > 0.7 ? 'text-red-400' : blastRadius.score > 0.4 ? 'text-yellow-400' : 'text-emerald-400'"
+                          x-text="Math.round((blastRadius.score || 0) * 100) + '%'"></span>
+                    <span class="text-xs text-gray-500" x-text="(blastRadius.affected?.length || 0) + ' affected services'"></span>
+                  </div>
+                  <div x-show="blastRadius.affected?.length" class="mt-2 flex flex-wrap gap-1">
+                    <template x-for="a in blastRadius.affected || []" :key="a.serviceId || a">
+                      <span class="px-1.5 py-0.5 bg-gray-700 text-gray-300 rounded text-[10px]" x-text="a.serviceId || a"></span>
+                    </template>
+                  </div>
+                </div>
+
+                <div x-show="serviceEdges.length > 0" class="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                  <h3 class="text-xs font-semibold text-gray-400 mb-2">Dependencies</h3>
+                  <div class="space-y-1">
+                    <template x-for="edge in serviceEdges" :key="edge.edgeId || Math.random()">
+                      <div class="flex items-center gap-2 text-xs">
+                        <span class="text-gray-300" x-text="edge.sourceId"></span>
+                        <svg class="w-3 h-3 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        <span class="text-gray-300" x-text="edge.targetId"></span>
+                        <span class="text-gray-600" x-text="edge.type || ''"></span>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <div x-show="serviceChanges.length > 0" class="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                  <h3 class="text-xs font-semibold text-gray-400 mb-2">Recent Changes</h3>
+                  <div class="space-y-1.5">
+                    <template x-for="ch in serviceChanges" :key="ch.changeId || Math.random()">
+                      <div class="text-xs">
+                        <span class="text-gray-300" x-text="ch.description"></span>
+                        <span class="text-gray-600 ml-1" x-text="ch.source || ''"></span>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <div x-show="!selectedService" class="flex items-center justify-center h-full text-gray-600 text-sm">
+              Select a service to view details
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== KNOWLEDGE VIEW ==================== -->
+      <div x-show="currentView === 'knowledge'" x-data="knowledgeView()" x-effect="if(currentView==='knowledge' && !loaded) loadPatterns()">
+        <div class="flex items-center justify-between mb-5">
+          <h1 class="text-lg font-semibold text-white">Knowledge Patterns</h1>
+          <button @click="loadPatterns()" class="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800 transition">Refresh</button>
+        </div>
+
+        <div class="flex gap-4 h-[calc(100vh-140px)]">
+          <div class="w-2/5 flex flex-col">
+            <div class="flex gap-2 mb-3">
+              <select x-model="filterStatus" @change="loadPatterns()" class="bg-gray-800 border border-gray-700 rounded text-xs px-2 py-1.5 focus:border-indigo-500 focus:outline-none">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="candidate">Candidate</option>
+                <option value="deprecated">Deprecated</option>
+              </select>
+              <input type="number" x-model.number="filterConfidence" placeholder="Min confidence" step="0.1" min="0" max="1"
+                     class="w-28 bg-gray-800 border border-gray-700 rounded text-xs px-2 py-1.5 focus:border-indigo-500 focus:outline-none">
+            </div>
+            <div class="flex-1 overflow-y-auto space-y-1.5">
+              <template x-for="pat in patterns" :key="pat.patternId">
+                <button @click="selectPattern(pat)"
+                        class="w-full text-left bg-gray-900 hover:bg-gray-800/80 border rounded-lg px-3 py-2.5 text-xs transition"
+                        :class="selectedPattern?.patternId === pat.patternId ? 'border-indigo-500/60 bg-indigo-950/20' : 'border-gray-800'">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="text-gray-200 font-medium truncate" x-text="pat.category || pat.patternId?.slice(0,12)"></span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-medium"
+                          :class="pat.status === 'active' ? 'bg-emerald-900 text-emerald-300' : 'bg-gray-700 text-gray-400'" x-text="pat.status"></span>
+                  </div>
+                  <div class="text-gray-500 truncate" x-text="pat.symptoms?.[0] || pat.rootCause || ''"></div>
+                  <div class="flex items-center gap-1 mt-1">
+                    <div class="confidence-bar flex-1 max-w-20">
+                      <div class="confidence-fill bg-indigo-500" :style="'width:' + ((pat.confidence || 0) * 100) + '%'"></div>
+                    </div>
+                    <span class="text-[10px] text-gray-500" x-text="Math.round((pat.confidence || 0) * 100) + '%'"></span>
+                  </div>
+                </button>
+              </template>
+              <p x-show="patterns.length === 0" class="text-gray-600 text-xs italic text-center mt-8">No patterns found</p>
+            </div>
+          </div>
+
+          <div class="w-3/5 overflow-y-auto">
+            <template x-if="selectedPattern">
+              <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 space-y-4">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-medium"
+                          :class="selectedPattern.status === 'active' ? 'bg-emerald-900 text-emerald-300' : 'bg-gray-700 text-gray-400'"
+                          x-text="selectedPattern.status"></span>
+                    <span x-show="selectedPattern.category" class="text-xs text-gray-500" x-text="selectedPattern.category"></span>
+                  </div>
+                  <p class="text-xs text-gray-500 font-mono" x-text="selectedPattern.patternId"></p>
+                </div>
+
+                <div x-show="selectedPattern.symptoms?.length" class="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                  <h3 class="text-xs font-semibold text-gray-400 mb-1.5">Symptoms</h3>
+                  <ul class="space-y-1">
+                    <template x-for="s in selectedPattern.symptoms || []" :key="s">
+                      <li class="text-xs text-gray-300 flex items-start gap-1.5"><span class="text-gray-600 mt-0.5">-</span> <span x-text="s"></span></li>
+                    </template>
+                  </ul>
+                </div>
+
+                <div x-show="selectedPattern.rootCause" class="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                  <h3 class="text-xs font-semibold text-gray-400 mb-1.5">Root Cause</h3>
+                  <div class="md-content text-xs" x-html="renderMarkdown(selectedPattern.rootCause)"></div>
+                </div>
+
+                <div x-show="selectedPattern.fix" class="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                  <h3 class="text-xs font-semibold text-gray-400 mb-1.5">Fix</h3>
+                  <div class="md-content text-xs" x-html="renderMarkdown(selectedPattern.fix)"></div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="bg-gray-800 border border-gray-700 rounded-lg p-3 text-center">
+                    <div class="text-lg font-semibold text-white" x-text="selectedPattern.occurrences || 0"></div>
+                    <div class="text-[10px] text-gray-500">Occurrences</div>
+                  </div>
+                  <div class="bg-gray-800 border border-gray-700 rounded-lg p-3 text-center">
+                    <div class="text-lg font-semibold text-emerald-400" x-text="selectedPattern.confirmations || 0"></div>
+                    <div class="text-[10px] text-gray-500">Confirmations</div>
+                  </div>
+                  <div class="bg-gray-800 border border-gray-700 rounded-lg p-3 text-center">
+                    <div class="text-lg font-semibold text-red-400" x-text="selectedPattern.rejections || 0"></div>
+                    <div class="text-[10px] text-gray-500">Rejections</div>
+                  </div>
+                </div>
+
+                <div class="bg-gray-800 border border-gray-700 rounded-lg p-3">
+                  <h3 class="text-xs font-semibold text-gray-400 mb-2">Send Feedback</h3>
+                  <select x-model="feedbackType" class="w-full bg-gray-900 border border-gray-600 rounded text-xs px-2 py-1.5 mb-2 focus:border-indigo-500 focus:outline-none">
+                    <option value="confirm_rca">Confirm</option>
+                    <option value="reject_rca">Reject</option>
+                    <option value="improve">Suggest Improvement</option>
+                  </select>
+                  <textarea x-model="feedbackText" rows="2" placeholder="Optional notes..."
+                            class="w-full bg-gray-900 border border-gray-600 rounded text-xs px-2 py-1.5 focus:border-indigo-500 focus:outline-none resize-none mb-2"></textarea>
+                  <button @click="sendFeedback()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg transition">Send Feedback</button>
+                </div>
+              </div>
+            </template>
+            <div x-show="!selectedPattern" class="flex items-center justify-center h-full text-gray-600 text-sm">
+              Select a pattern to view details
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SETTINGS VIEW ==================== -->
+      <div x-show="currentView === 'settings'" x-data="settingsView()">
+        <h1 class="text-lg font-semibold text-white mb-5">Settings</h1>
+        <div class="space-y-6 max-w-2xl">
+
+          <!-- Section A: Connection Status -->
+          <section class="bg-gray-900 border border-gray-800 rounded-lg p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-sm font-semibold text-white">Connection</h2>
+              <div class="flex items-center gap-3">
+                <span class="flex items-center gap-1.5 text-xs">
+                  <span class="w-2 h-2 rounded-full" :class="sseConnected ? 'bg-emerald-400' : 'bg-gray-600'"></span>
+                  <span :class="sseConnected ? 'text-emerald-400' : 'text-gray-500'" x-text="sseConnected ? 'Connected' : 'Disconnected'"></span>
+                </span>
+                <button @click="connectSSE()" class="text-xs px-3 py-1 rounded transition"
+                        :class="sseConnected ? 'bg-red-900/50 text-red-300 hover:bg-red-900/80' : 'bg-indigo-900/50 text-indigo-300 hover:bg-indigo-900/80'"
+                        x-text="sseConnected ? 'Disconnect' : 'Reconnect'"></button>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <span class="text-gray-500">Server</span>
+                <p class="text-gray-300 font-mono mt-0.5" x-text="config.baseUrl"></p>
+              </div>
+              <div>
+                <span class="text-gray-500">Tenant</span>
+                <p class="text-gray-300 font-mono mt-0.5" x-text="config.tenantId"></p>
+              </div>
+            </div>
+            <!-- Tenant Switcher -->
+            <div class="mt-4 pt-4 border-t border-gray-800">
+              <label class="text-xs text-gray-500 mb-2 block">Switch Tenant</label>
+              <div class="flex gap-2">
+                <select x-model="config.tenantId" @change="saveConfig(); generateJWT(); disconnectSSE(); connectSSE(); loadTenantList(); $dispatch('tenant-changed')"
+                        class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                  <option value="">Select a tenant...</option>
+                  <template x-for="t in tenantList" :key="t.tenantId">
+                    <option :value="t.tenantId" x-text="t.name + ' (' + t.slug + ')'" :selected="t.tenantId === config.tenantId"></option>
+                  </template>
+                </select>
+                <button @click="loadTenantList()" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-2 rounded-lg transition">Refresh</button>
+              </div>
+            </div>
+
+            <!-- Advanced / Dev config (collapsible) -->
+            <details class="mt-4">
+              <summary class="text-[10px] text-gray-600 cursor-pointer hover:text-gray-400 select-none">Advanced (Development)</summary>
+              <div class="space-y-3 mt-3 pt-3 border-t border-gray-800">
+                <div>
+                  <label class="text-xs text-gray-500">JWT Secret</label>
+                  <input type="password" x-model="config.jwtSecret" @change="saveConfig(); generateJWT()"
+                         class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-500">Tenant ID</label>
+                  <input type="text" x-model="config.tenantId" @change="saveConfig(); generateJWT()"
+                         class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none">
+                </div>
+                <button @click="testConnection()" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-4 py-2 rounded-lg transition">Test Connection</button>
+              </div>
+            </details>
+          </section>
+
+          <!-- Section B: Tenant -->
+          <section class="bg-gray-900 border border-gray-800 rounded-lg p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-sm font-semibold text-white">Tenant Configuration</h2>
+              <button @click="loadTenant()" class="text-xs text-gray-500 hover:text-gray-300">Load</button>
+            </div>
+            <div x-show="tenant" class="space-y-3">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs text-gray-500">Name</label>
+                  <input type="text" x-model="tenant.name" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-500">Plan</label>
+                  <span class="block mt-0.5 px-2 py-1.5 text-sm rounded-lg" :class="tenant.plan === 'enterprise' ? 'bg-indigo-900/30 text-indigo-300 border border-indigo-800' : 'bg-gray-800 text-gray-300 border border-gray-700'" x-text="tenant.plan"></span>
+                </div>
+              </div>
+              <!-- Integration Status -->
+              <div class="grid grid-cols-3 gap-2 text-xs">
+                <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2">
+                  <span class="text-gray-500 block mb-1">AWS Cross-Account</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full" :class="tenant.settings?.awsRoleArn ? 'bg-emerald-400' : 'bg-gray-600'"></span>
+                    <span :class="tenant.settings?.awsRoleArn ? 'text-emerald-400' : 'text-gray-500'" x-text="tenant.settings?.awsRoleArn ? 'Configured' : 'Not configured'"></span>
+                  </div>
+                </div>
+                <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2">
+                  <span class="text-gray-500 block mb-1">Auto-Remediation</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full" :class="tenant.settings?.autoRemediation ? 'bg-emerald-400' : 'bg-yellow-500'"></span>
+                    <span :class="tenant.settings?.autoRemediation ? 'text-emerald-400' : 'text-yellow-400'" x-text="tenant.settings?.autoRemediation ? 'Enabled' : 'Manual approval'"></span>
+                  </div>
+                </div>
+              </div>
+              <details class="mt-1">
+                <summary class="text-[10px] text-gray-600 cursor-pointer hover:text-gray-400 select-none">Edit Settings</summary>
+                <div class="space-y-3 mt-3 pt-3 border-t border-gray-800">
+                  <div>
+                    <label class="text-xs text-gray-500">AWS Role ARN</label>
+                    <input type="text" :value="tenant.settings?.awsRoleArn || ''" @input="tenant.settings = {...(tenant.settings||{}), awsRoleArn: $event.target.value}" placeholder="arn:aws:iam::..."
+                           class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none">
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <label class="flex items-center gap-2 text-xs text-gray-400">
+                      <input type="checkbox" :checked="tenant.settings?.autoRemediation" @change="tenant.settings = {...(tenant.settings||{}), autoRemediation: $event.target.checked}" class="rounded bg-gray-800 border-gray-600">
+                      Auto-Remediation
+                    </label>
+                  </div>
+                  <button @click="saveTenant()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg transition">Save</button>
+                </div>
+              </details>
+            </div>
+            <p x-show="!tenant" class="text-xs text-gray-600 italic">Click Load to fetch tenant configuration</p>
+          </section>
+
+          <!-- Section B2: Project Integrations (OAuth) -->
+          <section class="bg-gray-900 border border-gray-800 rounded-lg p-5" x-data="oauthSection()" x-init="loadOAuthStatus()" @tenant-changed.window="resetAndReload()">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-sm font-semibold text-white">Project Integrations</h2>
+              <button @click="loadOAuthStatus()" class="text-xs text-gray-500 hover:text-gray-300">Refresh</button>
+            </div>
+            <p class="text-[11px] text-gray-500 mb-3">Connect project management tools to enrich investigations with docs, stories, and post-mortems.</p>
+            <div class="space-y-2">
+              <template x-for="p in providers" :key="p.provider">
+                <div class="flex items-center justify-between bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold"
+                         :class="p.provider === 'notion' ? 'bg-gray-700 text-white' : p.provider === 'shortcut' ? 'bg-purple-900/50 text-purple-300' : 'bg-blue-900/50 text-blue-300'">
+                      <span x-text="p.provider === 'notion' ? 'N' : p.provider === 'shortcut' ? 'S' : 'T'"></span>
+                    </div>
+                    <div>
+                      <span class="text-sm text-gray-200 font-medium capitalize" x-text="p.provider"></span>
+                      <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full" :class="p.connected ? 'bg-emerald-400' : 'bg-gray-600'"></span>
+                        <span class="text-[10px]" :class="p.connected ? 'text-emerald-400' : 'text-gray-500'" x-text="p.connected ? 'Connected' : 'Not connected'"></span>
+                        <span x-show="p.workspace" class="text-[10px] text-gray-600 ml-1" x-text="p.workspace"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <!-- Trello: 2 fields (API Key + Token) -->
+                    <template x-if="!p.connected && p.provider === 'trello'">
+                      <div class="flex gap-1">
+                        <input type="password" x-model="p.apiKeyInput" placeholder="API Key"
+                               class="text-xs bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-gray-300 w-24 placeholder-gray-600 focus:border-indigo-500 focus:outline-none" />
+                        <input type="password" x-model="p.tokenInput" placeholder="Token"
+                               class="text-xs bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-gray-300 w-24 placeholder-gray-600 focus:border-indigo-500 focus:outline-none" />
+                      </div>
+                    </template>
+                    <!-- Shortcut: 1 field (API Token) -->
+                    <template x-if="!p.connected && p.provider === 'shortcut'">
+                      <input type="password" x-model="p.tokenInput" placeholder="API Token"
+                             class="text-xs bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-gray-300 w-44 placeholder-gray-600 focus:border-indigo-500 focus:outline-none" />
+                    </template>
+                    <button @click="p.connected ? disconnectProvider(p.provider) : connectProvider(p.provider)"
+                            class="text-xs px-3 py-1.5 rounded-lg transition"
+                            :class="p.connected ? 'bg-red-900/40 text-red-300 border border-red-700/40 hover:bg-red-900/70' : 'bg-indigo-900/50 text-indigo-300 border border-indigo-700/40 hover:bg-indigo-900/80'"
+                            x-text="p.connected ? 'Disconnect' : 'Connect'"></button>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </section>
+
+          <!-- Section C: Code Knowledge -->
+          <section class="bg-gray-900 border border-gray-800 rounded-lg p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-sm font-semibold text-white">Code Knowledge</h2>
+              <div class="flex gap-2">
+                <button @click="loadRepos()" class="text-xs text-gray-500 hover:text-gray-300">Load Repos</button>
+                <button @click="suggestMappings()" class="text-xs text-indigo-400 hover:text-indigo-300">Auto-Suggest</button>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <template x-for="repo in repos" :key="repo.repoFullName || Math.random()">
+                <div class="flex items-center justify-between bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2 text-xs">
+                  <span class="font-mono text-gray-300" x-text="repo.repoFullName"></span>
+                  <span class="text-gray-500" x-text="repo.serviceId || 'unmapped'"></span>
+                </div>
+              </template>
+              <p x-show="repos.length === 0" class="text-xs text-gray-600 italic">No repos indexed</p>
+            </div>
+            <div x-show="suggestions.length > 0" class="mt-3">
+              <h3 class="text-xs text-gray-400 mb-2">Suggested Mappings</h3>
+              <template x-for="s in suggestions" :key="s.repoFullName">
+                <div class="flex items-center justify-between bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2 text-xs mb-1">
+                  <div>
+                    <span class="font-mono text-gray-300" x-text="s.repoFullName"></span>
+                    <span class="text-gray-500 ml-1">-></span>
+                    <span class="text-indigo-400 ml-1" x-text="s.serviceId"></span>
+                    <span class="text-gray-600 ml-1" x-text="Math.round(s.score * 100) + '%'"></span>
+                  </div>
+                  <button @click="applyMapping(s)" class="text-emerald-400 hover:text-emerald-300">Apply</button>
+                </div>
+              </template>
+            </div>
+          </section>
+
+          <!-- Section D: Relay Status -->
+          <section class="bg-gray-900 border border-gray-800 rounded-lg p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-sm font-semibold text-white">Relay Status</h2>
+              <button @click="loadRelayStatus()" class="text-xs text-gray-500 hover:text-gray-300">Refresh</button>
+            </div>
+            <div class="flex items-center gap-2 mb-3">
+              <span class="w-2.5 h-2.5 rounded-full" :class="relayConnected ? 'bg-emerald-400' : 'bg-gray-600'"></span>
+              <span class="text-sm" :class="relayConnected ? 'text-emerald-300' : 'text-gray-500'" x-text="relayConnected ? 'Connected' : 'Disconnected'"></span>
+            </div>
+            <div x-show="relayResources.length > 0" class="space-y-1.5">
+              <template x-for="res in relayResources" :key="res.resourceId">
+                <div class="flex items-center justify-between bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2 text-xs">
+                  <div>
+                    <span class="text-gray-200 font-medium" x-text="res.name"></span>
+                    <span class="text-gray-500 ml-2" x-text="res.type"></span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-gray-500" x-text="res.database"></span>
+                    <span x-show="res.readOnly" class="px-1.5 py-0.5 bg-yellow-900/30 text-yellow-400 rounded text-[9px]">read-only</span>
+                  </div>
+                </div>
+              </template>
+            </div>
+            <p x-show="relayResources.length === 0" class="text-xs text-gray-600 italic">No resources available</p>
+          </section>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Notification Drawer -->
+    <aside x-show="drawerOpen" x-transition:enter="transition ease-out duration-200"
+           x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+           x-transition:leave="transition ease-in duration-150"
+           x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
+           class="w-80 bg-gray-900 border-l border-gray-800 flex flex-col shrink-0 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-800 flex justify-between items-center">
+        <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Notifications</h2>
+        <div class="flex gap-2">
+          <span class="text-[10px] text-gray-600" x-text="sseEvents.length + ' events'"></span>
+          <button @click="sseEvents = []" class="text-[10px] text-gray-600 hover:text-gray-400">Clear</button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto p-3 space-y-2">
+        <template x-for="(evt, i) in sseEvents" :key="evt.id || i">
+          <div class="fade-in bg-gray-800/60 border border-gray-700/50 rounded-lg p-2.5 text-xs">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-medium px-1.5 py-0.5 rounded text-[10px]"
+                    :class="sseEventColor(evt.type)"
+                    x-text="evt.type"></span>
+              <span class="text-gray-600 font-mono text-[10px]" x-text="evt.time"></span>
+            </div>
+            <pre class="text-gray-400 mt-1 max-h-20 overflow-y-auto text-[11px]" x-text="typeof evt.data === 'string' ? evt.data : JSON.stringify(evt.data, null, 2)"></pre>
+            <div x-show="evt.type === 'approval_request' && evt.data?.approvalId" class="flex gap-1.5 mt-2">
+              <button @click="quickApprove(evt.data)" class="flex-1 bg-emerald-700/80 hover:bg-emerald-700 text-white text-[10px] py-1 rounded transition">Approve</button>
+              <button @click="quickReject(evt.data)" class="flex-1 bg-red-700/80 hover:bg-red-700 text-white text-[10px] py-1 rounded transition">Reject</button>
+            </div>
+          </div>
+        </template>
+        <p x-show="sseEvents.length === 0" class="text-gray-600 text-xs italic text-center mt-8">
+          No events yet. Connect SSE to start streaming.
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const NAV_ITEMS = [
+      { view: 'overview', label: 'Overview', icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>' },
+      { view: 'incidents', label: 'Incidents', icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"/><path d="M12 15.75h.007v.008H12v-.008z"/></svg>' },
+      { view: 'investigation', label: 'Investigation', icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>' },
+      { view: 'remediation', label: 'Remediation', icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M11.42 15.17l-5.657-5.657a8 8 0 1111.314 0l-5.657 5.657z"/><path d="M11.42 15.17L6 21h12l-5.42-5.83z"/></svg>' },
+      { view: 'services', label: 'Services', icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7"/></svg>' },
+      { view: 'knowledge', label: 'Knowledge', icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>' },
+      { view: 'settings', label: 'Settings', icon: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' },
+    ];
+
+    function dashboard() {
+      let saved = localStorage.getItem('causeflow_config');
+      const detectedUrl = window.location.origin;
+      const defaultConfig = { baseUrl: detectedUrl, jwtSecret: 'dev-secret-DO-NOT-USE-IN-PRODUCTION', tenantId: '' };
+      // Fix stale secret — force to current default if different
+      if (saved) { const p = JSON.parse(saved); if (p.jwtSecret && p.jwtSecret !== defaultConfig.jwtSecret) { p.jwtSecret = defaultConfig.jwtSecret; localStorage.setItem('causeflow_config', JSON.stringify(p)); saved = localStorage.getItem('causeflow_config'); } }
+      const config = saved ? { ...defaultConfig, ...JSON.parse(saved), baseUrl: detectedUrl } : defaultConfig;
+
+      return {
+        navItems: NAV_ITEMS,
+        currentView: 'overview',
+        config,
+        jwt: null,
+        sseConnected: false,
+        sseReader: null,
+        sseEvents: [],
+        toasts: [],
+        toastCounter: 0,
+        pendingApprovalCount: 0,
+        drawerOpen: false,
+        relayConnected: false,
+        relayResources: [],
+        tenantList: [],
+
+        viewTitle() {
+          const t = { overview: 'Overview', incidents: 'Incidents', investigation: 'Investigation', remediation: 'Remediation', services: 'Services', knowledge: 'Knowledge', settings: 'Settings' };
+          return t[this.currentView] || '';
+        },
+
+        navigate(view) { this.currentView = view; },
+
+        saveConfig() { localStorage.setItem('causeflow_config', JSON.stringify(this.config)); },
+
+        async loadTenantList() {
+          let data;
+          if (!this.config.tenantId) {
+            const secret = new TextEncoder().encode(this.config.jwtSecret);
+            const bJwt = await new window.jose.SignJWT({ tenant_id: 'bootstrap', email: 'admin@causeflow.ai', roles: ['admin'] })
+              .setProtectedHeader({ alg: 'HS256' }).setSubject('dashboard-user').setIssuer('causeflow').setAudience('causeflow-api').setExpirationTime('1h').sign(secret);
+            try { const r = await fetch(`${this.config.baseUrl}/v1/tenants`, { headers: { 'Authorization': `Bearer ${bJwt}` } }); if (r.ok) data = await r.json(); } catch {}
+          } else {
+            data = await this.api('GET', '/v1/tenants');
+          }
+          if (data) {
+            this.tenantList = data.items || data || [];
+            if (!this.config.tenantId && this.tenantList.length > 0) {
+              this.config.tenantId = this.tenantList[0].tenantId;
+              this.saveConfig();
+              await this.generateJWT();
+              if (!this.sseConnected) this.connectSSE();
+            }
+          }
+        },
+
+        showToast(message, type = 'success') {
+          const id = ++this.toastCounter;
+          this.toasts.push({ id, message, type });
+          if (this.toasts.length > 5) this.toasts.shift();
+          setTimeout(() => this.removeToast(id), 5000);
+        },
+
+        removeToast(id) { this.toasts = this.toasts.filter(t => t.id !== id); },
+
+        renderMarkdown(content) {
+          if (!content) return '';
+          const text = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+          if (typeof marked !== 'undefined' && marked.parse) {
+            try { return marked.parse(text, { breaks: true, gfm: true }); } catch { return text.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>'); }
+          }
+          return text.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        },
+
+        async generateJWT() {
+          const secret = new TextEncoder().encode(this.config.jwtSecret);
+          const jwt = await new window.jose.SignJWT({ tenant_id: this.config.tenantId, email: 'admin@causeflow.ai', roles: ['admin'] })
+            .setProtectedHeader({ alg: 'HS256' })
+            .setSubject('dashboard-user')
+            .setIssuer('causeflow')
+            .setAudience('causeflow-api')
+            .setExpirationTime('1h')
+            .sign(secret);
+          this.jwt = jwt;
+          return jwt;
+        },
+
+        async api(method, path, body = null, { silent = false } = {}) {
+          if (!this.jwt) await this.generateJWT();
+          const opts = { method, headers: { 'Authorization': `Bearer ${this.jwt}`, 'Content-Type': 'application/json' } };
+          if (body) opts.body = JSON.stringify(body);
+          try {
+            const res = await fetch(`${this.config.baseUrl}${path}`, opts);
+            const text = await res.text();
+            let data;
+            try { data = JSON.parse(text); } catch { data = { raw: text }; }
+            if (!res.ok) { if (!silent) this.showToast(`Error ${res.status}: ${data.message || data.error || text}`, 'error'); return null; }
+            return data;
+          } catch (err) { if (!silent) this.showToast(`Network error: ${err.message}`, 'error'); return null; }
+        },
+
+        async connectSSE() {
+          if (this.sseConnected) { this.disconnectSSE(); return; }
+          if (!this.jwt) await this.generateJWT();
+          try {
+            const res = await fetch(`${this.config.baseUrl}/v1/notifications/stream`, { headers: { 'Authorization': `Bearer ${this.jwt}` } });
+            if (!res.ok) { this.showToast(`SSE failed: ${res.status}`, 'error'); return; }
+            this.sseConnected = true;
+            this.showToast('SSE connected');
+            const reader = res.body.getReader();
+            this.sseReader = reader;
+            const decoder = new TextDecoder();
+            let buffer = '';
+            const read = async () => {
+              try {
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) { this.sseConnected = false; this.showToast('SSE disconnected', 'warning'); break; }
+                  buffer += decoder.decode(value, { stream: true });
+                  const messages = buffer.split('\n\n');
+                  buffer = messages.pop();
+                  for (const msg of messages) this.parseSSEMessage(msg);
+                }
+              } catch (err) { this.sseConnected = false; this.showToast(`SSE error: ${err.message}`, 'error'); }
+            };
+            read();
+          } catch (err) { this.showToast(`SSE connection error: ${err.message}`, 'error'); }
+        },
+
+        disconnectSSE() {
+          if (this.sseReader) { this.sseReader.cancel(); this.sseReader = null; }
+          this.sseConnected = false;
+          this.showToast('SSE disconnected');
+        },
+
+        parseSSEMessage(msg) {
+          let eventType = 'message', data = '';
+          for (const line of msg.split('\n')) {
+            if (line.startsWith('event: ')) eventType = line.slice(7).trim();
+            else if (line.startsWith('data: ')) data = line.slice(6);
+          }
+          if (!data) return;
+          let parsed;
+          try { parsed = JSON.parse(data); } catch { parsed = data; }
+          const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          this.sseEvents.unshift({ type: eventType, data: parsed, time, id: Date.now() + Math.random() });
+          if (this.sseEvents.length > 100) this.sseEvents.pop();
+          this.handleSSEEvent(eventType, parsed);
+        },
+
+        handleSSEEvent(type, data) {
+          if (type === 'investigation_progress') this.showToast(`Investigation progress: ${data.agent || data.step || ''}`, 'info');
+          else if (type === 'investigation_completed') this.showToast('Investigation completed', 'success');
+          else if (type === 'approval_request') { this.pendingApprovalCount++; this.showToast('New approval request', 'warning'); }
+          else if (type === 'remediation_proposed') this.showToast('Remediation proposed', 'info');
+          else if (type === 'remediation_approved' || type === 'remediation.approved') this.showToast('Remediation approved', 'success');
+          else if (type === 'remediation_rejected' || type === 'remediation.rejected') this.showToast('Remediation rejected', 'warning');
+          else if (type === 'remediation_executed' || type === 'remediation.executed') this.showToast('Remediation executed', 'success');
+          else if (type === 'triage_completed') this.showToast('Triage completed', 'info');
+          else if (type === 'incident_created') this.showToast('New incident created', 'warning');
+        },
+
+        sseEventColor(type) {
+          const m = {
+            investigation_progress: 'bg-blue-900/60 text-blue-300', investigation_completed: 'bg-emerald-900/60 text-emerald-300',
+            approval_request: 'bg-amber-900/60 text-amber-300', triage_completed: 'bg-purple-900/60 text-purple-300',
+            incident_created: 'bg-red-900/60 text-red-300', remediation_proposed: 'bg-orange-900/60 text-orange-300',
+            remediation_approved: 'bg-emerald-900/60 text-emerald-300', remediation_rejected: 'bg-red-900/60 text-red-300',
+            remediation_executed: 'bg-cyan-900/60 text-cyan-300',
+          };
+          return m[type] || 'bg-gray-700/60 text-gray-300';
+        },
+
+        async quickApprove(data) {
+          if (!data.approvalId) return;
+          await this.api('POST', `/v1/notifications/approvals/${data.approvalId}/respond`, { action: 'approve' });
+          this.showToast('Approved', 'success');
+          this.pendingApprovalCount = Math.max(0, this.pendingApprovalCount - 1);
+        },
+
+        async quickReject(data) {
+          if (!data.approvalId) return;
+          await this.api('POST', `/v1/notifications/approvals/${data.approvalId}/respond`, { action: 'reject' });
+          this.showToast('Rejected', 'warning');
+          this.pendingApprovalCount = Math.max(0, this.pendingApprovalCount - 1);
+        },
+
+        async loadRelayStatus() {
+          const data = await this.api('GET', '/v1/relay/status', null, { silent: true });
+          if (data) { this.relayConnected = data.connected; this.relayResources = data.resources || []; }
+        },
+
+        formatAction(action) {
+          if (!action) return '';
+          const labels = {
+            restart_service: 'Restart Service', increase_pool_size: 'Increase Connection Pool',
+            enable_connection_timeout: 'Enable Connection Timeout', scale_database: 'Scale Database',
+            rollback_deployment: 'Rollback Deployment', scale_up: 'Scale Up', scale_down: 'Scale Down',
+            run_migration: 'Run Migration', clear_cache: 'Clear Cache', update_config: 'Update Configuration',
+            create_pr: 'Create Pull Request', apply_fix: 'Apply Code Fix', run_tests: 'Run Tests',
+            notify_team: 'Notify Team', enable_circuit_breaker: 'Enable Circuit Breaker',
+            add_index: 'Add Database Index', optimize_query: 'Optimize Query',
+            increase_memory: 'Increase Memory', increase_cpu: 'Increase CPU',
+            add_replica: 'Add Replica', enable_retry: 'Enable Retry Logic',
+            update_timeout: 'Update Timeout', rotate_credentials: 'Rotate Credentials',
+            create_fix_pr: 'Create Fix Pull Request', apply_code_fix: 'Apply Code Fix',
+            deploy_fix: 'Deploy Fix', verify_fix: 'Verify Fix', monitor_recovery: 'Monitor Recovery',
+          };
+          return labels[action] || action.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        },
+
+        hasParams(params) {
+          return params && typeof params === 'object' && Object.keys(params).length > 0;
+        },
+
+        formatParams(params) {
+          if (!this.hasParams(params)) return '';
+          return Object.entries(params)
+            .filter(([k, v]) => v !== null && v !== undefined && v !== '')
+            .map(([k, v]) => {
+              const label = k.replace(/_/g, ' ');
+              if (typeof v === 'object') return `${label}: ${JSON.stringify(v).length > 80 ? '[complex]' : JSON.stringify(v)}`;
+              return `${label}: ${v}`;
+            }).join(' · ');
+        },
+
+        stepIcon(status) {
+          if (status === 'completed') return '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>';
+          if (status === 'running') return '<svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>';
+          if (status === 'failed') return '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M6 18L18 6M6 6l12 12"/></svg>';
+          return '';
+        },
+
+        async init() {
+          this.saveConfig();
+          try {
+            // Auto-discover tenants if none configured
+            if (!this.config.tenantId) {
+              const secret = new TextEncoder().encode(this.config.jwtSecret);
+              const bootstrapJwt = await new window.jose.SignJWT({ tenant_id: 'bootstrap', email: 'admin@causeflow.ai', roles: ['admin'] })
+                .setProtectedHeader({ alg: 'HS256' }).setSubject('dashboard-user').setIssuer('causeflow').setAudience('causeflow-api').setExpirationTime('1h').sign(secret);
+              try {
+                const res = await fetch(`${this.config.baseUrl}/v1/tenants`, { headers: { 'Authorization': `Bearer ${bootstrapJwt}` } });
+                if (res.ok) {
+                  const tenants = await res.json();
+                  const list = tenants.items || tenants || [];
+                  this.tenantList = list;
+                  if (list.length > 0) {
+                    this.config.tenantId = list[0].tenantId;
+                    this.saveConfig();
+                  }
+                }
+              } catch {}
+            }
+            await this.generateJWT();
+            // Load tenant list if not yet loaded
+            if (this.tenantList.length === 0 && this.config.tenantId) {
+              try {
+                const data = await this.api('GET', '/v1/tenants');
+                if (data) this.tenantList = data.items || data || [];
+              } catch {}
+            }
+            const [approvals, relay] = await Promise.allSettled([
+              this.api('GET', '/v1/notifications/approvals/pending'),
+              this.api('GET', '/v1/relay/status'),
+            ]);
+            if (approvals.status === 'fulfilled' && approvals.value) this.pendingApprovalCount = approvals.value.items?.length || approvals.value.length || 0;
+            if (relay.status === 'fulfilled' && relay.value) { this.relayConnected = relay.value.connected; this.relayResources = relay.value.resources || []; }
+            // Auto-connect SSE
+            if (!this.sseConnected) this.connectSSE();
+          } catch {}
+        },
+      };
+    }
+
+    function chaosPanel() {
+      const BILLING_SERVICE_URL = 'http://localhost:3300';
+      const MARKETPLACE_ORDER_URL = 'http://localhost:3500';
+      const MARKETPLACE_FULFILLMENT_URL = 'http://localhost:3600';
+      const NOTIFICATION_SERVICE_URL = 'http://localhost:3700';
+
+      return {
+        billingRunning: false,
+        billingInvestigating: false,
+        billingStatus: null,
+        billingResult: null,
+        marketplaceRunning: false,
+        marketplaceInvestigating: false,
+        marketplaceStatus: null,
+        marketplaceResult: null,
+        techcorpRunning: false,
+        techcorpInvestigating: false,
+        techcorpStatus: null,
+        techcorpResult: null,
+        currentTenantSlug: '',
+
+        resolveTenantSlug() {
+          const tid = this.config.tenantId;
+          if (!tid) { this.currentTenantSlug = ''; return; }
+          const found = this.tenantList.find(t => t.tenantId === tid);
+          if (found) { this.currentTenantSlug = found.slug; return; }
+          // Fallback: fetch tenant directly (async, updates on completion)
+          this.api('GET', `/v1/tenants/${tid}`, null, { silent: true }).then(data => {
+            if (data?.slug) this.currentTenantSlug = data.slug;
+          });
+        },
+
+        async triggerBilling() {
+          this.billingRunning = true;
+          this.billingResult = null;
+          try {
+            const res = await fetch(`${BILLING_SERVICE_URL}/admin/run-billing-cycle`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ month: new Date().toISOString().slice(0, 7) }),
+            });
+            const data = await res.json();
+            const rows = data.summary || [];
+            const totalInvoices = rows.reduce((s, r) => s + parseInt(r.count), 0);
+            const totalCents = rows.reduce((s, r) => s + parseInt(r.total_cents), 0);
+            this.billingResult = `Month: ${data.month} | Status: ${data.status}\n` +
+              rows.map(s => `  ${s.status}: ${s.count} invoices ($${(parseInt(s.total_cents) / 100).toFixed(2)})`).join('\n') +
+              `\n\n⚠ ${totalInvoices} invoices for 3 subscriptions — enterprise was double-billed!` +
+              `\n  Total collected: $${(totalCents / 100).toFixed(2)} (enterprise $299 charged twice)`;
+            this.billingStatus = 'triggered';
+            this.showToast('Billing cycle executed — double-billing detected', 'warning');
+          } catch (err) {
+            this.billingResult = `Error: ${err.message}`;
+            this.showToast('Failed to trigger billing cycle', 'error');
+          }
+          this.billingRunning = false;
+        },
+
+        async investigateBilling() {
+          this.billingInvestigating = true;
+          const data = await this.api('POST', '/v1/incidents/chat', {
+            title: 'Enterprise customer double-billed after monthly billing cycle',
+            description: 'An enterprise customer reported being charged twice for the same billing month. The billing cycle shows 4 invoices for only 3 subscriptions. Suspect the payment gateway retry logic is creating duplicate charges for enterprise-plan subscribers. Need to query the billing database to find duplicate invoices and trace the payment gateway interaction.',
+            severity: 'high',
+          });
+          if (data?.incidentId) {
+            this.billingStatus = 'investigating';
+            this.showToast('Investigation started — check Incidents view', 'success');
+            this.navigate('incidents');
+          }
+          this.billingInvestigating = false;
+        },
+
+        async triggerMarketplace() {
+          this.marketplaceRunning = true;
+          this.marketplaceResult = null;
+          try {
+            // Step 1: Create order with 5 items (qty>1) — triggers ALL 3 bugs:
+            //   Bug 1: totalCents sums priceCents without multiplying by quantity
+            //   Bug 2: fulfillment always ships quantity=1 per item
+            //   Bug 3: items.slice(i, BATCH_SIZE) instead of slice(i, i+BATCH_SIZE) — loses items >3
+            const orderRes = await fetch(`${MARKETPLACE_ORDER_URL}/orders`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: 'customer@example.com',
+                items: [
+                  { productId: 'prod-elec-001', quantity: 3 },
+                  { productId: 'prod-elec-002', quantity: 5 },
+                  { productId: 'prod-acc-001', quantity: 2 },
+                  { productId: 'prod-acc-002', quantity: 4 },
+                  { productId: 'prod-acc-003', quantity: 1 },
+                ],
+              }),
+            });
+            const order = await orderRes.json();
+
+            // Bug: sums unit prices only. Correct: multiply by qty
+            const expectedCents = (249900*3) + (14900*5) + (2990*2) + (4990*4) + (1490*1);
+
+            // Step 2: Run reconciliation (detects shipment item mismatch)
+            const reconRes = await fetch(`${MARKETPLACE_FULFILLMENT_URL}/shipments/reconcile`, { method: 'POST' });
+            const recon = await reconRes.json();
+
+            const diff = Math.abs(expectedCents - (order.totalCents || 0));
+            this.marketplaceResult = `Order: ${order.orderId?.slice(0, 12) || 'N/A'}...\n` +
+              `Charged:  $${((order.totalCents || 0) / 100).toFixed(2)}\n` +
+              `Expected: $${(expectedCents / 100).toFixed(2)}\n` +
+              (diff > 0 ? `⚠ Under-charged by $${(diff / 100).toFixed(2)} (quantity ignored)\n` : '') +
+              `\nReconciliation (${recon.totalShipments} shipments):\n` +
+              (recon.mismatches > 0
+                ? (recon.details || []).map(d => `  ⚠ ${d.shipmentId.slice(0, 8)}... expected ${d.expected} items, shipped ${d.actual}`).join('\n')
+                : '  All shipments match (run with >3 items to see slice bug)');
+            this.marketplaceStatus = 'triggered';
+            this.showToast('Order created with bugs — reconciliation shows mismatches', 'warning');
+          } catch (err) {
+            this.marketplaceResult = `Error: ${err.message}`;
+            this.showToast('Failed to trigger marketplace scenario', 'error');
+          }
+          this.marketplaceRunning = false;
+        },
+
+        async investigateMarketplace() {
+          this.marketplaceInvestigating = true;
+          const data = await this.api('POST', '/v1/incidents/chat', {
+            title: 'Customers reporting incorrect order totals and missing items in shipments',
+            description: 'Multiple customers are reporting that their order totals do not match expected prices when ordering multiple quantities. Additionally, the fulfillment reconciliation is detecting item count mismatches — shipments have fewer items than the original orders. CloudWatch logs in /ecs/order-api and /ecs/fulfillment-api show warnings. Need to investigate order creation and fulfillment pipelines.',
+            severity: 'high',
+          });
+          if (data?.incidentId) {
+            this.marketplaceStatus = 'investigating';
+            this.showToast('Investigation started — check Incidents view', 'success');
+            this.navigate('incidents');
+          }
+          this.marketplaceInvestigating = false;
+        },
+
+        async triggerTechcorp() {
+          this.techcorpRunning = true;
+          this.techcorpResult = null;
+          try {
+            const res = await fetch(`${NOTIFICATION_SERVICE_URL}/admin/trigger-push-storm`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ count: 50 }),
+            });
+            const data = await res.json();
+            this.techcorpResult = `Push Storm Initiated\n` +
+              `Total: ${data.total} notifications\n` +
+              `Concurrency: ${data.concurrency}\n` +
+              `Push Failure Rate: ${(data.pushFailureRate * 100).toFixed(0)}%\n\n` +
+              `⚠ ${data.warning}`;
+            this.techcorpStatus = 'triggered';
+            this.showToast('Push storm triggered — retry loops are running', 'warning');
+          } catch (err) {
+            this.techcorpResult = `Error: ${err.message}`;
+            this.showToast('Failed to trigger push storm', 'error');
+          }
+          this.techcorpRunning = false;
+        },
+
+        async investigateTechcorp() {
+          this.techcorpInvestigating = true;
+          const data = await this.api('POST', '/v1/incidents/chat', {
+            title: 'Push notifications stuck in infinite retry loop — email delivery delayed',
+            description: 'The notification service is experiencing infinite push retry loops. CloudWatch logs in /ecs/notification-service show "Push retry attempt 1" repeating indefinitely for failed push notifications. The push queue depth is growing unbounded, causing backpressure that delays email delivery. The retry counter appears to never increment past 1, suggesting a variable scoping issue in the retry logic. Please check Notion for architecture docs and runbooks, Shortcut for any related stories or bugs, and Trello for on-call info and post-mortems about similar incidents.',
+            severity: 'high',
+          });
+          if (data?.incidentId) {
+            this.techcorpStatus = 'investigating';
+            this.showToast('Investigation started — agent will check Notion/Shortcut/Trello', 'success');
+            this.navigate('incidents');
+          }
+          this.techcorpInvestigating = false;
+        },
+      };
+    }
+
+    function oauthSection() {
+      return {
+        providers: [
+          { provider: 'notion', connected: false, workspace: '', tokenInput: '', apiKeyInput: '' },
+          { provider: 'shortcut', connected: false, workspace: '', tokenInput: '', apiKeyInput: '' },
+          { provider: 'trello', connected: false, workspace: '', tokenInput: '', apiKeyInput: '' },
+        ],
+        resetAndReload() {
+          for (const p of this.providers) { p.connected = false; p.workspace = ''; p.tokenInput = ''; p.apiKeyInput = ''; }
+          this.loadOAuthStatus();
+        },
+        async loadOAuthStatus() {
+          try {
+            const data = await this.api('GET', '/v1/integrations/oauth/status', null, { silent: true });
+            if (data?.integrations) {
+              for (const p of this.providers) {
+                const remote = data.integrations.find(r => r.provider === p.provider);
+                if (remote) {
+                  p.connected = remote.connected;
+                  p.workspace = remote.workspace || remote.accountName || '';
+                }
+              }
+            }
+          } catch {
+            // OAuth status endpoint may not exist yet
+          }
+        },
+        async connectProvider(provider) {
+          // Shortcut: API Token (1 field)
+          if (provider === 'shortcut') {
+            const p = this.providers.find(x => x.provider === provider);
+            if (!p?.tokenInput) { this.showToast('Paste your Shortcut API token first', 'error'); return; }
+            try {
+              await this.api('POST', `/v1/integrations/oauth/${provider}/token`, { apiToken: p.tokenInput });
+              p.connected = true;
+              p.tokenInput = '';
+              this.showToast('Shortcut connected (token encrypted)', 'success');
+            } catch { this.showToast('Failed to save Shortcut token', 'error'); }
+            return;
+          }
+          // Trello: API Key + Token (2 fields)
+          if (provider === 'trello') {
+            const p = this.providers.find(x => x.provider === provider);
+            if (!p?.apiKeyInput || !p?.tokenInput) { this.showToast('Paste both Trello API Key and Token', 'error'); return; }
+            try {
+              await this.api('POST', `/v1/integrations/oauth/${provider}/token`, { apiToken: p.tokenInput, apiKey: p.apiKeyInput });
+              p.connected = true;
+              p.tokenInput = '';
+              p.apiKeyInput = '';
+              this.showToast('Trello connected (credentials encrypted)', 'success');
+            } catch { this.showToast('Failed to save Trello credentials', 'error'); }
+            return;
+          }
+          // Notion: OAuth redirect
+          window.location.href = `${this.config.baseUrl}/v1/integrations/oauth/${provider}/authorize?tenant_id=${this.config.tenantId}`;
+        },
+        async disconnectProvider(provider) {
+          try {
+            await this.api('DELETE', `/v1/integrations/oauth/${provider}`);
+            const p = this.providers.find(x => x.provider === provider);
+            if (p) { p.connected = false; p.workspace = ''; }
+            this.showToast(`${provider} disconnected`, 'info');
+          } catch (err) {
+            this.showToast(`Failed to disconnect ${provider}`, 'error');
+          }
+        },
+      };
+    }
+
+    function overviewView() {
+      return {
+        healthStats: { healthy: 0, degraded: 0, unhealthy: 0 },
+        incidentStats: { total: 0, critical: 0, high: 0, medium: 0, low: 0 },
+        recentChanges: [],
+        async loadOverview() {
+          const [health, analytics, changes] = await Promise.allSettled([
+            this.api('GET', '/v1/graph/health'),
+            this.api('GET', '/v1/analytics/incidents'),
+            this.api('GET', '/v1/graph/changes?limit=5'),
+          ]);
+          if (health.status === 'fulfilled' && health.value) {
+            const h = health.value;
+            this.healthStats = {
+              healthy: h.healthy ?? h.services?.filter(s => s.health === 'healthy').length ?? 0,
+              degraded: h.degraded ?? h.services?.filter(s => s.health === 'degraded').length ?? 0,
+              unhealthy: h.unhealthy ?? h.services?.filter(s => s.health === 'unhealthy').length ?? 0,
+            };
+          }
+          if (analytics.status === 'fulfilled' && analytics.value) {
+            const a = analytics.value;
+            this.incidentStats = { total: a.total ?? a.open ?? 0, critical: a.bySeverity?.critical ?? 0, high: a.bySeverity?.high ?? 0, medium: a.bySeverity?.medium ?? 0, low: a.bySeverity?.low ?? 0 };
+          }
+          if (changes.status === 'fulfilled' && changes.value) this.recentChanges = changes.value.items || changes.value || [];
+        },
+      };
+    }
+
+    function incidentsView() {
+      return {
+        incidents: [], selectedIncident: null, filterSeverity: '', filterStatus: '',
+        showCreateModal: false, showContextModal: false,
+        newIncident: { title: '', description: '', severity: 'medium' },
+        contextText: '', reinvestigate: true, loaded: false,
+        severityColor(s) {
+          return { critical: 'bg-red-900 text-red-300', high: 'bg-orange-900 text-orange-300', medium: 'bg-yellow-900 text-yellow-300', low: 'bg-blue-900 text-blue-300' }[s] || 'bg-gray-700 text-gray-300';
+        },
+        statusColor(s) {
+          return { open: 'bg-red-900/60 text-red-300', triaging: 'bg-purple-900/60 text-purple-300', investigating: 'bg-blue-900/60 text-blue-300', awaiting_approval: 'bg-amber-900/60 text-amber-300', resolved: 'bg-emerald-900/60 text-emerald-300' }[s] || 'bg-gray-700 text-gray-300';
+        },
+        async loadIncidents() {
+          let path = '/v1/incidents?';
+          if (this.filterSeverity) path += `severity=${this.filterSeverity}&`;
+          if (this.filterStatus) path += `status=${this.filterStatus}&`;
+          const data = await this.api('GET', path);
+          if (data) { this.incidents = data.items || data || []; this.loaded = true; }
+        },
+        async selectIncident(inc) {
+          this.selectedIncident = { ...inc };
+          const data = await this.api('GET', `/v1/investigation/${inc.incidentId}`);
+          if (data?.incident) this.selectedIncident = { ...this.selectedIncident, ...data.incident };
+        },
+        async createIncident() {
+          const data = await this.api('POST', '/v1/incidents/chat', { title: this.newIncident.title, description: this.newIncident.description, severity: this.newIncident.severity });
+          if (data?.incidentId) {
+            this.showToast(`Incident created: ${data.incidentId.slice(0, 12)}...`);
+            this.newIncident = { title: '', description: '', severity: 'medium' };
+            this.showCreateModal = false;
+            await this.loadIncidents();
+          }
+        },
+        async sendContext() {
+          if (!this.selectedIncident?.incidentId || !this.contextText) return;
+          const data = await this.api('POST', `/v1/investigation/${this.selectedIncident.incidentId}/context`, { context: this.contextText, reinvestigate: this.reinvestigate });
+          if (data) { this.showToast('Context sent' + (this.reinvestigate ? ' — reinvestigation started' : '')); this.contextText = ''; this.showContextModal = false; }
+        },
+      };
+    }
+
+    function investigationView() {
+      return {
+        incidentList: [], incidentsLoaded: false,
+        investigation: null, remediation: null, targetIncidentId: null,
+        openAgents: [], showAddContext: false, contextText: '', reinvestigate: true, loaded: false,
+        severityColor(s) {
+          return { critical: 'bg-red-900 text-red-300', high: 'bg-orange-900 text-orange-300', medium: 'bg-yellow-900 text-yellow-300', low: 'bg-blue-900 text-blue-300' }[s] || 'bg-gray-700 text-gray-300';
+        },
+        statusColor(s) {
+          return { open: 'bg-red-900/60 text-red-300', triaging: 'bg-purple-900/60 text-purple-300', investigating: 'bg-blue-900/60 text-blue-300', awaiting_approval: 'bg-amber-900/60 text-amber-300', resolved: 'bg-emerald-900/60 text-emerald-300' }[s] || 'bg-gray-700 text-gray-300';
+        },
+        agentColor(name) {
+          const c = ['bg-indigo-400', 'bg-emerald-400', 'bg-amber-400', 'bg-rose-400', 'bg-cyan-400', 'bg-purple-400', 'bg-orange-400'];
+          let h = 0; for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+          return c[Math.abs(h) % c.length];
+        },
+        formatAgentName(n) { return n.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); },
+        toggleAgent(n) { const i = this.openAgents.indexOf(n); if (i >= 0) this.openAgents.splice(i, 1); else this.openAgents.push(n); },
+        async loadIncidentList() {
+          const data = await this.api('GET', '/v1/incidents?');
+          if (data) { this.incidentList = data.items || data || []; this.incidentsLoaded = true; }
+        },
+        async loadInvestigation(incidentId) {
+          if (!incidentId) return;
+          this.targetIncidentId = incidentId;
+          this.remediation = null;
+          const data = await this.api('GET', `/v1/investigation/${incidentId}`);
+          if (data) {
+            this.investigation = data;
+            const eba = data.evidenceByAgent || {};
+            let totalEvidence = 0, confSum = 0, confCount = 0;
+            for (const items of Object.values(eba)) {
+              if (Array.isArray(items)) {
+                totalEvidence += items.length;
+                for (const e of items) {
+                  const c = e.metadata?.confidence ?? e.confidence;
+                  if (c != null) { confSum += c; confCount++; }
+                }
+              }
+            }
+            this.investigation.totalEvidence = totalEvidence;
+            this.investigation.avgConfidence = confCount > 0 ? confSum / confCount : null;
+            const codeFixes = [];
+            for (const e of (eba['code_analyzer'] || [])) { if (e.type === 'code_fix' || e.type === 'proposed_fix') codeFixes.push({ repo: e.repo || '', summary: e.content || '', files: e.files || [] }); }
+            this.investigation.codeFixes = codeFixes;
+            this.loaded = true;
+            this.openAgents = Object.keys(eba);
+            // Auto-load remediation if awaiting approval
+            if (data.incident?.status === 'awaiting_approval' || data.incident?.status === 'resolved') {
+              const rem = await this.api('GET', `/v1/remediation/${incidentId}`);
+              if (rem) this.remediation = Array.isArray(rem) ? rem[0] : (rem.items ? rem.items[0] : rem);
+            }
+          }
+        },
+        async approveRemediation() {
+          if (!this.remediation?.remediationId) return;
+          await this.api('POST', `/v1/remediation/${this.remediation.remediationId}/approve`);
+          this.showToast('Remediation approved');
+          await this.loadInvestigation(this.targetIncidentId);
+        },
+        async rejectRemediation() {
+          if (!this.remediation?.remediationId) return;
+          await this.api('POST', `/v1/remediation/${this.remediation.remediationId}/reject`, { reason: 'Rejected via dashboard' });
+          this.showToast('Remediation rejected');
+          await this.loadInvestigation(this.targetIncidentId);
+        },
+        async executeRemediation() {
+          if (!this.remediation?.remediationId) return;
+          await this.api('POST', `/v1/remediation/${this.remediation.remediationId}/execute`);
+          this.showToast('Remediation execution started');
+          await this.loadInvestigation(this.targetIncidentId);
+        },
+        async confirmRCA() {
+          if (!this.targetIncidentId) return;
+          // Find pattern linked to this incident for confidence update
+          let patternId = null;
+          const patterns = await this.api('GET', '/v1/knowledge');
+          if (patterns?.items) {
+            const match = patterns.items.find(p => p.sourceIncidents?.includes(this.targetIncidentId));
+            if (match) patternId = match.patternId;
+          }
+          const payload = { incidentId: this.targetIncidentId, type: 'confirm_rca', actor: 'dashboard' };
+          if (patternId) payload.patternId = patternId;
+          await this.api('POST', '/v1/knowledge/feedback', payload);
+          const currentStatus = this.investigation?.incident?.status;
+          if (currentStatus && currentStatus !== 'resolved') {
+            await this.api('PATCH', `/v1/incidents/${this.targetIncidentId}`, { status: 'resolved' });
+          }
+          this.showToast(patternId ? 'RCA confirmed — pattern confidence updated' : 'RCA confirmed');
+          await this.loadIncidentList();
+        },
+        async rejectRCA() {
+          if (!this.targetIncidentId) return;
+          // Send reject feedback with pattern linkage
+          let patternId = null;
+          const patterns = await this.api('GET', '/v1/knowledge');
+          if (patterns?.items) {
+            const match = patterns.items.find(p => p.sourceIncidents?.includes(this.targetIncidentId));
+            if (match) patternId = match.patternId;
+          }
+          const payload = { incidentId: this.targetIncidentId, type: 'reject_rca', actor: 'dashboard' };
+          if (patternId) payload.patternId = patternId;
+          await this.api('POST', '/v1/knowledge/feedback', payload);
+          await this.api('POST', `/v1/investigation/${this.targetIncidentId}/context`, { context: 'Root cause analysis rejected. Please reinvestigate with different approach.', reinvestigate: true });
+          this.showToast(patternId ? 'RCA rejected — pattern confidence reduced' : 'RCA rejected — reinvestigation requested');
+        },
+        async sendContext() {
+          if (!this.targetIncidentId || !this.contextText) return;
+          await this.api('POST', `/v1/investigation/${this.targetIncidentId}/context`, { context: this.contextText, reinvestigate: this.reinvestigate });
+          this.showToast('Context sent'); this.contextText = ''; this.showAddContext = false;
+        },
+      };
+    }
+
+    function remediationView() {
+      return {
+        remediation: null, inputIncidentId: '',
+        remStatusColor(s) {
+          return { proposed: 'bg-amber-900 text-amber-300', approved: 'bg-blue-900 text-blue-300', rejected: 'bg-red-900 text-red-300', executing: 'bg-purple-900 text-purple-300', executed: 'bg-emerald-900 text-emerald-300', failed: 'bg-red-900 text-red-300' }[s] || 'bg-gray-700 text-gray-300';
+        },
+        async loadRemediation(incidentId) {
+          if (!incidentId) return;
+          this.inputIncidentId = incidentId;
+          const data = await this.api('GET', `/v1/remediation/${incidentId}`);
+          if (data) this.remediation = Array.isArray(data) ? data[0] : (data.items ? data.items[0] : data);
+        },
+        async approveRemediation() {
+          if (!this.remediation?.remediationId) return;
+          await this.api('POST', `/v1/remediation/${this.remediation.remediationId}/approve`);
+          this.showToast('Remediation approved'); await this.loadRemediation(this.inputIncidentId);
+        },
+        async rejectRemediation() {
+          if (!this.remediation?.remediationId) return;
+          await this.api('POST', `/v1/remediation/${this.remediation.remediationId}/reject`, { reason: 'Rejected via dashboard' });
+          this.showToast('Remediation rejected'); await this.loadRemediation(this.inputIncidentId);
+        },
+        async executeRemediation() {
+          if (!this.remediation?.remediationId) return;
+          await this.api('POST', `/v1/remediation/${this.remediation.remediationId}/execute`);
+          this.showToast('Remediation execution started'); await this.loadRemediation(this.inputIncidentId);
+        },
+      };
+    }
+
+    function servicesView() {
+      return {
+        services: [], filteredServices: [], selectedService: null, blastRadius: null, serviceEdges: [], serviceChanges: [],
+        filterHealth: '', searchTerm: '', healthCounts: { healthy: 0, degraded: 0, unhealthy: 0 }, loaded: false,
+        async loadServices() {
+          const [graphData, healthData] = await Promise.allSettled([this.api('GET', '/v1/graph'), this.api('GET', '/v1/graph/health')]);
+          let nodes = [];
+          if (graphData.status === 'fulfilled' && graphData.value) nodes = graphData.value.nodes || graphData.value.items || graphData.value || [];
+          if (healthData.status === 'fulfilled' && healthData.value) {
+            const hMap = {};
+            for (const s of (healthData.value.services || healthData.value || [])) { if (s.serviceId) hMap[s.serviceId] = s.health || 'unknown'; }
+            for (const n of nodes) { if (hMap[n.serviceId]) n.health = hMap[n.serviceId]; }
+          }
+          this.services = nodes;
+          this.applyFilter();
+          this.healthCounts = { healthy: nodes.filter(s => s.health === 'healthy').length, degraded: nodes.filter(s => s.health === 'degraded').length, unhealthy: nodes.filter(s => s.health === 'unhealthy' || s.health === 'unknown').length };
+          this.loaded = true;
+        },
+        applyFilter() {
+          let list = this.services;
+          if (this.filterHealth) list = list.filter(s => s.health === this.filterHealth);
+          if (this.searchTerm) list = list.filter(s => s.serviceId?.toLowerCase().includes(this.searchTerm.toLowerCase()));
+          this.filteredServices = list;
+        },
+        async selectService(svc) {
+          this.selectedService = svc; this.blastRadius = null; this.serviceEdges = []; this.serviceChanges = [];
+          const [br, edges, changes] = await Promise.allSettled([
+            this.api('GET', `/v1/graph/blast-radius/${svc.serviceId}`),
+            this.api('GET', '/v1/graph/edges'),
+            this.api('GET', `/v1/graph/changes?serviceId=${svc.serviceId}&limit=5`),
+          ]);
+          if (br.status === 'fulfilled' && br.value) this.blastRadius = br.value;
+          if (edges.status === 'fulfilled' && edges.value) { const all = edges.value.items || edges.value || []; this.serviceEdges = all.filter(e => e.sourceId === svc.serviceId || e.targetId === svc.serviceId); }
+          if (changes.status === 'fulfilled' && changes.value) this.serviceChanges = changes.value.items || changes.value || [];
+        },
+      };
+    }
+
+    function knowledgeView() {
+      return {
+        patterns: [], selectedPattern: null, filterStatus: '', filterConfidence: 0,
+        feedbackType: 'confirm_rca', feedbackText: '', loaded: false,
+        async loadPatterns() {
+          let path = '/v1/knowledge/patterns?';
+          if (this.filterStatus) path += `status=${this.filterStatus}&`;
+          if (this.filterConfidence) path += `minConfidence=${this.filterConfidence}&`;
+          const data = await this.api('GET', path);
+          if (data) { this.patterns = data.items || data || []; this.loaded = true; }
+        },
+        async selectPattern(pat) {
+          this.selectedPattern = pat;
+          if (pat.patternId) { const detail = await this.api('GET', `/v1/knowledge/${pat.patternId}`); if (detail) this.selectedPattern = detail; }
+        },
+        async sendFeedback() {
+          if (!this.selectedPattern?.patternId) return;
+          await this.api('POST', '/v1/knowledge/feedback', { patternId: this.selectedPattern.patternId, type: this.feedbackType, comment: this.feedbackText, actor: 'dashboard', channel: 'dashboard' });
+          this.showToast('Feedback sent'); this.feedbackText = '';
+        },
+      };
+    }
+
+    function settingsView() {
+      return {
+        tenant: null, repos: [], suggestions: [], tenantList: [],
+        async init() {
+          await this.loadTenantList();
+          if (this.config.tenantId) {
+            await Promise.all([this.loadTenant(), this.loadRepos(), this.loadRelayStatus()]);
+          }
+        },
+        // OAuth status is loaded by the oauthSection x-data component separately
+        async loadTenantList() {
+          // Bootstrap: if no tenant selected, use a temporary JWT with dummy tenant_id
+          let data;
+          if (!this.config.tenantId) {
+            const secret = new TextEncoder().encode(this.config.jwtSecret);
+            const bootstrapJwt = await new window.jose.SignJWT({ tenant_id: 'bootstrap', email: 'admin@causeflow.ai', roles: ['admin'] })
+              .setProtectedHeader({ alg: 'HS256' }).setSubject('dashboard-user').setIssuer('causeflow').setAudience('causeflow-api').setExpirationTime('1h').sign(secret);
+            try {
+              const res = await fetch(`${this.config.baseUrl}/v1/tenants`, { headers: { 'Authorization': `Bearer ${bootstrapJwt}` } });
+              if (res.ok) data = await res.json();
+            } catch {}
+          } else {
+            data = await this.api('GET', '/v1/tenants');
+          }
+          if (data) {
+            this.tenantList = data.items || data || [];
+            // Auto-select first tenant if none selected
+            if (!this.config.tenantId && this.tenantList.length > 0) {
+              this.config.tenantId = this.tenantList[0].tenantId;
+              this.saveConfig();
+              await this.generateJWT();
+              if (!this.sseConnected) this.connectSSE();
+            }
+          }
+        },
+        async loadTenant() { const data = await this.api('GET', `/v1/tenants/${this.config.tenantId}`); if (data) this.tenant = data; },
+        async saveTenant() {
+          if (!this.tenant) return;
+          const data = await this.api('PATCH', `/v1/tenants/${this.config.tenantId}`, { name: this.tenant.name, settings: this.tenant.settings });
+          if (data) this.showToast('Tenant updated');
+        },
+        async testConnection() { const data = await this.api('GET', '/health'); if (data) this.showToast(`Connected — ${data.status}`, data.status === 'up' ? 'success' : 'warning'); },
+        async loadRepos() { const data = await this.api('GET', '/v1/code-knowledge/repos'); if (data) this.repos = data.items || data || []; },
+        async suggestMappings() { const data = await this.api('GET', '/v1/code-knowledge/repo-suggestions'); if (data) this.suggestions = data.items || data || []; },
+        async applyMapping(s) {
+          await this.api('POST', '/v1/code-knowledge/repo-mappings', { repoFullName: s.repoFullName, serviceId: s.serviceId });
+          this.showToast(`Mapped ${s.repoFullName} -> ${s.serviceId}`);
+          this.suggestions = this.suggestions.filter(x => x.repoFullName !== s.repoFullName);
+        },
+        async loadRelayStatus() {
+          const data = await this.api('GET', '/v1/relay/status', null, { silent: true });
+          if (data) { this.relayConnected = data.connected; this.relayResources = data.resources || []; }
+        },
+      };
+    }
+  </script>
+</body>
+</html>

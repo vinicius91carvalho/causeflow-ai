@@ -1,0 +1,107 @@
+---
+title: "Key concepts"
+description: "Understand the core concepts behind CauseFlow AI — incidents, agents, investigations, and more."
+---
+
+## Core concepts
+
+**Tenant**
+A tenant is your organization's isolated workspace on CauseFlow. All data — incidents, integrations, users, and the audit trail — is scoped to your tenant. Each tenant has its own API keys, plan quota, and settings.
+
+**Incident**
+A production issue that needs investigation. Incidents are created automatically when a monitoring alert arrives via webhook, manually from the dashboard, or through the chat interface. Every incident moves through a defined lifecycle from `open` to `closed`.
+
+**Alert**
+A raw signal sent by an external monitoring tool (Datadog, Grafana, CloudWatch, or Sentry) via webhook. CauseFlow validates, normalizes, and deduplicates each alert before creating an incident from it. Duplicate alerts with the same source ID are discarded.
+
+**Investigation**
+The core process. CauseFlow's AI analyzes different data sources — logs, metrics, infrastructure state, recent code changes, and database health — then synthesizes findings into a root cause analysis. Investigations consume one slot from your plan quota.
+
+**Evidence**
+A structured finding recorded by one of the AI analysis steps during an investigation. Each piece of evidence includes the source, agent role that found it, the raw data queried, and the interpretation. Evidence is what backs a root cause conclusion.
+
+**Root cause analysis**
+The synthesized conclusion from the investigation. It explains why the incident occurred, cites the supporting evidence, and includes a confidence score. Root causes are stored and extracted into patterns for future use.
+
+**Remediation**
+A proposed action to resolve the incident. Examples: restart a service, rollback a deployment to a previous version, scale a resource, or create a pull request with a targeted code fix. Remediations require human approval before executing.
+
+**Approval**
+A pending human decision on a proposed remediation. Every remediation generates an approval request visible in the dashboard. Approvals expire after 30 minutes if no action is taken.
+
+**Pattern**
+A learned root cause pattern extracted from past resolved incidents. Patterns capture the relationship between alert signals and root causes. They are matched against incoming incidents to accelerate analysis and surface known solutions — and they improve in accuracy as your team resolves more incidents.
+
+**Known solution**
+When a new incident matches a previously seen pattern with high confidence (85% or above), CauseFlow short-circuits the full investigation and applies the known solution directly. This skips the multi-agent analysis entirely, reducing resolution time from minutes to seconds.
+
+**Agent**
+A focused AI component that analyzes one category of data. Individual agents examine logs, metrics, infrastructure state, code changes, or database health. Agents run in parallel during an investigation, each contributing evidence to the final synthesis.
+
+**Skill**
+A tenant-defined custom investigation profile. A skill tells CauseFlow when to activate (for example, "when a PostgreSQL-related incident arrives"), which tools to use, and any additional instructions. Skills let your team encode institutional knowledge without writing code.
+
+**Memory**
+CauseFlow's long-term knowledge layer. Memory accumulates facts your team shares via chat (architecture details, known issues, deployment patterns) and insights from past investigations. Agents draw on memory to start investigations with relevant context already in place.
+
+**Trigger**
+A managed webhook listener that monitors a third-party provider (Sentry, GitHub, PagerDuty, and others) for events. When a matching event occurs, the trigger routes it into CauseFlow's ingestion pipeline as an incident. Triggers are registered per-tenant in the dashboard.
+
+**Widget** *(roadmap — not yet available)*
+A planned embeddable chat interface you will be able to drop into your own product. End users will report problems, ask questions, and see investigation status through the widget — without accessing the CauseFlow dashboard directly. Each widget session will be bound to an API key.
+
+---
+
+## Incident lifecycle
+
+| Status | Description |
+|--------|-------------|
+| `open` | Incident created, awaiting analysis |
+| `triaging` | AI classifying severity |
+| `investigating` | AI analyzing data sources |
+| `awaiting_approval` | Remediation proposed, waiting for human approval |
+| `remediating` | Approved remediation being executed |
+| `resolved` | Incident resolved successfully |
+| `closed` | Incident closed — either resolved or dismissed without remediation |
+
+---
+
+## Severity levels
+
+| Level | Description |
+|-------|-------------|
+| `critical` | Service outage or data loss affecting all users |
+| `high` | Major feature degraded with significant user impact |
+| `medium` | Partial degradation with limited user impact |
+| `low` | Minor issue with a workaround available |
+| `info` | Informational alert — no immediate action needed |
+
+Severity is set when an incident is created and may be reclassified by CauseFlow based on its analysis of the alert payload and supporting data.
+
+---
+
+## Roles
+
+| Role | Permissions |
+|------|-------------|
+| `admin` | Full access — manage users, billing, integrations, and approve remediations |
+| `member` | Read access; can trigger investigations and update incident status |
+
+Role assignment is managed by an `admin` from **Dashboard > Team Management**. See [RBAC](/security/rbac) for a detailed permissions breakdown.
+
+---
+
+<CardGroup cols={2}>
+  <Card title="How it works" icon="arrows-spin" href="/getting-started/how-it-works">
+    See the full investigation lifecycle from alert to resolution.
+  </Card>
+  <Card title="AI transparency" icon="eye" href="/getting-started/ai-transparency">
+    Learn which AI models run, what they access, and how decisions are made.
+  </Card>
+  <Card title="Skills" icon="wand-magic-sparkles" href="/getting-started/skills">
+    Define custom investigation profiles for your specific systems.
+  </Card>
+  <Card title="Memory and chat" icon="brain" href="/getting-started/memory-and-chat">
+    Teach CauseFlow about your stack and query it in natural language.
+  </Card>
+</CardGroup>

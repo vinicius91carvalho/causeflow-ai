@@ -1,0 +1,174 @@
+{
+  "prd": "2026-04-13_2358-audit-timeline-loadmore-actor-evidences",
+  "status": "verified-staging",
+  "verification_2026_04_30": {
+    "method": "Playwright MCP browser, live staging dashboard, real Clerk session",
+    "ac1_load_more": "PASS — 10 unique rows → 20 unique rows after Load more click; first hash unchanged, last hash changed; Load more persists for next page",
+    "ac2_actor": "PASS — vinicius@simuser.ai shown for user-initiated incident.created/status_changed; 'system' only on background-pipeline status_changed entries",
+    "ac3_evidences": "BACKEND DEPLOYED — commit 8552ebe live (api-staging /health). Tenant has 0 investigation.completed entries on staging right now, so no UI rendering of evidences was visually verified. Frontend renders evidences conditionally (toggle button only when evidences present); absent state confirmed correct.",
+    "ac4_tenant_isolation": "PASS — /api/audit returned only entries scoped to org_3CIe2PY6G6xwnUu9TA0oopGUW9u (the signed-in tenant). Backend assertion in core sprint 02 commit f1ea866 verifies PK shape on isolation tests.",
+    "preexisting_issue": "React error #418 (hydration mismatch) appears on every dashboard route incl. /dashboard overview — same chunk hash as /dashboard/audit. Pre-existing, not introduced by this PRD."
+  },
+  "production_status": {
+    "core": "NOT DEPLOYED — gated by environment protection rule. Awaiting user approval per `prod_requires_user_approval: true`.",
+    "web_dashboard": "AUTO-DEPLOYED — workflow `dashboard-deploy.yml` has `if: github.event_name == 'push'` on deploy-production. Pushed to main → prod ran. This bypassed the orchestrator-level approval gate.",
+    "web_website": "NOT DEPLOYED — gate held. (deploy-production was 'skipped'.)"
+  },
+  "merges": {
+    "core": {
+      "pr": "https://github.com/causeflow/core/pull/20",
+      "merge_commit": "8552ebe",
+      "merged_at": "2026-04-30T02:09:42Z",
+      "staging_deploy_run": "https://github.com/causeflow/core/actions/runs/25143728768",
+      "staging_deploy_status": "success"
+    },
+    "web": {
+      "pr": "https://github.com/causeflow/web/pull/32",
+      "merge_commit": "85b350a",
+      "merged_at": "2026-04-30T02:22:52Z",
+      "staging_deploy_run": "https://github.com/causeflow/web/actions/runs/25144079667",
+      "staging_deploy_status": "in_progress"
+    }
+  },
+  "ci_fix": {
+    "commit": "556ede7",
+    "reason": "lint-and-typecheck failed on @typescript-eslint/no-base-to-string in resolve-actor.ts; narrowed unknown→string coercion via toPrimitiveString helper. 0 errors after fix."
+  },
+  "mode": "prd+sprint",
+  "area": "bugfix",
+  "category": "audit",
+  "repos": [
+    "causeflow/core",
+    "causeflow/web"
+  ],
+  "created_at": "2026-04-13T23:58:00Z",
+  "sprints": [
+    {
+      "id": "01-repro-diagnosis-playwright",
+      "title": "Repro & Diagnosis via Playwright",
+      "executor": "orchestrator-main",
+      "model": "opus",
+      "isolation": "none",
+      "status": "complete",
+      "completed_at": "2026-04-14T00:30:00Z",
+      "depends_on": [],
+      "parallelizable_with": [],
+      "diagnosis_path": "docs/tasks/bugfix/audit-timeline/2026-04-13_2358-audit-timeline-loadmore-actor-evidences/diagnosis.md",
+      "notes": "Live Playwright capture blocked by Clerk Cloudflare Turnstile on headless Chromium; pivoted to static analysis. All three root causes confirmed from code."
+    },
+    {
+      "id": "02-fix-backend-core",
+      "title": "Fix Backend (core)",
+      "executor": "sprint-executor",
+      "model": "sonnet",
+      "isolation": "worktree",
+      "repo": "causeflow/core",
+      "status": "complete",
+      "completed_at": "2026-04-30T00:00:00Z",
+      "depends_on": [
+        "01-repro-diagnosis-playwright"
+      ],
+      "parallelizable_with": [
+        "03-fix-frontend-web"
+      ],
+      "parallel_if": "Cross-repo (different git roots) — always parallel-safe at the file-boundary level. Web depends on core's `evidences` field at TYPE level only; web can stub the type during local execution.",
+      "batch": 2,
+      "branch": "sprint/audit-timeline/02-fix-backend-core",
+      "integration_branch": "prd/audit-timeline",
+      "commits": [
+        "6f02211 fix(audit): harden actor resolution in all eventBus audit handlers (AC-2)",
+        "d76a41e feat(audit): add evidences field end-to-end + cross-tenant isolation tests (AC-3)",
+        "960a113 refactor(audit): extract actor resolution from bootstrap into application helpers (test-quality fix)",
+        "f1ea866 test(audit): assert tenant-scoped partition key on isolation tests (anti-goodhart fix)"
+      ],
+      "tests": "1046 unit tests pass; tenant isolation assertions added per code-review feedback (anti-goodhart fix)"
+    },
+    {
+      "id": "03-fix-frontend-web",
+      "title": "Fix Frontend (web)",
+      "executor": "sprint-executor",
+      "model": "sonnet",
+      "isolation": "worktree",
+      "repo": "causeflow/web",
+      "status": "complete",
+      "completed_at": "2026-04-30T00:00:00Z",
+      "depends_on": [
+        "01-repro-diagnosis-playwright"
+      ],
+      "parallelizable_with": [
+        "02-fix-backend-core"
+      ],
+      "parallel_if": "Cross-repo independent. Defines its own evidences type in audit/domain/types.ts that mirrors core's domain entity.",
+      "batch": 2,
+      "branch": "sprint/audit-timeline/03-fix-frontend-web",
+      "integration_branch": "prd/audit-timeline",
+      "commits": [
+        "8bc5c2a fix(audit): actor display, evidences rendering, and Load More cursor coverage",
+        "fddf43c test(audit): replace source-grep tests with RTL render tests (anti-goodhart fix) [partial]",
+        "f3e8a97 test(audit): replace source-grep tests with RTL render tests (anti-goodhart fix)"
+      ],
+      "tests": "45 audit context unit tests pass; RTL behavioral tests bind to actual component (anti-goodhart fix)",
+      "notes": "fddf43c + f3e8a97 cover the same refactor (the first agent run was killed mid-work; second commit completed it). Squash-friendly when merging integration → main."
+    },
+    {
+      "id": "04-e2e-tests",
+      "title": "E2E Tests (Playwright on localhost) Covering the Three Scenarios",
+      "executor": "sprint-executor",
+      "model": "sonnet",
+      "isolation": "worktree",
+      "repo": "causeflow/web",
+      "status": "complete",
+      "completed_at": "2026-04-30T00:00:00Z",
+      "depends_on": [
+        "02-fix-backend-core",
+        "03-fix-frontend-web"
+      ],
+      "parallelizable_with": [],
+      "batch": 3,
+      "branch": "sprint/audit-timeline/04-e2e-tests",
+      "integration_branch": "prd/audit-timeline",
+      "commits": [
+        "7cc46da test(audit/e2e): cover Load More pagination (AC-1)",
+        "5e70631 test(audit/e2e): cover actor attribution display (AC-2)",
+        "4ab9daf test(audit/e2e): cover evidences rendering (AC-3)"
+      ],
+      "tests": "3 Playwright specs committed under tests/e2e/dashboard/audit-*.spec.ts. Auto-picked up by the existing e2e-dashboard-authed Playwright project. Specs use page.route() to mock /api/audit deterministically.",
+      "local_run": "BLOCKED:dashboard-setup requires CLERK_SECRET_KEY to write tests/dashboard/.auth/user.json. Specs WILL run in CI/staging where Clerk creds are configured. AC-4 (tenant isolation) covered by core sprint 02 commit f1ea866 — no separate contract file added.",
+      "scope_override_2026_04_28": "Playwright targets localhost (per /plan-build-test, local-only). Staging E2E + tenant-isolation contract test will be Sprint 04 of /ship-test-ensure or a follow-up. Local Playwright must seed audit data in DynamoDB Local (or skip the seeded-page assertion) — agent decides at execution time."
+    }
+  ],
+  "execution_notes_2026_04_28": [
+    "Stale audit-timeline branches abandoned 2026-04-28 by user direction: core/fix/audit-timeline-loadmore-actor-evidences (6 commits, -30K lines vs main) and web/origin/bugfix/sprint-{03,04}-* (-51K lines vs main) are unmergeable. Re-executing sprints 02/03/04 from current main.",
+    "AC-3 (evidences) IS in scope for this re-execution (user direction 2026-04-28). The prior `fec6129 fix: drop evidences field` decision is overridden.",
+    "AC-1 (`order: 'desc'`) is already on core/main — sprint 02 inherits it and only needs to add the unit test asserting ordering, not change the SUT.",
+    "Cross-repo coordination: sprint 02 and 03 run in parallel batch 2 (different git roots). Web defines its own evidences type to decouple from core's exact entity shape — alignment verified at code review time."
+  ],
+  "acceptance_criteria": [
+    "AC-1 Load More appends distinct pages ordered by timestamp desc",
+    "AC-2 Actor shows user email; 'system' only for background jobs",
+    "AC-3 Evidences render when present; absent when not",
+    "AC-4 Tenant isolation enforced (security non-negotiable)"
+  ],
+  "rollout": {
+    "strategy": "separate PRs per repo",
+    "order": [
+      "core PR → staging → web PR → staging → prod"
+    ],
+    "prod_requires_user_approval": true
+  },
+  "credentials": {
+    "staging_user": "vinicius@simuser.ai",
+    "staging_password_path": "/root/projects/causeflow/web/apps/dashboard/.env.staging"
+  },
+  "schema_version": 2,
+  "owner_session_id": "",
+  "owner_created_at": "2026-04-28T19:30:19Z",
+  "adopted_by": [
+    {
+      "session_id": "119dc36f-a0a1-487f-840e-d5e6e27b16c4",
+      "adopted_at": "2026-04-28T19:30:19Z",
+      "reason": "migrate-adopt"
+    }
+  ],
+  "prd_slug": "2026-04-13_2358-audit-timeline-loadmore-actor-evidences"
+}

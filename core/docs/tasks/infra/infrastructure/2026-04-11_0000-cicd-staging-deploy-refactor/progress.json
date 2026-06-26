@@ -1,0 +1,79 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-11T00:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-oidc-bootstrap.md",
+      "title": "OIDC bootstrap + remove static credentials",
+      "status": "completed",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "feat/sprint-01-oidc-bootstrap",
+      "merged": false,
+      "completed_at": "2026-04-11T20:00:00Z",
+      "notes": "Bootstrap stack UPDATE_COMPLETE in us-east-2. 4 GitHub Variables set (AWS_ACCOUNT_ID, AWS_REGION, DEPLOY_ROLE_ARN=arn:aws:iam::409171461008:role/causeflow-github-deploy, ECR_REGISTRY). 4 legacy secrets deleted. test-oidc.yml run success (9s). Workflow file deleted in commit 4b28d48. Branch shared with Sprint 2 (will ship together via PR after Sprint 3)."
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-unstick-staging-simplify-cdk.md",
+      "title": "Fix stuck staging stack + simplify CDK",
+      "status": "completed",
+      "depends_on": [
+        1
+      ],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "feat/sprint-01-oidc-bootstrap",
+      "merged": false,
+      "completed_at": "2026-04-11T21:54:00Z",
+      "notes": "Two-pass deploy: pass 1 CREATE base infra, pass 2 UPDATE deployServices=true. /health 200 OK. Zero secret pull errors. Service causeflow-staging ACTIVE 1/1 COMPLETED rollout."
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-ts-scripts-and-workflow.md",
+      "title": "TypeScript deploy scripts + Dockerfile ARGs + /health commit + new workflow (staging)",
+      "status": "completed",
+      "depends_on": [
+        1,
+        2
+      ],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": "feat/sprint-01-oidc-bootstrap",
+      "merged": false,
+      "notes": "LOCAL DONE — awaiting live CI push. Phase 1 (scripts/Dockerfile/health) and Phase 2 (workflow rewrite) both complete locally. (a) pnpm install OK (@aws-sdk/client-cloudformation 3.1029.0 + aws-sdk-client-mock 4.1.0 added). (b) infra/scripts/__tests__/verify-deploy.test.ts written — 5 tests (allOk happy path, worker-image-mismatch, missing-service VerifyError, production health URL, service order). (c) pnpm typecheck OK; pnpm test:run 737/737 PASS across 114 files including all infra/scripts/__tests__; pnpm lint has 16 PRE-EXISTING errors (verified by stash baseline against f48279e) in src/{bootstrap.ts,modules/investigation/{application,domain},modules/billing/application,workers/investigation-worker} + tests/unit/shared/{credentials,relay} — none in Sprint 3 files; logged as scope-boundary tech debt. (d) docker local smoke BLOCKED — docker not installed in proot-distro env; CI will validate end-to-end on push. (e) .github/workflows/deploy.yml fully rewritten (200 lines): test→build-and-push→deploy-staging→verify-staging, OIDC via vars.DEPLOY_ROLE_ARN, docker/build-push-action@v6 with build-args GIT_SHA, cdk deploy with imageTag context, tsx verify-deploy.ts CLI. Invariant pre-checks: I1 zero static creds, I2 all 3 configure-aws-credentials use role-to-assume, I3 zero continue-on-error, I4 zero register-task-definition, I6 longest run block ~5 lines. Sed hack / Resolve secret ARNs / stack-status cleanup all gone. (f) lint-invariants placeholder already present in package.json. (g) PENDING: commit, push, observe green CI run, curl https://api-staging.causeflow.ai/health and assert .commit === pushed sha — Anti-Goodhart gate; sprint stays in_progress until that closes via /ship-test-ensure.",
+      "completed_at": "2026-04-13T23:41:00Z"
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-hindsight-efs.md",
+      "title": "Enable Hindsight container (stage-parameterized) + EFS persistence",
+      "status": "completed",
+      "depends_on": [
+        3
+      ],
+      "batch": 4,
+      "model": "sonnet",
+      "branch": null,
+      "merged": false,
+      "completed_at": "2026-04-13T23:41:00Z"
+    },
+    {
+      "id": 5,
+      "file": "sprints/05-production-bootstrap-invariants.md",
+      "title": "Production bootstrap (AWS CLI + CDK) + promotion gate + invariants",
+      "status": "completed",
+      "depends_on": [
+        3,
+        4
+      ],
+      "batch": 5,
+      "model": "sonnet",
+      "branch": null,
+      "merged": false,
+      "completed_at": "2026-04-13T23:41:00Z"
+    }
+  ]
+}

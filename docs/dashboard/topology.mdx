@@ -1,0 +1,104 @@
+---
+title: "Service topology"
+description: "Visualize your infrastructure, understand service dependencies, and assess blast radius."
+---
+
+The service topology page gives you a visual map of your infrastructure — which services exist, how they depend on each other, and which systems are affected when something goes wrong. CauseFlow uses this map during investigation to understand the potential impact of an incident and to focus agent analysis on the most relevant services.
+
+Go to **Dashboard > Topology** to access the graph.
+
+## Service graph
+
+The graph renders each service as a node and each dependency as a directed edge. Node color and shape indicate the service type; a health status indicator on each node reflects real-time status based on recent incident data and monitoring metrics:
+
+- **Green** — Healthy, no recent incidents or anomalies
+- **Yellow** — Degraded, minor issues or elevated error rates
+- **Red** — Unhealthy, active incident or critical anomaly
+- **Gray** — Unknown, no monitoring data available
+
+Pan and zoom the graph to navigate large infrastructures. Click any node to select it and see its details in the side panel.
+
+## Adding services
+
+If CauseFlow hasn't auto-discovered your infrastructure, you can add services manually.
+
+<Steps>
+  <Step title="Open the add service form">
+    Click **Add Service** from the topology page.
+  </Step>
+  <Step title="Enter service details">
+    Fill in the following fields:
+    - **Name** — A unique identifier for the service (for example, `payment-api` or `orders-worker`).
+    - **Type** — Choose the service type: `api`, `worker`, `database`, `cache`, `queue`, or another applicable category.
+    - **Owning team** — The team responsible for this service. Used in blast radius reports and incident routing.
+    - **Criticality score** — A number from 1 to 10 indicating how critical this service is to your system. A score of 10 means the service is essential — its failure causes a complete outage. Use this to prioritize investigation and remediation.
+  </Step>
+  <Step title="Save">
+    Click **Add Service**. The node appears on the graph immediately.
+  </Step>
+</Steps>
+
+## Adding dependencies
+
+Once your services are on the graph, define the relationships between them.
+
+<Steps>
+  <Step title="Open the add dependency form">
+    Click **Add Dependency** or select a service node and click **Add outbound dependency** in the side panel.
+  </Step>
+  <Step title="Define the relationship">
+    - **Source** — The service that initiates the call.
+    - **Target** — The service that receives the call.
+    - **Connection type** — The protocol used: `HTTP`, `gRPC`, `TCP`, `message queue`, or another applicable type.
+  </Step>
+  <Step title="Save">
+    Click **Add Dependency**. The edge appears on the graph connecting the two nodes.
+  </Step>
+</Steps>
+
+## Blast radius
+
+Blast radius analysis answers the question: "If this service fails, what else breaks?"
+
+Select any service node on the graph and click **Blast Radius** in the side panel. CauseFlow traverses the dependency graph downstream from that service and returns a report showing:
+
+- Every service that depends on the selected service (directly or transitively)
+- The hop count — how many dependency levels separate each service from the origin
+- An impact level for each affected service: **high** (direct dependency), **medium** (two hops), or **low** (three or more hops)
+
+Use blast radius analysis before approving a remediation that restarts or modifies a service — it shows you exactly what else could be affected.
+
+## Auto-discovery
+
+For tenants connected to AWS, CauseFlow can automatically populate the topology graph by discovering services from your infrastructure.
+
+Auto-discovery detects:
+
+- **ECS services** — Containers running in Amazon Elastic Container Service
+- **EC2 instances** — Virtual machines and their running processes
+- **RDS databases** — Managed database instances
+
+<Steps>
+  <Step title="Configure AWS credentials">
+    Go to **Settings > Tenant** and add your AWS credentials (access key ID, secret access key, and region). CauseFlow only requires read permissions — it never modifies your infrastructure.
+  </Step>
+  <Step title="Run discovery">
+    Return to the Topology page and click **Discover Services**. CauseFlow queries your AWS account and adds discovered services and their relationships to the graph.
+  </Step>
+  <Step title="Review and refine">
+    Auto-discovery creates nodes for detected services, but it cannot infer owning teams or criticality scores. Review the discovered services and fill in any missing details.
+  </Step>
+</Steps>
+
+<Note>
+  Auto-discovery is a one-time import, not a continuous sync. Run it again any time you add new services to your AWS infrastructure.
+</Note>
+
+## Health indicators
+
+Service health is calculated from two sources:
+
+1. **Incident data** — A service with an active critical or high incident is marked unhealthy. A service with a recently resolved incident is marked degraded.
+2. **Monitoring metrics** — If a monitoring integration reports elevated error rates or latency anomalies for a service, CauseFlow reflects that in the health indicator.
+
+Health indicators update in near-real-time as incidents are created, investigated, and resolved. They are read from monitoring data — CauseFlow does not poll your services directly.

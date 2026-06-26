@@ -1,0 +1,75 @@
+---
+title: "Database integrations"
+sidebarTitle: "Databases"
+description: "Give CauseFlow read-only access to your databases for deeper root-cause analysis — without exposing databases to the internet."
+---
+
+Database access allows the DB Analyst agent to query your databases during incident investigation. This is often the difference between identifying a slow query or data anomaly as the root cause versus concluding the investigation without a definitive answer.
+
+<Warning>
+  CauseFlow never modifies your database data. All access is enforced as read-only at the driver level — `READ ONLY` transactions for PostgreSQL and blocked write operations for MongoDB.
+</Warning>
+
+## Supported databases
+
+| Database | Connection method |
+|---|---|
+| **PostgreSQL** | CauseFlow Relay (recommended) |
+| **MongoDB** | CauseFlow Relay (recommended) |
+
+Databases inside private networks (VPCs, private subnets, behind firewalls) are supported through the Relay — no inbound firewall rules or public database exposure required.
+
+## How it works: CauseFlow Relay
+
+The Relay is a lightweight Docker agent you deploy inside your own private network. It is the recommended and only supported approach for connecting PostgreSQL and MongoDB.
+
+**Why use the Relay:**
+- Your database never needs to be exposed to the internet
+- No inbound firewall rules required — the Relay opens a single outbound WebSocket connection to CauseFlow
+- PII is masked inside your network before results are returned to CauseFlow
+- A policy engine controls exactly which tables, schemas, and operations are permitted
+
+The Relay agent runs alongside your database, intercepts agent queries, enforces your policy rules, masks sensitive fields, and forwards only safe results to the investigation engine.
+
+## Read-only enforcement
+
+CauseFlow enforces read-only access at multiple layers:
+
+| Layer | Enforcement |
+|---|---|
+| PostgreSQL via Relay | `SET TRANSACTION READ ONLY` on every connection |
+| MongoDB via Relay | Only `find` and aggregation operations permitted; write operations blocked by the Relay policy engine |
+
+These restrictions are enforced by the Relay independently of CauseFlow's application logic. Even if an agent were to generate a write query, the Relay would reject it before it reached your database.
+
+## DB Analyst agent activation
+
+The DB Analyst agent activates automatically when a CauseFlow Relay connection is detected. No manual agent configuration is needed — as soon as the Relay connects, the DB Analyst joins investigations involving services linked to those databases.
+
+## Getting started
+
+Relay deployment takes approximately 10 minutes and requires Docker.
+
+<CardGroup cols={2}>
+  <Card title="Deploy CauseFlow Relay" icon="server" href="/relay/quickstart">
+    Set up the privacy-preserving Relay for PostgreSQL and MongoDB in your private network.
+  </Card>
+  <Card title="Relay architecture" icon="diagram-project" href="/relay/architecture">
+    Understand how the Relay communicates with CauseFlow and handles PII masking.
+  </Card>
+  <Card title="Policy engine" icon="shield-check" href="/relay/policy-engine">
+    Configure which tables, schemas, and operations the DB Analyst can access.
+  </Card>
+  <Card title="PII masking" icon="eye-slash" href="/relay/pii-masking">
+    Learn how the Relay masks sensitive fields before results leave your network.
+  </Card>
+</CardGroup>
+
+<CardGroup cols={2}>
+  <Card title="Integrations overview" icon="list" href="/integrations/overview">
+    See the full catalog of available integrations.
+  </Card>
+  <Card title="Security overview" icon="shield" href="/security/overview">
+    Learn how CauseFlow protects data in transit and at rest.
+  </Card>
+</CardGroup>

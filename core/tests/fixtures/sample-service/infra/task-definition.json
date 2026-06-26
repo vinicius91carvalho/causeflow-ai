@@ -1,0 +1,35 @@
+{
+  "family": "payment-service",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "payment-service",
+      "image": "ECR_IMAGE",
+      "essential": true,
+      "memoryReservation": 896,
+      "portMappings": [{ "containerPort": 3000, "protocol": "tcp" }],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/payment-service",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "3000" }
+      ],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget -q --spider http://localhost:3000/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3
+      }
+    }
+  ]
+}

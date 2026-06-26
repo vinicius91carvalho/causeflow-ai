@@ -1,0 +1,36 @@
+{
+  "privacy": {
+    "title": "Política de Privacidade",
+    "subtitle": "Como coletamos, usamos e protegemos seus dados.",
+    "lastUpdated": "Última atualização: Fevereiro de 2026",
+    "sections": {
+      "dataCollected": "Dados Coletados",
+      "howWeUse": "Como Usamos os Dados",
+      "customerData": "Dados de Clientes",
+      "sharing": "Compartilhamento de Dados",
+      "retention": "Retenção de Dados",
+      "lgpdRights": "Direitos da LGPD",
+      "gdprRights": "Direitos do GDPR",
+      "internationalTransfers": "Transferências Internacionais",
+      "contact": "Contato do DPO / Controlador de Dados"
+    }
+  },
+  "terms": {
+    "title": "Termos de Serviço",
+    "subtitle": "Leia estes termos com atenção antes de usar o CauseFlow AI.",
+    "lastUpdated": "Última atualização: Março de 2026",
+    "version": "Versão {version}",
+    "effectiveDate": "Vigente a partir de {date}",
+    "sections": {
+      "serviceDefinition": "Definição e Limitações do Serviço",
+      "plansAndBilling": "Planos, Preços e Faturamento",
+      "intellectualProperty": "Propriedade Intelectual",
+      "sla": "Acordo de Nível de Serviço (SLA)",
+      "liability": "Limitação de Responsabilidade",
+      "cancellation": "Política de Cancelamento e Reembolso",
+      "acceptableUse": "Uso Aceitável",
+      "dataCollection": "Coleta e Uso de Dados",
+      "jurisdiction": "Jurisdição e Foro"
+    }
+  }
+}

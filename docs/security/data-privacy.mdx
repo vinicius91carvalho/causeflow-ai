@@ -1,0 +1,103 @@
+---
+title: "Data privacy"
+description: "How CauseFlow protects your data — temporary credentials, encryption, PII masking, and data isolation."
+---
+
+CauseFlow is designed around a core principle: your infrastructure and data should be accessed only as much as necessary, only for as long as necessary, and never exposed beyond the investigation context. This page describes the technical controls that enforce this principle.
+
+## Temporary infrastructure access
+
+CauseFlow never stores permanent AWS credentials for your infrastructure. When an investigation starts, CauseFlow uses AWS STS AssumeRole to generate temporary, scoped credentials for the investigation session.
+
+| Property | Value |
+|----------|-------|
+| Credential lifetime | 15 minutes |
+| Scope | Per-investigation session policy (minimum permissions) |
+| Revocation | Immediately after investigation completes |
+| Storage | In-memory only during the investigation session |
+
+If an investigation completes — successfully or not — the credentials are revoked and cannot be reused.
+
+## Per-task session policies
+
+The CauseFlow orchestrator receives only the permissions each investigation task requires. Permissions are scoped per-task, not granted broadly.
+
+| Task type | Permissions granted |
+|-----------|---------------------|
+| Log analysis | `logs:GetQueryResults`, `logs:StartQuery`, `logs:GetLogEvents` |
+| Metric analysis | `cloudwatch:GetMetricData`, `cloudwatch:GetMetricStatistics` |
+| Infrastructure inspection | `ecs:Describe*`, `ec2:Describe*` (read-only) |
+| Remediation | `ecs:UpdateService`, `ecs:RegisterTaskDefinition` (only after human approval) |
+
+Remediation is the only task with write permissions, and those permissions are granted only after a human explicitly approves the action. The `ecs:UpdateService` permission cannot be exercised without an approval record in the audit trail.
+
+## Encryption
+
+### OAuth tokens and sensitive credentials
+
+OAuth tokens and integration secrets are protected with KMS envelope encryption using AES-256-GCM.
+
+```
+Plaintext token
+      │
+      ▼
+AES-256-GCM encryption with data encryption key (DEK)
+      │
+      ▼
+DEK encrypted with tenant customer master key (CMK) via AWS KMS
+      │
+      ▼
+Encrypted DEK + encrypted token stored in database
+```
+
+Even if the database were fully compromised, the encrypted tokens are unusable without access to the tenant's CMK in AWS KMS. The CMK never leaves KMS — only the encrypted DEK is stored alongside the data.
+
+### Data in transit
+
+All API traffic uses TLS 1.2 or higher. The CauseFlow Relay (for private network database access) communicates over WSS/443 — the same TLS-encrypted channel.
+
+## PII masking via Relay
+
+For customers using the [CauseFlow Relay](/relay/overview), PII masking runs inside your private network before any query results leave your infrastructure. Masked data is what CauseFlow AI agents receive — not raw records.
+
+Built-in masking patterns:
+
+| Pattern | Example |
+|---------|---------|
+| Email addresses | `user@example.com` → `[EMAIL]` |
+| Credit card numbers | `4111 1111 1111 1111` → `[CREDIT_CARD]` |
+| Phone numbers | `+55 11 99999-9999` → `[PHONE]` |
+| CPF (Brazil) | `123.456.789-09` → `[CPF]` |
+| Bearer tokens | `Bearer eyJ...` → `[TOKEN]` |
+
+Custom masking patterns are supported via regular expressions in the Relay configuration. See [PII masking](/relay/pii-masking) for the full reference.
+
+## Tenant data isolation
+
+All data in CauseFlow is partitioned by tenant at the database level.
+
+DynamoDB partition keys include `tenant_id` as a component. This means:
+
+- A query for tenant A's incidents cannot physically return tenant B's data
+- There is no application-level filter that could be bypassed by a logic error
+- Cross-tenant data access is architecturally impossible, not just policy-prevented
+
+## Data retention and deletion
+
+Investigation data — incidents, analysis results, audit records — is retained for the lifetime of your tenant account.
+
+**Right to deletion:** You can request deletion of your tenant's data at any time by contacting [support@causeflow.ai](mailto:support@causeflow.ai). Deletion is processed within 30 days and confirmed in writing.
+
+**Audit trail:** Audit records are immutable by design and cannot be selectively deleted. A full tenant deletion removes the entire audit trail along with all other tenant data.
+
+## GDPR and LGPD readiness
+
+CauseFlow's architecture aligns with GDPR and LGPD principles:
+
+- **Data minimization** — agents access only the data needed for the investigation
+- **Purpose limitation** — credentials are scoped to investigation tasks and revoked immediately after
+- **Right to erasure** — full tenant deletion available on request
+- **PII protection** — Relay masking prevents raw PII from leaving your infrastructure
+- **Data processing agreements** — available on request for compliance purposes
+
+Contact [privacy@causeflow.ai](mailto:privacy@causeflow.ai) for data processing agreements or privacy inquiries.

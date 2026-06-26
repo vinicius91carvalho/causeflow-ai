@@ -1,0 +1,289 @@
+/* ==========================================================================
+   Onboarding Tutorial — Modal Wizard Theme
+   Uses CSS variables from the design system for light/dark mode compatibility.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Modal (Step Wizard)
+   --------------------------------------------------------------------------- */
+
+.onboarding-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.onboarding-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  animation: onboardingFadeIn 0.3s ease-out;
+}
+
+.onboarding-modal__card {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 20px;
+  padding: 40px 32px 28px;
+  text-align: center;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.4),
+    0 0 80px -20px hsl(var(--primary) / 0.2);
+  animation: onboardingScaleIn 0.4s ease-out;
+}
+
+.onboarding-modal__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  font-size: 11px;
+  font-weight: 700;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.onboarding-modal__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.onboarding-modal__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+
+.onboarding-modal__description {
+  font-size: 14px;
+  line-height: 1.7;
+  color: hsl(var(--muted-foreground));
+  margin: 0 0 28px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Navigation buttons — stacked vertically below progress dots */
+.onboarding-modal__nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.onboarding-modal__nav-btn--primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 280px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 10px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.onboarding-modal__nav-btn--primary:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.onboarding-modal__nav-btn--primary:active {
+  transform: scale(0.98);
+}
+
+.onboarding-modal__nav-btn--secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.onboarding-modal__nav-btn--secondary:hover {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+/* Progress dots */
+.onboarding-modal__dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.onboarding-modal__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: hsl(var(--muted));
+  transition: all 0.3s ease;
+}
+
+.onboarding-modal__dot--active {
+  width: 24px;
+  background: hsl(var(--primary));
+}
+
+.onboarding-modal__dot--done {
+  background: hsl(var(--primary) / 0.4);
+}
+
+/* Skip / secondary action */
+.onboarding-modal__secondary {
+  display: block;
+  margin: 0 auto;
+  border: none;
+  background: none;
+  color: hsl(var(--muted-foreground));
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.onboarding-modal__secondary:hover {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+/* Close button */
+.onboarding-modal__close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.onboarding-modal__close-btn:hover {
+  background: hsl(var(--muted));
+}
+
+/* ---------------------------------------------------------------------------
+   Animations
+   --------------------------------------------------------------------------- */
+
+@keyframes onboardingFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes onboardingScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 639px) {
+  .onboarding-modal__card {
+    padding: 32px 20px 24px;
+  }
+
+  .onboarding-modal__title {
+    font-size: 20px;
+  }
+
+  .onboarding-modal__description {
+    font-size: 13px;
+  }
+
+  .onboarding-modal__nav-btn--primary {
+    max-width: 100%;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Accessibility: Reduced Motion
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-modal__backdrop,
+  .onboarding-modal__card {
+    animation: none;
+  }
+
+  .onboarding-modal__dot,
+  .onboarding-modal__nav-btn--primary,
+  .onboarding-modal__nav-btn--secondary,
+  .onboarding-modal__secondary,
+  .onboarding-modal__close-btn {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Focus styles for keyboard navigation
+   --------------------------------------------------------------------------- */
+
+.onboarding-modal__nav-btn--primary:focus-visible,
+.onboarding-modal__nav-btn--secondary:focus-visible,
+.onboarding-modal__secondary:focus-visible,
+.onboarding-modal__close-btn:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}

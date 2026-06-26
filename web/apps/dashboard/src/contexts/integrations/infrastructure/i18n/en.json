@@ -1,0 +1,432 @@
+{
+  "dashboard": {
+    "integrations": {
+      "title": "Integrations",
+      "description": "Connect your tools and services to enable AI-powered incident investigations",
+      "filter": {
+        "all": "All",
+        "communication": "Communication",
+        "monitoring": "Monitoring",
+        "code": "Code",
+        "management": "Management",
+        "crm": "CRM",
+        "database": "Database",
+        "knowledge": "Knowledge",
+        "api": "API"
+      },
+      "search": {
+        "placeholder": "Search integrations..."
+      },
+      "status": {
+        "connected": "Connected",
+        "disconnected": "Disconnected",
+        "error": "Error",
+        "available": "Available"
+      },
+      "card": {
+        "connectButton": "Connect",
+        "authorizeButton": "Authorize with",
+        "disconnectButton": "Disconnect",
+        "reconnectButton": "Reconnect",
+        "reconfigureButton": "Reconfigure",
+        "reconfigureTooltip": "Update credentials or connection details",
+        "reauthorizeButton": "Reauthorize",
+        "reauthorizeTooltip": "Refresh OAuth permissions — use this if scopes or access have changed",
+        "testButton": "Test Connection",
+        "lastTested": "Last tested {time}",
+        "lastTestedNever": "Never tested",
+        "staleWarning": "Not tested in over 7 days",
+        "connectedBy": "Connected by {name}",
+        "errorTooltip": "Connection error — click Reconnect",
+        "comingSoon": "Coming Soon",
+        "allTriggersAdded": "All triggers added",
+        "noTriggersSupported": "No incident triggers supported yet"
+      },
+      "testResult": {
+        "success": "Connection to {name} succeeded",
+        "error": "Connection to {name} failed",
+        "dismiss": "Dismiss"
+      },
+      "loading": {
+        "text": "Loading integrations..."
+      },
+      "empty": {
+        "title": "No integrations found",
+        "description": "Try adjusting your search or filter"
+      },
+      "modal": {
+        "connectTitle": "Connect {name}",
+        "reconfigureTitle": "Reconfigure {name}",
+        "errorGeneric": "Something went wrong. Please try again.",
+        "testButton": "Test Connection",
+        "testing": "Testing...",
+        "testSuccess": "Connection successful",
+        "testError": "Connection failed — check your credentials",
+        "submit": "Save",
+        "submitting": "Saving...",
+        "cancel": "Cancel",
+        "successTitle": "Connected!",
+        "successMessage": "{name} has been connected successfully.",
+        "oauthComingSoon": "OAuth integration coming soon. This integration will use secure OAuth authorization — no manual tokens needed.",
+        "oauthDescription": "You will be redirected to {name} to authorize access. No manual tokens needed.",
+        "composioSecurity": {
+          "title": "Secure connection via Composio",
+          "description": "Your credentials are managed by Composio, a SOC 2 Type II certified platform. CauseFlow never stores or accesses your tokens directly — all authentication is handled securely through Composio's encrypted infrastructure with automatic token rotation."
+        },
+        "oauthButton": {
+          "slack": "Add to Slack",
+          "notion": "Connect Notion",
+          "default": "Connect {name}"
+        },
+        "awsSetupInfo": "Use these values when creating the IAM role trust policy:",
+        "clickToCopy": "Click to copy",
+        "copied": "Copied!",
+        "setupGuide": "Setup Guide",
+        "setupGuideToggle": "Show setup instructions",
+        "requiredScopes": "Required permissions (read-only)",
+        "docsLink": "View documentation",
+        "fields": {
+          "apiToken": "API Token",
+          "apiKey": "API Key",
+          "applicationKey": "Application Key",
+          "personalAccessToken": "Personal Access Token",
+          "email": "Email",
+          "domain": "Domain URL",
+          "domainPlaceholder": "https://yourcompany.atlassian.net",
+          "roleArn": "IAM Role ARN (read-only access)",
+          "roleArnPlaceholder": "arn:aws:iam::123456789012:role/CauseFlowReadOnly",
+          "region": "AWS Region",
+          "externalId": "External ID",
+          "externalIdPlaceholder": "Auto-generated for cross-account security",
+          "botToken": "Bot Token",
+          "botTokenPlaceholder": "xoxb-...",
+          "integrationToken": "Integration Token",
+          "integrationTokenPlaceholder": "secret_...",
+          "installationId": "Installation ID",
+          "appId": "App ID",
+          "privateKey": "Private Key (PEM)",
+          "privateKeyPlaceholder": "Paste your PEM private key here",
+          "accessToken": "Access Token",
+          "accessTokenPlaceholder": "pat-...",
+          "authToken": "Auth Token",
+          "organization": "Organization Slug",
+          "connectionString": "Connection String",
+          "grafanaUrlPlaceholder": "https://grafana.yourcompany.com",
+          "confluenceDomainPlaceholder": "https://yourcompany.atlassian.net",
+          "webhookUrl": "Webhook URL",
+          "webhookUrlPlaceholder": "https://your-service.com/webhook"
+        },
+        "validation": {
+          "required": "This field is required",
+          "urlInvalid": "Please enter a valid URL",
+          "emailInvalid": "Please enter a valid email address"
+        },
+        "guides": {
+          "cloudwatch": {
+            "title": "AWS IAM Assume Role Setup",
+            "scopes": "ReadOnlyAccess (all AWS services)",
+            "docsUrl": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html",
+            "steps": {
+              "1": "Open the AWS IAM Console and go to Roles.",
+              "2": "Click \"Create role\" and select \"Another AWS account\".",
+              "3": "Enter the CauseFlow AWS Account ID and enable \"Require external ID\".",
+              "4": "Paste the External ID shown below into the trust policy.",
+              "5": "Attach the AWS managed policy ReadOnlyAccess (provides read-only access across all AWS services). If you don't see it in the policy list, change the filter to 'AWS managed - job function'.",
+              "6": "Name the role (e.g. CauseFlowReadOnly) and copy the Role ARN."
+            }
+          },
+          "slack": {
+            "title": "Slack App Setup",
+            "scopes": "channels:read, users:read, groups:read",
+            "docsUrl": "https://api.slack.com/start/quickstart",
+            "steps": {
+              "1": "Go to api.slack.com/apps and click \"Create New App\".",
+              "2": "Choose \"From scratch\" and name it (e.g. CauseFlow).",
+              "3": "Under OAuth & Permissions, add Bot Token Scopes: channels:read, users:read, groups:read.",
+              "4": "Click \"Install to Workspace\" and authorize the app.",
+              "5": "Copy the Bot User OAuth Token (starts with xoxb-)."
+            }
+          },
+          "jira": {
+            "title": "Jira API Token Setup",
+            "scopes": "Read issues, projects, boards",
+            "docsUrl": "https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/",
+            "steps": {
+              "1": "Go to id.atlassian.com/manage-profile/security/api-tokens.",
+              "2": "Click \"Create API token\" and give it a label (e.g. CauseFlow).",
+              "3": "Copy the generated token.",
+              "4": "Enter your Atlassian email and the domain URL (e.g. https://yourcompany.atlassian.net)."
+            }
+          },
+          "trello": {
+            "title": "Trello API Setup",
+            "scopes": "Read boards, cards, lists",
+            "docsUrl": "https://developer.atlassian.com/cloud/trello/guides/rest-api/api-introduction/",
+            "steps": {
+              "1": "Go to trello.com/power-ups/admin and log in.",
+              "2": "Click \"New\" to create a new Power-Up/Integration.",
+              "3": "Go to the API Key section and generate your API Key.",
+              "4": "Click the \"Token\" link next to your API key to generate a read-only token.",
+              "5": "Copy both the API Key and Token."
+            }
+          },
+          "notion": {
+            "title": "Notion Integration Setup",
+            "scopes": "Read pages, databases",
+            "docsUrl": "https://developers.notion.com/docs/create-a-notion-integration",
+            "steps": {
+              "1": "Go to notion.so/my-integrations and click \"New integration\".",
+              "2": "Name it (e.g. CauseFlow) and select the workspace.",
+              "3": "Under Capabilities, select only \"Read content\" (no write needed).",
+              "4": "Copy the Internal Integration Token (starts with secret_).",
+              "5": "In Notion, share the pages/databases you want to connect with this integration."
+            }
+          },
+          "shortcut": {
+            "title": "Shortcut API Token Setup",
+            "scopes": "Read stories, epics, iterations",
+            "docsUrl": "https://developer.shortcut.com/api/rest/v3",
+            "steps": {
+              "1": "Go to app.shortcut.com and click your avatar in the bottom-left.",
+              "2": "Select \"Settings\" then \"API Tokens\".",
+              "3": "Click \"Generate Token\" and give it a descriptive name.",
+              "4": "Copy the generated API token."
+            }
+          },
+          "github": {
+            "title": "GitHub App Setup",
+            "scopes": "Read repos, issues, pull requests",
+            "docsUrl": "https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps",
+            "steps": {
+              "1": "Go to github.com/settings/apps and click \"New GitHub App\".",
+              "2": "Name it (e.g. CauseFlow) and set the Homepage URL.",
+              "3": "Under Permissions, set Repository permissions to Read-only for: Contents, Issues, Pull requests, Metadata.",
+              "4": "Generate a private key and download the PEM file.",
+              "5": "Install the app on your organization or repositories.",
+              "6": "Note the App ID (from app settings) and Installation ID (from the URL after installing)."
+            }
+          },
+          "hubspot": {
+            "title": "HubSpot Private App Setup",
+            "scopes": "Read contacts, deals, tickets",
+            "docsUrl": "https://developers.hubspot.com/docs/api/private-apps",
+            "steps": {
+              "1": "Go to HubSpot Settings > Integrations > Private Apps.",
+              "2": "Click \"Create a private app\" and name it (e.g. CauseFlow).",
+              "3": "Under Scopes, select read-only access for: crm.objects.contacts.read, crm.objects.deals.read, tickets.",
+              "4": "Click \"Create app\" and copy the Access Token (starts with pat-)."
+            }
+          },
+          "sentry": {
+            "title": "Sentry Auth Token Setup",
+            "scopes": "Read issues, events, projects",
+            "docsUrl": "https://docs.sentry.io/api/guides/create-auth-token/",
+            "steps": {
+              "1": "Go to sentry.io and navigate to Settings > Auth Tokens.",
+              "2": "Click \"Create New Token\".",
+              "3": "Select scopes: project:read, event:read, org:read.",
+              "4": "Copy the generated auth token.",
+              "5": "Enter your organization slug (visible in the Sentry URL)."
+            }
+          }
+        }
+      },
+      "slack": {
+        "connectButton": "Add to Slack",
+        "connected": "Connected to {workspace}",
+        "connectedLabel": "Connected",
+        "disconnectButton": "Disconnect",
+        "disconnectTitle": "Disconnect Slack",
+        "cancelButton": "Cancel",
+        "saveError": "Failed to save Slack configuration. Please try again.",
+        "channelLabel": "Notification Channel",
+        "channelPlaceholder": "#incidents",
+        "channelError": "Channel must start with # and contain only lowercase letters, numbers, hyphens, underscores",
+        "saveSuccess": "Saved",
+        "testSuccess": "Test message sent to {channel}",
+        "testFailed": "Test failed: {error}",
+        "disconnectConfirm": "Disconnect Slack? Notifications will stop.",
+        "disconnectSuccess": "Slack disconnected"
+      },
+      "triggers": {
+        "sentry": { "new_issue": "New issue detected" },
+        "pagerduty": { "incident_triggered": "Incident triggered" },
+        "github": {
+          "commit_event": "New commit pushed",
+          "pull_request_event": "Pull request event"
+        },
+        "datadog": { "monitor_triggered": "Monitor alert triggered" }
+      },
+      "sentrySetup": {
+        "title": "Configure Sentry Internal Integration",
+        "subtitle": "Sentry's Internal Integration emits a Client Secret used to sign every webhook with HMAC-SHA256. Follow the steps below carefully.",
+        "webhookUrlLabel": "Webhook URL",
+        "webhookUrlHelp": "Paste this exact URL into Sentry's Webhook URL field.",
+        "clientSecretLabel": "Client Secret",
+        "clientSecretPlaceholder": "Paste the Client Secret displayed by Sentry",
+        "clientSecretHelp": "We forward this once to our backend and never store it in your browser. Required to verify webhooks.",
+        "submitButton": "Save & verify",
+        "submittingButton": "Saving…",
+        "successToast": "Sentry Client Secret saved. Awaiting first event.",
+        "errorToast": "Failed to save Sentry Client Secret: {message}",
+        "instructionsTitle": "Setup steps",
+        "steps": {
+          "1": "In Sentry, go to Settings → Integrations.",
+          "2": "Click Create New Integration.",
+          "3": "Select Internal Integration (NOT Public).",
+          "4": "In Webhook URL, paste the value displayed above.",
+          "5": "Permissions: set Issue & Event = Read and Webhooks = Read.",
+          "6": "Webhooks (issue): subscribe to created, resolved, assigned, archived, unresolved.",
+          "7": "Save → copy the displayed Client Secret and paste it below."
+        },
+        "events": {
+          "title": "Required issue webhook events",
+          "list": "created, resolved, assigned, archived, unresolved"
+        },
+        "showInstructions": "Show setup instructions"
+      },
+      "sentryStatus": {
+        "setupRequired": "Setup required",
+        "awaiting": "Awaiting first event from Sentry",
+        "verified": "Verified — last event {time}",
+        "verifiedNoEvent": "Verified",
+        "neverEvent": "no events yet"
+      },
+      "webhookSetup": {
+        "title": "Configure {name} webhook",
+        "urlLabel": "Webhook URL",
+        "instructions": "Paste the URL below into your {name} webhook settings to start receiving alerts.",
+        "doneButton": "Done",
+        "sentry": {
+          "steps": {
+            "1": "Open Sentry and navigate to Settings → Integrations → Webhooks.",
+            "2": "Click 'Add Webhook'.",
+            "3": "Paste the URL above into the 'Callback URLs' field.",
+            "4": "Save the webhook. Sentry will POST every new issue event to CauseFlow."
+          },
+          "docsUrl": "https://docs.sentry.io/product/integrations/integration-platform/webhooks/"
+        },
+        "pagerduty": {
+          "steps": {
+            "1": "Open PagerDuty and navigate to Integrations → Generic Webhooks (v3).",
+            "2": "Click '+ New Webhook'.",
+            "3": "Paste the URL above into the 'Webhook URL' field.",
+            "4": "Set the scope to the service(s) you want CauseFlow to investigate.",
+            "5": "Save. CauseFlow will receive every incident.triggered event."
+          },
+          "docsUrl": "https://support.pagerduty.com/docs/webhooks"
+        },
+        "datadog": {
+          "steps": {
+            "1": "Open Datadog and navigate to Integrations → Webhooks.",
+            "2": "Click '+ New' to add a webhook. Name it 'causeflow'.",
+            "3": "Paste the URL above into the 'URL' field.",
+            "4": "Save the webhook.",
+            "5": "In each Monitor that should trigger an investigation, add @webhook-causeflow to the notification message."
+          },
+          "docsUrl": "https://docs.datadoghq.com/integrations/webhooks/"
+        }
+      },
+      "connectedToast": "{provider} connected successfully",
+      "connectErrorToast": "Failed to connect: {message}",
+      "disconnect": {
+        "title": "Disconnect {name}",
+        "warning": "This will remove the connection to {name}. Ongoing investigations using this integration may be affected.",
+        "confirm": "Disconnect",
+        "cancel": "Cancel",
+        "disconnecting": "Disconnecting...",
+        "successToast": "{name} disconnected"
+      },
+      "integrations": {
+        "slack": {
+          "name": "Slack",
+          "description": "Real-time incident alerts for engineering and support teams",
+          "category": "Communication"
+        },
+        "github": {
+          "name": "GitHub",
+          "description": "Code changes, deployments, and PR correlation",
+          "category": "Code"
+        },
+        "jira": {
+          "name": "Jira",
+          "description": "Incident tickets, resolution tracking, SLA monitoring",
+          "category": "Management"
+        },
+        "cloudwatch": {
+          "name": "AWS",
+          "description": "Read-only access across all AWS services via IAM Assume Role",
+          "category": "Monitoring"
+        },
+        "hubspot": {
+          "name": "HubSpot",
+          "description": "Customer impact tracking and communication automation",
+          "category": "CRM"
+        },
+        "trello": {
+          "name": "Trello",
+          "description": "Visual incident boards and task tracking",
+          "category": "Management"
+        },
+        "notion": {
+          "name": "Notion",
+          "description": "Knowledge base pages and database access for investigations",
+          "category": "Knowledge"
+        },
+        "shortcut": {
+          "name": "Shortcut",
+          "description": "Story tracking, epics, and iteration management",
+          "category": "Management"
+        },
+        "postgresql": {
+          "name": "PostgreSQL",
+          "description": "Database performance monitoring and query analysis",
+          "category": "Database"
+        },
+        "linear": {
+          "name": "Linear",
+          "description": "Issue tracking and engineering workflow automation",
+          "category": "Management"
+        },
+        "sentry": {
+          "name": "Sentry",
+          "description": "Error tracking and application performance monitoring",
+          "category": "Monitoring"
+        },
+        "mongodb": {
+          "name": "MongoDB",
+          "description": "NoSQL database monitoring and performance insights",
+          "category": "Database"
+        },
+        "datadog": {
+          "name": "Datadog",
+          "description": "Infrastructure monitoring and APM correlation",
+          "category": "Monitoring"
+        },
+        "pagerduty": {
+          "name": "PagerDuty",
+          "description": "On-call management and escalation automation",
+          "category": "Monitoring"
+        },
+        "grafana": {
+          "name": "Grafana",
+          "description": "Dashboard metrics and visualization correlation",
+          "category": "Monitoring"
+        },
+        "confluence": {
+          "name": "Confluence",
+          "description": "Knowledge base and runbook integration",
+          "category": "Knowledge"
+        },
+        "webhooks": {
+          "name": "Custom Webhooks",
+          "description": "Connect any tool via HTTP webhooks",
+          "category": "API"
+        }
+      },
+      "trigger": {
+        "createError": "Failed to create trigger. Please try again."
+      }
+    }
+  }
+}

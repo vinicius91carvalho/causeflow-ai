@@ -1,0 +1,20 @@
+{
+  "_note": "PLACEHOLDER — replace with real captured payload from CloudWatch after staging deploy. This is the expected native Sentry webhook shape that Composio passes through for SENTRY_NEW_ISSUE trigger events.",
+  "action": "created",
+  "data": {
+    "issue": {
+      "id": "12345",
+      "title": "ZeroDivisionError: division by zero",
+      "culprit": "app/views/index.py in divide",
+      "level": "error",
+      "project": {
+        "id": "proj_1",
+        "name": "my-backend",
+        "slug": "my-backend"
+      }
+    }
+  },
+  "installation": {
+    "uuid": "abc123"
+  }
+}

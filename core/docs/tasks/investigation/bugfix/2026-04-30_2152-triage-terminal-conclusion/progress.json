@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "prd_name": "2026-04-30_2152-triage-terminal-conclusion",
+  "owner_session_id": "bb71d772-9f34-4a59-b99e-8aa1f688b574",
+  "created_at": "2026-04-30T22:00:00Z",
+  "sprints": [
+    {
+      "id": "01-core-terminal-triage-conclusion",
+      "title": "Terminal-triage conclusion (backend)",
+      "spec_path": "sprints/01-core-terminal-triage-conclusion.md",
+      "repo": "core",
+      "depends_on": [],
+      "status": "completed",
+      "started_at": "2026-04-30T22:48:36Z",
+      "completed_at": "2026-05-04T21:58:00Z",
+      "branch": "sprint/2026-04-30_2152-triage-terminal-conclusion/01-core-terminal-triage-conclusion",
+      "worktree_path": null,
+      "notes": "Resumed and finished by session a9a39fb2 (commit 0577d7a). 41/41 tests green; typecheck/lint/lint-invariants clean for sprint files. Constructor overloads added to TriageIncidentUseCase to clear LSP excess-property check on deps-object call sites. Branch not yet pushed — orchestrator will batch-push after Sprint 03.",
+      "claimed_by_session": "a9a39fb2-7cb8-48fa-ad1f-abbc7e12b7d9",
+      "claim_heartbeat_at": "2026-05-04T21:58:00Z"
+    },
+    {
+      "id": "02-web-stale-investigation-safety-net",
+      "title": "Stale-investigation safety net (web)",
+      "spec_path": "sprints/02-web-stale-investigation-safety-net.md",
+      "repo": "web",
+      "depends_on": [],
+      "status": "completed",
+      "started_at": "2026-05-04T22:00:00Z",
+      "completed_at": "2026-05-04T22:22:00Z",
+      "branch": "sprint/2026-04-30_2152-triage-terminal-conclusion/02-web-stale-investigation-safety-net",
+      "worktree_path": "/root/projects/causeflow/web/.claude/worktrees/agent-ac40ca16733bf62b4",
+      "notes": "Commit 190f757. 1078/1078 dashboard tests pass; pnpm check (Biome) clean; turbo check-types clean. Helper falls back to updatedAt-only when latestEvidenceAt unavailable (Incident type has no feed-timestamp field). i18n keys rootCauseSlowHint added in en.json and pt-br.json. Bundle smoke test: dev server up on :3001 (Ready in 18.5s), no compile errors involving root-cause-card.tsx or is-stale-investigation.ts; only console error is 404 from /onboarding/choose-plan redirect (Clerk middleware sends unauthenticated users there but route is locale-nested). Visual hint render BLOCKED — requires Clerk session + tenant + stranded incident seed; deferred to staging post-deploy operator verification.",
+      "claimed_by_session": "a9a39fb2-7cb8-48fa-ad1f-abbc7e12b7d9",
+      "claim_heartbeat_at": "2026-05-04T22:22:00Z"
+    },
+    {
+      "id": "03-core-backfill-stranded-incidents",
+      "title": "Backfill stranded incidents",
+      "spec_path": "sprints/03-core-backfill-stranded-incidents.md",
+      "repo": "core",
+      "depends_on": [
+        "01-core-terminal-triage-conclusion"
+      ],
+      "status": "completed",
+      "started_at": "2026-05-04T22:30:00Z",
+      "completed_at": "2026-05-04T22:50:00Z",
+      "branch": "sprint/2026-04-30_2152-triage-terminal-conclusion/03-core-backfill-stranded-incidents",
+      "worktree_path": null,
+      "notes": "Commit d8dc643 (branched off Sprint 01 commit 0577d7a). 3/3 sprint tests pass; full unit suite 973 pass; sprint files typecheck/lint/lint-invariants clean. Tenant iteration uses --tenant <id> or BACKFILL_TENANT_IDS env fallback (no list-all API). Default dry-run; --apply writes. Operator must run on staging then prod after Sprint 01 deploys.",
+      "claimed_by_session": "a9a39fb2-7cb8-48fa-ad1f-abbc7e12b7d9",
+      "claim_heartbeat_at": "2026-05-04T22:50:00Z"
+    }
+  ],
+  "adopted_by": [
+    {
+      "session_id": "2961f5f6-2b32-44ef-96f2-03cc653d26f1",
+      "adopted_at": "2026-04-30T22:43:59Z",
+      "reason": "migrate-adopt"
+    },
+    {
+      "session_id": "a9a39fb2-7cb8-48fa-ad1f-abbc7e12b7d9",
+      "adopted_at": "2026-05-04T21:40:00Z",
+      "reason": "resume-stale-claim"
+    }
+  ],
+  "prd_slug": "2026-04-30_2152-triage-terminal-conclusion"
+}

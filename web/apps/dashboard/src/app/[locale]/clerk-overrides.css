@@ -1,0 +1,549 @@
+/*
+ * Clerk Dark Mode Fine-Tuning
+ *
+ * The ClerkThemeProvider uses Clerk's official `dark` baseTheme which handles
+ * all internal CSS-in-JS styles natively (cards, popovers, modals, footers).
+ *
+ * Colors here match CauseFlow's "original" dark theme tokens:
+ *   --background:  232 35% 6%   --card: 232 30% 10%
+ *   --foreground:  210 40% 96%  --muted-foreground: 232 12% 68%
+ *   --primary:     172 66% 50%  (electric teal)
+ *   --secondary:   232 25% 16%  --border: 232 25% 18%
+ *
+ * This file only contains additional overrides for edge cases where Clerk
+ * inline styles need !important overrides.
+ */
+
+/* ─── Dark mode: hover states ─── */
+html.dark .cl-userButtonPopoverActionButton:hover,
+html.dark .cl-organizationSwitcherPopoverActionButton:hover,
+html.dark .cl-menuItem:hover,
+html.dark .cl-navbarButton:hover,
+html.dark .cl-selectButton:hover {
+  background-color: hsl(232 25% 16%);
+}
+
+/* ─── Dark mode: active nav ─── */
+html.dark .cl-navbarButton[data-active="true"] {
+  background-color: hsl(232 25% 16%);
+}
+
+/* ─── Dark mode: badges ─── */
+html.dark .cl-badge {
+  background-color: hsl(232 25% 16%);
+  color: hsl(232 12% 68%);
+}
+
+/* ─── Dark mode: accent links (electric teal) ─── */
+html.dark .cl-footerActionLink {
+  color: hsl(172 66% 50%);
+}
+
+/* ─── Dark mode: dividers ─── */
+html.dark .cl-dividerLine {
+  background-color: hsl(232 25% 18%);
+}
+
+/* ─── Dark mode: modal backdrop ─── */
+html.dark .cl-modalBackdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* ─── Dark mode: form inputs (email, password, name fields) ─── */
+html.dark .cl-formFieldInput,
+html.dark .cl-formFieldInput__emailAddress,
+html.dark .cl-formFieldInput__password,
+html.dark .cl-formFieldInput__firstName,
+html.dark .cl-formFieldInput__lastName,
+html.dark .cl-formFieldInput__name,
+html.dark .cl-formFieldInput__identifier,
+html.dark .cl-formFieldInput__username,
+html.dark .cl-formFieldInput__phoneNumber,
+html.dark .cl-input {
+  background-color: hsl(232 25% 16%);
+  border-color: hsl(232 25% 18%);
+  color: hsl(210 40% 96%);
+}
+
+/* ─── Dark mode: card (ensures invite section container is dark) ─── */
+html.dark .cl-card {
+  background-color: hsl(232 30% 10%);
+  border-color: hsl(232 25% 18%);
+}
+
+/* ─── Dark mode: invite email tag input (cl-tagInputContainer / cl-tagPillContainer) ─── */
+html.dark .cl-tagInputContainer {
+  background-color: hsl(232 25% 16%);
+  border-color: hsl(232 25% 18%);
+  color: hsl(210 40% 96%);
+}
+
+html.dark .cl-tagPillContainer {
+  background-color: hsl(232 30% 14%);
+  border-color: hsl(232 25% 22%);
+  color: hsl(210 40% 96%);
+}
+
+html.dark .cl-tagPillIcon {
+  color: hsl(232 12% 68%);
+}
+
+html.dark .cl-tagInputContainer input {
+  background-color: transparent;
+  color: hsl(210 40% 96%);
+}
+
+html.dark .cl-tagInputContainer input::placeholder {
+  color: hsl(232 12% 50%);
+}
+
+/* ─── OTP / verification code inputs (both light & dark) ─── */
+/* Fix: Clerk OTP uses a single hidden <input> overlaid on visual cells.
+   The hidden input's text-indent / letter-spacing positions each character
+   over a cell — if the container isn't properly centered or the input
+   geometry is off the digits appear misaligned.
+   Strategy: center the outer field, ensure the hidden input fills 100%
+   and uses text-align:center so each digit lands on its cell. Also
+   explicitly size the visual cells (the individual <div> containers). */
+
+/* Outer wrapper — full width, centered */
+.cl-otpCodeField {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* The row of cells container (Clerk renders this as a flex child) */
+.cl-otpCodeField > div,
+.cl-otpCodeFieldInputs {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Individual OTP digit cell (the visual box wrapping each character).
+   Clerk uses cl-otpCodeFieldInput for each cell div. */
+.cl-otpCodeFieldInput {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  border-style: solid;
+}
+
+/* The actual hidden input that spans the full OTP field — ensure it
+   covers the cells so click-to-focus works everywhere and text aligns */
+.cl-otpCodeField input[type="text"],
+.cl-otpCodeField input[data-input-otp="true"],
+[data-field-slug="code"] input {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.75em;
+  caret-color: transparent;
+}
+
+/* Dark mode OTP cells */
+html.dark .cl-otpCodeFieldInput,
+html.dark .cl-otpCodeField input,
+html.dark [data-field-slug="code"] input,
+html.dark .cl-formFieldInput__code {
+  background-color: hsl(232 25% 16%);
+  border-color: hsl(232 25% 18%);
+  color: hsl(210 40% 96%);
+  caret-color: transparent;
+}
+
+/* Light mode OTP cell focus ring */
+html:not(.dark) .cl-otpCodeFieldInput:focus-within,
+html:not(.dark) .cl-otpCodeFieldInput[data-status="selected"],
+html:not(.dark) .cl-otpCodeFieldInput[data-status="cursor"] {
+  border-color: hsl(160 60% 40%);
+  box-shadow: 0 0 0 3px hsl(160 60% 40% / 0.25);
+}
+
+/* Dark mode OTP cell focus ring */
+html.dark .cl-otpCodeFieldInput:focus-within,
+html.dark .cl-otpCodeFieldInput[data-status="selected"],
+html.dark .cl-otpCodeFieldInput[data-status="cursor"] {
+  border-color: hsl(172 66% 50%);
+  box-shadow: 0 0 0 3px hsl(172 66% 50% / 0.25);
+}
+
+/* ─── Dark mode: input placeholders ─── */
+html.dark .cl-formFieldInput::placeholder,
+html.dark .cl-input::placeholder {
+  color: hsl(232 12% 50%);
+}
+
+/*
+ * Nuclear fallback: catch inline style="background-color: rgb(255,...)"
+ * Clerk occasionally sets light backgrounds via inline styles on internal
+ * elements that the appearance API doesn't cover.
+ */
+html.dark [class^="cl-"][style*="background-color: rgb(255"],
+html.dark [class^="cl-"][style*="background-color: rgb(250"],
+html.dark [class^="cl-"][style*="background-color: rgb(248"],
+html.dark [class^="cl-"][style*="background-color: rgb(254"],
+html.dark [class^="cl-"][style*="background-color: white"],
+html.dark [class^="cl-"][style*="background: rgb(255"],
+html.dark [class^="cl-"][style*="background: rgb(250"],
+html.dark [class^="cl-"][style*="background: white"] {
+  background: hsl(232 25% 16%);
+}
+
+/* Catch inline dark text colors in dark mode */
+html.dark [class^="cl-"][style*="color: rgb(0,"],
+html.dark [class^="cl-"][style*="color: rgb(42,"],
+html.dark [class^="cl-"][style*="color: rgb(26,"],
+html.dark [class^="cl-"][style*="color: rgb(13,"] {
+  color: hsl(210 40% 96%);
+}
+
+/* ─── Dark mode: UserProfile sections (settings page) ─── */
+html.dark .cl-profilePage,
+html.dark .cl-page,
+html.dark .cl-pageScrollBox,
+html.dark .cl-profileSection,
+html.dark .cl-profileSectionContent,
+html.dark .cl-profileSectionHeader,
+html.dark .cl-accordionContent,
+html.dark .cl-accordionTriggerButton,
+html.dark .cl-membersList,
+html.dark .cl-membersPageInviteButton,
+html.dark .cl-tableHead,
+html.dark .cl-tableBody,
+html.dark .cl-navbar {
+  background-color: hsl(232 30% 10%);
+  color: hsl(210 40% 96%);
+}
+
+html.dark .cl-profileSectionHeader,
+html.dark .cl-profileSection {
+  border-color: hsl(232 25% 18%);
+}
+
+/* ─── Dark mode: invite banner / action cards ─── */
+html.dark .cl-membersPageInviteButton,
+html.dark .cl-button__invite {
+  background-color: hsl(172 66% 50%);
+  color: hsl(232 35% 6%);
+}
+
+/* ─── Dark mode: secondary text ─── */
+html.dark .cl-headerSubtitle,
+html.dark .cl-profileSectionTitleText__danger,
+html.dark .cl-formFieldLabel,
+html.dark .cl-formFieldHintText {
+  color: hsl(232 12% 68%);
+}
+
+/* ───────────────────────────────────────────────────────────────────
+ * LIGHT MODE: Invite member modal + form fields (Sprint 2026-04-07)
+ * Clerk's default light theme leaves the invite modal with stark white
+ * surfaces and unstyled form fields that don't match CauseFlow's tokens.
+ * These rules apply ONLY in light mode (no `.dark` prefix) and target
+ * the same class hierarchy used by the dark-mode block above.
+ * ─────────────────────────────────────────────────────────────────── */
+
+html:not(.dark) .cl-organizationProfile,
+html:not(.dark) .cl-membersPage,
+html:not(.dark) .cl-membersPageInviteButton,
+html:not(.dark) .cl-organizationMembers__invitationsList,
+html:not(.dark) .cl-pageScrollBox,
+html:not(.dark) .cl-page,
+html:not(.dark) .cl-profilePage,
+html:not(.dark) .cl-profileSection,
+html:not(.dark) .cl-profileSectionContent,
+html:not(.dark) .cl-membersList,
+html:not(.dark) .cl-tableHead,
+html:not(.dark) .cl-tableBody {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+
+html:not(.dark) .cl-formFieldInput,
+html:not(.dark) .cl-formFieldInput__emailAddress,
+html:not(.dark) .cl-formFieldInput__email,
+html:not(.dark) .cl-formFieldInput__name,
+html:not(.dark) .cl-formFieldInput__role,
+html:not(.dark) .cl-input {
+  background-color: hsl(var(--background));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+html:not(.dark) .cl-formFieldLabel,
+html:not(.dark) .cl-headerTitle {
+  color: hsl(var(--foreground));
+}
+
+html:not(.dark) .cl-formFieldHintText,
+html:not(.dark) .cl-headerSubtitle {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Invite-modal primary action button: use brand primary in light mode */
+html:not(.dark) .cl-membersPageInviteButton.cl-button,
+html:not(.dark) .cl-button__invite,
+html:not(.dark) .cl-formButtonPrimary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+}
+
+/* Light mode: invite email tag input */
+html:not(.dark) .cl-tagInputContainer {
+  background-color: hsl(var(--background));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+html:not(.dark) .cl-tagPillContainer {
+  background-color: hsl(var(--secondary));
+  border-color: hsl(var(--border));
+  color: hsl(var(--secondary-foreground));
+}
+
+html:not(.dark) .cl-tagInputContainer input {
+  background-color: transparent;
+  color: hsl(var(--foreground));
+}
+
+html:not(.dark) .cl-tagInputContainer input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+/* OTP cells in light mode get matching surface/border */
+html:not(.dark) .cl-otpCodeFieldInput,
+html:not(.dark) .cl-otpCodeField input,
+html:not(.dark) [data-field-slug="code"] input,
+html:not(.dark) .cl-formFieldInput__code {
+  background-color: hsl(var(--background));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+  caret-color: transparent;
+}
+
+/* Light mode OTP cell focus ring */
+html:not(.dark) .cl-otpCodeFieldInput:focus-within,
+html:not(.dark) .cl-otpCodeFieldInput[data-status="selected"],
+html:not(.dark) .cl-otpCodeFieldInput[data-status="cursor"] {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.3);
+}
+
+/* ─── Dark mode: autofill override (browser fills with white bg) ─── */
+html.dark .cl-formFieldInput:-webkit-autofill,
+html.dark .cl-formFieldInput:-webkit-autofill:hover,
+html.dark .cl-formFieldInput:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px hsl(232 25% 16%) inset;
+  -webkit-text-fill-color: hsl(210 40% 96%);
+  border-color: hsl(232 25% 18%);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ * ORGANIZATION AVATAR / LOGO — Transparent background for PNGs
+ *
+ * Clerk wraps org logos in an <img> inside a colored container.
+ * By default this container has a gray/white background that
+ * obscures PNG transparency. Force it transparent so the logo's
+ * own alpha channel renders correctly against the page surface.
+ * Applies in: OrganizationSwitcher (topbar), OrganizationProfile
+ * (settings), and any OrganizationPreview components.
+ * ───────────────────────────────────────────────────────────────── */
+
+/* Avatar container — both the box and the image itself */
+.cl-organizationSwitcherTrigger .cl-avatarBox,
+.cl-organizationSwitcherTrigger .cl-avatarImage,
+.cl-organizationPreview .cl-avatarBox,
+.cl-organizationPreview .cl-avatarImage,
+.cl-organizationSwitcherPopoverCard .cl-avatarBox,
+.cl-organizationSwitcherPopoverCard .cl-avatarImage,
+.cl-organizationProfile .cl-avatarBox,
+.cl-organizationProfile .cl-avatarImage,
+.cl-organizationPreviewAvatarBox,
+.cl-organizationPreviewAvatarImage,
+.cl-organizationSwitcherPreviewButton .cl-avatarBox,
+.cl-organizationSwitcherPreviewButton .cl-avatarImage {
+  background: transparent;
+}
+
+/* Also handle the generic avatar wrapper Clerk uses — it sometimes
+   applies a fallback bg via inline styles */
+.cl-organizationSwitcherTrigger [class*="Avatar"],
+.cl-organizationPreview [class*="Avatar"],
+.cl-organizationProfile [class*="Avatar"] {
+  background: transparent;
+}
+
+/* Ensure the <img> itself has no background clipping */
+.cl-organizationSwitcherTrigger img,
+.cl-organizationPreview img,
+.cl-organizationProfile img {
+  background: transparent;
+  object-fit: contain;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ * CONSISTENT INPUT STYLING — All Clerk form inputs
+ *
+ * Ensures every Clerk input field (sign-in, sign-up, user profile,
+ * org profile, verification, etc.) follows CauseFlow design tokens:
+ * - Proper border radius matching sharedVariables (0.75rem)
+ * - Consistent padding and height
+ * - Focus ring using brand primary color
+ * - Smooth transitions
+ * ───────────────────────────────────────────────────────────────── */
+
+/* Base input styling — applies to ALL Clerk inputs in both modes */
+.cl-formFieldInput,
+.cl-input {
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  min-height: 2.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* Focus ring — green/teal for all inputs in both light and dark modes */
+html:not(.dark) .cl-formFieldInput:focus,
+html:not(.dark) .cl-formFieldInput:focus-visible,
+html:not(.dark) .cl-formFieldInput:focus-within,
+html:not(.dark) .cl-formFieldInput__input:focus,
+html:not(.dark) .cl-input:focus,
+html:not(.dark) .cl-input:focus-visible,
+html:not(.dark) .cl-input:focus-within {
+  border-color: hsl(160 60% 40%);
+  box-shadow: 0 0 0 3px hsl(160 60% 40% / 0.25);
+  outline: none;
+  caret-color: hsl(160 60% 40%);
+}
+
+html.dark .cl-formFieldInput:focus,
+html.dark .cl-formFieldInput:focus-visible,
+html.dark .cl-formFieldInput:focus-within,
+html.dark .cl-formFieldInput__input:focus,
+html.dark .cl-input:focus,
+html.dark .cl-input:focus-visible,
+html.dark .cl-input:focus-within {
+  border-color: hsl(172 66% 50%);
+  box-shadow: 0 0 0 3px hsl(172 66% 50% / 0.25);
+  outline: none;
+  caret-color: hsl(172 66% 50%);
+}
+
+/* Labels — consistent sizing and color */
+.cl-formFieldLabel {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+/* Form field hint text / error text */
+.cl-formFieldHintText,
+.cl-formFieldSuccessText {
+  font-size: 0.75rem;
+}
+
+.cl-formFieldErrorText {
+  font-size: 0.75rem;
+  color: #dc2626;
+}
+
+/* Primary buttons — consistent across all Clerk forms */
+.cl-formButtonPrimary {
+  border-radius: 0.5rem;
+  min-height: 2.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease,
+    box-shadow 0.2s ease;
+}
+
+.cl-formButtonPrimary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cl-formButtonPrimary:active {
+  transform: translateY(0);
+}
+
+/* Social / OAuth buttons — consistent styling */
+.cl-socialButtonsBlockButton {
+  border-radius: 0.5rem;
+  min-height: 2.5rem;
+  font-size: 0.875rem;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+html:not(.dark) .cl-socialButtonsBlockButton {
+  background-color: hsl(var(--background));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+html:not(.dark) .cl-socialButtonsBlockButton:hover {
+  background-color: hsl(var(--accent));
+  border-color: hsl(var(--border));
+}
+
+html.dark .cl-socialButtonsBlockButton:hover {
+  background-color: hsl(232 25% 20%);
+  border-color: hsl(232 25% 24%);
+}
+
+/* Light mode: autofill override */
+html:not(.dark) .cl-formFieldInput:-webkit-autofill,
+html:not(.dark) .cl-formFieldInput:-webkit-autofill:hover,
+html:not(.dark) .cl-formFieldInput:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px hsl(var(--background)) inset;
+  -webkit-text-fill-color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+/* ─── Clerk card consistency (sign-in, sign-up, user profile) ─── */
+.cl-card {
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+html.dark .cl-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Divider styling ─── */
+html:not(.dark) .cl-dividerLine {
+  background-color: hsl(var(--border));
+}
+
+html:not(.dark) .cl-dividerText {
+  color: hsl(var(--muted-foreground));
+}
+
+/* ─── Footer link styling ─── */
+html:not(.dark) .cl-footerActionLink {
+  color: hsl(var(--primary));
+}
+
+html:not(.dark) .cl-footerActionLink:hover {
+  color: hsl(var(--primary));
+  opacity: 0.8;
+}

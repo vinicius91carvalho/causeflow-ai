@@ -1,0 +1,254 @@
+---
+title: "Project management integrations"
+sidebarTitle: "Project management"
+description: "Connect Jira, Linear, Trello, Shortcut, Notion, and Confluence so agents can find related tickets and runbooks during investigations."
+---
+
+When CauseFlow investigates an incident, its agents need context about your services — architecture decisions, runbooks, past incidents, and related tickets. Project management integrations give agents access to this context automatically, without anyone needing to paste links manually.
+
+All project management integrations are connected via OAuth through CauseFlow's managed integration layer. CauseFlow handles the OAuth token lifecycle (authorization, refresh, and secure storage) so the orchestrator always has up-to-date access when an investigation starts.
+
+## How CauseFlow uses project management tools
+
+During an investigation, agents search your connected tools for:
+
+- **Related tickets** — open or recently closed issues linked to the affected service
+- **Architecture docs** — Notion pages, Confluence spaces, or wiki entries describing the service
+- **Runbooks** — step-by-step guides for known failure modes
+- **Deployment notes** — release tickets or stories describing recent changes
+
+This context enriches root cause analysis, especially for incidents where the code and infrastructure look healthy but a process or configuration change caused the issue.
+
+<Tip>
+  The more context CauseFlow has about your services, the more accurate its investigations. Connect your project management tools and link them to services in the dashboard so agents can find the right documents instantly.
+</Tip>
+
+## Available integrations
+
+| Tool | What CauseFlow accesses |
+|---|---|
+| **Jira** | Issues, epics, and comments linked to the affected service |
+| **Linear** | Issues and cycles linked to the affected team or project |
+| **Trello** | Cards and board descriptions linked to the affected service |
+| **Shortcut** | Stories and epics linked to the affected component |
+| **Notion** | Pages in workspaces you authorize, searched by service name and incident keywords |
+| **Confluence** | Spaces and pages you authorize, including runbooks and architecture docs |
+
+## Connecting via OAuth
+
+All project management integrations use the same OAuth flow.
+
+<Steps>
+  <Step title="Open the catalog">
+    Go to **Dashboard > Integrations** and find the tool you want to connect.
+  </Step>
+  <Step title="Click Connect">
+    Click **Connect** to begin the OAuth flow.
+  </Step>
+  <Step title="Authorize in the tool">
+    You'll be redirected to the tool's authorization page. Sign in and grant the requested permissions.
+  </Step>
+  <Step title="Return to CauseFlow">
+    You'll be redirected back to the dashboard. The integration will show as connected, and agents will use it on the next investigation.
+  </Step>
+</Steps>
+
+## Provider details
+
+<Tabs>
+  <Tab title="Jira">
+    ### How it works
+
+    CauseFlow searches your Jira instance for issues linked to the affected service during investigation. Agents use the service name, incident keywords, and any labels you have configured to find relevant tickets.
+
+    ### Required information
+
+    | Item | Description |
+    |---|---|
+    | **Jira Cloud or Server** | CauseFlow supports Jira Cloud (OAuth) and Jira Data Center (API token) |
+    | **Project selection** | The Jira projects CauseFlow can search |
+
+    ### What CauseFlow accesses
+
+    - Issue summary, description, and comments (read-only)
+    - Issue status and labels
+    - Epic and sprint metadata
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Open Jira integration">
+        Go to **Dashboard > Integrations > Jira** and click **Connect**.
+      </Step>
+      <Step title="Authorize on Jira">
+        You'll be redirected to Atlassian's OAuth page. Select the Jira instance and click **Accept**.
+      </Step>
+      <Step title="Select projects">
+        Back in CauseFlow, select which Jira projects agents should search during investigations.
+      </Step>
+    </Steps>
+
+    ### Troubleshooting
+
+    **"No projects found":** Confirm the Atlassian account used for OAuth has at least Browse Projects permission on the Jira projects you want to connect.
+  </Tab>
+
+  <Tab title="Linear">
+    ### How it works
+
+    CauseFlow searches your Linear workspace for issues and cycles linked to the affected team or project during investigation.
+
+    ### What CauseFlow accesses
+
+    - Issue title, description, and comments (read-only)
+    - Cycle and project metadata
+    - Team membership (to scope searches to the right team)
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Open Linear integration">
+        Go to **Dashboard > Integrations > Linear** and click **Connect**.
+      </Step>
+      <Step title="Authorize on Linear">
+        You'll be redirected to Linear's OAuth page. Click **Authorize**.
+      </Step>
+      <Step title="Return to CauseFlow">
+        The integration will show as connected. Agents automatically scope searches to teams linked to the affected service.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Trello">
+    ### How it works
+
+    CauseFlow searches your Trello boards for cards and lists linked to the affected service during investigation.
+
+    ### What CauseFlow accesses
+
+    - Card title and description (read-only)
+    - Board and list names
+    - Card labels and due dates
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Open Trello integration">
+        Go to **Dashboard > Integrations > Trello** and click **Connect**.
+      </Step>
+      <Step title="Authorize on Trello">
+        You'll be redirected to Trello's OAuth page. Click **Allow**.
+      </Step>
+      <Step title="Select boards">
+        Back in CauseFlow, select the Trello boards agents should search during investigations.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Shortcut">
+    ### How it works
+
+    CauseFlow searches your Shortcut workspace for stories and epics linked to the affected component during investigation.
+
+    ### What CauseFlow accesses
+
+    - Story name, description, and comments (read-only)
+    - Epic and iteration metadata
+    - Label and owner information
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Open Shortcut integration">
+        Go to **Dashboard > Integrations > Shortcut** and click **Connect**.
+      </Step>
+      <Step title="Authorize on Shortcut">
+        You'll be redirected to Shortcut's OAuth page. Click **Authorize**.
+      </Step>
+      <Step title="Return to CauseFlow">
+        The integration will show as connected. Agents search across all workspaces the authorized account can access.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Notion">
+    ### How it works
+
+    CauseFlow searches your Notion workspace for pages related to the affected service during investigation. This is especially useful for architecture documentation and runbooks stored in Notion.
+
+    ### What CauseFlow accesses
+
+    - Page title and content (read-only, in pages you authorize)
+    - Database entries in Notion databases you authorize
+    - Block-level content for search and retrieval
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Open Notion integration">
+        Go to **Dashboard > Integrations > Notion** and click **Connect**.
+      </Step>
+      <Step title="Authorize on Notion">
+        You'll be redirected to Notion's OAuth page. Select the pages and databases you want CauseFlow to access and click **Allow access**.
+      </Step>
+      <Step title="Return to CauseFlow">
+        The integration will show as connected. You can expand access later by reconnecting and selecting additional pages.
+      </Step>
+    </Steps>
+
+    <Note>
+      Notion's OAuth scopes access to only the pages and databases you explicitly select. CauseFlow cannot access pages you did not authorize, even if they exist in the same workspace.
+    </Note>
+  </Tab>
+
+  <Tab title="Confluence">
+    ### How it works
+
+    CauseFlow searches your Confluence instance for spaces and pages related to the affected service. This is especially useful for runbooks, architecture decision records (ADRs), and service documentation stored in Confluence.
+
+    ### What CauseFlow accesses
+
+    - Page title and content (read-only)
+    - Space metadata
+    - Attachment metadata (for linked diagrams or runbook PDFs)
+
+    ### Steps to configure in CauseFlow
+
+    <Steps>
+      <Step title="Open Confluence integration">
+        Go to **Dashboard > Integrations > Confluence** and click **Connect**.
+      </Step>
+      <Step title="Authorize on Confluence">
+        You'll be redirected to Atlassian's OAuth page. Select the Confluence instance and click **Accept**.
+      </Step>
+      <Step title="Select spaces">
+        Back in CauseFlow, select which Confluence spaces agents should search during investigations.
+      </Step>
+    </Steps>
+
+    ### Troubleshooting
+
+    **"No spaces found":** Confirm the Atlassian account used for OAuth has at least Space View permission on the Confluence spaces you want to connect.
+  </Tab>
+</Tabs>
+
+## Security
+
+OAuth tokens are stored in CauseFlow's credential vault using KMS envelope encryption. CauseFlow never stores tokens in plaintext, and access is scoped to the read-only operations you authorized.
+
+Access tokens are refreshed automatically using the OAuth refresh token flow. If a token expires or is revoked, CauseFlow shows the integration as disconnected and pauses context enrichment until you reconnect.
+
+<CardGroup cols={2}>
+  <Card title="Integrations overview" icon="list" href="/integrations/overview">
+    See the full catalog of supported tools.
+  </Card>
+  <Card title="Integrations overview" icon="list" href="/integrations/overview">
+    See the full catalog of available integrations.
+  </Card>
+  <Card title="Security overview" icon="shield" href="/security/overview">
+    Learn how CauseFlow stores and protects your credentials.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    Manage project management integrations programmatically.
+  </Card>
+</CardGroup>

@@ -1,0 +1,61 @@
+---
+title: "AI orchestrator"
+sidebarTitle: "AI orchestrator"
+description: "CauseFlow runs a single AI orchestrator that drives every investigation end-to-end."
+---
+
+CauseFlow's investigation engine is a single orchestrator agent backed by a modern large language model. Rather than dispatching a set of named sub-agents, one orchestrator manages the full investigation: it reads logs, inspects infrastructure, reviews code, queries databases, and proposes pull requests — all through iterative tool-use against your connected integrations.
+
+## What the orchestrator does
+
+The orchestrator runs an iterative tool-calling loop for each investigation:
+
+1. It receives the incident alert, triage output, and pre-investigation enrichment (historical patterns, blast radius, recent changes).
+2. It selects tools based on which integrations are connected and what the alert suggests.
+3. It calls tools repeatedly — querying logs, pulling metrics, describing infrastructure state, reading source files, running database queries — refining its hypothesis with each result.
+4. After 5 to 20 tool-call iterations, it produces a structured root cause analysis with a confidence score, supporting evidence, and recommended actions.
+
+## Capabilities by connected integration
+
+The orchestrator's reach grows as you connect more integrations. Every capability listed below is performed by the same orchestrator — not by separate agents.
+
+| Connected integration | What the orchestrator can do |
+|---|---|
+| None | Process alert payload and classify incident severity |
+| AWS (CloudWatch, ECS, EC2, Lambda) | Read logs, pull metrics, inspect infrastructure state, detect recent deployments |
+| GitHub | Read source files, review recent commits, propose draft pull requests |
+| CauseFlow Relay (databases) | Run read-only queries for database diagnostics via the privacy-preserving relay |
+| Monitoring tools (Datadog, Grafana, Sentry, PagerDuty, New Relic) | Receive alerts and trigger investigations automatically |
+| HubSpot | Enrich investigations with customer context — company, plan tier, open tickets |
+
+An investigation that spans logs, metrics, infrastructure state, code history, and database queries produces a higher-confidence root cause than one that only has logs. Start by connecting your primary monitoring tool and GitHub — those two cover the most common root cause categories.
+
+## Model routing
+
+| Task type | Why this tier |
+|---|---|
+| Investigation orchestration | High-capability reasoning model — multi-step tool orchestration + synthesis |
+| High-volume scanning subtasks | Faster model tuned for throughput — log sweeps, correlation, pattern matching |
+
+Model selection happens at the task level, not at a named-agent level. The orchestrator routes each step deterministically based on task type.
+
+## Testing modes (in progress)
+
+CauseFlow's engineering team is actively developing domain-specialized orchestration modes for specific incident types (for example, a database-focused mode that front-loads query analysis before log inspection). These modes are **not live in production**. All current investigations use the single-orchestrator approach described above.
+
+When specialized modes ship, they will be surfaced as configuration options in **Dashboard > Integrations**, not as separate agents.
+
+<CardGroup cols={2}>
+  <Card title="Root cause analysis" icon="magnifying-glass" href="/investigation/root-cause-analysis">
+    How the orchestrator synthesizes findings into a unified root cause.
+  </Card>
+  <Card title="Integrations overview" icon="plug" href="/integrations/overview">
+    Connect tools to expand the orchestrator's investigation capabilities.
+  </Card>
+  <Card title="Skills" icon="wrench" href="/getting-started/skills">
+    Extend the orchestrator with custom tools and runbooks.
+  </Card>
+  <Card title="Memory and chat" icon="brain" href="/getting-started/memory-and-chat">
+    Chat directly with the orchestrator and review its accumulated incident knowledge.
+  </Card>
+</CardGroup>

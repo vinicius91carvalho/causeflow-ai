@@ -1,0 +1,87 @@
+{
+  "prd_id": "2026-04-07_1838-rbac-member-read-access",
+  "prd_title": "Dashboard RBAC: Member Read Access + Stripe Portal",
+  "created_at": "2026-04-07T18:38:00Z",
+  "status": "build_candidate",
+  "build_candidate_tag": null,
+  "current_sprint": null,
+  "sprints": [
+    {
+      "id": "01-rbac-permissions",
+      "title": "RBAC permissions + tests",
+      "status": "complete",
+      "depends_on": [],
+      "files_to_create": [],
+      "files_to_modify": [
+        "apps/dashboard/src/contexts/identity/domain/rbac/permissions.ts",
+        "apps/dashboard/src/contexts/identity/domain/rbac/permissions.test.ts",
+        "apps/dashboard/CLAUDE.md"
+      ],
+      "files_read_only": [],
+      "shared_contracts": ["VIEW_BILLING", "VIEW_SETTINGS", "VIEW_TEAM", "VIEW_INTEGRATIONS"]
+    },
+    {
+      "id": "02-page-guards-ui",
+      "title": "Page guards + UI control gating + i18n",
+      "status": "complete",
+      "depends_on": ["01-rbac-permissions"],
+      "files_to_create": [],
+      "files_to_modify": [
+        "apps/dashboard/src/contexts/billing/presentation/pages/billing-page.tsx",
+        "apps/dashboard/src/contexts/settings/presentation/pages/settings-page.tsx",
+        "apps/dashboard/src/contexts/team/presentation/pages/team-page.tsx",
+        "apps/dashboard/src/contexts/integrations/presentation/pages/integrations-page.tsx",
+        "apps/dashboard/src/contexts/billing/infrastructure/i18n/en.json",
+        "apps/dashboard/src/contexts/billing/infrastructure/i18n/pt-br.json",
+        "apps/dashboard/src/contexts/settings/infrastructure/i18n/en.json",
+        "apps/dashboard/src/contexts/settings/infrastructure/i18n/pt-br.json",
+        "apps/dashboard/src/contexts/team/infrastructure/i18n/en.json",
+        "apps/dashboard/src/contexts/team/infrastructure/i18n/pt-br.json",
+        "apps/dashboard/src/contexts/integrations/infrastructure/i18n/en.json",
+        "apps/dashboard/src/contexts/integrations/infrastructure/i18n/pt-br.json"
+      ],
+      "files_read_only": ["apps/dashboard/src/contexts/identity/domain/rbac/permissions.ts"],
+      "shared_contracts": [
+        "VIEW_BILLING",
+        "VIEW_SETTINGS",
+        "VIEW_TEAM",
+        "VIEW_INTEGRATIONS",
+        "MANAGE_*"
+      ]
+    },
+    {
+      "id": "03-api-guards-portal",
+      "title": "API route guard relaxation + Stripe Portal member access",
+      "status": "complete",
+      "depends_on": ["01-rbac-permissions"],
+      "files_to_create": [],
+      "files_to_modify": [
+        "apps/dashboard/src/contexts/billing/api/portal-handler.ts",
+        "apps/dashboard/src/contexts/billing/api/subscription-handler.ts",
+        "apps/dashboard/src/contexts/team/api/team-handler.ts",
+        "apps/dashboard/src/contexts/integrations/api/integrations-handler.ts",
+        "apps/dashboard/src/contexts/settings/api/settings-handler.ts"
+      ],
+      "files_read_only": [
+        "apps/dashboard/src/contexts/identity/domain/rbac/permissions.ts",
+        "apps/dashboard/src/lib/api/with-auth.ts"
+      ],
+      "shared_contracts": ["VIEW_BILLING", "VIEW_SETTINGS", "VIEW_TEAM", "VIEW_INTEGRATIONS"]
+    },
+    {
+      "id": "04-e2e-verification",
+      "title": "Playwright E2E member-read test + dev server verification",
+      "status": "complete",
+      "depends_on": ["02-page-guards-ui", "03-api-guards-portal"],
+      "files_to_create": ["tests/dashboard/rbac-member-read.spec.ts"],
+      "files_to_modify": [],
+      "files_read_only": [
+        "apps/dashboard/src/contexts/billing/presentation/pages/billing-page.tsx",
+        "apps/dashboard/src/contexts/settings/presentation/pages/settings-page.tsx",
+        "apps/dashboard/src/contexts/team/presentation/pages/team-page.tsx",
+        "apps/dashboard/src/contexts/integrations/presentation/pages/integrations-page.tsx"
+      ],
+      "shared_contracts": []
+    }
+  ]
+}

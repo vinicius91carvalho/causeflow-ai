@@ -1,0 +1,84 @@
+---
+title: "Calculate blast radius"
+api: "GET /v1/graph/blast-radius/{serviceId}"
+description: "Calculate the blast radius of a service failure — which downstream services would be affected."
+---
+
+Determine the downstream impact of a service failure. Returns all affected services with hop count and impact level.
+
+## Authentication
+
+Requires a valid JWT token. Any authenticated user can access this endpoint.
+
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+## Path parameters
+
+<ParamField path="serviceId" type="string" required>
+  The ID of the service to calculate blast radius for.
+</ParamField>
+
+## Response
+
+<ResponseField name="affectedServices" type="array">
+  List of downstream services that would be affected.
+  <Expandable title="Service object">
+    <ResponseField name="serviceId" type="string">The affected service ID.</ResponseField>
+    <ResponseField name="name" type="string">The affected service name.</ResponseField>
+    <ResponseField name="hops" type="number">Number of dependency hops from the source service.</ResponseField>
+    <ResponseField name="impact" type="string">Impact level: `high`, `medium`, or `low`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="totalAffected" type="number">
+  Total number of affected services.
+</ResponseField>
+
+<CodeGroup>
+```bash curl
+curl -X GET "https://api.causeflow.ai/v1/graph/blast-radius/svc_001" \
+  -H "Authorization: Bearer <your-jwt-token>"
+```
+
+```typescript TypeScript
+const response = await fetch(
+  "https://api.causeflow.ai/v1/graph/blast-radius/svc_001",
+  {
+    headers: {
+      "Authorization": "Bearer <your-jwt-token>",
+    },
+  }
+);
+
+const data = await response.json();
+console.log(data.affectedServices);
+```
+</CodeGroup>
+
+### Example response
+
+```json
+{
+  "affectedServices": [
+    {
+      "serviceId": "svc_003",
+      "name": "order-service",
+      "hops": 1,
+      "impact": "high"
+    },
+    {
+      "serviceId": "svc_004",
+      "name": "notification-service",
+      "hops": 2,
+      "impact": "medium"
+    }
+  ],
+  "totalAffected": 2
+}
+```
+
+<Tip>
+  Use blast radius analysis during incident investigation to understand the full scope of impact. CauseFlow's AI agents also use this data to enrich their investigation context.
+</Tip>

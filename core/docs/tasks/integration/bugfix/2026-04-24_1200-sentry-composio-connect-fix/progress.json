@@ -1,0 +1,39 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-24T12:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-core-finalize-endpoint.md",
+      "title": "Core — /finalize endpoint + idempotent webhook registration",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "merged": true,
+      "agent_notes": "FinalizeConnectionUseCase + POST /connect/:provider/finalize route wired. Idempotent registerWebhookSubscription called at bootstrap when composio.apiKey set. composio.webhookUrl config added with COMPOSIO_WEBHOOK_URL override."
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-web-trigger-catalog.md",
+      "title": "Web — Add sentry/pagerduty/datadog/slack to TRIGGER_CATALOG",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "merged": true,
+      "agent_notes": "TRIGGER_CATALOG entries added for sentry/pagerduty/datadog/slack. oauth-callback-handler reads connectedAccountId (camelCase) with snake_case fallback. integration-card.tsx translates dot-notation labelKeys via t(). 12 E2E Playwright tests pass. i18n keys added in en.json + pt-br.json."
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-core-sentry-mapper.md",
+      "title": "Core — Sentry payload mapper hardening (spike-first)",
+      "status": "complete",
+      "depends_on": [1],
+      "batch": 2,
+      "model": "sonnet",
+      "merged": true,
+      "agent_notes": "Verified TriggerEventMapper.mapSentryAlert handles both payload shapes: (1) native Sentry webhook format { action, data: { issue } } — passed through unchanged, canParse returns true, NormalizedAlert fields correct; (2) Composio-normalized format { issue: {...} } with no action/data wrapper — mapper wraps as { action: 'created', data: <original> }, canParse returns true, NormalizedAlert fields correct. Level→severity mapping confirmed: fatal→critical, error→high, warning→medium. All 9 tests pass. Fixture at tests/fixtures/composio/sentry-new-issue.raw.json marked as placeholder pending real captured payload from staging."
+    }
+  ]
+}

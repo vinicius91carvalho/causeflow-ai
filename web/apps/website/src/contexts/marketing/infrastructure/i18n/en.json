@@ -1,0 +1,1550 @@
+{
+  "home": {
+    "hero": {
+      "badge": "The first AI agent bridging incident investigation and customer issue resolution",
+      "headline": "Investigate production incidents in minutes, not hours",
+      "subheadline": "Most incident resolution time is investigation, not fixing. CauseFlow deploys 6 specialized AI agents in parallel — root cause identified in ~3 minutes, end-to-end resolution in ~35 minutes vs. 2–4 hours manual. Root cause identified in minutes. Human approves. Fix deployed.",
+      "metaDescription": "AI-powered incident investigation bridging engineering and L2/L3 support. CauseFlow cross-references Slack, GitHub, Jira, CloudWatch and HubSpot to find root causes in minutes.",
+      "ctaPrimary": "Get Early Access",
+      "ctaSecondary": "See How It Works",
+      "trustText": "Now in Early Access — limited spots for teams that want to shape the product.",
+      "vizRootCause": "Root Cause Identified",
+      "vizConfidence": "97% confidence",
+      "vizFixDescription": "Memory leak in connection pool — auto-scaling triggered at 3:42 AM caused PostgreSQL max_connections overflow.",
+      "vizFixButton": "Open Fix PR →",
+      "vizProcessing": "Investigating..."
+    },
+    "techBar": {
+      "title": "Connects to the tools your team already uses"
+    },
+    "trustBar": {
+      "title": "Compliance & Certifications"
+    },
+    "metrics": {
+      "title": "The Cost of Manual Investigation",
+      "card1": {
+        "value": "2-4 hrs → ~35 min",
+        "label": "Manual investigation vs. CauseFlow end-to-end including human approval",
+        "source": "AI investigation: ~3 min. Human approval: up to 30 min. Fix execution: ~2 min."
+      },
+      "card2": {
+        "value": "$9,000/min",
+        "label": "Average cost of downtime for Global 2000 companies",
+        "source": "Splunk / Oxford Economics, 2024",
+        "sourceUrl": "https://www.splunk.com/en_us/form/the-hidden-costs-of-downtime.html"
+      },
+      "card3": {
+        "value": "43%",
+        "label": "Of engineering teams spend too much time responding to alerts",
+        "source": "Splunk State of Observability, 2025",
+        "sourceUrl": "https://www.splunk.com/en_us/blog/observability/state-of-observability-2025.html"
+      }
+    },
+    "howItWorks": {
+      "title": "How CauseFlow investigates your problems",
+      "subtitle": "6 specialized AI agents investigate in parallel — from alert to root cause in ~3 minutes. End-to-end resolution including human approval: ~35 minutes vs. 2–4 hours manual.",
+      "steps": {
+        "receive": {
+          "title": "Problem received — 4:07 AM",
+          "description": "Checkout service returning 500 errors. CauseFlow classifies severity as Critical and begins investigating immediately — no manual triage needed."
+        },
+        "investigate": {
+          "title": "6 agents investigate in parallel",
+          "description": "Log Analyst reads 847 error log lines. Metrics Analyst detects a latency spike at 4:05 AM. Change Detector finds 3 recent commits — one deployed at 3:58 AM. Infrastructure Inspector checks container restarts. Code Analyzer reads the affected service. Database Analyst queries connection pool state. All in parallel."
+        },
+        "identify": {
+          "title": "Root cause identified — confidence 91%",
+          "description": "Four independent signals converge: deployment timestamp matches error spike, connection pool config change, error pattern in logs, metrics correlation. Confidence 91% — multiple sources agree."
+        },
+        "recommend": {
+          "title": "Exact fix proposed — human approves",
+          "description": "CauseFlow proposes: \"Revert config max_connections from 50 to 200. This will restart 3 service tasks.\" You see the exact change, affected services, and estimated impact. Nothing executes without your approval."
+        },
+        "learn": {
+          "title": "Pattern learned — next time: under 2 minutes",
+          "description": "The pattern is added to the Knowledge Base with a confidence score. Second occurrence: pattern matched in seconds, same fix proposed immediately. MTTR drops from ~35 min to under 2 minutes."
+        },
+        "audit": {
+          "title": "Tamper-evident audit trail",
+          "description": "Every agent action is recorded: which sources were accessed, what data was read, and which decisions were made. Full accountability for every investigation."
+        }
+      }
+    },
+    "crossTool": {
+      "title": "One Pipeline. Two Problem Sources.",
+      "description": "SRE alert at 4:07 AM: checkout returning 500 errors. 6 agents investigate — deployment correlation found, root cause identified in 6 minutes. Customer report at 9 AM: \"my exports aren't working.\" The same pipeline investigates — same agents, same depth. Root cause identified. Customer-facing explanation generated alongside the technical fix. Both investigated by the same agent. No manual escalation. No handoff.",
+      "vizRootCause": "Root Cause Found",
+      "vizConfidence": "87% confidence",
+      "vizFixDescription": "Deployment v2.4.1 introduced a race condition in the data sync service, causing intermittent record deletion.",
+      "vizFixButton": "Open Fix PR",
+      "vizProcessing": "Cross-referencing data..."
+    },
+    "usageModes": {
+      "title": "Use CauseFlow in the way that makes most sense for your team",
+      "slack": {
+        "title": "Via Slack",
+        "description": "Send a message in Slack describing the problem and the agent investigates right in the incident channel. Results appear as a thread."
+      },
+      "jira": {
+        "title": "Via Jira/Trello",
+        "description": "Assign a card to CauseFlow and it investigates automatically. The final report becomes a comment on the card."
+      },
+      "web": {
+        "title": "Via Web Interface",
+        "description": "Access the dashboard, describe the problem, and follow the investigation in real-time with visible audit trail."
+      },
+      "api": {
+        "title": "Via API",
+        "description": "Integrate CauseFlow into your alerting pipeline. Trigger investigations via REST API with result webhooks."
+      },
+      "mcp": {
+        "title": "Via MCP Server",
+        "description": "Use CauseFlow as an MCP tool inside your AI coding agent or IDE."
+      },
+      "agent": {
+        "title": "Via AI Agent",
+        "description": "Let the CauseFlow agent work autonomously within your workflow."
+      },
+      "comingSoon": "Coming Soon"
+    },
+    "security": {
+      "title": "Enterprise Security Without Enterprise Complexity",
+      "commitments": {
+        "onDemandReading": {
+          "title": "On-demand reading",
+          "description": "The agent reads data only during investigation, then discards it. Privacy-Preserving Mode available on all plans."
+        },
+        "isolatedEncryption": {
+          "title": "Isolated encryption",
+          "description": "Each tenant has individual KMS encryption via AWS."
+        },
+        "immutableAuditTrail": {
+          "title": "Immutable audit trail",
+          "description": "Every agent action is logged and visible to the customer."
+        },
+        "noExternalTraining": {
+          "title": "No external training",
+          "description": "Your data is never used to train third-party models."
+        },
+        "readOnlyDefault": {
+          "title": "Read-only by default",
+          "description": "The agent never writes without explicit approval (human-in-the-loop)."
+        },
+        "rightToDeletion": {
+          "title": "Right to deletion",
+          "description": "Delete all your data at any time."
+        }
+      },
+      "badges": "SOC 2 Type II in progress. ISO 27001 and HIPAA on roadmap.",
+      "learnMore": "Learn more about Security"
+    },
+    "ctaFinal": {
+      "title": "Stop losing engineering hours to incident investigation",
+      "subtitle": "Get Early Access — investigate incidents with AI while your team focuses on building.",
+      "ctaPrimary": "Get Early Access",
+      "ctaSecondary": "Or contact us for a personalized walkthrough"
+    },
+    "whyNow": {
+      "title": "Why Now?",
+      "subtitle": "Two converging forces are making automated incident investigation essential.",
+      "card1": {
+        "title": "AI-Generated Code Creates More Incidents",
+        "body": "41% of all code is now AI-generated. Incidents per PR are up 23.5% year-over-year. More code shipped faster means more production problems to investigate.",
+        "source1": "CodeRabbit, Dec 2025",
+        "source1Url": "https://www.coderabbit.ai/blog/state-of-ai-vs-human-code-generation-report",
+        "source2": "Cortex Benchmark, 2026",
+        "source2Url": "https://www.cortex.io/post/ai-is-making-engineering-faster-but-not-better-state-of-ai-benchmark-2026"
+      },
+      "card2": {
+        "title": "Engineers Spend More Time on Repetitive Ops, Not Less",
+        "body": "Despite billions invested in DevOps tooling, time spent on repetitive operational tasks rose from 25% to 30% of engineering time in 2025 — the first increase in five years. Current tools optimize workflows, but nobody automates the investigation itself.",
+        "source1": "Catchpoint SRE Report, Jan 2025",
+        "source1Url": "https://www.catchpoint.com/learn/sre-report-2025"
+      }
+    },
+    "whyDifferent": {
+      "title": "Why CauseFlow Exists",
+      "subtitle": "Current incident tools optimize the wrong part of the problem. Here's what they miss — and what we built to fix it.",
+      "cards": {
+        "builtByEM": {
+          "title": "Tools Optimize the Wrong 20%",
+          "description": "Most incident resolution time is technical investigation — not coordination. Current tools automate coordination. Nobody automates the investigation itself. CauseFlow does."
+        },
+        "minutesNotHours": {
+          "title": "Recurring Issues Resolve in Under 2 Minutes",
+          "description": "First investigation: full multi-agent analysis, ~35 minutes end-to-end. Second occurrence: pattern matched in seconds, same fix proposed immediately — under 2 minutes. Your institutional knowledge stops living in engineers' heads.",
+          "source": "The average incident investigation takes 2–4 hours across fragmented tools."
+        },
+        "crossTool": {
+          "title": "Nobody Bridges SRE and Customer Support",
+          "description": "When a customer reports \"exports aren't working,\" CauseFlow investigates it the same way it would a monitoring alert — same 6 agents, same depth. Root cause identified. Customer-facing explanation generated alongside the technical fix. No escalation to engineering. No manual handoff."
+        },
+        "gracefulDegradation": {
+          "title": "Works With Whatever You Have Connected",
+          "description": "No GitHub? Code analysis is skipped — not broken. No cloud monitoring? Infrastructure agents sit out. Connect one tool today, add the rest over time. CauseFlow never fails because of a missing integration."
+        },
+        "builtForStartups": {
+          "title": "Your Reputation Grows With Your Response Time",
+          "description": "Slow incident response means lost trust and reputation damage. CauseFlow gives teams of 2–50 engineers enterprise-grade investigation without enterprise pricing."
+        },
+        "platformCompanies": {
+          "title": "Platform Companies Don't Compete at the Application Layer",
+          "description": "AWS didn't build Datadog. Google didn't build PagerDuty. AI platform companies provide the intelligence layer — we build the solution.",
+          "source": "Benedict Evans, Feb 2026",
+          "sourceUrl": "https://www.ben-evans.com/benedictevans/2026/2/19"
+        }
+      }
+    },
+    "heroV2": {
+      "eyebrow": "Incident investigation for engineering teams",
+      "headlineLead": "Stop",
+      "headlineEmphasis": "hunting logs.",
+      "headlineTail": "Ship the fix.",
+      "lead": "CauseFlow cross-references Slack, GitHub, CloudWatch, Datadog and Jira to surface production-grade root cause in minutes — with human-in-the-loop approval by default.",
+      "ctaPrimary": "Open the dashboard",
+      "ctaSecondary": "See how it works",
+      "trustText": "Now in Early Access — read-only by default, your data never trains a shared model."
+    },
+    "narrative": {
+      "eyebrow": "How it works",
+      "h1": "Connect.",
+      "h2": "Investigate.",
+      "h3": "Explain.",
+      "lead": "Read-only connectors, parallel AI agents per data source, and auditable debate between hypotheses — every conclusion links back to the evidence that produced it.",
+      "f1Title": "Read-only connectors",
+      "f1Desc": "OAuth-scoped integrations with Slack, GitHub, Jira, Datadog, Sentry and CloudWatch. No agents on your boxes, no write permissions.",
+      "f2Title": "Parallel AI agents",
+      "f2Desc": "Six specialised agents run in parallel — one per data class. Findings are cross-referenced and ranked by confidence, not by who spoke loudest.",
+      "f3Title": "Auditable explanations",
+      "f3Desc": "Every hypothesis cites its evidence. Engineers review, approve or reject — the full debate is stored as an immutable audit trail."
+    },
+    "securityFirst": {
+      "eyebrow": "Paranoid by design",
+      "headlineLead": "Security",
+      "headlineEmphasis": "first.",
+      "headlineTail": "Always.",
+      "lead": "Read-only by default. Your data never trains a shared model. SOC 2 Type II on the roadmap, LGPD and GDPR compliant today.",
+      "p1Title": "Read-only by default",
+      "p1Desc": "Zero write permissions unless you explicitly grant them. Every fix lands behind a human-approved PR.",
+      "p2Title": "Tenant isolation",
+      "p2Desc": "Per-tenant encryption keys and strict data boundaries. Your investigation data stays in your tenant.",
+      "p3Title": "Zero-retention training",
+      "p3Desc": "We never train foundation models on your incident data. Contractually, by design, by default.",
+      "p4Title": "Immutable audit trail",
+      "p4Desc": "Every prompt, retrieval and approval is captured to an append-only log for compliance review.",
+      "badgeLgpd": "LGPD",
+      "badgeGdpr": "GDPR",
+      "badgeSoc2": "SOC 2 Type II (In Progress)",
+      "badgeIso": "ISO 27001 (Roadmap)",
+      "badgeHipaa": "HIPAA (Roadmap)"
+    },
+    "ctaFinalV2": {
+      "headlineLead": "Stop",
+      "headlineEmphasis": "hunting logs.",
+      "headlineTail": "Start shipping product.",
+      "description": "Open the dashboard and connect one tool in under five minutes. Read-only, no contract, no credit card.",
+      "ctaPrimary": "Open the dashboard",
+      "ctaSecondary": "See pricing"
+    },
+    "newTemplate": {
+      "hero": {
+        "audEng": "For Engineering",
+        "audOps": "For Customer Ops",
+        "h1a": "Investigate incidents in",
+        "h1bEm": "minutes",
+        "h1bTail": ", not hours.",
+        "lead": "Specialized AI agents work in parallel, find the root cause, present evidence and propose the fix.",
+        "opsH1aPre": "Tickets",
+        "opsH1aEm": "resolved",
+        "opsH1b": "before the second coffee.",
+        "opsLead": "L2/L3 support get the root cause — with evidence — delivered straight to the ticket. No pinging engineering for every blocked customer.",
+        "cta1": "Schedule a demo →",
+        "cta2": "See it in action",
+        "trust1": "Read-only by default",
+        "trust3": "Human-in-the-loop",
+        "dash": {
+          "workspace": "Workspace",
+          "nav1": "Investigations",
+          "nav2": "Alerts",
+          "nav3": "Agents",
+          "nav4": "Integrations",
+          "nav5": "Audit trail",
+          "nav6": "Memory",
+          "investigating": "Investigating",
+          "dashTitle": "Pricing page showing stale prices",
+          "dashSubline": "INV-2847 · severity: high · source: Sentry + CloudWatch",
+          "feedL1": "Analysing last 500 events from /pricing",
+          "feedL2": "CMS query: last update to products_catalog 12 min ago",
+          "feedL3": "Cross-referencing commit a3f2c1 in pricing-service",
+          "feedL4": "CDN cache hit rate: 97% · TTL: 15min",
+          "feedL5": "Invalidation webhook did not fire after update",
+          "feedL6": "CDN cache not invalidated — CMS webhook silently failing",
+          "evidencesLabel": "Collected evidence",
+          "rootCause": "Root cause",
+          "rcVal": "Stale CDN cache",
+          "rcSub": "TTL 15min — invalidation webhook silently returning 403.",
+          "confidence": "confidence",
+          "evidence": "Evidence · 4",
+          "proposed": "Proposed fix",
+          "proposedDesc": "Rotate webhook secret · manual purge of /pricing · backfill log.",
+          "approve": "Approve",
+          "details": "Details",
+          "float1": "root cause",
+          "float2": "validated evidence"
+        }
+      },
+      "how": {
+        "eyebrow": "How it works",
+        "h1": "Connects.",
+        "h2": "Investigates.",
+        "h3": "Explains.",
+        "lead": "Read-only, minimal permission, certified. The rest happens in parallel.",
+        "confidence": "confidence",
+        "steps": [
+          {
+            "num": "01",
+            "numLabel": "Connect",
+            "title": "Plug & play in minutes",
+            "description": "+200 native integrations — Sentry, Datadog, GitHub, your databases. Read-only by default."
+          },
+          {
+            "num": "02",
+            "numLabel": "Investigate",
+            "title": "Agents in parallel",
+            "description": "Logs, metrics, code, database, infra and docs. Each with its own scope and tools."
+          },
+          {
+            "num": "03",
+            "numLabel": "Explain",
+            "title": "Root cause with evidence",
+            "description": "Full reasoning, collected evidence, proposed fix. You approve."
+          }
+        ]
+      },
+      "duo": {
+        "eyebrow": "Two products, one framework",
+        "h": {
+          "p1": "Problems of",
+          "em1": "tech",
+          "p2": "or of",
+          "em2": "customer.",
+          "p3": "The same reasoning."
+        },
+        "lead": "Production bug or customer who can't issue an invoice — the investigation is structured the same way.",
+        "sre": {
+          "tag": "AI SRE",
+          "title1": "Bug, latency,",
+          "title2": "server down.",
+          "description": "Datadog, Sentry or PagerDuty alerts become structured investigations. Root cause tied to the exact commit.",
+          "sampleLabel": "Live tech investigation",
+          "items": [
+            {
+              "icon": "→",
+              "text": "API /payments 500s in production"
+            },
+            {
+              "icon": "→",
+              "text": "Connection pool exhaustion"
+            },
+            {
+              "icon": "→",
+              "text": "Commit",
+              "mono": "a3f2c1 · max_connections"
+            },
+            {
+              "icon": "✓",
+              "text": "Fix PR ready for review"
+            }
+          ]
+        },
+        "ops": {
+          "tag": "AI Customer Ops",
+          "title1": "Customer blocked,",
+          "title2": "invoice stuck.",
+          "description": "L2/L3 support receives root cause with evidence — no pinging engineering for every ticket.",
+          "sampleLabel": "Live support investigation",
+          "items": [
+            {
+              "icon": "→",
+              "text": "Ticket #8821 \"can't issue invoice\""
+            },
+            {
+              "icon": "→",
+              "text": "CNPJ with certificate expired 3 days ago"
+            },
+            {
+              "icon": "→",
+              "text": "Last login OK · last invoice",
+              "mono": "4d"
+            },
+            {
+              "icon": "✓",
+              "text": "Response ready for customer"
+            }
+          ]
+        }
+      },
+      "integrations": {
+        "eyebrow": "Integrations",
+        "h1": "+200 tools.",
+        "h2": "Zero custom wrapper.",
+        "lead": "If your stack isn't on the list, most integrations are ready in hours.",
+        "ctaText": "Don't see your tool?",
+        "ctaLinkText": "Talk to us →",
+        "ctaLinkHref": "/pricing"
+      },
+      "timeSaved": {
+        "eyebrow": "Your team's time",
+        "h1": "Most of the time",
+        "h2": "in an incident is",
+        "em": "investigation.",
+        "lead": "Engineers reviewing logs and dashboards is engineers not building product.",
+        "before": {
+          "label": "Without CauseFlow",
+          "big": "2–4h",
+          "bigSub": "to fix",
+          "bars": [
+            {
+              "label": "alert",
+              "width": "4%",
+              "value": "5m"
+            },
+            {
+              "label": "triage",
+              "width": "22%",
+              "value": "45m"
+            },
+            {
+              "label": "investigation",
+              "width": "65%",
+              "value": "2h"
+            },
+            {
+              "label": "fix",
+              "width": "28%",
+              "value": "30m"
+            }
+          ]
+        },
+        "after": {
+          "label": "With CauseFlow",
+          "big": "~30min",
+          "bigSub": "to fix",
+          "bars": [
+            {
+              "label": "alert",
+              "width": "4%",
+              "value": "5m"
+            },
+            {
+              "label": "triage",
+              "width": "6%",
+              "value": "auto"
+            },
+            {
+              "label": "investigation",
+              "width": "14%",
+              "value": "~3m"
+            },
+            {
+              "label": "fix",
+              "width": "20%",
+              "value": "22m"
+            }
+          ]
+        },
+        "metrics": [
+          {
+            "value": "~3",
+            "unit": "min",
+            "label": "Time to root cause",
+            "description": "From alert to diagnosis with evidence — in parallel."
+          },
+          {
+            "value": "95",
+            "unit": "%",
+            "label": "Actionable findings",
+            "description": "Each investigation ends with a proposed fix, not a \"maybe look here\"."
+          },
+          {
+            "value": "4",
+            "unit": "",
+            "label": "Execution modes",
+            "description": "Chat, API, Slack and dashboard — drop an incident in, get root cause back. Same brain, any surface."
+          }
+        ]
+      },
+      "useCases": {
+        "eyebrow": "Use cases",
+        "h1": "Real scenarios,",
+        "em": "resolved in minutes.",
+        "prevLabel": "Previous",
+        "nextLabel": "Next",
+        "timeLabel": "time to rc",
+        "evLabel": "evidence",
+        "confLabel": "confidence",
+        "rootCauseLabel": "Root cause",
+        "cards": [
+          {
+            "invId": "INV-2847",
+            "severity": "medium",
+            "icon": "sentry",
+            "title": "Pricing page showing stale prices after CMS update",
+            "tags": "CMS, cache, CDN, webhook",
+            "finding": "CMS invalidation webhook failing with 403 for 12min. CDN serving /pricing stale with 15min TTL. Manual purge + webhook secret rotation.",
+            "timeToRc": "2:47",
+            "evidences": "4",
+            "confidence": "94"
+          },
+          {
+            "invId": "INV-2844",
+            "severity": "high",
+            "icon": "datadog",
+            "title": "Broken images on comparison page /from-momentic",
+            "tags": "static assets, S3, CORS",
+            "finding": "S3 bucket comparison-assets with CORS policy changed in previous deploy. 14 images returning 403 for causeflow.ai origin only. Policy rollback applied in 1 command.",
+            "timeToRc": "1:58",
+            "evidences": "6",
+            "confidence": "97"
+          },
+          {
+            "invId": "INV-2831",
+            "severity": "high",
+            "icon": "pagerduty",
+            "title": "API intermittently returning 500 errors on /payments",
+            "tags": "payments, postgres, connection pool",
+            "finding": "Connection pool exhaustion after deploy a3f2c1 that removed pool.release() in error branch. 8% of requests stalling until timeout. Fix PR generated with regression test.",
+            "timeToRc": "3:12",
+            "evidences": "7",
+            "confidence": "91"
+          },
+          {
+            "invId": "INV-2822",
+            "severity": "low",
+            "icon": "grafana",
+            "title": "Checkout latency rising gradually during peak hours",
+            "tags": "performance, n+1, ORM",
+            "finding": "N+1 on Order.items after serializer change. P95 rose from 180ms to 2.4s with 50+ cart items. Eager-loading proposed with 2-line preload.",
+            "timeToRc": "4:01",
+            "evidences": "5",
+            "confidence": "89"
+          }
+        ]
+      },
+      "alerts": {
+        "eyebrow": "Alert investigation",
+        "h1": "From critical alert",
+        "em": "to actionable response.",
+        "lead": "CauseFlow classifies every event. High or critical automatically opens an investigation — low goes to the human review feed.",
+        "sevLabels": {
+          "low": "low",
+          "medium": "medium",
+          "high": "high",
+          "critical": "critical"
+        },
+        "steps": [
+          {
+            "title": "Event received",
+            "description": "sentry.exception · pricing-service",
+            "time": "00:00",
+            "status": "done"
+          },
+          {
+            "title": "Severity classification",
+            "description": "based on blast radius, affected users, SLO",
+            "time": "+3s",
+            "status": "done"
+          },
+          {
+            "title": "Investigation opened · 6 agents in parallel",
+            "description": "logs, metrics, code, db, infra, docs",
+            "time": "+12s",
+            "status": "active"
+          },
+          {
+            "title": "Fix proposed",
+            "description": "requires human approval before executing",
+            "time": "~3min",
+            "status": "pending"
+          }
+        ]
+      },
+      "notifications": {
+        "eyebrow": "Notifications",
+        "h1": "Results arrive",
+        "em": "where you already are.",
+        "lead": "Slack, email or Teams — with the reasoning, evidence and proposed fix. One click to approve.",
+        "cards": [
+          {
+            "icon": "slack",
+            "channel": "#incidents",
+            "sender": "CauseFlow · now",
+            "title": "🔍 INV-2847 · root cause identified",
+            "body": "Stale CDN cache — CMS invalidation webhook failing with 403. Proposed fix: manual purge + secret rotation. 94% confidence.",
+            "actions": {
+              "primary": "Approve fix",
+              "secondary": "View evidence"
+            }
+          },
+          {
+            "icon": "pagerduty",
+            "channel": "PagerDuty",
+            "sender": "CauseFlow",
+            "senderMeta": "· resolved",
+            "title": "INV-2844 · broken images",
+            "body": "CORS policy reverted. 14 assets serving normally. Incident closed automatically — audit trail at /incidents/2844."
+          },
+          {
+            "icon": "linear",
+            "channel": "LIN-891",
+            "sender": "CauseFlow",
+            "title": "fix(payments): restore pool.release() in error branch",
+            "body": "PR opened with regression test. Error branch coverage: 0% → 100%. Reviewers assigned automatically."
+          }
+        ]
+      },
+      "ctaStop": {
+        "h1": "Stop",
+        "em": "chasing logs.",
+        "h2": "Start building product.",
+        "description": "Connect your stack in minutes and investigate real incidents on your infra. No contract, no card.",
+        "cta1": "Start free →",
+        "cta2": "See pricing"
+      },
+      "reasoning": {
+        "eyebrow": "Knowledge bank",
+        "headline": "More than a detective — a shared brain for your company",
+        "lead": "CauseFlow doesn't just plug into your tools and uncover the root cause. It becomes a knowledge bank about your company and products — learning from every incident and helping you make better decisions."
+      },
+      "paranoid": {
+        "eyebrow": "Paranoid by design",
+        "h1": "Security that doesn't",
+        "em": "slow you down.",
+        "lead": "Read-only by default. The agent works alongside you, asks for clarification mid-investigation, and never writes without your sign-off.",
+        "futureLabel": "Future feature",
+        "groups": [
+          {
+            "title": "Minimum access with full control",
+            "cards": [
+              {
+                "icon": "readonly",
+                "title": "On-demand reading, no persistence",
+                "description": "The agent reads data only during an active investigation. After analysis, data is discarded. We don't store raw customer data.",
+                "techNote": "Data read on demand, analyzed in-memory, discarded after investigation completion.",
+                "future": "false"
+              },
+              {
+                "icon": "scope",
+                "title": "Least privilege access",
+                "description": "Every integration uses read-only credentials with the minimum scope via OAuth. The agent never has write access unless explicitly authorized.",
+                "techNote": "OAuth scopes limited to read-only; write access requires explicit human approval.",
+                "future": "false"
+              },
+              {
+                "icon": "approve",
+                "title": "No writing by default",
+                "description": "The agent is read-only. Remediation actions require explicit user approval (human-in-the-loop) before any destructive action.",
+                "techNote": "All write operations gated behind a human-in-the-loop approval flow.",
+                "future": "false"
+              }
+            ]
+          },
+          {
+            "title": "Isolation and transparency",
+            "cards": [
+              {
+                "icon": "tenant",
+                "title": "Tenant isolation",
+                "description": "Each customer has individual KMS encryption via AWS. Data is never mixed between customers. LLM calls contain data from exactly one tenant.",
+                "techNote": "Per-tenant KMS keys, isolated ECS tasks, single-tenant LLM contexts.",
+                "future": "false"
+              },
+              {
+                "icon": "no-train",
+                "title": "No cross-training",
+                "description": "Customer data is never used to train models for other customers. Fine-tuning is exclusive per account when applicable.",
+                "techNote": "Zero cross-customer data sharing; per-account fine-tuning isolation.",
+                "future": "false"
+              },
+              {
+                "icon": "audit",
+                "title": "Immutable audit trail",
+                "description": "Each investigation generates a detailed log in S3 with Object Lock (WORM). The log is visible to the customer and cannot be altered.",
+                "techNote": "S3 Object Lock (WORM); includes sources accessed, data read, tokens processed, result.",
+                "future": "true"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "product": {
+    "hero": {
+      "title": "How CauseFlow Solves\nIncident Investigation",
+      "subtitle": "Stop spending 2–4 hours per incident switching tools. CauseFlow connects to your monitoring, code, and infrastructure tools, deploys 6 specialized agents in parallel, and delivers root cause with fix recommendations in ~3 minutes.",
+      "metaDescription": "CauseFlow deploys 6 specialized AI agents across your monitoring, code, and infrastructure tools to deliver root cause and fix recommendations in ~3 minutes.",
+      "ctaPrimary": "Get Early Access",
+      "ctaSecondary": "Explore the Product"
+    },
+    "phases": {
+      "phase1": {
+        "title": "Phase 1 —Assisted Investigation + Remediation",
+        "step1": {
+          "title": "Receives the problem",
+          "description": "Via web interface or API. Describe the problem in natural language — 'the checkout page is returning 500 errors' or 'a customer says their data was deleted' — and the agent starts investigating immediately. Both infrastructure alerts and customer-reported issues."
+        },
+        "step2": {
+          "title": "Multiple specialized agents investigate in parallel",
+          "description": "Log Analyst — reads error logs, finds patterns and exceptions. Metrics Analyst — analyzes CPU, memory, latency, error rate. Infrastructure Inspector — checks service and container state, recent restarts. Change Detector — finds recent deployments, config changes, code pushes. Code Analyzer — reads relevant code via your connected repository. Database Analyst — queries database state and performance. Each agent gets temporary, read-only credentials scoped to exactly its data source — valid for 15 minutes. If you haven't connected an integration, that agent sits out gracefully."
+        },
+        "step3": {
+          "title": "Analyzes and correlates across all sources",
+          "description": "Cross-references findings from all active agents. Generates hypotheses, tests each against available evidence, and assigns a confidence score (0-100%) reflecting how many independent data sources corroborate the finding. High confidence: multiple signals agree. Lower confidence: contradicting signals — CauseFlow flags the uncertainty."
+        },
+        "step4": {
+          "title": "Delivers complete report",
+          "description": "Probable root cause + confidence score + chronological event timeline + specific fix recommendations + customer impact summary (if applicable). Entire investigation takes ~3 minutes."
+        },
+        "remediation": "CauseFlow proposes the exact fix: \"Revert config max_connections from 50 to 200. This will restart 3 service tasks.\" You see the proposed change, the affected services, and the estimated impact. Tap Approve — and the fix executes. Nothing runs without your explicit approval. Timeout: if no decision in 30 minutes, the action is automatically cancelled."
+      },
+      "phase2": {
+        "title": "Phase 2 —Intelligent Knowledge Base",
+        "headline": "Every Investigation Makes CauseFlow Smarter",
+        "description": "After each investigation, CauseFlow extracts the pattern — root cause signature, fix, confidence — and adds it to the Knowledge Base. Status progresses: Learning → Stable → Runbook Candidate.",
+        "firstOccurrence": {
+          "label": "First occurrence",
+          "time": "~35 min end-to-end",
+          "detail": "Full investigation by 6 specialized agents. Root cause identified in ~3 minutes. Human approves fix. Pattern extracted and added to the Knowledge Base."
+        },
+        "secondOccurrence": {
+          "label": "Second occurrence",
+          "time": "Under 2 minutes",
+          "detail": "Pattern matched in seconds. Same fix proposed immediately. Human approves. No full investigation needed. MTTR: 1m 47s."
+        },
+        "kbEntry": {
+          "label": "Knowledge Base entry",
+          "pattern": "Connection pool exhaustion — checkout service",
+          "firstSeen": "First seen: 2026-02-12",
+          "recurrences": "Recurrences: 4",
+          "avgResolution": "Avg resolution on recurrence: 1m 47s",
+          "signature": "Root cause signature: max_connections config < 100 under sustained load",
+          "fix": "Fix template: Revert max_connections to baseline + alert rule added"
+        },
+        "runbookNote": "After multiple recurrences, CauseFlow flags this as a Runbook Candidate — your L1 support team can resolve it directly, without involving engineers."
+      },
+      "phase3": {
+        "title": "Phase 3 —Autonomous Remediation",
+        "badge": "On the Roadmap",
+        "headline": "From Reactive to Preventive",
+        "description": "Using accumulated investigation data and production patterns, CauseFlow will proactively identify conditions likely to cause incidents before they impact customers — shifting your team from reactive firefighting to predictive prevention. Combined with autonomous remediation (deploy reverts, config adjustments, auto-scaling), always with human-in-the-loop for destructive actions. The goal: prevent incidents before your customers even notice."
+      }
+    },
+    "auditTrail": {
+      "title": "See exactly what the agent did",
+      "subtitle": "Total transparency. Every agent action is recorded in an immutable log visible to you."
+    },
+    "architecture": {
+      "title": "Technical Architecture",
+      "connectivity": "Connectivity layer: standard integration protocol servers (10,000+ available in the ecosystem)",
+      "core": "Proprietary core: Planning engine, hypothesis generation, learning and Knowledge Base",
+      "llm": "LLM Gateway: Uses lightweight models for log reading and data extraction. Reserves higher-capability models for final synthesis and root cause reasoning. This keeps investigations fast without sacrificing accuracy on the decisions that matter.",
+      "security": "Security: AWS Bedrock (ISO/IEC 42001), KMS per-tenant, PII detection engine"
+    }
+  },
+  "integrations": {
+    "hero": {
+      "title": "Connect your entire stack",
+      "subtitle": "CauseFlow integrates with your existing tools — monitoring, code, databases, and customer support. Each one mapped to a specialized AI agent."
+    },
+    "catalog": {
+      "title": "Integration Catalog",
+      "availableNow": "Available Now",
+      "onTheRoadmap": "On the Roadmap",
+      "andMore": "And many more...",
+      "andMoreDescription": "We are constantly adding new integrations. Contact us if you need a specific tool."
+    },
+    "categories": {
+      "all": "All",
+      "communication": "Communication",
+      "code": "Code",
+      "monitoring": "Monitoring",
+      "management": "Project Management",
+      "crm": "CRM & Business",
+      "database": "Database",
+      "knowledge": "Knowledge",
+      "cloud": "Cloud Infrastructure",
+      "ciCd": "CI/CD",
+      "api": "API"
+    },
+    "security": {
+      "title": "Integration security, inherited by design",
+      "description": "Dashboard integrations are handled by a SOC 2 Type II–certified infrastructure partner. Every OAuth flow, credential vault, and audit trail inherits their compliance posture from day one — so CauseFlow never touches raw secrets and every tool stays scoped, encrypted, and auditable.",
+      "soc2Title": "SOC 2 Type II from day one",
+      "soc2Description": "Our integration layer is provided by a SOC 2 Type II–certified partner. All OAuth credentials, tokens, and refresh flows live inside their audited vault — covered by their attestation from the moment you connect a tool.",
+      "iso27001Title": "Enterprise-grade key management",
+      "iso27001Description": "Credentials are encrypted with per-tenant KMS keys inside the partner vault. Secrets never land in CauseFlow application logs, CI artifacts, or error reports.",
+      "oauthTitle": "Scoped OAuth, no long-lived secrets",
+      "oauthDescription": "Every integration uses OAuth 2.0 with the minimum scope required. Short-lived tokens are rotated automatically; no long-lived API keys sit on our servers.",
+      "encryptionTitle": "Read-only by default",
+      "encryptionDescription": "All integration credentials grant read-only access during investigations. Any write action — a PR, a runbook execution, a remediation — requires explicit human approval.",
+      "readOnlyTitle": "Full audit trail per tool",
+      "readOnlyDescription": "Every call the agent makes through an integration is logged: who, when, which endpoint, which scope. The trail lives in your workspace and is exportable for audits.",
+      "tenantIsolationTitle": "Strict tenant isolation",
+      "tenantIsolationDescription": "Credentials, tokens, and cached responses are partitioned per tenant at every layer. Cross-tenant access is architecturally impossible — not just policy-forbidden."
+    },
+    "principles": {
+      "title": "Integration Principles",
+      "setupMinutes": {
+        "title": "Setup in minutes",
+        "description": "OAuth or API key —no complex setup, no agent to install. Average setup: 3 minutes per integration."
+      },
+      "readOnly": {
+        "title": "Read-only by default",
+        "description": "The agent only reads. Never modifies your data without explicit approval."
+      },
+      "onlyNeeded": {
+        "title": "Only what's needed",
+        "description": "Fetches only the data relevant to the active investigation. No mass collection."
+      },
+      "noSensitiveData": {
+        "title": "No sensitive data",
+        "description": "Automatic PII/sensitive data redaction via open-source PII detection engine."
+      },
+      "technicalBusiness": {
+        "title": "Technical + Business: The Bridge",
+        "description": "The first platform to cross technical tools (GitHub, CloudWatch, databases) with business tools (HubSpot, Jira). When a customer reports a problem, CauseFlow investigates the technical root cause and the business impact together — generating both a fix and a customer-facing explanation."
+      },
+      "openApi": {
+        "title": "Open API",
+        "description": "REST API for custom integrations and result webhooks."
+      }
+    }
+  },
+  "security": {
+    "hero": {
+      "title": "Security you can audit",
+      "subtitle": "CauseFlow's Privacy-Enhancing Technology anonymizes sensitive data inside your infrastructure before any transmission. Your raw data never leaves your environment — GDPR & LGPD compliant."
+    },
+    "commitments": {
+      "pillar1Title": "Minimum Access with Full Control",
+      "pillar2Title": "Isolation and Transparency",
+      "onDemandReading": {
+        "title": "On-demand reading, no persistence",
+        "description": "The agent reads data only during active investigation. After analysis, data is discarded. We don't store raw customer data.",
+        "technicalDetail": "Data read on demand, analyzed in-memory, discarded after investigation completion."
+      },
+      "leastPrivilege": {
+        "title": "Least privilege access",
+        "description": "Each integration uses read-only credentials with minimum scope via OAuth. The agent never has write access unless explicitly authorized.",
+        "technicalDetail": "OAuth scopes limited to read-only; write access requires explicit human approval."
+      },
+      "noWriteDefault": {
+        "title": "No writing by default",
+        "description": "The agent is read-only. Remediation actions require explicit user approval (human-in-the-loop) before any destructive action.",
+        "technicalDetail": "All write operations gated behind human-in-the-loop approval flow."
+      },
+      "tenantIsolation": {
+        "title": "Tenant isolation",
+        "description": "Each customer has individual KMS encryption via AWS. Data is never mixed between customers. LLM calls contain data from exactly one tenant.",
+        "technicalDetail": "Per-tenant KMS keys, isolated ECS tasks, single-tenant LLM contexts."
+      },
+      "noCrossTraining": {
+        "title": "No cross-training",
+        "description": "Customer data is never used to train models for other customers. Fine-tuning is exclusive per account when applicable.",
+        "technicalDetail": "Zero cross-customer data sharing; per-account fine-tuning isolation."
+      },
+      "immutableAuditTrail": {
+        "title": "Immutable audit trail",
+        "description": "Each investigation generates detailed log in S3 with Object Lock (WORM). The log is visible to the customer and cannot be altered.",
+        "technicalDetail": "S3 Object Lock (WORM), includes: sources accessed, data read, tokens processed, result."
+      }
+    },
+    "compliance": {
+      "title": "Compliance & Certifications",
+      "lgpd": {
+        "name": "LGPD",
+        "status": "Compliant since launch",
+        "details": "KMS per-tenant + TTL + right-to-delete. Data subject requests fulfilled in 15 days. Breach notification in 72h."
+      },
+      "gdpr": {
+        "name": "GDPR",
+        "status": "Compliant since launch",
+        "details": "Same mechanisms cover GDPR. Standard Contractual Clauses for cross-border transfers."
+      },
+      "soc2Type2": {
+        "name": "SOC 2 Type II",
+        "status": "In Progress",
+        "details": "Full audit cycle with independent assessor. Automated compliance platform in use."
+      },
+      "iso27001": {
+        "name": "ISO 27001",
+        "status": "On Roadmap",
+        "details": "Information security management system certification planned."
+      },
+      "hipaa": {
+        "name": "HIPAA",
+        "status": "On Roadmap",
+        "details": "Healthcare data compliance certification planned."
+      }
+    },
+    "architecture": {
+      "title": "Security Architecture",
+      "waf": "Client (HTTPS) -> Web Application Firewall -> Load Balancer -> ECS Tasks (private subnets)",
+      "nat": "ECS Tasks -> Network Gateway -> External APIs (Slack, GitHub, etc.)",
+      "credentials": "Credentials in AWS Secrets Manager with automatic rotation",
+      "database": "Managed Database/NoSQL Database in private subnet with no internet exposure",
+      "logs": "All logs centralized in Monitoring & Alerting + Immutable Object Storage",
+      "encryption": "Data at rest: AES-256 per-tenant encryption keys. Data in transit: TLS 1.3"
+    },
+    "isolation": {
+      "title": "Data Isolation (Multi-tenancy)",
+      "application": "Tenant ID required in every query, log and record. LLM calls containing data from exactly one tenant.",
+      "database": "Database with Row Level Security (RLS) by tenant_id.",
+      "vectorDb": "Partitioned vector storage with hard isolation per tenant. Designed to scale to millions of tenants.",
+      "infrastructure": "Each investigation runs in ephemeral container with restricted permissions. Container destroyed upon completion.",
+      "piiGateway": "Open-source PII detection engine detects and anonymizes emails, phones, SSNs, cards. Reversible anonymization.",
+      "encryption": "Data at rest: AES-256 per-tenant encryption keys. Data in transit: TLS 1.3."
+    },
+    "bedrock": {
+      "title": "Why AWS Bedrock: The Strongest Privacy Guarantees for AI",
+      "noTraining": "AWS does not use customer data to train models",
+      "zeroAccess": "Model providers have zero access to prompts/completions",
+      "iso": "ISO/IEC 42001 certification (first major cloud provider)",
+      "privateLink": "PrivateLink support for VPC-private connectivity",
+      "guardrails": "Guardrails for PII detection/redaction"
+    },
+    "integrationSecurity": {
+      "title": "Integration Security",
+      "subtitle": "Every connection CauseFlow makes to your tools is secured at every layer — from credential storage to data transmission.",
+      "soc2": {
+        "title": "SOC 2 Certified Integration Infrastructure",
+        "description": "Our integration infrastructure is SOC 2 certified — independently audited to confirm that your credentials and access tokens are managed with enterprise-grade security controls."
+      },
+      "iso27001": {
+        "title": "ISO 27001:2022 Certified",
+        "description": "ISO 27001:2022 certification for our integration layer confirms that information security management processes meet the latest international standard."
+      },
+      "oauth2": {
+        "title": "OAuth 2.0 & Encrypted Credentials",
+        "description": "Integrations use OAuth 2.0 where available. API keys are encrypted at rest with per-tenant KMS keys and never stored in plaintext or exposed in logs."
+      },
+      "encryptedCredentials": {
+        "title": "AES-256 Encryption at Rest",
+        "description": "All integration credentials are encrypted with AES-256 using per-tenant encryption keys. Rotating keys are managed via AWS KMS with automatic rotation."
+      },
+      "readOnly": {
+        "title": "Read-Only Access by Default",
+        "description": "CauseFlow requests only read permissions when connecting to your tools. Write operations — such as opening a fix PR — require explicit human approval before execution."
+      },
+      "tenantIsolation": {
+        "title": "Tenant Isolation",
+        "description": "Every integration credential and access token is cryptographically isolated per customer account. It is architecturally impossible for one customer's credentials to be accessed by another."
+      }
+    },
+    "cta": {
+      "title": "Enterprise Security for Teams That Move Fast",
+      "ctaPrimary": "Get Early Access",
+      "ctaSecondary": "Contact Us"
+    }
+  },
+  "about": {
+    "hero": {
+      "eyebrow": "About CauseFlow",
+      "title": "AI that investigates production incidents,",
+      "titleEm": "so your engineers don't have to.",
+      "metaDescription": "CauseFlow exists to close the gap between shipping fast and recovering fast. An AI investigator that runs inside your infrastructure.",
+      "metaTitle": "About CauseFlow — Built by engineers who lived the 3 AM"
+    },
+    "mission": {
+      "eyebrow": "Our mission",
+      "body": "Make production reliability accessible to every engineering team — not just the ones with six-figure observability budgets. We believe the next decade of software will be defined by how fast teams ship AI-generated code, and how fast they can recover when that code breaks. CauseFlow exists to close that gap."
+    },
+    "story": {
+      "eyebrow": "Why we built CauseFlow",
+      "title": "Why is a machine still waiting",
+      "titleEm": "on a human to correlate logs?",
+      "paragraphs": [
+        "I spent 13 years in engineering, the last years as an Engineering Manager leading SRE, Security, and GenAI teams at Pagaleve, a Brazilian fintech. Production incidents weren't an occasional fire — they were a weekly ritual. System down. War call on Slack. Seven engineers scrolling through CloudWatch, GitHub commits, and stale dashboards, trying to piece together what broke. Hours lost. Post-mortem written in a rush the next morning.",
+        "One question kept coming back: why is a machine still waiting on a human to correlate logs?",
+        "The tools that existed were built for U.S. enterprises with compliance teams, six-figure budgets, and English-speaking engineers. For most teams in Brazil and Latin America, they were either unaffordable, inaccessible, or — and this is the part nobody talks about — impossible to adopt because they required shipping sensitive production data to a vendor's cloud. Finance, healthcare, and regulated industries just couldn't say yes.",
+        "So we built CauseFlow. An AI agent that investigates incidents the way your best on-call engineer would — except it runs inside your infrastructure, masks sensitive data before anything leaves your environment, and delivers a root-cause timeline in minutes. Not a chatbot. Not a summarizer. An investigator."
+      ]
+    },
+    "different": {
+      "eyebrow": "What makes us different",
+      "title": "Principles, not slogans.",
+      "cards": [
+        {
+          "icon": "shield",
+          "title": "Privacy by architecture, not by policy",
+          "description": "A Docker agent runs inside your infrastructure and masks PII, secrets, and sensitive debug data before transmission. GDPR Article 25 and LGPD-aligned by design — not by a pinky promise."
+        },
+        {
+          "icon": "coin",
+          "title": "Usage-based pricing",
+          "description": "No seat licenses. No annual contracts. You pay for what you use, which means we only win when you win."
+        },
+        {
+          "icon": "bolt",
+          "title": "Built by engineers who lived the 3 AM",
+          "description": "Every product decision is pattern-matched against real incident response — not a PM's whiteboard."
+        }
+      ]
+    },
+    "founder": {
+      "eyebrow": "Founder",
+      "name": "Vinicius Carvalho",
+      "role": "Co-Founder & CEO",
+      "bio": "13+ years in engineering. Most recently Engineering Manager leading SRE, Security, and GenAI teams at Pagaleve. Lived the war call cycle that CauseFlow now automates.",
+      "location": "Based in São Paulo",
+      "linkedinLabel": "Connect on LinkedIn",
+      "linkedinUrl": "https://www.linkedin.com/in/vinicius-carvalho-a04b46116/"
+    },
+    "company": {
+      "linkedinLabel": "Follow CauseFlow on LinkedIn",
+      "linkedinUrl": "https://www.linkedin.com/company/causeflow-ai/"
+    },
+    "teamNote": "We're a small, deliberate team. We'll scale when the work demands it — not before."
+  },
+  "pricing": {
+    "hero": {
+      "title": "Simple pricing.\nPay for what you use.",
+      "subtitle": "Now in Early Access. Join the list and be among the first to try CauseFlow."
+    },
+    "plans": {
+      "free": "Free",
+      "starter": "Starter",
+      "pro": "Pro",
+      "business": "Business",
+      "enterprise": "Enterprise",
+      "mostPopular": "Most popular",
+      "perMonth": "/month",
+      "investigationsIncluded": "investigations included",
+      "overage": "overage",
+      "targetLabel": "Best for",
+      "perYear": "/month (billed annually)",
+      "annualDiscount": "15% off",
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "eventsIncluded": "events included",
+      "rateLimit": "rate limit",
+      "startingAt": "Starting at"
+    },
+    "comparison": {
+      "title": "Why pay per user if only 2-3 people investigate incidents?",
+      "scenarioTeam5": "Team of 5 devs",
+      "scenarioTeam10": "Team of 10 devs",
+      "scenarioTeam20": "Team of 20 devs",
+      "scenarioTeam50": "Team of 50 devs",
+      "whatYouPayFor": "What you pay for",
+      "customerIssues": "Customer issues",
+      "causeflowPayFor": "Per actual investigation",
+      "perSeatPayFor": "Per user, even without investigating",
+      "platformPayFor": "Per user, even without investigating",
+      "enterprisePayFor": "Enterprise contract",
+      "included": "Included",
+      "notAvailable": "Not available",
+      "doesntServe": "Doesn't serve (enterprise only)",
+      "openCore": "Open-core (self-host)",
+      "comingSoon": "Coming soon"
+    },
+    "roi": {
+      "title": "ROI Calculator",
+      "incidentsLabel": "How many incidents/investigations does your team do per month?",
+      "durationLabel": "How long does each investigation take on average?",
+      "engineersLabel": "How many engineers on the team?",
+      "hoursSaved": "Hours saved per month",
+      "causeflowCost": "CauseFlow cost",
+      "perSeatCost": "Equivalent cost on Per-seat Tools",
+      "platformCost": "Equivalent cost on Enterprise Platforms",
+      "annualSavings": "Estimated annual savings",
+      "duration30min": "30 min",
+      "duration1h": "1 hour",
+      "duration2h": "2 hours",
+      "duration4h": "4 hours"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": {
+        "question": "What counts as an investigation?",
+        "answer": "Every time CauseFlow receives a problem and runs a complete investigation (connecting to sources, analyzing data, generating report) counts as 1 investigation."
+      },
+      "q2": {
+        "question": "Can I change plans?",
+        "answer": "Yes, at any time. Upgrade is immediate, downgrade on next cycle."
+      },
+      "q3": {
+        "question": "Is there a free trial?",
+        "answer": "Contact us for Early Access — we'll work with you to evaluate CauseFlow for your team."
+      },
+      "q4": {
+        "question": "Is there an annual discount?",
+        "answer": "Yes. Annual billing saves 15% — prices shown with the annual toggle reflect the discounted rate."
+      },
+      "q5": {
+        "question": "What if I exceed the limit?",
+        "answer": "You can enable auto-charge ($8.99/investigation, $0.20/event) or purchase quota packs from the Dashboard. No surprises — you configure consumption alerts at 80% and 100%."
+      },
+      "q6": {
+        "question": "How does it work for Brazilian companies?",
+        "answer": "We accept international payment via Stripe. LGPD compliant since launch."
+      }
+    },
+    "overage": {
+      "title": "Need more? Add as you go.",
+      "subtitle": "When you need additional investigations or events beyond your plan, purchase extra quota directly from the Dashboard — auto-charge or quota packs, your choice.",
+      "investigationRate": "$8.99/investigation",
+      "investigationLabel": "Per extra investigation (auto-charge)",
+      "eventRate": "$0.20/event",
+      "eventLabel": "Per extra event (auto-charge)",
+      "or": "or buy quota packs",
+      "pack1Name": "10 investigations",
+      "pack1Price": "$79",
+      "pack1Unit": "$7.90/each",
+      "pack2Name": "1,000 events",
+      "pack2Price": "$99",
+      "pack2Unit": "$0.099/each"
+    }
+  },
+  "fromOpsgenie": {
+    "hero": {
+      "title": "Migrating from Opsgenie?",
+      "subtitle": "Atlassian is sunsetting Opsgenie in April 2027. Don't just replace your alerting tool — upgrade to AI-powered incident investigation.",
+      "ctaPrimary": "Get Early Access"
+    },
+    "whatsHappening": {
+      "title": "What's Happening",
+      "body": "Atlassian announced End of Sale for Opsgenie on June 4, 2025 and End of Support on April 5, 2027. After that date, access will be shut off, unmigrated data will be deleted, and APIs will stop working. The recommended migration path is Jira Service Management — but community feedback has been overwhelmingly negative, with engineers describing JSM as \"a ticketing system with alerting layered on top.\" The migration tool only supports Cloud — Data Center customers have no automated path at all.",
+      "source1Label": "Atlassian Blog, Mar 2025",
+      "source2Label": "InfoQ, Mar 2025"
+    },
+    "whyCauseflow": {
+      "title": "Why CauseFlow Instead",
+      "card1": {
+        "title": "Beyond Alerting",
+        "body": "Opsgenie routes alerts. CauseFlow investigates them. Connect your tools and get AI-powered root cause analysis in minutes — not just a notification that something is wrong."
+      },
+      "card2": {
+        "title": "Usage-Based Pricing",
+        "body": "No per-seat pricing. No annual contracts. Pay only for what you use — starting at $99/month for 15 investigations. Scale as you need."
+      },
+      "card3": {
+        "title": "Setup in Under 10 Minutes",
+        "body": "Connect via OAuth or AWS IAM Role. No migration tool needed, no infrastructure changes. CauseFlow reads from your existing tools — Slack, GitHub, Jira, CloudWatch, and more."
+      }
+    },
+    "timeline": {
+      "title": "The Opsgenie Sunset Timeline",
+      "event1Label": "Opsgenie End of Sale",
+      "event1Date": "June 2025",
+      "event2Label": "Opsgenie End of Support",
+      "event2Date": "April 2027",
+      "event3Label": "Start evaluating alternatives now",
+      "event3Date": "Today"
+    },
+    "finalCta": {
+      "title": "Don't Wait Until April 2027",
+      "subtitle": "Be among the first to investigate incidents with AI. Apply for Early Access and start solving incidents faster.",
+      "ctaPrimary": "Get Early Access",
+      "ctaSecondary": "Talk to the Co-Founder"
+    },
+    "meta": {
+      "title": "Migrating from Opsgenie",
+      "description": "Atlassian is sunsetting Opsgenie in April 2027. Upgrade to AI-powered incident investigation with CauseFlow — setup in under 10 minutes, Early Access now open."
+    }
+  },
+  "deploymentApproaches": {
+    "sectionTitle": "Choose Your Deployment Mode",
+    "sectionSubtitle": "Same AI. Same root cause. You decide how your data flows.",
+    "freeBadge": "Free on All Plans",
+    "connected": {
+      "title": "Connected Mode",
+      "description": "Direct read-only access to your systems via AWS IAM Role or OAuth2. Fastest setup, real-time analysis.",
+      "features": [
+        "Read-only access — no write permissions required",
+        "Real-time analysis across all connected tools",
+        "Fastest investigation speed",
+        "Full audit trail of every access",
+        "All integrations supported"
+      ],
+      "pricing": "Included in all plans",
+      "support": "Email + Slack (plan dependent)"
+    },
+    "privacyPreserving": {
+      "title": "Privacy-Preserving Mode",
+      "badge": "Privacy-Enhancing Technology",
+      "description": "A lightweight Docker agent runs inside your infrastructure — on-premise or private cloud. It processes, masks, and anonymizes all sensitive data (PII, API keys, debug logs) before anything leaves your environment. This is edge-based data minimization aligned with GDPR Article 25 and LGPD — a Privacy-Enhancing Technology (PET) that lets your team use AI-powered investigation without exposing sensitive production data.",
+      "features": [
+        "Raw data never leaves your environment",
+        "All identifiers automatically anonymized",
+        "Customer-controlled masking rules",
+        "Same AI-powered root cause analysis",
+        "GDPR Article 25 & LGPD compliant data minimization",
+        "Reversible mapping stays in your infrastructure"
+      ],
+      "pricing": "Included in all plans",
+      "support": "Email + Slack (plan dependent)"
+    },
+    "cta": {
+      "talkWithUs": "Talk with Us",
+      "learnMore": "Learn More"
+    },
+    "product": {
+      "title": "How CauseFlow Connects to Your Systems",
+      "subtitle": "Choose full access for maximum speed, or privacy-preserving mode for maximum data protection. Both deliver the same root cause."
+    },
+    "security": {
+      "title": "Privacy-Preserving Architecture: Your Data Never Leaves",
+      "description": "CauseFlow is the only incident investigation platform that deploys a Privacy-Enhancing Technology (PET) directly in your infrastructure. A Docker agent processes, masks, and anonymizes sensitive data at the edge — hostnames, IPs, user IDs, API keys, service names — before any transmission. Your raw data never leaves your security perimeter. The AI cloud receives only what it needs for root cause analysis, with sensitive identifiers replaced by opaque tokens.",
+      "guarantees": [
+        "No raw data transmission — ever",
+        "Customer-controlled masking rules",
+        "Reversible mapping stays in your infrastructure"
+      ]
+    },
+    "compare": {
+      "badge": "Only CauseFlow",
+      "calloutTitle": "The Only Platform with Privacy-Preserving Architecture",
+      "calloutDescription": "Investigate incidents with edge-based data minimization — your raw data never leaves your infrastructure. A Privacy-Enhancing Technology (PET) included free on every plan. No other incident investigation platform offers this level of data protection."
+    },
+    "dataFlow": {
+      "heading": "Data Flow Comparison",
+      "connected": {
+        "step1": "Your Systems",
+        "step2": "Direct Read",
+        "step3": "CauseFlow AI",
+        "step4": "Root Cause"
+      },
+      "privacyPreserving": {
+        "step1": "Your Systems",
+        "step2": "Docker Masking Agent",
+        "step3": "Anonymized Data",
+        "step4": "CauseFlow AI",
+        "step5": "Root Cause"
+      }
+    }
+  },
+  "useCases": {
+    "hero": {
+      "title": "Real Incidents. Real Resolutions.",
+      "subtitle": "See how engineering teams used CauseFlow to cut investigation time from hours to minutes — across three real-world incident patterns.",
+      "metaDescription": "CauseFlow AI use cases: stale pricing pages, broken images during live demos, and 500 errors during traffic spikes — all resolved in minutes."
+    },
+    "stories": {
+      "pricingStale": {
+        "industry": "SaaS / Marketing",
+        "timeToResolution": "3 min investigation · 90 sec page update",
+        "agentsLabel": "Agents involved"
+      },
+      "brokenImages": {
+        "industry": "SaaS / Sales",
+        "timeToResolution": "4 min investigation · same-day rollback",
+        "agentsLabel": "Agents involved"
+      },
+      "getStarted500": {
+        "industry": "SaaS / Growth",
+        "timeToResolution": "5 min investigation · 2 hr fix deployed",
+        "agentsLabel": "Agents involved"
+      }
+    },
+    "labels": {
+      "symptom": "Symptom",
+      "investigation": "How CauseFlow Investigated",
+      "resolution": "Resolution",
+      "timeToResolution": "Time to Resolution"
+    },
+    "cta": {
+      "headline": "Ready to Investigate Your Next Incident in Minutes?",
+      "description": "Join engineering teams already using CauseFlow to move from noise to root cause in under 5 minutes.",
+      "primary": "Get Early Access",
+      "secondary": "See How It Works"
+    }
+  },
+  "caseStudies": {
+    "index": {
+      "eyebrow": "Real Incidents · Real Teams · Real Results",
+      "headline": "See CauseFlow in Action",
+      "headlineEm": "Real Incidents",
+      "lead": "Three production incidents, three engineering teams, one platform. See how CauseFlow cuts investigation time from hours to minutes.",
+      "metaTitle": "Use Cases — Incident Investigation Stories",
+      "metaDescription": "Real engineering incident case studies: stale pricing, broken images during demos, and cascading 500 errors — all resolved in minutes with CauseFlow AI.",
+      "readCaseStudyCta": "Read case study →"
+    },
+    "cards": {
+      "stalePricing": {
+        "title": "Stale Pricing Page Caught Before Sales Call",
+        "summary": "A cached CDN layer served a pricing page with outdated plan prices — 48 hours before a critical enterprise sales demo.",
+        "severity": "High",
+        "duration": "25 min"
+      },
+      "brokenImages": {
+        "title": "Broken Product Screenshots During Live Demo",
+        "summary": "Product screenshots returned 403 errors mid-demo, traced to an S3 bucket policy change pushed hours earlier.",
+        "severity": "High",
+        "duration": "18 min"
+      },
+      "cascading500": {
+        "title": "Cascading 500 Errors After Deploy",
+        "summary": "A routine config change caused connection pool exhaustion that cascaded into a full service outage within 7 minutes.",
+        "severity": "High",
+        "duration": "32 min"
+      }
+    },
+    "breadcrumbRoot": "Use Cases",
+    "meta": {
+      "duration": "Resolution time",
+      "severity": "Severity",
+      "impact": "Impact"
+    },
+    "comingSoon": "Full case study coming soon — check back shortly.",
+    "stalePricing": {
+      "metaTitle": "Stale Pricing Page — CauseFlow Case Study",
+      "metaDescription": "How CauseFlow identified a CDN caching issue serving stale pricing data 48 hours before an enterprise sales demo.",
+      "hero": {
+        "eyebrow": "Case File · INV-0051",
+        "headline": "Pricing page froze",
+        "headlineEm": "25 minutes after a CMS update",
+        "lead": "A missing tag mapping and a silent TypeError combined to block every revalidation job — leaving SimUser AI's pricing page stuck on old data right before a 15% price repositioning went live.",
+        "readTimeLabel": "5 min read",
+        "metaSeverity": "High",
+        "metaImpact": "Stale pricing visible to leads",
+        "resolvedInLabel": "Fixed by CauseFlow in 3 min"
+      },
+      "symptom": {
+        "heading": "The Symptom",
+        "body": "On April 16, 2026, Felipe Aguiar (Head of Marketing, SimUser AI) pushed a 15% price update across all plans via Contentful at 11:20 UTC. At 11:45 UTC a lead confirmed the /pricing page still showed the old numbers. The marketing team had already shared the updated pricing in an email blast — visitors clicking through saw stale data.",
+        "badge1": "11:20 UTC — CMS publish",
+        "badge2": "11:45 UTC — first report"
+      },
+      "evidence": {
+        "heading": "Evidence Board",
+        "dynamoJobTitle": "DynamoDB · Revalidation Job",
+        "dynamoCacheTitle": "DynamoDB · Cache Entries (71 rows)",
+        "cloudwatchTitle": "CloudWatch · Seeder Lambda",
+        "routesTitle": "Affected Routes"
+      },
+      "diagram": {
+        "heading": "Where the Pipeline Broke",
+        "subheading": "Two overlapping bugs blocked every revalidation attempt. Hover each X to see the failing code."
+      },
+      "routesSection": {
+        "heading": "Systemic Blast Radius",
+        "body": "The TypeError in the Subscriber handler affected every route that had a queued revalidation job — not just /pricing. Any page touched by a DynamoDB Streams event during this window was silently stuck."
+      },
+      "timeline": {
+        "heading": "Symptom → Root Cause",
+        "step1Label": "Symptom: /pricing shows stale prices",
+        "step1Inference": "Lead reports old plan prices; CMS publish was 25 min ago.",
+        "step2Label": "DynamoDB job stuck at retries: 3",
+        "step2Inference": "TypeError on NewImage blocks all revalidation jobs — any DELETE event crashes the handler.",
+        "step3Label": "Seeder skips /pricing entirely",
+        "step3Inference": "Tag 'pricing-page' has no paths registered in the revalidation table; pathCount: 0.",
+        "step4Label": "Root cause: two overlapping bugs",
+        "step4Inference": "Missing tag map + unguarded NewImage access = no revalidation ever reaches Next.js."
+      },
+      "fix": {
+        "heading": "Root Cause & Fix",
+        "bug1Heading": "Bug 1 — Missing tag mapping",
+        "bug1Body": "The CMS webhook sends the tag pricing-page, but no entry in the DynamoDB table maps that tag to the /pricing path. The Seeder logs a warn and exits without queuing any invalidation.",
+        "bug2Heading": "Bug 2 — Unguarded NewImage access",
+        "bug2Body": "The RevalidationEventsSubscriber reads event.Records[i].dynamodb.NewImage unconditionally. DynamoDB Streams DELETE events omit NewImage, causing a TypeError that puts every affected job into an unrecoverable retries: 3 / status: pending state.",
+        "beforeLabel": "Before — handler crashes on DELETE events",
+        "afterLabel": "After — guarded handler",
+        "tagNote": "Additionally: register the tag pricing-page → /pricing in the revalidation table and audit all other CMS tags to ensure they map to the correct Next.js paths."
+      },
+      "outcome": {
+        "heading": "Outcome",
+        "stat": "Without CauseFlow: ~3 hrs of cross-team debugging across CloudWatch, DynamoDB console, and Lambda logs — with the reputational cost of stale pricing visible to inbound leads during a live price repositioning.",
+        "withCauseflow": "With CauseFlow: root cause surfaced in 25 minutes, fix committed before any further leads landed on the page."
+      },
+      "cta": {
+        "h1": "Stop",
+        "em": "chasing logs.",
+        "h2": "Start building product.",
+        "description": "Connect your stack in minutes and investigate real incidents on your infra. No contract, no card.",
+        "cta1": "Start free →",
+        "cta2": "See pricing"
+      }
+    },
+    "brokenImages": {
+      "metaTitle": "Broken Images During Demo — CauseFlow Case Study",
+      "metaDescription": "How CauseFlow traced broken product screenshots to a Lambda cold-start timeout that blew the image optimizer budget mid-demo.",
+      "hero": {
+        "eyebrow": "Case File · INV-0052",
+        "headline": "Eight minutes of broken images,",
+        "headlineEm": "and every demo screenshot was a 504.",
+        "lead": "Rodrigo Lima was mid-demo with a prospect when every .webp on the page returned a broken icon. The CDN looked healthy. CauseFlow found the real ceiling: a Lambda cold start that consumed 3,098 ms of a 5,000 ms budget — leaving zero time for the image fetches.",
+        "readTimeLabel": "4 min read",
+        "severityLabel": "High",
+        "impactLabel": "Live demo abandoned",
+        "resolvedInLabel": "Fixed by CauseFlow in 1.5 min"
+      },
+      "budgetSection": {
+        "title": "The Lambda Budget Clock",
+        "lead": "Every image optimization request has a 5,000 ms budget. A cold start ate 3,098 ms of it before a single pixel was fetched.",
+        "totalMs": "5000",
+        "coldStartMs": "3098",
+        "coldStartLabel": "Cold start (INIT)",
+        "remainingLabel": "Fetch window",
+        "budgetLabel": "5000 ms budget",
+        "tick1Label": ".webp #1",
+        "tick2Label": ".webp #2",
+        "tick3Label": ".webp #3",
+        "fetchLegendLabel": "{count}× .webp fetch"
+      },
+      "coldStartSection": {
+        "title": "Cold-Start Math",
+        "lead": "Three image fetches launched concurrently the moment the Lambda initialised — all three ran straight into the budget wall.",
+        "caption": "INIT_DURATION 3098 ms + fetch 2500 ms ≈ 5598 ms > 5000 ms budget → Timeout",
+        "wallLabel": "5000 ms wall",
+        "laneCount": "3"
+      },
+      "cdnSection": {
+        "title": "CloudFront Hypothesis — Dismissed",
+        "lead": "The team's first instinct was CDN. CloudFront metrics showed no anomalies — cache hit rate normal, no origin errors reported. The problem was upstream of the CDN entirely.",
+        "cardTitle": "CloudFront — no anomaly",
+        "cardLines": [
+          "CacheHitRate: 97.3%  ← normal",
+          "OriginLatency: n/a   ← no origin errors logged",
+          "5xxErrorRate: 0.00%  ← CloudFront itself is healthy",
+          "",
+          "Conclusion: problem is upstream of CDN."
+        ]
+      },
+      "logDiffSection": {
+        "title": "Self-Healing Log Diff",
+        "lead": "Once a warm Lambda instance handled subsequent requests, the INIT_START overhead vanished — images served in 312 ms. Classic cold-start self-resolution.",
+        "beforeTitle": "During incident — cold start",
+        "afterTitle": "After warm-up — healthy",
+        "beforeLines": [
+          "INIT_START Runtime: nodejs:20.v37",
+          "initDuration: 3098.74 ms",
+          "fetch dashboard-hero.webp → TimeoutError",
+          "fetch test-flow-builder.webp → TimeoutError",
+          "fetch results-panel.webp → TimeoutError",
+          "→ Returning 504 to CloudFront"
+        ],
+        "afterLines": [
+          "START RequestId: b2c3d4e5",
+          "fetch dashboard-hero.webp → 200 (312 ms)",
+          "fetch test-flow-builder.webp → 200 (289 ms)",
+          "fetch results-panel.webp → 200 (301 ms)",
+          "→ status: 200  billed: 847 ms"
+        ]
+      },
+      "fixSection": {
+        "title": "Three Paths Forward",
+        "lead": "CauseFlow surfaces options. Your team decides.",
+        "option1Title": "Provisioned Concurrency",
+        "option1Tradeoff": "Keeps one Lambda instance always warm. Eliminates cold starts during business hours. Cost: ~$15–20/month per warm instance.",
+        "option1Badge": "Recommended",
+        "option2Title": "Split Image Optimizer",
+        "option2Tradeoff": "Separate Lambda per image type reduces init payload and cold-start duration. More infrastructure to maintain.",
+        "option3Title": "Increase Timeout",
+        "option3Tradeoff": "Bumps the Lambda timeout to 10 s — buys breathing room on cold starts. Does not prevent them. Latency degrades for end users."
+      },
+      "rootCauseSection": {
+        "title": "Root Cause",
+        "body": "The WebsiteImageOptimizerFunction cold-started at 3,098 ms — 62% of the 5,000 ms total budget — leaving only 1,902 ms for three concurrent .webp fetches that each needed ~2,500 ms. All three timed out, CloudFront received 504, and the browser rendered broken images for the ~8 minutes it took for a warm instance to become available.",
+        "statLabel": "Demo abandoned",
+        "statValue": "1 live prospect session lost"
+      },
+      "ctaSection": {
+        "headlineP1": "Stop",
+        "headlineEm": "hunting logs.",
+        "headlineP2": "Start shipping product.",
+        "description": "Connect your stack in minutes and investigate real incidents on your infra. No contract, no card.",
+        "primaryLabel": "Open the dashboard",
+        "secondaryLabel": "See pricing"
+      }
+    },
+    "cascading500": {
+      "metaTitle": "Cascading 500 Errors — CauseFlow Case Study",
+      "metaDescription": "How CauseFlow traced cascading 500 errors to a CMS outage with zero cache fallback — diagnosed in under 5 minutes during a LinkedIn traffic spike.",
+      "hero": {
+        "eyebrow": "Case File · INV-0053",
+        "headline": "Ten minutes of 500s during a LinkedIn spike —",
+        "headlineEm": "with zero cache to fall back on",
+        "lead": "A LinkedIn post drove a wave of new visitors to SimUser AI's site. The CMS buckled under load and returned 503s. With no cache layer and no fallback, every request hit a live 500 — for ten straight minutes.",
+        "readTimeLabel": "6 min read",
+        "severityLabel": "High",
+        "impactLabel": "Leads lost during spike",
+        "resolvedInLabel": "Fixed by CauseFlow in 5 min"
+      },
+      "arch": {
+        "sectionTitle": "The Architecture That Failed",
+        "sectionLead": "Every page request fetched content directly from the CMS at runtime. No cache sat between the Lambda function and the CMS — making the CMS a single point of failure.",
+        "visitorsLabel": "Visitors",
+        "cdnLabel": "CDN",
+        "lambdaLabel": "Next.js Lambda",
+        "cmsLabel": "CMS",
+        "hotPathLabel": "hot path",
+        "incidentNote": "no fallback — every request → 500",
+        "visitorsSub": "Users",
+        "cdnSub": "CloudFront",
+        "lambdaSub": "SSR Lambda",
+        "cmsSub": "503 Service Unavailable",
+        "noCacheAnnotation": "no cache"
+      },
+      "chart": {
+        "sectionTitle": "Traffic vs. 5xx Errors",
+        "sectionLead": "Request volume and error count rose in lockstep. The CMS couldn't absorb the spike — each new visitor hit a 500 instead of a page.",
+        "title": "Traffic and error rate during the LinkedIn spike",
+        "requestsLabel": "Requests / min",
+        "errorsLabel": "5xx errors",
+        "timeLabel": "Time →",
+        "linkedInSpike": "LinkedIn post",
+        "recoveryLabel": "CMS recovered"
+      },
+      "cache": {
+        "sectionTitle": "The Cache That Was Never Warm",
+        "sectionLead": "A DynamoDB scan confirmed the root cause: 80 cache records, every one with revalidatedAt: 1 — the Unix epoch sentinel for \"never revalidated since deploy\".",
+        "title": "DynamoDB · WebsiteRevalidationTable",
+        "pathLabel": "path",
+        "revalidatedAtLabel": "revalidatedAt",
+        "findingLabel": "Critical Finding",
+        "findingDescription": "All 80 cache entries for the affected page show revalidatedAt: 1 — the cache was set at deploy time and never warmed. When the CMS went down, there was nothing to serve.",
+        "rowCount": "80 rows"
+      },
+      "beforeAfter": {
+        "sectionTitle": "Before and After: Caching Strategy",
+        "sectionLead": "The fix was structural — migrate from SSR-on-every-request to ISR with a 5-minute revalidation window and a try/catch fallback to stale cache.",
+        "beforeLabel": "Before",
+        "afterLabel": "After",
+        "beforeSubtitle": "SSR — fetch on every request, no cache",
+        "afterSubtitle": "ISR + fallback — stale cache beats a 500",
+        "ssrLabel": "SSR",
+        "isrLabel": "ISR",
+        "lambdaLabel": "Lambda",
+        "cmsLabel": "CMS",
+        "cacheLabel": "ISR Cache",
+        "fallbackLabel": "stale fallback",
+        "noCacheAnnotation": "no cache",
+        "singlePointOfFailure": "single point of failure",
+        "revalidateAnnotation": "revalidate: 300"
+      },
+      "impact": {
+        "sectionTitle": "Business Impact",
+        "stat": "~40",
+        "statLabel": "Estimated leads lost",
+        "statCaption": "Based on average conversion rate and traffic volume during the 10-minute window. Each visitor who hit a 500 on the Get Started page was a potential trial signup.",
+        "statNote": "Estimate: 400 visitors × 10% signup rate × 10 min outage"
+      },
+      "rootCause": {
+        "sectionTitle": "Root Cause & Fix",
+        "sectionLead": "The page used pure SSR with a synchronous CMS fetch on every request. The fix: migrate to ISR with revalidate: 300 and a try/catch fallback that serves stale content instead of throwing.",
+        "beforeCodeTitle": "Before — SSR: CMS failure → 500",
+        "afterCodeTitle": "After — ISR + fallback: CMS failure → stale cache"
+      },
+      "cta": {
+        "headlineP1": "Stop hunting for the root cause",
+        "headlineEm": "under pressure",
+        "headlineP2": "— let CauseFlow find it.",
+        "description": "CauseFlow correlates DynamoDB records, Lambda logs, and CloudWatch metrics automatically — no manual log triage, no post-mortem archaeology.",
+        "primaryLabel": "Start Investigating Free",
+        "secondaryLabel": "See Pricing"
+      }
+    }
+  }
+}

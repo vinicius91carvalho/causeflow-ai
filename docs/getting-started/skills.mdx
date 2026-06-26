@@ -1,0 +1,127 @@
+---
+title: "Skills"
+description: "Define custom investigation profiles that teach CauseFlow how to handle your specific systems and incident types."
+---
+
+A **skill** is a named, declarative profile that tells CauseFlow how to investigate a specific category of incident. Skills let your team encode institutional knowledge — "when you see a PostgreSQL connection pool issue, focus on these queries and use these tools" — without writing code or deploying anything.
+
+When CauseFlow starts an investigation, it checks whether any of your tenant's skills match the incident. Matching skills are layered into the investigation automatically.
+
+---
+
+## Where to find skills
+
+Skills are managed from **Dashboard > Skills**.
+
+From this page you can:
+
+- View all skills defined for your tenant
+- Create a new skill
+- Edit an existing skill
+- Delete a skill
+
+Only users with the `admin` role can create, edit, or delete skills.
+
+---
+
+## Creating a skill
+
+To create a skill, go to **Dashboard > Skills** and click **New skill**. You will be prompted to fill in the fields described below.
+
+You can also create skills via the API:
+
+```http
+POST /api/v1/tenants/{tenantId}/skills
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+<Note>
+  The Skills API uses the path prefix `/api/v1/tenants/{tenantId}/skills` — note the `/api/` prefix. This differs from the `/v1/` prefix used by other CauseFlow endpoints. See the [API reference](/api-reference/introduction) for the full Skills endpoint list.
+</Note>
+
+---
+
+## Skill fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Internal identifier for the skill (no spaces, lowercase) |
+| `displayName` | Yes | Human-readable label shown in the dashboard |
+| `whenToUse` | Yes | Plain-language description of when to activate this skill. CauseFlow uses this to match the skill against incoming incidents. |
+| `systemPrompt` | Yes | Additional instructions added to the AI's context when this skill is active. Describe your system, known failure modes, or what to focus on. |
+| `allowedTools` | No | Restrict which data sources the agent may query. Leave empty to allow all connected tools. |
+| `model` | No | Override the default AI model for this skill. Leave empty to use the CauseFlow default. |
+| `maxTurns` | No | Maximum number of investigation steps the agent may take. Defaults to the system maximum. |
+
+---
+
+## Skill JSON schema
+
+```json
+{
+  "name": "postgres-connection-pool",
+  "displayName": "PostgreSQL connection pool",
+  "whenToUse": "Activate when the incident involves PostgreSQL connection errors, pool exhaustion, or timeout spikes in services that use a connection pool.",
+  "systemPrompt": "You are investigating a PostgreSQL connection pool issue. Focus on: active connection count vs pool limit, long-running transactions holding connections, connection leak patterns in application logs, and recent changes to pool configuration (max_pool_size, min_pool_size, connection_timeout). The primary database is accessed via the Relay agent.",
+  "allowedTools": ["query_logs", "query_metrics", "db_query"],
+  "model": "claude-sonnet-4-6",
+  "maxTurns": 15
+}
+```
+
+---
+
+## Worked example: PostgreSQL connection pool exhaustion
+
+**Scenario:** Your payment service is intermittently throwing `too many connections` errors. You want CauseFlow to focus on connection pool metrics and database state whenever this pattern occurs again.
+
+**Step 1 — Create the skill in Dashboard > Skills:**
+
+```json
+{
+  "name": "postgres-pool-exhaustion",
+  "displayName": "PostgreSQL pool exhaustion",
+  "whenToUse": "Activate when an incident involves PostgreSQL 'too many connections' errors, connection pool exhaustion, or FATAL connection limit errors in any service.",
+  "systemPrompt": "Investigate PostgreSQL connection pool exhaustion. Check: (1) current active connections vs max_connections in pg_stat_activity, (2) idle connections not being released, (3) connection pool settings in application config, (4) recent deploys that changed pool configuration, (5) slow queries holding connections longer than 30s. Summarize the top connection consumers by application name and query.",
+  "allowedTools": ["query_logs", "query_metrics", "db_query"],
+  "maxTurns": 12
+}
+```
+
+**Step 2 — Trigger fires:** Three days later, Datadog sends an alert: `FATAL: remaining connection slots are reserved for non-replication superuser connections`. CauseFlow creates an incident.
+
+**Step 3 — Skill matches:** CauseFlow reads the incident title and description, compares them to `whenToUse` across all your skills, and activates `postgres-pool-exhaustion`.
+
+**Step 4 — Focused investigation:** Instead of a broad multi-source investigation, the AI uses the instructions in `systemPrompt` to immediately query active connection counts, identify the application holding idle connections, and check recent deployment history for pool config changes.
+
+**Step 5 — Outcome:** The root cause report pinpoints that a recent deploy changed `max_pool_size` from 20 to 5. Remediation proposes a rollback of that configuration change. The total investigation time is under 90 seconds.
+
+---
+
+## When to use a skill
+
+Skills are most valuable when:
+
+- Your team has already solved a class of incident once and wants faster resolution next time
+- A specific system requires specialist knowledge (unusual query patterns, proprietary tooling, non-standard deployment conventions)
+- You want to restrict tool access for sensitive incident types — for example, preventing database tool access for frontend incidents
+
+You do not need skills for incidents where CauseFlow's default investigation is sufficient. Start with the default behavior, and add skills for recurring patterns where the AI needs more context.
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Memory and chat" icon="brain" href="/getting-started/memory-and-chat">
+    Teach CauseFlow about your systems in natural language — no skill required.
+  </Card>
+  <Card title="AI transparency" icon="eye" href="/getting-started/ai-transparency">
+    Which tools agents use and how access is controlled.
+  </Card>
+  <Card title="How it works" icon="arrows-spin" href="/getting-started/how-it-works">
+    See the full investigation lifecycle and where skills fit in.
+  </Card>
+  <Card title="Triggers" icon="bolt" href="/getting-started/triggers">
+    Route events from third-party tools into the investigation pipeline.
+  </Card>
+</CardGroup>

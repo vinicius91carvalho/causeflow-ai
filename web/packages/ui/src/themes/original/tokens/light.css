@@ -1,0 +1,75 @@
+/*
+ * CauseFlow AI Design System — Light Mode
+ * Deep Indigo + Electric Teal palette.
+ * HSL-based CSS variables following shadcn/ui convention.
+ *
+ * :root serves as the default fallback (SSG, before JS hydration).
+ * [data-theme="original"] provides explicit theme selection support.
+ */
+
+:root,
+[data-theme="original"] {
+  /* Background & Foreground — warm off-white cream (#f9f7f1) */
+  --background: 45 40% 96%;
+  --foreground: 232 45% 10%;
+
+  /* Card — pure white surface lifted off warm page bg (#ffffff) */
+  --card: 0 0% 100%;
+  --card-foreground: 232 45% 10%;
+
+  /* Popover */
+  --popover: 0 0% 100%;
+  --popover-foreground: 232 45% 10%;
+
+  /* Primary — Deep Indigo */
+  --primary: 232 50% 18%;
+  --primary-foreground: 0 0% 98%;
+
+  /* Secondary — indigo-tinted light (#ececf1) */
+  --secondary: 230 15% 93%;
+  --secondary-foreground: 232 50% 18%;
+
+  /* Muted — sidebar, headers, hover states (#ececf1) */
+  --muted: 230 15% 93%;
+  --muted-foreground: 232 12% 44%;
+
+  /* Ink-soft — between foreground and muted for dense body copy */
+  --ink-soft: 232 18% 32%;
+
+  /* Accent — Electric Teal (darkened for WCAG AA contrast with white text) */
+  --accent: 172 66% 30%;
+  --accent-foreground: 0 0% 98%;
+
+  /* Accent tint — hero gradients, aside cards (teal/5) */
+  --accent-tint: 172 66% 94%;
+
+  /* Violet — hero gradient accent partner (#8B54D4) */
+  --violet: 274 57% 61%;
+
+  /* Warning — Clerk Orange (CTA, attention) */
+  --warning: 23 90% 52%;
+  --warning-foreground: 0 0% 100%;
+
+  /* Destructive */
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
+
+  /* Success — Emerald */
+  --success: 160 84% 39%;
+  --success-foreground: 0 0% 98%;
+
+  /* Border, Input, Ring (#dbdbe5) */
+  --border: 230 15% 87%;
+  --input: 230 15% 87%;
+  --ring: 172 66% 30%;
+
+  /* Radius */
+  --radius: 0.625rem;
+
+  /* Chart Colors */
+  --chart-1: 172 66% 30%;
+  --chart-2: 232 50% 45%;
+  --chart-3: 43 96% 56%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 0 72% 51%;
+}

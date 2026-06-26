@@ -1,0 +1,71 @@
+---
+title: "Quickstart"
+description: "Create your account and investigate your first incident in under 5 minutes."
+---
+
+<Steps>
+  <Step title="Create your account">
+    Go to [dashboard.causeflow.ai](https://dashboard.causeflow.ai) and sign up with your email, Google, or GitHub account.
+
+    Choose a plan that fits your team. See [Plans and pricing](/billing/plans) for details.
+  </Step>
+
+  <Step title="Complete your profile">
+    After sign-up, you'll be prompted to enter your company name, team size, and role.
+
+    This helps CauseFlow tailor the investigation experience for your team's context.
+  </Step>
+
+  <Step title="Connect your tools">
+    Go to **Dashboard > Integrations** and connect the tools CauseFlow needs to investigate incidents. The more tools you connect, the deeper the investigation coverage.
+
+    The primary connection method is a **cloud provider role** that gives CauseFlow read-only access to your infrastructure:
+
+    <CardGroup cols={2}>
+      <Card title="AWS" icon="aws">
+        Connect an IAM Role with read access to CloudWatch Logs, ECS, EC2, Lambda, and other services.
+      </Card>
+      <Card title="Azure" icon="microsoft">
+        Connect a Service Principal with read access to your Azure resources.
+      </Card>
+      <Card title="GCP" icon="google">
+        Connect a Service Account with read access to your GCP resources.
+      </Card>
+    </CardGroup>
+
+    You can also connect individual tools directly:
+
+    | Category | Tools |
+    |----------|-------|
+    | **Logs** | CloudWatch Logs, Datadog, Grafana |
+    | **Monitoring** | Datadog, Grafana, CloudWatch, Sentry, PagerDuty |
+    | **Documentation** | Notion, Confluence |
+    | **Messaging** | Slack, Microsoft Teams |
+    | **Management** | Jira, Linear, Hubspot, Trello, Shortcut |
+    | **Code** | GitHub |
+    | **Databases** | PostgreSQL, MongoDB (via [Relay](/relay/overview)) |
+
+    See [Integrations](/integrations/overview) for setup instructions.
+  </Step>
+
+  <Step title="Create your first incident">
+    Click **New Incident** from the dashboard. Describe the issue — for example, "High error rate on payment-service" — and select a severity level.
+
+    CauseFlow starts the investigation immediately.
+
+    <Tip>
+      You can also create incidents via the API. See the [API reference](/api-reference/incidents/create-incident) for details.
+    </Tip>
+  </Step>
+
+  <Step title="Review the results">
+    Watch the investigation progress in real time on the incident detail page. CauseFlow shows:
+
+    - **Summary** — severity classification and confidence score
+    - **Findings** — what was discovered across logs, metrics, infrastructure, and code
+    - **Root cause analysis** — the synthesized explanation of why the incident occurred
+    - **Remediation proposals** — specific actions to resolve the issue
+
+    Review each proposed remediation and click **Approve** or **Reject**. No action executes without your explicit approval.
+  </Step>
+</Steps>

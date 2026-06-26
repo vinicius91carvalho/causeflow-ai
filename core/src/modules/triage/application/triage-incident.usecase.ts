@@ -1,0 +1,213 @@
+import { v4 as uuidv4 } from 'uuid';
+import { evidenceId } from '../../../shared/domain/value-objects.js';
+import { NotFoundError } from '../../../shared/domain/errors.js';
+import { TriageFailedError, IncidentAlreadyTriagedError } from '../domain/triage.errors.js';
+import { triageResultSchema, buildTriagePrompt, TRIAGE_SYSTEM_PROMPT } from '../domain/triage.prompts.js';
+import { logger } from '../../../shared/infra/logger.js';
+import type { IIncidentRepository } from '../../ingestion/domain/incident.repository.js';
+import type { IEvidenceRepository } from '../domain/evidence.repository.js';
+import type { IEventBus } from '../../../shared/domain/events.js';
+import type { LLMClient } from '../../../shared/application/ports/llm-client.port.js';
+import type { MessageQueue } from '../../../shared/application/ports/message-queue.port.js';
+import type { IntegrationToolProvider } from '../../../shared/application/ports/integration-tool-provider.port.js';
+import type { TriageResult } from '../domain/triage.types.js';
+import type { IncidentId, TenantId } from '../../../shared/domain/value-objects.js';
+import type { UpdateIncidentStatusUseCase } from '../../ingestion/application/update-incident-status.usecase.js';
+
+export interface TriageIncidentDeps {
+    incidentRepo: IIncidentRepository;
+    evidenceRepo: IEvidenceRepository;
+    eventBus: IEventBus;
+    llmClient: LLMClient;
+    messageQueue?: MessageQueue;
+    investigationQueueUrl?: string;
+    minInvestigationSeverity?: string;
+    integrationToolProvider?: IntegrationToolProvider;
+    /** Whether the tenant has AWS credential vending configured */
+    hasAwsCredentials?: boolean;
+    /** Whether the tenant has GitHub App connected */
+    hasGitHub?: boolean;
+    /** Whether the tenant has Relay connected */
+    hasRelay?: boolean;
+    /** Use case for transitioning incident status (required for terminal triage resolution) */
+    updateIncidentStatus?: UpdateIncidentStatusUseCase;
+}
+
+const SEVERITY_RANK: Record<string, number> = {
+    critical: 0,
+    high: 1,
+    medium: 2,
+    low: 3,
+    info: 4,
+};
+export class TriageIncidentUseCase {
+    incidentRepo;
+    evidenceRepo;
+    eventBus;
+    llmClient;
+    messageQueue;
+    investigationQueueUrl;
+    minInvestigationSeverity;
+    integrationToolProvider;
+    hasAwsCredentials;
+    hasGitHub;
+    hasRelay;
+    updateIncidentStatus;
+    constructor(deps: TriageIncidentDeps);
+    constructor(incidentRepo: IIncidentRepository, evidenceRepo: IEvidenceRepository, eventBus: IEventBus, llmClient: LLMClient, messageQueue?: MessageQueue, investigationQueueUrl?: string, minInvestigationSeverity?: string, integrationToolProvider?: IntegrationToolProvider, hasAwsCredentials?: boolean, hasGitHub?: boolean, hasRelay?: boolean);
+    constructor(depsOrRepo: TriageIncidentDeps | IIncidentRepository, evidenceRepo?: IEvidenceRepository, eventBus?: IEventBus, llmClient?: LLMClient, messageQueue?: MessageQueue, investigationQueueUrl?: string, minInvestigationSeverity?: string, integrationToolProvider?: IntegrationToolProvider, hasAwsCredentials?: boolean, hasGitHub?: boolean, hasRelay?: boolean) {
+        if (evidenceRepo !== undefined) {
+            // Positional constructor (backward compatible)
+            this.incidentRepo = depsOrRepo as IIncidentRepository;
+            this.evidenceRepo = evidenceRepo;
+            this.eventBus = eventBus as IEventBus;
+            this.llmClient = llmClient as LLMClient;
+            this.messageQueue = messageQueue;
+            this.investigationQueueUrl = investigationQueueUrl;
+            this.minInvestigationSeverity = minInvestigationSeverity ?? 'high';
+            this.integrationToolProvider = integrationToolProvider;
+            this.hasAwsCredentials = hasAwsCredentials ?? false;
+            this.hasGitHub = hasGitHub ?? false;
+            this.hasRelay = hasRelay ?? false;
+            this.updateIncidentStatus = undefined;
+        }
+        else {
+            // Deps object constructor
+            const deps = depsOrRepo as TriageIncidentDeps;
+            this.incidentRepo = deps.incidentRepo;
+            this.evidenceRepo = deps.evidenceRepo;
+            this.eventBus = deps.eventBus;
+            this.llmClient = deps.llmClient;
+            this.messageQueue = deps.messageQueue;
+            this.investigationQueueUrl = deps.investigationQueueUrl;
+            this.minInvestigationSeverity = deps.minInvestigationSeverity ?? 'high';
+            this.integrationToolProvider = deps.integrationToolProvider;
+            this.hasAwsCredentials = deps.hasAwsCredentials ?? false;
+            this.hasGitHub = deps.hasGitHub ?? false;
+            this.hasRelay = deps.hasRelay ?? false;
+            this.updateIncidentStatus = deps.updateIncidentStatus;
+        }
+    }
+    async execute(tenantId: TenantId, incidentId: IncidentId): Promise<TriageResult> {
+        const incident = await this.incidentRepo.findById(tenantId, incidentId);
+        if (!incident) {
+            throw new NotFoundError('Incident', incidentId);
+        }
+        if (incident.status !== 'open') {
+            throw new IncidentAlreadyTriagedError(incidentId, incident.status);
+        }
+        await this.incidentRepo.updateStatus(tenantId, incidentId, 'triaging');
+        // Build integration-aware prompt
+        const systemPrompt = await this.buildSmartPrompt(tenantId);
+        let result: TriageResult;
+        try {
+            const completion = await this.llmClient.complete<TriageResult>({
+                systemPrompt,
+                userPrompt: buildUserPrompt(incident),
+                maxTokens: 512,
+                temperature: 0,
+                responseSchema: triageResultSchema,
+            });
+            result = completion.content;
+        }
+        catch (err) {
+            throw new TriageFailedError(incidentId, err instanceof Error ? err.message : 'Unknown error');
+        }
+        await this.incidentRepo.update(tenantId, incidentId, {
+            severity: result.priority,
+            assignedAgents: result.suggestedAgents,
+            updatedAt: new Date().toISOString(),
+        });
+        await this.evidenceRepo.create({
+            tenantId,
+            incidentId,
+            evidenceId: evidenceId(uuidv4()),
+            agentRole: 'coordinator',
+            evidenceType: 'agent_reasoning',
+            content: result.summary,
+            metadata: { confidence: result.confidence, category: result.category },
+            createdAt: new Date().toISOString(),
+        });
+        await this.eventBus.publish({
+            eventType: 'incident.status_changed',
+            occurredAt: new Date().toISOString(),
+            tenantId,
+            payload: { incidentId, from: 'open', to: 'triaging' },
+        });
+        const threshold = SEVERITY_RANK[this.minInvestigationSeverity] ?? 1;
+        const resultRank = SEVERITY_RANK[result.priority] ?? 4;
+        if (resultRank <= threshold) {
+            // High-severity path: dispatch to investigation worker
+            if (this.messageQueue && this.investigationQueueUrl) {
+                await this.messageQueue.send(this.investigationQueueUrl, {
+                    incidentId,
+                    tenantId,
+                    severity: result.priority,
+                    suggestedAgents: result.suggestedAgents,
+                });
+            }
+        } else {
+            // Terminal path: low/medium/info — resolve immediately without investigation
+            // Mirror investigate-incident pattern: write rootCause first, then transition status
+            await this.incidentRepo.update(tenantId, incidentId, {
+                rootCause: result.summary,
+                updatedAt: new Date().toISOString(),
+            });
+            if (this.updateIncidentStatus) {
+                await this.updateIncidentStatus.execute(tenantId, incidentId, 'resolved');
+            } else {
+                // Fallback when updateIncidentStatus not wired (positional constructor path)
+                await this.incidentRepo.updateStatus(tenantId, incidentId, 'resolved');
+                await this.eventBus.publish({
+                    eventType: 'incident.status_changed',
+                    occurredAt: new Date().toISOString(),
+                    tenantId,
+                    payload: { incidentId, from: 'triaging', to: 'resolved' },
+                });
+            }
+        }
+        return result;
+    }
+    /**
+     * Build an integration-aware triage prompt.
+     * Fetches connected integrations from the provider (fast, cached call)
+     * and combines with static infra knowledge (AWS, GitHub, Relay).
+     */
+    async buildSmartPrompt(tenantId: TenantId): Promise<string> {
+        const connectedIntegrations = [];
+        // Add static integrations (no network call needed — known from bootstrap config)
+        if (this.hasAwsCredentials)
+            connectedIntegrations.push('AWS');
+        if (this.hasGitHub)
+            connectedIntegrations.push('GitHub');
+        if (this.hasRelay)
+            connectedIntegrations.push('Relay');
+        // Fetch dynamic integrations from Composio (if configured)
+        if (this.integrationToolProvider) {
+            try {
+                const connections = await this.integrationToolProvider.getConnectionStatus(tenantId);
+                for (const conn of connections) {
+                    if (conn.status === 'connected' && !connectedIntegrations.includes(conn.provider)) {
+                        connectedIntegrations.push(conn.provider);
+                    }
+                }
+            }
+            catch (err) {
+                logger.warn({ err, tenantId }, 'Failed to fetch integration status for triage — using defaults');
+            }
+        }
+        // If no integrations detected, fall back to default prompt
+        if (connectedIntegrations.length === 0) {
+            return TRIAGE_SYSTEM_PROMPT;
+        }
+        return buildTriagePrompt(connectedIntegrations);
+    }
+}
+function buildUserPrompt(incident: { title: string; description: string; severity: string; sourceProvider: string; sourceAlertId: string }): string {
+    return `Incident to triage:
+- Title: ${incident.title}
+- Description: ${incident.description}
+- Current Severity: ${incident.severity}
+- Source: ${incident.sourceProvider}
+- Alert ID: ${incident.sourceAlertId}`;
+}

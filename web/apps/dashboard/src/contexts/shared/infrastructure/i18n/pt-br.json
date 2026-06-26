@@ -1,0 +1,210 @@
+{
+  "dashboard": {
+    "systemStatus": {
+      "title": "Status do Sistema",
+      "ok": "Operacional",
+      "degraded": "Degradado",
+      "down": "Indisponível",
+      "loading": "Carregando status...",
+      "error": "Não foi possível carregar o status do sistema",
+      "version": "Versão",
+      "latency": "{ms}ms"
+    },
+    "patternInsights": {
+      "title": "Insights de Padrões",
+      "totalPatterns": "Total de Padrões",
+      "avgConfidence": "Confiança Média",
+      "topCategories": "Principais Categorias",
+      "resolutionRates": "Taxas de Resolução",
+      "automated": "Automatizado",
+      "manual": "Manual",
+      "pending": "Pendente",
+      "noData": "Nenhum dado de padrão disponível ainda",
+      "fetchError": "Falha ao carregar insights de padrões. Por favor, tente novamente mais tarde."
+    },
+    "sidebar": {
+      "overview": "Visão Geral",
+      "analyses": "Análises",
+      "incidents": "Incidentes",
+      "integrations": "Integrações",
+      "team": "Equipe",
+      "settings": "Configurações",
+      "billing": "Cobrança",
+      "credits": "Investigações",
+      "creditsValue": "{count} investigações restantes",
+      "creditsLoading": "Carregando...",
+      "creditsError": "— investigações",
+      "collapse": "Recolher menu lateral",
+      "expand": "Expandir menu lateral",
+      "openMenu": "Abrir menu de navegação",
+      "audit": "Registro de Auditoria",
+      "topology": "Topologia",
+      "intelligence": "Inteligência",
+      "relay": "Relay"
+    },
+    "topology": {
+      "title": "Topologia de Infraestrutura",
+      "healthSummary": "Resumo de Saúde",
+      "healthy": "Saudável",
+      "degraded": "Degradado",
+      "unhealthy": "Indisponível",
+      "unknown": "Desconhecido",
+      "filters": {
+        "type": "Tipo de Serviço",
+        "health": "Status de Saúde",
+        "team": "Equipe Responsável",
+        "all": "Todos"
+      },
+      "service": {
+        "blastRadius": "Raio de Impacto",
+        "criticality": "Criticidade",
+        "owner": "Responsável",
+        "connections": "Conexões",
+        "details": "Detalhes do Serviço",
+        "edges": "Serviços Conectados",
+        "noServices": "Nenhum serviço encontrado"
+      }
+    },
+    "topbar": {
+      "logo": "CauseFlow AI",
+      "themeToggle": "Alternar tema",
+      "userMenu": "Menu do usuário",
+      "signOut": "Sair",
+      "profile": "Perfil",
+      "breadcrumbHome": "Painel",
+      "search": "Buscar ou navegar...",
+      "languageSelector": "Selecionar idioma",
+      "tutorial": "Tutorial",
+      "language": {
+        "label": "Idioma",
+        "en": "English",
+        "ptBr": "Português (Brasil)",
+        "error": "Não foi possível alterar o idioma. Tente novamente."
+      }
+    },
+    "overview": {
+      "title": "Visão Geral",
+      "description": "Bem-vindo ao seu painel CauseFlow AI"
+    },
+    "tour": {
+      "welcome": "CASO #001",
+      "welcomeDesc": "Bem-vindo, Detetive. Seu centro de comando esta pronto. Deixe-me mostrar tudo antes da sua primeira missao.",
+      "hq": "SEU QG — Centro de Comando",
+      "hqDesc": "Esta e sua sala de guerra. Casos ativos, saude da equipe, creditos restantes — tudo num relance. Os numeros atualizam em tempo real conforme suas investigacoes avancam.",
+      "caseFiles": "ARQUIVOS DE CASO — Incidentes",
+      "caseFilesDesc": "Aqui e onde a acao acontece. Cada incidente de producao vira um caso. Crie investigacoes, trace causas raiz e feche casos mais rapido do que sua equipe jamais imaginou.",
+      "evidenceRoom": "SALA DE EVIDENCIAS — Integracoes",
+      "evidenceRoomDesc": "Conecte suas ferramentas — Slack, GitHub, AWS, Datadog, PagerDuty — e deixe o CauseFlow coletar evidencias de todas as fontes automaticamente. Mais conexoes = resolucoes mais rapidas.",
+      "squad": "SEU ESQUADRAO — Equipe",
+      "squadDesc": "Nenhum detetive trabalha sozinho. Convide seus engenheiros, atribua funcoes e colabore nas investigacoes. Cada membro ve as mesmas evidencias em tempo real.",
+      "intel": "CENTRAL DE INTELIGENCIA — Intelligence",
+      "intelDesc": "O CauseFlow aprende com cada caso resolvido. Reconhecimento de padroes, base de conhecimento e insights com IA se acumulam ao longo do tempo. Quanto mais voce investiga, mais inteligente ele fica.",
+      "missionControl": "CONTROLE DE MISSAO — Nova Analise",
+      "missionControlDesc": "Pronto para seu primeiro caso? Aperte este botao, descreva um incidente e veja o CauseFlow rastrear a causa raiz em todos os seus sistemas conectados.",
+      "billing": "ESCRITORIO DE CAMPO — Cobranca",
+      "billingDesc": "Acompanhe seus creditos, faca upgrade do plano ou compre pacotes extras de investigacao. Seu trial de 7 dias comeca agora — aproveite ao maximo.",
+      "complete": "BRIEFING DE MISSAO COMPLETO",
+      "completeDesc": "Voce esta liberado para servico, Detetive. Va resolver seu primeiro caso — sua equipe conta com voce.",
+      "btnNext": "Proximo",
+      "btnPrev": "Voltar",
+      "btnDone": "Comecar a Investigar",
+      "btnSkip": "Pular Tour",
+      "stepOf": "de"
+    },
+    "home": {
+      "metrics": {
+        "totalAnalyses": "Total de Análises",
+        "monthlyAnalyses": "Análises Este Mês",
+        "activeIntegrations": "Integrações Ativas",
+        "teamMembers": "Membros da Equipe"
+      },
+      "credits": {
+        "remaining": "{count} Créditos Restantes",
+        "renews": "Renova em {date}",
+        "upgrade": "Atualizar Plano",
+        "warning": "Créditos Acabando",
+        "critical": "Crítico: Quase Sem Créditos"
+      },
+      "savingHours": {
+        "display": "Você economizou ~{hours} horas este mês com o CauseFlow AI ({analyses} investigações)"
+      },
+      "recentAnalyses": {
+        "heading": "Análises Recentes",
+        "viewAll": "Ver Todas",
+        "empty": "Nenhuma análise ainda. Comece sua primeira investigação abaixo."
+      },
+      "quickActions": {
+        "newAnalysis": "Nova Análise",
+        "connectIntegration": "Conectar Integração"
+      },
+      "emptyState": {
+        "title": "Bem-vindo ao CauseFlow AI",
+        "subtitle": "Comece sua primeira análise de incidente para obter insights de causa raiz em minutos.",
+        "createAnalysis": "Criar Sua Primeira Análise",
+        "feature1": "Análise de Causa Raiz com IA",
+        "feature2": "Insights Instantâneos",
+        "feature3": "Trilha de Auditoria",
+        "branchA": {
+          "title": "Bem-vindo ao CauseFlow",
+          "subtitle": "Você ainda não tem nada conectado. Comece conectando uma integração ou configurando o Relay para capturar incidentes.",
+          "connectIntegration": "Conectar Integração",
+          "setUpRelay": "Configurar Relay"
+        },
+        "branchB": {
+          "title": "Bem-vindo ao CauseFlow",
+          "subtitle": "Suas integrações estão conectadas. Agora crie sua primeira análise para obter insights de causa raiz.",
+          "createFirstAnalysis": "Criar Sua Primeira Análise"
+        }
+      },
+      "systemOperational": {
+        "title": "Sistema Operacional",
+        "newAnalysis": "Nova Análise",
+        "integrations": "integrações conectadas",
+        "version": "Versão",
+        "ok": "Operacional",
+        "degraded": "Degradado",
+        "down": "Indisponível",
+        "error": "Saúde indisponível"
+      },
+      "sections": {
+        "activeIncidents": {
+          "title": "Incidentes Ativos",
+          "empty": "Nenhum incidente ativo",
+          "error": "Falha ao carregar incidentes ativos"
+        },
+        "pendingApprovals": {
+          "title": "Aprovações Pendentes",
+          "empty": "Nenhuma aprovação pendente",
+          "error": "Falha ao carregar aprovações pendentes"
+        },
+        "recentNotifications": {
+          "title": "Notificações Recentes",
+          "empty": "Nenhuma notificação recente",
+          "error": "Falha ao carregar notificações"
+        },
+        "systemHealth": {
+          "title": "Saúde do Sistema",
+          "empty": "Nenhum serviço registrado",
+          "error": "Falha ao carregar saúde do sistema"
+        },
+        "relayStatus": {
+          "title": "Status do Relay",
+          "empty": "Relay não conectado",
+          "error": "Falha ao carregar status do relay"
+        },
+        "memoryInsights": {
+          "title": "Insights de Memória",
+          "empty": "Nenhum insight ainda — comece a investigar para construir memória",
+          "error": "Falha ao carregar insights de memória",
+          "seeMore": "Ver todos ({count})",
+          "modalTitle": "Todos os insights de memória"
+        },
+        "usageHistory": {
+          "title": "Histórico de Uso",
+          "empty": "Nenhum dado de uso ainda",
+          "error": "Falha ao carregar histórico de uso"
+        }
+      }
+    }
+  }
+}

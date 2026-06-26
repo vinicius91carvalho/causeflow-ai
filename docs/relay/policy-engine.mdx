@@ -1,0 +1,154 @@
+---
+title: "Policy engine"
+description: "Control exactly what the relay can access — which databases, which operations, and how many rows."
+---
+
+The policy engine is the first line of defense inside the Relay. Every query request passes through the policy engine before any database connection is made. Requests that fail a policy check are rejected immediately with an error — they never reach the database.
+
+## Per-resource allowlist
+
+The Relay only exposes databases that are explicitly listed in your `relay-config.yaml`. If a request arrives for a resource ID that is not configured, it is rejected regardless of the query content.
+
+This means:
+
+- Databases not in your config are completely invisible to the control plane.
+- Renaming or removing a resource from the config immediately cuts off access to that database.
+- Each resource has its own independent policy settings.
+
+## Allowed operations
+
+Each resource declares the operations the control plane is allowed to invoke on it via the `allowedOperations` list:
+
+```yaml
+resources:
+  - id: main-pg
+    type: postgres
+    allowedOperations: [query, describe_table, list_tables, explain]
+```
+
+If the control plane requests an operation not on the list, the request is rejected. For example, if you configure `allowedOperations: [query]`, requests for `describe_table` or `list_tables` are rejected.
+
+| Operation | Description |
+|---|---|
+| `query` | Execute a SELECT query or MongoDB find. |
+| `describe_table` | Return schema metadata for a table or collection. |
+| `list_tables` | Enumerate tables or collections in the database. |
+| `explain` | Return the query execution plan without running the query. |
+
+## Row limits
+
+The `maxRowsPerQuery` setting caps the number of rows returned by any single query:
+
+```yaml
+resources:
+  - id: main-pg
+    maxRowsPerQuery: 1000
+```
+
+Requests that would return more than `maxRowsPerQuery` rows are **clamped** — the query runs, but only the first `maxRowsPerQuery` rows are returned. The response metadata includes the actual row count so the caller can detect that clamping occurred. Requests are never rejected solely because of a row limit.
+
+The default is `1000` rows per query if `maxRowsPerQuery` is not set.
+
+## SQL validation (PostgreSQL)
+
+For PostgreSQL resources, the Relay parses and validates every query before execution. Queries that contain any blocked statement, function, or construct are rejected.
+
+### Blocked statements
+
+The following SQL statement types are blocked regardless of context:
+
+| Statement | Reason |
+|---|---|
+| `INSERT` | Write operation |
+| `UPDATE` | Write operation |
+| `DELETE` | Write operation |
+| `DROP` | DDL — structural change |
+| `ALTER` | DDL — structural change |
+| `CREATE` | DDL — structural change |
+| `TRUNCATE` | DDL — destructive write |
+
+### Blocked built-in functions
+
+The following PostgreSQL functions are blocked because they can read or write files, affect server behavior, or exfiltrate data:
+
+| Function | Risk |
+|---|---|
+| `pg_sleep` | Denial of service via connection exhaustion |
+| `pg_read_file` | Arbitrary file read from the database server |
+| `pg_write_file` | Arbitrary file write to the database server |
+| `pg_ls_dir` | Directory listing on the database server |
+| `pg_stat_file` | File metadata read on the database server |
+| `pg_terminate_backend` | Terminates other database connections |
+| `pg_cancel_backend` | Cancels other queries |
+| `pg_reload_conf` | Reloads PostgreSQL configuration |
+| `dblink` | Opens connections to other databases |
+| `dblink_exec` | Executes commands on remote databases |
+
+### Multi-statement injection
+
+Queries containing semicolons are blocked to prevent multi-statement SQL injection. Each request must contain exactly one statement.
+
+### Read-only transaction enforcement
+
+In addition to SQL validation, all PostgreSQL queries are executed inside a `READ ONLY` transaction with a 30-second statement timeout. Even if a query somehow bypassed the SQL validator, the database transaction itself prevents writes.
+
+## MongoDB validation
+
+For MongoDB resources, the Relay blocks aggregation pipeline stages that can write data to other collections:
+
+| Stage | Reason |
+|---|---|
+| `$out` | Writes aggregation results to a new collection |
+| `$merge` | Merges aggregation results into an existing collection |
+
+All other aggregation stages and `find` operations are allowed, subject to the operation allowlist.
+
+## Policy engine decision flow
+
+Every request passes through these checks in order:
+
+<Steps>
+  <Step title="Resource check">
+    Is the requested resource ID listed in `relay-config.yaml`? If not, reject immediately with `RESOURCE_NOT_FOUND`.
+  </Step>
+  <Step title="Operation allowlist check">
+    Is the requested operation in the resource's `allowedOperations` list? If not, reject with `OPERATION_NOT_ALLOWED`.
+  </Step>
+  <Step title="Row limit check">
+    If the query specifies a `LIMIT` clause, is it within `maxRowsPerQuery`? If it exceeds the limit, the query is rewritten to clamp results to `maxRowsPerQuery`. The response metadata will indicate clamping occurred.
+  </Step>
+  <Step title="SQL / query safety check">
+    For PostgreSQL: does the query contain any blocked statement, function, or semicolon? If so, reject with `QUERY_BLOCKED`. For MongoDB: does the pipeline contain `$out` or `$merge`? If so, reject with `QUERY_BLOCKED`.
+  </Step>
+  <Step title="Execute query">
+    The validated query is executed against the database inside a read-only transaction (PostgreSQL) or as a read-only find/aggregate (MongoDB).
+  </Step>
+  <Step title="PII masking">
+    Results are scanned against all configured masking patterns. Matching values are replaced in-memory before the response is assembled.
+  </Step>
+  <Step title="Audit log">
+    A structured log entry is written recording the request ID, resource, operation, outcome, row count, masked field count, and execution time.
+  </Step>
+  <Step title="Return masked results">
+    The sanitized response is returned to the control plane over the WebSocket.
+  </Step>
+</Steps>
+
+## Policy errors in audit logs
+
+When the policy engine rejects a request, the audit log entry includes the rejection reason:
+
+```json
+{
+  "level": "warn",
+  "time": "2024-01-15T10:31:00.000Z",
+  "msg": "Request rejected by policy engine",
+  "requestId": "req-def456",
+  "resourceId": "main-pg",
+  "operation": "query",
+  "reason": "QUERY_BLOCKED",
+  "detail": "Statement contains blocked keyword: DELETE"
+}
+```
+
+Use the audit log to understand exactly why a request was rejected and adjust your integration or configuration accordingly.

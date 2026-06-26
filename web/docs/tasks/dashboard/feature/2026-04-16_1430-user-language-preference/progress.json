@@ -1,0 +1,69 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-16T14:30:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-core-contract-confirmation.md",
+      "title": "Core contract confirmation",
+      "status": "completed",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": null,
+      "merged": true
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-dashboard-core-client.md",
+      "title": "Dashboard core client (updateUserSettings + getUserSettings)",
+      "status": "completed",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "worktree-agent-a9549ebe",
+      "merged": true
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-settings-handler-routing.md",
+      "title": "Settings-handler routing fix",
+      "status": "completed",
+      "depends_on": [
+        2
+      ],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": true,
+      "commit": "0bfb5c5"
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-header-language-selector.md",
+      "title": "Header language selector UI",
+      "status": "completed",
+      "depends_on": [
+        3
+      ],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": true
+    },
+    {
+      "id": 5,
+      "file": "sprints/05-server-sync-and-e2e.md",
+      "title": "Server-source-of-truth sync + Playwright E2E",
+      "status": "completed",
+      "depends_on": [
+        4
+      ],
+      "batch": 4,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": true,
+      "notes": "Playwright E2E suite is authored but execution is BLOCKED by missing seed Clerk user teste-5@causeflow.ai — affects all authed dashboard specs, not Sprint 5 specifically."
+    }
+  ]
+}

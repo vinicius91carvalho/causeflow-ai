@@ -1,0 +1,50 @@
+{
+  "prd": "spec.md",
+  "created": "2026-03-21T15:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-critical-fixes.md",
+      "title": "Critical Fixes: Pricing, Dates, Contradictions, Tech Names",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": null,
+      "merged": false
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-differentiators-product-story.md",
+      "title": "Content: Differentiators & Product Story",
+      "status": "complete",
+      "depends_on": [1],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": null,
+      "merged": false
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-security-integrations-legal.md",
+      "title": "Content: Security, Integrations & Legal",
+      "status": "complete",
+      "depends_on": [2],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": false
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-ptbr-translations-polish.md",
+      "title": "PT-BR Translations & Final Polish",
+      "status": "complete",
+      "depends_on": [3],
+      "batch": 4,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": false
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "notFound": {
+    "title": "Página não encontrada",
+    "description": "A página que você está procurando não existe ou foi movida.",
+    "cta": "Voltar para a página inicial"
+  },
+  "common": {
+    "nav": {
+      "product": "Produto",
+      "integrations": "Integrações",
+      "pricing": "Preços",
+      "security": "Segurança",
+      "signIn": "Entrar",
+      "getStartedFree": "Acesso Antecipado",
+      "dashboard": "Painel",
+      "usecases": "Casos de Uso",
+      "about": "Sobre",
+      "docs": "Docs"
+    },
+    "cta": {
+      "getStartedFree": "Acesso Antecipado",
+      "watchDemo": "Veja Como Funciona",
+      "scheduleDemo": "Fale Conosco",
+      "createAccount": "Criar Conta",
+      "talkToSales": "Falar com Vendas",
+      "learnMore": "Saiba Mais Sobre o Produto",
+      "startNow": "Acesso Antecipado"
+    },
+    "footer": {
+      "description": "Investigação inteligente de incidentes para times de engenharia e suporte L2/L3.",
+      "productColumn": "Produto",
+      "companyColumn": "Empresa",
+      "legalColumn": "Legal",
+      "howItWorks": "Como Funciona",
+      "integrations": "Integrações",
+      "security": "Segurança",
+      "pricing": "Preços",
+      "contact": "Contato",
+      "platformStatus": "Status da Plataforma",
+      "privacyPolicy": "Política de Privacidade",
+      "termsOfService": "Termos de Serviço",
+      "lgpdGdpr": "LGPD/GDPR",
+      "copyright": "2026 CauseFlow AI. Todos os direitos reservados.",
+      "lgpdCompliant": "Em conformidade com a LGPD",
+      "gdprCompliant": "Em conformidade com o GDPR",
+      "soc2TypeII": "SOC 2 Tipo II (Em Andamento)",
+      "iso27001": "ISO 27001 (No Roadmap)",
+      "hipaa": "HIPAA (No Roadmap)",
+      "connectColumn": "Conectar",
+      "talkToFounder": "Fale com o Co-Fundador",
+      "about": "Sobre"
+    },
+    "languageSelector": {
+      "en": "English",
+      "ptBr": "Português (BR)"
+    },
+    "cofounderCta": {
+      "headline": "Vamos Conversar Sobre Seu Fluxo de Incidentes",
+      "description": "Somos Engineering Managers e Especialistas em IA que passaram anos investigando incidentes em ferramentas desconectadas. Construímos o CauseFlow porque vivemos a mesma dor que você enfrenta agora.",
+      "connectLinkedIn": "Conectar no LinkedIn",
+      "bookCall": "Agendar uma Conversa de 15 min",
+      "personalNote": "Sem papo de vendas — apenas uma conversa sobre os maiores desafios do seu time."
+    }
+  }
+}

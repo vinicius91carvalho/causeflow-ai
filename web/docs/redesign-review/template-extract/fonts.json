@@ -1,0 +1,8 @@
+{
+  "\"Plus Jakarta Sans\"": "body",
+  "\"JetBrains Mono\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace": "div#lang-toggle",
+  "Arial": "button.active",
+  "\"Space Grotesk\", \"Plus Jakarta Sans\", ui-sans-serif, system-ui, sans-serif": "h1#hero-headline",
+  "\"Plus Jakarta Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif": "p#hero-lead",
+  "\"Plus Jakarta Sans\", ui-sans-serif, system-ui, sans-serif": "h3#dash-title"
+}

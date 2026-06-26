@@ -1,0 +1,79 @@
+---
+title: "Knowledge base"
+description: "CauseFlow learns from past incidents to accelerate future investigations."
+---
+
+Every investigation produces new knowledge. CauseFlow automatically extracts patterns from completed investigations and uses them to accelerate triage and root cause analysis for future incidents. Over time, the knowledge base becomes a living library of your infrastructure's failure modes.
+
+## How patterns are created
+
+After each investigation completes and a root cause is confirmed, CauseFlow runs a pattern extraction step. It identifies the key signals — symptoms, root cause, and fix — and stores them as a reusable pattern.
+
+A pattern captures:
+
+| Attribute | Description |
+|---|---|
+| **Symptoms** | The observable signals that indicate this failure mode (log patterns, metric thresholds, error messages) |
+| **Root cause category** | The class of failure (e.g., `database_connection_exhaustion`, `memory_leak`, `bad_deployment`) |
+| **Root cause description** | Human-readable explanation of why the incident occurred |
+| **Fix action** | The remediation that resolved it |
+| **Confidence** | A score from 0.0 to 1.0 reflecting how certain the pattern is |
+| **Occurrences** | How many times this pattern has been observed and confirmed |
+| **Status** | `emerging` or `stable` (see lifecycle below) |
+
+## Pattern lifecycle
+
+New patterns start in the `emerging` state with a confidence score around 0.50. This reflects that the pattern has been observed once but not yet validated across multiple incidents.
+
+As more incidents match and confirm the same pattern:
+
+- Each confirmation increases the confidence score
+- Each rejection decreases the confidence score
+- Once confidence passes 0.80 and the pattern has been confirmed at least 3 times, it transitions to `stable`
+
+Stable patterns are used with higher weight during triage. An emerging pattern will suggest a hypothesis; a stable pattern will strongly influence the severity classification and agent selection.
+
+```
+New pattern → emerging (confidence ~0.50, occurrences: 1)
+      │
+      │ confirmed twice more
+      ▼
+stable (confidence ≥ 0.80, occurrences ≥ 3)
+```
+
+## Similarity matching
+
+When a new incident arrives, CauseFlow computes a similarity score between the incoming alert and all patterns in the knowledge base. The similarity score is based on:
+
+- Service name and environment
+- Symptom overlap (log patterns, affected metrics)
+- Alert keywords and description
+
+If any pattern scores **85% or higher**, CauseFlow surfaces it to the Triage Agent with the note "known pattern match." The triage output will include the matched pattern's root cause and fix, and agents are directed to confirm or rule out that specific hypothesis.
+
+This dramatically reduces investigation time for repeat incidents — rather than exploring from scratch, agents start with the answer and verify it.
+
+## How patterns improve over time
+
+The knowledge base improves through your feedback. Every time you confirm or correct a root cause:
+
+- **Confirmed** root cause → pattern confidence increases, occurrence count increments
+- **Rejected** root cause → pattern confidence decreases; if confidence drops below 0.20, the pattern is archived
+- **Corrected** root cause → the pattern is updated with the corrected information and confidence is reset to 0.50 to restart the validation cycle
+
+<Tip>
+  Providing feedback on investigations directly improves the knowledge base. The more you confirm or correct root causes, the more accurate future investigations become.
+</Tip>
+
+## Viewing patterns
+
+Browse your knowledge base from **Dashboard > Knowledge Base**. You can:
+
+- Filter by service, root cause category, confidence level, and status
+- View the full pattern details including symptoms and fix history
+- Archive patterns that are no longer relevant
+- Manually add patterns for known failure modes (useful when onboarding with existing institutional knowledge)
+
+## Privacy
+
+All patterns are scoped to your tenant. CauseFlow does not share patterns across tenants or use your incident data to train shared models. See [Data privacy](/security/data-privacy) for details.

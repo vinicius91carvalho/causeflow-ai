@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+.VERSION
+*.tgz
+*.log
+.DS_Store
+.vscode/
+.idea/
+.env
+.env.*
+!.env.example
+.artifacts/
+relay-audit-buffer

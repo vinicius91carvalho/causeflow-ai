@@ -1,0 +1,37 @@
+{
+  "dashboard": {
+    "approvals": {
+      "title": "Aprovações",
+      "description": "Revise e responda às aprovações pendentes",
+      "empty": "Nenhuma aprovação encontrada",
+      "emptyDescription": "Aprovações aparecerão quando remediações precisarem de autorização",
+      "status": {
+        "pending": "Pendente",
+        "approved": "Aprovada",
+        "rejected": "Rejeitada",
+        "expired": "Expirada"
+      },
+      "filters": {
+        "all": "Todas",
+        "pending": "Pendente",
+        "approved": "Aprovada",
+        "rejected": "Rejeitada",
+        "expired": "Expirada"
+      },
+      "card": {
+        "incident": "Incidente",
+        "remediation": "Remediação",
+        "expiresIn": "Expira em",
+        "expired": "Expirada",
+        "respondedBy": "Respondido por",
+        "selectedAction": "Ação tomada",
+        "timeout": "Tempo limite"
+      },
+      "actions": {
+        "approve": "Aprovar",
+        "reject": "Rejeitar",
+        "responding": "Respondendo..."
+      }
+    }
+  }
+}

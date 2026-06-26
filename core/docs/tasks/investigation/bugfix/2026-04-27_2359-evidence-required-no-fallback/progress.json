@@ -1,0 +1,75 @@
+{
+  "prd": "spec.md",
+  "prd_name": "evidence-required-no-fallback",
+  "build_candidate_tag": "build-candidate/evidence-required-no-fallback",
+  "created": "2026-04-27T23:59:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-diagnostic-quantification.md",
+      "title": "Diagnostic & Quantification",
+      "repo": "core",
+      "status": "completed",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": null,
+      "merged": true,
+      "completed_at": "2026-04-28T00:48:00Z",
+      "key_findings": "Staging fallback rate 33.3% (3/9 completions); all 3 affected incidents share same Zod too_small error on findings[].evidenceIds; tenantId not currently emitted in fallback log line; production log group exists but no worker activity since regression"
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-pre-synthesis-gate-and-inconclusive.md",
+      "title": "Pre-Synthesis Gate + Inconclusive Terminal State",
+      "repo": "core",
+      "status": "completed",
+      "depends_on": [
+        1
+      ],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": true,
+      "completed_at": "2026-04-28T03:15:00Z",
+      "commit": "1f12a06",
+      "key_findings": "Pre-synthesis gate added at investigate-incident.usecase.ts:~1414 with marker 'pre_synthesis_zero_evidence'. Single bounded re-invocation of orchestrator agent on zero evidences; if still zero → terminateInconclusive. Removed unvalidated-fallback path; exhausted-citation retries now route to terminateInconclusive. Added IncidentStatus 'inconclusive' (terminal — no transitions out). Worker bridges investigation.inconclusive → progress SQS. INVARIANTS I9, I10, I11 added (I10 scoped to orchestrator-mode only; legacy multi-agent stringsToFindings path is out-of-scope). Tests: 998/998 pass; lint-invariants 9/9; typecheck/lint clean."
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-orchestrator-prompt-hardening.md",
+      "title": "Orchestrator Prompt Hardening + Telemetry",
+      "repo": "core",
+      "status": "completed",
+      "depends_on": [
+        2
+      ],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": "main",
+      "merged": true,
+      "completed_at": "2026-04-28T12:25:00Z",
+      "commit": "c88cc6f",
+      "key_findings": "ORCHESTRATOR_SYSTEM_PROMPT in agent-configs.ts strengthened with WILL-BE-DISCARDED + no-fallback contract + worked tool→cite_evidence→finding example. Added telemetry events 'orchestrator_failed_to_cite' and 'orchestrator_reinvocation_succeeded' inside the pre-synthesis gate (avoids extra DB round-trip). Promptfoo eval YAML at tests/eval/promptfoo/orchestrator-cites-evidence.yaml (2 scenarios, not auto-run). All checks: typecheck/lint/test:run/lint-invariants pass."
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-api-and-dashboard-inconclusive-ux.md",
+      "title": "API Surface + Dashboard Inconclusive UX",
+      "repo": "both",
+      "status": "completed",
+      "depends_on": [
+        2
+      ],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": "main (core) + feat/incident-inconclusive-ux (web)",
+      "merged": true,
+      "completed_at": "2026-04-28T12:50:00Z",
+      "commit_core": "bd01bd7",
+      "commit_web": "cd79570",
+      "pr_web": "https://github.com/causeflow/web/pull/30",
+      "key_findings": "Core: GET /v1/incidents/:id passes status through verbatim (no Zod schema enumerates values); only change was extending VALID_STATUSES in incident.routes.ts to include 'aborted', 'failed', and 'inconclusive' (the ?status= filter previously silently dropped these values). Added contract test asserting status=inconclusive in GET response. Web: added IncidentInconclusivePanel component using semantic warning DS tokens (text-warning, bg-warning/10, border-warning/40 — adapts to dark mode), wired into IncidentDetail with isInconclusive branch. Updated en/pt-BR i18n. Status badge + list filter handle the new value. Playwright E2E intentionally not added — the existing E2E setup needs a running dev server; vitest source-guard test covers the structural assertions instead. PR #30 (web) awaits merge after staging deploy."
+    }
+  ]
+}

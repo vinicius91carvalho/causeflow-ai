@@ -1,0 +1,3121 @@
+<html lang="pt-BR" style="--accent-h: 172; --accent-s: 66%; --accent-l: 30%; --accent: 172 66% 30%; --accent-tint: 172 66% 94%; --bg-tone: 44 38% 96%; --bg-tone-2: 44 30% 92%;"><head><script>window.__resources = {};</script>
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>CauseFlow AI — Investigue incidentes em minutos, não horas</title>
+<link rel="icon" href="blob:null/1a25f59d-c28c-4332-8904-c224b3586e02">
+<style>/*
+ * CauseFlow AI Design System — Colors & Type
+ *
+ * Extracted from causeflow/web @ main:
+ *   packages/ui/src/themes/original/tokens/{light,dark}.css
+ *   packages/ui/src/themes/shared/base.css
+ *   packages/ui/src/themes/original/fonts/font-stacks.css
+ *
+ * Values are stored as raw HSL triples ("H S% L%") per shadcn/ui convention,
+ * consumed as `hsl(var(--token))`. This allows alpha composition, e.g.:
+ *   background: hsl(var(--accent) / 0.1);
+ *
+ * The product ships dark mode as the dominant theme (both website and
+ * dashboard default to dark). Light mode exists for parity.
+ */
+
+/* ---------------------------------------------------------------
+ * Fonts — Plus Jakarta Sans (sans + display) + JetBrains Mono
+ * --------------------------------------------------------------- */
+/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/9b331d64-cdb1-4d51-9268-5fbf17c87ad4") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/fcc531c6-ceb2-4621-b134-b14d5c685d82") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/dc403e6b-160f-4132-9d49-8501496a37c5") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/ded60aa4-6fa5-4733-8282-804654930999") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/c0737648-bf13-44bc-8624-913659f7f6c1") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/1b939a0e-f810-462c-9974-be65127e18dd") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/9b331d64-cdb1-4d51-9268-5fbf17c87ad4") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/fcc531c6-ceb2-4621-b134-b14d5c685d82") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/dc403e6b-160f-4132-9d49-8501496a37c5") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/ded60aa4-6fa5-4733-8282-804654930999") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/c0737648-bf13-44bc-8624-913659f7f6c1") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/1b939a0e-f810-462c-9974-be65127e18dd") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/9b331d64-cdb1-4d51-9268-5fbf17c87ad4") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/fcc531c6-ceb2-4621-b134-b14d5c685d82") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/dc403e6b-160f-4132-9d49-8501496a37c5") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/ded60aa4-6fa5-4733-8282-804654930999") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/c0737648-bf13-44bc-8624-913659f7f6c1") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/1b939a0e-f810-462c-9974-be65127e18dd") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/9f38f55f-6e49-4bde-aca7-a5027561dda9") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/ff6e91e9-f88e-4867-b1ae-64f5d02df026") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/d0b21483-1609-48cb-94f2-c672f32db764") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/35893588-1189-4043-9af9-00e8a26dff8c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/9f38f55f-6e49-4bde-aca7-a5027561dda9") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/ff6e91e9-f88e-4867-b1ae-64f5d02df026") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/d0b21483-1609-48cb-94f2-c672f32db764") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/35893588-1189-4043-9af9-00e8a26dff8c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/9f38f55f-6e49-4bde-aca7-a5027561dda9") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/ff6e91e9-f88e-4867-b1ae-64f5d02df026") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/d0b21483-1609-48cb-94f2-c672f32db764") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/35893588-1189-4043-9af9-00e8a26dff8c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("blob:null/9f38f55f-6e49-4bde-aca7-a5027561dda9") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("blob:null/ff6e91e9-f88e-4867-b1ae-64f5d02df026") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("blob:null/d0b21483-1609-48cb-94f2-c672f32db764") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("blob:null/35893588-1189-4043-9af9-00e8a26dff8c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("blob:null/9f38f55f-6e49-4bde-aca7-a5027561dda9") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("blob:null/ff6e91e9-f88e-4867-b1ae-64f5d02df026") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("blob:null/d0b21483-1609-48cb-94f2-c672f32db764") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("blob:null/35893588-1189-4043-9af9-00e8a26dff8c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+
+/* ---------------------------------------------------------------
+ * LIGHT MODE — :root default
+ * Deep Indigo primary on indigo-tinted off-white surface
+ * --------------------------------------------------------------- */
+:root,
+[data-theme="original"] {
+  /* Surfaces */
+  --background: 230 18% 95%;        /* #eeeef4 — indigo-tinted off-white */
+  --foreground: 232 45% 10%;        /* near-black navy */
+  --card: 230 20% 97%;              /* #f5f5f9 — lifted */
+  --card-foreground: 232 45% 10%;
+  --popover: 230 20% 97%;
+  --popover-foreground: 232 45% 10%;
+
+  /* Primary — Deep Indigo (used on filled buttons, brand surfaces) */
+  --primary: 232 50% 18%;
+  --primary-foreground: 0 0% 98%;
+
+  /* Secondary / Muted — indigo-tinted light */
+  --secondary: 230 15% 93%;         /* #ececf1 */
+  --secondary-foreground: 232 50% 18%;
+  --muted: 230 15% 93%;
+  --muted-foreground: 232 12% 44%;
+
+  /* Accent — Electric Teal (darkened to 30% L for WCAG AA on white) */
+  --accent: 172 66% 30%;
+  --accent-foreground: 0 0% 98%;
+
+  /* Semantic */
+  --warning: 23 90% 52%;            /* Clerk Orange — secondary CTA, attention */
+  --warning-foreground: 0 0% 100%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
+  --success: 160 84% 39%;           /* Emerald */
+  --success-foreground: 0 0% 98%;
+
+  /* Chrome */
+  --border: 230 15% 87%;            /* #dbdbe5 */
+  --input: 230 15% 87%;
+  --ring: 172 66% 30%;              /* focus ring = accent */
+
+  /* Chart */
+  --chart-1: 172 66% 30%;
+  --chart-2: 232 50% 45%;
+  --chart-3: 43 96% 56%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 0 72% 51%;
+
+  /* Radius — single base, all others derived */
+  --radius: 0.625rem;               /* 10px — the "lg" radius */
+
+  /* Fonts */
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ---------------------------------------------------------------
+ * DARK MODE — .dark class on <html> (dominant theme)
+ * Deep indigo-black background + Electric Teal primary
+ * --------------------------------------------------------------- */
+.dark,
+[data-theme="original"].dark {
+  --background: 232 35% 6%;         /* near-black indigo */
+  --foreground: 210 40% 96%;
+
+  --card: 232 30% 10%;              /* lifted panel */
+  --card-foreground: 210 40% 96%;
+  --popover: 232 30% 10%;
+  --popover-foreground: 210 40% 96%;
+
+  /* In dark mode, primary IS the Electric Teal — the brand asserts itself */
+  --primary: 172 66% 50%;
+  --primary-foreground: 232 35% 6%;
+
+  --secondary: 232 25% 16%;
+  --secondary-foreground: 210 40% 96%;
+  --muted: 232 25% 16%;
+  --muted-foreground: 232 12% 68%;
+
+  --accent: 172 66% 50%;            /* Electric Teal, full saturation */
+  --accent-foreground: 232 35% 6%;
+
+  --warning: 23 90% 52%;
+  --warning-foreground: 0 0% 100%;
+  --destructive: 0 63% 51%;
+  --destructive-foreground: 210 40% 96%;
+  --success: 160 84% 42%;
+  --success-foreground: 210 40% 96%;
+
+  --border: 232 25% 18%;
+  --input: 232 25% 18%;
+  --ring: 172 66% 50%;
+
+  --chart-1: 172 66% 55%;
+  --chart-2: 232 50% 60%;
+  --chart-3: 43 96% 62%;
+  --chart-4: 280 65% 65%;
+  --chart-5: 0 72% 58%;
+}
+
+/* ---------------------------------------------------------------
+ * RADII — derived from --radius so changes cascade
+ * --------------------------------------------------------------- */
+:root {
+  --radius-sm: calc(var(--radius) - 4px);   /* 6px — chips */
+  --radius-md: calc(var(--radius) - 2px);   /* 8px — buttons, inputs */
+  --radius-lg: var(--radius);               /* 10px — cards */
+  --radius-xl: calc(var(--radius) + 4px);   /* 14px — hero surfaces, modals */
+  --radius-full: 9999px;                    /* badges, pills, avatars */
+}
+
+/* ---------------------------------------------------------------
+ * BASE / RESET (partial — mirrors shared/base.css)
+ * --------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: hsl(var(--border));
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------
+ * SEMANTIC TYPE SCALE
+ *
+ * Approx Tailwind sizes used throughout the product:
+ *   text-xs   12 / 16    — legal, timestamp, micro
+ *   text-sm   14 / 20    — body-sm, helper, button-sm
+ *   text-base 16 / 24    — body
+ *   text-lg   18 / 28    — lead
+ *   text-xl   20 / 28    — card title
+ *   text-2xl  24 / 32    — section heading (mobile)
+ *   text-3xl  30 / 36    — section heading (desktop)
+ *   text-4xl  36 / 40    — large section heading
+ *   text-5xl  48 / 1     — hero (mobile)
+ *   text-6xl  60 / 1     — hero (desktop)
+ *   text-7xl  72 / 1     — hero xl
+ * --------------------------------------------------------------- */
+
+/* Hero headline — hero sections, landing */
+h1, .h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw + 1rem, 4.5rem); /* 32 → 72px */
+  line-height: 1.05;
+  font-weight: 800;                            /* extrabold */
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+/* Section heading */
+h2, .h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 1.5vw + 1rem, 2.25rem); /* 24 → 36px */
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+/* Subsection / feature heading */
+h3, .h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem; /* 24px */
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+/* Card title */
+h4, .h4 {
+  font-family: var(--font-sans);
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+
+/* Overline — small, uppercase, tracked */
+.overline {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;  /* 12px */
+  line-height: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Body text */
+p, .body {
+  font-family: var(--font-sans);
+  font-size: 1rem;   /* 16px */
+  line-height: 1.6;
+  font-weight: 400;
+  margin: 0;
+}
+
+.body-lg {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.6;
+}
+
+.body-sm, small, .small {
+  font-family: var(--font-sans);
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.muted {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Micro — legal, timestamps */
+.micro {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem;
+  font-weight: 500;
+}
+
+/* Monospace — code, kbd, metric values, agent labels, timestamps-in-logs */
+code, kbd, pre, samp, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  font-feature-settings: 'calt' 1, 'liga' 1;
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1em 0.4em;
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-sm);
+  font-size: 0.75em;
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------
+ * UTILITY HELPERS (a very small subset — just the ones the
+ * preview cards and UI kits rely on without bringing Tailwind in)
+ * --------------------------------------------------------------- */
+.cf-surface-base { background: hsl(var(--background)); color: hsl(var(--foreground)); }
+.cf-surface-card { background: hsl(var(--card));       color: hsl(var(--card-foreground)); border: 1px solid hsl(var(--border)); border-radius: var(--radius-lg); }
+.cf-surface-muted { background: hsl(var(--muted));     color: hsl(var(--muted-foreground)); }
+
+.cf-hairline { border: 1px solid hsl(var(--border)); }
+
+/* Accent "glow" — used on hover for primary CTAs in dark mode */
+.cf-glow-accent { box-shadow: 0 0 20px 4px hsl(var(--accent) / 0.3); }
+.cf-glow-accent-sm { box-shadow: 0 0 16px 2px hsl(var(--accent) / 0.2); }
+
+/* Selection */
+::selection {
+  background: hsl(var(--accent) / 0.25);
+  color: hsl(var(--foreground));
+}
+</style>
+
+
+<style>
+  /* ================================================================
+     TWEAK-CONTROLLED TOKENS (override light theme)
+     ================================================================ */
+  :root {
+    --bg-tone: 40 20% 95%;                 /* Claude chat warm gray (kept) */
+    --bg-tone-2: 40 16% 91%;
+    --ink: 232 45% 10%;                    /* DS --foreground */
+    --ink-soft: 232 18% 32%;               /* derived between fg & muted */
+    --ink-mute: 232 12% 44%;               /* DS --muted-foreground */
+    --line: 230 15% 87%;                   /* DS --border */
+    --line-strong: 230 15% 80%;
+    --accent-h: 172;
+    --accent-s: 66%;
+    --accent-l: 30%;                       /* DS light --accent */
+    --accent: var(--accent-h) var(--accent-s) var(--accent-l);
+    --accent-tint: var(--accent-h) var(--accent-s) 94%;
+    --indigo: 232 50% 18%;                 /* DS --primary (Deep Indigo) */
+    --orange: 23 90% 52%;                  /* DS --warning (Clerk Orange) */
+    --violet: 266 60% 58%;
+    --success: 160 62% 38%;
+    --danger: 0 72% 48%;
+    --font-serif: 'Space Grotesk', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  html, body { background: hsl(var(--bg-tone)); color: hsl(var(--ink)); }
+  body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: inherit; text-decoration: none; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
+  .container-sm { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+  /* ================================================================
+     HEADER
+     ================================================================ */
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: hsl(var(--bg-tone) / 0.8);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid hsl(var(--line) / 0.6);
+  }
+  .nav { display: flex; align-items: center; gap: 28px; height: 64px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -0.015em; color: hsl(var(--ink)); }
+  .brand img { width: 26px; height: 26px; }
+  .brand .dot { color: hsl(var(--accent)); }
+  .nav-links { display: flex; gap: 2px; margin-left: 18px; }
+  .nav-links a {
+    font-size: 14px; font-weight: 500; color: hsl(var(--ink-soft));
+    padding: 8px 12px; border-radius: 8px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .nav-links a:hover { color: hsl(var(--ink)); background: hsl(var(--ink) / 0.04); }
+  .spacer { flex: 1; }
+  .lang-toggle {
+    display: inline-flex; align-items: center;
+    background: hsl(var(--ink) / 0.05);
+    border-radius: 99px; padding: 3px; gap: 2px;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  }
+  .lang-toggle button {
+    border: 0; background: transparent; cursor: pointer;
+    padding: 5px 11px; border-radius: 99px;
+    color: hsl(var(--ink-soft));
+    transition: all 0.2s;
+  }
+  .lang-toggle button.active { background: hsl(var(--ink)); color: hsl(var(--bg-tone)); }
+
+  .btn {
+    font-size: 14px; font-weight: 600; border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 0 18px; height: 40px; border: 1px solid transparent;
+    transition: all 0.25s ease-out; cursor: pointer;
+  }
+  .btn-primary {
+    background: hsl(var(--indigo));
+    color: hsl(0 0% 98%);
+  }
+  .btn-primary:hover {
+    background: hsl(232 50% 14%);
+    box-shadow: 0 8px 22px -6px hsl(var(--indigo) / 0.4);
+    transform: translateY(-1px);
+  }
+  .btn-ghost {
+    background: transparent; color: hsl(var(--ink));
+    border-color: transparent;
+  }
+  .btn-ghost:hover { background: hsl(var(--ink) / 0.05); }
+  .btn-outline {
+    background: transparent; border-color: hsl(var(--line-strong)); color: hsl(var(--ink));
+  }
+  .btn-outline:hover {
+    border-color: hsl(var(--accent));
+    color: hsl(var(--accent));
+    box-shadow: 0 0 0 4px hsl(var(--accent) / 0.08);
+  }
+  .btn-lg { height: 48px; padding: 0 24px; font-size: 15px; border-radius: 12px; }
+
+  /* ================================================================
+     HERO
+     ================================================================ */
+  .hero { position: relative; padding: 64px 0 100px; overflow: hidden; }
+  .hero-bg {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 85% 10%, hsl(var(--accent) / 0.10), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 15% 20%, hsl(var(--violet) / 0.06), transparent 60%);
+  }
+  .hero-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(hsl(var(--ink) / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--ink) / 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 70% 50% at 50% 30%, #000, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 30%, #000, transparent 75%);
+  }
+  .hero-inner { position: relative; z-index: 1; }
+  .audience-toggle {
+    display: inline-flex; padding: 4px;
+    background: hsl(var(--ink) / 0.04);
+    border: 1px solid hsl(var(--line));
+    border-radius: 99px;
+    margin: 0 auto 32px;
+    font-size: 13px; font-weight: 600;
+  }
+  .audience-toggle button {
+    border: 0; background: transparent; cursor: pointer;
+    padding: 8px 18px; border-radius: 99px;
+    color: hsl(var(--ink-soft));
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.25s;
+  }
+  .audience-toggle button.active {
+    background: hsl(var(--ink));
+    color: hsl(var(--bg-tone));
+    box-shadow: 0 2px 8px -2px hsl(var(--ink) / 0.25);
+  }
+  .audience-toggle .tag-dot { width: 6px; height: 6px; border-radius: 99px; background: hsl(var(--accent)); box-shadow: 0 0 8px hsl(var(--accent)); }
+  .audience-toggle button:not(.active) .tag-dot { background: hsl(var(--ink-mute)); box-shadow: none; }
+
+  .hero-grid { display: grid; grid-template-columns: 1fr; text-align: center; gap: 28px; }
+  h1.display {
+    font-family: var(--font-serif);
+    font-size: clamp(2.8rem, 5vw + 0.8rem, 5.8rem);
+    line-height: 0.98;
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    margin: 0;
+    text-wrap: balance;
+    color: hsl(var(--ink));
+  }
+  h1.display em {
+    font-style: normal;
+    font-weight: 500;
+    color: hsl(var(--accent));
+  }
+  .lead {
+    font-size: 19px;
+    line-height: 1.55;
+    color: hsl(var(--ink-soft));
+    max-width: 640px; margin: 0 auto;
+    text-wrap: pretty;
+  }
+  .hero-ctas { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+  .hero-trust {
+    display: flex; justify-content: center; gap: 28px;
+    font-family: var(--font-mono); font-size: 11.5px;
+    color: hsl(var(--ink-mute)); margin-top: 28px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    flex-wrap: wrap;
+  }
+  .hero-trust span { display: inline-flex; align-items: center; gap: 8px; }
+  .hero-trust .cdot { width: 5px; height: 5px; background: hsl(var(--success)); border-radius: 99px; }
+
+  /* ================================================================
+     HERO VISUAL — Investigation mockup
+     ================================================================ */
+  .hero-visual {
+    margin: 64px auto 0; max-width: 1080px;
+    position: relative;
+  }
+  .browser-frame {
+    background: #fff;
+    border: 1px solid hsl(var(--line));
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+      0 1px 2px hsl(var(--ink) / 0.04),
+      0 30px 60px -30px hsl(var(--ink) / 0.25),
+      0 60px 120px -60px hsl(var(--accent) / 0.15);
+    position: relative;
+  }
+  .browser-chrome {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid hsl(var(--line));
+    background: hsl(var(--bg-tone-2) / 0.5);
+  }
+  .browser-dots { display: flex; gap: 6px; }
+  .browser-dots span { width: 11px; height: 11px; border-radius: 99px; background: hsl(var(--line-strong)); }
+  .browser-url {
+    flex: 1; max-width: 360px; margin: 0 auto;
+    background: #fff; border: 1px solid hsl(var(--line));
+    border-radius: 7px;
+    padding: 5px 12px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: hsl(var(--ink-mute));
+    display: inline-flex; align-items: center; gap: 6px;
+    justify-content: center;
+  }
+  .browser-url svg { width: 10px; height: 10px; color: hsl(var(--success)); }
+
+  /* Dashboard body */
+  .dash {
+    display: grid; grid-template-columns: 220px 1fr 320px;
+    min-height: 520px;
+  }
+  .dash-side {
+    background: hsl(var(--bg-tone-2) / 0.4);
+    border-right: 1px solid hsl(var(--line));
+    padding: 16px 10px;
+    font-size: 12.5px;
+  }
+  .dash-side .side-label {
+    padding: 6px 10px; font-weight: 700; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: hsl(var(--ink-mute));
+  }
+  .dash-side a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px; border-radius: 7px;
+    color: hsl(var(--ink-soft));
+    font-weight: 500; font-size: 13px;
+    margin-bottom: 2px;
+  }
+  .dash-side a.active { background: hsl(var(--ink) / 0.06); color: hsl(var(--ink)); font-weight: 600; }
+  .dash-side a svg { width: 14px; height: 14px; }
+  .dash-side .count {
+    margin-left: auto;
+    font-family: var(--font-mono); font-size: 10.5px;
+    background: hsl(var(--accent-tint)); color: hsl(var(--accent));
+    border-radius: 99px; padding: 1px 7px; font-weight: 600;
+  }
+
+  .dash-main { padding: 18px 22px; background: #fff; overflow: hidden; }
+  .dash-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .status-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 3px 8px; border-radius: 99px;
+  }
+  .status-investigating {
+    background: hsl(var(--accent-tint));
+    color: hsl(var(--accent));
+    border: 1px solid hsl(var(--accent) / 0.3);
+  }
+  .status-investigating .ring {
+    width: 6px; height: 6px; border-radius: 99px; background: hsl(var(--accent));
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--accent) / 0.6); }
+    50% { box-shadow: 0 0 0 5px hsl(var(--accent) / 0); }
+  }
+  .dash-head h3 {
+    font-size: 15px; font-weight: 700; margin: 0;
+    color: hsl(var(--ink)); letter-spacing: -0.01em;
+    margin-left: 4px;
+  }
+  .dash-head .timestamp {
+    font-family: var(--font-mono); font-size: 11px;
+    color: hsl(var(--ink-mute)); margin-left: auto;
+  }
+  .dash-subline {
+    font-size: 12.5px; color: hsl(var(--ink-mute));
+    margin-bottom: 16px;
+    font-family: var(--font-mono);
+  }
+
+  /* Agent fanout */
+  .agents-row {
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 6px; margin-bottom: 18px;
+  }
+  .agent-pill {
+    border: 1px solid hsl(var(--line));
+    border-radius: 7px; padding: 7px 6px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: #fff;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  .agent-pill.running { border-color: hsl(var(--accent) / 0.5); background: hsl(var(--accent-tint) / 0.4); }
+  .agent-pill.done { border-color: hsl(var(--success) / 0.4); background: hsl(var(--success) / 0.06); }
+  .agent-icon-sm {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: hsl(var(--ink) / 0.06);
+    display: flex; align-items: center; justify-content: center;
+    color: hsl(var(--ink));
+  }
+  .agent-pill.running .agent-icon-sm { background: hsl(var(--accent-tint)); color: hsl(var(--accent)); }
+  .agent-pill.done .agent-icon-sm { background: hsl(var(--success) / 0.12); color: hsl(var(--success)); }
+  .agent-icon-sm svg { width: 12px; height: 12px; }
+  .agent-name {
+    font-family: var(--font-mono); font-size: 9.5px; font-weight: 600;
+    color: hsl(var(--ink-soft)); text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .agent-status {
+    font-family: var(--font-mono); font-size: 9px; color: hsl(var(--ink-mute));
+  }
+  .agent-pill.running .agent-status { color: hsl(var(--accent)); }
+  .agent-pill.done .agent-status { color: hsl(var(--success)); }
+
+  /* Investigation feed */
+  .feed {
+    border-top: 1px solid hsl(var(--line));
+    padding-top: 14px;
+    font-family: var(--font-mono); font-size: 12px;
+    color: hsl(var(--ink-soft));
+    line-height: 1.8;
+    max-height: 240px; overflow: hidden;
+    position: relative;
+  }
+  .feed::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+    background: linear-gradient(to bottom, transparent, #fff);
+  }
+  .feed-line { display: flex; gap: 10px; align-items: baseline; }
+  .feed-line .tt { color: hsl(var(--ink-mute)); flex-shrink: 0; }
+  .feed-line .tag {
+    color: hsl(var(--accent));
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .feed-line .tag.db { color: hsl(var(--violet)); }
+  .feed-line .tag.code { color: hsl(var(--orange)); }
+  .feed-line .tag.net { color: hsl(var(--indigo)); }
+  .feed-line.result {
+    padding: 6px 0 0; margin-top: 4px;
+    border-top: 1px dashed hsl(var(--line));
+    color: hsl(var(--ink));
+    font-weight: 600;
+  }
+  .feed-line.result .tag { color: hsl(var(--success)); }
+
+  /* Right panel: evidence */
+  .dash-aside {
+    border-left: 1px solid hsl(var(--line));
+    background: hsl(var(--bg-tone-2) / 0.4);
+    padding: 18px 18px;
+    display: flex; flex-direction: column; gap: 14px;
+    overflow: hidden;
+  }
+  .aside-title {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: hsl(var(--ink-mute));
+  }
+  .ev-card {
+    background: #fff; border: 1px solid hsl(var(--line));
+    border-radius: 9px; padding: 11px 12px;
+  }
+  .ev-card .label {
+    font-family: var(--font-mono); font-size: 10px; color: hsl(var(--ink-mute));
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .ev-card .val { font-size: 13px; font-weight: 700; color: hsl(var(--ink)); letter-spacing: -0.01em; }
+  .ev-card .sub { font-size: 11.5px; color: hsl(var(--ink-soft)); margin-top: 3px; line-height: 1.4; }
+  .ev-card.accent { background: hsl(var(--accent-tint)); border-color: hsl(var(--accent) / 0.3); }
+  .ev-card.accent .val { color: hsl(var(--accent)); }
+  .ev-sparkline { margin-top: 8px; }
+  .confidence-bar {
+    height: 6px; background: hsl(var(--ink) / 0.06); border-radius: 99px; margin-top: 6px; overflow: hidden;
+  }
+  .confidence-bar span {
+    display: block; height: 100%;
+    background: hsl(var(--accent));
+    border-radius: 99px;
+    animation: fill 2s ease-out forwards;
+    transform-origin: left;
+  }
+  @keyframes fill {
+    0% { transform: scaleX(0); }
+    100% { transform: scaleX(0.94); }
+  }
+
+  /* Hero corner floating cards */
+  .float-card {
+    position: absolute;
+    background: #fff;
+    border: 1px solid hsl(var(--line));
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 20px 40px -20px hsl(var(--ink) / 0.2);
+    font-size: 12px;
+    z-index: 2;
+  }
+  .float-card.top-right {
+    top: -20px; right: -20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .float-card.bottom-left {
+    bottom: -24px; left: -20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .float-card .fc-ic {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: hsl(var(--accent-tint)); color: hsl(var(--accent));
+    display: flex; align-items: center; justify-content: center;
+  }
+  .float-card .fc-ic svg { width: 16px; height: 16px; }
+  .float-card .fc-val { font-size: 16px; font-weight: 800; color: hsl(var(--ink)); letter-spacing: -0.01em; line-height: 1; }
+  .float-card .fc-lbl { font-size: 10.5px; color: hsl(var(--ink-mute)); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 3px; }
+
+  /* ================================================================
+     LOGO BELT
+     ================================================================ */
+  .logo-belt { padding: 52px 0 32px; }
+  .belt-label {
+    text-align: center; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.12em; color: hsl(var(--ink-mute));
+    margin-bottom: 24px; font-weight: 600; font-family: var(--font-mono);
+  }
+  .belt {
+    display: flex; gap: 64px; align-items: center;
+    justify-content: center; flex-wrap: wrap;
+    opacity: 0.85;
+  }
+  .belt img { height: 22px; width: auto; display: block; filter: grayscale(1) contrast(0.9); opacity: 0.7; transition: all 0.3s; }
+  .belt img:hover { filter: grayscale(0); opacity: 1; }
+  .belt .customer-logo {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 22px;
+    color: hsl(var(--ink) / 0.55);
+    letter-spacing: -0.02em;
+    transition: color 0.3s;
+  }
+  .belt .customer-logo:hover { color: hsl(var(--ink)); }
+
+  /* ================================================================
+     SECTION BASICS
+     ================================================================ */
+  .section { padding: 110px 0; position: relative; }
+  .section-head { max-width: 760px; margin: 0 auto 64px; text-align: center; }
+  .section-head.left { text-align: left; margin-left: 0; }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.14em; color: hsl(var(--accent));
+    font-weight: 600; margin-bottom: 16px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .eyebrow::before {
+    content: ''; width: 20px; height: 1px; background: hsl(var(--accent));
+  }
+  .section h2 {
+    font-family: var(--font-serif);
+    font-size: clamp(2.2rem, 3vw + 0.5rem, 3.4rem);
+    line-height: 1.02;
+    font-weight: 400; letter-spacing: -0.03em;
+    margin: 0 0 18px;
+    color: hsl(var(--ink));
+    text-wrap: balance;
+  }
+  .section h2 em { font-style: normal; font-weight: 500; color: hsl(var(--accent)); }
+  .section .section-lead {
+    font-size: 18px; color: hsl(var(--ink-soft)); line-height: 1.55;
+    max-width: 600px; margin: 0 auto;
+    text-wrap: pretty;
+  }
+
+  /* ================================================================
+     HOW IT WORKS — 3-step timeline
+     ================================================================ */
+  .how {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    background: #fff;
+    border: 1px solid hsl(var(--line));
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .how-step { padding: 36px 30px; border-right: 1px solid hsl(var(--line)); position: relative; }
+  .how-step:last-child { border-right: 0; }
+  .how-step .num {
+    font-family: var(--font-mono); font-size: 11.5px; font-weight: 700;
+    color: hsl(var(--ink-mute));
+    letter-spacing: 0.08em;
+    margin-bottom: 18px;
+    display: block;
+  }
+  .how-step h3 {
+    font-family: var(--font-sans);
+    font-size: 18px; font-weight: 700; color: hsl(var(--ink));
+    letter-spacing: -0.01em; margin-bottom: 10px;
+  }
+  .how-step p { font-size: 14.5px; color: hsl(var(--ink-soft)); line-height: 1.55; }
+  .how-step .visual {
+    margin-top: 22px; height: 112px;
+    border: 1px solid hsl(var(--line));
+    border-radius: 10px;
+    background: hsl(var(--bg-tone) / 0.6);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+
+  /* Step 1 — integrations orbit */
+  .orbit {
+    position: relative; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .orbit .core {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: hsl(var(--ink));
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2;
+  }
+  .orbit .core img { width: 20px; height: 20px; }
+  .orbit .satellite {
+    position: absolute;
+    width: 28px; height: 28px; border-radius: 7px;
+    background: #fff; border: 1px solid hsl(var(--line));
+    display: flex; align-items: center; justify-content: center;
+    animation: orbit-float 3s ease-in-out infinite;
+  }
+  .orbit .satellite img { width: 16px; height: 16px; }
+  .orbit .satellite:nth-child(2) { top: 10px; left: 15%; animation-delay: 0s; }
+  .orbit .satellite:nth-child(3) { top: 14px; right: 18%; animation-delay: 0.4s; }
+  .orbit .satellite:nth-child(4) { bottom: 12px; left: 20%; animation-delay: 0.8s; }
+  .orbit .satellite:nth-child(5) { bottom: 16px; right: 14%; animation-delay: 1.2s; }
+  .orbit .satellite:nth-child(6) { top: 50%; left: 6%; transform: translateY(-50%); animation-delay: 1.6s; }
+  .orbit .satellite:nth-child(7) { top: 50%; right: 6%; transform: translateY(-50%); animation-delay: 2s; }
+  @keyframes orbit-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .orbit .satellite:nth-child(6), .orbit .satellite:nth-child(7) {
+    animation-name: orbit-float-side;
+  }
+  @keyframes orbit-float-side {
+    0%, 100% { transform: translateY(-50%) translateX(0); }
+    50% { transform: translateY(-50%) translateX(-3px); }
+  }
+
+  /* Step 2 — fanout */
+  .fanout { width: 100%; height: 100%; position: relative; }
+  .fanout svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .fanout .node {
+    position: absolute; width: 24px; height: 24px; border-radius: 7px;
+    background: #fff; border: 1px solid hsl(var(--line));
+    display: flex; align-items: center; justify-content: center;
+    color: hsl(var(--ink-soft));
+  }
+  .fanout .node svg.ic { position: relative; width: 13px; height: 13px; inset: auto; }
+  .fanout .node.start {
+    left: 18px; top: 50%; transform: translateY(-50%);
+    background: hsl(var(--ink)); color: #fff; border-color: hsl(var(--ink));
+  }
+  .fanout .node.a1 { right: 18px; top: 12px; background: hsl(var(--accent-tint)); color: hsl(var(--accent)); border-color: hsl(var(--accent) / 0.4); }
+  .fanout .node.a2 { right: 18px; top: 44px; background: hsl(var(--accent-tint)); color: hsl(var(--accent)); border-color: hsl(var(--accent) / 0.4); }
+  .fanout .node.a3 { right: 18px; top: 76px; background: hsl(var(--accent-tint)); color: hsl(var(--accent)); border-color: hsl(var(--accent) / 0.4); }
+
+  /* Step 3 — root cause */
+  .rootcause {
+    width: calc(100% - 18px); padding: 10px 12px;
+    background: #fff; border: 1px solid hsl(var(--line));
+    border-radius: 9px;
+    font-family: var(--font-mono); font-size: 11px;
+    text-align: left;
+  }
+  .rootcause .rc-line { display: flex; gap: 8px; align-items: baseline; padding: 2px 0; color: hsl(var(--ink-soft)); }
+  .rootcause .rc-line .plus { color: hsl(var(--success)); font-weight: 700; }
+  .rootcause .rc-line .minus { color: hsl(var(--danger)); font-weight: 700; }
+  .rootcause .rc-line .key { color: hsl(var(--violet)); font-weight: 600; }
+  .rootcause .rc-confidence {
+    margin-top: 6px; font-size: 10px; color: hsl(var(--accent)); font-weight: 700;
+    display: flex; justify-content: space-between;
+  }
+
+  /* ================================================================
+     SECTION: SRE vs CUSTOMER OPS
+     ================================================================ */
+  .duo-section { background: hsl(var(--bg-tone-2) / 0.5); }
+  .duo {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    margin-top: 48px;
+  }
+  .duo-card {
+    background: #fff; border: 1px solid hsl(var(--line));
+    border-radius: 18px; padding: 32px 32px 0;
+    display: flex; flex-direction: column; gap: 18px;
+    overflow: hidden;
+    transition: all 0.35s ease-out;
+  }
+  .duo-card:hover { border-color: hsl(var(--accent) / 0.5); box-shadow: 0 30px 60px -30px hsl(var(--ink) / 0.2); transform: translateY(-2px); }
+  .duo-card .pretag {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: hsl(var(--accent));
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 10px; background: hsl(var(--accent-tint));
+    border-radius: 99px; align-self: flex-start;
+  }
+  .duo-card.ops .pretag { color: hsl(var(--violet)); background: hsl(var(--violet) / 0.1); }
+  .duo-card h3 {
+    font-family: var(--font-serif); font-weight: 400;
+    font-size: 28px; letter-spacing: -0.02em; line-height: 1.1;
+    color: hsl(var(--ink));
+  }
+  .duo-card h3 em { font-style: normal; font-weight: 500; color: hsl(var(--accent)); }
+  .duo-card.ops h3 em { color: hsl(var(--violet)); }
+  .duo-card p { font-size: 14.5px; color: hsl(var(--ink-soft)); line-height: 1.6; }
+  .duo-card .sample {
+    margin-top: auto;
+    background: hsl(var(--bg-tone) / 0.8);
+    border: 1px solid hsl(var(--line));
+    border-top-right-radius: 12px; border-top-left-radius: 12px;
+    border-bottom: 0;
+    padding: 16px; margin: 10px -16px -1px; margin-bottom: 0;
+    transform: translateY(1px);
+  }
+  .duo-card .sample-head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: hsl(var(--ink-mute)); text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .duo-card .sample-head .dot-live { width: 6px; height: 6px; border-radius: 99px; background: hsl(var(--accent)); animation: pulse 1.5s infinite; }
+  .duo-card.ops .sample-head .dot-live { background: hsl(var(--violet)); }
+  .duo-card .sample-list { font-family: var(--font-mono); font-size: 11.5px; line-height: 1.8; color: hsl(var(--ink-soft)); }
+  .duo-card .sample-list .tk { color: hsl(var(--accent)); font-weight: 700; }
+  .duo-card.ops .sample-list .tk { color: hsl(var(--violet)); font-weight: 700; }
+  .duo-card .sample-list .em { color: hsl(var(--ink)); font-weight: 600; }
+
+  /* ================================================================
+     INTEGRATIONS
+     ================================================================ */
+  .integrations-wall {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 10px;
+    max-width: 860px; margin: 0 auto;
+  }
+  .int-cell {
+    aspect-ratio: 1;
+    background: #fff; border: 1px solid hsl(var(--line));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+  }
+  .int-cell img { width: 28px; height: 28px; }
+  .int-cell.more {
+    font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+    color: hsl(var(--ink-soft)); background: hsl(var(--bg-tone-2) / 0.6);
+  }
+  .int-cell:hover { border-color: hsl(var(--accent)); transform: translateY(-2px); box-shadow: 0 8px 20px -8px hsl(var(--ink) / 0.15); }
+  .int-cta {
+    text-align: center; margin-top: 32px;
+    font-size: 14px; color: hsl(var(--ink-soft));
+  }
+  .int-cta a { color: hsl(var(--accent)); font-weight: 600; border-bottom: 1px solid hsl(var(--accent) / 0.4); }
+
+  /* ================================================================
+     ENGINEERING TIME SECTION — before/after comparison
+     ================================================================ */
+  .time-saved { background: hsl(var(--ink)); color: hsl(var(--bg-tone)); }
+  .time-saved h2 { color: hsl(var(--bg-tone)); }
+  .time-saved h2 em { color: hsl(var(--accent) / 0.9); }
+  .time-saved .section-lead { color: hsl(var(--bg-tone) / 0.7); }
+  .time-saved .eyebrow { color: hsl(var(--accent)); }
+  .time-saved .eyebrow::before { background: hsl(var(--accent)); }
+
+  .compare {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    margin-top: 52px;
+  }
+  .compare-card {
+    background: hsl(var(--bg-tone) / 0.04);
+    border: 1px solid hsl(var(--bg-tone) / 0.1);
+    border-radius: 16px; padding: 26px 28px;
+  }
+  .compare-card.after { background: hsl(var(--accent) / 0.08); border-color: hsl(var(--accent) / 0.3); }
+  .compare-card .lbl {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: hsl(var(--bg-tone) / 0.55);
+    margin-bottom: 20px;
+  }
+  .compare-card.after .lbl { color: hsl(var(--accent)); }
+  .compare-card .big {
+    font-family: var(--font-serif); font-size: 68px; line-height: 1;
+    font-weight: 500; letter-spacing: -0.04em;
+    color: hsl(var(--bg-tone));
+  }
+  .compare-card.after .big { color: hsl(var(--accent)); }
+  .compare-card .big-sub { font-size: 12px; color: hsl(var(--bg-tone) / 0.6); font-family: var(--font-mono); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .compare-card .bars { margin-top: 22px; display: flex; flex-direction: column; gap: 10px; }
+  .compare-bar { display: flex; align-items: center; gap: 10px; }
+  .compare-bar .bar-lbl { width: 90px; font-size: 12px; color: hsl(var(--bg-tone) / 0.65); font-family: var(--font-mono); }
+  .compare-bar .bar-track { flex: 1; height: 7px; background: hsl(var(--bg-tone) / 0.08); border-radius: 99px; overflow: hidden; }
+  .compare-bar .bar-fill { height: 100%; background: hsl(var(--bg-tone) / 0.35); border-radius: 99px; }
+  .compare-card.after .bar-fill { background: hsl(var(--accent)); }
+  .compare-bar .bar-val { font-family: var(--font-mono); font-size: 11.5px; color: hsl(var(--bg-tone) / 0.8); width: 50px; text-align: right; }
+
+  .metrics-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    margin-top: 52px; padding-top: 48px;
+    border-top: 1px solid hsl(var(--bg-tone) / 0.1);
+  }
+  .metric { text-align: left; }
+  .metric .mv {
+    font-family: var(--font-serif); font-size: 56px; line-height: 1;
+    font-weight: 500; letter-spacing: -0.03em;
+    color: hsl(var(--bg-tone));
+  }
+  .metric .mv em { font-style: normal; font-weight: 500; color: hsl(var(--accent)); }
+  .metric .ml { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: hsl(var(--bg-tone) / 0.55); margin-top: 10px; }
+  .metric .md { font-size: 13.5px; color: hsl(var(--bg-tone) / 0.7); margin-top: 8px; line-height: 1.5; }
+
+  /* ================================================================
+     USE CASES CAROUSEL
+     ================================================================ */
+  .uc-wrap { position: relative; }
+  .uc-header-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 40px; gap: 40px; flex-wrap: wrap; }
+  .uc-header-row .section-head { margin: 0; max-width: 560px; text-align: left; }
+  .uc-nav { display: flex; gap: 8px; }
+  .uc-nav button {
+    width: 44px; height: 44px; border-radius: 99px;
+    border: 1px solid hsl(var(--line-strong));
+    background: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: hsl(var(--ink));
+    transition: all 0.2s;
+  }
+  .uc-nav button:hover { border-color: hsl(var(--accent)); color: hsl(var(--accent)); }
+  .uc-nav button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .uc-carousel {
+    display: flex; gap: 20px;
+    overflow: hidden;
+    scroll-snap-type: x mandatory;
+  }
+  .uc-track {
+    display: flex; gap: 20px;
+    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .uc-card {
+    flex-shrink: 0;
+    width: 520px;
+    background: #fff;
+    border: 1px solid hsl(var(--line));
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .uc-card .uc-head {
+    padding: 22px 24px;
+    border-bottom: 1px solid hsl(var(--line));
+    display: flex; align-items: center; gap: 12px;
+  }
+  .uc-card .uc-num {
+    font-family: var(--font-mono); font-size: 10.5px; color: hsl(var(--ink-mute)); font-weight: 700;
+  }
+  .uc-card .uc-sev {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 3px 8px; border-radius: 99px;
+    margin-left: auto;
+  }
+  .uc-card .uc-sev.high { background: hsl(var(--danger) / 0.1); color: hsl(var(--danger)); }
+  .uc-card .uc-sev.med { background: hsl(var(--orange) / 0.1); color: hsl(var(--orange)); }
+  .uc-card .uc-sev.low { background: hsl(var(--accent-tint)); color: hsl(var(--accent)); }
+  .uc-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  .uc-body h3 {
+    font-family: var(--font-sans); font-size: 18px; font-weight: 700;
+    color: hsl(var(--ink)); line-height: 1.3; letter-spacing: -0.01em;
+  }
+  .uc-body .uc-meta {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .uc-body .uc-meta span {
+    font-family: var(--font-mono); font-size: 10.5px;
+    padding: 3px 9px; border-radius: 99px;
+    background: hsl(var(--ink) / 0.05); color: hsl(var(--ink-soft));
+  }
+  .uc-body .uc-findings {
+    background: hsl(var(--bg-tone-2) / 0.5);
+    border: 1px solid hsl(var(--line));
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: var(--font-mono); font-size: 12.5px; color: hsl(var(--ink-soft));
+    line-height: 1.7;
+    flex: 1;
+  }
+  .uc-body .uc-findings .tag-rc {
+    color: hsl(var(--accent)); font-weight: 700;
+    text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.08em;
+    display: block; margin-bottom: 6px;
+  }
+  .uc-body .uc-findings strong { color: hsl(var(--ink)); font-weight: 700; }
+  .uc-body .uc-stats { display: flex; gap: 16px; padding-top: 4px; }
+  .uc-body .uc-stats .st {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .uc-body .uc-stats .st-v { font-family: var(--font-serif); font-size: 22px; line-height: 1; color: hsl(var(--ink)); }
+  .uc-body .uc-stats .st-v em { color: hsl(var(--accent)); font-style: normal; font-weight: 500; }
+  .uc-body .uc-stats .st-l { font-family: var(--font-mono); font-size: 10px; color: hsl(var(--ink-mute)); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ================================================================
+     ALERT FLOW
+     ================================================================ */
+  .alert-flow {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 72px;
+    align-items: center; margin-top: 30px;
+  }
+  .alert-viz {
+    position: relative;
+    background: #fff;
+    border: 1px solid hsl(var(--line));
+    border-radius: 16px;
+    padding: 28px;
+    min-height: 440px;
+  }
+  .alert-step {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px dashed hsl(var(--line));
+    position: relative;
+  }
+  .alert-step:last-child { border-bottom: 0; }
+  .alert-step .icn {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: hsl(var(--bg-tone)); border: 1px solid hsl(var(--line));
+    display: flex; align-items: center; justify-content: center;
+    color: hsl(var(--ink-soft)); flex-shrink: 0;
+  }
+  .alert-step .icn svg { width: 17px; height: 17px; }
+  .alert-step.active .icn { background: hsl(var(--accent-tint)); border-color: hsl(var(--accent) / 0.4); color: hsl(var(--accent)); }
+  .alert-step.done .icn { background: hsl(var(--success) / 0.1); border-color: hsl(var(--success) / 0.3); color: hsl(var(--success)); }
+  .alert-step .body-n { flex: 1; }
+  .alert-step .title {
+    font-size: 13.5px; font-weight: 700; color: hsl(var(--ink)); margin-bottom: 2px; letter-spacing: -0.005em;
+  }
+  .alert-step .desc { font-size: 12.5px; color: hsl(var(--ink-mute)); font-family: var(--font-mono); }
+  .alert-step .tt {
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: hsl(var(--ink-mute));
+    padding: 4px 8px; background: hsl(var(--bg-tone)); border-radius: 6px;
+    align-self: center;
+  }
+  .alert-step.active .tt { background: hsl(var(--accent-tint)); color: hsl(var(--accent)); font-weight: 600; }
+
+  /* Severity classification */
+  .sev-classify {
+    display: flex; gap: 6px; margin-top: 10px;
+  }
+  .sev-classify .chip {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 99px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    border: 1px solid hsl(var(--line));
+    color: hsl(var(--ink-mute));
+  }
+  .sev-classify .chip.on { background: hsl(var(--danger) / 0.1); color: hsl(var(--danger)); border-color: hsl(var(--danger) / 0.3); }
+
+  /* ================================================================
+     NOTIFICATION
+     ================================================================ */
+  .notif-section { background: hsl(var(--bg-tone-2) / 0.5); }
+  .notif-grid {
+    display: grid; grid-template-columns: 1fr 1.1fr; gap: 64px;
+    align-items: center;
+  }
+  .notif-msgs { display: flex; flex-direction: column; gap: 18px; }
+  .notif-card {
+    background: #fff; border: 1px solid hsl(var(--line));
+    border-radius: 14px; padding: 18px;
+    box-shadow: 0 12px 30px -18px hsl(var(--ink) / 0.15);
+    opacity: 0; transform: translateY(16px);
+    animation: slide-in 0.7s ease-out forwards;
+  }
+  .notif-card:nth-child(2) { animation-delay: 0.2s; }
+  .notif-card:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes slide-in { to { opacity: 1; transform: translateY(0); } }
+  .notif-card .nhead { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid hsl(var(--line)); margin-bottom: 10px; }
+  .notif-card .nhead img { width: 18px; height: 18px; }
+  .notif-card .nhead .chan { font-size: 13px; font-weight: 700; color: hsl(var(--ink)); }
+  .notif-card .nhead .who { font-size: 12px; color: hsl(var(--ink-mute)); font-family: var(--font-mono); margin-left: auto; }
+  .notif-card .ntitle { font-size: 14px; font-weight: 700; color: hsl(var(--ink)); margin-bottom: 6px; }
+  .notif-card .ndesc { font-size: 13px; color: hsl(var(--ink-soft)); line-height: 1.55; font-family: var(--font-mono); }
+  .notif-card .ndesc strong { color: hsl(var(--ink)); font-family: var(--font-sans); font-weight: 700; }
+  .notif-card .nactions { display: flex; gap: 8px; margin-top: 12px; }
+  .notif-card .nactions button {
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    padding: 6px 12px; border-radius: 7px;
+    border: 1px solid hsl(var(--line-strong));
+    background: #fff; color: hsl(var(--ink));
+  }
+  .notif-card .nactions button.primary { background: hsl(var(--ink)); color: hsl(var(--bg-tone)); border-color: hsl(var(--ink)); }
+
+  /* ================================================================
+     QUOTE
+     ================================================================ */
+  .quote-section { padding: 120px 0; }
+  .quote-block {
+    max-width: 820px; margin: 0 auto; text-align: center;
+  }
+  blockquote {
+    font-family: var(--font-serif);
+    font-size: clamp(1.8rem, 2.5vw + 0.5rem, 2.6rem);
+    line-height: 1.2; font-weight: 400; letter-spacing: -0.02em;
+    color: hsl(var(--ink));
+    margin: 0 0 36px;
+    text-wrap: balance;
+  }
+  blockquote em { color: hsl(var(--accent)); font-weight: 500; font-style: normal; }
+  .quote-attrib { display: inline-flex; align-items: center; gap: 14px; }
+  .quote-avatar {
+    width: 44px; height: 44px; border-radius: 99px;
+    background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--violet)));
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px;
+  }
+  .quote-who { text-align: left; font-size: 14px; }
+  .quote-who .nm { font-weight: 700; color: hsl(var(--ink)); }
+  .quote-who .rl { color: hsl(var(--ink-mute)); font-family: var(--font-mono); font-size: 11.5px; }
+
+  /* ================================================================
+     CTA
+     ================================================================ */
+  .cta-section { padding: 120px 0; }
+  .cta-card {
+    background: hsl(var(--ink));
+    border-radius: 24px;
+    padding: 80px 60px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cta-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 50% 80% at 50% 120%, hsl(var(--accent) / 0.35), transparent 60%);
+  }
+  .cta-card h2 { color: hsl(var(--bg-tone)); position: relative; }
+  .cta-card h2 em { color: hsl(var(--accent)); }
+  .cta-card p { color: hsl(var(--bg-tone) / 0.7); max-width: 520px; margin: 20px auto 36px; position: relative; font-size: 18px; }
+  .cta-card .hero-ctas { position: relative; }
+  .cta-card .btn-primary { background: hsl(var(--accent)); color: hsl(var(--ink)); }
+  .cta-card .btn-primary:hover { background: hsl(var(--bg-tone)); color: hsl(var(--ink)); box-shadow: 0 8px 30px -8px hsl(var(--bg-tone) / 0.5); }
+  .cta-card .btn-outline { border-color: hsl(var(--bg-tone) / 0.25); color: hsl(var(--bg-tone)); }
+  .cta-card .btn-outline:hover { border-color: hsl(var(--accent)); color: hsl(var(--accent)); box-shadow: 0 0 0 4px hsl(var(--accent) / 0.1); background: transparent; }
+
+  /* ================================================================
+     FOOTER
+     ================================================================ */
+  footer {
+    padding: 56px 0 44px;
+    border-top: 1px solid hsl(var(--line));
+  }
+  .foot {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px;
+    margin-bottom: 48px;
+  }
+  .foot-brand .brand { margin-bottom: 14px; }
+  .foot-brand p { font-size: 13.5px; color: hsl(var(--ink-mute)); max-width: 280px; line-height: 1.55; }
+  .foot-col h5 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: hsl(var(--ink-mute)); font-family: var(--font-mono); font-weight: 600; margin-bottom: 16px; }
+  .foot-col a { display: block; font-size: 14px; color: hsl(var(--ink-soft)); padding: 4px 0; }
+  .foot-col a:hover { color: hsl(var(--ink)); }
+  .foot-bot {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 32px;
+    border-top: 1px solid hsl(var(--line));
+    font-size: 12.5px; color: hsl(var(--ink-mute));
+  }
+  .foot-bot .badges { display: flex; gap: 10px; }
+  .foot-bot .badge {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 600;
+    padding: 4px 10px; border: 1px solid hsl(var(--line));
+    border-radius: 99px; color: hsl(var(--ink-soft));
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  /* ================================================================
+     TWEAKS PANEL
+     ================================================================ */
+  #tweaks-panel {
+    position: fixed; bottom: 20px; right: 20px; z-index: 100;
+    background: #fff;
+    border: 1px solid hsl(var(--line));
+    border-radius: 14px;
+    padding: 18px 18px;
+    box-shadow: 0 20px 60px -20px hsl(var(--ink) / 0.3);
+    width: 280px;
+    font-size: 13px;
+    display: none;
+  }
+  #tweaks-panel.open { display: block; }
+  #tweaks-panel h4 {
+    font-size: 13px; font-weight: 700; letter-spacing: -0.01em;
+    margin-bottom: 14px; color: hsl(var(--ink));
+    display: flex; align-items: center; gap: 8px;
+  }
+  #tweaks-panel h4::before {
+    content: ''; width: 6px; height: 6px; border-radius: 99px; background: hsl(var(--accent));
+  }
+  #tweaks-panel .grp { margin-bottom: 14px; }
+  #tweaks-panel .grp-lbl { font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: hsl(var(--ink-mute)); margin-bottom: 8px; }
+  #tweaks-panel .swatches { display: flex; gap: 8px; }
+  #tweaks-panel .sw {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 2px solid transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #tweaks-panel .sw.active { border-color: hsl(var(--ink)); }
+  #tweaks-panel .sw svg { width: 12px; height: 12px; color: #fff; opacity: 0; }
+  #tweaks-panel .sw.active svg { opacity: 1; }
+  #tweaks-panel input[type=text] {
+    width: 100%; padding: 9px 11px; border: 1px solid hsl(var(--line));
+    border-radius: 8px; font: inherit; font-size: 12px;
+    background: hsl(var(--bg-tone) / 0.4);
+  }
+  #tweaks-panel input[type=text]:focus { outline: 2px solid hsl(var(--accent) / 0.4); border-color: hsl(var(--accent)); }
+
+  /* Scroll reveals */
+  .reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+</style>
+<style>/* vietnamese */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("blob:null/6e4ccb96-df21-4c7e-a8d7-71fdb8ba292c") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("blob:null/8475249c-4d8b-44b0-8ef5-d5f051cf7c8d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("blob:null/710dc4bd-ad0a-4e1f-8ff1-4ba92195caa3") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/6e4ccb96-df21-4c7e-a8d7-71fdb8ba292c") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/8475249c-4d8b-44b0-8ef5-d5f051cf7c8d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("blob:null/710dc4bd-ad0a-4e1f-8ff1-4ba92195caa3") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/6e4ccb96-df21-4c7e-a8d7-71fdb8ba292c") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/8475249c-4d8b-44b0-8ef5-d5f051cf7c8d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("blob:null/710dc4bd-ad0a-4e1f-8ff1-4ba92195caa3") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/6e4ccb96-df21-4c7e-a8d7-71fdb8ba292c") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/8475249c-4d8b-44b0-8ef5-d5f051cf7c8d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("blob:null/710dc4bd-ad0a-4e1f-8ff1-4ba92195caa3") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("blob:null/6e4ccb96-df21-4c7e-a8d7-71fdb8ba292c") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("blob:null/8475249c-4d8b-44b0-8ef5-d5f051cf7c8d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("blob:null/710dc4bd-ad0a-4e1f-8ff1-4ba92195caa3") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+</head>
+<body data-cc-id="cc-1" style="cursor: crosshair; font-family: &quot;Plus Jakarta Sans&quot;;">
+<!-- =============== HEADER =============== -->
+<header class="site-header">
+  <div class="container">
+    <nav class="nav">
+      <a class="brand" href="#">
+        <img src="blob:null/1a25f59d-c28c-4332-8904-c224b3586e02" alt="">
+        <span>CauseFlow<span class="dot">.</span>AI</span>
+      </a>
+      <div class="nav-links">
+        <a href="#product" data-i18n="nav.product">Produto</a>
+        <a href="#use-cases" data-i18n="nav.useCases">Casos de uso</a>
+        <a href="#integrations" data-i18n="nav.integrations">Integrações</a>
+        <a href="#" data-i18n="nav.pricing">Preços</a>
+        <a href="#" data-i18n="nav.docs">Docs</a>
+      </div>
+      <div class="spacer"></div>
+      <div class="lang-toggle" id="lang-toggle">
+        <button data-lang="pt" class="active">PT</button>
+        <button data-lang="en">EN</button>
+      </div>
+      <a href="#" class="btn btn-ghost" data-i18n="nav.signin">Entrar</a>
+      <a href="#" class="btn btn-primary" data-i18n="nav.demo">Agendar demo →</a>
+    </nav>
+  </div>
+</header>
+
+<!-- =============== HERO =============== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="container hero-inner">
+    <div style="text-align:center">
+      <div class="audience-toggle" id="audience-toggle">
+        <button data-aud="eng" class="active"><span class="tag-dot"></span><span data-i18n="hero.audEng">Para Engenharia</span></button>
+        <button data-aud="ops" class=""><span class="tag-dot"></span><span data-i18n="hero.audOps">Para Customer Ops</span></button>
+      </div>
+    </div>
+
+    <div class="hero-grid">
+      <h1 class="display" id="hero-headline">
+        <span data-i18n="hero.h1a">Investigue incidentes em</span><br>
+        <em data-i18n="hero.h1b">minutos, não horas.</em>
+      </h1>
+      <p class="lead" id="hero-lead" data-i18n="hero.lead">Seis agentes de IA especializados trabalham em paralelo, encontram a causa raiz e propõem a correção. Você aprova — nada executa sem a sua assinatura.</p>
+      <div class="hero-ctas">
+        <a href="#" class="btn btn-primary btn-lg" data-i18n="hero.cta1">Agendar demo →</a>
+        <a href="#" class="btn btn-outline btn-lg" data-i18n="hero.cta2">Ver em ação</a>
+      </div>
+      <div class="hero-trust">
+        <span><span class="cdot"></span><span data-i18n="hero.trust1">Somente leitura por padrão</span></span>
+        <span><span class="cdot"></span>SOC 2 Type II</span>
+        <span><span class="cdot"></span><span data-i18n="hero.trust3">Human-in-the-loop</span></span>
+      </div>
+    </div>
+
+    <!-- Hero product mockup -->
+    <div class="hero-visual reveal in">
+      <div class="float-card top-right">
+        <div class="fc-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"></path><path d="m16.24 7.76 2.83-2.83"></path><path d="M22 12h-4"></path><path d="M12 18v4"></path><path d="m7.76 16.24-2.83 2.83"></path><path d="M6 12H2"></path><path d="m7.76 7.76-2.83-2.83"></path><path d="m16.24 16.24 2.83 2.83"></path></svg>
+        </div>
+        <div>
+          <div class="fc-val">~3 min</div>
+          <div class="fc-lbl" data-i18n="hero.float1">causa raiz</div>
+        </div>
+      </div>
+      <div class="float-card bottom-left">
+        <div class="fc-ic" style="background:hsl(var(--success)/0.1); color:hsl(var(--success))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+        </div>
+        <div>
+          <div class="fc-val">94% <span style="font-size:11px;color:hsl(var(--ink-mute));font-family:var(--font-mono);font-weight:500">confidence</span></div>
+          <div class="fc-lbl" data-i18n="hero.float2">evidências validadas</div>
+        </div>
+      </div>
+
+      <div class="browser-frame">
+        <div class="browser-chrome">
+          <div class="browser-dots"><span></span><span></span><span></span></div>
+          <div class="browser-url">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect></svg>
+            app.causeflow.ai/investigations/inv-2847
+          </div>
+        </div>
+
+        <div class="dash">
+          <aside class="dash-side">
+            <div class="side-label">Workspace</div>
+            <a href="#" class="active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+              <span data-i18n="dash.nav1">Investigações</span><span class="count">12</span></a>
+            <a href="#">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3v18h18"></path><path d="m7 14 4-4 4 4 6-6"></path></svg>
+              <span data-i18n="dash.nav2">Alertas</span></a>
+            <a href="#">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v6m0 10v6m11-11h-6M7 12H1"></path></svg>
+              <span data-i18n="dash.nav3">Agentes</span></a>
+            <a href="#">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18M9 21V9"></path></svg>
+              <span data-i18n="dash.nav4">Integrações</span></a>
+            <a href="#">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 11v8m0-16v4"></path><circle cx="12" cy="7" r="2"></circle><path d="M5 21V11m0-4V3"></path><circle cx="5" cy="9" r="2"></circle><path d="M19 21V15m0-4V3"></path><circle cx="19" cy="13" r="2"></circle></svg>
+              <span data-i18n="dash.nav5">Audit trail</span></a>
+            <div style="height:14px"></div>
+            <div class="side-label" data-i18n="dash.sideLbl">Agentes ativos</div>
+            <a href="#" style="font-family:var(--font-mono);font-size:12px;"><span style="width:6px;height:6px;background:hsl(var(--accent));border-radius:99px;box-shadow:0 0 6px hsl(var(--accent))"></span>LOG_ANALYZER</a>
+            <a href="#" style="font-family:var(--font-mono);font-size:12px;"><span style="width:6px;height:6px;background:hsl(var(--accent));border-radius:99px;box-shadow:0 0 6px hsl(var(--accent))"></span>DB_INSPECTOR</a>
+            <a href="#" style="font-family:var(--font-mono);font-size:12px;"><span style="width:6px;height:6px;background:hsl(var(--ink-mute));border-radius:99px"></span>CODE_REVIEWER</a>
+          </aside>
+
+          <div class="dash-main">
+            <div class="dash-head">
+              <span class="status-chip status-investigating"><span class="ring"></span><span data-i18n="dash.inv">Investigando</span></span>
+              <h3 id="dash-title" data-i18n="dash.title">Pricing page exibindo preços desatualizados</h3>
+              <span class="timestamp">02:47 ago</span>
+            </div>
+            <div class="dash-subline" id="dash-subline" data-i18n="dash.subline">INV-2847 · severity: high · source: Sentry + CloudWatch</div>
+
+            <div class="agents-row" id="agents-row">
+              <div class="agent-pill done">
+                <div class="agent-icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg></div>
+                <div class="agent-name">Logs</div>
+                <div class="agent-status">1.2s</div>
+              </div>
+              <div class="agent-pill done">
+                <div class="agent-icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg></div>
+                <div class="agent-name">Metrics</div>
+                <div class="agent-status">0.9s</div>
+              </div>
+              <div class="agent-pill running">
+                <div class="agent-icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg></div>
+                <div class="agent-name">Code</div>
+                <div class="agent-status">2.4s</div>
+              </div>
+              <div class="agent-pill running">
+                <div class="agent-icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg></div>
+                <div class="agent-name">DB</div>
+                <div class="agent-status">1.8s</div>
+              </div>
+              <div class="agent-pill">
+                <div class="agent-icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle></svg></div>
+                <div class="agent-name">Infra</div>
+                <div class="agent-status">idle</div>
+              </div>
+              <div class="agent-pill">
+                <div class="agent-icon-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle></svg></div>
+                <div class="agent-name">Docs</div>
+                <div class="agent-status">idle</div>
+              </div>
+            </div>
+
+            <div class="feed" id="feed">
+              <div class="feed-line"><span class="tt">00:02</span><span class="tag">logs</span><span data-i18n="feed.l1">Analisando últimos 500 eventos de /pricing</span></div>
+              <div class="feed-line"><span class="tt">00:04</span><span class="tag db">db</span><span data-i18n="feed.l2">Query no CMS: última atualização em products_catalog há 12 min</span></div>
+              <div class="feed-line"><span class="tt">00:11</span><span class="tag code">code</span><span data-i18n="feed.l3">Cross-referenciando commit a3f2c1 em pricing-service</span></div>
+              <div class="feed-line"><span class="tt">00:18</span><span class="tag net">metrics</span><span data-i18n="feed.l4">Cache hit rate CDN: 97% · TTL: 15min</span></div>
+              <div class="feed-line"><span class="tt">00:32</span><span class="tag">logs</span><span data-i18n="feed.l5">Webhook de invalidação não disparou após update</span></div>
+              <div class="feed-line result"><span class="tt">02:47</span><span class="tag">✓ causa raiz</span><span data-i18n="feed.l6"><strong>Cache CDN não invalidado</strong> — webhook do CMS falhando silenciosamente</span></div>
+            </div>
+          </div>
+
+          <aside class="dash-aside">
+            <div class="aside-title" data-i18n="dash.evLbl">Evidências coletadas</div>
+            <div class="ev-card accent">
+              <div class="label" data-i18n="dash.rootCause">Causa raiz</div>
+              <div class="val" data-i18n="dash.rcVal">Cache CDN stale</div>
+              <div class="sub" data-i18n="dash.rcSub">TTL 15min — webhook de invalidação silenciosamente em erro 403.</div>
+              <div class="confidence-bar"><span></span></div>
+              <div class="sub" style="margin-top:6px; font-family:var(--font-mono); font-size:10.5px">94% <span data-i18n="dash.confidence">confidence</span></div>
+            </div>
+            <div class="ev-card">
+              <div class="label" data-i18n="dash.evidence">Evidências · 4</div>
+              <div class="val" style="font-size:12px; font-family:var(--font-mono); font-weight:600; color:hsl(var(--ink-soft)); line-height:1.6">
+                → cms-webhook-worker: 5 × 403<br>
+                → cdn /pricing age: 893s<br>
+                → catalog.updated_at Δ 12min<br>
+                → cache_purge log: empty
+              </div>
+            </div>
+            <div class="ev-card" style="background:hsl(var(--orange)/0.06); border-color:hsl(var(--orange)/0.25)">
+              <div class="label" style="color:hsl(var(--orange))" data-i18n="dash.proposed">Correção proposta</div>
+              <div class="sub" style="color:hsl(var(--ink)); font-size:12.5px; margin-top:4px" data-i18n="dash.proposedDesc">Rotacionar webhook secret · purge manual de /pricing · backfill log.</div>
+              <div style="display:flex; gap:6px; margin-top:10px">
+                <button style="font-size:10.5px; padding:5px 10px; background:hsl(var(--ink)); color:#fff; border:0; border-radius:6px; font-weight:600; font-family:var(--font-sans); cursor:pointer" data-i18n="dash.approve">Aprovar</button>
+                <button style="font-size:10.5px; padding:5px 10px; background:#fff; color:hsl(var(--ink)); border:1px solid hsl(var(--line)); border-radius:6px; font-weight:600; font-family:var(--font-sans); cursor:pointer" data-i18n="dash.details">Detalhes</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== LOGO BELT =============== -->
+<section class="logo-belt">
+  <div class="container">
+    <div class="belt-label" data-i18n="belt.label">Conectado à infraestrutura que você já usa</div>
+    <div class="belt">
+      <img src="blob:null/7d34683c-3155-4eaa-ab21-9985464a8f21" alt="Datadog">
+      <img src="blob:null/5361c5cc-73b9-47e3-9a9e-377526a92d60" alt="PagerDuty">
+      <img src="blob:null/41df78a3-9203-467d-9f0d-330dcb0ed39e" alt="Sentry">
+      <img src="blob:null/4abf5d88-bd28-4796-9291-1cc65e0b23d0" alt="GitHub">
+      <img src="blob:null/70bca133-e2bc-4cc5-9983-e7a7e8896c3c" alt="Grafana">
+      <img src="blob:null/520ebfa5-8008-41ac-b25b-fd3ad91687fa" alt="Slack">
+      <img src="blob:null/ba31baaa-733b-4a61-ae00-150ca0a848b5" alt="Kubernetes">
+      <img src="blob:null/d36e7671-ced0-4283-9992-236e7e17f91b" alt="AWS">
+      <img src="blob:null/64a9700f-7440-4873-ba6e-ed227cf960de" alt="PostgreSQL">
+    </div>
+    <div style="display:flex; align-items:center; justify-content:center; gap:64px; flex-wrap:wrap; margin-top:40px;">
+      <div class="belt-label" style="margin: 0 0 0 0; font-size:10.5px;" data-i18n="belt.customers">Clientes</div>
+      <a href="#" class="customer-logo">Fotop</a>
+      <a href="#" class="customer-logo">Pinubi</a>
+      <a href="#" class="customer-logo" style="font-size:16px; font-family:var(--font-mono); font-style:normal;" data-i18n="belt.yours">+ sua empresa</a>
+    </div>
+  </div>
+</section>
+
+<!-- =============== HOW IT WORKS =============== -->
+<section class="section" id="product">
+  <div class="container">
+    <div class="section-head reveal in">
+      <div class="eyebrow" data-i18n="how.eyebrow">Como funciona</div>
+      <h2>
+        <span data-i18n="how.h1">Conecta.</span>
+        <em data-i18n="how.h2">Investiga.</em>
+        <span data-i18n="how.h3">Explica.</span>
+      </h2>
+      <p class="section-lead" data-i18n="how.lead">Read-only, permissão mínima, certificado. O resto acontece em paralelo.</p>
+    </div>
+
+    <div class="how reveal in">
+      <div class="how-step">
+        <span class="num">01 / <span data-i18n="how.s1num">Conectar</span></span>
+        <h3 data-i18n="how.s1h">Plug &amp; play em minutos</h3>
+        <p data-i18n="how.s1p">+200 integrações nativas — Sentry, Datadog, GitHub, seus bancos. Read-only por padrão.</p>
+        <div class="visual">
+          <div class="orbit">
+            <div class="core"><img src="blob:null/1a25f59d-c28c-4332-8904-c224b3586e02" alt=""></div>
+            <div class="satellite"><img src="blob:null/7d34683c-3155-4eaa-ab21-9985464a8f21" alt=""></div>
+            <div class="satellite"><img src="blob:null/41df78a3-9203-467d-9f0d-330dcb0ed39e" alt=""></div>
+            <div class="satellite"><img src="blob:null/4abf5d88-bd28-4796-9291-1cc65e0b23d0" alt=""></div>
+            <div class="satellite"><img src="blob:null/520ebfa5-8008-41ac-b25b-fd3ad91687fa" alt=""></div>
+            <div class="satellite"><img src="blob:null/70bca133-e2bc-4cc5-9983-e7a7e8896c3c" alt=""></div>
+            <div class="satellite"><img src="blob:null/64a9700f-7440-4873-ba6e-ed227cf960de" alt=""></div>
+          </div>
+        </div>
+      </div>
+      <div class="how-step">
+        <span class="num">02 / <span data-i18n="how.s2num">Investigar</span></span>
+        <h3 data-i18n="how.s2h">6 agentes em paralelo</h3>
+        <p data-i18n="how.s2p">Logs, métricas, código, banco, infra e docs. Cada um com escopo e ferramentas próprias.</p>
+        <div class="visual">
+          <div class="fanout">
+            <svg viewBox="0 0 100 90" preserveAspectRatio="none">
+              <path d="M 16,45 C 45,45 55,15 85,15" stroke="hsl(var(--accent))" stroke-width="0.6" fill="none" stroke-dasharray="2 2"></path>
+              <path d="M 16,45 L 85,45" stroke="hsl(var(--accent))" stroke-width="0.6" fill="none" stroke-dasharray="2 2"></path>
+              <path d="M 16,45 C 45,45 55,75 85,75" stroke="hsl(var(--accent))" stroke-width="0.6" fill="none" stroke-dasharray="2 2"></path>
+            </svg>
+            <div class="node start">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+            </div>
+            <div class="node a1">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"></path><path d="m7 14 4-4 4 4 6-6"></path></svg>
+            </div>
+            <div class="node a2">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            </div>
+            <div class="node a3">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"></path></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="how-step">
+        <span class="num">03 / <span data-i18n="how.s3num">Explicar</span></span>
+        <h3 data-i18n="how.s3h">Causa raiz com evidências</h3>
+        <p data-i18n="how.s3p">Raciocínio completo, evidências coletadas, correção proposta. Você aprova.</p>
+        <div class="visual" style="padding:0 9px">
+          <div class="rootcause">
+            <div class="rc-line"><span class="key">root_cause:</span></div>
+            <div class="rc-line" style="padding-left:12px">cache_cdn_stale</div>
+            <div class="rc-line"><span class="key">evidence:</span></div>
+            <div class="rc-line" style="padding-left:12px"><span class="minus">−</span>webhook 403</div>
+            <div class="rc-line" style="padding-left:12px"><span class="plus">+</span>manual purge</div>
+            <div class="rc-confidence"><span data-i18n="how.confidence">confidence</span><span>94%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== DUO SECTION =============== -->
+<section class="section duo-section">
+  <div class="container">
+    <div class="section-head reveal in">
+      <div class="eyebrow" data-i18n="duo.eyebrow">Dois produtos, um framework</div>
+      <h2>
+        <span data-i18n="duo.h1">Problemas de</span> <em data-i18n="duo.h2">tech</em>
+        <span data-i18n="duo.h3">ou de</span> <em data-i18n="duo.h4">cliente.</em>
+        <br><span data-i18n="duo.h5">O mesmo raciocínio.</span>
+      </h2>
+      <p class="section-lead" data-i18n="duo.lead">Bug em produção ou cliente que não consegue emitir fatura — a investigação é estruturada da mesma forma.</p>
+    </div>
+
+    <div class="duo reveal in">
+      <div class="duo-card">
+        <span class="pretag">● AI SRE</span>
+        <h3>
+          <span data-i18n="duo.sreH1">Bug, latência,</span><br>
+          <em data-i18n="duo.sreH2">servidor caído.</em>
+        </h3>
+        <p data-i18n="duo.sreP">Alertas do Datadog, Sentry ou PagerDuty viram investigações estruturadas. Causa raiz ligada ao commit exato.</p>
+        <div class="sample">
+          <div class="sample-head"><span class="dot-live"></span><span data-i18n="duo.sreSample">Investigação tech ao vivo</span></div>
+          <div class="sample-list">
+            <div><span class="tk">→</span> <span data-i18n="duo.sreI1">API /payments 500s em produção</span></div>
+            <div><span class="tk">→</span> <span data-i18n="duo.sreI2">Connection pool exhaustion</span></div>
+            <div><span class="tk">→</span> <span data-i18n="duo.sreI3">Commit</span> <span class="em">a3f2c1</span> <span data-i18n="duo.sreI4">· max_connections</span></div>
+            <div><span class="tk">✓</span> <span class="em" data-i18n="duo.sreI5">PR de fix pronto para review</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="duo-card ops">
+        <span class="pretag">● AI Customer Ops</span>
+        <h3>
+          <span data-i18n="duo.opsH1">Cliente bloqueado,</span><br>
+          <em data-i18n="duo.opsH2">fatura travada.</em>
+        </h3>
+        <p data-i18n="duo.opsP">L2/L3 de suporte recebem causa raiz com evidências — sem pingar engenharia para cada ticket.</p>
+        <div class="sample">
+          <div class="sample-head"><span class="dot-live"></span><span data-i18n="duo.opsSample">Investigação de suporte ao vivo</span></div>
+          <div class="sample-list">
+            <div><span class="tk">→</span> <span data-i18n="duo.opsI1">Ticket #8821 "não consigo emitir fatura"</span></div>
+            <div><span class="tk">→</span> <span data-i18n="duo.opsI2">CNPJ com certificado vencido há 3 dias</span></div>
+            <div><span class="tk">→</span> <span data-i18n="duo.opsI3">Último login OK · último boleto</span> <span class="em">4d</span></div>
+            <div><span class="tk">✓</span> <span class="em" data-i18n="duo.opsI4">Resposta pronta para o cliente</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== INTEGRATIONS =============== -->
+<section class="section" id="integrations">
+  <div class="container">
+    <div class="section-head reveal in">
+      <div class="eyebrow" data-i18n="int.eyebrow">Integrações</div>
+      <h2>
+        <span data-i18n="int.h1">+200 ferramentas.</span><br>
+        <em data-i18n="int.h2">Zero wrapper custom.</em>
+      </h2>
+      <p class="section-lead" data-i18n="int.lead">Se a sua stack não está na lista, a maioria das integrações saem em horas.</p>
+    </div>
+
+    <div class="integrations-wall reveal in">
+      <div class="int-cell"><img src="blob:null/7d34683c-3155-4eaa-ab21-9985464a8f21" alt="Datadog"></div>
+      <div class="int-cell"><img src="blob:null/41df78a3-9203-467d-9f0d-330dcb0ed39e" alt="Sentry"></div>
+      <div class="int-cell"><img src="blob:null/4abf5d88-bd28-4796-9291-1cc65e0b23d0" alt="GitHub"></div>
+      <div class="int-cell"><img src="blob:null/5361c5cc-73b9-47e3-9a9e-377526a92d60" alt="PagerDuty"></div>
+      <div class="int-cell"><img src="blob:null/520ebfa5-8008-41ac-b25b-fd3ad91687fa" alt="Slack"></div>
+      <div class="int-cell"><img src="blob:null/70bca133-e2bc-4cc5-9983-e7a7e8896c3c" alt="Grafana"></div>
+      <div class="int-cell"><img src="blob:null/ba31baaa-733b-4a61-ae00-150ca0a848b5" alt="Kubernetes"></div>
+      <div class="int-cell"><img src="blob:null/390cddb7-b5c8-4dd8-bf05-3f3205f68bed" alt="Jira"></div>
+      <div class="int-cell"><img src="blob:null/c11d170a-993b-43fa-b77a-20a8b9b237c2" alt="Linear"></div>
+      <div class="int-cell"><img src="blob:null/d36e7671-ced0-4283-9992-236e7e17f91b" alt="AWS"></div>
+      <div class="int-cell"><img src="blob:null/64a9700f-7440-4873-ba6e-ed227cf960de" alt="PostgreSQL"></div>
+      <div class="int-cell"><img src="blob:null/532be50c-9a53-4deb-8038-80061d9bb75e" alt="Notion"></div>
+      <div class="int-cell"><img src="blob:null/afd50c7c-e1d8-47f5-8952-55d63260534a" alt="New Relic"></div>
+      <div class="int-cell"><img src="blob:null/ff25b0ad-cd35-439c-971c-9f4c6575a8c5" alt="Splunk"></div>
+      <div class="int-cell"><img src="blob:null/7d7c339c-1a28-4b7d-81b7-5e221ca48bef" alt="Opsgenie"></div>
+      <div class="int-cell more">+192</div>
+    </div>
+    <div class="int-cta reveal in">
+      <span data-i18n="int.cta">Não vê a sua ferramenta?</span> <a href="#" data-i18n="int.ctaLink">Fale com a gente →</a>
+    </div>
+  </div>
+</section>
+
+<!-- =============== ENGINEERING TIME SAVED =============== -->
+<section class="section time-saved">
+  <div class="container">
+    <div class="section-head reveal in">
+      <div class="eyebrow" data-i18n="ts.eyebrow">Tempo do seu time</div>
+      <h2>
+        <span data-i18n="ts.h1">A maior parte do tempo</span><br>
+        <span data-i18n="ts.h2">de um incidente é</span> <em data-i18n="ts.h3">investigação.</em>
+      </h2>
+      <p class="section-lead" data-i18n="ts.lead">Engenheiros revisando logs e dashboards é engenheiro não construindo produto.</p>
+    </div>
+
+    <div class="compare reveal in">
+      <div class="compare-card">
+        <div class="lbl" data-i18n="ts.before">Sem CauseFlow</div>
+        <div class="big">2–4h</div>
+        <div class="big-sub" data-i18n="ts.beforeSub">até a correção</div>
+        <div class="bars">
+          <div class="compare-bar"><span class="bar-lbl" data-i18n="ts.barAlert">alerta</span><span class="bar-track"><span class="bar-fill" style="width:4%"></span></span><span class="bar-val">5m</span></div>
+          <div class="compare-bar"><span class="bar-lbl" data-i18n="ts.barTriage">triagem</span><span class="bar-track"><span class="bar-fill" style="width:22%"></span></span><span class="bar-val">45m</span></div>
+          <div class="compare-bar"><span class="bar-lbl" data-i18n="ts.barInv">investigação</span><span class="bar-track"><span class="bar-fill" style="width:65%"></span></span><span class="bar-val">2h</span></div>
+          <div class="compare-bar"><span class="bar-lbl" data-i18n="ts.barFix">correção</span><span class="bar-track"><span class="bar-fill" style="width:28%"></span></span><span class="bar-val">30m</span></div>
+        </div>
+      </div>
+      <div class="compare-card after">
+        <div class="lbl" data-i18n="ts.after">Com CauseFlow</div>
+        <div class="big">~30min</div>
+        <div class="big-sub" data-i18n="ts.afterSub">até a correção</div>
+        <div class="bars">
+          <div class="compare-bar"><span class="bar-lbl" data-i18n="ts.barAlert">alerta</span><span class="bar-track"><span class="bar-fill" style="width:4%"></span></span><span class="bar-val">5m</span></div>
+          <div class="compare-bar"><span class="bar-lbl" data-i18n="ts.barTriage">triagem</span><span class="bar-track"><span class="bar-fill" style="width:6%"></span></span><span class="bar-val">auto</span></div>
+          <div class="compare-bar"><span class="bar-lbl" data-i18n="ts.barInv">investigação</span><span class="bar-track"><span class="bar-fill" style="width:14%"></span></span><span class="bar-val">~3m</span></div>
+          <div class="compare-bar"><span class="bar-lbl" data-i18n="ts.barFix">correção</span><span class="bar-track"><span class="bar-fill" style="width:20%"></span></span><span class="bar-val">22m</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="metrics-row reveal in">
+      <div class="metric">
+        <div class="mv"><em>~3</em> min</div>
+        <div class="ml" data-i18n="ts.m1l">Time to root cause</div>
+        <div class="md" data-i18n="ts.m1d">Do alerta ao diagnóstico com evidências — em paralelo.</div>
+      </div>
+      <div class="metric">
+        <div class="mv"><em>95</em>%</div>
+        <div class="ml" data-i18n="ts.m2l">Actionable findings</div>
+        <div class="md" data-i18n="ts.m2d">Cada investigação termina com uma correção proposta, não um "talvez olhe aqui".</div>
+      </div>
+      <div class="metric">
+        <div class="mv"><em>6</em></div>
+        <div class="ml" data-i18n="ts.m3l">Agentes especializados</div>
+        <div class="md" data-i18n="ts.m3d">Logs, métricas, código, banco, infra e docs. Mais chegando continuamente.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== USE CASES CAROUSEL =============== -->
+<section class="section" id="use-cases">
+  <div class="container uc-wrap">
+    <div class="uc-header-row">
+      <div class="section-head reveal in">
+        <div class="eyebrow" data-i18n="uc.eyebrow">Casos de uso</div>
+        <h2>
+          <span data-i18n="uc.h1">Cenários reais,</span><br>
+          <em data-i18n="uc.h2">resolvidos em minutos.</em>
+        </h2>
+      </div>
+      <div class="uc-nav">
+        <button id="uc-prev" aria-label="Anterior" disabled=""><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+        <button id="uc-next" aria-label="Próximo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button>
+      </div>
+    </div>
+
+    <div class="uc-carousel">
+      <div class="uc-track" id="uc-track" style="transform: translateX(0px);">
+        <!-- Card 1 -->
+        <div class="uc-card">
+          <div class="uc-head">
+            <img src="blob:null/41df78a3-9203-467d-9f0d-330dcb0ed39e" alt="" width="18"><span class="uc-num">INV-2847</span><span class="uc-sev med" data-i18n="uc.sevMed">Medium</span>
+          </div>
+          <div class="uc-body">
+            <h3 data-i18n="uc.c1h">Pricing page exibindo preços desatualizados após atualização no CMS</h3>
+            <div class="uc-meta"><span>CMS</span><span>cache</span><span>CDN</span><span>webhook</span></div>
+            <div class="uc-findings">
+              <span class="tag-rc" data-i18n="uc.rootcause">Causa raiz</span>
+              <span data-i18n="uc.c1f"><strong>Webhook de invalidação</strong> do CMS falhando em 403 há 12min. CDN servindo /pricing stale com TTL de 15min. <strong>Purge manual</strong> + rotação do secret do webhook.</span>
+            </div>
+            <div class="uc-stats">
+              <div class="st"><span class="st-v"><em>2:47</em></span><span class="st-l" data-i18n="uc.time">time to rc</span></div>
+              <div class="st"><span class="st-v"><em>4</em></span><span class="st-l" data-i18n="uc.ev">evidências</span></div>
+              <div class="st"><span class="st-v"><em>94</em>%</span><span class="st-l" data-i18n="uc.conf">confidence</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="uc-card">
+          <div class="uc-head">
+            <img src="blob:null/7d34683c-3155-4eaa-ab21-9985464a8f21" alt="" width="18"><span class="uc-num">INV-2844</span><span class="uc-sev high" data-i18n="uc.sevHigh">High</span>
+          </div>
+          <div class="uc-body">
+            <h3 data-i18n="uc.c2h">Imagens quebradas na página de comparação /from-momentic</h3>
+            <div class="uc-meta"><span>static assets</span><span>S3</span><span>CORS</span></div>
+            <div class="uc-findings">
+              <span class="tag-rc" data-i18n="uc.rootcause">Causa raiz</span>
+              <span data-i18n="uc.c2f"><strong>Bucket S3 comparison-assets</strong> com CORS policy alterada em deploy anterior. 14 imagens retornando 403 apenas para origin causeflow.ai. <strong>Rollback da policy</strong> aplicado em 1 comando.</span>
+            </div>
+            <div class="uc-stats">
+              <div class="st"><span class="st-v"><em>1:58</em></span><span class="st-l" data-i18n="uc.time">time to rc</span></div>
+              <div class="st"><span class="st-v"><em>6</em></span><span class="st-l" data-i18n="uc.ev">evidências</span></div>
+              <div class="st"><span class="st-v"><em>97</em>%</span><span class="st-l" data-i18n="uc.conf">confidence</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="uc-card">
+          <div class="uc-head">
+            <img src="blob:null/5361c5cc-73b9-47e3-9a9e-377526a92d60" alt="" width="18"><span class="uc-num">INV-2831</span><span class="uc-sev high" data-i18n="uc.sevHigh">High</span>
+          </div>
+          <div class="uc-body">
+            <h3 data-i18n="uc.c3h">API retornando erro 500 de forma intermitente em /payments</h3>
+            <div class="uc-meta"><span>payments</span><span>postgres</span><span>connection pool</span></div>
+            <div class="uc-findings">
+              <span class="tag-rc" data-i18n="uc.rootcause">Causa raiz</span>
+              <span data-i18n="uc.c3f"><strong>Connection pool exhaustion</strong> após deploy a3f2c1 que removeu <code>pool.release()</code> em branch de erro. 8% das requests travando até timeout. <strong>PR de fix</strong> gerado com teste de regressão.</span>
+            </div>
+            <div class="uc-stats">
+              <div class="st"><span class="st-v"><em>3:12</em></span><span class="st-l" data-i18n="uc.time">time to rc</span></div>
+              <div class="st"><span class="st-v"><em>7</em></span><span class="st-l" data-i18n="uc.ev">evidências</span></div>
+              <div class="st"><span class="st-v"><em>91</em>%</span><span class="st-l" data-i18n="uc.conf">confidence</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- Card 4 -->
+        <div class="uc-card">
+          <div class="uc-head">
+            <img src="blob:null/70bca133-e2bc-4cc5-9983-e7a7e8896c3c" alt="" width="18"><span class="uc-num">INV-2822</span><span class="uc-sev low" data-i18n="uc.sevLow">Low</span>
+          </div>
+          <div class="uc-body">
+            <h3 data-i18n="uc.c4h">Latência de checkout subindo gradualmente em horário de pico</h3>
+            <div class="uc-meta"><span>performance</span><span>n+1</span><span>ORM</span></div>
+            <div class="uc-findings">
+              <span class="tag-rc" data-i18n="uc.rootcause">Causa raiz</span>
+              <span data-i18n="uc.c4f"><strong>N+1 em Order.items</strong> após mudança de serializer. P95 subiu de 180ms → 2.4s com 50+ itens no carrinho. <strong>Eager-loading</strong> proposto com preload em 2 linhas.</span>
+            </div>
+            <div class="uc-stats">
+              <div class="st"><span class="st-v"><em>4:01</em></span><span class="st-l" data-i18n="uc.time">time to rc</span></div>
+              <div class="st"><span class="st-v"><em>5</em></span><span class="st-l" data-i18n="uc.ev">evidências</span></div>
+              <div class="st"><span class="st-v"><em>89</em>%</span><span class="st-l" data-i18n="uc.conf">confidence</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== ALERT FLOW =============== -->
+<section class="section duo-section" id="alerts">
+  <div class="container">
+    <div class="alert-flow">
+      <div class="reveal in">
+        <div class="eyebrow" data-i18n="af.eyebrow">Investigação de alertas</div>
+        <h2>
+          <span data-i18n="af.h1">Do alerta crítico</span><br>
+          <em data-i18n="af.h2">à resposta acionável.</em>
+        </h2>
+        <p class="section-lead" style="margin-left:0; text-align:left" data-i18n="af.lead">CauseFlow classifica cada evento. Alto ou crítico abre investigação automaticamente — baixo vai para o feed de revisão humana.</p>
+        <div style="display:flex; gap:12px; margin-top:28px">
+          <a href="#" class="btn btn-outline" data-i18n="af.cta">Ver um exemplo real →</a>
+        </div>
+      </div>
+
+      <div class="alert-viz reveal in">
+        <div class="alert-step done">
+          <div class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"></path><path d="M12 8v4l3 3"></path></svg></div>
+          <div class="body-n">
+            <div class="title" data-i18n="af.s1t">Evento recebido</div>
+            <div class="desc" data-i18n="af.s1d">sentry.exception · pricing-service</div>
+          </div>
+          <div class="tt">00:00</div>
+        </div>
+        <div class="alert-step done">
+          <div class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></div>
+          <div class="body-n">
+            <div class="title" data-i18n="af.s2t">Classificação de severidade</div>
+            <div class="desc" data-i18n="af.s2d">baseada em blast radius, usuários afetados, SLO</div>
+            <div class="sev-classify">
+              <span class="chip" data-i18n="af.sevLow">low</span>
+              <span class="chip" data-i18n="af.sevMed">medium</span>
+              <span class="chip on">high</span>
+              <span class="chip" data-i18n="af.sevCrit">critical</span>
+            </div>
+          </div>
+          <div class="tt">+3s</div>
+        </div>
+        <div class="alert-step active">
+          <div class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg></div>
+          <div class="body-n">
+            <div class="title" data-i18n="af.s3t">Investigação aberta · 6 agentes em paralelo</div>
+            <div class="desc" data-i18n="af.s3d">logs, metrics, code, db, infra, docs</div>
+          </div>
+          <div class="tt">+12s</div>
+        </div>
+        <div class="alert-step">
+          <div class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><rect x="3" y="11" width="18" height="11" rx="2"></rect></svg></div>
+          <div class="body-n">
+            <div class="title" data-i18n="af.s4t">Correção proposta</div>
+            <div class="desc" data-i18n="af.s4d">requer aprovação humana antes de executar</div>
+          </div>
+          <div class="tt">~3min</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== NOTIFICATION =============== -->
+<section class="section notif-section">
+  <div class="container">
+    <div class="notif-grid">
+      <div class="reveal in">
+        <div class="eyebrow" data-i18n="nt.eyebrow">Notificação</div>
+        <h2>
+          <span data-i18n="nt.h1">O resultado chega</span><br>
+          <em data-i18n="nt.h2">onde você já está.</em>
+        </h2>
+        <p class="section-lead" style="margin-left:0; text-align:left" data-i18n="nt.lead">Slack, email ou Teams — com o raciocínio, evidências e correção proposta. Um clique para aprovar.</p>
+      </div>
+
+      <div class="notif-msgs reveal in">
+        <div class="notif-card">
+          <div class="nhead">
+            <img src="blob:null/520ebfa5-8008-41ac-b25b-fd3ad91687fa" alt="">
+            <div class="chan">#incidents</div>
+            <div class="who">CauseFlow · now</div>
+          </div>
+          <div class="ntitle" data-i18n="nt.card1t">🔍 INV-2847 · causa raiz identificada</div>
+          <div class="ndesc"><strong data-i18n="nt.card1c">Cache CDN stale</strong> <span data-i18n="nt.card1d">— webhook de invalidação do CMS falhando em 403. Fix proposto: purge manual + rotação do secret. 94% confidence.</span></div>
+          <div class="nactions">
+            <button class="primary" data-i18n="nt.approve">Aprovar fix</button>
+            <button data-i18n="nt.view">Ver evidências</button>
+          </div>
+        </div>
+        <div class="notif-card">
+          <div class="nhead">
+            <img src="blob:null/5361c5cc-73b9-47e3-9a9e-377526a92d60" alt="">
+            <div class="chan">PagerDuty</div>
+            <div class="who" style="color:hsl(var(--success))">· resolved</div>
+          </div>
+          <div class="ntitle" data-i18n="nt.card2t">INV-2844 · imagens quebradas</div>
+          <div class="ndesc" data-i18n="nt.card2d">CORS policy revertida. 14 assets servindo normal. Incidente fechado automaticamente — audit trail em /incidents/2844.</div>
+        </div>
+        <div class="notif-card">
+          <div class="nhead">
+            <img src="blob:null/c11d170a-993b-43fa-b77a-20a8b9b237c2" alt="">
+            <div class="chan">LIN-891</div>
+            <div class="who">CauseFlow</div>
+          </div>
+          <div class="ntitle" data-i18n="nt.card3t" style="font-family:var(--font-mono); font-size:12.5px;">fix(payments): restore pool.release() in error branch</div>
+          <div class="ndesc" data-i18n="nt.card3d">PR aberto com teste de regressão. Cobertura do branch de erro: 0% → 100%. Revisores designados automaticamente.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== QUOTE =============== -->
+<section class="quote-section">
+  <div class="container">
+    <div class="quote-block reveal in">
+      <blockquote>
+        <em>"</em><span data-i18n="q.text">Antes, levávamos 3 horas pra entender o que quebrou. Hoje o CauseFlow me manda a causa raiz no Slack antes do segundo café.</span><em>"</em>
+      </blockquote>
+      <div class="quote-attrib">
+        <div class="quote-avatar">JR</div>
+        <div class="quote-who">
+          <div class="nm">Julio Reis</div>
+          <div class="rl" data-i18n="q.role">Staff Engineer · Fotop</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== CTA =============== -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-card reveal in">
+      <h2>
+        <span data-i18n="cta.h1">Pare de</span> <em data-i18n="cta.h2">caçar logs.</em><br>
+        <span data-i18n="cta.h3">Comece a construir produto.</span>
+      </h2>
+      <p data-i18n="cta.p">Demo de 20 minutos com uma investigação real na sua stack. Sem contrato, sem cartão.</p>
+      <div class="hero-ctas">
+        <a href="#" class="btn btn-primary btn-lg" data-i18n="cta.b1">Agendar demo →</a>
+        <a href="#" class="btn btn-outline btn-lg" data-i18n="cta.b2">Ler a documentação</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== FOOTER =============== -->
+<footer>
+  <div class="container">
+    <div class="foot">
+      <div class="foot-brand">
+        <a class="brand" href="#"><img src="blob:null/1a25f59d-c28c-4332-8904-c224b3586e02" alt=""><span>CauseFlow<span class="dot">.</span>AI</span></a>
+        <p data-i18n="ft.tag">Investigações produção-grade, em paralelo, com human-in-the-loop. Read-only por padrão.</p>
+      </div>
+      <div class="foot-col">
+        <h5 data-i18n="ft.prod">Produto</h5>
+        <a href="#" data-i18n="ft.features">Features</a>
+        <a href="#" data-i18n="ft.integrations">Integrações</a>
+        <a href="#" data-i18n="ft.pricing">Preços</a>
+        <a href="#" data-i18n="ft.changelog">Changelog</a>
+      </div>
+      <div class="foot-col">
+        <h5 data-i18n="ft.comp">Empresa</h5>
+        <a href="#" data-i18n="ft.about">Sobre</a>
+        <a href="#" data-i18n="ft.blog">Blog</a>
+        <a href="#" data-i18n="ft.careers">Carreiras</a>
+        <a href="#" data-i18n="ft.contact">Contato</a>
+      </div>
+      <div class="foot-col">
+        <h5 data-i18n="ft.res">Recursos</h5>
+        <a href="#" data-i18n="ft.docs">Documentação</a>
+        <a href="#" data-i18n="ft.security">Segurança</a>
+        <a href="#" data-i18n="ft.status">Status</a>
+        <a href="#" data-i18n="ft.sla">SLA</a>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <div>© 2026 CauseFlow AI · <span data-i18n="ft.rights">Todos os direitos reservados.</span></div>
+      <div class="badges">
+        <span class="badge">SOC 2 Type II</span>
+        <span class="badge">ISO 27001</span>
+        <span class="badge">GDPR</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- =============== TWEAKS PANEL =============== -->
+<div id="tweaks-panel" class="open">
+  <h4 data-i18n="tw.title">Tweaks</h4>
+  <div class="grp">
+    <div class="grp-lbl" data-i18n="tw.accent">Cor de accent</div>
+    <div class="swatches" id="sw-accent">
+      <button class="sw active" data-h="172" data-s="66%" data-l="30%" style="background:hsl(172 66% 30%)" title="Teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></button>
+      <button class="sw" data-h="232" data-s="50%" data-l="35%" style="background:hsl(232 50% 35%)" title="Indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></button>
+      <button class="sw" data-h="23" data-s="90%" data-l="50%" style="background:hsl(23 90% 50%)" title="Orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></button>
+      <button class="sw" data-h="266" data-s="60%" data-l="45%" style="background:hsl(266 60% 45%)" title="Violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"></path></svg></button>
+    </div>
+  </div>
+  <div class="grp">
+    <div class="grp-lbl" data-i18n="tw.bg">Tom do fundo</div>
+    <div class="swatches" id="sw-bg">
+      <button class="sw" data-bg="44 38% 96%" data-bg2="44 30% 92%" style="background:hsl(44 38% 96%); border:2px solid hsl(var(--ink) / 0.5)" title="Off-white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:hsl(var(--ink))"><path d="M20 6 9 17l-5-5"></path></svg></button>
+      <button class="sw active" data-bg="0 0% 100%" data-bg2="230 15% 96%" style="background:#fff; border:2px solid hsl(var(--ink) / 0.5)" title="White"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:hsl(var(--ink))"><path d="M20 6 9 17l-5-5"></path></svg></button>
+      <button class="sw" data-bg="230 25% 96%" data-bg2="230 20% 92%" style="background:hsl(230 25% 96%); border:2px solid hsl(var(--ink) / 0.5)" title="Indigo tint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:hsl(var(--ink))"><path d="M20 6 9 17l-5-5"></path></svg></button>
+      <button class="sw" data-bg="36 28% 92%" data-bg2="36 22% 88%" style="background:hsl(36 28% 92%); border:2px solid hsl(var(--ink) / 0.5)" title="Warm beige"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:hsl(var(--ink))"><path d="M20 6 9 17l-5-5"></path></svg></button>
+    </div>
+  </div>
+  <div class="grp">
+    <div class="grp-lbl" data-i18n="tw.headline">Headline principal</div>
+    <input type="text" id="tw-headline" placeholder="Investigue incidentes em minutos, não horas.">
+  </div>
+</div>
+
+<!-- ==================================================
+     I18N + INTERACTIONS
+     ================================================== -->
+<script>
+/*EDITMODE-BEGIN*/
+const TWEAK_DEFAULTS = {
+  "accentH": 172,
+  "accentS": "66%",
+  "accentL": "30%",
+  "bgTone": "44 38% 96%",
+  "bgTone2": "44 30% 92%",
+  "headline": ""
+};
+/*EDITMODE-END*/
+
+const I18N = {
+  pt: {
+    "nav.product": "Produto",
+    "nav.useCases": "Casos de uso",
+    "nav.integrations": "Integrações",
+    "nav.pricing": "Preços",
+    "nav.docs": "Docs",
+    "nav.signin": "Entrar",
+    "nav.demo": "Agendar demo →",
+    "hero.audEng": "Para Engenharia",
+    "hero.audOps": "Para Customer Ops",
+    "hero.h1a": "Investigue incidentes em",
+    "hero.h1b": "minutos, não horas.",
+    "hero.lead": "Seis agentes de IA especializados trabalham em paralelo, encontram a causa raiz e propõem a correção. Você aprova — nada executa sem a sua assinatura.",
+    "hero.cta1": "Agendar demo →",
+    "hero.cta2": "Ver em ação",
+    "hero.trust1": "Somente leitura por padrão",
+    "hero.trust3": "Human-in-the-loop",
+    "hero.float1": "causa raiz",
+    "hero.float2": "evidências validadas",
+    "dash.nav1": "Investigações",
+    "dash.nav2": "Alertas",
+    "dash.nav3": "Agentes",
+    "dash.nav4": "Integrações",
+    "dash.nav5": "Audit trail",
+    "dash.sideLbl": "Agentes ativos",
+    "dash.inv": "Investigando",
+    "dash.title": "Pricing page exibindo preços desatualizados",
+    "dash.subline": "INV-2847 · severity: high · source: Sentry + CloudWatch",
+    "dash.evLbl": "Evidências coletadas",
+    "dash.rootCause": "Causa raiz",
+    "dash.rcVal": "Cache CDN stale",
+    "dash.rcSub": "TTL 15min — webhook de invalidação silenciosamente em erro 403.",
+    "dash.confidence": "confidence",
+    "dash.evidence": "Evidências · 4",
+    "dash.proposed": "Correção proposta",
+    "dash.proposedDesc": "Rotacionar webhook secret · purge manual de /pricing · backfill log.",
+    "dash.approve": "Aprovar",
+    "dash.details": "Detalhes",
+    "feed.l1": "Analisando últimos 500 eventos de /pricing",
+    "feed.l2": "Query no CMS: última atualização em products_catalog há 12 min",
+    "feed.l3": "Cross-referenciando commit a3f2c1 em pricing-service",
+    "feed.l4": "Cache hit rate CDN: 97% · TTL: 15min",
+    "feed.l5": "Webhook de invalidação não disparou após update",
+    "feed.l6": "<strong>Cache CDN não invalidado</strong> — webhook do CMS falhando silenciosamente",
+    "belt.label": "Conectado à infraestrutura que você já usa",
+    "belt.customers": "Clientes",
+    "belt.yours": "+ sua empresa",
+    "how.eyebrow": "Como funciona",
+    "how.h1": "Conecta.",
+    "how.h2": "Investiga.",
+    "how.h3": "Explica.",
+    "how.lead": "Read-only, permissão mínima, certificado. O resto acontece em paralelo.",
+    "how.s1num": "Conectar",
+    "how.s1h": "Plug & play em minutos",
+    "how.s1p": "+200 integrações nativas — Sentry, Datadog, GitHub, seus bancos. Read-only por padrão.",
+    "how.s2num": "Investigar",
+    "how.s2h": "6 agentes em paralelo",
+    "how.s2p": "Logs, métricas, código, banco, infra e docs. Cada um com escopo e ferramentas próprias.",
+    "how.s3num": "Explicar",
+    "how.s3h": "Causa raiz com evidências",
+    "how.s3p": "Raciocínio completo, evidências coletadas, correção proposta. Você aprova.",
+    "how.confidence": "confidence",
+    "duo.eyebrow": "Dois produtos, um framework",
+    "duo.h1": "Problemas de",
+    "duo.h2": "tech",
+    "duo.h3": "ou de",
+    "duo.h4": "cliente.",
+    "duo.h5": "O mesmo raciocínio.",
+    "duo.lead": "Bug em produção ou cliente que não consegue emitir fatura — a investigação é estruturada da mesma forma.",
+    "duo.sreH1": "Bug, latência,",
+    "duo.sreH2": "servidor caído.",
+    "duo.sreP": "Alertas do Datadog, Sentry ou PagerDuty viram investigações estruturadas. Causa raiz ligada ao commit exato.",
+    "duo.sreSample": "Investigação tech ao vivo",
+    "duo.sreI1": "API /payments 500s em produção",
+    "duo.sreI2": "Connection pool exhaustion",
+    "duo.sreI3": "Commit",
+    "duo.sreI4": "· max_connections",
+    "duo.sreI5": "PR de fix pronto para review",
+    "duo.opsH1": "Cliente bloqueado,",
+    "duo.opsH2": "fatura travada.",
+    "duo.opsP": "L2/L3 de suporte recebem causa raiz com evidências — sem pingar engenharia para cada ticket.",
+    "duo.opsSample": "Investigação de suporte ao vivo",
+    "duo.opsI1": "Ticket #8821 \"não consigo emitir fatura\"",
+    "duo.opsI2": "CNPJ com certificado vencido há 3 dias",
+    "duo.opsI3": "Último login OK · último boleto",
+    "duo.opsI4": "Resposta pronta para o cliente",
+    "int.eyebrow": "Integrações",
+    "int.h1": "+200 ferramentas.",
+    "int.h2": "Zero wrapper custom.",
+    "int.lead": "Se a sua stack não está na lista, a maioria das integrações saem em horas.",
+    "int.cta": "Não vê a sua ferramenta?",
+    "int.ctaLink": "Fale com a gente →",
+    "ts.eyebrow": "Tempo do seu time",
+    "ts.h1": "A maior parte do tempo",
+    "ts.h2": "de um incidente é",
+    "ts.h3": "investigação.",
+    "ts.lead": "Engenheiros revisando logs e dashboards é engenheiro não construindo produto.",
+    "ts.before": "Sem CauseFlow",
+    "ts.beforeSub": "até a correção",
+    "ts.after": "Com CauseFlow",
+    "ts.afterSub": "até a correção",
+    "ts.barAlert": "alerta",
+    "ts.barTriage": "triagem",
+    "ts.barInv": "investigação",
+    "ts.barFix": "correção",
+    "ts.m1l": "Time to root cause",
+    "ts.m1d": "Do alerta ao diagnóstico com evidências — em paralelo.",
+    "ts.m2l": "Actionable findings",
+    "ts.m2d": "Cada investigação termina com uma correção proposta, não um \"talvez olhe aqui\".",
+    "ts.m3l": "Agentes especializados",
+    "ts.m3d": "Logs, métricas, código, banco, infra e docs. Mais chegando continuamente.",
+    "uc.eyebrow": "Casos de uso",
+    "uc.h1": "Cenários reais,",
+    "uc.h2": "resolvidos em minutos.",
+    "uc.sevHigh": "High",
+    "uc.sevMed": "Medium",
+    "uc.sevLow": "Low",
+    "uc.rootcause": "Causa raiz",
+    "uc.time": "time to rc",
+    "uc.ev": "evidências",
+    "uc.conf": "confidence",
+    "uc.c1h": "Pricing page exibindo preços desatualizados após atualização no CMS",
+    "uc.c1f": "<strong>Webhook de invalidação</strong> do CMS falhando em 403 há 12min. CDN servindo /pricing stale com TTL de 15min. <strong>Purge manual</strong> + rotação do secret do webhook.",
+    "uc.c2h": "Imagens quebradas na página de comparação /from-momentic",
+    "uc.c2f": "<strong>Bucket S3 comparison-assets</strong> com CORS policy alterada em deploy anterior. 14 imagens retornando 403 apenas para origin causeflow.ai. <strong>Rollback da policy</strong> aplicado em 1 comando.",
+    "uc.c3h": "API retornando erro 500 de forma intermitente em /payments",
+    "uc.c3f": "<strong>Connection pool exhaustion</strong> após deploy a3f2c1 que removeu <code>pool.release()</code> em branch de erro. 8% das requests travando até timeout. <strong>PR de fix</strong> gerado com teste de regressão.",
+    "uc.c4h": "Latência de checkout subindo gradualmente em horário de pico",
+    "uc.c4f": "<strong>N+1 em Order.items</strong> após mudança de serializer. P95 subiu de 180ms → 2.4s com 50+ itens no carrinho. <strong>Eager-loading</strong> proposto com preload em 2 linhas.",
+    "af.eyebrow": "Investigação de alertas",
+    "af.h1": "Do alerta crítico",
+    "af.h2": "à resposta acionável.",
+    "af.lead": "CauseFlow classifica cada evento. Alto ou crítico abre investigação automaticamente — baixo vai para o feed de revisão humana.",
+    "af.cta": "Ver um exemplo real →",
+    "af.s1t": "Evento recebido",
+    "af.s1d": "sentry.exception · pricing-service",
+    "af.s2t": "Classificação de severidade",
+    "af.s2d": "baseada em blast radius, usuários afetados, SLO",
+    "af.sevLow": "low",
+    "af.sevMed": "medium",
+    "af.sevCrit": "critical",
+    "af.s3t": "Investigação aberta · 6 agentes em paralelo",
+    "af.s3d": "logs, metrics, code, db, infra, docs",
+    "af.s4t": "Correção proposta",
+    "af.s4d": "requer aprovação humana antes de executar",
+    "nt.eyebrow": "Notificação",
+    "nt.h1": "O resultado chega",
+    "nt.h2": "onde você já está.",
+    "nt.lead": "Slack, email ou Teams — com o raciocínio, evidências e correção proposta. Um clique para aprovar.",
+    "nt.card1t": "🔍 INV-2847 · causa raiz identificada",
+    "nt.card1c": "Cache CDN stale",
+    "nt.card1d": "— webhook de invalidação do CMS falhando em 403. Fix proposto: purge manual + rotação do secret. 94% confidence.",
+    "nt.approve": "Aprovar fix",
+    "nt.view": "Ver evidências",
+    "nt.card2t": "INV-2844 · imagens quebradas",
+    "nt.card2d": "CORS policy revertida. 14 assets servindo normal. Incidente fechado automaticamente — audit trail em /incidents/2844.",
+    "nt.card3t": "fix(payments): restore pool.release() in error branch",
+    "nt.card3d": "PR aberto com teste de regressão. Cobertura do branch de erro: 0% → 100%. Revisores designados automaticamente.",
+    "q.text": "Antes, levávamos 3 horas pra entender o que quebrou. Hoje o CauseFlow me manda a causa raiz no Slack antes do segundo café.",
+    "q.role": "Staff Engineer · Fotop",
+    "cta.h1": "Pare de",
+    "cta.h2": "caçar logs.",
+    "cta.h3": "Comece a construir produto.",
+    "cta.p": "Demo de 20 minutos com uma investigação real na sua stack. Sem contrato, sem cartão.",
+    "cta.b1": "Agendar demo →",
+    "cta.b2": "Ler a documentação",
+    "ft.tag": "Investigações produção-grade, em paralelo, com human-in-the-loop. Read-only por padrão.",
+    "ft.prod": "Produto",
+    "ft.features": "Features",
+    "ft.integrations": "Integrações",
+    "ft.pricing": "Preços",
+    "ft.changelog": "Changelog",
+    "ft.comp": "Empresa",
+    "ft.about": "Sobre",
+    "ft.blog": "Blog",
+    "ft.careers": "Carreiras",
+    "ft.contact": "Contato",
+    "ft.res": "Recursos",
+    "ft.docs": "Documentação",
+    "ft.security": "Segurança",
+    "ft.status": "Status",
+    "ft.sla": "SLA",
+    "ft.rights": "Todos os direitos reservados.",
+    "tw.title": "Tweaks",
+    "tw.accent": "Cor de accent",
+    "tw.bg": "Tom do fundo",
+    "tw.headline": "Headline principal"
+  },
+  en: {
+    "nav.product": "Product",
+    "nav.useCases": "Use cases",
+    "nav.integrations": "Integrations",
+    "nav.pricing": "Pricing",
+    "nav.docs": "Docs",
+    "nav.signin": "Sign in",
+    "nav.demo": "Book a demo →",
+    "hero.audEng": "For Engineering",
+    "hero.audOps": "For Customer Ops",
+    "hero.h1a": "Investigate production incidents in",
+    "hero.h1b": "minutes, not hours.",
+    "hero.lead": "Six specialized AI agents work in parallel, find the root cause, and propose the fix. You approve — nothing executes without your sign-off.",
+    "hero.cta1": "Book a demo →",
+    "hero.cta2": "See it in action",
+    "hero.trust1": "Read-only by default",
+    "hero.trust3": "Human-in-the-loop",
+    "hero.float1": "root cause",
+    "hero.float2": "validated evidence",
+    "dash.nav1": "Investigations",
+    "dash.nav2": "Alerts",
+    "dash.nav3": "Agents",
+    "dash.nav4": "Integrations",
+    "dash.nav5": "Audit trail",
+    "dash.sideLbl": "Active agents",
+    "dash.inv": "Investigating",
+    "dash.title": "Pricing page showing stale prices",
+    "dash.subline": "INV-2847 · severity: high · source: Sentry + CloudWatch",
+    "dash.evLbl": "Evidence collected",
+    "dash.rootCause": "Root cause",
+    "dash.rcVal": "CDN cache stale",
+    "dash.rcSub": "TTL 15min — invalidation webhook silently failing with 403.",
+    "dash.confidence": "confidence",
+    "dash.evidence": "Evidence · 4",
+    "dash.proposed": "Proposed fix",
+    "dash.proposedDesc": "Rotate webhook secret · manual purge of /pricing · backfill log.",
+    "dash.approve": "Approve",
+    "dash.details": "Details",
+    "feed.l1": "Scanning last 500 events on /pricing",
+    "feed.l2": "CMS query: products_catalog last updated 12 min ago",
+    "feed.l3": "Cross-referencing commit a3f2c1 in pricing-service",
+    "feed.l4": "CDN cache hit rate: 97% · TTL: 15min",
+    "feed.l5": "Invalidation webhook never fired after update",
+    "feed.l6": "<strong>CDN cache not invalidated</strong> — CMS webhook failing silently",
+    "belt.label": "Connected to the infrastructure you already use",
+    "belt.customers": "Customers",
+    "belt.yours": "+ your company",
+    "how.eyebrow": "How it works",
+    "how.h1": "Connect.",
+    "how.h2": "Investigate.",
+    "how.h3": "Explain.",
+    "how.lead": "Read-only, least privilege, certified. The rest happens in parallel.",
+    "how.s1num": "Connect",
+    "how.s1h": "Plug & play in minutes",
+    "how.s1p": "+200 native integrations — Sentry, Datadog, GitHub, your databases. Read-only by default.",
+    "how.s2num": "Investigate",
+    "how.s2h": "6 agents in parallel",
+    "how.s2p": "Logs, metrics, code, database, infra, and docs. Each with its own scope and tools.",
+    "how.s3num": "Explain",
+    "how.s3h": "Root cause with evidence",
+    "how.s3p": "Full reasoning, collected evidence, proposed fix. You approve.",
+    "how.confidence": "confidence",
+    "duo.eyebrow": "Two products, one framework",
+    "duo.h1": "Tech problems",
+    "duo.h2": "or",
+    "duo.h3": "customer",
+    "duo.h4": "problems.",
+    "duo.h5": "Same reasoning.",
+    "duo.lead": "Production bug or customer blocked from paying — the investigation is structured the same way.",
+    "duo.sreH1": "Bug, latency,",
+    "duo.sreH2": "server down.",
+    "duo.sreP": "Alerts from Datadog, Sentry or PagerDuty become structured investigations. Root cause tied to the exact commit.",
+    "duo.sreSample": "Live tech investigation",
+    "duo.sreI1": "API /payments 500s in production",
+    "duo.sreI2": "Connection pool exhaustion",
+    "duo.sreI3": "Commit",
+    "duo.sreI4": "· max_connections",
+    "duo.sreI5": "Fix PR ready for review",
+    "duo.opsH1": "Customer blocked,",
+    "duo.opsH2": "invoice stuck.",
+    "duo.opsP": "L2/L3 support get root cause with evidence — without pinging engineering for every ticket.",
+    "duo.opsSample": "Live support investigation",
+    "duo.opsI1": "Ticket #8821 \"can't generate invoice\"",
+    "duo.opsI2": "Tax ID certificate expired 3 days ago",
+    "duo.opsI3": "Last login OK · last invoice",
+    "duo.opsI4": "Customer response ready",
+    "int.eyebrow": "Integrations",
+    "int.h1": "+200 tools.",
+    "int.h2": "Zero custom wrappers.",
+    "int.lead": "If your stack isn't listed, most integrations ship in hours.",
+    "int.cta": "Don't see your tool?",
+    "int.ctaLink": "Talk to us →",
+    "ts.eyebrow": "Your team's time",
+    "ts.h1": "Most incident time",
+    "ts.h2": "is",
+    "ts.h3": "investigation.",
+    "ts.lead": "Engineers grepping logs and dashboards is engineers not building product.",
+    "ts.before": "Without CauseFlow",
+    "ts.beforeSub": "to fix",
+    "ts.after": "With CauseFlow",
+    "ts.afterSub": "to fix",
+    "ts.barAlert": "alert",
+    "ts.barTriage": "triage",
+    "ts.barInv": "investigation",
+    "ts.barFix": "fix",
+    "ts.m1l": "Time to root cause",
+    "ts.m1d": "From alert to diagnosis with evidence — in parallel.",
+    "ts.m2l": "Actionable findings",
+    "ts.m2d": "Every investigation ends with a proposed fix, not a \"maybe look here\".",
+    "ts.m3l": "Specialized agents",
+    "ts.m3d": "Logs, metrics, code, database, infra, and docs. More landing continuously.",
+    "uc.eyebrow": "Use cases",
+    "uc.h1": "Real scenarios,",
+    "uc.h2": "solved in minutes.",
+    "uc.sevHigh": "High",
+    "uc.sevMed": "Medium",
+    "uc.sevLow": "Low",
+    "uc.rootcause": "Root cause",
+    "uc.time": "time to rc",
+    "uc.ev": "evidence",
+    "uc.conf": "confidence",
+    "uc.c1h": "Pricing page showing stale prices after CMS update",
+    "uc.c1f": "<strong>CMS invalidation webhook</strong> failing with 403 for 12min. CDN serving stale /pricing with 15min TTL. <strong>Manual purge</strong> + webhook secret rotation.",
+    "uc.c2h": "Broken images on the /from-momentic comparison page",
+    "uc.c2f": "<strong>S3 comparison-assets bucket</strong> had its CORS policy changed in the previous deploy. 14 images returning 403 only for causeflow.ai origin. <strong>Policy rollback</strong> applied in one command.",
+    "uc.c3h": "API returning intermittent 500s on /payments",
+    "uc.c3f": "<strong>Connection pool exhaustion</strong> after deploy a3f2c1 that removed <code>pool.release()</code> in the error branch. 8% of requests hanging until timeout. <strong>Fix PR</strong> generated with a regression test.",
+    "uc.c4h": "Checkout latency creeping up during peak hours",
+    "uc.c4f": "<strong>N+1 in Order.items</strong> after serializer change. P95 climbed 180ms → 2.4s with 50+ cart items. <strong>Eager-loading</strong> proposed with 2-line preload.",
+    "af.eyebrow": "Alert investigation",
+    "af.h1": "From critical alert",
+    "af.h2": "to actionable response.",
+    "af.lead": "CauseFlow classifies every event. High or critical opens an investigation automatically — low goes to the human-review feed.",
+    "af.cta": "See a real example →",
+    "af.s1t": "Event received",
+    "af.s1d": "sentry.exception · pricing-service",
+    "af.s2t": "Severity classification",
+    "af.s2d": "based on blast radius, affected users, SLO",
+    "af.sevLow": "low",
+    "af.sevMed": "medium",
+    "af.sevCrit": "critical",
+    "af.s3t": "Investigation opened · 6 agents in parallel",
+    "af.s3d": "logs, metrics, code, db, infra, docs",
+    "af.s4t": "Proposed fix",
+    "af.s4d": "requires human approval before executing",
+    "nt.eyebrow": "Delivery",
+    "nt.h1": "The answer lands",
+    "nt.h2": "where you already are.",
+    "nt.lead": "Slack, email, or Teams — with full reasoning, evidence, and the proposed fix. One click to approve.",
+    "nt.card1t": "🔍 INV-2847 · root cause identified",
+    "nt.card1c": "CDN cache stale",
+    "nt.card1d": "— CMS invalidation webhook failing with 403. Proposed fix: manual purge + secret rotation. 94% confidence.",
+    "nt.approve": "Approve fix",
+    "nt.view": "View evidence",
+    "nt.card2t": "INV-2844 · broken images",
+    "nt.card2d": "CORS policy reverted. 14 assets serving normally. Incident auto-closed — audit trail at /incidents/2844.",
+    "nt.card3t": "fix(payments): restore pool.release() in error branch",
+    "nt.card3d": "PR opened with regression test. Error-branch coverage: 0% → 100%. Reviewers assigned automatically.",
+    "q.text": "We used to spend 3 hours understanding what broke. Now CauseFlow sends me the root cause on Slack before my second coffee.",
+    "q.role": "Staff Engineer · Fotop",
+    "cta.h1": "Stop",
+    "cta.h2": "hunting logs.",
+    "cta.h3": "Start shipping product.",
+    "cta.p": "20-minute demo with a real investigation on your stack. No contract, no credit card.",
+    "cta.b1": "Book a demo →",
+    "cta.b2": "Read the docs",
+    "ft.tag": "Production-grade investigations, in parallel, with human-in-the-loop. Read-only by default.",
+    "ft.prod": "Product",
+    "ft.features": "Features",
+    "ft.integrations": "Integrations",
+    "ft.pricing": "Pricing",
+    "ft.changelog": "Changelog",
+    "ft.comp": "Company",
+    "ft.about": "About",
+    "ft.blog": "Blog",
+    "ft.careers": "Careers",
+    "ft.contact": "Contact",
+    "ft.res": "Resources",
+    "ft.docs": "Docs",
+    "ft.security": "Security",
+    "ft.status": "Status",
+    "ft.sla": "SLA",
+    "ft.rights": "All rights reserved.",
+    "tw.title": "Tweaks",
+    "tw.accent": "Accent color",
+    "tw.bg": "Background tone",
+    "tw.headline": "Main headline"
+  }
+};
+
+/* Language switching */
+let currentLang = 'pt';
+function applyI18n(lang) {
+  currentLang = lang;
+  document.documentElement.lang = (lang === 'pt') ? 'pt-BR' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const txt = I18N[lang]?.[key];
+    if (txt != null) el.innerHTML = txt;
+  });
+  document.querySelectorAll('#lang-toggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  // respect any custom headline tweak
+  const custom = TWEAK_DEFAULTS.headline;
+  if (custom?.trim()) {
+    applyHeadline(custom);
+  }
+}
+
+document.querySelectorAll('#lang-toggle button').forEach(b => {
+  b.addEventListener('click', () => applyI18n(b.dataset.lang));
+});
+applyI18n('pt');
+
+/* Audience toggle */
+const audContent = {
+  eng: {
+    h1a: { pt: "Investigue incidentes em", en: "Investigate production incidents in" },
+    h1b: { pt: "minutos, não horas.", en: "minutes, not hours." },
+    lead: { pt: "Seis agentes de IA especializados trabalham em paralelo, encontram a causa raiz e propõem a correção. Você aprova — nada executa sem a sua assinatura.", en: "Six specialized AI agents work in parallel, find the root cause, and propose the fix. You approve — nothing executes without your sign-off." }
+  },
+  ops: {
+    h1a: { pt: "Tickets resolvidos", en: "Tickets resolved" },
+    h1b: { pt: "antes do segundo café.", en: "before the second coffee." },
+    lead: { pt: "L2/L3 de suporte recebem a causa raiz — com evidências — direto no ticket. Sem pingar engenharia para cada cliente bloqueado.", en: "L2/L3 support get root cause — with evidence — right on the ticket. Without pinging engineering for every blocked customer." }
+  }
+};
+document.querySelectorAll('#audience-toggle button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#audience-toggle button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    const aud = b.dataset.aud;
+    const L = currentLang;
+    document.querySelector('[data-i18n="hero.h1a"]').textContent = audContent[aud].h1a[L];
+    document.querySelector('[data-i18n="hero.h1b"]').textContent = audContent[aud].h1b[L];
+    document.querySelector('[data-i18n="hero.lead"]').textContent = audContent[aud].lead[L];
+  });
+});
+
+/* Use-cases carousel */
+const track = document.getElementById('uc-track');
+const prev = document.getElementById('uc-prev');
+const next = document.getElementById('uc-next');
+let ucIdx = 0;
+const cardWidth = 520 + 20;
+function updateUC() {
+  track.style.transform = `translateX(-${ucIdx * cardWidth}px)`;
+  prev.disabled = ucIdx === 0;
+  next.disabled = ucIdx >= 3; // 4 cards, show 2 at once roughly
+}
+prev.addEventListener('click', () => { ucIdx = Math.max(0, ucIdx - 1); updateUC(); });
+next.addEventListener('click', () => { ucIdx = Math.min(3, ucIdx + 1); updateUC(); });
+updateUC();
+
+/* Scroll reveals */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    }
+  });
+}, { rootMargin: '-60px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* =======================
+   TWEAKS (edit-mode protocol)
+   ======================= */
+function applyAccent(h, s, l) {
+  document.documentElement.style.setProperty('--accent-h', h);
+  document.documentElement.style.setProperty('--accent-s', s);
+  document.documentElement.style.setProperty('--accent-l', l);
+  document.documentElement.style.setProperty('--accent', `${h} ${s} ${l}`);
+  // recompute tint (light version)
+  const tintL = '94%';
+  document.documentElement.style.setProperty('--accent-tint', `${h} ${s} ${tintL}`);
+}
+function applyBg(bg, bg2) {
+  document.documentElement.style.setProperty('--bg-tone', bg);
+  document.documentElement.style.setProperty('--bg-tone-2', bg2);
+}
+function applyHeadline(txt) {
+  const parts = txt.split(/,\s*|\n/);
+  const a = document.querySelector('[data-i18n="hero.h1a"]');
+  const b = document.querySelector('[data-i18n="hero.h1b"]');
+  if (parts.length >= 2) {
+    a.textContent = `${parts[0].trim()},`;
+    b.textContent = parts.slice(1).join(', ').trim();
+  } else {
+    a.textContent = txt;
+    b.textContent = '';
+  }
+}
+
+/* Load defaults */
+applyAccent(TWEAK_DEFAULTS.accentH, TWEAK_DEFAULTS.accentS, TWEAK_DEFAULTS.accentL);
+applyBg(TWEAK_DEFAULTS.bgTone, TWEAK_DEFAULTS.bgTone2);
+if (TWEAK_DEFAULTS.headline) applyHeadline(TWEAK_DEFAULTS.headline);
+
+/* Panel interactions */
+document.querySelectorAll('#sw-accent .sw').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#sw-accent .sw').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    const h = parseInt(b.dataset.h, 10);
+    const s = b.dataset.s;
+    const l = b.dataset.l;
+    applyAccent(h, s, l);
+    window.parent.postMessage({type: '__edit_mode_set_keys', edits: { accentH: h, accentS: s, accentL: l }}, '*');
+  });
+});
+document.querySelectorAll('#sw-bg .sw').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#sw-bg .sw').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    applyBg(b.dataset.bg, b.dataset.bg2);
+    window.parent.postMessage({type: '__edit_mode_set_keys', edits: { bgTone: b.dataset.bg, bgTone2: b.dataset.bg2 }}, '*');
+  });
+});
+const twHeadline = document.getElementById('tw-headline');
+if (TWEAK_DEFAULTS.headline) twHeadline.value = TWEAK_DEFAULTS.headline;
+let hlTimer;
+twHeadline.addEventListener('input', () => {
+  const v = twHeadline.value;
+  applyHeadline(v);
+  clearTimeout(hlTimer);
+  hlTimer = setTimeout(() => {
+    window.parent.postMessage({type: '__edit_mode_set_keys', edits: { headline: v }}, '*');
+  }, 400);
+});
+
+/* Host integration */
+window.addEventListener('message', (ev) => {
+  const msg = ev.data || {};
+  if (msg.type === '__activate_edit_mode') {
+    document.getElementById('tweaks-panel').classList.add('open');
+  }
+  if (msg.type === '__deactivate_edit_mode') {
+    document.getElementById('tweaks-panel').classList.remove('open');
+  }
+});
+window.parent.postMessage({type: '__edit_mode_available'}, '*');
+</script>
+
+
+</body></html>

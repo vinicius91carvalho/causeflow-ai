@@ -1,0 +1,185 @@
+---
+title: "Webhook payload formats"
+sidebarTitle: "Payload formats"
+description: "Expected payload formats for each supported monitoring provider."
+---
+
+## Overview
+
+When sending alerts to CauseFlow via the [Receive alert](/api-reference/webhooks/receive-alert) endpoint, the request body must match the expected format for your provider. This page documents the exact payload schema for each supported integration.
+
+All payloads must be sent as `application/json` with a valid `X-API-Key` and `X-Webhook-Signature` header.
+
+---
+
+## Datadog
+
+Datadog webhooks are configured via **Integrations → Webhooks** in the Datadog UI. Use the payload template below and set the webhook URL to `https://api.causeflow.ai/v1/webhooks/{tenantId}/datadog`.
+
+```json
+{
+  "alert_id": "1234567890",
+  "title": "P1 - Checkout service error rate above 5% threshold",
+  "text": "The error rate for checkout-service has exceeded 5% for 5 consecutive minutes. Current value: 7.3%. Threshold: 5.0%.",
+  "alert_type": "error",
+  "priority": "P1",
+  "tags": ["env:production", "service:checkout", "team:payments"]
+}
+```
+
+| Field        | Type   | Required | Description                                                         |
+| ------------ | ------ | -------- | ------------------------------------------------------------------- |
+| `alert_id`   | string | Yes      | Unique Datadog alert ID used for deduplication                      |
+| `title`      | string | Yes      | Alert title as configured in the Datadog monitor                    |
+| `text`       | string | Yes      | Full alert message body including threshold values and context      |
+| `alert_type` | string | Yes      | One of: `error`, `warning`, `info`, `success`                       |
+| `priority`   | string | No       | Datadog priority: `P1`–`P4`. Used to seed severity classification   |
+| `tags`       | array  | No       | Array of Datadog tag strings (e.g. `["env:production", "service:checkout"]`) |
+
+---
+
+## Grafana
+
+Grafana alert webhooks are configured under **Alerting → Contact points** in Grafana. Select **Webhook** as the contact point type and set the URL to `https://api.causeflow.ai/v1/webhooks/{tenantId}/grafana`.
+
+```json
+{
+  "evalMatches": [
+    {
+      "metric": "error_rate",
+      "value": 7.3,
+      "tags": {
+        "env": "production",
+        "service": "checkout"
+      }
+    }
+  ],
+  "ruleId": 42,
+  "ruleName": "Checkout error rate elevated",
+  "ruleUrl": "https://grafana.example.com/alerting/42",
+  "state": "alerting",
+  "message": "Error rate has exceeded 5% threshold for checkout service in production.",
+  "tags": {
+    "env": "production",
+    "team": "payments"
+  }
+}
+```
+
+| Field         | Type   | Required | Description                                                              |
+| ------------- | ------ | -------- | ------------------------------------------------------------------------ |
+| `evalMatches` | array  | No       | Metrics that triggered the alert, with current values and tag dimensions |
+| `ruleId`      | integer| Yes      | Grafana rule identifier used for deduplication                           |
+| `ruleName`    | string | Yes      | Human-readable name of the alerting rule                                 |
+| `ruleUrl`     | string | No       | Link back to the rule in Grafana                                         |
+| `state`       | string | Yes      | One of: `alerting`, `no_data`, `ok`, `paused`                            |
+| `message`     | string | No       | Additional context message from the rule annotation                      |
+| `tags`        | object | No       | Key-value tag pairs for environment and service routing                  |
+
+---
+
+## CloudWatch
+
+CloudWatch alerts are delivered as SNS notifications. Configure an SNS topic subscription to forward to `https://api.causeflow.ai/v1/webhooks/{tenantId}/cloudwatch`. CauseFlow handles both the SNS subscription confirmation handshake and alarm state change notifications.
+
+```json
+{
+  "Type": "Notification",
+  "MessageId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "TopicArn": "arn:aws:sns:us-east-1:<your-aws-account-id>:causeflow-alarms",
+  "Subject": "ALARM: CheckoutServiceErrorRate in US East (N. Virginia)",
+  "Message": "{\"AlarmName\":\"CheckoutServiceErrorRate\",\"AlarmDescription\":\"Error rate exceeds 5% threshold\",\"NewStateValue\":\"ALARM\",\"NewStateReason\":\"Threshold Crossed: 1 out of the last 1 datapoints [7.3 (01/04/24 14:30:00)] was greater than the threshold (5.0).\",\"StateChangeTime\":\"2024-04-01T14:31:00Z\",\"Region\":\"US East (N. Virginia)\",\"AlarmArn\":\"arn:aws:cloudwatch:us-east-1:<your-aws-account-id>:alarm:CheckoutServiceErrorRate\",\"OldStateValue\":\"OK\",\"Trigger\":{\"MetricName\":\"ErrorRate\",\"Namespace\":\"CauseFlow/Checkout\",\"Dimensions\":[{\"value\":\"checkout-service\",\"name\":\"ServiceName\"}]}}",
+  "Timestamp": "2024-04-01T14:31:05Z",
+  "SignatureVersion": "1",
+  "Signature": "EXAMPLE...",
+  "SigningCertURL": "https://sns.us-east-1.amazonaws.com/...",
+  "UnsubscribeURL": "https://sns.us-east-1.amazonaws.com/..."
+}
+```
+
+The `Message` field is a JSON string containing the CloudWatch alarm details:
+
+| Field              | Type   | Description                                                           |
+| ------------------ | ------ | --------------------------------------------------------------------- |
+| `AlarmName`        | string | CloudWatch alarm name — used as the incident title                    |
+| `AlarmDescription` | string | Alarm description for additional context                              |
+| `NewStateValue`    | string | New alarm state: `ALARM`, `OK`, or `INSUFFICIENT_DATA`                |
+| `NewStateReason`   | string | Human-readable explanation of the state transition                    |
+| `StateChangeTime`  | string | ISO 8601 timestamp of the state change                                |
+| `Region`           | string | AWS region where the alarm is defined                                 |
+| `OldStateValue`    | string | Previous alarm state                                                  |
+| `Trigger`          | object | Metric and dimension details that define the alarm threshold          |
+
+---
+
+## Sentry
+
+Sentry webhooks are configured via **Settings → Integrations → WebHooks** in your Sentry organization. Select the **issue** event type and set the URL to `https://api.causeflow.ai/v1/webhooks/{tenantId}/sentry`.
+
+```json
+{
+  "action": "created",
+  "data": {
+    "issue": {
+      "id": "sentry-issue-12345",
+      "title": "TypeError: Cannot read properties of undefined (reading 'price')",
+      "culprit": "checkout/cart.js in calculateTotal",
+      "level": "error",
+      "status": "unresolved",
+      "project": {
+        "id": "1",
+        "name": "checkout-service",
+        "slug": "checkout-service"
+      },
+      "platform": "javascript",
+      "url": "https://sentry.io/organizations/acme/issues/12345/",
+      "count": "234",
+      "userCount": 89,
+      "firstSeen": "2024-04-01T14:28:00Z",
+      "lastSeen": "2024-04-01T14:35:00Z"
+    }
+  },
+  "installation": {
+    "uuid": "inst-abc123"
+  }
+}
+```
+
+| Field               | Type    | Required | Description                                                       |
+| ------------------- | ------- | -------- | ----------------------------------------------------------------- |
+| `action`            | string  | Yes      | Sentry webhook action: `created`, `resolved`, `assigned`          |
+| `data.issue.id`     | string  | Yes      | Sentry issue ID used for deduplication                            |
+| `data.issue.title`  | string  | Yes      | Issue title — becomes the incident title in CauseFlow             |
+| `data.issue.culprit`| string  | No       | File and function where the error occurred                        |
+| `data.issue.level`  | string  | Yes      | Sentry level: `error`, `warning`, `info`, `fatal`                 |
+| `data.issue.project`| object  | Yes      | Project details including `name` and `slug`                       |
+| `data.issue.url`    | string  | No       | Direct link to the issue in Sentry                                |
+| `data.issue.count`  | string  | No       | Total event count for this issue                                  |
+
+---
+
+## Custom
+
+The custom provider accepts a flexible schema for alerts from tools not natively supported. Set the webhook URL to `https://api.causeflow.ai/v1/webhooks/{tenantId}/custom`.
+
+```json
+{
+  "title": "Payment processor connection pool exhausted",
+  "description": "All 50 connections in the payment processor pool are in use. New requests are being queued and timing out after 30s. Affecting: checkout, subscriptions, refunds services.",
+  "severity": "high",
+  "externalId": "alert-pagerduty-abc123",
+  "metadata": {
+    "source": "pagerduty",
+    "runbookUrl": "https://wiki.example.com/runbooks/payment-pool",
+    "affectedServices": ["checkout", "subscriptions", "refunds"]
+  }
+}
+```
+
+| Field         | Type   | Required | Description                                                                          |
+| ------------- | ------ | -------- | ------------------------------------------------------------------------------------ |
+| `title`       | string | Yes      | Short, descriptive title for the incident                                            |
+| `description` | string | Yes      | Full description with as much context as possible for AI analysis                   |
+| `severity`    | string | No       | One of: `critical`, `high`, `medium`, `low`. Defaults to `medium` if not provided   |
+| `externalId`  | string | No       | Your system's unique ID for this alert — used for deduplication                     |
+| `metadata`    | object | No       | Arbitrary key-value pairs for additional context. Passed through to the investigation |

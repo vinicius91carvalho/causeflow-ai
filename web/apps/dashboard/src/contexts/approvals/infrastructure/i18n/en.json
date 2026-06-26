@@ -1,0 +1,37 @@
+{
+  "dashboard": {
+    "approvals": {
+      "title": "Approvals",
+      "description": "Review and respond to pending approvals",
+      "empty": "No approvals found",
+      "emptyDescription": "Approvals will appear when remediations need authorization",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "expired": "Expired"
+      },
+      "filters": {
+        "all": "All",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "expired": "Expired"
+      },
+      "card": {
+        "incident": "Incident",
+        "remediation": "Remediation",
+        "expiresIn": "Expires in",
+        "expired": "Expired",
+        "respondedBy": "Responded by",
+        "selectedAction": "Action taken",
+        "timeout": "Timeout"
+      },
+      "actions": {
+        "approve": "Approve",
+        "reject": "Reject",
+        "responding": "Responding..."
+      }
+    }
+  }
+}

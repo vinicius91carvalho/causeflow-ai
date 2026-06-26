@@ -1,0 +1,87 @@
+{
+  "dashboard": {
+    "team": {
+      "title": "Equipe",
+      "description": "Gerencie os membros e permissões da sua equipe",
+      "inviteButton": "Convidar Membro",
+      "table": {
+        "member": "Membro",
+        "email": "E-mail",
+        "role": "Função",
+        "lastActive": "Último Acesso",
+        "joined": "Entrou em",
+        "actions": "Ações",
+        "never": "Nunca",
+        "loading": "Carregando membros da equipe..."
+      },
+      "roles": {
+        "admin": "Admin",
+        "member": "Membro"
+      },
+      "invite": {
+        "title": "Convidar Membro da Equipe",
+        "description": "Envie um e-mail de convite para adicionar um novo membro à sua equipe.",
+        "emailLabel": "Endereço de E-mail",
+        "emailPlaceholder": "colega@empresa.com",
+        "roleLabel": "Função",
+        "rolePlaceholder": "Selecione a função",
+        "submit": "Enviar Convite",
+        "submitting": "Enviando...",
+        "cancel": "Cancelar",
+        "successTitle": "Convite enviado!",
+        "successMessage": "Um convite foi enviado para {email}.",
+        "errors": {
+          "duplicate": "Já existe um convite ativo para este endereço de e-mail.",
+          "generic": "Falha ao enviar convite. Por favor, tente novamente.",
+          "emailRequired": "E-mail é obrigatório",
+          "emailInvalid": "Por favor, insira um endereço de e-mail válido"
+        }
+      },
+      "changeRole": {
+        "title": "Alterar Função",
+        "description": "Altere a função de {name} na sua equipe.",
+        "roleLabel": "Nova Função",
+        "submit": "Salvar Alteração",
+        "submitting": "Salvando...",
+        "cancel": "Cancelar",
+        "selfWarning": "Você está alterando sua própria função. Você pode perder o acesso de administrador.",
+        "lastAdminWarning": "Você é o último administrador. Rebaixar-se deixará a equipe sem administrador.",
+        "success": "Função atualizada com sucesso.",
+        "error": "Falha ao atualizar a função. Por favor, tente novamente."
+      },
+      "removeMember": {
+        "title": "Remover Membro da Equipe",
+        "description": "Tem certeza de que deseja remover {name} da equipe? Esta ação não pode ser desfeita.",
+        "warning": "Eles perderão acesso a todos os recursos da equipe imediatamente.",
+        "confirm": "Remover Membro",
+        "cancel": "Cancelar",
+        "selfError": "Você não pode se remover da equipe."
+      },
+      "pendingInvites": {
+        "title": "Convites Pendentes",
+        "empty": "Nenhum convite pendente.",
+        "columns": {
+          "email": "E-mail",
+          "role": "Função",
+          "invitedBy": "Convidado Por",
+          "sent": "Enviado em",
+          "expires": "Expira em"
+        },
+        "status": {
+          "pending": "Pendente",
+          "expired": "Expirado"
+        },
+        "actions": {
+          "resend": "Reenviar",
+          "revoke": "Revogar"
+        }
+      },
+      "permissions": {
+        "adminOnly": "Apenas administradores podem realizar esta ação.",
+        "contactAdmin": "Entre em contato com seu administrador para fazer alterações.",
+        "adminBadge": "Somente admin",
+        "readOnly": "Você tem acesso somente leitura a esta seção."
+      }
+    }
+  }
+}

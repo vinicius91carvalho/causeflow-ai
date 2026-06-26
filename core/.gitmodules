@@ -1,0 +1,18 @@
+[submodule "samples/payment-service"]
+	path = samples/payment-service
+	url = git@github.com:causeflow/sample-payment-service.git
+[submodule "relay"]
+	path = relay
+	url = git@github.com:causeflow/causeflow-relay.git
+[submodule "samples/order-service"]
+	path = samples/order-service
+	url = git@github.com:causeflow/sample-order-service.git
+[submodule "samples/billing-service"]
+	path = samples/billing-service
+	url = git@github.com:causeflow/sample-billing-service.git
+[submodule "samples/marketplace-platform"]
+	path = samples/marketplace-platform
+	url = git@github.com:causeflow/sample-marketplace-platform.git
+[submodule "samples/notification-service"]
+	path = samples/notification-service
+	url = git@github.com:causeflow/sample-notification-service.git

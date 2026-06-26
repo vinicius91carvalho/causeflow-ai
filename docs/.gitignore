@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Mintlify
+.mintlify/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude Code
+.claude/worktrees/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Playwright
+.playwright-mcp/
+
+# Build artifacts
+.clone/
+
+# Drafts
+drafts/
+*.draft.mdx

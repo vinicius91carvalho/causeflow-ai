@@ -1,0 +1,432 @@
+{
+  "dashboard": {
+    "integrations": {
+      "title": "Integrações",
+      "description": "Conecte suas ferramentas e serviços para habilitar investigações de incidentes com IA",
+      "filter": {
+        "all": "Todos",
+        "communication": "Comunicação",
+        "monitoring": "Monitoramento",
+        "code": "Código",
+        "management": "Gestão",
+        "crm": "CRM",
+        "database": "Banco de Dados",
+        "knowledge": "Conhecimento",
+        "api": "API"
+      },
+      "search": {
+        "placeholder": "Pesquisar integrações..."
+      },
+      "status": {
+        "connected": "Conectado",
+        "disconnected": "Desconectado",
+        "error": "Erro",
+        "available": "Disponível"
+      },
+      "card": {
+        "connectButton": "Conectar",
+        "authorizeButton": "Autorizar com",
+        "disconnectButton": "Desconectar",
+        "reconnectButton": "Reconectar",
+        "reconfigureButton": "Reconfigurar",
+        "reconfigureTooltip": "Atualizar credenciais ou detalhes da conexão",
+        "reauthorizeButton": "Reautorizar",
+        "reauthorizeTooltip": "Atualizar permissões OAuth — use se os escopos ou o acesso mudaram",
+        "testButton": "Testar Conexão",
+        "lastTested": "Testado {time}",
+        "lastTestedNever": "Nunca testado",
+        "staleWarning": "Não testado há mais de 7 dias",
+        "connectedBy": "Conectado por {name}",
+        "errorTooltip": "Erro de conexão — clique em Reconectar",
+        "comingSoon": "Em Breve",
+        "allTriggersAdded": "Todos os triggers adicionados",
+        "noTriggersSupported": "Nenhum trigger de incidente disponível ainda"
+      },
+      "testResult": {
+        "success": "Conexão com {name} concluída",
+        "error": "Falha na conexão com {name}",
+        "dismiss": "Fechar"
+      },
+      "loading": {
+        "text": "Carregando integrações..."
+      },
+      "empty": {
+        "title": "Nenhuma integração encontrada",
+        "description": "Tente ajustar sua pesquisa ou filtro"
+      },
+      "modal": {
+        "connectTitle": "Conectar {name}",
+        "reconfigureTitle": "Reconfigurar {name}",
+        "errorGeneric": "Algo deu errado. Por favor, tente novamente.",
+        "testButton": "Testar Conexão",
+        "testing": "Testando...",
+        "testSuccess": "Conexão bem-sucedida",
+        "testError": "Falha na conexão — verifique suas credenciais",
+        "submit": "Salvar",
+        "submitting": "Salvando...",
+        "cancel": "Cancelar",
+        "successTitle": "Conectado!",
+        "successMessage": "{name} foi conectado com sucesso.",
+        "oauthComingSoon": "Integração OAuth em breve. Esta integração usará autorização OAuth segura — sem necessidade de tokens manuais.",
+        "oauthDescription": "Você será redirecionado ao {name} para autorizar o acesso. Sem necessidade de tokens manuais.",
+        "composioSecurity": {
+          "title": "Conexão segura via Composio",
+          "description": "Suas credenciais são gerenciadas pela Composio, plataforma certificada SOC 2 Type II. O CauseFlow nunca armazena ou acessa seus tokens diretamente — toda autenticação é feita de forma segura pela infraestrutura criptografada da Composio com rotação automática de tokens."
+        },
+        "oauthButton": {
+          "slack": "Adicionar ao Slack",
+          "notion": "Conectar Notion",
+          "default": "Conectar {name}"
+        },
+        "awsSetupInfo": "Use esses valores ao criar a trust policy da IAM role:",
+        "clickToCopy": "Clique para copiar",
+        "copied": "Copiado!",
+        "setupGuide": "Guia de Configuração",
+        "setupGuideToggle": "Mostrar instruções de configuração",
+        "requiredScopes": "Permissões necessárias (somente leitura)",
+        "docsLink": "Ver documentação",
+        "fields": {
+          "apiToken": "Token de API",
+          "apiKey": "Chave de API",
+          "applicationKey": "Chave de Aplicação",
+          "personalAccessToken": "Token de Acesso Pessoal",
+          "email": "E-mail",
+          "domain": "URL do Domínio",
+          "domainPlaceholder": "https://suaempresa.atlassian.net",
+          "roleArn": "ARN da Role IAM (acesso somente leitura)",
+          "roleArnPlaceholder": "arn:aws:iam::123456789012:role/CauseFlowReadOnly",
+          "region": "Regiao AWS",
+          "externalId": "ID Externo",
+          "externalIdPlaceholder": "Gerado automaticamente para segurança entre contas",
+          "botToken": "Token do Bot",
+          "botTokenPlaceholder": "xoxb-...",
+          "integrationToken": "Token de Integração",
+          "integrationTokenPlaceholder": "secret_...",
+          "installationId": "ID da Instalação",
+          "appId": "ID do App",
+          "privateKey": "Chave Privada (PEM)",
+          "privateKeyPlaceholder": "Cole sua chave privada PEM aqui",
+          "accessToken": "Token de Acesso",
+          "accessTokenPlaceholder": "pat-...",
+          "authToken": "Token de Autenticação",
+          "organization": "Slug da Organização",
+          "connectionString": "String de Conexão",
+          "grafanaUrlPlaceholder": "https://grafana.suaempresa.com",
+          "confluenceDomainPlaceholder": "https://suaempresa.atlassian.net",
+          "webhookUrl": "URL do Webhook",
+          "webhookUrlPlaceholder": "https://seu-servico.com/webhook"
+        },
+        "validation": {
+          "required": "Este campo é obrigatório",
+          "urlInvalid": "Por favor, insira uma URL válida",
+          "emailInvalid": "Por favor, insira um e-mail válido"
+        },
+        "guides": {
+          "cloudwatch": {
+            "title": "Configuração do AWS IAM Assume Role",
+            "scopes": "ReadOnlyAccess (todos os serviços AWS)",
+            "docsUrl": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html",
+            "steps": {
+              "1": "Abra o Console do AWS IAM e vá para Roles.",
+              "2": "Clique em \"Criar role\" e selecione \"Outra conta AWS\".",
+              "3": "Insira o ID da conta AWS do CauseFlow e habilite \"Exigir ID externo\".",
+              "4": "Cole o ID Externo mostrado abaixo na política de confiança.",
+              "5": "Anexe a política gerenciada pela AWS ReadOnlyAccess (fornece acesso somente leitura a todos os serviços AWS). Se não encontrar na lista, altere o filtro para 'AWS managed - job function'.",
+              "6": "Nomeie a role (ex: CauseFlowReadOnly) e copie o ARN da Role."
+            }
+          },
+          "slack": {
+            "title": "Configuração do App Slack",
+            "scopes": "channels:read, users:read, groups:read",
+            "docsUrl": "https://api.slack.com/start/quickstart",
+            "steps": {
+              "1": "Vá para api.slack.com/apps e clique em \"Criar Novo App\".",
+              "2": "Escolha \"Do zero\" e nomeie (ex: CauseFlow).",
+              "3": "Em OAuth & Permissões, adicione Bot Token Scopes: channels:read, users:read, groups:read.",
+              "4": "Clique em \"Instalar no Workspace\" e autorize o app.",
+              "5": "Copie o Bot User OAuth Token (começa com xoxb-)."
+            }
+          },
+          "jira": {
+            "title": "Configuração do Token de API do Jira",
+            "scopes": "Ler issues, projetos, quadros",
+            "docsUrl": "https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/",
+            "steps": {
+              "1": "Vá para id.atlassian.com/manage-profile/security/api-tokens.",
+              "2": "Clique em \"Criar token de API\" e dê um nome (ex: CauseFlow).",
+              "3": "Copie o token gerado.",
+              "4": "Insira seu e-mail Atlassian e a URL do domínio (ex: https://suaempresa.atlassian.net)."
+            }
+          },
+          "trello": {
+            "title": "Configuração da API do Trello",
+            "scopes": "Ler quadros, cartões, listas",
+            "docsUrl": "https://developer.atlassian.com/cloud/trello/guides/rest-api/api-introduction/",
+            "steps": {
+              "1": "Vá para trello.com/power-ups/admin e faça login.",
+              "2": "Clique em \"Novo\" para criar um novo Power-Up/Integração.",
+              "3": "Vá para a seção API Key e gere sua Chave de API.",
+              "4": "Clique no link \"Token\" ao lado da sua chave para gerar um token somente leitura.",
+              "5": "Copie tanto a Chave de API quanto o Token."
+            }
+          },
+          "notion": {
+            "title": "Configuração da Integração Notion",
+            "scopes": "Ler páginas, bancos de dados",
+            "docsUrl": "https://developers.notion.com/docs/create-a-notion-integration",
+            "steps": {
+              "1": "Vá para notion.so/my-integrations e clique em \"Nova integração\".",
+              "2": "Nomeie (ex: CauseFlow) e selecione o workspace.",
+              "3": "Em Capacidades, selecione apenas \"Ler conteúdo\" (escrita não necessária).",
+              "4": "Copie o Token de Integração Interna (começa com secret_).",
+              "5": "No Notion, compartilhe as páginas/bancos de dados que deseja conectar com esta integração."
+            }
+          },
+          "shortcut": {
+            "title": "Configuração do Token de API do Shortcut",
+            "scopes": "Ler stories, epics, iterações",
+            "docsUrl": "https://developer.shortcut.com/api/rest/v3",
+            "steps": {
+              "1": "Vá para app.shortcut.com e clique no seu avatar no canto inferior esquerdo.",
+              "2": "Selecione \"Configurações\" e depois \"Tokens de API\".",
+              "3": "Clique em \"Gerar Token\" e dê um nome descritivo.",
+              "4": "Copie o token de API gerado."
+            }
+          },
+          "github": {
+            "title": "Configuração do GitHub App",
+            "scopes": "Ler repos, issues, pull requests",
+            "docsUrl": "https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps",
+            "steps": {
+              "1": "Vá para github.com/settings/apps e clique em \"Novo GitHub App\".",
+              "2": "Nomeie (ex: CauseFlow) e defina a URL da Homepage.",
+              "3": "Em Permissões, defina Repository permissions como Somente Leitura para: Contents, Issues, Pull requests, Metadata.",
+              "4": "Gere uma chave privada e baixe o arquivo PEM.",
+              "5": "Instale o app na sua organização ou repositórios.",
+              "6": "Anote o App ID (nas configurações do app) e o Installation ID (na URL após instalar)."
+            }
+          },
+          "hubspot": {
+            "title": "Configuração do App Privado HubSpot",
+            "scopes": "Ler contatos, negócios, tickets",
+            "docsUrl": "https://developers.hubspot.com/docs/api/private-apps",
+            "steps": {
+              "1": "Vá para Configurações do HubSpot > Integrações > Apps Privados.",
+              "2": "Clique em \"Criar um app privado\" e nomeie (ex: CauseFlow).",
+              "3": "Em Escopos, selecione acesso somente leitura para: crm.objects.contacts.read, crm.objects.deals.read, tickets.",
+              "4": "Clique em \"Criar app\" e copie o Token de Acesso (começa com pat-)."
+            }
+          },
+          "sentry": {
+            "title": "Configuração do Token de Autenticação Sentry",
+            "scopes": "Ler issues, eventos, projetos",
+            "docsUrl": "https://docs.sentry.io/api/guides/create-auth-token/",
+            "steps": {
+              "1": "Vá para sentry.io e navegue até Configurações > Tokens de Autenticação.",
+              "2": "Clique em \"Criar Novo Token\".",
+              "3": "Selecione escopos: project:read, event:read, org:read.",
+              "4": "Copie o token de autenticação gerado.",
+              "5": "Insira o slug da sua organização (visível na URL do Sentry)."
+            }
+          }
+        }
+      },
+      "slack": {
+        "connectButton": "Adicionar ao Slack",
+        "connected": "Conectado a {workspace}",
+        "connectedLabel": "Conectado",
+        "disconnectButton": "Desconectar",
+        "disconnectTitle": "Desconectar Slack",
+        "cancelButton": "Cancelar",
+        "saveError": "Falha ao salvar configuração do Slack. Por favor, tente novamente.",
+        "channelLabel": "Canal de Notificação",
+        "channelPlaceholder": "#incidents",
+        "channelError": "Canal deve começar com # e conter apenas letras minúsculas, números, hifens, sublinhados",
+        "saveSuccess": "Salvo",
+        "testSuccess": "Mensagem de teste enviada para {channel}",
+        "testFailed": "Teste falhou: {error}",
+        "disconnectConfirm": "Desconectar Slack? As notificações serão interrompidas.",
+        "disconnectSuccess": "Slack desconectado"
+      },
+      "triggers": {
+        "sentry": { "new_issue": "Novo problema detectado" },
+        "pagerduty": { "incident_triggered": "Incidente disparado" },
+        "github": {
+          "commit_event": "Novo commit enviado",
+          "pull_request_event": "Evento de pull request"
+        },
+        "datadog": { "monitor_triggered": "Alerta de monitor disparado" }
+      },
+      "sentrySetup": {
+        "title": "Configurar Internal Integration do Sentry",
+        "subtitle": "A Internal Integration do Sentry emite um Client Secret usado para assinar cada webhook com HMAC-SHA256. Siga os passos abaixo com atenção.",
+        "webhookUrlLabel": "URL do Webhook",
+        "webhookUrlHelp": "Cole esta URL exata no campo Webhook URL do Sentry.",
+        "clientSecretLabel": "Client Secret",
+        "clientSecretPlaceholder": "Cole o Client Secret exibido pelo Sentry",
+        "clientSecretHelp": "Encaminhamos uma única vez para o backend e nunca armazenamos no navegador. Necessário para verificar webhooks.",
+        "submitButton": "Salvar e verificar",
+        "submittingButton": "Salvando…",
+        "successToast": "Client Secret do Sentry salvo. Aguardando primeiro evento.",
+        "errorToast": "Falha ao salvar Client Secret do Sentry: {message}",
+        "instructionsTitle": "Passos de configuração",
+        "steps": {
+          "1": "No Sentry, acesse Settings → Integrations.",
+          "2": "Clique em Create New Integration.",
+          "3": "Selecione Internal Integration (NÃO Public).",
+          "4": "No campo Webhook URL, cole o valor exibido acima.",
+          "5": "Permissões: Issue & Event = Read e Webhooks = Read.",
+          "6": "Webhooks (issue): assine created, resolved, assigned, archived, unresolved.",
+          "7": "Salve → copie o Client Secret exibido e cole abaixo."
+        },
+        "events": {
+          "title": "Eventos de webhook obrigatórios",
+          "list": "created, resolved, assigned, archived, unresolved"
+        },
+        "showInstructions": "Ver instruções de configuração"
+      },
+      "sentryStatus": {
+        "setupRequired": "Configuração necessária",
+        "awaiting": "Aguardando primeiro evento do Sentry",
+        "verified": "Verificado — último evento {time}",
+        "verifiedNoEvent": "Verificado",
+        "neverEvent": "nenhum evento ainda"
+      },
+      "webhookSetup": {
+        "title": "Configurar webhook do {name}",
+        "urlLabel": "URL do Webhook",
+        "instructions": "Cole a URL abaixo nas configurações de webhook do {name} para começar a receber alertas.",
+        "doneButton": "Concluído",
+        "sentry": {
+          "steps": {
+            "1": "Abra o Sentry e navegue até Configurações → Integrações → Webhooks.",
+            "2": "Clique em 'Add Webhook'.",
+            "3": "Cole a URL acima no campo 'Callback URLs'.",
+            "4": "Salve o webhook. O Sentry enviará cada novo evento de problema para o CauseFlow."
+          },
+          "docsUrl": "https://docs.sentry.io/product/integrations/integration-platform/webhooks/"
+        },
+        "pagerduty": {
+          "steps": {
+            "1": "Abra o PagerDuty e navegue até Integrações → Generic Webhooks (v3).",
+            "2": "Clique em '+ New Webhook'.",
+            "3": "Cole a URL acima no campo 'Webhook URL'.",
+            "4": "Defina o escopo para o(s) serviço(s) que deseja monitorar com o CauseFlow.",
+            "5": "Salve. O CauseFlow receberá cada evento incident.triggered."
+          },
+          "docsUrl": "https://support.pagerduty.com/docs/webhooks"
+        },
+        "datadog": {
+          "steps": {
+            "1": "Abra o Datadog e navegue até Integrações → Webhooks.",
+            "2": "Clique em '+ New' para adicionar um webhook. Nomeie como 'causeflow'.",
+            "3": "Cole a URL acima no campo 'URL'.",
+            "4": "Salve o webhook.",
+            "5": "Em cada Monitor que deve disparar uma investigação, adicione @webhook-causeflow na mensagem de notificação."
+          },
+          "docsUrl": "https://docs.datadoghq.com/integrations/webhooks/"
+        }
+      },
+      "connectedToast": "{provider} conectado com sucesso",
+      "connectErrorToast": "Falha ao conectar: {message}",
+      "disconnect": {
+        "title": "Desconectar {name}",
+        "warning": "Isso removerá a conexão com {name}. Investigações em andamento usando esta integração podem ser afetadas.",
+        "confirm": "Desconectar",
+        "cancel": "Cancelar",
+        "disconnecting": "Desconectando...",
+        "successToast": "{name} desconectado"
+      },
+      "integrations": {
+        "slack": {
+          "name": "Slack",
+          "description": "Alertas de incidentes em tempo real para equipes de engenharia e suporte",
+          "category": "Comunicação"
+        },
+        "github": {
+          "name": "GitHub",
+          "description": "Mudanças de código, deploys e correlação de PRs",
+          "category": "Código"
+        },
+        "jira": {
+          "name": "Jira",
+          "description": "Tickets de incidentes, rastreamento de resolução e monitoramento de SLA",
+          "category": "Gestão"
+        },
+        "cloudwatch": {
+          "name": "AWS",
+          "description": "Acesso somente leitura a todos os serviços AWS via IAM Assume Role",
+          "category": "Monitoramento"
+        },
+        "hubspot": {
+          "name": "HubSpot",
+          "description": "Rastreamento de impacto no cliente e automação de comunicação",
+          "category": "CRM"
+        },
+        "trello": {
+          "name": "Trello",
+          "description": "Quadros visuais de incidentes e rastreamento de tarefas",
+          "category": "Gestão"
+        },
+        "notion": {
+          "name": "Notion",
+          "description": "Acesso a páginas e bancos de dados para investigações",
+          "category": "Conhecimento"
+        },
+        "shortcut": {
+          "name": "Shortcut",
+          "description": "Rastreamento de stories, epics e gerenciamento de iterações",
+          "category": "Gestão"
+        },
+        "postgresql": {
+          "name": "PostgreSQL",
+          "description": "Monitoramento de desempenho de banco de dados e análise de queries",
+          "category": "Banco de Dados"
+        },
+        "linear": {
+          "name": "Linear",
+          "description": "Rastreamento de problemas e automação de fluxo de trabalho de engenharia",
+          "category": "Gestão"
+        },
+        "sentry": {
+          "name": "Sentry",
+          "description": "Rastreamento de erros e monitoramento de desempenho de aplicações",
+          "category": "Monitoramento"
+        },
+        "mongodb": {
+          "name": "MongoDB",
+          "description": "Monitoramento de banco de dados NoSQL e insights de desempenho",
+          "category": "Banco de Dados"
+        },
+        "datadog": {
+          "name": "Datadog",
+          "description": "Monitoramento de infraestrutura e correlação de APM",
+          "category": "Monitoramento"
+        },
+        "pagerduty": {
+          "name": "PagerDuty",
+          "description": "Gerenciamento de plantão e automação de escalonamento",
+          "category": "Monitoramento"
+        },
+        "grafana": {
+          "name": "Grafana",
+          "description": "Correlação de métricas e visualização de dashboards",
+          "category": "Monitoramento"
+        },
+        "confluence": {
+          "name": "Confluence",
+          "description": "Integração com base de conhecimento e runbooks",
+          "category": "Conhecimento"
+        },
+        "webhooks": {
+          "name": "Webhooks Personalizados",
+          "description": "Conecte qualquer ferramenta via webhooks HTTP",
+          "category": "API"
+        }
+      },
+      "trigger": {
+        "createError": "Falha ao criar trigger. Por favor, tente novamente."
+      }
+    }
+  }
+}

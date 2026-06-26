@@ -1,0 +1,131 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Mock withAuth to pass through the handler directly
+vi.mock('@/lib/api/with-auth', () => ({
+  withAuth: (handler: Function) => handler,
+}));
+
+// Mock getApiClient
+const mockGetSystemHealth = vi.fn();
+vi.mock('@/lib/api/get-api-client', () => ({
+  getApiClient: () => ({
+    getSystemHealth: mockGetSystemHealth,
+  }),
+}));
+
+// Must import AFTER mocks
+const { GET } = await import('./topology-health-handler');
+
+function makeRequest(url = 'http://localhost:3001/api/topology/health'): Request {
+  return new Request(url, { method: 'GET' });
+}
+
+describe('topology-health-handler', () => {
+  const currentShape = {
+    totalServices: 12,
+    healthy: 10,
+    degraded: 1,
+    unhealthy: 1,
+    unknown: 0,
+  };
+
+  beforeEach(() => {
+    mockGetSystemHealth.mockResolvedValue(currentShape);
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns 200 with the normalized system health summary', async () => {
+    const req = makeRequest();
+    const response = await (GET as Function)(req, {});
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data).toEqual(currentShape);
+    expect(mockGetSystemHealth).toHaveBeenCalledOnce();
+  });
+
+  it('normalizes the legacy `{total, down}` wire shape into `{totalServices, unhealthy}`', async () => {
+    // Some Core deployments still return the legacy shape. The dashboard
+    // component reads `data.totalServices` and `data.unhealthy` — if we pass
+    // the legacy shape through, "Unhealthy" renders with no count.
+    mockGetSystemHealth.mockResolvedValue({
+      total: 12,
+      healthy: 10,
+      degraded: 1,
+      down: 1,
+      unknown: 0,
+    });
+
+    const req = makeRequest();
+    const response = await (GET as Function)(req, {});
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data).toEqual({
+      totalServices: 12,
+      healthy: 10,
+      degraded: 1,
+      unhealthy: 1,
+      unknown: 0,
+    });
+  });
+
+  it('coerces missing numeric fields to 0 so the UI never renders undefined counts', async () => {
+    mockGetSystemHealth.mockResolvedValue({ totalServices: 3, healthy: 3 });
+
+    const req = makeRequest();
+    const response = await (GET as Function)(req, {});
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data).toEqual({
+      totalServices: 3,
+      healthy: 3,
+      degraded: 0,
+      unhealthy: 0,
+      unknown: 0,
+    });
+  });
+
+  it('returns 502 when Core fails with a non-404 error', async () => {
+    mockGetSystemHealth.mockRejectedValue(new Error('Core API unavailable'));
+
+    const req = makeRequest();
+    const response = await (GET as Function)(req, {});
+    expect(response.status).toBe(502);
+    const body = (await response.json()) as { error: string };
+    expect(body.error).toBe('Core API unavailable');
+  });
+
+  it('returns 200 with an empty SystemHealthSummary when Core returns 404', async () => {
+    // Staging Core may not have /v1/topology/health deployed — handler degrades
+    // gracefully so the dashboard section can render its empty state.
+    mockGetSystemHealth.mockRejectedValue(new Error('Not Found'));
+
+    const req = makeRequest();
+    const response = await (GET as Function)(req, {});
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      totalServices: 0,
+      healthy: 0,
+      degraded: 0,
+      unhealthy: 0,
+      unknown: 0,
+    });
+  });
+});
+
+describe('topology-health-handler — auth contract', () => {
+  it('withAuth is used to wrap the handler', async () => {
+    const fs = await import('node:fs');
+    const source = fs.readFileSync(
+      new URL('./topology-health-handler.ts', import.meta.url),
+      'utf-8',
+    );
+    expect(source).toContain('withAuth');
+    expect(source).toContain('getSystemHealth');
+  });
+});

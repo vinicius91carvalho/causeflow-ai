@@ -1,0 +1,210 @@
+{
+  "dashboard": {
+    "systemStatus": {
+      "title": "System Status",
+      "ok": "Operational",
+      "degraded": "Degraded",
+      "down": "Down",
+      "loading": "Loading status...",
+      "error": "Unable to load system status",
+      "version": "Version",
+      "latency": "{ms}ms"
+    },
+    "patternInsights": {
+      "title": "Pattern Insights",
+      "totalPatterns": "Total Patterns",
+      "avgConfidence": "Avg Confidence",
+      "topCategories": "Top Categories",
+      "resolutionRates": "Resolution Rates",
+      "automated": "Automated",
+      "manual": "Manual",
+      "pending": "Pending",
+      "noData": "No pattern data available yet",
+      "fetchError": "Failed to load pattern insights. Please try again later."
+    },
+    "sidebar": {
+      "overview": "Overview",
+      "analyses": "Analyses",
+      "incidents": "Incidents",
+      "integrations": "Integrations",
+      "team": "Team",
+      "settings": "Settings",
+      "billing": "Billing",
+      "credits": "Investigations",
+      "creditsValue": "{count} investigations left",
+      "creditsLoading": "Loading...",
+      "creditsError": "— investigations",
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar",
+      "openMenu": "Open navigation menu",
+      "audit": "Audit Log",
+      "topology": "Topology",
+      "intelligence": "Intelligence",
+      "relay": "Relay"
+    },
+    "topology": {
+      "title": "Infrastructure Topology",
+      "healthSummary": "Health Summary",
+      "healthy": "Healthy",
+      "degraded": "Degraded",
+      "unhealthy": "Unhealthy",
+      "unknown": "Unknown",
+      "filters": {
+        "type": "Service Type",
+        "health": "Health Status",
+        "team": "Owner Team",
+        "all": "All"
+      },
+      "service": {
+        "blastRadius": "Blast Radius",
+        "criticality": "Criticality",
+        "owner": "Owner",
+        "connections": "Connections",
+        "details": "Service Details",
+        "edges": "Connected Services",
+        "noServices": "No services found"
+      }
+    },
+    "topbar": {
+      "logo": "CauseFlow AI",
+      "themeToggle": "Toggle theme",
+      "userMenu": "User menu",
+      "signOut": "Sign out",
+      "profile": "Profile",
+      "breadcrumbHome": "Dashboard",
+      "search": "Search or jump to...",
+      "languageSelector": "Select language",
+      "tutorial": "Tutorial",
+      "language": {
+        "label": "Language",
+        "en": "English",
+        "ptBr": "Português (Brasil)",
+        "error": "Could not change language. Please try again."
+      }
+    },
+    "overview": {
+      "title": "Overview",
+      "description": "Welcome to your CauseFlow AI dashboard"
+    },
+    "tour": {
+      "welcome": "CASE FILE #001",
+      "welcomeDesc": "Welcome, Detective. Your command center is ready. Let me show you around before your first mission.",
+      "hq": "YOUR HQ — Command Center",
+      "hqDesc": "This is your war room. Active cases, team health, credits remaining — everything at a glance. The numbers update in real-time as your investigations unfold.",
+      "caseFiles": "CASE FILES — Incidents",
+      "caseFilesDesc": "This is where the action happens. Every production incident becomes a case. Create investigations, trace root causes, and close cases faster than your team ever thought possible.",
+      "evidenceRoom": "THE EVIDENCE ROOM — Integrations",
+      "evidenceRoomDesc": "Connect your tools — Slack, GitHub, AWS, Datadog, PagerDuty — and let CauseFlow gather evidence from every source automatically. More connections = faster resolutions.",
+      "squad": "YOUR SQUAD — Team",
+      "squadDesc": "No detective works alone. Invite your engineers, assign roles, and collaborate on investigations. Every team member sees the same real-time evidence.",
+      "intel": "INTEL CENTER — Intelligence",
+      "intelDesc": "CauseFlow learns from every case you solve. Pattern recognition, knowledge base, and AI-powered insights build up over time. The more you investigate, the smarter it gets.",
+      "missionControl": "MISSION CONTROL — New Analysis",
+      "missionControlDesc": "Ready for your first case? Hit this button, describe an incident, and watch CauseFlow trace the root cause across all your connected systems.",
+      "billing": "FIELD OFFICE — Billing",
+      "billingDesc": "Track your credits, upgrade your plan, or purchase extra investigation packs. Your 7-day trial starts now — make it count.",
+      "complete": "MISSION BRIEFING COMPLETE",
+      "completeDesc": "You're cleared for duty, Detective. Go solve your first case — your team is counting on you.",
+      "btnNext": "Next",
+      "btnPrev": "Back",
+      "btnDone": "Start Investigating",
+      "btnSkip": "Skip Tour",
+      "stepOf": "of"
+    },
+    "home": {
+      "metrics": {
+        "totalAnalyses": "Total Analyses",
+        "monthlyAnalyses": "Analyses This Month",
+        "activeIntegrations": "Active Integrations",
+        "teamMembers": "Team Members"
+      },
+      "credits": {
+        "remaining": "{count} Credits Remaining",
+        "renews": "Renews {date}",
+        "upgrade": "Upgrade Plan",
+        "warning": "Credits Running Low",
+        "critical": "Critical: Almost Out of Credits"
+      },
+      "savingHours": {
+        "display": "You saved ~{hours} hours this month with CauseFlow AI ({analyses} investigations)"
+      },
+      "recentAnalyses": {
+        "heading": "Recent Analyses",
+        "viewAll": "View All",
+        "empty": "No analyses yet. Start your first investigation below."
+      },
+      "quickActions": {
+        "newAnalysis": "New Analysis",
+        "connectIntegration": "Connect Integration"
+      },
+      "emptyState": {
+        "title": "Welcome to CauseFlow AI",
+        "subtitle": "Start your first incident analysis to get actionable root cause insights in minutes.",
+        "createAnalysis": "Create Your First Analysis",
+        "feature1": "AI Root Cause Analysis",
+        "feature2": "Instant Insights",
+        "feature3": "Audit Trail",
+        "branchA": {
+          "title": "Welcome to CauseFlow",
+          "subtitle": "You have nothing connected yet. Start by connecting an integration or setting up Relay to begin capturing incidents.",
+          "connectIntegration": "Connect Integration",
+          "setUpRelay": "Set up Relay"
+        },
+        "branchB": {
+          "title": "Welcome to CauseFlow",
+          "subtitle": "Your integrations are connected. Now create your first analysis to get root cause insights.",
+          "createFirstAnalysis": "Create Your First Analysis"
+        }
+      },
+      "systemOperational": {
+        "title": "System Operational",
+        "newAnalysis": "New Analysis",
+        "integrations": "integrations connected",
+        "version": "Version",
+        "ok": "Operational",
+        "degraded": "Degraded",
+        "down": "Down",
+        "error": "Health unavailable"
+      },
+      "sections": {
+        "activeIncidents": {
+          "title": "Active Incidents",
+          "empty": "No active incidents",
+          "error": "Failed to load active incidents"
+        },
+        "pendingApprovals": {
+          "title": "Pending Approvals",
+          "empty": "No pending approvals",
+          "error": "Failed to load pending approvals"
+        },
+        "recentNotifications": {
+          "title": "Recent Notifications",
+          "empty": "No recent notifications",
+          "error": "Failed to load notifications"
+        },
+        "systemHealth": {
+          "title": "System Health",
+          "empty": "No services registered",
+          "error": "Failed to load system health"
+        },
+        "relayStatus": {
+          "title": "Relay Status",
+          "empty": "Relay not connected",
+          "error": "Failed to load relay status"
+        },
+        "memoryInsights": {
+          "title": "Memory Insights",
+          "empty": "No insights yet — start investigating to build memory",
+          "error": "Failed to load memory insights",
+          "seeMore": "See all ({count})",
+          "modalTitle": "All memory insights"
+        },
+        "usageHistory": {
+          "title": "Usage History",
+          "empty": "No usage data yet",
+          "error": "Failed to load usage history"
+        }
+      }
+    }
+  }
+}

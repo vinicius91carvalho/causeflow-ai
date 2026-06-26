@@ -1,0 +1,62 @@
+/*
+ * Theme Template — Copy this file to create a new theme.
+ *
+ * 1. Create a new folder: themes/<your-theme-name>/tokens/
+ * 2. Copy this file as light.css and dark.css
+ * 3. Fill in each HSL value (hue saturation% lightness%)
+ * 4. Register the theme in themes/index.ts
+ * 5. Import the CSS files in themes/entry.css
+ */
+
+/* :root { */
+/* Background & Foreground */
+/* --background: H S% L%; */
+/* --foreground: H S% L%; */
+
+/* Card */
+/* --card: H S% L%; */
+/* --card-foreground: H S% L%; */
+
+/* Popover */
+/* --popover: H S% L%; */
+/* --popover-foreground: H S% L%; */
+
+/* Primary */
+/* --primary: H S% L%; */
+/* --primary-foreground: H S% L%; */
+
+/* Secondary */
+/* --secondary: H S% L%; */
+/* --secondary-foreground: H S% L%; */
+
+/* Muted */
+/* --muted: H S% L%; */
+/* --muted-foreground: H S% L%; */
+
+/* Accent */
+/* --accent: H S% L%; */
+/* --accent-foreground: H S% L%; */
+
+/* Destructive */
+/* --destructive: H S% L%; */
+/* --destructive-foreground: H S% L%; */
+
+/* Success */
+/* --success: H S% L%; */
+/* --success-foreground: H S% L%; */
+
+/* Border, Input, Ring */
+/* --border: H S% L%; */
+/* --input: H S% L%; */
+/* --ring: H S% L%; */
+
+/* Radius */
+/* --radius: 0.625rem; */
+
+/* Chart Colors */
+/* --chart-1: H S% L%; */
+/* --chart-2: H S% L%; */
+/* --chart-3: H S% L%; */
+/* --chart-4: H S% L%; */
+/* --chart-5: H S% L%; */
+/* } */

@@ -1,0 +1,2345 @@
+openapi: 3.1.0
+info:
+  title: CauseFlow API
+  description: |
+    CauseFlow — AI SRE platform. REST API for incident ingestion, triage,
+    investigation, remediation, memory/knowledge, integrations, billing,
+    tenant/user/team management, notifications, audit, widget/portal, and
+    skills.
+
+    Architecture: Modular monolith (Modlito) + Clean Architecture.
+    Stack: TypeScript + Hono + ElectroDB (DynamoDB single-table) + Redis + SQS.
+
+    ## Authentication
+    Most dashboard endpoints use `bearerAuth` (Clerk JWT).
+    Ingestion webhook endpoints accept either a shared webhook secret or a
+    tenant API key (`X-API-Key`). Widget endpoints use `X-API-Key`.
+    Stripe, Clerk and Composio webhooks verify provider signatures and are
+    mounted as public.
+  version: 0.1.0
+  contact:
+    name: CauseFlow
+servers:
+  - url: https://api.causeflow.io
+    description: Production
+  - url: https://staging-api.causeflow.io
+    description: Staging
+  - url: http://localhost:3000
+    description: Local development
+
+tags:
+  - name: Health
+  - name: Auth
+  - name: Tenant
+  - name: User
+  - name: Invite
+  - name: ApiKey
+  - name: Audit
+  - name: Billing
+  - name: Signup
+  - name: Ingestion
+  - name: Incident
+  - name: Triage
+  - name: Investigation
+  - name: Remediation
+  - name: Notification
+  - name: Analytics
+  - name: Admin
+  - name: Integration
+  - name: Trigger
+  - name: Relay
+  - name: CodeKnowledge
+  - name: Memory
+  - name: Skill
+  - name: Widget
+  - name: Portal
+  - name: BetaAllowlist
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ─────────────────────────── Health ───────────────────────────
+  /health:
+    get:
+      tags: [Health]
+      summary: Liveness / basic health
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [up, degraded, down] }
+                  service: { type: string }
+                  version: { type: string }
+                  timestamp: { type: string, format: date-time }
+        '503':
+          description: Service is down
+  /health/detailed:
+    get:
+      tags: [Health]
+      summary: Detailed health with per-dependency checks (auth required)
+      responses:
+        '200':
+          description: Detailed health result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  timestamp: { type: string, format: date-time }
+                  checks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        status: { type: string }
+                        latencyMs: { type: number }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          description: One or more checks failing
+
+  /dashboard:
+    get:
+      tags: [Health]
+      summary: Serves internal HTML dashboard
+      security: []
+      responses:
+        '200':
+          description: HTML page
+          content:
+            text/html:
+              schema: { type: string }
+
+  # ─────────────────────────── Auth ───────────────────────────
+  /v1/auth/clerk-webhook:
+    post:
+      tags: [Auth]
+      summary: Clerk webhook receiver (Svix signed)
+      security: []
+      parameters:
+        - { in: header, name: svix-id, required: true, schema: { type: string } }
+        - { in: header, name: svix-timestamp, required: true, schema: { type: string } }
+        - { in: header, name: svix-signature, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        '200':
+          description: Webhook processed
+          content:
+            application/json:
+              schema: { type: object, properties: { received: { type: boolean } } }
+        '400': { description: Missing Svix headers }
+        '401': { description: Invalid signature }
+  /v1/auth/me:
+    get:
+      tags: [Auth]
+      summary: Current authenticated user (whoami)
+      responses:
+        '200':
+          description: Auth context
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenantId: { type: string }
+                  userId: { type: string }
+                  email: { type: string }
+                  roles: { type: array, items: { type: string } }
+
+  # ─────────────────────────── Tenant ───────────────────────────
+  /v1/tenants:
+    post:
+      tags: [Tenant]
+      summary: Create a tenant (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateTenantInput' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tenant' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    get:
+      tags: [Tenant]
+      summary: List tenants owned by the authenticated user
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Tenant' } }
+                  cursor: { type: string, nullable: true }
+  /v1/tenants/{tenantId}:
+    get:
+      tags: [Tenant]
+      summary: Get a tenant by id
+      parameters: [ { $ref: '#/components/parameters/TenantIdPath' } ]
+      responses:
+        '200':
+          description: Tenant
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tenant' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Tenant]
+      summary: Update a tenant (admin/owner)
+      parameters: [ { $ref: '#/components/parameters/TenantIdPath' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateTenantInput' }
+      responses:
+        '200':
+          description: Updated tenant
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tenant' }
+
+  # ─────────────────────────── User ───────────────────────────
+  /v1/users:
+    get:
+      tags: [User]
+      summary: List team members
+      responses:
+        '200':
+          description: List
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/User' } }
+    post:
+      tags: [User]
+      summary: Create a user (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, email, name]
+              properties:
+                userId: { type: string }
+                email: { type: string, format: email }
+                name: { type: string }
+                role: { type: string, enum: [admin, member] }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+  /v1/users/{userId}:
+    patch:
+      tags: [User]
+      summary: Update user (admin/owner)
+      parameters: [ { in: path, name: userId, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                role: { type: string, enum: [admin, member] }
+                profileComplete: { type: boolean }
+                termsAcceptedAt: { type: string }
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+    delete:
+      tags: [User]
+      summary: Remove team member (admin/owner, not self)
+      parameters: [ { in: path, name: userId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema: { type: object, properties: { message: { type: string } } }
+  /v1/users/{userId}/settings:
+    get:
+      tags: [User]
+      summary: Get user settings, profile, company
+      parameters: [ { in: path, name: userId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Settings bundle
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSettings' }
+    patch:
+      tags: [User]
+      summary: Update user settings
+      parameters: [ { in: path, name: userId, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateUserSettingsInput' }
+      responses:
+        '200':
+          description: Updated settings
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSettings' }
+  /v1/users/by-email/{email}:
+    get:
+      tags: [User]
+      summary: Find a user by email (cross-tenant; Auth.js OAuth linking)
+      parameters: [ { in: path, name: email, required: true, schema: { type: string, format: email } } ]
+      responses:
+        '200':
+          description: User or null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { oneOf: [ { $ref: '#/components/schemas/User' }, { type: 'null' } ] }
+  /v1/users/{userId}/profile:
+    get:
+      tags: [User]
+      summary: Get user profile
+      parameters: [ { in: path, name: userId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSettings' }
+
+  # ─────────────────────────── Invites ───────────────────────────
+  /v1/invites:
+    get:
+      tags: [Invite]
+      summary: List pending invites
+      responses:
+        '200':
+          description: List
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Invite' } }
+    post:
+      tags: [Invite]
+      summary: Create an invite (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+                role: { type: string, enum: [admin, member] }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Invite' }
+  /v1/invites/{email}:
+    delete:
+      tags: [Invite]
+      summary: Revoke an invite (admin/owner)
+      parameters: [ { in: path, name: email, required: true, schema: { type: string, format: email } } ]
+      responses:
+        '200':
+          description: Revoked
+          content:
+            application/json:
+              schema: { type: object, properties: { message: { type: string } } }
+  /v1/invites/{email}/accept:
+    post:
+      tags: [Invite]
+      summary: Accept an invite
+      parameters: [ { in: path, name: email, required: true, schema: { type: string, format: email } } ]
+      responses:
+        '201':
+          description: Accepted invite → created user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+
+  # ─────────────────────────── API Keys ───────────────────────────
+  /v1/api-keys:
+    post:
+      tags: [ApiKey]
+      summary: Create an API key (admin/owner). Returns plaintext once.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, maxLength: 100 }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keyId: { type: string }
+                  name: { type: string }
+                  prefix: { type: string }
+                  plaintext: { type: string, description: "Shown ONCE; store securely" }
+                  createdAt: { type: string, format: date-time }
+    get:
+      tags: [ApiKey]
+      summary: List API keys (no secret material)
+      responses:
+        '200':
+          description: List
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/ApiKey' } }
+  /v1/api-keys/{keyId}:
+    delete:
+      tags: [ApiKey]
+      summary: Revoke an API key (admin/owner)
+      parameters: [ { in: path, name: keyId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keyId: { type: string }
+                  status: { type: string }
+                  revokedAt: { type: string, format: date-time }
+
+  # ─────────────────────────── Audit ───────────────────────────
+  /v1/audit:
+    get:
+      tags: [Audit]
+      summary: List audit entries
+      parameters:
+        - { in: query, name: action, schema: { type: string } }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/AuditEntry' } }
+                  cursor: { type: string, nullable: true }
+  /v1/audit/verify:
+    get:
+      tags: [Audit]
+      summary: Verify tamper-evident hash chain
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid: { type: boolean }
+                  entriesChecked: { type: integer }
+                  brokenAt: { type: string, nullable: true }
+  /v1/audit/export:
+    get:
+      tags: [Audit]
+      summary: Export audit entries as NDJSON stream
+      parameters:
+        - { in: query, name: action, schema: { type: string } }
+      responses:
+        '200':
+          description: NDJSON stream
+          content:
+            application/x-ndjson:
+              schema: { type: string }
+  /v1/audit/terms-acceptance:
+    post:
+      tags: [Audit]
+      summary: Record terms acceptance as an audit entry
+      responses:
+        '201':
+          description: Recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entryId: { type: string }
+                  createdAt: { type: string, format: date-time }
+
+  # ─────────────────────────── Ingestion: Incidents ───────────────────────────
+  /v1/incidents:
+    get:
+      tags: [Incident]
+      summary: List incidents
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+        - { in: query, name: severity, schema: { type: string, enum: [critical, high, medium, low, info] } }
+        - { in: query, name: status, schema: { type: string, enum: [open, triaging, investigating, awaiting_approval, remediating, resolved, closed] } }
+        - { in: query, name: sort, schema: { type: string, enum: [asc, desc] } }
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Incident' } }
+                  cursor: { type: string, nullable: true }
+  /v1/incidents/chat:
+    post:
+      tags: [Incident]
+      summary: Create incident manually via chat (operator/admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description]
+              properties:
+                title: { type: string, minLength: 5 }
+                description: { type: string, minLength: 10 }
+                severity: { type: string, enum: [critical, high, medium, low, info] }
+                suggestedAgents: { type: array, items: { type: string } }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  incidentId: { type: string }
+                  status: { type: string }
+                  message: { type: string }
+        '402': { description: Investigation quota exceeded }
+  /v1/incidents/{id}:
+    get:
+      tags: [Incident]
+      summary: Get an incident by id
+      parameters: [ { in: path, name: id, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Incident
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Incident' }
+    patch:
+      tags: [Incident]
+      summary: Update incident status (operator/admin/owner)
+      parameters: [ { in: path, name: id, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [open, triaging, investigating, awaiting_approval, remediating, resolved, closed] }
+      responses:
+        '200':
+          description: Updated incident
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Incident' }
+
+  # ─────────────────────────── Ingestion: Webhooks ───────────────────────────
+  /v1/webhooks/{tenantId}/{provider}:
+    post:
+      tags: [Ingestion]
+      summary: Ingest alert from a monitoring provider
+      description: |
+        Accepts a raw alert payload (Datadog, Grafana, CloudWatch, Sentry, etc.)
+        and creates an incident. Authenticated via shared webhook secret
+        (`X-Webhook-Secret`) or a tenant API key (`X-API-Key`).
+      security:
+        - webhookSecret: []
+        - apiKeyAuth: []
+      parameters:
+        - { in: path, name: tenantId, required: true, schema: { type: string } }
+        - { in: path, name: provider, required: true, schema: { type: string, enum: [datadog, grafana, cloudwatch, sentry, pagerduty, newrelic, custom] } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [accepted] }
+                  incidentId: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '402': { description: Investigation quota exceeded }
+
+  # ─────────────────────────── Triage ───────────────────────────
+  /v1/triage/{incidentId}:
+    post:
+      tags: [Triage]
+      summary: Trigger triage for an incident (operator/admin/owner)
+      parameters: [ { in: path, name: incidentId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Triage result
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/triage/{incidentId}/evidence:
+    get:
+      tags: [Triage]
+      summary: List evidence collected during triage
+      parameters: [ { in: path, name: incidentId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Evidence list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Evidence' } }
+
+  # ─────────────────────────── Investigation ───────────────────────────
+  /v1/investigation/{incidentId}:
+    post:
+      tags: [Investigation]
+      summary: Trigger an investigation manually (operator/admin/owner)
+      parameters: [ { in: path, name: incidentId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Investigation result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Investigation' }
+    get:
+      tags: [Investigation]
+      summary: Get investigation result and per-agent evidence
+      parameters: [ { in: path, name: incidentId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Investigation detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Investigation' }
+  /v1/investigation/{incidentId}/context:
+    post:
+      tags: [Investigation]
+      summary: Add context to an in-flight investigation
+      parameters: [ { in: path, name: incidentId, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [context]
+              properties:
+                context: { type: string, minLength: 5 }
+                reinvestigate: { type: boolean }
+                suggestedAgents: { type: array, items: { type: string } }
+      responses:
+        '200':
+          description: Updated investigation
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/investigation/{incidentId}/known-solution-response:
+    post:
+      tags: [Investigation]
+      summary: Accept or decline a suggested known solution
+      parameters: [ { in: path, name: incidentId, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [response]
+              properties:
+                response: { type: string, enum: [accepted, declined] }
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '501': { description: Feature not enabled }
+  /v1/investigation/{incidentId}/feedback:
+    post:
+      tags: [Investigation]
+      summary: Record feedback on an investigation's quality
+      parameters: [ { in: path, name: incidentId, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type: { type: string, enum: [investigation_accurate, investigation_inaccurate, investigation_partial] }
+                freeText: { type: string }
+                agentFeedback:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      agentRole: { type: string }
+                      quality: { type: integer, minimum: 1, maximum: 5 }
+      responses:
+        '201': { description: Recorded }
+        '501': { description: Feature not enabled }
+  /v1/investigation/{incidentId}/abort:
+    post:
+      tags: [Investigation]
+      summary: Abort a running investigation (operator/admin/owner)
+      parameters: [ { in: path, name: incidentId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Aborted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+        '501': { description: Feature not enabled }
+
+  # ─────────────────────────── Remediation ───────────────────────────
+  /v1/remediation:
+    post:
+      tags: [Remediation]
+      summary: Propose a remediation manually (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [incidentId, rootCause, recommendedActions]
+              properties:
+                incidentId: { type: string }
+                rootCause: { type: string }
+                recommendedActions:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [action]
+                    properties:
+                      action: { type: string }
+                      params: { type: object, additionalProperties: true }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Remediation' }
+  /v1/remediation/{incidentId}:
+    get:
+      tags: [Remediation]
+      summary: List remediations for an incident
+      parameters: [ { in: path, name: incidentId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: List
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Remediation' }
+  /v1/remediation/detail/{remediationId}:
+    get:
+      tags: [Remediation]
+      summary: Get remediation detail
+      parameters: [ { in: path, name: remediationId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Remediation
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Remediation' }
+  /v1/remediation/{remediationId}/approve:
+    post:
+      tags: [Remediation]
+      summary: Approve remediation (admin/owner)
+      parameters: [ { in: path, name: remediationId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Approved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Remediation' }
+  /v1/remediation/{remediationId}/reject:
+    post:
+      tags: [Remediation]
+      summary: Reject remediation (admin/owner)
+      parameters: [ { in: path, name: remediationId, required: true, schema: { type: string } } ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: { reason: { type: string } }
+      responses:
+        '200':
+          description: Rejected
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Remediation' }
+  /v1/remediation/{remediationId}/execute:
+    post:
+      tags: [Remediation]
+      summary: Execute an approved remediation (admin/owner)
+      parameters: [ { in: path, name: remediationId, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Execution result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Remediation' }
+  /v1/remediation/{remediationId}/feedback:
+    post:
+      tags: [Remediation]
+      summary: Record feedback on a remediation's effectiveness
+      parameters: [ { in: path, name: remediationId, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [incidentId, type]
+              properties:
+                incidentId: { type: string }
+                type: { type: string, enum: [remediation_effective, remediation_ineffective, remediation_made_worse] }
+                freeText: { type: string }
+      responses:
+        '201': { description: Recorded }
+        '501': { description: Feature not enabled }
+
+  # ─────────────────────────── Notifications ───────────────────────────
+  /v1/notifications:
+    get:
+      tags: [Notification]
+      summary: List notifications
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Notification' } }
+                  cursor: { type: string, nullable: true }
+  /v1/notifications/stream:
+    get:
+      tags: [Notification]
+      summary: SSE stream of notifications for this tenant
+      responses:
+        '200':
+          description: text/event-stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+  /v1/notifications/{id}:
+    get:
+      tags: [Notification]
+      summary: Get notification detail
+      parameters: [ { in: path, name: id, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Notification
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Notification' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /v1/notifications/{id}/read:
+    patch:
+      tags: [Notification]
+      summary: Mark notification as read
+      parameters: [ { in: path, name: id, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Notification' }
+  /v1/notifications/approvals/pending:
+    get:
+      tags: [Notification]
+      summary: List pending approvals
+      responses:
+        '200':
+          description: Pending approvals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Approval' } }
+  /v1/notifications/approvals/{id}/respond:
+    post:
+      tags: [Notification]
+      summary: Respond to an approval
+      parameters: [ { in: path, name: id, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string, enum: [approve, reject] }
+                respondedBy: { type: string }
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  # ─────────────────────────── Analytics ───────────────────────────
+  /v1/analytics/incidents:
+    get:
+      tags: [Analytics]
+      summary: Incident analytics summary for this tenant
+      responses:
+        '200':
+          description: Analytics
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  # ─────────────────────────── Admin ───────────────────────────
+  /v1/admin/queues/redrive:
+    post:
+      tags: [Admin]
+      summary: Redrive messages from a DLQ (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [queue]
+              properties:
+                queue: { type: string, enum: [alerts, investigation, remediation] }
+                limit: { type: integer, minimum: 1, maximum: 10 }
+      responses:
+        '200':
+          description: Redrive result
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/admin/costs:
+    get:
+      tags: [Admin]
+      summary: Platform cost breakdown for investigated incidents (admin only)
+      responses:
+        '200':
+          description: Cost report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalCostUsd: { type: number }
+                  avgCostPerInvestigation: { type: number, nullable: true }
+                  incidentCount: { type: integer }
+                  costByIncident:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        incidentId: { type: string }
+                        title: { type: string }
+                        severity: { type: string }
+                        totalCostUsd: { type: number }
+                        costBreakdown: { type: object, additionalProperties: true }
+                        investigationDurationMs: { type: integer }
+                        createdAt: { type: string, format: date-time }
+
+  # ─────────────────────────── Billing ───────────────────────────
+  /v1/billing/plans:
+    get:
+      tags: [Billing]
+      summary: List available Stripe plans
+      responses:
+        '200':
+          description: Plans
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/billing/subscribe:
+    post:
+      tags: [Billing]
+      summary: Create a subscription via Payment Element (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [planId]
+              properties:
+                planId: { type: string }
+      responses:
+        '200':
+          description: Stripe subscription intent
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/billing/checkout:
+    post:
+      tags: [Billing]
+      summary: Create a Stripe Checkout session (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [planKey, successUrl, cancelUrl]
+              properties:
+                planKey: { type: string, enum: [starter, pro, business] }
+                successUrl: { type: string, format: uri }
+                cancelUrl: { type: string, format: uri }
+      responses:
+        '200':
+          description: Checkout URL
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/billing/portal:
+    post:
+      tags: [Billing]
+      summary: Create a Stripe Billing Portal session (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [returnUrl]
+              properties:
+                returnUrl: { type: string, format: uri }
+      responses:
+        '200':
+          description: Portal URL
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/billing/subscription:
+    get:
+      tags: [Billing]
+      summary: Get current subscription info
+      responses:
+        '200':
+          description: Subscription
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Subscription' }
+  /v1/billing/credits:
+    get:
+      tags: [Billing]
+      summary: Get investigation + event credit balances
+      responses:
+        '200':
+          description: Credit balances
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  investigations: { type: object, additionalProperties: true }
+                  events: { type: object, additionalProperties: true }
+  /v1/billing/usage:
+    get:
+      tags: [Billing]
+      summary: List usage records for the billing account
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+        - { in: query, name: type, schema: { type: string } }
+      responses:
+        '200':
+          description: Usage records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account: { type: object, additionalProperties: true, nullable: true }
+                  records: { type: array, items: { type: object, additionalProperties: true } }
+  /v1/billing/invoices:
+    get:
+      tags: [Billing]
+      summary: List Stripe invoices for this tenant
+      parameters:
+        - { in: query, name: limit, schema: { type: integer, default: 12 } }
+      responses:
+        '200':
+          description: Invoices
+          content:
+            application/json:
+              schema: { type: array, items: { type: object, additionalProperties: true } }
+  /v1/billing/purchase:
+    post:
+      tags: [Billing]
+      summary: Purchase a quota pack (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type: { type: string, enum: [investigation, event] }
+      responses:
+        '200':
+          description: Purchase result
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/billing/upgrade:
+    post:
+      tags: [Billing]
+      summary: Upgrade or downgrade subscription plan (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetPlanKey]
+              properties:
+                targetPlanKey: { type: string, enum: [starter, pro, business, enterprise] }
+      responses:
+        '200':
+          description: New subscription state
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/billing/cancel:
+    post:
+      tags: [Billing]
+      summary: Schedule subscription cancellation (admin/owner)
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/billing/reactivate:
+    post:
+      tags: [Billing]
+      summary: Reactivate a canceling subscription (admin/owner)
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/billing/settings:
+    put:
+      tags: [Billing]
+      summary: Update billing settings (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                overagePolicy: { type: string, enum: [block, auto_charge, manual] }
+      responses:
+        '200':
+          description: Updated settings
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/billing/webhook:
+    post:
+      tags: [Billing]
+      summary: Stripe webhook receiver
+      security:
+        - stripeSignature: []
+      parameters:
+        - { in: header, name: stripe-signature, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        '200':
+          description: Ack
+          content:
+            application/json:
+              schema: { type: object, properties: { received: { type: boolean } } }
+
+  # ─────────────────────────── Signup (public) ───────────────────────────
+  /v1/signup:
+    post:
+      tags: [Signup]
+      summary: Public self-service signup
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug, ownerEmail]
+              properties:
+                name: { type: string, minLength: 2 }
+                slug: { type: string, minLength: 2, maxLength: 50, pattern: '^[a-z0-9-]+$' }
+                ownerEmail: { type: string, format: email }
+                plan: { type: string, enum: [starter, pro, business, enterprise] }
+      responses:
+        '201':
+          description: Tenant created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenantId: { type: string }
+                  name: { type: string }
+                  slug: { type: string }
+                  plan: { type: string }
+                  investigationsLimit: { type: integer }
+                  eventsLimit: { type: integer }
+
+  # ─────────────────────────── Integrations ───────────────────────────
+  /v1/integrations:
+    get:
+      tags: [Integration]
+      summary: Unified list of integrations (credential-based + Composio OAuth)
+      responses:
+        '200':
+          description: List
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  integrations:
+                    type: array
+                    items: { $ref: '#/components/schemas/Integration' }
+  /v1/integrations/catalog:
+    get:
+      tags: [Integration]
+      summary: Catalog of supported providers with metadata
+      responses:
+        '200':
+          description: Catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  providers:
+                    type: array
+                    items: { $ref: '#/components/schemas/IntegrationProvider' }
+  /v1/integrations/credentials:
+    post:
+      tags: [Integration]
+      summary: Connect a credential-based integration (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider, credentials]
+              properties:
+                provider: { type: string }
+                credentials: { type: object, additionalProperties: true }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Integration' }
+  /v1/integrations/credentials/{type}:
+    delete:
+      tags: [Integration]
+      summary: Disconnect a credential-based integration (admin/owner)
+      parameters: [ { in: path, name: type, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Disconnected
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/integrations/test-connection:
+    post:
+      tags: [Integration]
+      summary: Test an AWS AssumeRole (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type: { type: string, enum: [cloudwatch, aws] }
+                roleArn: { type: string }
+      responses:
+        '200':
+          description: Test result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+  /v1/integrations/connect:
+    post:
+      tags: [Integration]
+      summary: Initiate OAuth connection via Composio (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider, redirectUrl]
+              properties:
+                provider: { type: string }
+                redirectUrl: { type: string, format: uri }
+      responses:
+        '200':
+          description: OAuth URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authUrl: { type: string, format: uri }
+        '503': { description: Composio not configured }
+  /v1/integrations/connect/{provider}:
+    delete:
+      tags: [Integration]
+      summary: Revoke a Composio OAuth connection (admin/owner)
+      parameters: [ { in: path, name: provider, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Revoked
+          content:
+            application/json:
+              schema: { type: object, properties: { success: { type: boolean } } }
+        '503': { description: Composio not configured }
+
+  # ─────────────────────────── Triggers (Composio) ───────────────────────────
+  /v1/triggers:
+    get:
+      tags: [Trigger]
+      summary: List Composio triggers for this tenant
+      responses:
+        '200':
+          description: Triggers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  triggers: { type: array, items: { $ref: '#/components/schemas/Trigger' } }
+    post:
+      tags: [Trigger]
+      summary: Create a Composio trigger (admin/owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [triggerSlug, provider]
+              properties:
+                triggerSlug: { type: string }
+                provider: { type: string }
+                config: { type: object, additionalProperties: true }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trigger: { $ref: '#/components/schemas/Trigger' }
+  /v1/triggers/{id}:
+    delete:
+      tags: [Trigger]
+      summary: Delete a Composio trigger (admin/owner)
+      parameters: [ { in: path, name: id, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema: { type: object, properties: { deleted: { type: boolean } } }
+  /v1/triggers/available:
+    get:
+      tags: [Trigger]
+      summary: List available trigger types per provider (from Composio)
+      responses:
+        '200':
+          description: Available triggers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  triggers: { type: array, items: { type: object, additionalProperties: true } }
+  /webhooks/composio:
+    post:
+      tags: [Trigger]
+      summary: Composio trigger webhook receiver
+      security:
+        - webhookSignature: []
+      parameters:
+        - { in: header, name: webhook-signature, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses:
+        '200':
+          description: Ack
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received: { type: boolean }
+                  action: { type: string }
+
+  # ─────────────────────────── Relay ───────────────────────────
+  /v1/relay/status:
+    get:
+      tags: [Relay]
+      summary: Relay connection status and available resources
+      responses:
+        '200':
+          description: Relay status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  connected: { type: boolean }
+                  resources:
+                    type: array
+                    items: { type: object, additionalProperties: true }
+
+  # ─────────────────────────── Code Knowledge ───────────────────────────
+  /v1/code-knowledge/repos:
+    get:
+      tags: [CodeKnowledge]
+      summary: List repositories
+      responses:
+        '200':
+          description: Repos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: object, additionalProperties: true }
+  /v1/code-knowledge/repos/{owner}/{repo}:
+    get:
+      tags: [CodeKnowledge]
+      summary: Get repository details
+      parameters:
+        - { in: path, name: owner, required: true, schema: { type: string } }
+        - { in: path, name: repo, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Repo
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /v1/code-knowledge/repos/{owner}/{repo}/deps:
+    get:
+      tags: [CodeKnowledge]
+      summary: Get repo dependencies
+      parameters:
+        - { in: path, name: owner, required: true, schema: { type: string } }
+        - { in: path, name: repo, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Dependencies
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: object, additionalProperties: true }
+  /v1/code-knowledge/deps/{packageName}/dependents:
+    get:
+      tags: [CodeKnowledge]
+      summary: Get dependents for a package
+      parameters:
+        - { in: path, name: packageName, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Dependents
+          content:
+            application/json:
+              schema: { type: array, items: { type: object, additionalProperties: true } }
+  /v1/code-knowledge/repo-suggestions:
+    get:
+      tags: [CodeKnowledge]
+      summary: Auto-suggested repo→service mappings
+      responses:
+        '200':
+          description: Suggestions
+          content:
+            application/json:
+              schema: { type: array, items: { type: object, additionalProperties: true } }
+  /v1/code-knowledge/repo-mappings:
+    post:
+      tags: [CodeKnowledge]
+      summary: Apply repo→service mappings in batch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mappings]
+              properties:
+                mappings:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [repoFullName, serviceId]
+                    properties:
+                      repoFullName: { type: string }
+                      serviceId: { type: string }
+                      deployTarget: { type: string }
+                      environment: { type: string }
+      responses:
+        '201':
+          description: Applied
+          content:
+            application/json:
+              schema: { type: array, items: { type: object, additionalProperties: true } }
+  /v1/code-knowledge/services/{serviceId}/repos:
+    get:
+      tags: [CodeKnowledge]
+      summary: Get repos linked to a service
+      parameters:
+        - { in: path, name: serviceId, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Repos
+          content:
+            application/json:
+              schema: { type: array, items: { type: object, additionalProperties: true } }
+
+  # ─────────────────────────── Memory ───────────────────────────
+  /v1/memory/chat:
+    post:
+      tags: [Memory]
+      summary: Unified chat (Hindsight/router decides intent)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '200':
+          description: Chat response
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '503': { description: Chat not available }
+  /v1/memory/insights:
+    get:
+      tags: [Memory]
+      summary: Recall memories grouped for the Intelligence page
+      responses:
+        '200':
+          description: Insights
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/memory/summary:
+    get:
+      tags: [Memory]
+      summary: Tenant infrastructure summary (cached 5m)
+      responses:
+        '200':
+          description: Summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary: { type: string }
+                  generatedAt: { type: string, format: date-time }
+                  cached: { type: boolean }
+  /v1/memory/topology:
+    get:
+      tags: [Memory]
+      summary: Recall topology-tagged memories
+      responses:
+        '200':
+          description: Topology
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+  /v1/memory/chat/history:
+    get:
+      tags: [Memory]
+      summary: List recent chats
+      parameters:
+        - { in: query, name: limit, schema: { type: integer, default: 20, minimum: 1, maximum: 100 } }
+      responses:
+        '200':
+          description: Chats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chats: { type: array, items: { type: object, additionalProperties: true } }
+        '503': { description: Chat history not available }
+  /v1/memory/chat/history/{chatId}:
+    get:
+      tags: [Memory]
+      summary: Get messages of a chat
+      parameters:
+        - { in: path, name: chatId, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chatId: { type: string }
+                  messages: { type: array, items: { type: object, additionalProperties: true } }
+        '503': { description: Chat history not available }
+  /v1/memory/runbooks:
+    get:
+      tags: [Memory]
+      summary: List RunbookRegistry entries (confirmed root causes)
+      responses:
+        '200':
+          description: Runbooks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  runbooks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rootCauseHash: { type: string }
+                        rootCauseSummary: { type: string }
+                        occurrences: { type: integer }
+                        confirmations: { type: integer }
+                        lastSeen: { type: string, format: date-time }
+                        automated: { type: boolean }
+                        fixAction: { type: object, additionalProperties: true }
+
+  # ─────────────────────────── Skills ───────────────────────────
+  /api/v1/tenants/{tenantId}/skills:
+    post:
+      tags: [Skill]
+      summary: Create a tenant investigation skill
+      parameters: [ { $ref: '#/components/parameters/TenantIdPath' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateSkillInput' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Skill' }
+    get:
+      tags: [Skill]
+      summary: List tenant skills
+      parameters: [ { $ref: '#/components/parameters/TenantIdPath' } ]
+      responses:
+        '200':
+          description: Skills
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Skill' } }
+  /api/v1/tenants/{tenantId}/skills/{id}:
+    get:
+      tags: [Skill]
+      summary: Get a skill by id
+      parameters:
+        - $ref: '#/components/parameters/TenantIdPath'
+        - { in: path, name: id, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Skill
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Skill' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Skill]
+      summary: Update a skill
+      parameters:
+        - $ref: '#/components/parameters/TenantIdPath'
+        - { in: path, name: id, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/CreateSkillInput'
+                - type: object
+                  properties:
+                    isEnabled: { type: boolean }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Skill' }
+    delete:
+      tags: [Skill]
+      summary: Delete a skill
+      parameters:
+        - $ref: '#/components/parameters/TenantIdPath'
+        - { in: path, name: id, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema: { type: object, properties: { ok: { type: boolean } } }
+
+  # ─────────────────────────── Widget ───────────────────────────
+  /v1/widget/sessions:
+    post:
+      tags: [Widget]
+      summary: Create a widget chat session
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                agentId: { type: string }
+                agentName: { type: string }
+      responses:
+        '201':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId: { type: string }
+                  createdAt: { type: string, format: date-time }
+                  expiresAt: { type: string, format: date-time }
+  /v1/widget/sessions/{sessionId}/messages:
+    post:
+      tags: [Widget]
+      summary: Send a message in a widget session
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - { in: path, name: sessionId, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message: { type: string, maxLength: 2000 }
+      responses:
+        '200':
+          description: Reply / ack
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '400': { description: Invalid message }
+  /v1/widget/sessions/{sessionId}/stream:
+    get:
+      tags: [Widget]
+      summary: SSE stream for async widget responses
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - { in: path, name: sessionId, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: text/event-stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+  /v1/widget/sessions/{sessionId}/push-subscribe:
+    post:
+      tags: [Widget]
+      summary: Register a Web Push subscription for this widget session
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - { in: path, name: sessionId, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [endpoint, keys]
+              properties:
+                endpoint: { type: string, format: uri }
+                keys:
+                  type: object
+                  required: [p256dh, auth]
+                  properties:
+                    p256dh: { type: string }
+                    auth: { type: string }
+      responses:
+        '200':
+          description: Registered
+          content:
+            application/json:
+              schema: { type: object, properties: { ok: { type: boolean } } }
+  /v1/widget/sessions/{sessionId}/close:
+    post:
+      tags: [Widget]
+      summary: Close a widget session
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - { in: path, name: sessionId, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Closed
+          content:
+            application/json:
+              schema: { type: object, properties: { ok: { type: boolean } } }
+  /v1/widget/config:
+    get:
+      tags: [Widget]
+      summary: Widget branding config for this tenant
+      security:
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Config
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  branding: { type: object, additionalProperties: true }
+                  vapidPublicKey: { type: string }
+                  maxSessionMessages: { type: integer }
+
+  # ─────────────────────────── Portal ───────────────────────────
+  /portal:
+    get:
+      tags: [Portal]
+      summary: Serve the customer widget portal HTML (resolved by custom domain)
+      security: []
+      responses:
+        '200':
+          description: HTML
+          content:
+            text/html:
+              schema: { type: string }
+        '400': { description: Bad request (missing Host header) }
+        '403': { description: Portal not enabled }
+        '404': { description: Portal not found }
+        '503': { description: Portal configuration incomplete }
+
+  # ─────────────────────────── Beta Allowlist ───────────────────────────
+  /v1/beta-allowlist/check:
+    post:
+      tags: [BetaAllowlist]
+      summary: Check if an email is on the beta allowlist
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200':
+          description: Allowlist result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allowed: { type: boolean }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Clerk-issued JWT. Tenant context derived from `o.id` claim.
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Tenant-scoped API key for programmatic and widget access.
+    webhookSecret:
+      type: apiKey
+      in: header
+      name: X-Webhook-Secret
+      description: Shared webhook secret for ingestion endpoints.
+    webhookSignature:
+      type: apiKey
+      in: header
+      name: webhook-signature
+      description: HMAC signature header used by Composio webhooks.
+    stripeSignature:
+      type: apiKey
+      in: header
+      name: stripe-signature
+      description: Stripe webhook signature header.
+    svixSignature:
+      type: apiKey
+      in: header
+      name: svix-signature
+      description: Svix signature for Clerk webhooks.
+
+  parameters:
+    Limit:
+      in: query
+      name: limit
+      schema: { type: integer, default: 20, minimum: 1, maximum: 200 }
+    Cursor:
+      in: query
+      name: cursor
+      schema: { type: string }
+    TenantIdPath:
+      in: path
+      name: tenantId
+      required: true
+      schema: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Authentication required or invalid
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Caller lacks required role
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        message: { type: string }
+        details: { type: object, additionalProperties: true }
+
+    Tenant:
+      type: object
+      properties:
+        tenantId: { type: string }
+        name: { type: string }
+        slug: { type: string }
+        ownerEmail: { type: string, format: email }
+        plan: { type: string, enum: [starter, pro, business, enterprise] }
+        status: { type: string, enum: [active, suspended, trial, cancelled] }
+        settings:
+          type: object
+          properties:
+            maxIncidentsPerMonth: { type: integer }
+            autoRemediation: { type: boolean }
+            notificationChannels: { type: array, items: { type: string } }
+            chatProvider: { type: string, enum: [web_portal, slack, teams] }
+            widgetConfig: { type: object, additionalProperties: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    CreateTenantInput:
+      type: object
+      required: [name, slug, ownerEmail]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 100 }
+        slug: { type: string, minLength: 2, maxLength: 50, pattern: '^[a-z0-9-]+$' }
+        ownerEmail: { type: string, format: email }
+        plan: { type: string, enum: [starter, pro, business, enterprise] }
+        settings:
+          type: object
+          properties:
+            maxIncidentsPerMonth: { type: integer }
+            autoRemediation: { type: boolean }
+            notificationChannels: { type: array, items: { type: string } }
+
+    UpdateTenantInput:
+      type: object
+      properties:
+        name: { type: string }
+        ownerEmail: { type: string, format: email }
+        plan: { type: string, enum: [starter, pro, business, enterprise] }
+        status: { type: string, enum: [active, suspended, trial, cancelled] }
+        settings:
+          type: object
+          properties:
+            maxIncidentsPerMonth: { type: integer }
+            autoRemediation: { type: boolean }
+            notificationChannels: { type: array, items: { type: string } }
+            chatProvider: { type: string, enum: [web_portal, slack, teams] }
+
+    User:
+      type: object
+      properties:
+        userId: { type: string }
+        tenantId: { type: string }
+        email: { type: string, format: email }
+        name: { type: string }
+        role: { type: string, enum: [admin, member, owner, operator] }
+        profileComplete: { type: boolean }
+        termsAcceptedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+
+    UserSettings:
+      type: object
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        settings:
+          type: object
+          properties:
+            theme: { type: string, enum: [light, dark, system] }
+            locale: { type: string, enum: [en, pt-br] }
+            notifications:
+              type: object
+              properties:
+                emailOnComplete: { type: boolean }
+                emailOnError: { type: boolean }
+                slackOnComplete: { type: boolean }
+                slackOnError: { type: boolean }
+        company:
+          type: object
+          additionalProperties: true
+
+    UpdateUserSettingsInput:
+      type: object
+      properties:
+        theme: { type: string, enum: [light, dark, system] }
+        locale: { type: string, enum: [en, pt-br] }
+        notifications:
+          type: object
+          properties:
+            emailOnComplete: { type: boolean }
+            emailOnError: { type: boolean }
+            slackOnComplete: { type: boolean }
+            slackOnError: { type: boolean }
+        name: { type: string }
+        companyName: { type: string }
+
+    Invite:
+      type: object
+      properties:
+        tenantId: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [admin, member] }
+        invitedBy: { type: string }
+        status: { type: string, enum: [pending, accepted, revoked, expired] }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+
+    ApiKey:
+      type: object
+      properties:
+        keyId: { type: string }
+        tenantId: { type: string }
+        name: { type: string }
+        prefix: { type: string }
+        status: { type: string, enum: [active, revoked] }
+        createdAt: { type: string, format: date-time }
+        lastUsedAt: { type: string, format: date-time, nullable: true }
+        revokedAt: { type: string, format: date-time, nullable: true }
+
+    AuditEntry:
+      type: object
+      properties:
+        entryId: { type: string }
+        tenantId: { type: string }
+        action: { type: string }
+        actorType: { type: string, enum: [user, system, agent] }
+        actorEmail: { type: string, format: email }
+        actorId: { type: string }
+        resourceType: { type: string }
+        resourceId: { type: string }
+        changes: { type: object, additionalProperties: true }
+        prevHash: { type: string }
+        hash: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    Incident:
+      type: object
+      properties:
+        incidentId: { type: string }
+        tenantId: { type: string }
+        title: { type: string }
+        description: { type: string }
+        severity: { type: string, enum: [critical, high, medium, low, info] }
+        status: { type: string, enum: [open, triaging, investigating, awaiting_approval, remediating, resolved, closed] }
+        source: { type: string }
+        externalId: { type: string }
+        suggestedAgents: { type: array, items: { type: string } }
+        createdBy: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Evidence:
+      type: object
+      properties:
+        evidenceId: { type: string }
+        tenantId: { type: string }
+        incidentId: { type: string }
+        agentRole: { type: string, enum: [log_analyst, metric_analyst, infra_inspector, orchestrator, scout, diagnosis_verifier] }
+        kind: { type: string }
+        summary: { type: string }
+        data: { type: object, additionalProperties: true }
+        createdAt: { type: string, format: date-time }
+
+    Investigation:
+      type: object
+      properties:
+        incidentId: { type: string }
+        tenantId: { type: string }
+        status: { type: string, enum: [pending, running, completed, aborted, failed] }
+        rootCause: { type: string, nullable: true }
+        summary: { type: string, nullable: true }
+        evidenceByAgent: { type: object, additionalProperties: true }
+        startedAt: { type: string, format: date-time }
+        completedAt: { type: string, format: date-time, nullable: true }
+
+    Remediation:
+      type: object
+      properties:
+        remediationId: { type: string }
+        incidentId: { type: string }
+        tenantId: { type: string }
+        rootCause: { type: string }
+        recommendedActions:
+          type: array
+          items:
+            type: object
+            properties:
+              action: { type: string }
+              params: { type: object, additionalProperties: true }
+        status: { type: string, enum: [proposed, approved, rejected, executing, executed, failed] }
+        approvedBy: { type: string, nullable: true }
+        rejectedBy: { type: string, nullable: true }
+        reason: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+
+    Notification:
+      type: object
+      properties:
+        notificationId: { type: string }
+        tenantId: { type: string }
+        type: { type: string }
+        title: { type: string }
+        body: { type: string }
+        status: { type: string, enum: [unread, read] }
+        relatedResource:
+          type: object
+          properties:
+            type: { type: string }
+            id: { type: string }
+        createdAt: { type: string, format: date-time }
+        readAt: { type: string, format: date-time, nullable: true }
+
+    Approval:
+      type: object
+      properties:
+        approvalId: { type: string }
+        tenantId: { type: string }
+        resourceType: { type: string }
+        resourceId: { type: string }
+        status: { type: string, enum: [pending, approved, rejected] }
+        requestedBy: { type: string }
+        respondedBy: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        respondedAt: { type: string, format: date-time, nullable: true }
+
+    Subscription:
+      type: object
+      properties:
+        tenantId: { type: string }
+        stripeCustomerId: { type: string, nullable: true }
+        stripeSubscriptionId: { type: string, nullable: true }
+        plan: { type: string, enum: [starter, pro, business, enterprise] }
+        status: { type: string }
+        currentPeriodEnd: { type: string, format: date-time, nullable: true }
+        cancelAtPeriodEnd: { type: boolean }
+
+    Integration:
+      type: object
+      properties:
+        type: { type: string }
+        provider: { type: string }
+        name: { type: string }
+        status: { type: string, enum: [connected, disconnected, error] }
+        source: { type: string, enum: [credential, composio] }
+        createdAt: { type: string, format: date-time }
+
+    IntegrationProvider:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        category: { type: string, enum: [cloud, code, communication, project, monitoring, knowledge, crm] }
+        type: { type: string, enum: [oauth, credential] }
+        description: { type: string }
+        logo: { type: string, format: uri }
+        setup:
+          type: object
+          nullable: true
+          properties:
+            accountId: { type: string }
+            externalId: { type: string }
+            trustPolicyPrincipal: { type: string }
+
+    Trigger:
+      type: object
+      properties:
+        triggerId: { type: string }
+        tenantId: { type: string }
+        triggerSlug: { type: string }
+        provider: { type: string }
+        config: { type: object, additionalProperties: true }
+        status: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    Skill:
+      type: object
+      properties:
+        skillId: { type: string }
+        tenantId: { type: string }
+        name: { type: string }
+        displayName: { type: string }
+        description: { type: string }
+        whenToUse: { type: string }
+        systemPrompt: { type: string }
+        allowedTools: { type: array, items: { type: string } }
+        model: { type: string }
+        maxTurns: { type: integer }
+        minToolCalls: { type: integer }
+        isEnabled: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    CreateSkillInput:
+      type: object
+      required: [name, displayName, description, whenToUse, systemPrompt, allowedTools]
+      properties:
+        name: { type: string, pattern: '^[a-z0-9-]+$', maxLength: 100 }
+        displayName: { type: string, maxLength: 200 }
+        description: { type: string, maxLength: 1000 }
+        whenToUse: { type: string, maxLength: 500 }
+        systemPrompt: { type: string, maxLength: 10000 }
+        allowedTools: { type: array, minItems: 1, items: { type: string } }
+        model: { type: string }
+        maxTurns: { type: integer, minimum: 1, maximum: 20 }
+        minToolCalls: { type: integer, minimum: 0, maximum: 10 }

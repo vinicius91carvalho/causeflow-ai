@@ -1,0 +1,50 @@
+---
+title: "Health check"
+api: "GET /health"
+description: "Simple health check — returns OK if the API is running."
+---
+
+## Overview
+
+A lightweight health check endpoint that returns `ok` if the CauseFlow API is running and accepting requests. Use this for uptime monitoring, load balancer health probes, and CI/CD pipeline readiness checks.
+
+<Note>
+  This is a public endpoint. No authentication required.
+</Note>
+
+## Response
+
+Returns `200 OK` with a simple status payload.
+
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-04-01T12:00:00Z"
+}
+```
+
+| Field       | Type   | Description                                               |
+| ----------- | ------ | --------------------------------------------------------- |
+| `status`    | string | Always `"ok"` when the API is running                     |
+| `timestamp` | string | ISO 8601 timestamp of when the response was generated     |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/health
+```
+
+```typescript TypeScript
+const response = await fetch("https://api.causeflow.ai/health");
+const { status, timestamp } = await response.json();
+
+if (status !== "ok") {
+  throw new Error(`CauseFlow API is not healthy. Status: ${status}`);
+}
+
+console.log(`API is healthy as of ${timestamp}`);
+```
+
+</CodeGroup>

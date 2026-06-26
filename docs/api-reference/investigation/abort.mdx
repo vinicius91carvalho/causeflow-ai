@@ -1,0 +1,106 @@
+---
+title: "Abort investigation"
+api: "DELETE /v1/investigation/{incidentId}"
+description: "Cancel a running investigation and stop all associated AI agents."
+---
+
+## Overview
+
+Aborts an in-progress investigation for an incident. All running AI agents are stopped and any partial results are preserved. The incident status reverts to `open` so you can re-trigger investigation later if needed.
+
+**Required role:** `admin`
+
+<Warning>
+  Aborting an investigation discards partial analysis. Any evidence already collected is preserved in triage, but AI findings are cleared. Re-triggering investigation starts fresh.
+</Warning>
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Path parameters
+
+<ParamField path="incidentId" type="string" required>
+  The incident whose investigation you want to abort. Example: `inc_EXAMPLE_01JX`.
+</ParamField>
+
+## Request body
+
+<ParamField body="reason" type="string">
+  Optional reason for aborting. Recorded in the incident audit log.
+</ParamField>
+
+## Response
+
+Returns `200 OK`.
+
+```json
+{
+  "incidentId": "inc_EXAMPLE_01JX",
+  "status": "open",
+  "abortedAt": "2024-04-01T14:45:00Z",
+  "agentsStopped": 3
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `incidentId` | string | The incident ID |
+| `status` | string | Reverted status — always `open` after abort |
+| `abortedAt` | string | ISO 8601 timestamp of abort |
+| `agentsStopped` | integer | Number of running agents that were terminated |
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `401` | `unauthorized` | Missing or invalid JWT |
+| `403` | `forbidden` | Caller lacks `admin` role |
+| `404` | `incident_not_found` | No incident with the given ID |
+| `409` | `no_active_investigation` | No investigation is currently running for this incident |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/v1/investigation/inc_EXAMPLE_01JX \
+  -X DELETE \
+  -H "Authorization: Bearer eyJhbGc..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reason": "False alarm — monitoring rule was misconfigured"
+  }'
+```
+
+```typescript TypeScript
+const response = await fetch(
+  "https://api.causeflow.ai/v1/investigation/inc_EXAMPLE_01JX",
+  {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      reason: "False alarm — monitoring rule was misconfigured",
+    }),
+  }
+);
+
+const result = await response.json();
+console.log(`Stopped ${result.agentsStopped} agents`);
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Start investigation" href="/api-reference/investigation/start-investigation">
+    Re-trigger investigation after an abort
+  </Card>
+  <Card title="Update incident status" href="/api-reference/incidents/update-status">
+    Manually close or resolve the incident
+  </Card>
+</CardGroup>

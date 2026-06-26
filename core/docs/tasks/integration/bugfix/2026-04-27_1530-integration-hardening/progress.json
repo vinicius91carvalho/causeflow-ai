@@ -1,0 +1,100 @@
+{
+  "prd_name": "integration-hardening",
+  "build_candidate_tag": "build-candidate/integration-hardening",
+  "created_at": "2026-04-27",
+  "prd_status": "completed",
+  "completed_at": "2026-04-28",
+  "summary": {
+    "total_sprints": 5,
+    "completed": 5,
+    "merged": 5,
+    "phase_5_evidence": "All 5 sprints merged. Sprint 05 Phase 5 verification (sprint commit eac2939, merge commit 015b8e6, follow-ups a952d71/2d77258/e1680b6): web typecheck 14/14 PASS, vitest 1048/1048 PASS, dashboard dev 200 on integrations/settings (en + pt-br), Playwright 14 tests / 0 failures (4 graceful-pass + 52 intentional skips). Local invariant lints PASS in both repos. Manual + staging verification (spec.md §190 Manual user steps) NOT executed by orchestrator — requires user action with Sentry account."
+  },
+  "sprints": [
+    {
+      "id": 1,
+      "title": "Backend: Sentry HMAC verification + integration secret storage",
+      "spec": "sprints/01-backend-sentry-hmac-verification.md",
+      "repo": "core",
+      "status": "completed",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "sprint/01-backend-sentry-hmac-verification",
+      "merged": true,
+      "sprint_commit": "53d3eca",
+      "merge_commit": "77c3879",
+      "completed_at": "2026-04-27"
+    },
+    {
+      "id": 2,
+      "title": "Dashboard: Sentry setup modal + Client Secret + verified status",
+      "spec": "sprints/02-dashboard-sentry-modal.md",
+      "repo": "web",
+      "status": "completed",
+      "depends_on": [
+        1
+      ],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": "sprint/02-dashboard-sentry-modal",
+      "merged": true,
+      "merge_commit": "6426840",
+      "sprint_commit": "767e7e0",
+      "completed_at": "2026-04-27"
+    },
+    {
+      "id": 3,
+      "title": "Dashboard: Slack uses canonical IntegrationCard",
+      "spec": "sprints/03-dashboard-slack-canonical-card.md",
+      "repo": "web",
+      "status": "completed",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "sprint/03-dashboard-slack-canonical-card",
+      "merged": true
+    },
+    {
+      "id": 4,
+      "title": "Fire Test Error end-to-end",
+      "spec": "sprints/04-fire-test-error-end-to-end.md",
+      "repo": "both",
+      "status": "completed",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": "sprint/04-fire-test-error-core,sprint/04-fire-test-error-web",
+      "merged": true,
+      "core_merge_commit": "e45d202",
+      "core_sprint_commit": "363d4a6",
+      "completed_at": "2026-04-27"
+    },
+    {
+      "id": 5,
+      "title": "E2E + CLAUDE.md verification protocol",
+      "spec": "sprints/05-e2e-and-claude-md.md",
+      "repo": "web",
+      "status": "completed",
+      "depends_on": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": "sprint/05-e2e-and-claude-md",
+      "merged": true,
+      "started_at": "2026-04-27",
+      "completed_at": "2026-04-28",
+      "sprint_commit": "eac2939",
+      "merge_commit": "015b8e6",
+      "followup_commits": [
+        "a952d71",
+        "2d77258",
+        "e1680b6"
+      ]
+    }
+  ]
+}

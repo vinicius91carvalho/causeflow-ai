@@ -1,0 +1,27 @@
+{
+  "name": "causeflow-infra",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy",
+    "diff": "cdk diff",
+    "test": "jest",
+    "bootstrap:synth": "cdk --app 'npx ts-node --prefer-ts-exts bin/bootstrap.ts' synth causeflow-bootstrap",
+    "bootstrap:diff": "cdk --app 'npx ts-node --prefer-ts-exts bin/bootstrap.ts' diff causeflow-bootstrap",
+    "bootstrap:deploy": "cdk --app 'npx ts-node --prefer-ts-exts bin/bootstrap.ts' deploy causeflow-bootstrap --require-approval never"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.170.0",
+    "constructs": "^10.4.0"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.170.0",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.0",
+    "typescript": "^5.7.0"
+  }
+}

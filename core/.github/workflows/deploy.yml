@@ -1,0 +1,316 @@
+name: Deploy
+
+# Sprint 3 rewrite — staging-only pipeline built on OIDC + CDK + TS scripts.
+#
+# Job graph: test -> build-and-push -> deploy-staging -> verify-staging
+#                                                     -> deploy-production -> verify-production
+#
+# Invariant pre-enforcement (full contracts land in Sprint 5 INVARIANTS.md):
+#   I1 - no static AWS credentials anywhere in this file
+#   I2 - every aws-actions/configure-aws-credentials uses role-to-assume (OIDC)
+#   I3 - zero continue-on-error
+#   I4 - zero `aws ecs register-task-definition` invocations (CDK owns task defs)
+#   I6 - no inline `run: |` block exceeds 20 lines
+#
+# Production jobs appended in Sprint 5.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Deployment stage'
+        required: false
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+      - name: Verify no unresolved path aliases in compiled output
+        run: |
+          if grep -rEl "from '@(shared|modules)/'" dist/ --include="*.js" 2>/dev/null | grep -q .; then
+            echo "::error::Compiled output contains unresolved TypeScript path aliases."
+            echo "Use relative imports instead of @shared/ @modules/"
+            grep -rEh "from '@(shared|modules)/'" dist/ --include="*.js" | sort -u
+            exit 1
+          fi
+          echo "No unresolved path aliases in compiled output"
+
+      - name: Unit tests
+        run: pnpm test:run
+
+      - name: Lint invariants
+        run: pnpm lint-invariants
+
+  build-and-push:
+    name: build-and-push
+    needs: test
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      short_sha: ${{ steps.meta.outputs.short_sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compute short SHA
+        id: meta
+        env:
+          FULL_SHA: ${{ github.sha }}
+        run: echo "short_sha=${FULL_SHA:0:7}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          build-args: |
+            GIT_SHA=${{ steps.meta.outputs.short_sha }}
+          tags: |
+            ${{ vars.ECR_REGISTRY }}/causeflow-staging:${{ steps.meta.outputs.short_sha }}
+            ${{ vars.ECR_REGISTRY }}/causeflow-staging:latest
+            ${{ vars.ECR_REGISTRY }}/causeflow-production:${{ steps.meta.outputs.short_sha }}
+            ${{ vars.ECR_REGISTRY }}/causeflow-production:latest
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max
+
+      - name: Build and push Worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.worker
+          push: true
+          build-args: |
+            GIT_SHA=${{ steps.meta.outputs.short_sha }}
+          tags: |
+            ${{ vars.ECR_REGISTRY }}/causeflow-staging:worker-${{ steps.meta.outputs.short_sha }}
+            ${{ vars.ECR_REGISTRY }}/causeflow-staging:worker-latest
+            ${{ vars.ECR_REGISTRY }}/causeflow-production:worker-${{ steps.meta.outputs.short_sha }}
+            ${{ vars.ECR_REGISTRY }}/causeflow-production:worker-latest
+          cache-from: type=gha,scope=worker
+          cache-to: type=gha,scope=worker,mode=max
+
+  deploy-staging:
+    name: deploy-staging
+    needs: build-and-push
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.stage == 'staging')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install CDK dependencies
+        working-directory: infra/cdk
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: CDK deploy (staging)
+        working-directory: infra/cdk
+        env:
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.short_sha }}
+        run: |
+          npx cdk deploy causeflow-staging \
+            --require-approval never \
+            -c stage=staging \
+            -c imageTag="$IMAGE_TAG" \
+            -c deployServices=true
+
+  verify-staging:
+    name: verify-staging
+    needs: [build-and-push, deploy-staging]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Verify deploy (staging)
+        env:
+          AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          EXPECTED_SHA: ${{ needs.build-and-push.outputs.short_sha }}
+        run: |
+          pnpm exec tsx infra/scripts/verify-deploy.ts \
+            --stage staging \
+            --expected-sha "$EXPECTED_SHA" \
+            --services api
+
+  deploy-production:
+    name: deploy-production
+    needs: [build-and-push, verify-staging]
+    if: always() && needs.build-and-push.result == 'success' && github.event_name == 'workflow_dispatch' && github.event.inputs.stage == 'production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install CDK dependencies
+        working-directory: infra/cdk
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: CDK deploy (production)
+        working-directory: infra/cdk
+        env:
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.short_sha }}
+        run: |
+          npx cdk deploy causeflow-production \
+            --require-approval never \
+            -c stage=production \
+            -c imageTag="$IMAGE_TAG" \
+            -c deployServices=true
+
+  verify-production:
+    name: verify-production
+    needs: [build-and-push, deploy-production]
+    if: always() && needs.deploy-production.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Verify deploy (production)
+        env:
+          AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          EXPECTED_SHA: ${{ needs.build-and-push.outputs.short_sha }}
+        run: |
+          pnpm exec tsx infra/scripts/verify-deploy.ts \
+            --stage production \
+            --expected-sha "$EXPECTED_SHA" \
+            --services api

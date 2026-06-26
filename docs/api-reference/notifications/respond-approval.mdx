@@ -1,0 +1,111 @@
+---
+title: "Respond to approval"
+api: "POST /v1/notifications/approvals/{approvalId}"
+description: "Approve or reject a pending remediation approval."
+---
+
+## Overview
+
+Responds to a pending remediation approval request. When CauseFlow AI proposes a remediation step that requires human sign-off, an approval notification is created and an `approval.requested` event is emitted via SSE. This endpoint records the decision and either proceeds with execution or cancels the remediation step.
+
+**Required role:** `admin`
+
+## Path parameters
+
+<ParamField path="approvalId" type="string" required>
+  The identifier of the approval request to respond to. Found in the `approval.requested` SSE event or in the notification payload's `approvalId` field.
+</ParamField>
+
+## Request body
+
+<ParamField body="action" type="string" required>
+  The approval decision. One of:
+
+  - `approve` — authorize the remediation step to proceed
+  - `reject` — cancel the remediation step; the incident remains open for manual resolution
+</ParamField>
+
+## Response
+
+Returns `200 OK` confirming the decision was recorded and indicating the resulting remediation status.
+
+```json
+{
+  "approvalId": "apr_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "action": "approve",
+  "remediationId": "rem_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "remediationStatus": "executing",
+  "decidedBy": "user_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "decidedAt": "2024-04-01T14:42:00Z"
+}
+```
+
+| Field               | Type   | Description                                                                    |
+| ------------------- | ------ | ------------------------------------------------------------------------------ |
+| `approvalId`        | string | The approval request identifier                                                |
+| `action`            | string | The decision recorded: `approve` or `reject`                                   |
+| `remediationId`     | string | The associated remediation identifier                                          |
+| `remediationStatus` | string | New remediation status: `executing` (approved) or `cancelled` (rejected)       |
+| `decidedBy`         | string | Identifier of the user who made the decision                                   |
+| `decidedAt`         | string | ISO 8601 timestamp when the decision was recorded                              |
+
+### Error responses
+
+| Status | Error code          | Description                                                                  |
+| ------ | ------------------- | ---------------------------------------------------------------------------- |
+| `400`  | `validation_error`  | `action` is missing or not one of `approve`/`reject`                         |
+| `404`  | `not_found`         | No approval request with the given `approvalId` exists                       |
+| `409`  | `already_resolved`  | This approval request has already been approved or rejected                  |
+
+<Warning>
+  Approving a remediation authorizes CauseFlow to execute infrastructure changes on your behalf. Ensure you have reviewed the proposed remediation plan in the dashboard before approving.
+</Warning>
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+# Approve a pending remediation
+curl https://api.causeflow.ai/v1/notifications/approvals/apr_01HX9VTPQR3KF8MZWBYD5N6JCE \
+  -X POST \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"action": "approve"}'
+```
+
+```typescript TypeScript
+async function respondToApproval(
+  token: string,
+  approvalId: string,
+  action: "approve" | "reject"
+): Promise<void> {
+  const response = await fetch(
+    `https://api.causeflow.ai/v1/notifications/approvals/${approvalId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action }),
+    }
+  );
+
+  if (response.status === 409) {
+    throw new Error("Approval already resolved — cannot respond again.");
+  }
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(`Failed to respond: ${err.error}`);
+  }
+
+  const result = await response.json();
+  console.log(
+    `Approval ${action}d. Remediation status: ${result.remediationStatus}`
+  );
+}
+```
+
+</CodeGroup>

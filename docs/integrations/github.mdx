@@ -1,0 +1,107 @@
+---
+title: "GitHub"
+description: "Connect GitHub via OAuth to enable code analysis and automated draft pull request creation during investigations."
+---
+
+Connecting GitHub lets the CauseFlow orchestrator agent read source, review recent commits, and open draft pull requests with proposed fixes when a code-level root cause is confirmed — moving from "here is the root cause" to "here is the fix, ready for your review."
+
+## How it works
+
+GitHub is connected via **OAuth** through CauseFlow's managed integration layer. The minimum set of GitHub permissions needed for investigation and fix proposal is requested during installation. No long-lived personal access tokens are required, and no credentials are stored outside CauseFlow's encrypted vault.
+
+## Required information
+
+| Item | Description |
+|---|---|
+| **GitHub account or organization** | The account or org that owns the repositories you want to connect |
+| **Repository selection** | Which repositories CauseFlow can access (you choose during installation) |
+
+## Minimum scopes
+
+CauseFlow requests only the permissions it needs:
+
+| Permission | Access level | Used for |
+|---|---|---|
+| Contents | Read | Reading source files and searching the codebase |
+| Pull requests | Write | Creating draft pull request proposals |
+| Commit history | Read | Identifying recent changes that may have caused the incident |
+| Repository metadata | Read | Mapping services to repositories |
+
+CauseFlow never reads secrets, environment variables, `.env` files, or files outside the repositories you explicitly select.
+
+## Steps to configure in CauseFlow
+
+<Steps>
+  <Step title="Open the GitHub integration">
+    Go to **Dashboard > Integrations > GitHub** and click **Install GitHub App**.
+  </Step>
+  <Step title="Authorize on GitHub">
+    You'll be redirected to GitHub. Sign in if prompted, then select whether to install the app on your personal account or an organization.
+  </Step>
+  <Step title="Select repositories">
+    Choose **Only select repositories** and pick the repositories you want CauseFlow to analyze. You can add more repositories later from GitHub's app settings.
+
+    <Note>
+      Selecting **All repositories** works too, but we recommend starting with a specific list so you stay in control of what CauseFlow can access.
+    </Note>
+  </Step>
+  <Step title="Approve permissions">
+    GitHub shows the minimum permissions the CauseFlow app requires (listed above). Click **Install** to approve and complete the installation.
+  </Step>
+  <Step title="Return to CauseFlow">
+    You'll be redirected back to the CauseFlow dashboard. The GitHub integration will show a green connected status and list the repositories you selected.
+  </Step>
+</Steps>
+
+## What this enables
+
+- Code search and file reading during incident investigation
+- Recent commit analysis to identify change-induced failures
+- Draft pull request creation when a code-level root cause is confirmed
+
+## How code fixes work
+
+CauseFlow opens a draft pull request only when the orchestrator has identified a bug in source code as the root cause. It does not create pull requests for infrastructure issues, database problems, or configuration changes.
+
+When it does create a pull request:
+
+- The PR is always a **draft** — it will never auto-merge
+- The PR description includes the root cause analysis that motivated the change
+- Your team reviews and merges it like any other PR, using your normal approval process
+
+See [Remediations](/dashboard/remediations) to learn how the full approval workflow works before code is deployed.
+
+## Managing the installation
+
+**View connected repositories:** Go to **Dashboard > Integrations > GitHub**. You'll see the list of connected repositories and when each was last accessed by an agent.
+
+**Add or remove repositories:** Click **Manage on GitHub** to update the repository selection in GitHub's app settings. Changes take effect immediately.
+
+**Revoke access:** To fully disconnect, either:
+- Click **Disconnect** in **Dashboard > Integrations > GitHub** to remove the integration from CauseFlow, or
+- Go to **GitHub > Settings > Applications > Installed GitHub Apps**, find CauseFlow, and click **Configure > Uninstall**.
+
+Both methods immediately revoke access. Any in-progress investigations that depend on GitHub access complete with partial results.
+
+## Troubleshooting
+
+**"No repositories found" after installation:** Confirm you selected at least one repository during the GitHub installation flow. Go to **Manage on GitHub** to update the repository list.
+
+**No PR opened for an incident:** Draft PRs are only opened when the orchestrator has confirmed a code-level root cause. If the root cause is infrastructure or configuration, no PR is created by design.
+
+**`Push access required` error:** Confirm the CauseFlow GitHub App has **Pull requests: Write** permission on the target repository. You may need to re-authorize if permissions were reduced after installation.
+
+<CardGroup cols={2}>
+  <Card title="Remediations" icon="check-circle" href="/dashboard/remediations">
+    Learn how the human-approval workflow works before code changes are deployed.
+  </Card>
+  <Card title="Integrations overview" icon="list" href="/integrations/overview">
+    See the full catalog of supported tools.
+  </Card>
+  <Card title="Security overview" icon="shield" href="/security/overview">
+    Learn how CauseFlow stores and protects your GitHub credentials.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    Manage GitHub integrations programmatically.
+  </Card>
+</CardGroup>

@@ -1,0 +1,133 @@
+---
+title: "Memory and chat"
+description: "Query CauseFlow in natural language, share knowledge about your systems, and let the AI learn from past investigations."
+---
+
+CauseFlow includes a conversational interface that understands the context of your infrastructure, not just text strings. You can use it to ask questions, share architectural facts, start investigations, and query real-time system state — all from the same interface.
+
+The chat is available in the dashboard. You can also call it programmatically at `POST /v1/memory/chat`.
+
+---
+
+## How chat intent works
+
+Every message you send is routed by an AI intent classifier before any action is taken. The classifier determines what you are trying to do and dispatches the right response — without requiring you to select a mode or navigate to a different screen.
+
+There are five intents:
+
+---
+
+### 1. General
+
+**What it is:** A greeting, help request, or question about CauseFlow's capabilities.
+
+**What CauseFlow does:** Returns a static response with guidance. No AI model call, no tools, no investigation created.
+
+**Example:**
+
+> "What can you help me with?"
+
+**Expected behavior:** CauseFlow responds with an explanation of its capabilities — investigating incidents, answering questions from memory, running live infrastructure checks, and creating incidents from descriptions.
+
+---
+
+### 2. Memory only
+
+**What it is:** A question answerable from past investigations, architecture history, or knowledge you have shared previously.
+
+**What CauseFlow does:** Searches its long-term memory for relevant context and synthesizes an answer. No live infrastructure access, no incident created.
+
+**Example:**
+
+> "What was the root cause of the payment service outage last week?"
+
+**Expected behavior:** CauseFlow searches its investigation memory and returns a summary of the past incident — root cause, resolution, and any patterns learned. If no matching history exists, it says so clearly.
+
+---
+
+### 3. Knowledge capture
+
+**What it is:** A declarative fact about your infrastructure that CauseFlow should remember for future investigations.
+
+**What CauseFlow does:** Extracts the key entities and concepts from your message, then stores them in long-term memory. Future investigations automatically include this context.
+
+**Example:**
+
+> "Our checkout service runs on ECS with three tasks. It connects to an RDS PostgreSQL instance in a private subnet. Connection pooling is managed by PgBouncer."
+
+**Expected behavior:** CauseFlow acknowledges the knowledge capture and confirms what was stored. The next investigation involving the checkout service will include this architecture context automatically.
+
+---
+
+### 4. Live check
+
+**What it is:** A question about the current state of your systems — what is happening right now.
+
+**What CauseFlow does:** Dispatches an on-demand AI agent that queries your connected infrastructure using real-time data (CloudWatch logs, metrics, ECS service state). The response is streamed back via Server-Sent Events. No incident is created.
+
+**Example:**
+
+> "Are there any errors in the payment service logs in the last 30 minutes?"
+
+**Expected behavior:** CauseFlow immediately acknowledges the request, then within seconds streams back a summary of recent log activity — error counts, any recurring messages, service health. The result is also retained in memory for future reference.
+
+<Note>
+  Live checks require an AWS connection. If AWS is not connected, CauseFlow will respond from memory only.
+</Note>
+
+---
+
+### 5. Incident
+
+**What it is:** A description of something that is broken and needs a full investigation.
+
+**What CauseFlow does:** Reserves one investigation slot from your plan quota, creates a new incident, and starts the full investigation pipeline — triage, multi-agent analysis, root cause synthesis, remediation proposal. Returns immediately with a link to the incident detail page; investigation results are streamed back as they complete.
+
+**Example:**
+
+> "Customers cannot complete checkout. The checkout service is returning 500 errors since the last deploy 20 minutes ago."
+
+**Expected behavior:** CauseFlow confirms an incident has been created and provides the dashboard link. The investigation runs in the background. When complete, results appear on the incident page and you receive a notification.
+
+<Warning>
+  Creating an incident via chat consumes one investigation from your monthly quota, just like a webhook-triggered investigation. The `general`, `memory_only`, `knowledge`, and `live_check` intents do not consume investigation quota.
+</Warning>
+
+---
+
+## Pattern extraction and runbook registry
+
+After every investigation is complete, CauseFlow extracts a structured pattern from the findings — the relationship between the observed signals (high error rate, memory saturation, OOM kills) and the verified root cause (memory leak in connection pool after deploy v2.1.0).
+
+Patterns are stored in the runbook registry. When a future incident matches a stored pattern with high confidence, the known solution is applied directly without re-running the full investigation pipeline. You can view the runbook registry at `GET /v1/memory/runbooks`.
+
+When you mark an investigation as accurate from the incident detail page, the matching runbook entry's confidence increases. Repeated positive confirmations strengthen that runbook's weight in future pattern matching.
+
+---
+
+## Long-term memory
+
+CauseFlow maintains a long-term memory layer that persists across investigations and sessions. Memory is populated from three sources:
+
+1. **Knowledge capture** — facts you share via chat
+2. **Investigation summaries** — what was learned from each resolved incident
+3. **Feedback** — your accuracy ratings on past root cause conclusions
+
+Agents query memory at the start of every investigation to retrieve relevant context — past incidents involving the same services, architectural facts about affected components, and known failure modes.
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Skills" icon="wand-magic-sparkles" href="/getting-started/skills">
+    Encode deeper investigation profiles for specific incident categories.
+  </Card>
+  <Card title="AI transparency" icon="eye" href="/getting-started/ai-transparency">
+    How AI models are used and what data they access.
+  </Card>
+  <Card title="How it works" icon="arrows-spin" href="/getting-started/how-it-works">
+    The full lifecycle from alert ingestion to resolution.
+  </Card>
+  <Card title="Triggers" icon="bolt" href="/getting-started/triggers">
+    Route events from third-party tools into the investigation pipeline.
+  </Card>
+</CardGroup>

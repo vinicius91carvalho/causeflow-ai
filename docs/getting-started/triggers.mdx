@@ -1,0 +1,135 @@
+---
+title: "Triggers"
+description: "Route events from third-party tools into CauseFlow's investigation pipeline automatically."
+---
+
+A **trigger** is a managed webhook listener that monitors a third-party provider for events. When a matching event occurs, the trigger routes it into CauseFlow's ingestion pipeline — creating an incident and starting the investigation automatically.
+
+Triggers extend CauseFlow beyond its native webhook parsers. Instead of building custom parsers for every tool, you register a trigger once and CauseFlow handles normalization, deduplication, and routing.
+
+---
+
+## Supported providers
+
+CauseFlow supports triggers from the following providers through its managed integration layer:
+
+| Provider | Example events |
+|----------|---------------|
+| **Sentry** | Issue created, issue reopened |
+| **GitHub** | Push to main branch, pull request merged, workflow failure |
+| **PagerDuty** | Incident triggered, incident acknowledged |
+| **Datadog** | Alert triggered, monitor status change |
+| **Grafana** | Alert rule firing |
+| **Linear** | Issue created, issue priority changed |
+| **Jira** | Issue created, issue transitioned to "in progress" |
+| **Shortcut** | Story created, workflow state changed |
+| **Slack** | Message in a specific channel (keyword match) |
+
+If a provider you use is not listed, connect it via **Dashboard > Integrations** to check current availability.
+
+---
+
+## How triggers work
+
+When you create a trigger, CauseFlow registers a webhook listener for the selected provider and event type and forwards matching events to its ingestion endpoint.
+
+When an event arrives:
+
+1. CauseFlow validates the event signature to confirm authenticity
+2. The event is resolved to your tenant using the trigger's registered ID — no tenant information is exposed in the webhook URL
+3. The event payload is mapped to CauseFlow's internal incident format
+4. A new incident is created (or a duplicate is discarded if the same event was already seen)
+5. The incident enters the normal pipeline: triage → investigation → remediation
+
+Events that do not map to a meaningful incident (status acknowledgements, informational updates) are logged and discarded without creating an incident.
+
+---
+
+## Creating a trigger
+
+**Via the dashboard:**
+
+1. Go to **Dashboard > Integrations**
+2. Select the provider you want to connect
+3. Authenticate with the provider via OAuth
+4. Select the event type you want to trigger on
+5. Click **Create trigger**
+
+**Via the API:**
+
+```http
+POST /v1/triggers
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "provider": "sentry",
+  "triggerSlug": "SENTRY_ISSUE_CREATED",
+  "config": {
+    "projectSlug": "payment-service"
+  }
+}
+```
+
+The response includes a `triggerId` used for webhook routing — you do not need to configure it.
+
+---
+
+## Listing and deleting triggers
+
+**List all triggers for your tenant:**
+
+```http
+GET /v1/triggers
+Authorization: Bearer <token>
+```
+
+**Delete a trigger:**
+
+```http
+DELETE /v1/triggers/{triggerId}
+Authorization: Bearer <token>
+```
+
+Deleting a trigger deregisters the webhook and stops new events from creating incidents. In-flight incidents created before deletion continue through the pipeline normally.
+
+**Check available trigger types:**
+
+```http
+GET /v1/triggers/available
+Authorization: Bearer <token>
+```
+
+Returns the list of trigger slugs available for your connected integrations.
+
+---
+
+## Trigger vs native webhook
+
+CauseFlow also accepts alerts directly via native webhooks for providers with built-in parsers — Datadog, Grafana, CloudWatch, and Sentry. The difference:
+
+| | Native webhook | Trigger |
+|--|----------------|---------|
+| **Setup** | Configure the monitoring tool to POST to `https://api.causeflow.ai/v1/webhooks/{tenantId}/{provider}` | Create a trigger from Dashboard > Integrations |
+| **Auth** | API key in the `X-API-Key` header | Managed OAuth — no key to handle yourself |
+| **Event types** | Alert/notification payloads only | Any event the provider supports (deploys, PR merges, ticket updates) |
+| **Best for** | Monitoring tools where you control the webhook config | Third-party events you cannot send directly |
+
+For monitoring tools that support both options, native webhooks are simpler. Use triggers when you need events beyond monitoring alerts.
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Integrations overview" icon="plug" href="/integrations/overview">
+    Connect your monitoring tools, cloud providers, and third-party services.
+  </Card>
+  <Card title="How it works" icon="arrows-spin" href="/getting-started/how-it-works">
+    See how triggers feed into the investigation pipeline.
+  </Card>
+  <Card title="Key concepts" icon="book" href="/getting-started/key-concepts">
+    Definitions for incidents, alerts, triggers, and more.
+  </Card>
+  <Card title="Memory and chat" icon="brain" href="/getting-started/memory-and-chat">
+    Create incidents via natural language chat.
+  </Card>
+</CardGroup>

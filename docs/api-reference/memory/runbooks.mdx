@@ -1,0 +1,114 @@
+---
+title: "List runbooks"
+api: "GET /v1/memory/runbooks"
+description: "Retrieve AI-generated runbooks derived from your tenant's resolved incidents."
+---
+
+## Overview
+
+Returns runbooks automatically generated from your team's resolved incidents. Each runbook captures the steps that successfully resolved a class of incident, validated against actual remediation outcomes.
+
+**Required role:** `admin` or `member`
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="service" type="string">
+  Filter runbooks by affected service name (e.g. `checkout-service`).
+</ParamField>
+
+<ParamField query="q" type="string">
+  Full-text search across runbook titles and content.
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  Maximum results to return. Default: `20`. Maximum: `100`.
+</ParamField>
+
+<ParamField query="cursor" type="string">
+  Pagination cursor from a previous response.
+</ParamField>
+
+## Response
+
+Returns `200 OK`.
+
+```json
+{
+  "items": [
+    {
+      "runbookId": "rbk_01HX9VTPQR3KF8MZWBYD5N6JCE",
+      "title": "Connection pool exhaustion — checkout service",
+      "services": ["checkout-service", "payment-processor"],
+      "steps": [
+        "1. Confirm pool size: `kubectl exec -it checkout-<pod> -- env | grep DB_POOL_SIZE`",
+        "2. Update ECS task definition: set `DB_POOL_SIZE=150`",
+        "3. Trigger rolling deploy and monitor error rate",
+        "4. Verify resolution: error rate should drop within 90 seconds"
+      ],
+      "successRate": 1.0,
+      "usageCount": 3,
+      "lastUsedAt": "2024-04-01T14:37:30Z",
+      "generatedAt": "2024-03-15T06:00:00Z"
+    }
+  ],
+  "total": 12,
+  "nextCursor": null
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `runbookId` | string | Unique runbook identifier |
+| `title` | string | Runbook title describing the incident class |
+| `services` | string[] | Services this runbook applies to |
+| `steps` | string[] | Ordered resolution steps |
+| `successRate` | number | Fraction of usages that led to `resolved` outcome (0.0–1.0) |
+| `usageCount` | integer | Number of times this runbook was applied |
+| `lastUsedAt` | string | ISO 8601 timestamp of most recent use |
+| `generatedAt` | string | ISO 8601 timestamp when the runbook was first generated |
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `401` | `unauthorized` | Missing or invalid JWT |
+| `403` | `forbidden` | Caller lacks required role |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl "https://api.causeflow.ai/v1/memory/runbooks?service=checkout-service" \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+```typescript TypeScript
+const params = new URLSearchParams({ service: "checkout-service" });
+const response = await fetch(
+  `https://api.causeflow.ai/v1/memory/runbooks?${params}`,
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+
+const { items } = await response.json();
+items.forEach((r: { title: string; successRate: number }) =>
+  console.log(`${r.title} (${Math.round(r.successRate * 100)}% success)`)
+);
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Memory insights" href="/api-reference/memory/insights">
+    AI-generated insights from your incident history
+  </Card>
+  <Card title="Knowledge patterns" href="/api-reference/knowledge/list-patterns">
+    Browse raw failure patterns extracted by AI
+  </Card>
+</CardGroup>

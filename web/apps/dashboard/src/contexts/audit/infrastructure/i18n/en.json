@@ -1,0 +1,34 @@
+{
+  "dashboard": {
+    "audit": {
+      "title": "Audit Log",
+      "description": "View all system activity and changes",
+      "empty": "No audit entries found",
+      "emptyDescription": "Activity will appear here as actions are performed",
+      "loadMore": "Load more",
+      "filters": {
+        "allActions": "All Actions",
+        "actionLabel": "Action:",
+        "actorTypeLabel": "Actor type:",
+        "allActorTypes": "All",
+        "actorTypeUser": "User",
+        "actorTypeSystem": "System"
+      },
+      "columns": {
+        "timestamp": "Timestamp",
+        "action": "Action",
+        "actor": "Actor",
+        "resource": "Resource",
+        "hash": "Hash"
+      },
+      "evidences": {
+        "title": "Evidence",
+        "show": "Show evidence",
+        "hide": "Hide evidence"
+      },
+      "verify": "Verify Chain",
+      "verifySuccess": "Audit chain is valid",
+      "verifyFailed": "Audit chain broken"
+    }
+  }
+}

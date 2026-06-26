@@ -1,0 +1,87 @@
+{
+  "dashboard": {
+    "team": {
+      "title": "Team",
+      "description": "Manage your team members and permissions",
+      "inviteButton": "Invite Member",
+      "table": {
+        "member": "Member",
+        "email": "Email",
+        "role": "Role",
+        "lastActive": "Last Active",
+        "joined": "Joined",
+        "actions": "Actions",
+        "never": "Never",
+        "loading": "Loading team members..."
+      },
+      "roles": {
+        "admin": "Admin",
+        "member": "Member"
+      },
+      "invite": {
+        "title": "Invite Team Member",
+        "description": "Send an invitation email to add a new member to your team.",
+        "emailLabel": "Email Address",
+        "emailPlaceholder": "colleague@company.com",
+        "roleLabel": "Role",
+        "rolePlaceholder": "Select role",
+        "submit": "Send Invite",
+        "submitting": "Sending...",
+        "cancel": "Cancel",
+        "successTitle": "Invitation sent!",
+        "successMessage": "An invitation has been sent to {email}.",
+        "errors": {
+          "duplicate": "An active invite already exists for this email address.",
+          "generic": "Failed to send invite. Please try again.",
+          "emailRequired": "Email is required",
+          "emailInvalid": "Please enter a valid email address"
+        }
+      },
+      "changeRole": {
+        "title": "Change Role",
+        "description": "Change the role of {name} on your team.",
+        "roleLabel": "New Role",
+        "submit": "Save Change",
+        "submitting": "Saving...",
+        "cancel": "Cancel",
+        "selfWarning": "You are changing your own role. You may lose admin access.",
+        "lastAdminWarning": "You are the last admin. Demoting yourself will leave the team without an admin.",
+        "success": "Role updated successfully.",
+        "error": "Failed to update role. Please try again."
+      },
+      "removeMember": {
+        "title": "Remove Team Member",
+        "description": "Are you sure you want to remove {name} from the team? This action cannot be undone.",
+        "warning": "They will lose access to all team resources immediately.",
+        "confirm": "Remove Member",
+        "cancel": "Cancel",
+        "selfError": "You cannot remove yourself from the team."
+      },
+      "pendingInvites": {
+        "title": "Pending Invites",
+        "empty": "No pending invites.",
+        "columns": {
+          "email": "Email",
+          "role": "Role",
+          "invitedBy": "Invited By",
+          "sent": "Sent",
+          "expires": "Expires"
+        },
+        "status": {
+          "pending": "Pending",
+          "expired": "Expired"
+        },
+        "actions": {
+          "resend": "Resend",
+          "revoke": "Revoke"
+        }
+      },
+      "permissions": {
+        "adminOnly": "Only admins can perform this action.",
+        "contactAdmin": "Contact your admin to make changes.",
+        "adminBadge": "Admin only",
+        "readOnly": "You have read-only access to this section."
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+---
+title: "Revoke GitHub installation"
+api: "DELETE /v1/github/installation"
+description: "Revoke the GitHub App installation for your tenant."
+---
+
+## Overview
+
+Revokes the GitHub App installation for the current tenant, disconnecting CauseFlow's access to your GitHub repositories.
+
+**Required role:** `admin`
+
+<Note>
+  After revoking, CauseFlow can no longer read code or open draft pull requests during investigations. Existing investigations retain previously collected data, but new investigations cannot analyze or modify code in your repositories.
+</Note>
+
+## Response
+
+Returns `204 No Content` on success. No response body is returned.
+
+### Error responses
+
+| Status | Error code  | Description                                                    |
+| ------ | ----------- | -------------------------------------------------------------- |
+| `403`  | `forbidden` | The authenticated user does not have `admin` role   |
+| `404`  | `not_found` | No GitHub App installation exists for this tenant              |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/v1/github/installation \
+  -X DELETE \
+  -H "Authorization: Bearer <token>"
+```
+
+```typescript TypeScript
+const response = await fetch(
+  "https://api.causeflow.ai/v1/github/installation",
+  {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
+if (response.status === 204) {
+  console.log("GitHub installation revoked. CauseFlow can no longer analyze code or open pull requests.");
+} else {
+  const error = await response.json();
+  throw new Error(`Failed to revoke installation: ${error.message}`);
+}
+```
+
+</CodeGroup>

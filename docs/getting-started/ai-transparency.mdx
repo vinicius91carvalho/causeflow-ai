@@ -1,0 +1,101 @@
+---
+title: "AI transparency"
+description: "How CauseFlow's AI works, what it accesses, which decisions require human approval, and how quality is verified."
+---
+
+CauseFlow uses AI to investigate incidents — and we believe you should know exactly how that works. This page explains what the AI does during an investigation, what data it can access, which decisions always require a human, how we verify the quality of AI outputs, and what observability you have into every run.
+
+---
+
+## How the AI works
+
+CauseFlow's investigation engine is a single orchestrator agent backed by modern large language models. The orchestrator drives the full investigation end-to-end: it reads logs, inspects infrastructure, reviews code changes, queries databases, synthesizes findings, and proposes remediations — all through iterative tool-use against your connected integrations.
+
+Internally, heavier reasoning tasks (triage, investigation synthesis, code fix generation, quality verification) run on a higher-capability model; high-volume scanning tasks (log pattern matching, metric sweeps, correlation) run on a faster model tuned for throughput. Model routing is deterministic per task type — no random model selection occurs during an investigation.
+
+---
+
+## What agents access
+
+During an investigation, AI agents access only the data sources you have explicitly connected. Access is:
+
+- **Read-only** — agents query your data but never write, delete, or modify anything in your infrastructure
+- **Least-privilege** — each agent receives temporary credentials scoped to the minimum permissions it needs (for example, a log analysis agent receives only CloudWatch log query permissions)
+- **Credential-scoped** — temporary AWS credentials expire after 15 minutes and are revoked at the end of every investigation
+
+The categories of data an agent may access, depending on your connected integrations:
+
+| Data source | What is queried | Required integration |
+|-------------|-----------------|----------------------|
+| **Logs** | CloudWatch log groups relevant to the incident | AWS (cross-account role) |
+| **Metrics** | CloudWatch metrics for the affected services | AWS (cross-account role) |
+| **Infrastructure state** | ECS task definitions, EC2 instance health, ALB status | AWS (cross-account role) |
+| **Code changes** | Recent commits, pull requests, file contents for affected repos | GitHub App installation |
+| **Database health** | Query performance, slow queries, active connections | Relay (private network agent) |
+| **Issue trackers** | Linked tickets (Jira, Linear, Shortcut) | OAuth connection via Dashboard |
+| **APM and error tracking** | Error rates, traces (Datadog, Sentry, New Relic) | OAuth connection via Dashboard |
+
+If an integration is not connected, the agent for that data source does not run — no placeholder or simulated data is used.
+
+**Credentials are never stored in plain text.** AWS access uses cross-account IAM roles — CauseFlow never holds your AWS credentials directly. Third-party tool connections are managed via OAuth through CauseFlow's managed integration layer, with tokens encrypted at rest using AES-256-GCM envelope encryption.
+
+---
+
+## What decisions require a human
+
+**Every remediation action requires explicit human approval before it executes.** This is the default for all tenants, with no exceptions.
+
+When an investigation is complete, CauseFlow proposes a remediation plan. That plan appears in the dashboard as a pending approval. A user with the `admin` role must review and approve it. Until approval is granted, no action is taken.
+
+Auto-remediation can be enabled by an admin in **Settings > Remediation**, which allows specific action types to execute without manual approval. This setting is opt-in and disabled by default.
+
+Additional human decision points:
+
+- **Quota confirmation** — CauseFlow checks your plan quota before starting an investigation. If quota is exhausted, no investigation starts.
+- **Known solution review** — when a known solution is applied, the incident moves to `awaiting_approval` so a human can verify the match before any action runs.
+- **Abort** — any in-progress investigation can be stopped by an admin at any time from the incident detail page.
+
+---
+
+## How we verify quality
+
+CauseFlow applies a verification step after each investigation synthesis to challenge the AI's own conclusion. This step independently examines the evidence, searches for contradictions, and proposes alternative explanations. The result is stored alongside the root cause report so you can see what was checked.
+
+Quality signals used across investigations:
+
+- **Confidence score** — each root cause conclusion includes a 0–1 confidence score. Conclusions below a threshold trigger a warning in the dashboard.
+- **Feedback loop** — after each investigation you can mark the root cause as accurate, inaccurate, or partial. Feedback is incorporated into future pattern matching.
+- **Pattern confirmation** — when positive feedback repeatedly confirms a pattern, that pattern earns a higher weight in future known-solution matching.
+
+---
+
+## Observability
+
+Every investigation produces a per-run trace visible in the CauseFlow dashboard. The trace shows:
+
+- Which AI steps ran and in what order
+- What data each step queried
+- How long each step took
+- The evidence each step produced
+- The final synthesis and confidence score
+
+Traces are retained for the duration of your plan's data retention period and are accessible to `admin` users from the incident detail page.
+
+CauseFlow does not share your incident data or investigation traces with third parties. Trace data stays within your tenant and is subject to your data residency configuration.
+
+---
+
+<CardGroup cols={2}>
+  <Card title="How it works" icon="arrows-spin" href="/getting-started/how-it-works">
+    See the full investigation lifecycle from alert to resolution.
+  </Card>
+  <Card title="Skills" icon="wand-magic-sparkles" href="/getting-started/skills">
+    Customize which AI tools run for your specific incident types.
+  </Card>
+  <Card title="Security overview" icon="lock" href="/security/overview">
+    Tenant isolation, encryption, audit trail, and compliance readiness.
+  </Card>
+  <Card title="Memory and chat" icon="brain" href="/getting-started/memory-and-chat">
+    How CauseFlow stores and uses long-term knowledge about your systems.
+  </Card>
+</CardGroup>

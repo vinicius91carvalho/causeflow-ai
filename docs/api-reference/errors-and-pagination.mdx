@@ -1,0 +1,144 @@
+---
+title: "Errors and pagination"
+description: "Standard error responses and cursor-based pagination for list endpoints."
+---
+
+## Error responses
+
+When a request fails, the API returns a JSON error object with a machine-readable error code and a human-readable message:
+
+```json
+{
+  "error": "incident_not_found",
+  "message": "No incident was found with the provided ID."
+}
+```
+
+### HTTP status codes
+
+| Status | Code  | Meaning                                                             |
+| ------ | ----- | ------------------------------------------------------------------- |
+| `400`  | Bad Request          | The request body or query parameters are invalid or missing required fields |
+| `401`  | Unauthorized         | No valid authentication token was provided                          |
+| `403`  | Forbidden            | The authenticated user does not have permission for this operation  |
+| `404`  | Not Found            | The requested resource does not exist                               |
+| `409`  | Conflict             | A duplicate resource already exists (e.g. duplicate incident title within the same window) |
+| `429`  | Too Many Requests    | Rate limit exceeded — see `X-RateLimit-Reset` for when to retry    |
+| `500`  | Internal Server Error | An unexpected error occurred on the CauseFlow side                 |
+| `503`  | Service Unavailable  | The service is temporarily unavailable — retry with exponential backoff |
+
+### Example error responses
+
+<CodeGroup>
+
+```json 400 Bad Request
+{
+  "error": "validation_error",
+  "message": "Field 'description' is required and must be between 10 and 4000 characters."
+}
+```
+
+```json 401 Unauthorized
+{
+  "error": "unauthorized",
+  "message": "A valid Bearer token is required."
+}
+```
+
+```json 403 Forbidden
+{
+  "error": "forbidden",
+  "message": "Your role does not have permission to perform this action."
+}
+```
+
+```json 404 Not Found
+{
+  "error": "incident_not_found",
+  "message": "No incident was found with the provided ID."
+}
+```
+
+```json 429 Too Many Requests
+{
+  "error": "rate_limit_exceeded",
+  "message": "Rate limit exceeded. Retry after 1711929600."
+}
+```
+
+</CodeGroup>
+
+---
+
+## Pagination
+
+List endpoints use **cursor-based pagination**. This approach is stable under concurrent writes — pages do not shift when new records are inserted.
+
+### Request parameters
+
+| Parameter | Type    | Default | Maximum | Description                              |
+| --------- | ------- | ------- | ------- | ---------------------------------------- |
+| `limit`   | integer | `20`    | `100`   | Number of items to return per page       |
+| `cursor`  | string  | —       | —       | Opaque cursor token from the previous response |
+
+### Response structure
+
+```json
+{
+  "items": [
+    { "incidentId": "inc_01HX9VTPQR3KF8MZWBYD5N6JCE", "title": "Database latency spike", "..." : "..." },
+    { "incidentId": "inc_01HX9VTPQR3KF8MZWBYD5N6JCF", "title": "API gateway 5xx surge", "...": "..." }
+  ],
+  "cursor": "eyJpZCI6Imlu...",
+  "count": 47
+}
+```
+
+| Field    | Type    | Description                                                            |
+| -------- | ------- | ---------------------------------------------------------------------- |
+| `items`  | array   | The page of results                                                    |
+| `cursor` | string  | Pass this value as `cursor` in the next request to fetch the next page. `null` when there are no more pages. |
+| `count`  | integer | Total number of matching records across all pages                      |
+
+### Paginating through all results
+
+<CodeGroup>
+
+```bash curl
+# First page
+curl "https://api.causeflow.ai/v1/incidents?limit=20" \
+  -H "Authorization: Bearer <token>"
+
+# Next page — pass the cursor from the previous response
+curl "https://api.causeflow.ai/v1/incidents?limit=20&cursor=eyJpZCI6Imlu..." \
+  -H "Authorization: Bearer <token>"
+```
+
+```typescript TypeScript
+async function fetchAllIncidents(token: string) {
+  const incidents = [];
+  let cursor: string | null = null;
+
+  do {
+    const url = new URL("https://api.causeflow.ai/v1/incidents");
+    url.searchParams.set("limit", "100");
+    if (cursor) url.searchParams.set("cursor", cursor);
+
+    const response = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await response.json();
+    incidents.push(...data.incidents);
+    cursor = data.cursor ?? null;
+  } while (cursor !== null);
+
+  return incidents;
+}
+```
+
+</CodeGroup>
+
+<Note>
+  Cursor tokens are opaque and time-limited. Do not store cursors for longer than a single pagination session.
+</Note>

@@ -1,0 +1,116 @@
+---
+title: "Start triage"
+api: "POST /v1/triage/{incidentId}"
+description: "Trigger AI triage classification for an incident."
+---
+
+## Overview
+
+Initiates the AI triage pipeline for an incident. Triage classifies severity, assigns specialist agents, and produces an initial evidence snapshot. If triage has already run for this incident, the request is idempotent — it returns the existing triage result without re-running.
+
+**Required role:** `admin` or `member`
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`.
+</ParamField>
+
+## Path parameters
+
+<ParamField path="incidentId" type="string" required>
+  The unique identifier of the incident to triage. Example: `inc_EXAMPLE_01JX`.
+</ParamField>
+
+## Request body
+
+<ParamField body="priority" type="string">
+  Optional override for initial priority. One of: `critical`, `high`, `medium`, `low`. If omitted, severity is determined by the AI classifier.
+</ParamField>
+
+<ParamField body="context" type="string">
+  Optional free-text context to seed the triage classifier. Useful for providing business impact or on-call notes before AI analysis begins.
+</ParamField>
+
+## Response
+
+Returns `201 Created` when triage is queued, or `200 OK` when triage already ran.
+
+```json
+{
+  "triageId": "tri_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "incidentId": "inc_EXAMPLE_01JX",
+  "status": "running",
+  "classifiedSeverity": null,
+  "assignedAgents": [],
+  "startedAt": "2024-04-01T14:30:05Z"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `triageId` | string | Unique identifier for this triage run |
+| `incidentId` | string | The incident being triaged |
+| `status` | string | One of: `running`, `completed`, `failed` |
+| `classifiedSeverity` | string | AI-assigned severity once complete: `critical`, `high`, `medium`, `low`, `info`. `null` while running |
+| `assignedAgents` | string[] | Specialist agents assigned. Populated when triage completes |
+| `startedAt` | string | ISO 8601 timestamp when triage started |
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `401` | `unauthorized` | Missing or invalid JWT |
+| `403` | `forbidden` | Caller lacks `admin` or `member` role |
+| `404` | `incident_not_found` | No incident with the given ID |
+| `409` | `triage_already_running` | Triage is already in progress for this incident |
+| `429` | `quota_exceeded` | Investigation quota exhausted for this billing period |
+| `500` | `triage_error` | Internal error starting triage pipeline |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/v1/triage/inc_EXAMPLE_01JX \
+  -X POST \
+  -H "Authorization: Bearer eyJhbGc..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "context": "On-call reports EU payment latency spike since 14:25 UTC deploy"
+  }'
+```
+
+```typescript TypeScript
+const response = await fetch(
+  "https://api.causeflow.ai/v1/triage/inc_EXAMPLE_01JX",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      context: "On-call reports EU payment latency spike since 14:25 UTC deploy",
+    }),
+  }
+);
+
+if (response.status === 409) {
+  console.log("Triage already running — poll for results.");
+}
+
+const triage = await response.json();
+console.log("Triage started:", triage.triageId);
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Get evidence" href="/api-reference/triage/get-evidence">
+    Retrieve evidence collected during triage
+  </Card>
+  <Card title="Start investigation" href="/api-reference/investigation/start-investigation">
+    Kick off the full AI investigation pipeline
+  </Card>
+</CardGroup>

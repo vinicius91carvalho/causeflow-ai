@@ -1,0 +1,366 @@
+- generic [ref=e1]:
+  - alert [ref=e3]: Integrations | CauseFlow AI
+  - generic [ref=e66]:
+    - complementary "Main navigation" [ref=e67]:
+      - generic [ref=e68]:
+        - link "CauseFlow AI" [ref=e69] [cursor=pointer]:
+          - /url: /dashboard
+          - img "CauseFlow AI" [ref=e70]
+          - generic [ref=e71]: CauseFlow AI
+        - button "Close menu" [ref=e72]:
+          - img [ref=e73]
+      - navigation [ref=e76]:
+        - link "Overview" [ref=e77] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e78]
+          - generic [ref=e83]: Overview
+        - link "Incidents" [ref=e84] [cursor=pointer]:
+          - /url: /dashboard/incidents
+          - img [ref=e85]
+          - generic [ref=e87]: Incidents
+        - link "Intelligence" [ref=e88] [cursor=pointer]:
+          - /url: /dashboard/intelligence
+          - img [ref=e89]
+          - generic [ref=e99]: Intelligence
+        - link "Integrations" [ref=e100] [cursor=pointer]:
+          - /url: /dashboard/integrations
+          - img [ref=e101]
+          - generic [ref=e103]: Integrations
+        - link "Relay" [ref=e104] [cursor=pointer]:
+          - /url: /dashboard/relay
+          - img [ref=e105]
+          - generic [ref=e111]: Relay
+        - link "Audit Log" [ref=e112] [cursor=pointer]:
+          - /url: /dashboard/audit
+          - img [ref=e113]
+          - generic [ref=e116]: Audit Log
+        - link "Team" [ref=e117] [cursor=pointer]:
+          - /url: /dashboard/team
+          - img [ref=e118]
+          - generic [ref=e123]: Team
+        - link "Billing" [ref=e124] [cursor=pointer]:
+          - /url: /dashboard/billing
+          - img [ref=e125]
+          - generic [ref=e127]: Billing
+        - link "Settings" [ref=e128] [cursor=pointer]:
+          - /url: /dashboard/settings
+          - img [ref=e129]
+          - generic [ref=e132]: Settings
+      - generic [ref=e134]:
+        - generic [ref=e135]:
+          - img [ref=e136]
+          - generic [ref=e138]: 46 investigations left
+        - generic [ref=e141]: pro — 14/60 used
+    - generic [ref=e142]:
+      - banner [ref=e143]:
+        - button "Open navigation menu" [ref=e144]:
+          - img [ref=e145]
+        - link "CauseFlow AI" [ref=e146] [cursor=pointer]:
+          - /url: /dashboard
+          - img "CauseFlow AI" [ref=e147]
+        - generic [ref=e148]:
+          - button "Toggle theme" [ref=e149]:
+            - img [ref=e150]
+          - button "Language" [ref=e153]:
+            - img [ref=e154]
+          - button "Open organization switcher" [ref=e158] [cursor=pointer]:
+            - generic [ref=e159]:
+              - img "SimUser AI's logo" [ref=e162]
+              - generic "SimUser AI" [ref=e165]
+            - img [ref=e166]
+          - button "Open user menu" [ref=e169] [cursor=pointer]:
+            - img "Vinicius Carvalho's logo" [ref=e172]
+      - navigation "Breadcrumb" [ref=e175]:
+        - link "Dashboard" [ref=e176] [cursor=pointer]:
+          - /url: /dashboard
+        - img [ref=e177]
+        - generic [ref=e179]: Integrations
+      - main [ref=e180]:
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - heading "Integrations" [level=2] [ref=e183]
+            - paragraph [ref=e184]: Connect your tools and services to enable AI-powered incident investigations
+          - generic [ref=e185]:
+            - generic [ref=e186]:
+              - generic [ref=e187]:
+                - img
+                - searchbox "Search integrations..." [ref=e188]
+              - group "Filter integrations by category" [ref=e189]:
+                - button "All" [pressed] [ref=e190]
+                - button "Communication" [ref=e191]
+                - button "Monitoring" [ref=e192]
+                - button "Code" [ref=e193]
+                - button "Management" [ref=e194]
+                - button "CRM" [ref=e195]
+                - button "Database" [ref=e196]
+                - button "Knowledge" [ref=e197]
+                - button "API" [ref=e198]
+            - generic [ref=e199]:
+              - generic [ref=e200]:
+                - generic [ref=e201]:
+                  - img "Amazon Web Services logo" [ref=e203]
+                  - generic [ref=e204]:
+                    - heading "Amazon Web Services" [level=3] [ref=e205]
+                    - status "Connected" [ref=e206]:
+                      - generic [ref=e208]: Connected
+                - paragraph [ref=e209]: CloudWatch logs & metrics, ECS, EC2, Lambda, RDS, S3 — read-only access via IAM AssumeRole
+                - generic [ref=e210]:
+                  - button "Test Connection Amazon Web Services" [ref=e211]:
+                    - img
+                    - generic [ref=e212]: Test Connection
+                  - button "Reconfigure Amazon Web Services" [ref=e213]:
+                    - img
+                  - button "Disconnect Amazon Web Services" [ref=e214]:
+                    - img
+              - generic [ref=e215]:
+                - generic [ref=e216]:
+                  - img "GitHub logo" [ref=e218]
+                  - heading "GitHub" [level=3] [ref=e220]
+                - paragraph [ref=e221]: GitHub is a code hosting platform for version control and collaboration, offering Git-based repository management, issue tracking, and continuous integration features
+                - button "Authorize with GitHub" [ref=e222]:
+                  - img
+                  - text: Authorize with GitHub
+              - generic [ref=e223]:
+                - generic [ref=e224]:
+                  - img "GitLab logo" [ref=e226]
+                  - heading "GitLab" [level=3] [ref=e228]
+                - paragraph [ref=e229]: A web-based DevOps lifecycle tool that provides a Git repository manager providing wiki, issue-tracking, and CI/CD pipeline features.
+                - button "Authorize with GitLab" [ref=e230]:
+                  - img
+                  - text: Authorize with GitLab
+              - generic [ref=e231]:
+                - generic [ref=e232]:
+                  - img "Bitbucket logo" [ref=e234]
+                  - heading "Bitbucket" [level=3] [ref=e236]
+                - paragraph [ref=e237]: Bitbucket is a Git-based code hosting and collaboration platform supporting private and public repositories, enabling teams to manage and review code through pull requests and integrations
+                - button "Authorize with Bitbucket" [ref=e238]:
+                  - img
+                  - text: Authorize with Bitbucket
+              - generic [ref=e239]:
+                - generic [ref=e240]:
+                  - img "Slack logo" [ref=e242]
+                  - generic [ref=e243]:
+                    - heading "Slack" [level=3] [ref=e244]
+                    - status "Connected" [ref=e245]:
+                      - generic [ref=e247]: Connected
+                - paragraph [ref=e248]: Slack is a channel-based messaging platform. With Slack, people can work together more effectively, connect all their software tools and services, and find the information they need to do their best work — all within a secure, enterprise-grade environment.
+                - generic [ref=e249]:
+                  - button "Reauthorize Slack" [ref=e250]:
+                    - img
+                  - button "Disconnect Slack" [ref=e251]:
+                    - img
+                - generic [ref=e252]:
+                  - button "Add trigger for Slack" [disabled]:
+                    - img
+                    - generic: Add Trigger
+                    - img
+              - generic [ref=e253]:
+                - generic [ref=e254]:
+                  - img "Microsoft Teams logo" [ref=e256]
+                  - heading "Microsoft Teams" [level=3] [ref=e258]
+                - paragraph [ref=e259]: Receive incident notifications and updates in Microsoft Teams channels
+                - button "Authorize with Microsoft Teams" [ref=e260]:
+                  - img
+                  - text: Authorize with Microsoft Teams
+              - generic [ref=e261]:
+                - generic [ref=e262]:
+                  - img "Discord logo" [ref=e264]
+                  - heading "Discord" [level=3] [ref=e266]
+                - paragraph [ref=e267]: An instant messaging and VoIP social platform.
+                - button "Authorize with Discord" [ref=e268]:
+                  - img
+                  - text: Authorize with Discord
+              - generic [ref=e269]:
+                - generic [ref=e270]:
+                  - img "Jira logo" [ref=e272]
+                  - heading "Jira" [level=3] [ref=e274]
+                - paragraph [ref=e275]: A tool for bug tracking, issue tracking, and agile project management.
+                - button "Authorize with Jira" [ref=e276]:
+                  - img
+                  - text: Authorize with Jira
+              - generic [ref=e277]:
+                - generic [ref=e278]:
+                  - img "Linear logo" [ref=e280]
+                  - heading "Linear" [level=3] [ref=e282]
+                - paragraph [ref=e283]: Linear is a streamlined issue tracking and project planning tool for modern teams, featuring fast workflows, keyboard shortcuts, and GitHub integrations
+                - button "Authorize with Linear" [ref=e284]:
+                  - img
+                  - text: Authorize with Linear
+              - generic [ref=e285]:
+                - generic [ref=e286]:
+                  - img "Trello logo" [ref=e288]
+                  - heading "Trello" [level=3] [ref=e290]
+                - paragraph [ref=e291]: A web-based, kanban-style, list-making application.
+                - button "Authorize with Trello" [ref=e292]:
+                  - img
+                  - text: Authorize with Trello
+              - generic [ref=e293]:
+                - generic [ref=e294]:
+                  - img "Shortcut logo" [ref=e296]
+                  - generic [ref=e297]:
+                    - heading "Shortcut" [level=3] [ref=e298]
+                    - status "Connected" [ref=e299]:
+                      - generic [ref=e301]: Connected
+                - paragraph [ref=e302]: Shortcut aligns product development work with company objectives so teams can execute with a shared purpose.
+                - generic [ref=e303]:
+                  - button "Reauthorize Shortcut" [ref=e304]:
+                    - img
+                  - button "Disconnect Shortcut" [ref=e305]:
+                    - img
+                - generic [ref=e306]:
+                  - button "Add trigger for Shortcut" [disabled]:
+                    - img
+                    - generic: Add Trigger
+                    - img
+              - generic [ref=e307]:
+                - generic [ref=e308]:
+                  - img "ClickUp logo" [ref=e310]
+                  - heading "ClickUp" [level=3] [ref=e312]
+                - paragraph [ref=e313]: ClickUp unifies tasks, docs, goals, and chat in a single platform, allowing teams to plan, organize, and collaborate across projects with customizable workflows
+                - button "Authorize with ClickUp" [ref=e314]:
+                  - img
+                  - text: Authorize with ClickUp
+              - generic [ref=e315]:
+                - generic [ref=e316]:
+                  - img "Asana logo" [ref=e318]
+                  - heading "Asana" [level=3] [ref=e320]
+                - paragraph [ref=e321]: Tool to help teams organize, track, and manage their work.
+                - button "Authorize with Asana" [ref=e322]:
+                  - img
+                  - text: Authorize with Asana
+              - generic [ref=e323]:
+                - generic [ref=e324]:
+                  - img "Datadog logo" [ref=e326]
+                  - heading "Datadog" [level=3] [ref=e328]
+                - paragraph [ref=e329]: Datadog offers monitoring, observability, and security for cloud-scale applications, unifying metrics, logs, and traces to help teams detect issues and optimize performance
+                - button "Authorize with Datadog" [ref=e330]:
+                  - img
+                  - text: Authorize with Datadog
+              - generic [ref=e331]:
+                - generic [ref=e332]:
+                  - generic [ref=e333]:
+                    - img "Sentry logo" [ref=e335]
+                    - generic [ref=e336]:
+                      - heading "Sentry" [level=3] [ref=e337]
+                      - status "Connected" [ref=e338]:
+                        - generic [ref=e340]: Connected
+                  - paragraph [ref=e341]: Integrate Sentry to manage your error tracking and monitoring.
+                  - generic [ref=e342]:
+                    - button "Reauthorize Sentry" [ref=e343]:
+                      - img
+                    - button "Disconnect Sentry" [ref=e344]:
+                      - img
+                  - generic [ref=e345]:
+                    - paragraph [ref=e346]: Triggers (1)
+                    - generic [ref=e347]:
+                      - generic [ref=e348]:
+                        - paragraph [ref=e349]: SENTRY_NEW_ISSUE
+                        - paragraph [ref=e350]: Active · 0 events
+                      - button "Delete trigger SENTRY_NEW_ISSUE" [ref=e351]:
+                        - img
+                  - button "Add trigger for Sentry" [ref=e353]:
+                    - img
+                    - generic [ref=e354]: Add Trigger
+                    - img
+                - button "Show setup instructions" [active] [ref=e355]:
+                  - img [ref=e356]
+                  - generic [ref=e359]: Show setup instructions
+              - generic [ref=e360]:
+                - generic [ref=e361]:
+                  - img "PagerDuty logo" [ref=e363]
+                  - heading "PagerDuty" [level=3] [ref=e365]
+                - paragraph [ref=e366]: PagerDuty helps you proactively manage your digital operations by collecting data signals from anywhere, interpreting those signals using machine learning, automatically engaging the right people, and accelerating resolution and learning.
+                - button "Authorize with PagerDuty" [ref=e367]:
+                  - img
+                  - text: Authorize with PagerDuty
+              - generic [ref=e368]:
+                - generic [ref=e369]:
+                  - img "New Relic logo" [ref=e371]
+                  - heading "New Relic" [level=3] [ref=e373]
+                - paragraph [ref=e374]: New Relic is a comprehensive observability platform that helps developers and operations teams monitor, debug, and improve their entire stack, including applications, infrastructure, and customer experience.
+                - button "Authorize with New Relic" [ref=e375]:
+                  - img
+                  - text: Authorize with New Relic
+              - generic [ref=e376]:
+                - generic [ref=e377]:
+                  - img "Notion logo" [ref=e379]
+                  - generic [ref=e380]:
+                    - heading "Notion" [level=3] [ref=e381]
+                    - status "Connected" [ref=e382]:
+                      - generic [ref=e384]: Connected
+                - paragraph [ref=e385]: Notion centralizes notes, docs, wikis, and tasks in a unified workspace, letting teams build custom workflows for collaboration and knowledge management
+                - generic [ref=e386]:
+                  - button "Reauthorize Notion" [ref=e387]:
+                    - img
+                  - button "Disconnect Notion" [ref=e388]:
+                    - img
+                - generic [ref=e389]:
+                  - button "Add trigger for Notion" [disabled]:
+                    - img
+                    - generic: Add Trigger
+                    - img
+              - generic [ref=e390]:
+                - generic [ref=e391]:
+                  - img "Confluence logo" [ref=e393]
+                  - heading "Confluence" [level=3] [ref=e395]
+                - paragraph [ref=e396]: A tool for team collaboration and knowledge management.
+                - button "Authorize with Confluence" [ref=e397]:
+                  - img
+                  - text: Authorize with Confluence
+              - generic [ref=e398]:
+                - generic [ref=e399]:
+                  - img "HubSpot logo" [ref=e401]
+                  - heading "HubSpot" [level=3] [ref=e403]
+                - paragraph [ref=e404]: HubSpot is an inbound marketing, sales, and customer service platform integrating CRM, email automation, and analytics to facilitate lead nurturing and seamless customer experiences
+                - button "Authorize with HubSpot" [ref=e405]:
+                  - img
+                  - text: Authorize with HubSpot
+              - generic [ref=e406]:
+                - generic [ref=e407]:
+                  - img "Zendesk logo" [ref=e409]
+                  - heading "Zendesk" [level=3] [ref=e411]
+                - paragraph [ref=e412]: Zendesk provides customer support software with ticketing, live chat, and knowledge base features, enabling efficient helpdesk operations and customer engagement
+                - button "Authorize with Zendesk" [ref=e413]:
+                  - img
+                  - text: Authorize with Zendesk
+              - generic [ref=e414]:
+                - generic [ref=e415]:
+                  - img "Intercom logo" [ref=e417]
+                  - heading "Intercom" [level=3] [ref=e419]
+                - paragraph [ref=e420]: Intercom provides live chat, messaging, and customer engagement tools, enabling businesses to drive conversions, handle support, and personalize communication at scale
+                - button "Authorize with Intercom" [ref=e421]:
+                  - img
+                  - text: Authorize with Intercom
+            - dialog "Configure Sentry Internal Integration" [ref=e422]:
+              - generic [ref=e423]:
+                - button "Close modal" [ref=e424]:
+                  - img [ref=e425]
+                - generic [ref=e428]:
+                  - heading "Configure Sentry Internal Integration" [level=2] [ref=e429]
+                  - paragraph [ref=e430]: Sentry's Internal Integration emits a Client Secret used to sign every webhook with HMAC-SHA256. Follow the steps below carefully.
+                - generic [ref=e431]:
+                  - paragraph [ref=e432]: Webhook URL
+                  - paragraph [ref=e433]: Paste this exact URL into Sentry's Webhook URL field.
+                  - generic [ref=e434]:
+                    - code [ref=e435]: https://api-staging.causeflow.ai/v1/webhooks/org_3CIe2PY6G6xwnUu9TA0oopGUW9u/sentry
+                    - button "Copy webhook URL" [ref=e436]:
+                      - img [ref=e437]
+                - generic [ref=e440]:
+                  - paragraph [ref=e441]: Setup steps
+                  - list [ref=e442]:
+                    - listitem [ref=e443]: In Sentry, go to Settings → Integrations.
+                    - listitem [ref=e444]: Click Create New Integration.
+                    - listitem [ref=e445]: Select Internal Integration (NOT Public).
+                    - listitem [ref=e446]: In Webhook URL, paste the value displayed above.
+                    - listitem [ref=e447]: "Permissions: set Issue & Event = Read and Webhooks = Read."
+                    - listitem [ref=e448]: "Webhooks (issue): subscribe to created, resolved, assigned, archived, unresolved."
+                    - listitem [ref=e449]: Save → copy the displayed Client Secret and paste it below.
+                - generic [ref=e450]:
+                  - paragraph [ref=e451]: Required issue webhook events
+                  - paragraph [ref=e452]: created, resolved, assigned, archived, unresolved
+                - generic [ref=e453]:
+                  - generic [ref=e454]: Client Secret
+                  - textbox "Client Secret" [ref=e455]:
+                    - /placeholder: Paste the Client Secret displayed by Sentry
+                  - paragraph [ref=e456]: We forward this once to our backend and never store it in your browser. Required to verify webhooks.
+                  - button "Save & verify" [disabled]

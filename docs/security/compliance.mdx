@@ -1,0 +1,105 @@
+---
+title: "Compliance"
+description: "CauseFlow's compliance readiness — audit trail, SOC 2, GDPR/LGPD, and responsible disclosure."
+---
+
+CauseFlow is built to support compliance requirements for engineering and operations teams. This page covers the audit trail, SOC 2 readiness controls, GDPR/LGPD alignment, and how to report security vulnerabilities.
+
+## Audit trail
+
+Every action taken in CauseFlow — by users, AI agents, or automated processes — is recorded in an immutable audit log.
+
+### Coverage
+
+CauseFlow tracks **67 action types** across 8 categories:
+
+| Category | Examples |
+|----------|---------|
+| `tenant.*` | Tenant created, configuration changed |
+| `incident.*` | Incident created, severity updated, status changed |
+| `investigation.*` | Investigation started, agent dispatched, findings submitted |
+| `remediation.*` | Remediation proposed, approved, rejected, executed |
+| `credential.*` | STS credentials issued, revoked |
+| `auth.*` | User signed in, token issued, API key created or revoked |
+| `github.*` | GitHub installation connected, PR created |
+| `notification.*` | Alert sent, approval request delivered |
+
+### Tamper-proof hash chain
+
+Each audit record includes a SHA-256 hash that chains to the previous record. Modifying any record — even retroactively — breaks the chain and is immediately detectable.
+
+```
+Record N-1: { ..., hash: "abc123" }
+      │
+      └── SHA-256(Record N-1 hash + Record N content) = "def456"
+Record N:   { ..., prev_hash: "abc123", hash: "def456" }
+```
+
+You can verify chain integrity at any time from **Dashboard > Audit > Verify integrity**.
+
+### Exporting the audit trail
+
+Export your audit trail for SIEM integration or compliance reporting:
+
+1. Go to **Dashboard > Audit**.
+2. Click **Export**.
+3. Select a date range and click **Download**.
+
+Exports are in NDJSON format (one JSON object per line), suitable for ingestion into Splunk, Datadog, Elastic, or any log management platform.
+
+<Tip>
+  Export your audit trail regularly for compliance reporting. Automate exports using the [Audit API](/api-reference/incidents/list-incidents) for continuous SIEM ingestion.
+</Tip>
+
+## SOC 2 readiness
+
+CauseFlow implements controls aligned with SOC 2 Trust Services Criteria across all five categories.
+
+| Trust Services Criteria | Controls in place |
+|------------------------|-------------------|
+| **Security** | RBAC, JWT authentication, API key management, rate limiting, input validation, CORS restrictions |
+| **Availability** | Health endpoints, multi-region infrastructure, rate limiting to prevent abuse |
+| **Processing Integrity** | Zod input validation at all boundaries, immutable audit trail, HMAC webhook verification |
+| **Confidentiality** | KMS envelope encryption, tenant data isolation, temporary credentials, TLS in transit |
+| **Privacy** | PII masking via Relay, right to deletion, data processing agreements, minimum-permission agents |
+
+For SOC 2 audit support — evidence packages, control documentation, or auditor questionnaires — contact [security@causeflow.ai](mailto:security@causeflow.ai).
+
+## GDPR and LGPD
+
+CauseFlow's architecture is designed around data minimization and purpose limitation — the same principles underpinning GDPR and LGPD.
+
+| Requirement | How CauseFlow addresses it |
+|-------------|---------------------------|
+| Data minimization | AI agents access only the data needed for the specific investigation task |
+| Purpose limitation | Credentials are scoped to investigation tasks and revoked immediately after |
+| Right of access | All investigation data is accessible via the dashboard and API |
+| Right to erasure | Full tenant data deletion available on request (30-day SLA) |
+| Data processing agreements | Available on request |
+| PII protection | Relay masking prevents raw PII from leaving your infrastructure |
+
+**Data residency:** CauseFlow infrastructure is hosted on AWS. Contact [sales@causeflow.ai](mailto:sales@causeflow.ai) if you have specific data residency requirements for Enterprise plans.
+
+For data processing agreements, DPA templates, or privacy impact assessments, contact [privacy@causeflow.ai](mailto:privacy@causeflow.ai).
+
+## Responsible disclosure
+
+CauseFlow takes security vulnerabilities seriously. If you discover a security issue, please report it responsibly.
+
+**How to report:**
+
+1. Email [security@causeflow.ai](mailto:security@causeflow.ai) with a description of the vulnerability.
+2. Include steps to reproduce, the potential impact, and any supporting evidence (screenshots, logs, proof-of-concept code).
+3. Do not publicly disclose the issue until CauseFlow has had reasonable time to investigate and remediate.
+
+**What to expect:**
+
+- Acknowledgement within 2 business days
+- Status updates every 5 business days during investigation
+- Credit in our security acknowledgements (if desired) upon resolution
+
+CauseFlow does not operate a formal bug bounty program at this time, but we genuinely appreciate responsible disclosure and will recognize contributors who help improve our security.
+
+<Note>
+  For non-security support issues, contact [support@causeflow.ai](mailto:support@causeflow.ai) or use the in-dashboard help widget.
+</Note>

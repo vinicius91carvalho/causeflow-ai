@@ -1,0 +1,41 @@
+{
+  "name": "@causeflow/website",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "dev:turbopack": "next dev --turbopack --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome lint ./src",
+    "check-types": "tsc --noEmit",
+    "test": "cd ../.. && vitest run --project website",
+    "test:watch": "cd ../.. && vitest --project website",
+    "clean": "rm -rf .next",
+    "sync:integrations": "node scripts/sync-integrations-catalog.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.996.0",
+    "@aws-sdk/lib-dynamodb": "^3.996.0",
+    "@causeflow/analytics": "workspace:*",
+    "@causeflow/forms": "workspace:*",
+    "@causeflow/shared": "workspace:*",
+    "@causeflow/ui": "workspace:*",
+    "highlight.js": "^11.11.1",
+    "next": "^15.2.0",
+    "next-intl": "^4.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "25.3.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "dotenv": "^17.3.1",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0"
+  }
+}

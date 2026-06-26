@@ -1,0 +1,57 @@
+[   36235ms] [LOG] [Client Instrumentation Hook] Slow execution detected: 242ms (Note: Code download overhead is not included in this measurement) @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[   36333ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[   37112ms] [WARNING] Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[   37743ms] [WARNING] Clerk: Structural CSS detected that may break on updates.
+
+Found:
+  - CSS "html.dark .cl-userButtonPopoverActionButton:hover"
+  - CSS "html.dark .cl-organizationSwitcherPopoverActionButton:hover"
+  - CSS "html.dark .cl-menuItem:hover"
+  - CSS "html.dark .cl-navbarButton:hover"
+  - CSS "html.dark .cl-selectButton:hover"
+  (+85 more)
+
+These selectors depend on the internal DOM structure of Clerk's components, which may change when Clerk deploys component updates.
+To prevent breaking changes, install @clerk/ui and pass it to ClerkProvider:
+
+  import { ui } from '@clerk/ui'
+  <ClerkProvider ui={ui}>
+
+Learn more: https://clerk.com/docs/reference/components/versioning
+(code=structural_css_pin_clerk_ui) @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[   38529ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3001/auth/sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3001%2Fdashboard%2Fintegrations:0
+[  297525ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  305221ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  305535ms] [LOG] [Fast Refresh] done in 314ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  306723ms] [LOG] [Fast Refresh] done in 1502ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  307450ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3001/auth/sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3001%2Fdashboard%2Fintegrations:0
+[  341391ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  344872ms] [LOG] [Fast Refresh] done in 3492ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  530742ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  535395ms] [LOG] [Fast Refresh] done in 4665ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  699360ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  715067ms] [LOG] [Fast Refresh] done in 15713ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  715279ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  720491ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  721259ms] [LOG] [Fast Refresh] done in 769ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  721871ms] [LOG] [Fast Refresh] done in 1381ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  722092ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  722535ms] [LOG] [Fast Refresh] done in 443ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  881270ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  888888ms] [LOG] [Fast Refresh] done in 7637ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  889570ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  893815ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  893921ms] [LOG] [Fast Refresh] done in 108ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[  894466ms] [LOG] [Fast Refresh] done in 652ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2640477ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2655658ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2655980ms] [LOG] [Fast Refresh] done in 322ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2661131ms] [LOG] [Fast Refresh] done in 5468ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2661555ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2670165ms] [LOG] [Fast Refresh] done in 8604ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2670379ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2679275ms] [LOG] [Fast Refresh] done in 8893ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2679491ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2680622ms] [LOG] [Fast Refresh] done in 1132ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2680843ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43
+[ 2681704ms] [LOG] [Fast Refresh] done in 862ms @ webpack-internal:///(app-pages-browser)/../../node_modules/@sentry/core/build/esm/instrument/console.js:43

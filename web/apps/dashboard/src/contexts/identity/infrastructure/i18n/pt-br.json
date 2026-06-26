@@ -1,0 +1,225 @@
+{
+  "dashboard": {
+    "auth": {
+      "fields": {
+        "email": "E-mail",
+        "password": "Senha",
+        "confirmPassword": "Confirmar Senha",
+        "name": "Nome Completo",
+        "showPassword": "Mostrar senha",
+        "hidePassword": "Ocultar senha"
+      },
+      "errors": {
+        "invalidCredentials": "E-mail ou senha inválidos",
+        "invalidEmail": "Por favor, insira um e-mail válido",
+        "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+        "generic": "Algo deu errado. Por favor, tente novamente.",
+        "accountNotLinked": "Este e-mail já está vinculado a outro método de login. Por favor, entre com o método original.",
+        "sessionRequired": "Você precisa estar autenticado para acessar esta página.",
+        "betaAccessDenied": "O CauseFlow AI está em beta privado. Seu e-mail não está na lista de acesso. Entre em contato com adm@causeflow.ai para solicitar acesso."
+      },
+      "signIn": {
+        "title": "Bem-vindo de volta",
+        "subtitle": "Entre na sua conta CauseFlow AI",
+        "continueWithGoogle": "Continuar com Google",
+        "continueWithGitHub": "Continuar com GitHub",
+        "orContinueWith": "ou continue com e-mail",
+        "forgotPassword": "Esqueceu a senha?",
+        "submit": "Entrar",
+        "noAccount": "Não tem uma conta?",
+        "signUpLink": "Cadastre-se"
+      },
+      "signUp": {
+        "title": "Crie sua conta",
+        "subtitle": "Comece a investigar incidentes em minutos",
+        "continueWithGoogle": "Cadastrar com Google",
+        "continueWithGitHub": "Cadastrar com GitHub",
+        "passwordStrength": "Força da senha",
+        "passwordsMatch": "Senhas coincidem",
+        "agreeToTerms": "Concordo com os",
+        "termsLink": "Termos de Serviço",
+        "and": "e com a",
+        "privacyLink": "Política de Privacidade",
+        "submit": "Criar Conta",
+        "haveAccount": "Já tem uma conta?",
+        "signInLink": "Entrar",
+        "successMessage": "Conta criada! Redirecionando para verificação de e-mail..."
+      },
+      "verifyEmail": {
+        "title": "Verifique seu e-mail",
+        "subtitle": "Enviamos um código de verificação de 6 dígitos para",
+        "codeLabel": "Código de Verificação",
+        "submit": "Verificar E-mail",
+        "noCode": "Não recebeu o código?",
+        "resend": "Reenviar código",
+        "resending": "Enviando...",
+        "resendIn": "Reenviar em {seconds}s",
+        "successTitle": "E-mail verificado!",
+        "successMessage": "Seu e-mail foi verificado com sucesso.",
+        "redirecting": "Redirecionando para entrar...",
+        "backToSignIn": "Voltar para entrar",
+        "errors": {
+          "codeLength": "Por favor, insira o código de 6 dígitos"
+        }
+      },
+      "forgotPassword": {
+        "title": "Redefinir sua senha",
+        "subtitle": "Insira seu e-mail e enviaremos um código de redefinição",
+        "resetTitle": "Criar nova senha",
+        "resetSubtitle": "Insira o código enviado para {email} e escolha uma nova senha",
+        "sendCode": "Enviar Código de Redefinição",
+        "newPassword": "Nova Senha",
+        "resetPassword": "Redefinir Senha",
+        "backToSignIn": "Voltar para entrar",
+        "successTitle": "Senha redefinida!",
+        "successMessage": "Sua senha foi redefinida com sucesso. Agora você pode entrar."
+      }
+    },
+    "onboarding": {
+      "progress": {
+        "ariaLabel": "Progresso do onboarding",
+        "steps": {
+          "profile": "Perfil",
+          "integration": "Integração",
+          "welcome": "Boas-vindas"
+        }
+      },
+      "completeProfile": {
+        "title": "Configure seu espaço de trabalho",
+        "subtitle": "Conte-nos um pouco sobre você e sua empresa para personalizar sua experiência",
+        "fields": {
+          "fullName": "Seu Nome Completo",
+          "fullNamePlaceholder": "ex.: João Silva",
+          "companyName": "Nome da Empresa",
+          "companyNamePlaceholder": "Nome da sua empresa",
+          "companyWebsite": "Site da Empresa",
+          "companyWebsitePlaceholder": "https://suaempresa.com.br",
+          "teamSize": "Tamanho da Equipe",
+          "teamSizePlaceholder": "Selecione o tamanho da equipe",
+          "role": "Seu Cargo / Título",
+          "rolePlaceholder": "ex.: Gerente de Engenharia, CTO"
+        },
+        "teamSizeOptions": {
+          "1_5": "1–5 engenheiros",
+          "6_20": "6–20 engenheiros",
+          "21_50": "21–50 engenheiros",
+          "50plus": "50+ engenheiros"
+        },
+        "validation": {
+          "fullNameTooShort": "O nome deve ter pelo menos 2 caracteres",
+          "fullNameTooLong": "O nome deve ter no máximo 100 caracteres",
+          "companyNameRequired": "O nome da empresa é obrigatório",
+          "companyNameTooShort": "O nome da empresa deve ter pelo menos 2 caracteres",
+          "companyNameTooLong": "O nome da empresa deve ter no máximo 100 caracteres",
+          "websiteInvalid": "Por favor, insira uma URL válida (ex.: https://suaempresa.com.br)",
+          "teamSizeRequired": "Por favor, selecione o tamanho da equipe",
+          "roleTooLong": "O cargo deve ter no máximo 100 caracteres"
+        },
+        "acceptTerms": "Eu aceito os <termsLink>Termos de Serviço</termsLink>",
+        "acceptTermsError": "Você deve aceitar os Termos de Serviço para continuar",
+        "submit": "Continuar",
+        "submitting": "Salvando...",
+        "errorGeneric": "Algo deu errado. Por favor, tente novamente."
+      },
+      "connectIntegration": {
+        "title": "Conecte sua primeira integração",
+        "subtitle": "Conecte suas ferramentas para que o CauseFlow possa investigar incidentes em todas as suas fontes de dados",
+        "skip": "Pular por enquanto",
+        "continue": "Continuar",
+        "connectButton": "Conectar",
+        "connectedLabel": "Conectado",
+        "connecting": "Conectando...",
+        "modal": {
+          "title": "Conectar {name}",
+          "submit": "Conectar",
+          "submitting": "Conectando...",
+          "cancel": "Cancelar",
+          "successTitle": "Conectado!",
+          "successMessage": "{name} foi conectado com sucesso.",
+          "errorGeneric": "Algo deu errado. Por favor, tente novamente.",
+          "fields": {
+            "apiToken": "Token de API",
+            "apiKey": "Chave de API",
+            "applicationKey": "Chave de Aplicação",
+            "botToken": "Token do Bot",
+            "botTokenPlaceholder": "xoxb-...",
+            "email": "E-mail",
+            "domain": "URL do Domínio",
+            "domainPlaceholder": "https://suaempresa.atlassian.net",
+            "roleArn": "ARN da Role IAM",
+            "roleArnPlaceholder": "arn:aws:iam::123456789012:role/CauseFlowReadOnly",
+            "externalId": "ID Externo",
+            "externalIdPlaceholder": "Gerado automaticamente para segurança",
+            "integrationToken": "Token de Integração",
+            "integrationTokenPlaceholder": "secret_...",
+            "installationId": "ID da Instalação",
+            "appId": "ID do App",
+            "privateKey": "Chave Privada (PEM)",
+            "privateKeyPlaceholder": "-----BEGIN RSA PRIVATE KEY-----",
+            "accessToken": "Token de Acesso",
+            "accessTokenPlaceholder": "pat-...",
+            "authToken": "Token de Autenticação",
+            "organization": "Slug da Organização",
+            "connectionString": "String de Conexão"
+          },
+          "validation": {
+            "required": "Este campo é obrigatório",
+            "urlInvalid": "Por favor, insira uma URL válida",
+            "emailInvalid": "Por favor, insira um e-mail válido"
+          }
+        },
+        "integrations": {
+          "slack": {
+            "name": "Slack",
+            "description": "Receba alertas de incidentes e execute investigações para equipes de engenharia e suporte nos canais do Slack"
+          },
+          "pagerduty": {
+            "name": "PagerDuty",
+            "description": "Dispare investigações automaticamente a partir de incidentes do PagerDuty"
+          },
+          "datadog": {
+            "name": "Datadog",
+            "description": "Correlacione métricas e alertas com suas investigações de incidentes"
+          },
+          "github": {
+            "name": "GitHub",
+            "description": "Analise commits, PRs e releases para identificação de causa raiz"
+          },
+          "jira": {
+            "name": "Jira",
+            "description": "Vincule investigações a tickets e atualize o status automaticamente"
+          },
+          "cloudwatch": {
+            "name": "AWS CloudWatch",
+            "description": "Obtenha logs e métricas diretamente do CloudWatch para análise"
+          }
+        }
+      },
+      "welcome": {
+        "title": "Tudo pronto, {name}!",
+        "titleFallback": "Tudo pronto!",
+        "subtitle": "Seu espaço de trabalho está pronto. Veja o que você pode fazer a seguir:",
+        "companyLabel": "Espaço de trabalho",
+        "integrationsConnected": "{count} integração conectada",
+        "integrationsConnectedPlural": "{count} integrações conectadas",
+        "noIntegrations": "Nenhuma integração ainda — você pode adicionar a qualquer momento",
+        "tips": {
+          "title": "Dicas Rápidas",
+          "startAnalysis": {
+            "title": "Inicie sua primeira análise",
+            "description": "Descreva um problema de produção e deixe o CauseFlow investigar"
+          },
+          "inviteTeam": {
+            "title": "Convide sua equipe",
+            "description": "Colabore nas investigações com sua equipe de engenharia"
+          },
+          "exploreIntegrations": {
+            "title": "Explore as integrações",
+            "description": "Conecte mais ferramentas para obter insights mais profundos"
+          }
+        },
+        "cta": "Ir para o Painel"
+      }
+    }
+  }
+}

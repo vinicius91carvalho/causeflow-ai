@@ -1,0 +1,109 @@
+{
+  "exportedAt": "2026-04-11",
+  "description": "Snapshot of causeflow-staging WAF WebACL + IP Set. Use as reference for CDK recreation.",
+  "webAcl": {
+    "Name": "causeflow-staging-waf",
+    "Id": "beaa7545-ba6b-4720-9e23-2423e1ee941a",
+    "ARN": "arn:aws:wafv2:us-east-2:409171461008:regional/webacl/causeflow-staging-waf/beaa7545-ba6b-4720-9e23-2423e1ee941a",
+    "DefaultAction": { "Allow": {} },
+    "Capacity": 979,
+    "VisibilityConfig": {
+      "SampledRequestsEnabled": true,
+      "CloudWatchMetricsEnabled": true,
+      "MetricName": "causeflow-staging-waf"
+    },
+    "Rules": [
+      {
+        "Name": "AllowInvestigationWS",
+        "Priority": 0,
+        "Description": "Allow WebSocket upgrade requests for investigation relay",
+        "Statement": {
+          "ByteMatchStatement": {
+            "SearchString": "/v1/investigation/ws",
+            "FieldToMatch": { "UriPath": {} },
+            "TextTransformations": [{ "Priority": 0, "Type": "NONE" }],
+            "PositionalConstraint": "STARTS_WITH"
+          }
+        },
+        "Action": { "Allow": {} },
+        "VisibilityConfig": { "SampledRequestsEnabled": true, "CloudWatchMetricsEnabled": true, "MetricName": "AllowInvestigationWS" }
+      },
+      {
+        "Name": "BlockedIPs",
+        "Priority": 1,
+        "Description": "Block known malicious IPs",
+        "Statement": {
+          "IPSetReferenceStatement": {
+            "ARN": "arn:aws:wafv2:us-east-2:409171461008:regional/ipset/causeflow-blocked-ips/1495101a-a0bc-44c1-a3bd-a52f91a0b5ba"
+          }
+        },
+        "Action": { "Block": {} },
+        "VisibilityConfig": { "SampledRequestsEnabled": true, "CloudWatchMetricsEnabled": true, "MetricName": "BlockedIPs" }
+      },
+      {
+        "Name": "BlockScannerPaths",
+        "Priority": 2,
+        "Description": "Block common scanner/probe paths (.php, .env, wp-, /.git, /etc/passwd, /actuator, xmlrpc, wlwmanifest)",
+        "Statement": {
+          "OrStatement": {
+            "Statements": [
+              { "ByteMatchStatement": { "SearchString": ".php", "FieldToMatch": { "UriPath": {} }, "TextTransformations": [{ "Priority": 0, "Type": "LOWERCASE" }], "PositionalConstraint": "ENDS_WITH" } },
+              { "ByteMatchStatement": { "SearchString": ".env", "FieldToMatch": { "UriPath": {} }, "TextTransformations": [{ "Priority": 0, "Type": "LOWERCASE" }], "PositionalConstraint": "CONTAINS" } },
+              { "ByteMatchStatement": { "SearchString": "wp-", "FieldToMatch": { "UriPath": {} }, "TextTransformations": [{ "Priority": 0, "Type": "LOWERCASE" }], "PositionalConstraint": "CONTAINS" } },
+              { "ByteMatchStatement": { "SearchString": "/.git", "FieldToMatch": { "UriPath": {} }, "TextTransformations": [{ "Priority": 0, "Type": "LOWERCASE" }], "PositionalConstraint": "CONTAINS" } },
+              { "ByteMatchStatement": { "SearchString": "/etc/passwd", "FieldToMatch": { "UriPath": {} }, "TextTransformations": [{ "Priority": 0, "Type": "LOWERCASE" }], "PositionalConstraint": "CONTAINS" } },
+              { "ByteMatchStatement": { "SearchString": "/actuator", "FieldToMatch": { "UriPath": {} }, "TextTransformations": [{ "Priority": 0, "Type": "LOWERCASE" }], "PositionalConstraint": "STARTS_WITH" } },
+              { "ByteMatchStatement": { "SearchString": "xmlrpc", "FieldToMatch": { "UriPath": {} }, "TextTransformations": [{ "Priority": 0, "Type": "LOWERCASE" }], "PositionalConstraint": "CONTAINS" } },
+              { "ByteMatchStatement": { "SearchString": "wlwmanifest", "FieldToMatch": { "UriPath": {} }, "TextTransformations": [{ "Priority": 0, "Type": "LOWERCASE" }], "PositionalConstraint": "CONTAINS" } }
+            ]
+          }
+        },
+        "Action": { "Block": {} },
+        "VisibilityConfig": { "SampledRequestsEnabled": true, "CloudWatchMetricsEnabled": true, "MetricName": "BlockScannerPaths" }
+      },
+      {
+        "Name": "AWS-CommonRuleSet",
+        "Priority": 3,
+        "Description": "AWS Managed Rules - Common Rule Set",
+        "Statement": {
+          "ManagedRuleGroupStatement": { "VendorName": "AWS", "Name": "AWSManagedRulesCommonRuleSet" }
+        },
+        "OverrideAction": { "None": {} },
+        "VisibilityConfig": { "SampledRequestsEnabled": true, "CloudWatchMetricsEnabled": true, "MetricName": "CommonRuleSet" }
+      },
+      {
+        "Name": "AWS-KnownBadInputs",
+        "Priority": 4,
+        "Description": "AWS Managed Rules - Known Bad Inputs",
+        "Statement": {
+          "ManagedRuleGroupStatement": { "VendorName": "AWS", "Name": "AWSManagedRulesKnownBadInputsRuleSet" }
+        },
+        "OverrideAction": { "None": {} },
+        "VisibilityConfig": { "SampledRequestsEnabled": true, "CloudWatchMetricsEnabled": true, "MetricName": "KnownBadInputs" }
+      },
+      {
+        "Name": "RateLimit",
+        "Priority": 5,
+        "Description": "Rate limit: 1000 requests per 5 minutes per IP",
+        "Statement": {
+          "RateBasedStatement": { "Limit": 1000, "EvaluationWindowSec": 300, "AggregateKeyType": "IP" }
+        },
+        "Action": { "Block": {} },
+        "VisibilityConfig": { "SampledRequestsEnabled": true, "CloudWatchMetricsEnabled": true, "MetricName": "RateLimit" }
+      }
+    ]
+  },
+  "ipSet": {
+    "Name": "causeflow-blocked-ips",
+    "Id": "1495101a-a0bc-44c1-a3bd-a52f91a0b5ba",
+    "ARN": "arn:aws:wafv2:us-east-2:409171461008:regional/ipset/causeflow-blocked-ips/1495101a-a0bc-44c1-a3bd-a52f91a0b5ba",
+    "IPAddressVersion": "IPV4",
+    "Addresses": [
+      "157.245.192.157/32"
+    ]
+  },
+  "association": {
+    "status": "NOT_ASSOCIATED",
+    "note": "WAF exists but was not re-associated to the new ALB after stack recreation"
+  }
+}

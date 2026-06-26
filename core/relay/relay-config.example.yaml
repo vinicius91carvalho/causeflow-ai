@@ -1,0 +1,143 @@
+# CauseFlow Relay — v2 configuration example
+# Copy to relay-config.yaml and adjust values.
+
+transport:
+  kind: wss
+  url: wss://your-causeflow-instance/v1/relay/connect
+  tenantId: ${TENANT_ID}
+  tokenRef: env:RELAY_TOKEN
+  # Optional mutual TLS
+  mtls:
+    enabled: false
+    # certRef: aws-sm:arn:aws:secretsmanager:us-east-1:123456789012:secret:relay/cert
+    # keyRef:  aws-sm:arn:aws:secretsmanager:us-east-1:123456789012:secret:relay/key
+    # caRef:   aws-sm:arn:aws:secretsmanager:us-east-1:123456789012:secret:relay/ca
+  # Pin the control plane certificate (SHA-256 of the DER-encoded cert)
+  # pinnedSha256: 'a1b2c3...'
+  reconnect:
+    initialDelayMs: 1000
+    maxDelayMs: 30000
+    jitterRatio: 0.2
+  replayWindow:
+    enabled: true
+    ttlMs: 300000
+    maxEntries: 10000
+
+resources:
+  - id: main-pg
+    type: postgres
+    name: Main PostgreSQL
+    connection:
+      host: env:PG_HOST
+      port: '5432'
+      database: env:PG_DATABASE
+      user: env:PG_USER
+      password: aws-sm:prod/relay/pg#password
+    allowedOperations: [query, describe_table, list_tables, explain]
+    allowedTables: []    # empty = allow all (blocked list still applies)
+    blockedTables: [users_private, kms_keys]
+    maxRowsPerQuery: 1000
+    statementTimeoutMs: 30000
+    schema: public
+    rateLimit:
+      requestsPerMinute: 120
+      burstCapacity: 20
+    approvalThresholds:
+      rowCount: 5000
+      sensitiveTables: [payment_tokens, patient_records]
+    columnRules:
+      - { table: users, column: email, action: fpe, classification: pii }
+      - { table: users, column: ssn,   action: drop, classification: pii }
+
+  - id: main-mongo
+    type: mongodb
+    name: Main MongoDB
+    connection:
+      uri: env:MONGO_URI
+      database: env:MONGO_DATABASE
+    allowedOperations: [query, describe_table, list_tables, explain]
+    maxRowsPerQuery: 1000
+
+  - id: audit-cw
+    type: cloudwatch
+    name: CloudWatch Logs (audit log group)
+    connection:
+      region: us-east-1
+    allowedOperations: [query, list_tables]
+    maxRowsPerQuery: 500
+
+masking:
+  enabled: true
+  detectors:
+    cpf: true
+    cnpj: true
+    rg: true
+    pis: true
+    pix: true
+    email: true
+    phone: true
+    creditCard: true
+    bearer: true
+    jwt: true
+    awsKeys: true
+    gcpKeys: true
+    pem: true
+    iban: true
+    ipv4: false
+    ipv6: false
+  fpe:
+    enabled: true
+    keyRef: aws-sm:prod/relay/fpe-key
+  redactPaths:
+    - '*.password'
+    - '*.secret'
+    - 'headers.authorization'
+  patterns:
+    - name: internal_user_id
+      regex: 'USR-\d{8}'
+      replacement: 'USR-********'
+      classification: business
+
+audit:
+  enabled: true
+  level: info
+  hashChain:
+    enabled: true
+    hmacKeyRef: aws-sm:prod/relay/audit-hmac
+  forward:
+    enabled: true
+    bufferPath: /tmp/relay-audit-buffer
+    batchSize: 50
+    flushIntervalMs: 5000
+
+policy:
+  engine: local
+  # engine: opa
+  opa:
+    url: http://localhost:8181
+    packagePath: relay.authz
+    cacheTtlMs: 30000
+    failClosed: true
+    timeoutMs: 500
+
+observability:
+  http:
+    enabled: true
+    port: 8080
+  metrics:
+    enabled: true
+  tracing:
+    enabled: false
+    # otlpEndpoint: http://otel-collector:4318
+
+session:
+  timeBoxed:
+    enabled: false
+    requireActiveIncident: false
+  breakGlass:
+    enabled: true
+    controlEndpointPath: /break-glass
+    sharedSecretRef: env:BREAK_GLASS_SECRET
+
+plugins:
+  directory: /app/plugins

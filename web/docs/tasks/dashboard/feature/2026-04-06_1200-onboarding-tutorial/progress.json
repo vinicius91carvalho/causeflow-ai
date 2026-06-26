@@ -1,0 +1,50 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-06T12:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-domain-api-infrastructure.md",
+      "title": "Domain + API + Infrastructure",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": null,
+      "merged": false
+    },
+    {
+      "id": 2,
+      "file": "sprints/02-core-ui-components.md",
+      "title": "Core UI Components",
+      "status": "complete",
+      "depends_on": [1],
+      "batch": 2,
+      "model": "sonnet",
+      "branch": null,
+      "merged": false
+    },
+    {
+      "id": 3,
+      "file": "sprints/03-integration-layout-wiring.md",
+      "title": "Integration + Layout Wiring",
+      "status": "complete",
+      "depends_on": [2],
+      "batch": 3,
+      "model": "sonnet",
+      "branch": null,
+      "merged": false
+    },
+    {
+      "id": 4,
+      "file": "sprints/04-i18n-polish-tests.md",
+      "title": "i18n + Polish + Tests",
+      "status": "complete",
+      "depends_on": [3],
+      "batch": 4,
+      "model": "sonnet",
+      "branch": null,
+      "merged": false
+    }
+  ]
+}

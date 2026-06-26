@@ -1,0 +1,223 @@
+---
+title: "Configuration reference"
+sidebarTitle: "Configuration"
+description: "Complete reference for the relay-config.yaml configuration file."
+---
+
+The Relay is configured entirely through a single YAML file, typically named `relay-config.yaml`. You pass its path to the container at startup by mounting it at `/app/relay-config.yaml`.
+
+## Environment variable substitution
+
+Any value in the configuration file can reference an environment variable using `${VAR_NAME}` syntax:
+
+```yaml
+connection:
+  host: ${PG_HOST}
+  password: ${PG_PASSWORD}
+```
+
+This keeps secrets out of the config file. Set the environment variables in your container runtime (Docker `-e` flags, Kubernetes Secrets, ECS task definition secrets, etc.).
+
+---
+
+## `controlPlane`
+
+Connection settings for the CauseFlow control plane.
+
+```yaml
+controlPlane:
+  url: wss://api.causeflow.ai/v1/relay/connect
+  token: ${RELAY_TOKEN}
+  tenantId: ${TENANT_ID}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `url` | string | Yes | The WebSocket endpoint for the control plane. Always `wss://api.causeflow.ai/v1/relay/connect` unless directed otherwise by support. |
+| `token` | string | Yes | Your relay authentication token. Obtain from **Dashboard → Settings → Relay**. Use `${RELAY_TOKEN}` and pass the value as an environment variable. |
+| `tenantId` | string | Yes | Your CauseFlow tenant ID. Found in **Dashboard → Settings → General**. |
+
+---
+
+## `resources`
+
+An array of database resources the Relay can access. Each resource has a unique ID and its own connection, operation, and row limit settings.
+
+```yaml
+resources:
+  - id: main-pg
+    type: postgres
+    name: Main PostgreSQL
+    connection:
+      host: ${PG_HOST}
+      port: 5432
+      database: ${PG_DATABASE}
+      user: ${PG_USER}
+      password: ${PG_PASSWORD}
+    allowedOperations: [query, describe_table, list_tables, explain]
+    maxRowsPerQuery: 1000
+```
+
+### Resource fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | Yes | A unique identifier for this resource within your tenant. Used in query requests to identify the target database. Use lowercase with hyphens (e.g., `main-pg`, `analytics-mongo`). |
+| `type` | string | Yes | Database type. Accepted values: `postgres`, `mongodb`. |
+| `name` | string | Yes | A human-readable display name shown in the CauseFlow Dashboard. |
+| `connection` | object | Yes | Type-specific connection parameters. See below. |
+| `allowedOperations` | array | Yes | Operations permitted on this resource. See [allowed operations](#allowed-operations). |
+| `maxRowsPerQuery` | integer | No | Maximum rows returned per query. Requests exceeding this limit are clamped, not rejected. Default: `1000`. |
+
+### PostgreSQL connection
+
+```yaml
+connection:
+  host: ${PG_HOST}
+  port: 5432
+  database: ${PG_DATABASE}
+  user: ${PG_USER}
+  password: ${PG_PASSWORD}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `host` | string | Yes | Hostname or IP address of the PostgreSQL server. |
+| `port` | integer | No | PostgreSQL port. Default: `5432`. |
+| `database` | string | Yes | Database name to connect to. |
+| `user` | string | Yes | PostgreSQL user. This user must have at least `SELECT` privilege on the tables you want to query. |
+| `password` | string | Yes | Password for the PostgreSQL user. Use `${VAR}` syntax. |
+
+The Relay maintains a connection pool with a maximum of 5 connections, 30-second idle timeout, and 10-second connect timeout. All queries run inside `READ ONLY` transactions with a 30-second statement timeout.
+
+### MongoDB connection
+
+```yaml
+connection:
+  uri: ${MONGO_URI}
+  database: ${MONGO_DATABASE}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `uri` | string | Yes | Full MongoDB connection URI (e.g., `mongodb://user:pass@host:27017`). Use `${VAR}` syntax for the URI or embed credentials via separate variables. |
+| `database` | string | Yes | Database name to use for queries. |
+
+### Allowed operations
+
+The `allowedOperations` array controls which query types the policy engine permits for a resource. The valid values are:
+
+| Operation | Description |
+|---|---|
+| `query` | Execute a SELECT query (PostgreSQL) or a find operation (MongoDB). |
+| `describe_table` | Return column names, types, and metadata for a specific table or collection. |
+| `list_tables` | List all tables or collections in the database. |
+| `explain` | Return the query execution plan without executing the query. |
+
+<Tip>
+  For most use cases, include all four operations. Restricting to `query` and `describe_table` is useful if you want to prevent AI agents from enumerating your full schema.
+</Tip>
+
+---
+
+## `masking`
+
+Controls PII masking applied to query results before they leave your network.
+
+```yaml
+masking:
+  enabled: true
+  patterns:
+    - name: cpf
+      regex: '\d{3}\.\d{3}\.\d{3}-\d{2}'
+      replacement: '***.***.***-**'
+    - name: email
+      regex: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+      replacement: '***@***.***'
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `enabled` | boolean | Yes | Whether to apply masking to query results. Set to `false` to disable. Note: disabling masking does not disable the read-only policy or SQL validation. |
+| `patterns` | array | No | Custom masking patterns in addition to (or instead of) built-in patterns. |
+
+### Pattern fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `name` | string | Yes | A unique name for this pattern. Used in audit log entries. |
+| `regex` | string | Yes | A regular expression to match against field values. Escape backslashes in YAML strings (use `\\d` for `\d`, or use single quotes). |
+| `replacement` | string | Yes | The string to substitute for any match. |
+
+Built-in patterns (CPF, email, credit card, phone, bearer token) are always active when `masking.enabled` is `true`. Custom patterns are applied in addition to built-in patterns.
+
+See [PII masking](/relay/pii-masking) for the full list of built-in patterns and examples.
+
+---
+
+## `audit`
+
+Controls structured JSON audit logging.
+
+```yaml
+audit:
+  enabled: true
+  level: info
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `enabled` | boolean | Yes | Whether to write audit log entries. |
+| `level` | string | No | Log verbosity. Accepted values: `debug`, `info`, `warn`, `error`. Default: `info`. Use `debug` during troubleshooting and `info` in production. |
+
+Audit logs are written to stdout and include: timestamp, log level, request ID, resource ID, operation, row count, masked field count, execution time in milliseconds, and outcome. Query parameters and row values are never written to the log.
+
+---
+
+## Complete example
+
+```yaml relay-config.yaml
+controlPlane:
+  url: wss://api.causeflow.ai/v1/relay/connect
+  token: ${RELAY_TOKEN}
+  tenantId: ${TENANT_ID}
+
+resources:
+  - id: main-pg
+    type: postgres
+    name: Main PostgreSQL
+    connection:
+      host: ${PG_HOST}
+      port: 5432
+      database: ${PG_DATABASE}
+      user: ${PG_USER}
+      password: ${PG_PASSWORD}
+    allowedOperations: [query, describe_table, list_tables, explain]
+    maxRowsPerQuery: 1000
+
+  - id: analytics-mongo
+    type: mongodb
+    name: Analytics MongoDB
+    connection:
+      uri: ${MONGO_URI}
+      database: ${MONGO_DATABASE}
+    allowedOperations: [query, describe_table, list_tables]
+    maxRowsPerQuery: 500
+
+masking:
+  enabled: true
+  patterns:
+    - name: cpf
+      regex: '\d{3}\.\d{3}\.\d{3}-\d{2}'
+      replacement: '***.***.***-**'
+    - name: email
+      regex: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+      replacement: '***@***.***'
+    - name: internal-id
+      regex: 'EMP-\d{6}'
+      replacement: 'EMP-******'
+
+audit:
+  enabled: true
+  level: info
+```

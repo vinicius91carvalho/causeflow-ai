@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+
+# Version control
+.git
+.gitignore
+
+# Build output (built inside Docker)
+dist
+
+# Documentation (keep relay-config.example.yaml for reference)
+*.md
+!relay-config.example.yaml
+docs
+
+# CI/CD
+.github
+.artifacts
+
+# Development configs
+.npmrc
+*.local
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode
+.idea
+*.swp
+*.swo
+
+# Test files
+*.test.ts
+*.spec.ts
+coverage
+
+# Logs
+*.log
+npm-debug.log*

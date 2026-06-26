@@ -1,0 +1,102 @@
+import type { EvalScenario } from './eval-framework.js';
+
+export const EVAL_SCENARIOS: EvalScenario[] = [
+  {
+    name: 'OOM Kill - Payment Service',
+    alertPayload: {
+      source: 'cloudwatch',
+      externalId: `eval-oom-${Date.now()}`,
+      payload: {
+        AlarmName: 'payment-service-memory-critical',
+        NewStateValue: 'ALARM',
+        NewStateReason: 'Threshold Crossed: MemoryUtilization exceeded 90%. Container OOMKilled.',
+        Trigger: { Namespace: 'AWS/ECS' },
+        Region: 'us-east-1',
+      },
+    },
+    expectedRootCause: 'OOM memory exceeded container killed',
+    expectedSeverity: 'critical',
+    expectedActions: ['restart_service', 'scale_service'],
+    acceptableAgents: ['log_analyst', 'metric_analyst', 'infra_inspector'],
+    minConfidence: 0.7,
+  },
+  {
+    name: 'Database Connection Timeout - API Gateway',
+    alertPayload: {
+      source: 'datadog',
+      externalId: `eval-latency-${Date.now()}`,
+      payload: {
+        alert_type: 'error',
+        title: 'High latency on api-gateway',
+        body: 'Request latency exceeded 1200ms. Database connection pool exhausted. Circuit breaker triggered on api-gateway.',
+        aggreg_key: 'api-gateway',
+        tags: ['env:production', 'service:api-gateway'],
+      },
+    },
+    expectedRootCause: 'database connection timeout pool exhausted',
+    expectedSeverity: 'critical',
+    expectedActions: ['restart_service', 'scale_service'],
+    acceptableAgents: ['log_analyst', 'metric_analyst', 'infra_inspector'],
+    minConfidence: 0.6,
+  },
+  {
+    name: 'Memory Leak - Unbounded Cache (Code)',
+    alertPayload: {
+      source: 'cloudwatch',
+      externalId: `eval-memleak-code-${Date.now()}`,
+      payload: {
+        AlarmName: 'payment-service-memory-critical',
+        NewStateValue: 'ALARM',
+        NewStateReason: 'Threshold Crossed: MemoryUtilization exceeded 90%. Container OOMKilled.',
+        Trigger: { Namespace: 'AWS/ECS' },
+        Region: 'us-east-1',
+      },
+    },
+    expectedRootCause: 'memory leak unbounded cache map',
+    expectedSeverity: 'critical',
+    expectedActions: ['restart_service', 'scale_service'],
+    acceptableAgents: ['log_analyst', 'metric_analyst', 'infra_inspector', 'change_detector'],
+    minConfidence: 0.7,
+    codeScenario: 'oom-memory-leak',
+  },
+  {
+    name: 'N+1 Query - Latency Spike (Code)',
+    alertPayload: {
+      source: 'datadog',
+      externalId: `eval-n1-code-${Date.now()}`,
+      payload: {
+        alert_type: 'error',
+        title: 'High latency on payment-service',
+        body: 'Request latency exceeded 5000ms. Database queries spiking. Slow query log threshold exceeded.',
+        aggreg_key: 'payment-service',
+        tags: ['env:production', 'service:payment-service'],
+      },
+    },
+    expectedRootCause: 'n+1 query loop individual selects',
+    expectedSeverity: 'critical',
+    expectedActions: ['restart_service'],
+    acceptableAgents: ['log_analyst', 'metric_analyst', 'change_detector'],
+    minConfidence: 0.6,
+    codeScenario: 'n-plus-one-query',
+  },
+  {
+    name: 'Config Regression - Timeout Reduced (Code)',
+    alertPayload: {
+      source: 'cloudwatch',
+      externalId: `eval-config-code-${Date.now()}`,
+      payload: {
+        AlarmName: 'payment-service-latency-high',
+        NewStateValue: 'ALARM',
+        NewStateReason: 'Request timeout errors increased 500%. Timeout set to 3000ms.',
+        Trigger: { Namespace: 'Custom/App' },
+        Region: 'us-east-1',
+      },
+    },
+    expectedRootCause: 'configuration regression timeout reduced',
+    expectedSeverity: 'critical',
+    expectedActions: ['restart_service'],
+    acceptableAgents: ['log_analyst', 'change_detector'],
+    minConfidence: 0.6,
+    codeScenario: 'config-regression',
+  },
+];

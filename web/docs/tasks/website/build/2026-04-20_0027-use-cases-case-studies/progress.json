@@ -1,0 +1,60 @@
+{
+  "prd": "docs/tasks/website/build/2026-04-20_0027-use-cases-case-studies/spec.md",
+  "build_candidate_tag": "build-candidate/use-cases-case-studies",
+  "status": "complete",
+  "completed_at": "2026-04-20T10:45:00Z",
+  "batches": [
+    { "batch": 1, "sprints": ["01"], "parallel": false, "status": "complete" },
+    { "batch": 2, "sprints": ["02", "03", "04"], "parallel": true, "status": "complete" },
+    { "batch": 3, "sprints": ["05"], "parallel": false, "status": "complete" }
+  ],
+  "sprints": [
+    {
+      "id": "01",
+      "title": "Foundation — /use-cases scaffold, shared primitives, nav, domain, i18n skeleton",
+      "spec": "sprints/01-foundation.md",
+      "batch": 1,
+      "status": "complete",
+      "depends_on": [],
+      "worktree_branch": "worktree-agent-a6d11504",
+      "merge_commit": "see git log main",
+      "notes": "Agent Notes in sprints/01-foundation.md. Main fix-up post-worktree: rebased onto main (worktree was spawned before PRD commit), corrected template swap in case-studies registry (stale-pricing→forensic-dossier, broken-images→budget-clock)."
+    },
+    {
+      "id": "02",
+      "title": "Template A — Stale Pricing (Forensic Dossier)",
+      "spec": "sprints/02-stale-pricing.md",
+      "batch": 2,
+      "status": "complete",
+      "depends_on": ["01"],
+      "worktree_branch": "sprint/use-cases-02-stale-pricing"
+    },
+    {
+      "id": "03",
+      "title": "Template B — Broken Images (Budget Clock)",
+      "spec": "sprints/03-broken-images.md",
+      "batch": 2,
+      "status": "complete",
+      "depends_on": ["01"],
+      "worktree_branch": "sprint/use-cases-03-broken-images"
+    },
+    {
+      "id": "04",
+      "title": "Template C — Cascading 500 (Cascade)",
+      "spec": "sprints/04-cascading-500.md",
+      "batch": 2,
+      "status": "complete",
+      "depends_on": ["01"],
+      "worktree_branch": "sprint/use-cases-04-cascading-500"
+    },
+    {
+      "id": "05",
+      "title": "Integration — carousel wiring, sitemap, Playwright + Lighthouse sweep",
+      "spec": "sprints/05-integration.md",
+      "batch": 3,
+      "status": "complete",
+      "depends_on": ["01", "02", "03", "04"],
+      "worktree_branch": "sprint/use-cases-05-integration"
+    }
+  ]
+}

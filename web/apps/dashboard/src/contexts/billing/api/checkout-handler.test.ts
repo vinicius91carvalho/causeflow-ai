@@ -1,0 +1,66 @@
+import { NextRequest } from 'next/server';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/lib/api/with-auth', () => ({
+  withAuth: (handler: (req: unknown, ctx: unknown) => Promise<unknown>) => (req: unknown) =>
+    handler(req, { tenantId: 't1', role: 'admin', email: 'a@b.com', userId: 'u1' }),
+}));
+
+const mockCreateCheckout = vi
+  .fn()
+  .mockResolvedValue({ url: 'https://checkout.stripe.com/pay/cs_test' });
+
+vi.mock('@/lib/api/get-api-client', () => ({
+  getApiClient: () => ({ createCheckout: mockCreateCheckout }),
+}));
+
+import { POST } from './checkout-handler';
+
+describe('POST /api/billing/checkout', () => {
+  it('routes success URL through /api/billing/checkout/complete for onboarding', async () => {
+    mockCreateCheckout.mockClear();
+    const req = new NextRequest('http://localhost:3001/api/billing/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ planId: 'starter', from: 'onboarding' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
+    const res = await (POST as any)(req);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.url).toBe('https://checkout.stripe.com/pay/cs_test');
+
+    const call = mockCreateCheckout.mock.calls[0][0];
+    expect(call.successUrl).toContain('/api/billing/checkout/complete');
+    expect(call.successUrl).not.toContain('/dashboard?welcome=1');
+  });
+
+  it('routes success URL through /api/billing/checkout/complete for billing upgrades', async () => {
+    mockCreateCheckout.mockClear();
+    const req = new NextRequest('http://localhost:3001/api/billing/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ planId: 'pro', from: 'billing' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
+    await (POST as any)(req);
+
+    const call = mockCreateCheckout.mock.calls[0][0];
+    expect(call.successUrl).toContain('/api/billing/checkout/complete');
+    expect(call.successUrl).toContain('from=billing');
+  });
+
+  it('returns 400 for an invalid planId', async () => {
+    const req = new NextRequest('http://localhost:3001/api/billing/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ planId: 'invalid' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
+    const res = await (POST as any)(req);
+    expect(res.status).toBe(400);
+  });
+});

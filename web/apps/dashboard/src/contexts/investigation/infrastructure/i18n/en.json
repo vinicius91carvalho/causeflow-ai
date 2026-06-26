@@ -1,0 +1,437 @@
+{
+  "dashboard": {
+    "analyses": {
+      "title": "Analyses",
+      "description": "View and manage your incident analyses",
+      "newAnalysis": "New Analysis",
+      "status": {
+        "queued": "Queued",
+        "running": "Running",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "severity": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "critical": "Critical"
+      },
+      "filters": {
+        "allStatuses": "All Statuses",
+        "allSeverities": "All Severities",
+        "status": "Status",
+        "severity": "Severity"
+      },
+      "list": {
+        "loadMore": "Load More",
+        "showingOf": "Showing {count} of {total}",
+        "total": "{count} analyses"
+      },
+      "empty": {
+        "title": "No analyses yet",
+        "description": "Start your first incident investigation to see results here.",
+        "cta": "Create your first analysis"
+      },
+      "card": {
+        "confidence": "Confidence",
+        "viewDetails": "View Details"
+      },
+      "new": {
+        "title": "New Analysis",
+        "description": "Start a new incident investigation",
+        "promptLabel": "Describe the incident",
+        "promptPlaceholder": "Describe the incident you want to investigate. Include symptoms, affected services, and any error messages you observed...",
+        "promptHint": "Minimum 10 characters. Be as specific as possible for better results.",
+        "severityLabel": "Severity",
+        "severityPlaceholder": "Select severity",
+        "integrationsLabel": "Data Sources",
+        "integrationsHint": "Select integrations to include as context for the analysis.",
+        "submit": "Start Analysis",
+        "submitting": "Starting...",
+        "validation": {
+          "promptRequired": "Prompt is required",
+          "promptTooShort": "Prompt must be at least 10 characters",
+          "promptTooLong": "Prompt must be 4000 characters or less"
+        },
+        "error": "Failed to create analysis. Please try again.",
+        "successRedirecting": "Analysis created! Redirecting..."
+      },
+      "detail": {
+        "backToHistory": "Back to Analyses",
+        "status": "Status",
+        "severity": "Severity",
+        "created": "Created",
+        "completed": "Completed",
+        "prompt": "Incident Description",
+        "rootCause": "Root Cause Analysis",
+        "confidence": "Confidence Score",
+        "confidenceLow": "Low confidence",
+        "confidenceMedium": "Medium confidence",
+        "confidenceHigh": "High confidence",
+        "timeline": "Event Timeline",
+        "recommendations": "Recommendations",
+        "dataSources": "Data Sources Consulted",
+        "auditTrail": "Investigation Audit Trail",
+        "auditTrailExpand": "Show audit trail",
+        "auditTrailCollapse": "Hide audit trail",
+        "records": "{count} records ingested",
+        "noResult": "Analysis in progress...",
+        "noTimeline": "No timeline events recorded.",
+        "noRecommendations": "No recommendations available yet.",
+        "noDataSources": "No data sources recorded.",
+        "pollingMessage": "Analysis is running. Updating automatically...",
+        "completedToast": "Analysis complete!",
+        "rerun": "Re-run Analysis",
+        "rerunning": "Re-running..."
+      }
+    },
+    "incidents": {
+      "title": "Incidents",
+      "description": "View and manage your incidents",
+      "newIncident": "New Incident",
+      "empty": "No incidents yet",
+      "emptyDescription": "Create your first incident to get started",
+      "loadMore": "Load more",
+      "filters": {
+        "allStatuses": "All Statuses",
+        "allSeverities": "All Severities",
+        "status": "Status",
+        "severity": "Severity"
+      },
+      "status": {
+        "open": "Open",
+        "triaging": "Triaging",
+        "investigating": "Investigating",
+        "awaiting_approval": "Awaiting Approval",
+        "remediating": "Remediating",
+        "resolved": "Resolved",
+        "closed": "Closed",
+        "failed": "Failed",
+        "aborted": "Aborted",
+        "inconclusive": "Inconclusive — Insufficient Evidence"
+      },
+      "severity": {
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "info": "Info"
+      },
+      "new": {
+        "title": "New Incident",
+        "description": "Report a new incident for investigation",
+        "back": "Back to Incidents",
+        "form": {
+          "title": "Incident Title",
+          "titlePlaceholder": "e.g., Database Connection Pool Exhaustion",
+          "description": "Description",
+          "descriptionPlaceholder": "Describe the incident in detail...",
+          "severity": "Severity",
+          "submit": "Create Incident",
+          "submitting": "Creating..."
+        }
+      },
+      "detail": {
+        "title": "Incident Details",
+        "liveProgress": "Incident is being investigated. Updating automatically...",
+        "description": "Description",
+        "rootCause": "Root Cause",
+        "rootCauseIdentified": "Root Cause Identified",
+        "rootCauseInvestigating": "Investigating root cause…",
+        "rootCauseInvestigatingHint": "Agents are analyzing signals. The root cause will appear here as soon as it is identified.",
+        "showMore": "Show more",
+        "showLess": "Show less",
+        "resolution": "Resolution",
+        "assignedAgents": "Assigned Agents",
+        "sourceProvider": "Source Provider",
+        "sourceAlertId": "Source Alert ID",
+        "sourceManual": "Created manually",
+        "sourceWebhook": "Triggered by {provider}",
+        "createdAt": "Created",
+        "updatedAt": "Updated",
+        "resolvedAt": "Resolved",
+        "rerun": "Create Similar",
+        "rerunFailed": "Failed to create similar incident. Please try again.",
+        "incidentResolved": "Incident resolved!",
+        "timestamps": "Timestamps",
+        "back": "Back to Incidents",
+        "inconclusive": {
+          "headline": "The investigation could not reach a conclusion",
+          "body": "The investigation agent ran but could not find sufficient evidence to support a conclusion. This may happen when log retention is short, the alert is ambiguous, or relevant data sources were unavailable.",
+          "nextStepsTitle": "Suggested next steps",
+          "nextStep1": "Provide additional context (e.g. attach a runbook, link a related incident)",
+          "nextStep2": "Re-run the investigation with broader log/metric scope",
+          "nextStep3": "Escalate to a human SRE for manual diagnosis",
+          "reasonLabel": "Reason"
+        },
+        "remediations": {
+          "title": "Remediations",
+          "approve": "Approve",
+          "reject": "Reject",
+          "execute": "Execute",
+          "autoApproveEnabled": "Auto-approve enabled",
+          "rootCause": "Root Cause",
+          "recommendedActions": "Recommended Actions",
+          "approvedBy": "Approved by {user}",
+          "rejectedBy": "Rejected by {user}",
+          "reason": "Reason",
+          "noRemediations": "No remediations proposed yet",
+          "approving": "Approving...",
+          "executing": "Executing...",
+          "errorState": "Could not load remediations.",
+          "retry": "Retry",
+          "investigationPending": "Waiting for the investigation to propose remediations...",
+          "completedEmpty": "Investigation complete — no remediations needed.",
+          "completedEmptyWithCause": "Investigation complete — no remediations needed. Root cause: {rootCause}",
+          "loading": "Loading remediations...",
+          "actionFailed": "Failed to {action} remediation",
+          "actionFailedRetry": "Failed to {action} remediation. Please try again.",
+          "actionApproved": "Remediation approved",
+          "actionRejected": "Remediation rejected",
+          "actionExecuting": "Remediation executing",
+          "statusProposed": "Proposed",
+          "statusApproved": "Approved",
+          "statusRejected": "Rejected",
+          "statusExecuting": "Executing",
+          "statusCompleted": "Completed",
+          "statusFailed": "Failed"
+        },
+        "knownSolution": {
+          "title": "Known Solution Found",
+          "confidence": "with {confidence}% confidence",
+          "rootCause": "Root Cause",
+          "recommendedFix": "Recommended Fix",
+          "accept": "Accept Solution",
+          "decline": "Decline & Investigate",
+          "accepting": "Accepting...",
+          "declining": "Declining...",
+          "accepted": "Known solution accepted",
+          "declined": "Known solution declined, starting investigation",
+          "failed": "Failed to respond to known solution"
+        },
+        "actions": {
+          "startTriage": "Start Triage",
+          "startInvestigation": "Start Investigation",
+          "abortInvestigation": "Abort Investigation",
+          "abortConfirm": "Are you sure? This will stop the investigation.",
+          "abortYes": "Yes, abort",
+          "abortCancel": "Cancel",
+          "creating": "Creating...",
+          "triageStarted": "Triage started",
+          "investigationStarted": "Investigation started",
+          "investigationAborted": "Investigation aborted",
+          "triageFailed": "Failed to start triage",
+          "investigationFailed": "Failed to start investigation",
+          "abortFailed": "Failed to abort investigation",
+          "starting": "Starting...",
+          "aborting": "Aborting..."
+        },
+        "modeSelector": {
+          "staffLabel": "Staff",
+          "run": "Run",
+          "running": "Running…",
+          "orchestrator": "Orchestrator",
+          "orchestratorDescription": "Symptom-driven, fastest",
+          "hypothesis": "Hypothesis-driven",
+          "hypothesisDescription": "3 hypotheses → validator → judge",
+          "debate": "Multi-agent debate",
+          "debateDescription": "Advocates vs prosecutors, slowest"
+        },
+        "hypotheses": {
+          "winnerBadge": "Confirmed root cause",
+          "pendingTitle": "Still evaluating",
+          "rejectedTitle": "Rejected hypotheses",
+          "rejectedReasonLabel": "Rejected because",
+          "informedBy": "Informed by",
+          "evidenceFor": "Evidence for",
+          "evidenceAgainst": "Counter-evidence",
+          "confidence": "Confidence",
+          "confidenceLabel": "Confidence {pct}%",
+          "scoreLabel": "Score {score} of 100",
+          "priorLabel": "Prior",
+          "waitingForSeeker": "{mode} mode selected — generating hypotheses…",
+          "errorLoading": "Could not load hypotheses.",
+          "mode": {
+            "orchestrator": "Orchestrator",
+            "hypothesis": "Hypothesis-driven",
+            "debate": "Multi-agent debate"
+          }
+        },
+        "feedback": {
+          "title": "Feedback",
+          "confirm": "Confirm",
+          "reject": "Reject",
+          "comment": "Comment",
+          "commentPlaceholder": "Add an optional comment...",
+          "submit": "Submit",
+          "success": "Feedback submitted",
+          "empty": "No feedback yet",
+          "confirmed": "Confirmed",
+          "rejected": "Rejected",
+          "context": "Added Context",
+          "errorState": "Could not load feedback.",
+          "retry": "Retry"
+        },
+        "stream": {
+          "connecting": "Connecting to live updates...",
+          "connected": "Live updates connected",
+          "disconnected": "Live updates disconnected",
+          "error": "Could not connect to live updates",
+          "reconnect": "Reconnect",
+          "devUnavailable": "Live updates not available in dev mode"
+        },
+        "liveActivity": {
+          "title": "Live Activity",
+          "empty": "No agent activity recorded yet",
+          "history": "History",
+          "errorState": "Could not load activity history.",
+          "retry": "Retry"
+        },
+        "agents": {
+          "log_analyst": "Log Analyst",
+          "metric_analyst": "Metric Analyst",
+          "infra_inspector": "Infrastructure Inspector",
+          "orchestrator": "Orchestrator",
+          "scout": "Scout",
+          "diagnosis_verifier": "Diagnosis Verifier"
+        },
+        "evidenceReview": {
+          "status": {
+            "awaitingApproval": "Awaiting approval",
+            "resolved": "Resolved",
+            "readyForApproval": "Ready for approval"
+          },
+          "severity": {
+            "critical": "Critical",
+            "high": "High",
+            "medium": "Medium",
+            "low": "Low",
+            "info": "Info"
+          },
+          "incidentRefLabel": "ref",
+          "rootCause": {
+            "label": "Root cause · consolidated",
+            "resolutionLabel": "Resolution",
+            "empty": "The consolidated root cause shows up here once the investigation completes."
+          },
+          "summary": {
+            "duration": "Duration",
+            "evidences": "Evidences",
+            "toolCalls": "Tool calls",
+            "actions": "Proposed actions",
+            "evidencePieces": "pieces",
+            "evidenceCollectionOnly": "{count} collected",
+            "evidenceCollectionAndSynthesis": "{collected} collected · {synthesis} synthesis",
+            "actionsAutoManual": "{auto} auto · {manual} manual",
+            "loading": "loading…",
+            "empty": "—"
+          },
+          "tabs": {
+            "evidences": "Evidences",
+            "actions": "Recommended actions",
+            "discussion": "Discussion"
+          },
+          "toolbar": {
+            "searchPlaceholder": "Search by claim, quote, resource…",
+            "allLabel": "All · {count}"
+          },
+          "groups": {
+            "investigationLabel": "INVESTIGATION · collection",
+            "investigationSub": "Primary collection of logs, metrics and resource state",
+            "synthesisLabel": "SYNTHESIS · consolidation",
+            "synthesisSub": "Reasoning consolidated from the collected evidences",
+            "pieceOne": "piece",
+            "pieceMany": "pieces"
+          },
+          "item": {
+            "plusRootCause": "+ root cause",
+            "plusSupports": "+ supports",
+            "toolCallIdLabel": "toolCallId:",
+            "evidenceIdLabel": "evid:"
+          },
+          "empty": {
+            "loadFailed": "Failed to load",
+            "loadFailedSub": "Something went wrong loading the investigation.",
+            "evidenceEmpty": "No evidences",
+            "evidenceEmptySub": "This investigation has not produced any collected evidence yet.",
+            "filterNoMatch": "No match for the current filter",
+            "filterNoMatchSub": "Adjust the search or clear the filters.",
+            "actionsEmpty": "No recommended actions",
+            "actionsEmptySub": "The investigation has not proposed any remediation actions.",
+            "actionsRailEmpty": "No recommended actions yet."
+          },
+          "action": {
+            "auto": "Auto",
+            "manual": "Manual",
+            "risk": "Risk",
+            "readyToRun": "ready to execute",
+            "needsOnCall": "requires on-call",
+            "execute": "Execute",
+            "assign": "Assign"
+          },
+          "rail": {
+            "title": "Recommended actions",
+            "planLabel": "Remediation plan",
+            "planCountOne": "{count} proposed action",
+            "planCountMany": "{count} proposed actions",
+            "planAutoSuffix": "· {count} automatic",
+            "planDescription": "The plan consolidates the recommended actions. Review each item before authorizing execution.",
+            "pendingApproval": "Pending approval"
+          },
+          "chat": {
+            "loadingHistory": "Loading history…",
+            "empty": "No messages yet",
+            "emptySub": "Use this space to ask details about the investigation or request a re-analysis.",
+            "sendFailed": "Unable to send the message. Please try again.",
+            "placeholder": "Ask something about the investigation…",
+            "hint": "Enter sends · Shift+Enter for new line",
+            "send": "Send",
+            "userLabel": "You",
+            "assistantLabel": "CauseFlow AI"
+          }
+        }
+      }
+    },
+    "remediations": {
+      "title": "Remediations",
+      "description": "View and manage incident remediations",
+      "empty": "No remediations found",
+      "emptyDescription": "Remediations will appear when proposed for incidents",
+      "status": {
+        "proposed": "Proposed",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "executing": "Executing",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "detail": {
+        "title": "Remediation Details",
+        "rootCause": "Root Cause",
+        "steps": "Remediation Steps",
+        "pullRequests": "Pull Requests",
+        "proposedBy": "Proposed By",
+        "approvedBy": "Approved By",
+        "rejectedBy": "Rejected By",
+        "rejectionReason": "Rejection Reason",
+        "approve": "Approve",
+        "reject": "Reject",
+        "execute": "Execute",
+        "back": "Back to Remediations",
+        "incidentLink": "View Incident",
+        "stepStatus": {
+          "pending": "Pending",
+          "running": "Running",
+          "completed": "Completed",
+          "failed": "Failed",
+          "skipped": "Skipped"
+        },
+        "prStatus": {
+          "open": "Open",
+          "merged": "Merged",
+          "closed": "Closed"
+        }
+      }
+    }
+  }
+}

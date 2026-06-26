@@ -1,0 +1,34 @@
+{
+  "dashboard": {
+    "audit": {
+      "title": "Log de Auditoria",
+      "description": "Visualize toda a atividade do sistema e alterações",
+      "empty": "Nenhum registro de auditoria encontrado",
+      "emptyDescription": "As atividades aparecerão aqui conforme as ações forem realizadas",
+      "loadMore": "Carregar mais",
+      "filters": {
+        "allActions": "Todas as Ações",
+        "actionLabel": "Ação:",
+        "actorTypeLabel": "Tipo de ator:",
+        "allActorTypes": "Todos",
+        "actorTypeUser": "Usuário",
+        "actorTypeSystem": "Sistema"
+      },
+      "columns": {
+        "timestamp": "Data/Hora",
+        "action": "Ação",
+        "actor": "Autor",
+        "resource": "Recurso",
+        "hash": "Hash"
+      },
+      "evidences": {
+        "title": "Evidência",
+        "show": "Mostrar evidência",
+        "hide": "Ocultar evidência"
+      },
+      "verify": "Verificar Cadeia",
+      "verifySuccess": "Cadeia de auditoria válida",
+      "verifyFailed": "Cadeia de auditoria quebrada"
+    }
+  }
+}

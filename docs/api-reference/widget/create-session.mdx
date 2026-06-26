@@ -1,0 +1,112 @@
+---
+title: "Create widget session"
+api: "POST /v1/widget/sessions"
+description: "Create an authenticated session for the embedded CauseFlow widget."
+---
+
+## Overview
+
+<Warning>
+  **Roadmap — not yet available.** The embeddable widget is a future feature. Endpoints in this section describe the planned contract; they are not yet exposed in production.
+</Warning>
+
+Creates a short-lived session token for embedding the CauseFlow AI assistant widget in your own application. The session token scopes the widget to the specified user and tenant, and expires after 8 hours.
+
+**Required role:** `admin` or `member`
+
+## Request headers
+
+<ParamField header="Authorization" type="string" required>
+  JWT Bearer token. Format: `Bearer <your-jwt>`. The CREATE session endpoint itself requires user auth; the returned session token authenticates all subsequent widget calls.
+</ParamField>
+
+## Request body
+
+<ParamField body="userId" type="string" required>
+  The ID of the user who will interact with the widget. Must be a valid user in your tenant.
+</ParamField>
+
+<ParamField body="incidentId" type="string">
+  Optional incident ID to pre-load the widget with context for a specific incident.
+</ParamField>
+
+<ParamField body="ttlSeconds" type="integer">
+  Session lifetime in seconds. Default: `28800` (8 hours). Maximum: `86400` (24 hours).
+</ParamField>
+
+## Response
+
+Returns `201 Created`.
+
+```json
+{
+  "sessionId": "wsess_01HX9VTPQR3KF8MZWBYD5N6JCE",
+  "sessionToken": "wst_live_EXAMPLE_TOKEN_REDACTED",
+  "expiresAt": "2024-04-01T22:00:00Z",
+  "widgetUrl": "https://widget.causeflow.ai/embed?session=wsess_01HX9VTPQR3KF8MZWBYD5N6JCE"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `sessionId` | string | Unique session identifier |
+| `sessionToken` | string | Short-lived token to authenticate the widget. Pass to the frontend widget SDK. |
+| `expiresAt` | string | ISO 8601 expiry timestamp |
+| `widgetUrl` | string | Embeddable URL for iframe integration |
+
+<Warning>
+  The `sessionToken` grants widget access for the specified user. Do not log it or expose it to other users. Treat it like a short-lived password.
+</Warning>
+
+### Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| `400` | `validation_error` | `userId` missing or invalid |
+| `401` | `unauthorized` | Missing or invalid JWT |
+| `403` | `forbidden` | Caller lacks required role |
+| `404` | `user_not_found` | `userId` does not exist in this tenant |
+
+## Examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.causeflow.ai/v1/widget/sessions \
+  -X POST \
+  -H "Authorization: Bearer eyJhbGc..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "user_01HX9VTPQR3KF8MZWBYD5N6JCE",
+    "incidentId": "inc_EXAMPLE_01JX"
+  }'
+```
+
+```typescript TypeScript
+const response = await fetch("https://api.causeflow.ai/v1/widget/sessions", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    userId: "user_01HX9VTPQR3KF8MZWBYD5N6JCE",
+    incidentId: "inc_EXAMPLE_01JX",
+  }),
+});
+
+const { sessionToken, widgetUrl } = await response.json();
+// Pass sessionToken to your frontend widget SDK
+console.log("Widget URL:", widgetUrl);
+```
+
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Send message" href="/api-reference/widget/send-message">
+    Send a message to the widget session
+  </Card>
+  <Card title="Widget stream" href="/api-reference/widget/stream">
+    Stream AI responses via SSE
+  </Card>
+</CardGroup>

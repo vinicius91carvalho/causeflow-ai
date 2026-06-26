@@ -1,0 +1,150 @@
+---
+title: "Communication integrations"
+sidebarTitle: "Communication"
+description: "Receive incident notifications and investigation updates through Slack and Microsoft Teams."
+---
+
+Communication integrations keep your team informed without requiring them to check the CauseFlow dashboard constantly. When incidents are created, investigations complete, or approvals are needed, CauseFlow sends notifications to your connected communication tools in real time.
+
+CauseFlow supports Slack and Microsoft Teams via OAuth through CauseFlow's managed integration layer. Token lifecycle (authorization, refresh, and secure storage) is handled for you so delivery is always reliable.
+
+<Note>
+  Slack and Teams integrations support **both directions**: outbound notifications (incident alerts, investigation updates, approval requests) and inbound event triggers (messages that open or enrich incidents). Inbound triggers are **in progress** — outbound notifications are available today; inbound message-trigger support ships in a subsequent release.
+</Note>
+
+## How it works
+
+Both integrations use a bot account that CauseFlow provisions in your workspace. The bot posts messages to the channels you designate for each notification type. You control which channel receives which notification type from the CauseFlow dashboard.
+
+---
+
+## Slack
+
+### How it works
+
+CauseFlow connects to your Slack workspace via OAuth and provisions a CauseFlow bot. The bot posts notifications to channels you designate in the CauseFlow dashboard. You can route different notification types to different channels.
+
+### Required information
+
+| Item | Description |
+|---|---|
+| **Slack workspace** | The workspace where you want to receive notifications |
+| **Channel selection** | Which channels receive each notification type |
+
+### Bot scopes requested
+
+CauseFlow requests the minimum Slack bot scopes needed:
+
+| Scope | Used for |
+|---|---|
+| `chat:write` | Posting incident and investigation notifications |
+| `channels:read` | Listing public channels for channel selection |
+| `groups:read` | Listing private channels for channel selection |
+| `users:read` | Resolving user mentions in notifications |
+
+CauseFlow does not read message history and does not post to channels you have not explicitly selected.
+
+### Steps to configure in CauseFlow
+
+<Steps>
+  <Step title="Open the Slack integration">
+    Go to **Dashboard > Integrations > Slack** and click **Connect**.
+  </Step>
+  <Step title="Authorize in Slack">
+    You'll be redirected to Slack. Select the workspace and click **Allow** to grant CauseFlow the bot permissions listed above.
+  </Step>
+  <Step title="Return to CauseFlow">
+    You'll be redirected back to CauseFlow with the Slack integration showing as connected.
+  </Step>
+  <Step title="Choose notification channels">
+    Select which Slack channel receives each notification type. You can route different severity levels to different channels.
+  </Step>
+</Steps>
+
+### Notification types
+
+| Notification | When it fires |
+|---|---|
+| New incident | Alert received and triage complete |
+| Investigation complete | Agents finish and a root cause is available |
+| Pending approval | A remediation proposal is waiting for your review |
+| Incident resolved | An incident is marked as resolved |
+
+<Tip>
+  Create a dedicated `#incidents` channel in Slack and route all CauseFlow notifications there. This keeps the incident timeline visible to the whole team without cluttering general channels.
+</Tip>
+
+### Troubleshooting
+
+**Bot not posting:** Confirm the CauseFlow bot has been added to the target channel. In Slack, open the channel, click the channel name, go to **Integrations > Bots**, and add the CauseFlow app.
+
+**Missing channels in the selector:** If a private channel is not listed, invite the CauseFlow bot to that channel first, then return to the CauseFlow dashboard to refresh the channel list.
+
+---
+
+## Microsoft Teams
+
+### How it works
+
+CauseFlow connects to your Microsoft Teams tenant via OAuth and provisions a CauseFlow bot that posts to the channels you select. The connection uses the Teams Bot Framework channel for message delivery.
+
+### Required information
+
+| Item | Description |
+|---|---|
+| **Microsoft 365 tenant** | The tenant where Teams is provisioned |
+| **Team and channel selection** | Which Teams channel receives notifications |
+| **Admin consent** | A Microsoft 365 admin must approve the app permissions during OAuth |
+
+### Bot scopes requested
+
+| Scope | Used for |
+|---|---|
+| `ChannelMessage.Send` | Posting incident and investigation notifications |
+| `Channel.ReadBasic.All` | Listing channels for channel selection |
+| `Team.ReadBasic.All` | Listing teams for team selection |
+
+### Steps to configure in CauseFlow
+
+<Steps>
+  <Step title="Open the Teams integration">
+    Go to **Dashboard > Integrations > Microsoft Teams** and click **Connect**.
+  </Step>
+  <Step title="Sign in with Microsoft">
+    You'll be redirected to Microsoft's authorization page. Sign in with an account that has permission to consent on behalf of your organization, or ask a Microsoft 365 admin to complete this step.
+  </Step>
+  <Step title="Grant admin consent">
+    Microsoft 365 requires admin consent for bot message permissions. If you are not an admin, the page will prompt you to request admin approval.
+  </Step>
+  <Step title="Return to CauseFlow">
+    You'll be redirected back to CauseFlow with the Teams integration showing as connected.
+  </Step>
+  <Step title="Choose notification channels">
+    Select which Teams channel receives each notification type.
+  </Step>
+</Steps>
+
+### Notification types
+
+Teams receives the same notification types as Slack (new incident, investigation complete, pending approval, incident resolved).
+
+### Troubleshooting
+
+**Admin consent required:** If your Microsoft 365 tenant requires admin approval for third-party apps, ask your tenant admin to approve the CauseFlow app in the [Microsoft Entra admin center](https://entra.microsoft.com) under **Enterprise applications**.
+
+**Bot not appearing in Teams:** After the OAuth flow completes, the CauseFlow bot may take a few minutes to appear in Teams. If it does not appear after 5 minutes, disconnect and reconnect the integration from the CauseFlow dashboard.
+
+<CardGroup cols={2}>
+  <Card title="Integrations overview" icon="list" href="/integrations/overview">
+    See the full catalog of supported tools.
+  </Card>
+  <Card title="Integrations overview" icon="list" href="/integrations/overview">
+    See the full catalog of available integrations.
+  </Card>
+  <Card title="Security overview" icon="shield" href="/security/overview">
+    Learn how CauseFlow stores and protects your communication credentials.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    Manage notification settings programmatically.
+  </Card>
+</CardGroup>

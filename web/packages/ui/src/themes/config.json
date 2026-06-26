@@ -1,0 +1,29 @@
+{
+  "defaultTheme": "cleric",
+  "themes": {
+    "original": {
+      "id": "original",
+      "name": "Original",
+      "description": "Deep Indigo + Electric Teal — CauseFlow AI default",
+      "identity": "Clean, professional SaaS identity with a modern tech feel.",
+      "supportsDarkMode": true,
+      "fonts": {
+        "sans": "Plus Jakarta Sans",
+        "display": "Plus Jakarta Sans",
+        "mono": "JetBrains Mono"
+      }
+    },
+    "cleric": {
+      "id": "cleric",
+      "name": "Cleric",
+      "description": "Deep Indigo + Electric Teal — Space Grotesk display edition",
+      "identity": "Modern, bold SaaS identity with Space Grotesk display type.",
+      "supportsDarkMode": true,
+      "fonts": {
+        "sans": "Plus Jakarta Sans",
+        "display": "Space Grotesk",
+        "mono": "JetBrains Mono"
+      }
+    }
+  }
+}

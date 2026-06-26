@@ -1,0 +1,27 @@
+{
+  "name": "@causeflow/analytics",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "check-types": "tsc --noEmit",
+    "test": "cd ../.. && vitest run --project analytics",
+    "test:watch": "cd ../.. && vitest --project analytics",
+    "lint": "biome lint ./src",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/react": "^19.0.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}

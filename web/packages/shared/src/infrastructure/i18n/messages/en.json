@@ -1,0 +1,1648 @@
+{
+  "common": {
+    "nav": {
+      "product": "Product",
+      "integrations": "Integrations",
+      "pricing": "Pricing",
+      "security": "Security",
+      "about": "About",
+      "signIn": "Sign In",
+      "getStartedFree": "Get Early Access",
+      "dashboard": "Dashboard"
+    },
+    "cta": {
+      "getStartedFree": "Get Early Access",
+      "watchDemo": "See How It Works",
+      "scheduleDemo": "Contact Us",
+      "createAccount": "Create Account",
+      "talkToSales": "Talk to Sales",
+      "learnMore": "Learn More About the Product",
+      "startNow": "Join the Beta"
+    },
+    "footer": {
+      "description": "Intelligent incident investigation for engineering and L2/L3 support teams.",
+      "productColumn": "Product",
+      "companyColumn": "Company",
+      "legalColumn": "Legal",
+      "howItWorks": "How It Works",
+      "integrations": "Integrations",
+      "security": "Security",
+      "pricing": "Pricing",
+      "aboutUs": "About Us",
+      "contact": "Contact",
+      "platformStatus": "Platform Status",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "lgpdGdpr": "LGPD/GDPR",
+      "copyright": "2026 CauseFlow AI. All rights reserved.",
+      "lgpdCompliant": "LGPD Compliant",
+      "gdprCompliant": "GDPR Compliant",
+      "soc2TypeII": "SOC 2 Type II (In Progress)",
+      "iso27001": "ISO 27001 (On Roadmap)",
+      "hipaa": "HIPAA (On Roadmap)",
+      "connectColumn": "Connect",
+      "talkToFounder": "Talk to the Co-Founder"
+    },
+    "languageSelector": {
+      "en": "English",
+      "ptBr": "Português (BR)"
+    },
+    "cofounderCta": {
+      "headline": "Let's Talk About Your Incident Workflow",
+      "description": "We're Engineering Managers and AI Specialists who spent years investigating incidents across disconnected tools. We built CauseFlow because we lived the same pain you're dealing with right now.",
+      "connectLinkedIn": "Connect on LinkedIn",
+      "bookCall": "Book a 15-min Call",
+      "personalNote": "No sales pitch — just a conversation about your team's biggest pain points."
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "The first AI-powered incident investigation and L2/L3 support solution",
+      "headline": "Investigate production incidents in minutes, not hours",
+      "subheadline": "The first platform combining AI-powered incident investigation with L2/L3 support. CauseFlow connects to Slack, GitHub, Jira, CloudWatch and HubSpot, cross-references all data sources and delivers the root cause with fix recommendations — all in under 5 minutes.",
+      "metaDescription": "AI-powered incident investigation bridging engineering and L2/L3 support. CauseFlow cross-references Slack, GitHub, Jira, CloudWatch and HubSpot to find root causes in minutes.",
+      "ctaPrimary": "Get Early Access",
+      "ctaSecondary": "See How It Works",
+      "trustText": "Be among the first to investigate incidents with AI. Launching March 2026.",
+      "vizRootCause": "Root Cause Identified",
+      "vizConfidence": "97% confidence",
+      "vizFixDescription": "Memory leak in connection pool — auto-scaling triggered at 3:42 AM caused PostgreSQL max_connections overflow.",
+      "vizFixButton": "Open Fix PR →",
+      "vizProcessing": "Investigating..."
+    },
+    "techBar": {
+      "title": "Connects to the tools your team already uses"
+    },
+    "metrics": {
+      "title": "Impact Metrics",
+      "mttr": {
+        "label": "Estimated MTTR Reduction",
+        "value": "95%",
+        "description": "From 2-4 hours down to under 5 minutes per investigation"
+      },
+      "cost": {
+        "label": "Estimated Cost per Investigation",
+        "value": "$0.50-$0.20",
+        "description": "Far less than the engineering hours spent manually analyzing the problem"
+      },
+      "downtime": {
+        "label": "Estimated Downtime Cost Avoided",
+        "value": "$14,000/min",
+        "description": "Average downtime cost for digital businesses"
+      }
+    },
+    "howItWorks": {
+      "title": "How CauseFlow investigates your problems",
+      "subtitle": "From any problem source, through all your tools, to the root cause —in minutes.",
+      "steps": {
+        "receive": {
+          "title": "Receives the problem from any source",
+          "description": "Via web interface, Slack, Jira or customer email. Describe the problem and CauseFlow starts investigating immediately."
+        },
+        "investigate": {
+          "title": "Investigates all sources automatically",
+          "description": "Connects to GitHub (commits, PRs, releases), CloudWatch (error logs), Jira (tickets), Slack (messages) and HubSpot (customer impact) simultaneously."
+        },
+        "identify": {
+          "title": "Identifies root cause with evidence",
+          "description": "Cross-references logs, commits, tickets and metrics to deliver the root cause with confidence score and event timeline."
+        },
+        "recommend": {
+          "title": "Recommends specific fixes",
+          "description": "Suggests the exact fix: deploy revert, config adjustment, code fix PR. All with human-in-the-loop."
+        },
+        "learn": {
+          "title": "Learns from every investigation",
+          "description": "Builds a Knowledge Base that accelerates future resolutions of recurring problems."
+        },
+        "audit": {
+          "title": "Complete and transparent audit trail",
+          "description": "Every agent action is recorded in an immutable log visible to the customer. You see exactly what the agent did, when, and what data it accessed."
+        }
+      }
+    },
+    "crossTool": {
+      "title": "The first agent that crosses technical data with business tools",
+      "description": "While competitors focus only on infrastructure, CauseFlow investigates the complete problem context. Receive a customer report 'I think my data was deleted' and CauseFlow automatically queries the customer's account in the database, checks audit logs for recent changes, determines if a deployment caused the issue, and generates both a technical fix and an explanation for the customer.",
+      "vizRootCause": "Root Cause Found",
+      "vizConfidence": "87% confidence",
+      "vizFixDescription": "Deployment v2.4.1 introduced a race condition in the data sync service, causing intermittent record deletion.",
+      "vizFixButton": "Open Fix PR",
+      "vizProcessing": "Cross-referencing data..."
+    },
+    "usageModes": {
+      "title": "Use CauseFlow in the way that makes most sense for your team",
+      "slack": {
+        "title": "Via Slack",
+        "description": "Send a message in Slack describing the problem and the agent investigates right in the incident channel. Results appear as a thread."
+      },
+      "jira": {
+        "title": "Via Jira/Trello",
+        "description": "Assign a card to CauseFlow and it investigates automatically. The final report becomes a comment on the card."
+      },
+      "web": {
+        "title": "Via Web Interface",
+        "description": "Access the dashboard, describe the problem, and follow the investigation in real-time with visible audit trail."
+      },
+      "api": {
+        "title": "Via API",
+        "description": "Integrate CauseFlow into your alerting pipeline. Trigger investigations via REST API with result webhooks."
+      },
+      "mcp": {
+        "title": "Via MCP Server",
+        "description": "Use CauseFlow as an MCP tool inside your AI coding agent or IDE."
+      },
+      "agent": {
+        "title": "Via AI Agent",
+        "description": "Let the CauseFlow agent work autonomously within your workflow."
+      }
+    },
+    "security": {
+      "title": "Enterprise Security from Day 1",
+      "commitments": {
+        "onDemandReading": {
+          "title": "On-demand reading",
+          "description": "The agent reads, analyzes and discards. Your data never leaves the perimeter."
+        },
+        "isolatedEncryption": {
+          "title": "Isolated encryption",
+          "description": "Each tenant has individual KMS encryption via AWS."
+        },
+        "immutableAuditTrail": {
+          "title": "Immutable audit trail",
+          "description": "Every agent action is logged and visible to the customer."
+        },
+        "noExternalTraining": {
+          "title": "No external training",
+          "description": "Your data is never used to train third-party models."
+        },
+        "readOnlyDefault": {
+          "title": "Read-only by default",
+          "description": "The agent never writes without explicit approval (human-in-the-loop)."
+        },
+        "rightToDeletion": {
+          "title": "Right to deletion",
+          "description": "Delete all your data at any time."
+        }
+      },
+      "badges": "LGPD and GDPR compliant since launch. SOC 2 Type II roadmap.",
+      "learnMore": "Learn more about Security"
+    },
+    "ctaFinal": {
+      "title": "Ready to investigate problems in minutes?",
+      "subtitle": "Be among the first to investigate incidents with AI. Early access members get 3 free investigations/month at launch.",
+      "ctaPrimary": "Get Early Access",
+      "ctaSecondary": "Or contact us for a personalized walkthrough"
+    },
+    "whyDifferent": {
+      "title": "Why CauseFlow is Different",
+      "subtitle": "We're not another enterprise tool. We're built by engineers, for engineers.",
+      "cards": {
+        "builtByEM": {
+          "title": "Built by Those Who Lived the Problem",
+          "description": "We spent years as Engineering Managers and AI Specialists investigating incidents with broken toolchains. CauseFlow was born from that shared frustration — built by the people who lived it."
+        },
+        "minutesNotHours": {
+          "title": "Investigation in Minutes, Not Hours",
+          "description": "AI-powered analysis connects the dots across your entire stack — logs, metrics, alerts, and code changes — in minutes instead of hours."
+        },
+        "crossTool": {
+          "title": "Cross-Tool Intelligence",
+          "description": "CauseFlow integrates with your existing tools and correlates data across them. No more switching between 10 tabs to find the root cause."
+        },
+        "builtForStartups": {
+          "title": "Built for Startups and SMBs",
+          "description": "Enterprise-grade investigation without enterprise pricing. Designed for teams of 2-50 engineers who need to move fast."
+        }
+      }
+    }
+  },
+  "product": {
+    "hero": {
+      "title": "Intelligent Investigation for Engineering Teams",
+      "subtitle": "CauseFlow connects to the tools your team already uses, automatically investigates logs, commits, tickets and metrics, and delivers the root cause in minutes.",
+      "ctaPrimary": "Get Early Access",
+      "ctaSecondary": "Explore the Product"
+    },
+    "phases": {
+      "phase1": {
+        "title": "Phase 1 —Assisted Investigation + Remediation",
+        "step1": {
+          "title": "Receives the problem",
+          "description": "Via web interface, Slack message, Jira/Trello card or customer email. The user describes the problem in natural language and the agent starts the investigation."
+        },
+        "step2": {
+          "title": "Connects to all sources",
+          "description": "Slack (messages from #incidents channel), GitHub (commits, PRs, recent releases), Jira (related tickets), CloudWatch (error logs), HubSpot (affected customer data). All in parallel."
+        },
+        "step3": {
+          "title": "Analyzes and correlates",
+          "description": "Cross-references data from all sources using multi-model LLM with intelligent routing by complexity. Generates hypotheses, tests against evidence, classifies with confidence score."
+        },
+        "step4": {
+          "title": "Delivers complete report",
+          "description": "Probable root cause + confidence score (0-100%) + chronological event timeline + specific fix recommendations + customer impact (if applicable)."
+        },
+        "remediation": "With user approval, the agent executes the fix plan: generates PRs on GitHub, executes kubectl commands, remediation scripts, deploy revert. Always with human-in-the-loop before any destructive action."
+      },
+      "phase2": {
+        "title": "Phase 2 —Intelligent Knowledge Base",
+        "headline": "The more you use it, the faster it resolves",
+        "description": "The system learns from every resolved investigation, building a Knowledge Base that maps service dependencies and blast radius. When a similar problem is detected, CauseFlow suggests the previous solution immediately —recurring problems resolved in seconds, not hours."
+      },
+      "phase3": {
+        "title": "Phase 3 —Autonomous Remediation",
+        "badge": "On the Roadmap",
+        "headline": "Auto-healing with guardrails",
+        "description": "Automatic correction with configurable approval: deploy revert, config adjustment, automatic scaling. Integration marketplace and autonomous L1 ticket resolution."
+      }
+    },
+    "auditTrail": {
+      "title": "See exactly what the agent did",
+      "subtitle": "Total transparency. Every agent action is recorded in an immutable log visible to you."
+    },
+    "architecture": {
+      "title": "Technical Architecture",
+      "connectivity": "Connectivity layer: MCP servers (10,000+ available in the ecosystem, adopted by OpenAI, Google, Microsoft)",
+      "core": "Proprietary core: Planning engine, hypothesis generation, learning and Knowledge Base",
+      "llm": "LLM Gateway: Intelligent router that selects the optimal model by task complexity",
+      "security": "Security: AWS Bedrock (ISO/IEC 42001), KMS per-tenant, PII Gateway (Presidio)"
+    }
+  },
+  "pricing": {
+    "hero": {
+      "title": "Simple pricing. Pay for what you use.",
+      "subtitle": "Launching March 2026. Join the early access list and be the first to try CauseFlow."
+    },
+    "plans": {
+      "free": "Free",
+      "starter": "Starter",
+      "pro": "Pro",
+      "business": "Business",
+      "enterprise": "Enterprise",
+      "mostPopular": "Most popular",
+      "perMonth": "/month",
+      "investigationsIncluded": "investigations included",
+      "overage": "overage",
+      "targetLabel": "Best for"
+    },
+    "comparison": {
+      "title": "Why pay per user if only 2-3 people investigate incidents?",
+      "scenarioTeam5": "Team of 5 devs",
+      "scenarioTeam10": "Team of 10 devs",
+      "scenarioTeam20": "Team of 20 devs",
+      "scenarioTeam50": "Team of 50 devs",
+      "whatYouPayFor": "What you pay for",
+      "customerIssues": "Customer issues",
+      "causeflowPayFor": "Per actual investigation",
+      "perSeatPayFor": "Per user, even without investigating",
+      "platformPayFor": "Per user, even without investigating",
+      "enterprisePayFor": "Enterprise contract",
+      "included": "Included",
+      "notAvailable": "Not available",
+      "doesntServe": "Doesn't serve (enterprise only)",
+      "openCore": "Open-core (self-host)"
+    },
+    "roi": {
+      "title": "ROI Calculator",
+      "incidentsLabel": "How many incidents/investigations does your team do per month?",
+      "durationLabel": "How long does each investigation take on average?",
+      "engineersLabel": "How many engineers on the team?",
+      "hoursSaved": "Hours saved per month",
+      "causeflowCost": "CauseFlow cost",
+      "perSeatCost": "Equivalent cost on Per-seat Tools",
+      "platformCost": "Equivalent cost on Enterprise Platforms",
+      "annualSavings": "Estimated annual savings",
+      "duration30min": "30 min",
+      "duration1h": "1 hour",
+      "duration2h": "2 hours",
+      "duration4h": "4 hours"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": {
+        "question": "What counts as an investigation?",
+        "answer": "Every time CauseFlow receives a problem and runs a complete investigation (connecting to sources, analyzing data, generating report) counts as 1 investigation."
+      },
+      "q2": {
+        "question": "Can I change plans?",
+        "answer": "Yes, at any time. Upgrade is immediate, downgrade on next cycle."
+      },
+      "q3": {
+        "question": "Do I need a credit card for the Free plan?",
+        "answer": "No. The Free plan doesn't require a credit card."
+      },
+      "q4": {
+        "question": "Is there an annual discount?",
+        "answer": "Yes. Pre-paid credits offer 10-20% progressive discount."
+      },
+      "q5": {
+        "question": "What if I exceed the limit?",
+        "answer": "You pay the overage price of your plan per additional investigation. No surprises —you configure consumption alerts."
+      },
+      "q6": {
+        "question": "How does it work for Brazilian companies?",
+        "answer": "We accept international payment via Stripe. LGPD compliant since launch."
+      }
+    }
+  },
+  "security": {
+    "hero": {
+      "title": "Security you can audit",
+      "subtitle": "Your data never leaves the perimeter. The agent reads on demand, analyzes and discards. Everything it did is recorded in an immutable audit trail visible to you."
+    },
+    "commitments": {
+      "pillar1Title": "Minimum Access with Full Control",
+      "pillar2Title": "Isolation and Transparency",
+      "onDemandReading": {
+        "title": "On-demand reading, no persistence",
+        "description": "The agent reads data only during active investigation. After analysis, data is discarded. We don't store raw customer data.",
+        "technicalDetail": "Data read on demand, analyzed in-memory, discarded after investigation completion."
+      },
+      "leastPrivilege": {
+        "title": "Least privilege access",
+        "description": "Each integration uses read-only credentials with minimum scope via OAuth. The agent never has write access unless explicitly authorized.",
+        "technicalDetail": "OAuth scopes limited to read-only; write access requires explicit human approval."
+      },
+      "noWriteDefault": {
+        "title": "No writing by default",
+        "description": "The agent is read-only. Remediation actions require explicit user approval (human-in-the-loop) before any destructive action.",
+        "technicalDetail": "All write operations gated behind human-in-the-loop approval flow."
+      },
+      "tenantIsolation": {
+        "title": "Tenant isolation",
+        "description": "Each customer has individual KMS encryption via AWS. Data is never mixed between customers. LLM calls contain data from exactly one tenant.",
+        "technicalDetail": "Per-tenant KMS keys, isolated ECS tasks, single-tenant LLM contexts."
+      },
+      "noCrossTraining": {
+        "title": "No cross-training",
+        "description": "Customer data is never used to train models for other customers. Fine-tuning is exclusive per account when applicable.",
+        "technicalDetail": "Zero cross-customer data sharing; per-account fine-tuning isolation."
+      },
+      "immutableAuditTrail": {
+        "title": "Immutable audit trail",
+        "description": "Each investigation generates detailed log in S3 with Object Lock (WORM). The log is visible to the customer and cannot be altered.",
+        "technicalDetail": "S3 Object Lock (WORM), includes: sources accessed, data read, tokens processed, result."
+      }
+    },
+    "compliance": {
+      "title": "Compliance & Certifications",
+      "lgpd": {
+        "name": "LGPD",
+        "status": "Compliant since launch",
+        "details": "KMS per-tenant + TTL + right-to-delete. Data subject requests fulfilled in 15 days. Breach notification in 72h."
+      },
+      "gdpr": {
+        "name": "GDPR",
+        "status": "Compliant since launch",
+        "details": "Same mechanisms cover GDPR. Standard Contractual Clauses for cross-border transfers."
+      },
+      "soc2Type1": {
+        "name": "SOC 2 Type I",
+        "status": "Roadmap: month 6-9",
+        "details": "Automated compliance platform. Timeline aligned with SOC 2 readiness milestones."
+      },
+      "soc2Type2": {
+        "name": "SOC 2 Type II",
+        "status": "Roadmap: month 12-18",
+        "details": "Full audit cycle with independent assessor. Builds on Type I controls."
+      },
+      "iso27001": {
+        "name": "ISO 27001 / HIPAA",
+        "status": "Roadmap: Year 2+",
+        "details": "As enterprise demand requires."
+      }
+    },
+    "architecture": {
+      "title": "Security Architecture",
+      "waf": "Client (HTTPS) -> Web Application Firewall -> Load Balancer -> ECS Tasks (private subnets)",
+      "nat": "ECS Tasks -> Network Gateway -> External APIs (Slack, GitHub, etc.)",
+      "credentials": "Credentials in AWS Secrets Manager with automatic rotation",
+      "database": "Managed Database/NoSQL Database in private subnet with no internet exposure",
+      "logs": "All logs centralized in Monitoring & Alerting + Immutable Object Storage",
+      "encryption": "Data at rest: AES-256 per-tenant encryption keys. Data in transit: TLS 1.3"
+    },
+    "isolation": {
+      "title": "Data Isolation (Multi-tenancy)",
+      "application": "Tenant ID required in every query, log and record. LLM calls containing data from exactly one tenant.",
+      "database": "Database with Row Level Security (RLS) by tenant_id.",
+      "vectorDb": "Partitioned vector storage with hard isolation per tenant. Designed to scale to millions of tenants.",
+      "infrastructure": "Each investigation runs in ephemeral container with restricted permissions. Container destroyed upon completion.",
+      "piiGateway": "Microsoft Presidio detects and anonymizes emails, phones, SSNs, cards. Reversible anonymization.",
+      "encryption": "Data at rest: AES-256 per-tenant encryption keys. Data in transit: TLS 1.3."
+    },
+    "bedrock": {
+      "title": "AWS Bedrock as LLM Provider",
+      "noTraining": "AWS does not use customer data to train models",
+      "zeroAccess": "Model providers have zero access to prompts/completions",
+      "iso": "ISO/IEC 42001 certification (first major cloud provider)",
+      "privateLink": "PrivateLink support for VPC-private connectivity",
+      "guardrails": "Guardrails for PII detection/redaction"
+    },
+    "cta": {
+      "title": "Enterprise Security. Startup Pricing.",
+      "ctaPrimary": "Get Early Access",
+      "ctaSecondary": "Contact Us"
+    }
+  },
+  "integrations": {
+    "hero": {
+      "title": "Connect your tools in minutes",
+      "subtitle": "CauseFlow integrates with the tools your team already uses. OAuth or API key —no complex setup, no agent to install."
+    },
+    "categories": {
+      "all": "All",
+      "communication": "Communication",
+      "code": "Code",
+      "monitoring": "Monitoring",
+      "management": "Project Management",
+      "crm": "CRM & Business",
+      "database": "Database",
+      "knowledge": "Knowledge",
+      "api": "API"
+    },
+    "phases": {
+      "mvp": "Available Now",
+      "v1": "Coming in V1",
+      "v2": "Coming in V2",
+      "v3": "Coming in V3"
+    },
+    "principles": {
+      "title": "Integration Principles",
+      "setupMinutes": {
+        "title": "Setup in minutes",
+        "description": "OAuth or API key —no complex setup, no agent to install. Average setup: 3 minutes per integration."
+      },
+      "readOnly": {
+        "title": "Read-only by default",
+        "description": "The agent only reads. Never modifies your data without explicit approval."
+      },
+      "onlyNeeded": {
+        "title": "Only what's needed",
+        "description": "Fetches only the data relevant to the active investigation. No mass collection."
+      },
+      "noSensitiveData": {
+        "title": "No sensitive data",
+        "description": "Automatic PII/sensitive data redaction via Microsoft Presidio."
+      },
+      "technicalBusiness": {
+        "title": "Technical + Business",
+        "description": "First platform to cross technical tools (GitHub, CloudWatch) with CRM (HubSpot) and support."
+      },
+      "openApi": {
+        "title": "Open API",
+        "description": "REST API for custom integrations and result webhooks."
+      }
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "Engineers solving problems for engineers",
+      "mission": "We believe investigating production problems shouldn't consume hours of your team's time. CauseFlow exists so engineers can focus on building, not firefighting."
+    },
+    "founders": {
+      "title": "Our Team",
+      "ceo": {
+        "role": "Founder / CEO",
+        "background": "Engineering Manager leading multiple squads, experience in infra, observability and DORA metrics.",
+        "responsibility": "Product, operations, GTM, financial management"
+      },
+      "cto": {
+        "role": "Co-founder / CTO",
+        "background": "AI Agent development specialist.",
+        "responsibility": "Architecture, core development, LLM integrations"
+      }
+    },
+    "values": {
+      "title": "What Sets Us Apart",
+      "mvp": {
+        "title": "MVP in real production",
+        "description": "CauseFlow is already running in a real production environment. It's not vaporware."
+      },
+      "bootstrap": {
+        "title": "Bootstrapped & Profitable",
+        "description": "No investor dependency. Our efficient architecture keeps costs low, enabling sustainable growth from day one."
+      },
+      "category": {
+        "title": "Uncontested category",
+        "description": "Bridge between SRE investigation and customer issue resolution —a gap no competitor addresses."
+      }
+    },
+    "roadmap": {
+      "title": "Future Vision",
+      "month1": {
+        "period": "Month 1",
+        "product": "Commercial MVP: Slack + GitHub + Jira + Web + customer issues + automatic PRs",
+        "business": "First 5 customers"
+      },
+      "month2_3": {
+        "period": "Month 2-3",
+        "product": "New integrations (CloudWatch, Trello, Linear, DBs) via MCP",
+        "business": "20 customers"
+      },
+      "month4_6": {
+        "period": "Month 4-6",
+        "product": "Knowledge Base, dashboard, proactive alerts, PII Gateway",
+        "business": "Scaling paid customer base"
+      },
+      "month7_12": {
+        "period": "Month 7-12",
+        "product": "Semi-autonomous remediation, CI/CD integration",
+        "business": "Enterprise customer expansion"
+      },
+      "year2": {
+        "period": "Year 2",
+        "product": "Auto-healing, integration marketplace, autonomous L1 resolution",
+        "business": "Market leadership in AI-powered incident investigation"
+      }
+    }
+  },
+  "getStarted": {
+    "form": {
+      "title": "Start investigating in minutes",
+      "subtitle": "Join the early access list. Early access members get 3 free investigations/month at launch.",
+      "fullName": "Full name",
+      "workEmail": "Work email",
+      "companyName": "Company name",
+      "teamSize": "Team size",
+      "teamSizeOptions": {
+        "1_5": "1-5",
+        "6_20": "6-20",
+        "21_50": "21-50",
+        "50plus": "50+"
+      },
+      "submit": "Create Free Account",
+      "socialGoogle": "Sign in with Google",
+      "socialGitHub": "Sign in with GitHub"
+    },
+    "benefits": {
+      "title": "What you get",
+      "items": [
+        "Early access members get 3 free investigations/month at launch",
+        "All integrations available",
+        "Setup in under 10 minutes",
+        "No credit card required",
+        "Complete audit trail",
+        "LGPD and GDPR compliant"
+      ]
+    },
+    "alternative": {
+      "text": "Need help evaluating? Schedule a personalized 15-minute demo.",
+      "cta": "Contact Us"
+    },
+    "comingSoon": {
+      "badge": "Coming Soon",
+      "title": "We're launching soon",
+      "subtitle": "CauseFlow AI is finishing its final touches. Leave your details and we'll notify you the moment we go live.",
+      "emailPlaceholder": "your@work-email.com",
+      "firstNamePlaceholder": "Jane",
+      "companyNamePlaceholder": "Acme Corp",
+      "companyWebsitePlaceholder": "https://acme.com",
+      "firstNameLabel": "First Name",
+      "companyNameLabel": "Company Name",
+      "companyWebsiteLabel": "Company Website (optional)",
+      "notify": "Notify Me",
+      "submitting": "Sending...",
+      "success": "You're on the list! We'll reach out as soon as we launch.",
+      "alreadyOnList": "You're already on the list! We have your details — sit tight, we'll reach out when CauseFlow is ready.",
+      "close": "Close",
+      "error": "Something went wrong. Please try again or email us directly."
+    },
+    "signIn": "Already have an account? Sign in",
+    "noCreditCard": "No credit card required. Setup in under 10 minutes."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "How we collect, use, and protect your data.",
+    "lastUpdated": "Last updated: February 2026",
+    "sections": {
+      "dataCollected": "Data Collected",
+      "howWeUse": "How We Use Data",
+      "customerData": "Customer Data",
+      "sharing": "Data Sharing",
+      "retention": "Data Retention",
+      "lgpdRights": "LGPD Rights",
+      "gdprRights": "GDPR Rights",
+      "internationalTransfers": "International Transfers",
+      "contact": "DPO / Data Controller Contact"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "subtitle": "Please read these terms carefully before using CauseFlow AI.",
+    "lastUpdated": "Last updated: February 2026",
+    "sections": {
+      "serviceDefinition": "Service Definition and Limitations",
+      "plansAndBilling": "Plans, Pricing and Billing",
+      "intellectualProperty": "Intellectual Property",
+      "sla": "Service Level Agreement",
+      "liability": "Limitation of Liability",
+      "cancellation": "Cancellation and Refund Policy",
+      "acceptableUse": "Acceptable Use",
+      "jurisdiction": "Jurisdiction and Venue"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "cta": "Go back to homepage"
+  },
+  "dashboard": {
+    "sidebar": {
+      "overview": "Overview",
+      "analyses": "Analyses",
+      "incidents": "Incidents",
+      "remediations": "Remediations",
+      "integrations": "Integrations",
+      "team": "Team",
+      "settings": "Settings",
+      "billing": "Billing",
+      "credits": "Credits",
+      "creditsValue": "{count} credits",
+      "creditsLoading": "Loading...",
+      "creditsError": "— credits",
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar",
+      "openMenu": "Open navigation menu",
+      "approvals": "Approvals",
+      "audit": "Audit Log"
+    },
+    "topbar": {
+      "logo": "CauseFlow AI",
+      "themeToggle": "Toggle theme",
+      "userMenu": "User menu",
+      "signOut": "Sign out",
+      "profile": "Profile",
+      "breadcrumbHome": "Dashboard",
+      "search": "Search or jump to...",
+      "languageSelector": "Select language"
+    },
+    "overview": {
+      "title": "Overview",
+      "description": "Welcome to your CauseFlow AI dashboard"
+    },
+    "home": {
+      "metrics": {
+        "totalAnalyses": "Total Analyses",
+        "monthlyAnalyses": "Analyses This Month",
+        "activeIntegrations": "Active Integrations",
+        "teamMembers": "Team Members"
+      },
+      "credits": {
+        "remaining": "{count} Credits Remaining",
+        "renews": "Renews {date}",
+        "upgrade": "Upgrade Plan",
+        "warning": "Credits Running Low",
+        "critical": "Critical: Almost Out of Credits"
+      },
+      "savingHours": {
+        "display": "You saved ~{hours} hours this month with CauseFlow AI ({analyses} investigations)"
+      },
+      "recentAnalyses": {
+        "heading": "Recent Analyses",
+        "viewAll": "View All",
+        "empty": "No analyses yet. Start your first investigation below."
+      },
+      "quickActions": {
+        "newAnalysis": "New Analysis",
+        "connectIntegration": "Connect Integration"
+      },
+      "emptyState": {
+        "title": "Welcome to CauseFlow AI",
+        "subtitle": "Start your first incident analysis to get actionable root cause insights in minutes.",
+        "createAnalysis": "Create Your First Analysis",
+        "feature1": "AI Root Cause Analysis",
+        "feature2": "Instant Insights",
+        "feature3": "Audit Trail"
+      }
+    },
+    "analyses": {
+      "title": "Analyses",
+      "description": "View and manage your incident analyses",
+      "newAnalysis": "New Analysis",
+      "status": {
+        "queued": "Queued",
+        "running": "Running",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "severity": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "critical": "Critical"
+      },
+      "filters": {
+        "allStatuses": "All Statuses",
+        "allSeverities": "All Severities",
+        "status": "Status",
+        "severity": "Severity"
+      },
+      "list": {
+        "loadMore": "Load More",
+        "showingOf": "Showing {count} of {total}",
+        "total": "{count} analyses"
+      },
+      "empty": {
+        "title": "No analyses yet",
+        "description": "Start your first incident investigation to see results here.",
+        "cta": "Create your first analysis"
+      },
+      "card": {
+        "confidence": "Confidence",
+        "viewDetails": "View Details"
+      },
+      "new": {
+        "title": "New Analysis",
+        "description": "Start a new incident investigation",
+        "promptLabel": "Describe the incident",
+        "promptPlaceholder": "Describe the incident you want to investigate. Include symptoms, affected services, and any error messages you observed...",
+        "promptHint": "Minimum 10 characters. Be as specific as possible for better results.",
+        "severityLabel": "Severity",
+        "severityPlaceholder": "Select severity",
+        "integrationsLabel": "Data Sources",
+        "integrationsHint": "Select integrations to include as context for the analysis.",
+        "submit": "Start Analysis",
+        "submitting": "Starting...",
+        "validation": {
+          "promptRequired": "Prompt is required",
+          "promptTooShort": "Prompt must be at least 10 characters",
+          "promptTooLong": "Prompt must be 4000 characters or less"
+        },
+        "error": "Failed to create analysis. Please try again.",
+        "successRedirecting": "Analysis created! Redirecting..."
+      },
+      "detail": {
+        "backToHistory": "Back to Analyses",
+        "status": "Status",
+        "severity": "Severity",
+        "created": "Created",
+        "completed": "Completed",
+        "prompt": "Incident Description",
+        "rootCause": "Root Cause Analysis",
+        "confidence": "Confidence Score",
+        "confidenceLow": "Low confidence",
+        "confidenceMedium": "Medium confidence",
+        "confidenceHigh": "High confidence",
+        "timeline": "Event Timeline",
+        "recommendations": "Recommendations",
+        "dataSources": "Data Sources Consulted",
+        "auditTrail": "Investigation Audit Trail",
+        "auditTrailExpand": "Show audit trail",
+        "auditTrailCollapse": "Hide audit trail",
+        "records": "{count} records ingested",
+        "noResult": "Analysis in progress...",
+        "noTimeline": "No timeline events recorded.",
+        "noRecommendations": "No recommendations available yet.",
+        "noDataSources": "No data sources recorded.",
+        "pollingMessage": "Analysis is running. Updating automatically...",
+        "completedToast": "Analysis complete!",
+        "rerun": "Re-run Analysis",
+        "rerunning": "Re-running..."
+      }
+    },
+    "incidents": {
+      "title": "Incidents",
+      "description": "View and manage your incidents",
+      "newIncident": "New Incident",
+      "empty": "No incidents yet",
+      "emptyDescription": "Create your first incident to get started",
+      "loadMore": "Load more",
+      "filters": {
+        "allStatuses": "All Statuses",
+        "allSeverities": "All Severities"
+      },
+      "status": {
+        "open": "Open",
+        "triaging": "Triaging",
+        "investigating": "Investigating",
+        "awaiting_approval": "Awaiting Approval",
+        "remediating": "Remediating",
+        "resolved": "Resolved",
+        "closed": "Closed"
+      },
+      "severity": {
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "info": "Info"
+      },
+      "new": {
+        "title": "New Incident",
+        "description": "Report a new incident for investigation",
+        "back": "Back to Incidents",
+        "form": {
+          "title": "Incident Title",
+          "titlePlaceholder": "e.g., Database Connection Pool Exhaustion",
+          "description": "Description",
+          "descriptionPlaceholder": "Describe the incident in detail...",
+          "severity": "Severity",
+          "sourceProvider": "Source Provider",
+          "submit": "Create Incident",
+          "submitting": "Creating..."
+        }
+      },
+      "detail": {
+        "title": "Incident Details",
+        "description": "Description",
+        "rootCause": "Root Cause",
+        "resolution": "Resolution",
+        "assignedAgents": "Assigned Agents",
+        "sourceProvider": "Source Provider",
+        "sourceAlertId": "Source Alert ID",
+        "createdAt": "Created",
+        "updatedAt": "Updated",
+        "resolvedAt": "Resolved",
+        "rerun": "Create Similar",
+        "back": "Back to Incidents",
+        "remediations": "Remediations",
+        "noRemediations": "No remediations yet"
+      }
+    },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Connect your tools and services to enable AI-powered incident investigations",
+      "filter": {
+        "all": "All",
+        "communication": "Communication",
+        "monitoring": "Monitoring",
+        "code": "Code",
+        "management": "Management",
+        "crm": "CRM",
+        "database": "Database",
+        "knowledge": "Knowledge",
+        "api": "API"
+      },
+      "search": {
+        "placeholder": "Search integrations..."
+      },
+      "status": {
+        "connected": "Connected",
+        "disconnected": "Disconnected",
+        "error": "Error",
+        "available": "Available"
+      },
+      "card": {
+        "connectButton": "Connect",
+        "disconnectButton": "Disconnect",
+        "reconnectButton": "Reconnect",
+        "testButton": "Test Connection",
+        "lastTested": "Last tested {time}",
+        "lastTestedNever": "Never tested",
+        "staleWarning": "Not tested in over 7 days",
+        "connectedBy": "Connected by {name}",
+        "errorTooltip": "Connection error — click Reconnect"
+      },
+      "loading": {
+        "text": "Loading integrations..."
+      },
+      "empty": {
+        "title": "No integrations found",
+        "description": "Try adjusting your search or filter"
+      },
+      "modal": {
+        "connectTitle": "Connect {name}",
+        "reconfigureTitle": "Reconfigure {name}",
+        "testButton": "Test Connection",
+        "testing": "Testing...",
+        "testSuccess": "Connection successful",
+        "testError": "Connection failed — check your credentials",
+        "submit": "Save",
+        "submitting": "Saving...",
+        "cancel": "Cancel",
+        "successTitle": "Connected!",
+        "successMessage": "{name} has been connected successfully.",
+        "fields": {
+          "apiToken": "API Token",
+          "apiKey": "API Key",
+          "applicationKey": "Application Key",
+          "personalAccessToken": "Personal Access Token",
+          "email": "Email",
+          "domain": "Domain URL",
+          "domainPlaceholder": "https://yourcompany.atlassian.net",
+          "accessKeyId": "Access Key ID",
+          "secretAccessKey": "Secret Access Key",
+          "region": "AWS Region",
+          "regionPlaceholder": "us-east-1",
+          "connectionString": "Connection String",
+          "authToken": "Auth Token",
+          "grafanaUrlPlaceholder": "https://grafana.yourcompany.com",
+          "confluenceDomainPlaceholder": "https://yourcompany.atlassian.net",
+          "webhookUrl": "Webhook URL",
+          "webhookUrlPlaceholder": "https://your-service.com/webhook"
+        },
+        "validation": {
+          "required": "This field is required",
+          "urlInvalid": "Please enter a valid URL",
+          "emailInvalid": "Please enter a valid email address"
+        }
+      },
+      "disconnect": {
+        "title": "Disconnect {name}",
+        "warning": "This will remove the connection to {name}. Ongoing investigations using this integration may be affected.",
+        "confirm": "Disconnect",
+        "cancel": "Cancel",
+        "disconnecting": "Disconnecting..."
+      },
+      "integrations": {
+        "slack": {
+          "name": "Slack",
+          "description": "Real-time incident alerts for engineering and support teams",
+          "category": "Communication"
+        },
+        "github": {
+          "name": "GitHub",
+          "description": "Code changes, deployments, and PR correlation",
+          "category": "Code"
+        },
+        "jira": {
+          "name": "Jira",
+          "description": "Incident tickets, resolution tracking, SLA monitoring",
+          "category": "Management"
+        },
+        "cloudwatch": {
+          "name": "AWS CloudWatch",
+          "description": "AWS metrics, alarms, and log analysis",
+          "category": "Monitoring"
+        },
+        "hubspot": {
+          "name": "HubSpot",
+          "description": "Customer impact tracking and communication automation",
+          "category": "CRM"
+        },
+        "trello": {
+          "name": "Trello",
+          "description": "Visual incident boards and task tracking",
+          "category": "Management"
+        },
+        "postgresql": {
+          "name": "PostgreSQL",
+          "description": "Database performance monitoring and query analysis",
+          "category": "Database"
+        },
+        "linear": {
+          "name": "Linear",
+          "description": "Issue tracking and engineering workflow automation",
+          "category": "Management"
+        },
+        "sentry": {
+          "name": "Sentry",
+          "description": "Error tracking and application performance monitoring",
+          "category": "Monitoring"
+        },
+        "mongodb": {
+          "name": "MongoDB",
+          "description": "NoSQL database monitoring and performance insights",
+          "category": "Database"
+        },
+        "datadog": {
+          "name": "Datadog",
+          "description": "Infrastructure monitoring and APM correlation",
+          "category": "Monitoring"
+        },
+        "pagerduty": {
+          "name": "PagerDuty",
+          "description": "On-call management and escalation automation",
+          "category": "Monitoring"
+        },
+        "grafana": {
+          "name": "Grafana",
+          "description": "Dashboard metrics and visualization correlation",
+          "category": "Monitoring"
+        },
+        "confluence": {
+          "name": "Confluence",
+          "description": "Knowledge base and runbook integration",
+          "category": "Knowledge"
+        },
+        "webhooks": {
+          "name": "Custom Webhooks",
+          "description": "Connect any tool via HTTP webhooks",
+          "category": "API"
+        }
+      }
+    },
+    "team": {
+      "title": "Team",
+      "description": "Manage your team members and permissions",
+      "inviteButton": "Invite Member",
+      "table": {
+        "member": "Member",
+        "email": "Email",
+        "role": "Role",
+        "lastActive": "Last Active",
+        "joined": "Joined",
+        "actions": "Actions",
+        "never": "Never",
+        "loading": "Loading team members..."
+      },
+      "roles": {
+        "admin": "Admin",
+        "member": "Member"
+      },
+      "invite": {
+        "title": "Invite Team Member",
+        "description": "Send an invitation email to add a new member to your team.",
+        "emailLabel": "Email Address",
+        "emailPlaceholder": "colleague@company.com",
+        "roleLabel": "Role",
+        "rolePlaceholder": "Select role",
+        "submit": "Send Invite",
+        "submitting": "Sending...",
+        "cancel": "Cancel",
+        "successTitle": "Invitation sent!",
+        "successMessage": "An invitation has been sent to {email}.",
+        "errors": {
+          "duplicate": "An active invite already exists for this email address.",
+          "generic": "Failed to send invite. Please try again.",
+          "emailRequired": "Email is required",
+          "emailInvalid": "Please enter a valid email address"
+        }
+      },
+      "changeRole": {
+        "title": "Change Role",
+        "description": "Change the role of {name} on your team.",
+        "roleLabel": "New Role",
+        "submit": "Save Change",
+        "submitting": "Saving...",
+        "cancel": "Cancel",
+        "selfWarning": "You are changing your own role. You may lose admin access.",
+        "lastAdminWarning": "You are the last admin. Demoting yourself will leave the team without an admin.",
+        "success": "Role updated successfully.",
+        "error": "Failed to update role. Please try again."
+      },
+      "removeMember": {
+        "title": "Remove Team Member",
+        "description": "Are you sure you want to remove {name} from the team? This action cannot be undone.",
+        "warning": "They will lose access to all team resources immediately.",
+        "confirm": "Remove Member",
+        "cancel": "Cancel",
+        "selfError": "You cannot remove yourself from the team."
+      },
+      "pendingInvites": {
+        "title": "Pending Invites",
+        "empty": "No pending invites.",
+        "columns": {
+          "email": "Email",
+          "role": "Role",
+          "invitedBy": "Invited By",
+          "sent": "Sent",
+          "expires": "Expires"
+        },
+        "status": {
+          "pending": "Pending",
+          "expired": "Expired"
+        },
+        "actions": {
+          "resend": "Resend",
+          "revoke": "Revoke"
+        }
+      },
+      "permissions": {
+        "adminOnly": "Only admins can perform this action.",
+        "contactAdmin": "Contact your admin to make changes.",
+        "adminBadge": "Admin only",
+        "readOnly": "You have read-only access to this section."
+      }
+    },
+    "remediations": {
+      "title": "Remediations",
+      "description": "View and manage incident remediations",
+      "empty": "No remediations found",
+      "emptyDescription": "Remediations will appear when proposed for incidents",
+      "status": {
+        "proposed": "Proposed",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "executing": "Executing",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "detail": {
+        "title": "Remediation Details",
+        "rootCause": "Root Cause",
+        "steps": "Remediation Steps",
+        "pullRequests": "Pull Requests",
+        "proposedBy": "Proposed By",
+        "approvedBy": "Approved By",
+        "rejectedBy": "Rejected By",
+        "rejectionReason": "Rejection Reason",
+        "approve": "Approve",
+        "reject": "Reject",
+        "execute": "Execute",
+        "back": "Back to Remediations",
+        "incidentLink": "View Incident",
+        "stepStatus": {
+          "pending": "Pending",
+          "running": "Running",
+          "completed": "Completed",
+          "failed": "Failed",
+          "skipped": "Skipped"
+        },
+        "prStatus": {
+          "open": "Open",
+          "merged": "Merged",
+          "closed": "Closed"
+        }
+      }
+    },
+    "billing": {
+      "title": "Billing",
+      "description": "Manage your plan and credits",
+      "currentPlan": "Current Plan",
+      "upgrade": "Upgrade",
+      "downgrade": "Downgrade",
+      "downgradeToFree": "Downgrade to Free",
+      "contactSales": "Contact Sales",
+      "manageSubscription": "Manage Subscription",
+      "creditsPerMonth": "{count} analyses/month",
+      "creditsUnlimited": "Unlimited analyses",
+      "perMonth": "/month",
+      "custom": "Custom",
+      "planFree": "Free",
+      "planStarter": "Starter",
+      "planPro": "Pro",
+      "planBusiness": "Business",
+      "planEnterprise": "Enterprise",
+      "renewsOn": "Renews on {date}",
+      "cancelsOn": "Cancels on {date}",
+      "creditsUsed": "{used} of {total} credits used this period",
+      "upgradeMailSubject": "Upgrade to {plan} plan — CauseFlow AI",
+      "upgradeMailBody": "Hi CauseFlow team,%0D%0A%0D%0AI would like to upgrade my plan to {plan}.%0D%0A%0D%0AAccount email: {email}%0D%0A%0D%0AThank you!",
+      "statusActive": "Active",
+      "statusCanceling": "Canceling",
+      "statusPastDue": "Payment Failed",
+      "statusCanceled": "Canceled",
+      "statusCancelingMessage": "Your subscription will end on {date}. You can reactivate anytime.",
+      "statusPastDueMessage": "Your payment failed. Please update your payment method to avoid service interruption.",
+      "popular": "Popular",
+      "overageNote": "+${amount}/extra investigation",
+      "checkoutError": "Failed to start checkout. Please try again.",
+      "portalError": "Failed to open billing portal. Please try again.",
+      "loading": "Loading..."
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Configure your workspace settings",
+      "tabs": {
+        "profile": "Profile",
+        "company": "Company",
+        "notifications": "Notifications",
+        "appearance": "Appearance"
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Update your personal information",
+        "name": "Full Name",
+        "namePlaceholder": "Enter your full name",
+        "email": "Email Address",
+        "emailReadonly": "Email cannot be changed",
+        "avatar": "Profile Photo",
+        "avatarDescription": "Your initials are used as a placeholder",
+        "changePassword": "Change Password",
+        "changePasswordDescription": "Use the forgot password flow to reset your password",
+        "resetPasswordLink": "Send Reset Email",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "saved": "Profile saved successfully",
+        "errorSaving": "Failed to save profile. Please try again.",
+        "validation": {
+          "nameRequired": "Name is required",
+          "nameTooShort": "Name must be at least 2 characters"
+        }
+      },
+      "company": {
+        "title": "Company Settings",
+        "description": "Manage your organization details",
+        "adminOnly": "Only admins can manage company settings",
+        "name": "Company Name",
+        "namePlaceholder": "Acme Corp",
+        "website": "Website URL",
+        "websitePlaceholder": "https://acme.com",
+        "teamSize": "Team Size",
+        "plan": "Current Plan",
+        "upgradePlan": "Upgrade Plan",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "saved": "Company settings saved",
+        "errorSaving": "Failed to save company settings",
+        "validation": {
+          "nameRequired": "Company name is required",
+          "invalidUrl": "Please enter a valid URL"
+        },
+        "slug": "Company Slug",
+        "slugDescription": "Your unique company identifier",
+        "autoRemediation": "Auto Remediation",
+        "autoRemediationDescription": "Automatically approve proposed remediations without manual review"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Control when and how you receive notifications",
+        "emailSection": "Email Notifications",
+        "analysisComplete": "Analysis complete",
+        "analysisCompleteDescription": "Get notified when an incident analysis finishes",
+        "creditWarning": "Low credit warning",
+        "creditWarningDescription": "Alert when credits drop below 20%",
+        "teamInvite": "Team invitations",
+        "teamInviteDescription": "Notify when someone is invited to your workspace",
+        "weeklyDigest": "Weekly digest",
+        "weeklyDigestDescription": "Receive a weekly summary of your analyses",
+        "save": "Save Preferences",
+        "saving": "Saving...",
+        "saved": "Notification preferences saved",
+        "errorSaving": "Failed to save notification preferences"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Customize how CauseFlow AI looks for you",
+        "theme": "Theme",
+        "themeDescription": "Select your preferred color scheme",
+        "themeLight": "Light",
+        "themeDark": "Dark",
+        "themeSystem": "System",
+        "language": "Language",
+        "languageDescription": "Choose your preferred language",
+        "previewTitle": "Preview",
+        "appliedImmediately": "Changes apply immediately"
+      },
+      "commandPalette": {
+        "placeholder": "Search actions or navigate...",
+        "noResults": "No results found",
+        "hint": "Press {key} to open",
+        "sections": {
+          "actions": "Quick Actions",
+          "navigation": "Navigation"
+        },
+        "actions": {
+          "newAnalysis": "New Analysis",
+          "viewIntegrations": "View Integrations",
+          "manageTeam": "Manage Team",
+          "openSettings": "Open Settings",
+          "toggleTheme": "Toggle Theme"
+        },
+        "navigation": {
+          "dashboard": "Go to Dashboard",
+          "analyses": "Go to Analyses",
+          "integrations": "Go to Integrations",
+          "team": "Go to Team",
+          "settings": "Go to Settings",
+          "incidents": "Go to Incidents",
+          "remediations": "Go to Remediations",
+          "approvals": "Go to Approvals",
+          "auditLog": "Go to Audit Log"
+        }
+      },
+      "breadcrumbs": {
+        "dashboard": "Dashboard",
+        "analyses": "Analyses",
+        "newAnalysis": "New Analysis",
+        "integrations": "Integrations",
+        "team": "Team",
+        "settings": "Settings"
+      },
+      "errorBoundary": {
+        "title": "Something went wrong",
+        "description": "An unexpected error occurred. Please try again.",
+        "tryAgain": "Try Again",
+        "goToDashboard": "Go to Dashboard",
+        "errorDetails": "Error Details"
+      },
+      "toast": {
+        "success": "Success",
+        "error": "Error",
+        "info": "Info",
+        "warning": "Warning",
+        "dismiss": "Dismiss"
+      }
+    },
+    "audit": {
+      "title": "Audit Log",
+      "description": "View all system activity and changes",
+      "empty": "No audit entries found",
+      "emptyDescription": "Activity will appear here as actions are performed",
+      "loadMore": "Load more",
+      "filters": {
+        "allActions": "All Actions"
+      },
+      "columns": {
+        "timestamp": "Timestamp",
+        "action": "Action",
+        "actor": "Actor",
+        "resource": "Resource",
+        "hash": "Hash"
+      },
+      "verify": "Verify Chain",
+      "verifySuccess": "Audit chain is valid",
+      "verifyFailed": "Audit chain broken"
+    },
+    "auth": {
+      "fields": {
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "name": "Full Name",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password"
+      },
+      "errors": {
+        "invalidCredentials": "Invalid email or password",
+        "invalidEmail": "Please enter a valid email address",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "generic": "Something went wrong. Please try again.",
+        "accountNotLinked": "This email is already linked to another sign-in method. Please sign in with the original method.",
+        "sessionRequired": "You must be signed in to access this page."
+      },
+      "signIn": {
+        "title": "Welcome back",
+        "subtitle": "Sign in to your CauseFlow AI account",
+        "continueWithGoogle": "Continue with Google",
+        "continueWithGitHub": "Continue with GitHub",
+        "orContinueWith": "or continue with email",
+        "forgotPassword": "Forgot password?",
+        "submit": "Sign In",
+        "noAccount": "Don't have an account?",
+        "signUpLink": "Sign up"
+      },
+      "signUp": {
+        "title": "Create your account",
+        "subtitle": "Start investigating incidents in minutes",
+        "continueWithGoogle": "Sign up with Google",
+        "continueWithGitHub": "Sign up with GitHub",
+        "passwordStrength": "Password strength",
+        "passwordsMatch": "Passwords match",
+        "agreeToTerms": "I agree to the",
+        "termsLink": "Terms of Service",
+        "and": "and",
+        "privacyLink": "Privacy Policy",
+        "submit": "Create Account",
+        "haveAccount": "Already have an account?",
+        "signInLink": "Sign in",
+        "successMessage": "Account created! Redirecting to email verification..."
+      },
+      "verifyEmail": {
+        "title": "Check your email",
+        "subtitle": "We sent a 6-digit verification code to",
+        "codeLabel": "Verification Code",
+        "submit": "Verify Email",
+        "noCode": "Didn't receive the code?",
+        "resend": "Resend code",
+        "resending": "Sending...",
+        "resendIn": "Resend in {seconds}s",
+        "successTitle": "Email verified!",
+        "successMessage": "Your email has been verified successfully.",
+        "redirecting": "Redirecting to sign in...",
+        "backToSignIn": "Back to sign in",
+        "errors": {
+          "codeLength": "Please enter the 6-digit code"
+        }
+      },
+      "forgotPassword": {
+        "title": "Reset your password",
+        "subtitle": "Enter your email and we'll send you a reset code",
+        "resetTitle": "Create new password",
+        "resetSubtitle": "Enter the code sent to {email} and choose a new password",
+        "sendCode": "Send Reset Code",
+        "newPassword": "New Password",
+        "resetPassword": "Reset Password",
+        "backToSignIn": "Back to sign in",
+        "successTitle": "Password reset!",
+        "successMessage": "Your password has been reset successfully. You can now sign in."
+      }
+    },
+    "onboarding": {
+      "progress": {
+        "ariaLabel": "Onboarding progress",
+        "steps": {
+          "profile": "Profile",
+          "integration": "Integration",
+          "welcome": "Welcome"
+        }
+      },
+      "completeProfile": {
+        "title": "Set up your workspace",
+        "subtitle": "Tell us a bit about yourself and your company to personalize your experience",
+        "fields": {
+          "fullName": "Your Full Name",
+          "fullNamePlaceholder": "e.g. Jane Smith",
+          "companyName": "Company Name",
+          "companyNamePlaceholder": "Your company name",
+          "companyWebsite": "Company Website",
+          "companyWebsitePlaceholder": "https://yourcompany.com",
+          "teamSize": "Team Size",
+          "teamSizePlaceholder": "Select team size",
+          "role": "Your Role / Title",
+          "rolePlaceholder": "e.g. Engineering Manager, CTO"
+        },
+        "teamSizeOptions": {
+          "1_5": "1–5 engineers",
+          "6_20": "6–20 engineers",
+          "21_50": "21–50 engineers",
+          "50plus": "50+ engineers"
+        },
+        "validation": {
+          "fullNameTooShort": "Full name must be at least 2 characters",
+          "fullNameTooLong": "Full name must be 100 characters or less",
+          "companyNameRequired": "Company name is required",
+          "companyNameTooShort": "Company name must be at least 2 characters",
+          "companyNameTooLong": "Company name must be 100 characters or less",
+          "websiteInvalid": "Please enter a valid URL (e.g. https://yourcompany.com)",
+          "teamSizeRequired": "Please select a team size",
+          "roleTooLong": "Role must be 100 characters or less"
+        },
+        "submit": "Continue",
+        "submitting": "Saving..."
+      },
+      "connectIntegration": {
+        "title": "Connect your first integration",
+        "subtitle": "Connect your tools so CauseFlow can investigate incidents across all your data sources",
+        "skip": "Skip for now",
+        "continue": "Continue",
+        "connectButton": "Connect",
+        "connectedLabel": "Connected",
+        "connecting": "Connecting...",
+        "modal": {
+          "title": "Connect {name}",
+          "submit": "Connect",
+          "submitting": "Connecting...",
+          "cancel": "Cancel",
+          "successTitle": "Connected!",
+          "successMessage": "{name} has been connected successfully.",
+          "fields": {
+            "apiToken": "API Token",
+            "apiKey": "API Key",
+            "applicationKey": "Application Key",
+            "personalAccessToken": "Personal Access Token",
+            "email": "Email",
+            "domain": "Domain URL",
+            "domainPlaceholder": "https://yourcompany.atlassian.net",
+            "accessKeyId": "Access Key ID",
+            "secretAccessKey": "Secret Access Key",
+            "region": "AWS Region",
+            "regionPlaceholder": "us-east-1"
+          },
+          "validation": {
+            "required": "This field is required",
+            "urlInvalid": "Please enter a valid URL",
+            "emailInvalid": "Please enter a valid email address"
+          }
+        },
+        "integrations": {
+          "slack": {
+            "name": "Slack",
+            "description": "Get incident alerts and run investigations for engineering and support teams from Slack channels"
+          },
+          "pagerduty": {
+            "name": "PagerDuty",
+            "description": "Auto-trigger investigations from PagerDuty incidents"
+          },
+          "datadog": {
+            "name": "Datadog",
+            "description": "Correlate metrics and alerts with your incident investigations"
+          },
+          "github": {
+            "name": "GitHub",
+            "description": "Analyze commits, PRs and releases for root cause identification"
+          },
+          "jira": {
+            "name": "Jira",
+            "description": "Link investigations to tickets and auto-update issue status"
+          },
+          "cloudwatch": {
+            "name": "AWS CloudWatch",
+            "description": "Pull logs and metrics directly from CloudWatch for analysis"
+          }
+        }
+      },
+      "welcome": {
+        "title": "You're all set, {name}!",
+        "titleFallback": "You're all set!",
+        "subtitle": "Your workspace is ready. Here's what you can do next:",
+        "companyLabel": "Workspace",
+        "integrationsConnected": "{count} integration connected",
+        "integrationsConnectedPlural": "{count} integrations connected",
+        "noIntegrations": "No integrations yet — you can add them anytime",
+        "tips": {
+          "title": "Quick Tips",
+          "startAnalysis": {
+            "title": "Start your first analysis",
+            "description": "Describe a production issue and let CauseFlow investigate"
+          },
+          "inviteTeam": {
+            "title": "Invite your team",
+            "description": "Collaborate on investigations with your engineering team"
+          },
+          "exploreIntegrations": {
+            "title": "Explore integrations",
+            "description": "Connect more tools to get deeper insights"
+          }
+        },
+        "cta": "Go to Dashboard"
+      }
+    },
+    "approvals": {
+      "title": "Approvals",
+      "description": "Review and respond to pending approvals",
+      "empty": "No approvals found",
+      "emptyDescription": "Approvals will appear when remediations need authorization",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "expired": "Expired"
+      },
+      "filters": {
+        "all": "All",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "expired": "Expired"
+      },
+      "card": {
+        "incident": "Incident",
+        "remediation": "Remediation",
+        "expiresIn": "Expires in",
+        "expired": "Expired",
+        "respondedBy": "Responded by",
+        "selectedAction": "Action taken",
+        "timeout": "Timeout"
+      },
+      "actions": {
+        "approve": "Approve",
+        "reject": "Reject",
+        "responding": "Responding..."
+      }
+    }
+  },
+  "deploymentApproaches": {
+    "sectionTitle": "Choose Your Deployment Mode",
+    "sectionSubtitle": "Same AI. Same root cause. You decide how your data flows.",
+    "freeBadge": "Free on All Plans",
+    "connected": {
+      "title": "Connected Mode",
+      "description": "Direct read-only access to your systems via AWS IAM Role or OAuth2. Fastest setup, real-time analysis.",
+      "features": [
+        "Read-only access — no write permissions required",
+        "Real-time analysis across all connected tools",
+        "Fastest investigation speed",
+        "Full audit trail of every access",
+        "All integrations supported"
+      ],
+      "pricing": "Included in all plans",
+      "support": "Email + Slack (plan dependent)"
+    },
+    "privacyPreserving": {
+      "title": "Privacy-Preserving Mode",
+      "badge": "Privacy-Enhancing Technology",
+      "description": "A lightweight Docker agent runs inside your infrastructure — on-premise or private cloud. It processes, masks, and anonymizes all sensitive data (PII, API keys, debug logs) before anything leaves your environment. This is edge-based data minimization aligned with GDPR Article 25 and LGPD — a Privacy-Enhancing Technology (PET) that lets your team use AI-powered investigation without exposing sensitive production data.",
+      "features": [
+        "Raw data never leaves your environment",
+        "All identifiers automatically anonymized",
+        "Customer-controlled masking rules",
+        "Same AI-powered root cause analysis",
+        "GDPR Article 25 & LGPD compliant data minimization",
+        "Reversible mapping stays in your infrastructure"
+      ],
+      "pricing": "Included in all plans",
+      "support": "Email + Slack (plan dependent)"
+    },
+    "cta": {
+      "talkWithUs": "Talk with Us",
+      "learnMore": "Learn More"
+    },
+    "product": {
+      "title": "How CauseFlow Connects to Your Systems",
+      "subtitle": "Choose full access for maximum speed, or privacy-preserving mode for maximum data protection. Both deliver the same root cause."
+    },
+    "security": {
+      "title": "Privacy-Preserving Architecture: Your Data Never Leaves",
+      "description": "CauseFlow is the only incident investigation platform that deploys a Privacy-Enhancing Technology (PET) directly in your infrastructure. A Docker agent processes, masks, and anonymizes sensitive data at the edge — hostnames, IPs, user IDs, API keys, service names — before any transmission. Your raw data never leaves your security perimeter. The AI cloud receives only what it needs for root cause analysis, with sensitive identifiers replaced by opaque tokens.",
+      "guarantees": [
+        "No raw data transmission — ever",
+        "Customer-controlled masking rules",
+        "Reversible mapping stays in your infrastructure"
+      ]
+    },
+    "compare": {
+      "badge": "Only CauseFlow",
+      "calloutTitle": "The Only Platform with Privacy-Preserving Architecture",
+      "calloutDescription": "Investigate incidents with edge-based data minimization — your raw data never leaves your infrastructure. A Privacy-Enhancing Technology (PET) included free on every plan. No other incident investigation platform offers this level of data protection."
+    },
+    "dataFlow": {
+      "heading": "Data Flow Comparison",
+      "connected": {
+        "step1": "Your Systems",
+        "step2": "Direct Read",
+        "step3": "CauseFlow AI",
+        "step4": "Root Cause"
+      },
+      "privacyPreserving": {
+        "step1": "Your Systems",
+        "step2": "Docker Masking Agent",
+        "step3": "Anonymized Data",
+        "step4": "CauseFlow AI",
+        "step5": "Root Cause"
+      }
+    }
+  }
+}

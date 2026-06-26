@@ -1,0 +1,76 @@
+---
+title: "Role-based access control"
+sidebarTitle: "RBAC"
+description: "Two roles control who can do what in your CauseFlow tenant."
+---
+
+CauseFlow uses role-based access control (RBAC) to manage what each user can do within a tenant. Every request is authorized against the roles encoded in the user's JWT token and scoped to a single tenant.
+
+## Roles
+
+<CardGroup cols={2}>
+  <Card title="Admin" icon="crown">
+    Full access within the tenant — manage users, billing, integrations, approve remediations, and trigger investigations. Typical role for engineering leads and team managers.
+  </Card>
+  <Card title="Member" icon="user">
+    Read access across incidents and investigations. Can trigger investigations and update incident status. Cannot manage team members, billing, or tenant configuration. Typical role for on-call engineers and stakeholders.
+  </Card>
+</CardGroup>
+
+## Permission matrix
+
+| Action | Admin | Member |
+|--------|:-----:|:------:|
+| View incidents and investigations | Yes | Yes |
+| View audit trail | Yes | Yes |
+| Trigger investigations | Yes | Yes |
+| Update incident status | Yes | Yes |
+| Approve or reject remediations | Yes | No |
+| Manage team members and roles | Yes | No |
+| Manage API keys | Yes | No |
+| Configure integrations | Yes | No |
+| Manage investigation policy | Yes | No |
+| Manage billing and subscription | Yes | No |
+
+## Assigning roles
+
+Roles are assigned per tenant. A user can have different roles in different tenants.
+
+**To assign or change a role:**
+
+1. Go to **Dashboard > Team**.
+2. Find the team member and click **Edit**.
+3. Select the new role from the dropdown.
+4. Click **Save**.
+
+Only admins can manage team members.
+
+**To invite a new team member:**
+
+1. Go to **Dashboard > Team**.
+2. Click **Invite member**.
+3. Enter their email and select a role.
+4. Click **Send invite**.
+
+The invited user receives an email with a sign-up link. They are added to your tenant with the assigned role upon completing sign-up.
+
+## Tenant isolation
+
+Every request in CauseFlow is scoped to the `org_id` claim in the user's JWT token. This is enforced at the data access layer — not just the application layer.
+
+DynamoDB partition keys include `tenantId` as a component. A query for tenant A's incidents cannot physically return tenant B's data, even in the event of a logic error. There is no shared-data model where misconfiguration could expose cross-tenant records.
+
+Consequences:
+
+- Users cannot access data outside their tenant, regardless of their role
+- Support engineers cannot view customer data without an explicit tenant-scoped token
+
+## RBAC enforcement in the API
+
+RBAC checks happen server-side on every API request. The client cannot escalate privileges by modifying the request. If a request requires a permission the caller's roles do not have, the API returns `403 Forbidden`.
+
+Role checks are not cached — they are evaluated on every request against the current state of the user's roles. If a user's role is changed, the new permissions take effect on their next API request.
+
+<Note>
+  Changing a user's role does not invalidate their existing JWT token immediately. The token continues to carry the previous roles until it expires or is refreshed. For immediate role changes (for example, offboarding), revoke the user's session from **Dashboard > Team > Revoke access**.
+</Note>

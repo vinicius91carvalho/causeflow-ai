@@ -1,0 +1,18 @@
+{
+  "prd": "spec.md",
+  "created": "2026-04-09T12:00:00Z",
+  "sprints": [
+    {
+      "id": 1,
+      "file": "sprints/01-integrations-step.md",
+      "title": "Onboarding Integrations Step: Route, Grid, Redirect, Cleanup",
+      "status": "complete",
+      "depends_on": [],
+      "batch": 1,
+      "model": "sonnet",
+      "branch": null,
+      "merged": true,
+      "notes": "All files created/modified/deleted per spec. Fixed @causeflow/shared import path (domain/constants/integrations -> constants). Rewrote 3 test files from @testing-library/react to vitest structural pattern (project doesn't use testing-library). Build, type-check, lint, tests all pass (131 files, 850 tests). Route /onboarding/integrations returns 200; /onboarding/connect-aws returns 404 (correctly removed). connect-aws-form.tsx also deleted (only used by removed route)."
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+---
+title: "Remediations"
+description: "Review, approve, and track AI-proposed remediations for your incidents."
+---
+
+After CauseFlow identifies the root cause of an incident, it proposes specific remediation actions. Remediations are always suggestions — nothing executes automatically. Every proposed action requires explicit approval before CauseFlow takes any step.
+
+<Warning>
+  Only admins can approve remediations. Members can view remediation proposals and track execution, but cannot approve or reject them.
+</Warning>
+
+## How remediations work
+
+When an investigation completes, CauseFlow generates a remediation plan based on the root cause and agent findings. The plan breaks down into individual steps — each step is a discrete action with a defined type, description, and expected outcome.
+
+You review the steps, approve or reject the plan, and then CauseFlow executes the approved steps in sequence.
+
+## Types of remediations
+
+CauseFlow can propose several types of remediation steps depending on what the investigation found:
+
+| Type | Description |
+|------|-------------|
+| **Restart service** | Restarts a specific service or container in your infrastructure |
+| **Rollback deployment** | Reverts to a previous deployment version |
+| **Scale resources** | Adjusts the resource allocation for a service (for example, increasing instance count) |
+| **Create pull request** | Opens a pull request in your GitHub repository with a proposed code fix |
+| **Custom script** | Executes a custom remediation script defined in your integration configuration |
+
+Each step in the plan shows its type, a plain-language description of the action, and its current status.
+
+## Approval workflow
+
+Remediations move through the following status flow:
+
+| Status | Meaning |
+|--------|---------|
+| `proposed` | CauseFlow has suggested this action — no execution yet |
+| `approved` | An admin approved the action — execution will begin shortly |
+| `executing` | CauseFlow is actively running the remediation step |
+| `completed` | The step finished successfully |
+| `failed` | The step encountered an error during execution |
+| `rejected` | An admin rejected the action — it will not be executed |
+
+### Approving a remediation
+
+<Steps>
+  <Step title="Open the remediation">
+    Navigate to the incident or analysis that generated the remediation. Click the **Remediations** tab to see the proposed plan.
+  </Step>
+  <Step title="Review each step">
+    Read the description of each step carefully. For infrastructure actions, confirm the target service and expected behavior. For code changes, review the diff before approving.
+  </Step>
+  <Step title="Approve or reject">
+    Click **Approve** to allow execution, or **Reject** to decline. If you reject a step, you'll be prompted to provide a reason — this helps improve future proposals and gives your team context in the audit trail.
+  </Step>
+</Steps>
+
+### Rejecting a remediation
+
+When you reject a remediation step, enter a brief reason in the rejection dialog. For example: "This service restart would cause a 2-minute outage during peak hours — schedule for after midnight." The reason is recorded in the audit trail and visible to your team.
+
+## Tracking execution
+
+Once approved, remediation steps execute in order. The detail view updates in real time as each step runs:
+
+- A progress indicator shows which step is currently executing.
+- Each completed step shows its output — command output, API responses, or a link to the created pull request.
+- Failed steps show the error message and stop execution. You can review the failure, adjust your environment or configuration, and retry.
+
+## Pull request remediations
+
+When the code analysis agent identifies a code-level fix, CauseFlow can create a pull request in your connected GitHub repository. The pull request includes:
+
+- A description of the root cause
+- The proposed code change
+- A reference back to the CauseFlow incident
+
+The pull request appears in your repository like any other PR. Review it using your normal code review process — request changes, add comments, and merge when ready.
+
+<Tip>
+  Pull request remediations require a GitHub integration. Go to **Dashboard > Integrations** to connect your repository if you haven't already.
+</Tip>

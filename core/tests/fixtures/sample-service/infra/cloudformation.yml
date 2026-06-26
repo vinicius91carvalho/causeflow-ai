@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Payment Service ECS Stack
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+  ImageUri:
+    Type: String
+
+Resources:
+  ECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: payment-service
+      Cluster: !Ref ECSCluster
+      DesiredCount: 2
+      TaskDefinition: !Ref TaskDefinition
+      LaunchType: FARGATE
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: payment-service
+      Cpu: '512'
+      Memory: '1024'
+      RequiresCompatibilities: [FARGATE]
+      ContainerDefinitions:
+        - Name: payment-service
+          Image: !Ref ImageUri
+          PortMappings:
+            - ContainerPort: 3000
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckPath: /health
+      Port: 3000
+      Protocol: HTTP
+      TargetType: ip

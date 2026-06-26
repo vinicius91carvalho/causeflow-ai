@@ -1,0 +1,92 @@
+---
+title: "Security overview"
+sidebarTitle: "Overview"
+description: "CauseFlow's security-first architecture — eight layers protecting your infrastructure and data."
+---
+
+CauseFlow handles access to your production infrastructure. Security is the foundation of every design decision — not an afterthought. This page explains the eight security layers that protect your data and the key principles that guide how CauseFlow operates.
+
+## Key security principles
+
+<CardGroup cols={2}>
+  <Card title="No permanent credentials" icon="key">
+    CauseFlow never stores permanent credentials for your infrastructure. Every agent session uses temporary STS credentials with 15-minute expiry.
+  </Card>
+  <Card title="Minimum permissions per investigation" icon="shield-halved">
+    The CauseFlow orchestrator receives only the AWS permissions needed for the current investigation scope. Permission scope is derived from which integrations are connected and what the alert signals.
+  </Card>
+  <Card title="Human approval before action" icon="user-check">
+    No remediation executes automatically. Every proposed action — restart a service, rollback a deployment, merge a PR — requires explicit human approval.
+  </Card>
+  <Card title="Tamper-proof audit trail" icon="file-shield">
+    Every action in CauseFlow is recorded in an immutable audit log with cryptographic hash chaining. The trail cannot be modified or deleted without detection.
+  </Card>
+</CardGroup>
+
+## Eight security layers
+
+### 1. Authentication
+
+All API requests require a valid JWT Bearer token. CauseFlow verifies the token signature, claims (issuer, audience, expiry), and tenant binding on every request. Webhook ingestion uses API keys authenticated via HMAC-SHA256.
+
+[Authentication details →](/security/authentication)
+
+### 2. Authorization (RBAC)
+
+Two roles — admin and member — control what each user can do within a tenant. Every request is scoped to the tenant identified in the JWT. Data from one tenant is physically inaccessible to another.
+
+[RBAC details →](/security/rbac)
+
+### 3. Temporary infrastructure credentials
+
+When an investigation starts, CauseFlow uses AWS STS AssumeRole to generate temporary credentials scoped to the minimum permissions required for the investigation. Credentials expire after 15 minutes and are revoked immediately when the investigation completes.
+
+[Data privacy details →](/security/data-privacy)
+
+### 4. Encryption at rest and in transit
+
+All data is encrypted in transit with TLS. OAuth tokens and sensitive credentials are protected with KMS envelope encryption (AES-256-GCM). The data encryption key (DEK) is encrypted with your tenant's customer master key (CMK) — even a full database compromise yields no usable credentials.
+
+### 5. Immutable audit trail
+
+CauseFlow tracks 67 action types across 8 categories (tenant, incident, investigation, remediation, credential, auth, GitHub, notification). Every audit record is chained with SHA-256 — modifying any past record breaks the chain and is immediately detectable.
+
+[Compliance details →](/security/compliance)
+
+### 6. Rate limiting
+
+Per-tenant, per-plan rate limiting is enforced at the API gateway. The implementation uses Redis with an in-memory fallback. Rate limiting fails closed — if the limiter is unavailable, requests are denied rather than allowed through.
+
+### 7. Input validation
+
+All input is validated with Zod schemas at every boundary: HTTP requests, LLM outputs, and SQS messages. Malformed or unexpected input is rejected before it reaches any processing logic.
+
+### 8. CORS
+
+Cross-Origin Resource Sharing is restricted to explicitly allowed origins. Wildcard origins (`*`) are never used.
+
+## Data encrypted in transit and at rest
+
+| Data type | Protection |
+|-----------|-----------|
+| API traffic | TLS 1.2+ |
+| OAuth tokens | KMS envelope encryption (AES-256-GCM) |
+| Credentials at rest | Encrypted with tenant CMK |
+| Database connections | TLS (Relay enforced) |
+
+## Further reading
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" href="/security/authentication">
+    JWT tokens, API keys, webhook HMAC, and public endpoints.
+  </Card>
+  <Card title="RBAC" icon="users" href="/security/rbac">
+    Two roles, permission matrix, and tenant isolation.
+  </Card>
+  <Card title="Data privacy" icon="shield" href="/security/data-privacy">
+    Temporary credentials, per-agent permissions, PII masking, and data isolation.
+  </Card>
+  <Card title="Compliance" icon="clipboard-check" href="/security/compliance">
+    Audit trail, SOC 2 readiness, GDPR/LGPD, and responsible disclosure.
+  </Card>
+</CardGroup>

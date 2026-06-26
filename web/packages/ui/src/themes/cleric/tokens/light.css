@@ -1,0 +1,84 @@
+/*
+ * CauseFlow AI Design System — Cleric Theme — Light Mode
+ * Deep Indigo + Electric Teal palette, warmer tone, Space Grotesk display.
+ * HSL-based CSS variables following shadcn/ui convention.
+ * Values are bare <h> <s>% <l>% — no wrapper function, just raw channel values (Tailwind v4).
+ *
+ * :root serves as the default fallback when cleric is the active theme.
+ * [data-theme="cleric"] provides explicit theme selection support.
+ */
+
+:root,
+[data-theme="cleric"] {
+  /* Background & Foreground — cool near-white, same family as --muted but lighter */
+  --background: 230 15% 98%;
+  --foreground: 232 45% 10%;
+
+  /* Card — pure white surface lifted off warm page bg (#ffffff) */
+  --card: 0 0% 100%;
+  --card-foreground: 232 45% 10%;
+
+  /* Popover */
+  --popover: 0 0% 100%;
+  --popover-foreground: 232 45% 10%;
+
+  /* Primary — Emerald Green (light-theme CTA accent; dark theme keeps Deep Indigo) */
+  --primary: 160 62% 38%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary */
+  --secondary: 230 15% 93%;
+  --secondary-foreground: 160 62% 28%;
+
+  /* Muted */
+  --muted: 230 15% 93%;
+  --muted-foreground: 232 12% 44%;
+
+  /* Ink-soft — between foreground and muted for dense body copy */
+  --ink-soft: 232 18% 32%;
+
+  /* Accent — Electric Teal */
+  --accent: 172 66% 30%;
+  --accent-foreground: 0 0% 98%;
+
+  /* Accent tint — hero gradients, aside cards */
+  --accent-tint: 172 66% 94%;
+
+  /* Violet — hero gradient accent partner (#8B54D4) */
+  --violet: 274 57% 61%;
+
+  /* Accent trio — cleric light schema: green / purple / orange.
+     Green = emerald used for "done" agents and success chips.
+     Purple = same hue as --violet (kept in sync for brand consistency).
+     Orange = same hue as --warning (hero toggle, proposed-fix surfaces). */
+  --brand-green: 160 62% 38%;
+  --brand-purple: 274 57% 61%;
+  --brand-orange: 23 90% 52%;
+
+  /* Warning — Amber */
+  --warning: 23 90% 52%;
+  --warning-foreground: 0 0% 100%;
+
+  /* Destructive */
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
+
+  /* Success — Emerald */
+  --success: 160 84% 39%;
+  --success-foreground: 0 0% 98%;
+
+  /* Border, Input, Ring */
+  --border: 230 15% 87%;
+  --input: 230 15% 87%;
+  --ring: 172 66% 30%;
+
+  /* Chart Colors */
+  --chart-1: 172 66% 30%;
+  --chart-2: 232 50% 45%;
+  --chart-3: 43 96% 56%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 0 72% 51%;
+
+  /* Radius */
+  --radius: 0.625rem;
+}

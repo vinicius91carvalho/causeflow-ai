@@ -1,0 +1,55 @@
+/*
+ * Cleric Theme — Font Stacks
+ *
+ * Consumes CSS variables injected by next/font/google in the app layout.
+ * The layout exposes:
+ *   --font-jakarta        (Plus Jakarta Sans — body / sans)
+ *   --font-space-grotesk  (Space Grotesk — display / headings)
+ *   --font-jetbrains-mono (JetBrains Mono — code / mono)
+ *
+ * No @import url('https://fonts.googleapis.com') — fonts are loaded via
+ * next/font/google in apps/website/src/app/[locale]/layout.tsx and the
+ * equivalent dashboard layout. This file only wires the CSS variables into
+ * the cleric theme selectors.
+ */
+
+@layer base {
+  /* Body + explicit cleric theme selection */
+  [data-theme="cleric"] body,
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family:
+      var(--font-jakarta), "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+      BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Display headings — Space Grotesk */
+  [data-theme="cleric"] h1,
+  [data-theme="cleric"] h2,
+  [data-theme="cleric"] h3,
+  [data-theme="cleric"] h4,
+  [data-theme="cleric"] h5,
+  [data-theme="cleric"] h6 {
+    font-family:
+      var(--font-space-grotesk), "Space Grotesk", ui-sans-serif, system-ui, -apple-system,
+      BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+    font-weight: 700;
+  }
+
+  [data-theme="cleric"] h1 {
+    font-weight: 800;
+  }
+
+  /* Monospace — JetBrains Mono */
+  [data-theme="cleric"] code,
+  [data-theme="cleric"] kbd,
+  [data-theme="cleric"] samp,
+  [data-theme="cleric"] pre {
+    font-family:
+      var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+}

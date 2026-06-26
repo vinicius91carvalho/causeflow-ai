@@ -1,0 +1,308 @@
+---
+title: "Deployment"
+description: "Deploy CauseFlow Relay with Docker, Kubernetes, ECS Fargate, or as a standalone process."
+---
+
+<Note>
+  Container distribution is coming soon. Contact [support@causeflow.ai](mailto:support@causeflow.ai) for access to the Relay container image.
+</Note>
+
+## Resource requirements
+
+The Relay is designed to be lightweight. Size your host or container task accordingly:
+
+| Resource | Idle | Under load | Hard limit |
+|---|---|---|---|
+| CPU | ~128m | < 500m | 0.5 CPU |
+| Memory | 100–200 MB | < 512 MB | 512 MB |
+| Disk | 50 MB (image) | — | — |
+
+The Relay uses a database connection pool with a maximum of 5 connections per resource, so it has minimal impact on your database server.
+
+## Container security model
+
+Regardless of how you deploy the Relay, the container is hardened by default:
+
+| Security control | Value |
+|---|---|
+| User | Non-root, UID 10001 |
+| Filesystem | Read-only root filesystem |
+| Linux capabilities | All dropped (`--cap-drop ALL`) |
+| Privilege escalation | Disabled (`no-new-privileges`) |
+| Writable scratch space | `/tmp` only, mounted as `tmpfs` |
+| Network | Outbound WSS/443 only |
+
+These controls are enforced by the container image itself and by the recommended run flags below. Do not remove them.
+
+---
+
+## Docker
+
+The simplest deployment option — a single `docker run` command with all security flags applied:
+
+```bash
+docker run -d \
+  --name causeflow-relay \
+  --restart unless-stopped \
+  -v $(pwd)/relay-config.yaml:/app/relay-config.yaml:ro \
+  -e RELAY_TOKEN=<your-relay-token> \
+  -e TENANT_ID=<your-tenant-id> \
+  -e PG_HOST=your-db-host \
+  -e PG_DATABASE=yourdb \
+  -e PG_USER=readonly_user \
+  -e PG_PASSWORD=secret \
+  --memory=512m \
+  --cpus=0.5 \
+  --read-only \
+  --tmpfs /tmp:size=64m \
+  --security-opt no-new-privileges \
+  --cap-drop ALL \
+  causeflow/relay:latest
+```
+
+Check startup logs:
+
+```bash
+docker logs causeflow-relay
+```
+
+---
+
+## Docker Compose
+
+Use Docker Compose to run the Relay alongside your application stack. This is useful for local development or single-host deployments where the Relay runs next to the database.
+
+```yaml docker-compose.yaml
+services:
+  causeflow-relay:
+    image: causeflow/relay:latest
+    restart: unless-stopped
+    volumes:
+      - ./relay-config.yaml:/app/relay-config.yaml:ro
+    environment:
+      RELAY_TOKEN: ${RELAY_TOKEN}
+      TENANT_ID: ${TENANT_ID}
+      PG_HOST: postgres
+      PG_DATABASE: ${PG_DATABASE}
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+    mem_limit: 512m
+    cpus: 0.5
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    security_opt:
+      - no-new-privileges
+    cap_drop:
+      - ALL
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${PG_DATABASE}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+```
+
+Store secrets in a `.env` file (never commit it) and reference them with `${VAR}` in the Compose file.
+
+---
+
+## Kubernetes
+
+Deploy the Relay as a `Deployment` in your cluster. The Relay connects outbound over the cluster's egress path — ensure your network policy allows outbound TCP to `api.causeflow.ai:443`.
+
+```yaml relay-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: causeflow-relay
+  namespace: causeflow
+  labels:
+    app: causeflow-relay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: causeflow-relay
+  template:
+    metadata:
+      labels:
+        app: causeflow-relay
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+      containers:
+        - name: relay
+          image: causeflow/relay:latest
+          resources:
+            requests:
+              cpu: "128m"
+              memory: "200Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /app/relay-config.yaml
+              subPath: relay-config.yaml
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          env:
+            - name: RELAY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: causeflow-relay-secret
+                  key: relay-token
+            - name: TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: causeflow-relay-secret
+                  key: tenant-id
+            - name: PG_HOST
+              value: "postgres-service.database.svc.cluster.local"
+            - name: PG_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: causeflow-relay-secret
+                  key: pg-database
+            - name: PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: causeflow-relay-secret
+                  key: pg-user
+            - name: PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: causeflow-relay-secret
+                  key: pg-password
+      volumes:
+        - name: config
+          configMap:
+            name: causeflow-relay-config
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 64Mi
+```
+
+Create the required Secret and ConfigMap before applying:
+
+```bash
+# Create the secret
+kubectl create secret generic causeflow-relay-secret \
+  --namespace causeflow \
+  --from-literal=relay-token=<your-token> \
+  --from-literal=tenant-id=<your-tenant-id> \
+  --from-literal=pg-database=yourdb \
+  --from-literal=pg-user=readonly_user \
+  --from-literal=pg-password=secret
+
+# Create the config
+kubectl create configmap causeflow-relay-config \
+  --namespace causeflow \
+  --from-file=relay-config.yaml=./relay-config.yaml
+```
+
+<Tip>
+  Run exactly one Relay replica per tenant. The Relay holds a single WebSocket connection to the control plane — multiple replicas would create duplicate connections, not high availability. If you need redundancy, use a Deployment with `replicas: 1` and a `restartPolicy: Always`.
+</Tip>
+
+---
+
+## ECS Fargate
+
+Deploy the Relay as an ECS Fargate task in a **private subnet** with no inbound security group rules. The task needs outbound internet access (via NAT gateway or VPC endpoint) to reach `api.causeflow.ai:443`.
+
+Key settings for your ECS task definition:
+
+```json
+{
+  "family": "causeflow-relay",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "512",
+  "taskRoleArn": "arn:aws:iam::<account-id>:role/causeflow-relay-task-role",
+  "executionRoleArn": "arn:aws:iam::<account-id>:role/causeflow-relay-exec-role",
+  "containerDefinitions": [
+    {
+      "name": "relay",
+      "image": "causeflow/relay:latest",
+      "essential": true,
+      "readonlyRootFilesystem": true,
+      "user": "10001",
+      "secrets": [
+        {
+          "name": "RELAY_TOKEN",
+          "valueFrom": "arn:aws:secretsmanager:<region>:<account>:secret:causeflow/relay-token"
+        },
+        {
+          "name": "TENANT_ID",
+          "valueFrom": "arn:aws:secretsmanager:<region>:<account>:secret:causeflow/tenant-id"
+        },
+        {
+          "name": "PG_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:<region>:<account>:secret:causeflow/pg-password"
+        }
+      ],
+      "environment": [
+        { "name": "PG_HOST", "value": "your-rds-endpoint.rds.amazonaws.com" },
+        { "name": "PG_DATABASE", "value": "yourdb" },
+        { "name": "PG_USER", "value": "readonly_user" }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "relay-config",
+          "containerPath": "/app/relay-config.yaml",
+          "readOnly": true
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/causeflow/relay",
+          "awslogs-region": "<region>",
+          "awslogs-stream-prefix": "relay"
+        }
+      }
+    }
+  ]
+}
+```
+
+Store `relay-config.yaml` in AWS Systems Manager Parameter Store or S3 and inject it at startup, or bake it into a custom image layer.
+
+**Security group rules for the Fargate task:**
+
+| Direction | Protocol | Port | Destination | Purpose |
+|---|---|---|---|---|
+| Outbound | TCP | 443 | `api.causeflow.ai` | Control plane WebSocket |
+| Outbound | TCP | 5432 | Your RDS security group | PostgreSQL |
+| Outbound | TCP | 27017 | Your MongoDB security group | MongoDB |
+| Inbound | — | — | — | None required |
+
+---
+
+## VM or bare metal
+
+If you prefer to run the Relay directly on a virtual machine or bare metal server without Docker, the container image can be extracted and run as a standalone process. Contact [support@causeflow.ai](mailto:support@causeflow.ai) for guidance on non-container deployments.
+
+The configuration file and environment variable conventions are identical regardless of deployment method.

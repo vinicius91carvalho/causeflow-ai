@@ -1,0 +1,123 @@
+---
+title: "PII masking"
+description: "How CauseFlow Relay masks personally identifiable information before data leaves your network."
+---
+
+## How masking works
+
+PII masking happens **inside the Relay, inside your private network**, before any results are sent to the CauseFlow control plane.
+
+The sequence is:
+
+1. The Relay executes a query against your database.
+2. The result rows are scanned field by field against all configured masking patterns.
+3. Any value that matches a pattern is replaced with the mask string.
+4. Only the masked rows are included in the response sent to the control plane.
+
+The CauseFlow control plane, AI agents, and your team members using the investigation tools never see raw PII. They see only the masked output.
+
+<Tip>
+  Masking is applied in-memory during the response assembly step. The original data is never stored or forwarded — it is discarded immediately after masking.
+</Tip>
+
+## Built-in patterns
+
+The following patterns are active by default when `masking.enabled: true`. You do not need to configure them manually.
+
+| Pattern | Example input | Masked output |
+|---|---|---|
+| CPF (Brazilian tax ID) | `123.456.789-00` | `***.***.***-**` |
+| Email address | `user@example.com` | `***@***.***` |
+| Credit card number | `1234-5678-9012-3456` | `****-****-****-****` |
+| Bearer token | `Bearer abc123xyz` | `Bearer ***` |
+| Brazilian phone number | `(11) 98765-4321` | `(**) *****-****` |
+
+Masking is applied to all string fields in the result set. Numeric fields that match a pattern (e.g., an unformatted CPF stored as digits) are also masked if the pattern matches the stringified value.
+
+## Adding custom patterns
+
+Define custom patterns in the `masking.patterns` array in `relay-config.yaml`. Custom patterns are applied in addition to built-in patterns — adding a custom pattern does not disable the built-ins.
+
+```yaml relay-config.yaml
+masking:
+  enabled: true
+  patterns:
+    - name: employee-id
+      regex: 'EMP-\d{6}'
+      replacement: 'EMP-******'
+    - name: internal-order-ref
+      regex: 'ORD-[A-Z]{2}-\d{8}'
+      replacement: 'ORD-**-********'
+```
+
+### Pattern fields
+
+| Field | Description |
+|---|---|
+| `name` | A unique name for this pattern. Appears in audit log entries when the pattern fires. |
+| `regex` | A regular expression matched against each string field value. Use single quotes in YAML to avoid double-escaping backslashes. |
+| `replacement` | The string that replaces any match. |
+
+<Warning>
+  Patterns are applied as full-string replacements when the regex matches the entire field value, and as substring replacements when it matches part of a value. Test your patterns against representative data before deploying to production.
+</Warning>
+
+## Masking in query responses
+
+Every query response includes masking metadata so you can verify that masking is working:
+
+```json
+{
+  "result": {
+    "rows": [...],
+    "rowCount": 50,
+    "metadata": {
+      "masked": true,
+      "maskedFieldCount": 73,
+      "executionMs": 22,
+      "resourceId": "main-pg"
+    }
+  }
+}
+```
+
+| Field | Description |
+|---|---|
+| `masked` | `true` if masking is enabled and was applied to this response. `false` if masking is disabled. |
+| `maskedFieldCount` | Total number of field values that were replaced across all rows in this response. |
+
+A `maskedFieldCount` of `0` with `masked: true` means the query returned no values that matched any pattern — not that masking failed.
+
+## Disabling masking
+
+Set `masking.enabled: false` in `relay-config.yaml` to disable PII masking:
+
+```yaml
+masking:
+  enabled: false
+```
+
+<Warning>
+  Disabling masking means raw PII values will be visible in the CauseFlow interface. Only disable masking if your data contains no personal information, or if you have a specific requirement reviewed by your data protection officer.
+</Warning>
+
+Disabling masking does **not** disable the read-only policy, SQL validation, or the policy engine. The Relay still enforces all access controls regardless of the masking setting.
+
+## Audit log entries
+
+Every query that triggers masking produces an audit log entry. The log entry includes the pattern names that fired and the count of masked fields, but never the original unmasked values:
+
+```json
+{
+  "level": "info",
+  "time": "2024-01-15T10:30:01.234Z",
+  "msg": "Query executed",
+  "requestId": "req-abc123",
+  "resourceId": "main-pg",
+  "operation": "query",
+  "rowCount": 50,
+  "maskedFieldCount": 73,
+  "patternsApplied": ["email", "cpf"],
+  "executionMs": 22
+}
+```

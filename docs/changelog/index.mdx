@@ -1,0 +1,89 @@
+---
+title: "Changelog"
+description: "Latest updates, improvements, and fixes to CauseFlow AI."
+---
+
+Stay up to date with the latest changes to CauseFlow AI.
+
+<Note>
+  Subscribe to updates at [causeflow.ai](https://causeflow.ai) to be notified of new releases.
+</Note>
+
+---
+
+## April 2026
+
+### CauseFlow AI public launch
+
+**April 14, 2026**
+
+CauseFlow AI is officially launching. The platform automates incident investigation from alert to resolution — connecting to your cloud infrastructure, monitoring tools, code repositories, and communication platforms to deliver root cause analysis and remediation proposals.
+
+What's included at launch:
+
+- **Dashboard** at [dashboard.causeflow.ai](https://dashboard.causeflow.ai) — manage incidents, review investigations, and approve remediations
+- **REST API** — full v1 API for incidents, investigations, remediations, webhooks, and more
+- **200+ integrations** — connect AWS, Azure, GCP, Datadog, Grafana, Sentry, GitHub, Slack, Jira, Linear, and many more
+- **CauseFlow Relay** — privacy-preserving database access for PostgreSQL and MongoDB
+- **Four plans** — Starter, Pro, Business, and Enterprise. See [Plans and pricing](/billing/plans)
+- **Developer documentation** — API reference, integration guides, Relay setup, and dashboard walkthroughs
+
+### Public documentation rewrite
+
+**April 20, 2026**
+
+Complete rewrite of the public documentation site, grounded in the product's current source-of-truth.
+
+**New pages**
+- Getting started: AI transparency, Skills, Memory and Chat, Triggers
+- Integrations: Cloud providers (AWS, Azure, GCP), HubSpot
+- API reference: 44 new endpoint pages covering triage, investigation, remediation, memory, skills, triggers, integrations, billing, notifications, audit, outbound events, and relay
+- Changelog
+
+**Corrections**
+- RBAC reconciled to 2 roles (`admin`, `member`).
+- Investigation timings corrected: triage 5-30 seconds; full investigation 1-5 minutes.
+- API host unified to `api.causeflow.ai` across all examples.
+- HubSpot framed as a customer-support bridge (unique differentiator).
+- Outbound event delivery clarified: real-time via Server-Sent Events today; programmatic webhook subscription on the roadmap.
+
+**Removed**
+- Specialized sub-agent references replaced with single-orchestrator framing.
+- `notifications/sse-stream` page (superseded by `notifications/stream`).
+
+**Known roadmap**
+- Programmatic webhook subscription API.
+- Embeddable widget (`/v1/widget/*`).
+- Inbound message triggers from Slack and Microsoft Teams.
+
+---
+
+### CauseFlow AI public documentation launched
+
+**April 1, 2026**
+
+The CauseFlow AI developer documentation is now publicly available. The docs cover the full API reference, integration guides, the CauseFlow Relay setup, and the dashboard.
+
+Highlights:
+
+- Complete API reference for all v1 endpoints
+- Authentication guide covering JWT Bearer tokens, API key authentication, and webhook HMAC signature verification
+- Step-by-step guides for connecting cloud providers and third-party tools
+- CauseFlow Relay installation and configuration for privacy-preserving database access
+
+---
+
+## March 2026
+
+### CauseFlow Relay — early access
+
+**March 18, 2026**
+
+CauseFlow Relay is a lightweight, self-hosted agent that enables secure, read-only database access from within your private network. The Relay runs inside your network perimeter and returns only masked, sanitized results.
+
+Key capabilities:
+
+- Supports PostgreSQL and MongoDB
+- Runs as a Docker container
+- PII masking built in — sensitive data never leaves your network
+- Outbound-only connections — no inbound firewall rules needed

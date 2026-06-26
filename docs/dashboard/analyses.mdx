@@ -1,0 +1,77 @@
+---
+title: "Analyses"
+description: "Run AI-powered analyses on incidents with selected integrations and context."
+---
+
+An analysis is a standalone AI investigation session. Where incidents are tied to a specific event in your system, an analysis gives you a free-form way to investigate any scenario — with full control over which integrations are consulted and what context the agents receive.
+
+<Note>
+  Each analysis consumes one investigation from your monthly plan allowance. Check your usage at **Dashboard > Billing**.
+</Note>
+
+## Creating an analysis
+
+<Steps>
+  <Step title="Open the new analysis form">
+    Go to **Dashboard > Incidents** and click **New Analysis**, or start one directly from any incident that needs deeper investigation.
+  </Step>
+  <Step title="Select a severity level">
+    Choose the severity that best describes the issue you're investigating: critical, high, medium, low, or info. This helps CauseFlow prioritize which agents to activate and how aggressively to search for root causes.
+  </Step>
+  <Step title="Choose integrations">
+    Select which connected integrations the analysis should use. By default, all connected integrations are available.
+
+    Limiting integrations to the relevant systems speeds up the investigation and reduces noise in findings. For example, if you're investigating a database slowdown, select only your database and monitoring integrations.
+  </Step>
+  <Step title="Write a description">
+    Describe what you're investigating (10–4000 characters). Be specific:
+
+    - What symptoms are you observing?
+    - Which services are affected?
+    - When did the problem start?
+    - What changed recently (deploys, config updates, traffic spikes)?
+
+    The description is the primary instruction for the AI agents. More context leads to more accurate findings.
+  </Step>
+  <Step title="Submit">
+    Click **Start Analysis**. CauseFlow dispatches the relevant agents immediately.
+  </Step>
+</Steps>
+
+## Analysis detail
+
+Once an analysis is running, the detail page shows its progress in real time.
+
+### Investigation progress
+
+A progress indicator shows which agents are queued, running, and complete. Each agent operates independently — you'll see findings appear as individual agents finish rather than waiting for all of them.
+
+The page refreshes automatically while the investigation is in progress. You don't need to reload to see new findings.
+
+### Agent findings
+
+Each finding entry shows:
+
+- The agent that produced it (for example, logs agent, metrics agent, infrastructure agent, code agent)
+- A summary of what the agent discovered
+- Supporting evidence — excerpts, anomalies, and references to the specific data the agent analyzed
+
+### Root cause and recommendations
+
+When all agents have reported, CauseFlow synthesizes a **root cause analysis** and a set of **remediation recommendations**. The root cause section explains the likely chain of events that caused the issue. The recommendations section proposes specific actions to resolve it.
+
+## Re-investigating with additional context
+
+If the initial analysis is incomplete — for example, the root cause is unclear or an agent couldn't access the relevant data — you can add more context and re-run the investigation.
+
+On the analysis detail page, click **Add Context**. Enter additional details that might help the agents focus:
+
+- "The problem started immediately after the deploy at 14:00 UTC."
+- "Only users in the EU region are affected."
+- "We ruled out the database — queries are responding normally."
+
+Submit the additional context to start a new investigation pass. The agents will incorporate your update alongside the previous findings.
+
+<Tip>
+  Re-investigation is especially useful when the initial description was broad. Use the first run's findings to identify the most promising area, then re-investigate with a focused prompt.
+</Tip>

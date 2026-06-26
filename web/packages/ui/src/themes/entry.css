@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@source "..";
+@source "../../../../apps/website/src";
+@source "../../../../apps/dashboard/src";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+/* Shared token mapping */
+@import "./shared/base.css";
+
+/* Original theme */
+@import "./original/tokens/light.css";
+@import "./original/tokens/dark.css";
+@import "./original/fonts/font-stacks.css";
+@import "./original/animations/keyframes.css";
+@import "./original/animations/utilities.css";
+
+/* Cleric theme */
+@import "./cleric/entry.css";
