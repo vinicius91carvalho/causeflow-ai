@@ -16,3 +16,12 @@
 - Per-context i18n files exist at infrastructure/i18n/{en,pt-br}.json for every context in both apps (onboarding also has a colocated i18n.test.ts).
 - compose.ts at apps/{dashboard,website}/src/lib/i18n/compose.ts imports each context's i18n files and deep-merges them via @causeflow/shared/domain/utils/deep-merge.
 - Outcome: PASS — integration=true.
+
+## 2026-07-07T23:26:02.989Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-028
+- AcceptanceChecks: AC-028
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-028-1-integration_qa.log
+- NextAction: next Ready Work Item
