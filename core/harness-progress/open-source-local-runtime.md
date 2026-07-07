@@ -140,3 +140,10 @@ HINDSIGHT_* + minimal app config present).
 - WorkItem: WI-AC-039
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-07T23:55:16.210Z — Resumed
+
+- WorkItem: WI-AC-039
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
