@@ -17,10 +17,11 @@
     ],
     "depends_on": [],
     "verify_first": true,
-    "implementation": false,
+    "implementation": true,
     "qa": false,
     "integration": false,
-    "retries": 0
+    "retries": 0,
+    "verify_notes": "VERIFY-FIRST pass at real HTTP boundary: `mint dev --port 3000` from project root served http://localhost:3000/ with HTTP 200; response body contains <title>CauseFlow AI Documentation - CauseFlow AI</title> and the Quickstart intro Card (href=/getting-started/quickstart, title=Quickstart). Zero code diff (existing-codebase checkpoint)."
   },
   {
     "id": "WI-AC-002",
