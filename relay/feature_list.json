@@ -1,0 +1,1150 @@
+[
+  {
+    "id": "WI-AC-001",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "`npm install` followed by `npm run build` exits 0 and produces `dist/index.js` plus every module under `src/`. `node dist/index.js` with a missing config file logs a fatal error and exits non-zero; with a valid `relay-config.yaml` (or the documented env-var fallbacks) the process starts the pino logger, logs \"Starting CauseFlow Relay...\", loads the config, and begins attempting to connect to `controlPlane.url` (failing fast on bad config but retrying on bad URL until the WS reaches the control plane).",
+    "steps": [
+      "Read the Acceptance Check AC-001 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-001",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-001 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-001"
+    ],
+    "depends_on": [],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-002",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "`docker build . --platform linux/amd64` (and on a buildx host, `--platform linux/amd64,linux/arm64`) succeeds and produces an image that, when run with a valid config, starts as UID 10001, logs the same \"Starting CauseFlow Relay...\" line, and connects to the configured control plane. `docker run --rm <image> node -e \"require('fs').readFileSync('/etc/passwd','utf8')\"` shows the image runs as `relay` (UID 10001) and the root filesystem is read-only by default; `docker inspect <image>` shows no exposed ports other than the informational 8080.",
+    "steps": [
+      "Read the Acceptance Check AC-002 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-002",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-002 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-002"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-003",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "`npx tsc --noEmit` exits 0; the project compiles under `strict: true` with `module: NodeNext` and `moduleResolution: NodeNext`. `package.json` declares `\"type\": \"module\"` and every internal import uses the explicit `.js` extension on the relative path (e.g. `from './transport/protocol.js'`).",
+    "steps": [
+      "Read the Acceptance Check AC-003 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-003",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-003 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-003"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-004",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "A `relay-config.yaml` with `controlPlane.url = 'not-a-url'` and a valid `resources[0]` is loaded by `loadConfig()`; the Zod schema either accepts the URL string as-is (it is a free-form `z.string()`) or, when the Zod parse throws, the relay logs the parse error and exits non-zero — it never silently starts with an invalid control-plane URL. A YAML file with a missing `controlPlane.token` fails Zod validation with a clear error pointing at the missing field.",
+    "steps": [
+      "Read the Acceptance Check AC-004 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-004",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-004 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-004"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-005",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "When no YAML file is present at `RELAY_CONFIG_PATH` and `/app/relay-config.yaml`, `loadConfig()` falls back to building the config from environment variables: it reads `CONTROL_PLANE_URL` (default `ws://localhost:3000/v1/relay/connect`), `RELAY_TOKEN`, `TENANT_ID`, walks `RESOURCE_0_*` / `RESOURCE_1_*` / ... until a `RESOURCE_N_ID` is missing, JSON-parses each `RESOURCE_N_CONNECTION`, and uses `RESOURCE_N_MAX_ROWS` (default 1000). The fallback config round-trips through the same Zod schema as the YAML path.",
+    "steps": [
+      "Read the Acceptance Check AC-005 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-005",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-005 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-005"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-006",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "Environment variable interpolation: a YAML file containing `token: ${RELAY_TOKEN}` resolves to the value of `process.env.RELAY_TOKEN` at load time. Interpolation works at any nesting depth (string, object, array) and substitutes an empty string for unset variables (no exception is thrown for missing vars, matching the documented behavior).",
+    "steps": [
+      "Read the Acceptance Check AC-006 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-006",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-006 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-006"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-007",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "`.github/workflows/ci.yml` is triggered on `pull_request` to `main`, runs `actions/setup-node@v4` with `node-version: '22'`, runs `npm ci`, validates PR commits with `npx commitlint --from $BASE_SHA --to $HEAD_SHA --verbose`, runs `npm run build`, and runs `docker build . --platform linux/amd64` as a smoke test. Each step exits 0 on a passing PR.",
+    "steps": [
+      "Read the Acceptance Check AC-007 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-007",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-007 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-007"
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-008",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "`.github/workflows/release.yml` is triggered on `push` to `main`. The `release` job runs `actions/checkout@v4` with `fetch-depth: 0`, sets up Node 22, runs `npm ci`, then `npx semantic-release` with `GITHUB_TOKEN`. If a new tag is produced, the workflow sets `released=true` and the version. The `docker` job (which `needs: release` and `if: needs.release.outputs.released == 'true'`) then sets up QEMU, sets up Docker Buildx, logs in to DockerHub with `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN`, and runs `docker/build-push-action@v6` to push the image with tags `X.Y.Z`, `X.Y`, `X`, and `latest` for `linux/amd64,linux/arm64`.",
+    "steps": [
+      "Read the Acceptance Check AC-008 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-008",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-008 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-008"
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-009",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "`release.config.js` chains the documented semantic-release plugins in order: `@semantic-release/commit-analyzer` → `@semantic-release/release-notes-generator` → `@semantic-release/changelog` (writes CHANGELOG.md) → `@semantic-release/npm` (with `npmPublish: false`, only updates `package.json` version) → `@semantic-release/git` (commits `package.json` + `CHANGELOG.md` back with the `chore(release): ${nextRelease.version} [skip ci]` message) → `@semantic-release/github` (creates the GitHub Release). `branches: ['main']` restricts releases to the main branch.",
+    "steps": [
+      "Read the Acceptance Check AC-009 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-009",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-009 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-009"
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-010",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "`commitlint.config.js` extends `['@commitlint/config-conventional']` so PR commits validated by `npx commitlint` accept messages like `fix: handle ws reconnect`, `feat: add redis driver`, `feat!: change config schema` (with `BREAKING CHANGE:` footer or `!` suffix triggering a major), and reject messages that do not parse as a Conventional Commit.",
+    "steps": [
+      "Read the Acceptance Check AC-010 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-010",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-010 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-010"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-011",
+    "context": "foundation",
+    "category": "foundation",
+    "description": "The Dockerfile builds in two stages (`node:22-alpine AS builder` → `node:22-alpine`), installs devDependencies only in the builder stage, runs `npx tsc` to produce `dist/`, then copies `dist/` into the runtime stage, runs `npm install --omit=dev` to install only production dependencies, creates the `relay` user with `adduser -D -u 10001 relay`, sets `USER relay`, and starts with `CMD [\"node\", \"dist/index.js\"]`. `WORKDIR /app` and `EXPOSE 8080` are declared.",
+    "steps": [
+      "Read the Acceptance Check AC-011 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-011",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-011 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-011"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-012",
+    "context": "transport",
+    "category": "functional",
+    "description": "When the WebSocket is open, `WsClient` sends a `heartbeat` message every 30 seconds with the same `relayId` (a UUID generated once in the `WsClient` constructor) and the configured `tenantId`. The heartbeat is constructed via `createHeartbeat(relayId, tenantId)` and matches the `HeartbeatMessage` shape `{ type: 'heartbeat', relayId, tenantId }`.",
+    "steps": [
+      "Read the Acceptance Check AC-012 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-012",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-012 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-012"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-013",
+    "context": "transport",
+    "category": "functional",
+    "description": "On WebSocket `open`, the relay sends a `resource_update` message containing every resource from the loaded config, each mapped to `{ resourceId, type: 'postgres' | 'mongodb', name, database, readOnly: true }`. The message is constructed via `createResourceUpdate(relayId, tenantId, resources)` and matches the `ResourceUpdateMessage` shape.",
+    "steps": [
+      "Read the Acceptance Check AC-013 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-013",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-013 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-013"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-014",
+    "context": "transport",
+    "category": "functional",
+    "description": "On any non-intentional WebSocket `close`, the `WsClient` schedules a reconnect via `setTimeout` with the current `reconnectDelay` (starting at 1000ms, doubling up to `maxReconnectDelay = 30000`), and the next `connect()` is invoked from the timer. Calling `WsClient.close()` sets `intentionalClose = true` first, so an intentional close does not schedule a reconnect.",
+    "steps": [
+      "Read the Acceptance Check AC-014 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-014",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-014 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-014"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-015",
+    "context": "transport",
+    "category": "functional",
+    "description": "The `connect()` method appends `?token=<token>&tenantId=<tenantId>` to the parsed URL and sets the headers `Authorization: Bearer <token>` and `X-Tenant-Id: <tenantId>` on the `new WebSocket(url, { headers })` call. A log line at info level (`'Connected to control plane'`) is emitted on the `open` event with `relayId` and `url` attached; on `error`, an error-level log is emitted; on `close`, an info log plus a `scheduleReconnect` is invoked unless `intentionalClose` is set.",
+    "steps": [
+      "Read the Acceptance Check AC-015 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-015",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-015 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-015"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-016",
+    "context": "transport",
+    "category": "functional",
+    "description": "On a `message` event, the `WsClient` JSON-parses the payload (string or buffer). Messages that fail to parse are logged at warn with the parse error and dropped. Messages where `parsed.jsonrpc !== '2.0'` or `parsed.method` is missing are likewise dropped. Only well-formed JSON-RPC 2.0 requests are forwarded to `opts.onMessage`.",
+    "steps": [
+      "Read the Acceptance Check AC-016 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-016",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-016 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-016"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-017",
+    "context": "protocol",
+    "category": "functional",
+    "description": "A JSON-RPC 2.0 `list_resources` request (no params) returns a list of resources shaped as `{ resourceId, type, name, database, readOnly: true }[]` derived from the policy engine's resource list. The response uses `createResponse(request.id, resources)`, producing `{ jsonrpc: '2.0', id, result: [...] }`.",
+    "steps": [
+      "Read the Acceptance Check AC-017 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-017",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-017 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-017"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-018",
+    "context": "protocol",
+    "category": "functional",
+    "description": "A JSON-RPC 2.0 `describe_resource` request with `{ resourceId: '<unknown>' }` returns a JSON-RPC error with code `-32602` and message `Unknown resource: <id>` (via `createErrorResponse`). A valid `resourceId` triggers `driver.execute({ operation: 'list_tables', params: {} })` on the matching driver and returns `{ tables, type, database }`.",
+    "steps": [
+      "Read the Acceptance Check AC-018 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-018",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-018 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-018"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-019",
+    "context": "protocol",
+    "category": "functional",
+    "description": "A JSON-RPC 2.0 `health_check` request returns an array of `{ resourceId, type, healthy, latencyMs }[]` produced by `HealthReporter.checkAll()`, one entry per initialized driver. If a driver's `healthCheck()` throws, that entry is logged at warn with `{ err, resourceId }` and included with `healthy: false` and the measured latency; the other drivers' results are unaffected.",
+    "steps": [
+      "Read the Acceptance Check AC-019 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-019",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-019 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-019"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-020",
+    "context": "protocol",
+    "category": "functional",
+    "description": "A JSON-RPC 2.0 request with an unknown method (anything not in `['execute', 'list_resources', 'describe_resource', 'health_check']`) returns a JSON-RPC error with code `-32601` (method not found) and the message `Unknown method: <method>`. A request that throws inside the handler is caught, logged at error with `{ err, requestId }`, and answered with code `-32603` and the error's `message` (or `'Internal error'` for non-Error throws).",
+    "steps": [
+      "Read the Acceptance Check AC-020 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-020",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-020 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-020"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-021",
+    "context": "protocol",
+    "category": "functional",
+    "description": "A JSON-RPC 2.0 `execute` request with `params.resourceId = 'main-pg'`, `params.operation = 'query'`, and `params.params = { sql: 'SELECT id, status FROM orders' }` returns a JSON-RPC 2.0 response whose `result` shape is `{ rows, rowCount, fields, executionTimeMs, masked: <maskedFieldCount > 0>, maskedFieldCount }`. The `result.masked` and `result.maskedFieldCount` reflect the masking step's output.",
+    "steps": [
+      "Read the Acceptance Check AC-021 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-021",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-021 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-021"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-022",
+    "context": "postgres-driver",
+    "category": "functional",
+    "description": "With a Postgres resource configured, an `execute` request with `operation: 'list_tables'` runs `SELECT table_name, table_type FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name` against the configured database and returns the rows as `rows`, with `fields: [{ name: 'table_name', type: 'text' }, { name: 'table_type', type: 'text' }]`.",
+    "steps": [
+      "Read the Acceptance Check AC-022 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-022",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-022 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-022"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-023",
+    "context": "postgres-driver",
+    "category": "functional",
+    "description": "With a Postgres resource configured, an `execute` request with `operation: 'describe_table'` and `params.params.tableName = 'orders'` runs the information_schema.columns + information_schema.table_constraints queries scoped to the `public` schema and the named table, merging the column rows and the constraint rows (with each constraint row tagged `_type: 'constraint'`) into the response `rows`.",
+    "steps": [
+      "Read the Acceptance Check AC-023 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-023",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-023 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-023"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-024",
+    "context": "postgres-driver",
+    "category": "functional",
+    "description": "With a Postgres resource configured, an `execute` request with `operation: 'query'` and a single SELECT statement runs inside `BEGIN READ ONLY; SET statement_timeout = '30s'; <sql> LIMIT <n>; COMMIT;` on a dedicated `client` from the pool, and the response carries the rows, `rowCount`, `fields` (each `{ name, type }` derived from `pg`'s `dataTypeID`), and the measured `executionTimeMs`. The client is released back to the pool in a `finally` block; any error triggers `ROLLBACK` (best-effort) before the throw.",
+    "steps": [
+      "Read the Acceptance Check AC-024 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-024",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-024 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-024"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-025",
+    "context": "postgres-driver",
+    "category": "functional",
+    "description": "With a Postgres resource configured, an `execute` request with `operation: 'query'` and `params.params.limit = N` clamps the executed limit to `min(N, resource.maxRowsPerQuery)` and appends `LIMIT <clamped>` to the SQL. The clamped limit is enforced both at the policy engine (rejection when `N > maxRowsPerQuery`) and at the driver (defensive clamp in the SQL).",
+    "steps": [
+      "Read the Acceptance Check AC-025 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-025",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-025 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-025"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-026",
+    "context": "postgres-driver",
+    "category": "functional",
+    "description": "With a Postgres resource configured, an `execute` request with `operation: 'explain'` runs `EXPLAIN ANALYZE <sql>` and returns the explain rows verbatim. (The pg-query-parser also runs on `explain`; multi-statement and non-SELECT-shaped queries are rejected the same way as for `query`.)",
+    "steps": [
+      "Read the Acceptance Check AC-026 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-026",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-026 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-026"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-027",
+    "context": "postgres-driver",
+    "category": "functional",
+    "description": "`PgDriver.healthCheck()` runs `SELECT 1` against the pool and returns `true` on success or `false` on any error (without re-throwing). `PgDriver.close()` awaits `pool.end()` and is called by the graceful-shutdown path.",
+    "steps": [
+      "Read the Acceptance Check AC-027 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-027",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-027 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-027"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-028",
+    "context": "postgres-sql-parser",
+    "category": "functional",
+    "description": "`validateQuery(\"SELECT 1\")` returns `{ valid: true }`. `validateQuery(\"INSERT INTO t VALUES (1)\")` returns `{ valid: false, reason: 'Only SELECT statements are allowed, got INSERT' }` (or a textual `'INSERT statements are not allowed'` fallback if the parser throws). `validateQuery(\"SELECT 1; DROP TABLE users\")` returns `{ valid: false, reason: 'Multi-statement queries are not allowed' }`.",
+    "steps": [
+      "Read the Acceptance Check AC-028 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-028",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-028 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-028"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-029",
+    "context": "postgres-sql-parser",
+    "category": "functional",
+    "description": "`validateQuery(\"SELECT pg_sleep(10)\")`, `validateQuery(\"SELECT * FROM pg_proc WHERE proname = 'pg_read_file'\")` (containing the substring `pg_read_file`), and any query whose lowercased text contains one of the documented dangerous function names (`pg_sleep`, `lo_import`, `lo_export`, `pg_read_file`, `pg_write_file`, `pg_read_binary_file`, `pg_ls_dir`, `pg_stat_file`, `pg_terminate_backend`, `pg_cancel_backend`, `pg_reload_conf`, `set_config`, `current_setting`, `dblink`, `dblink_exec`) returns `{ valid: false, reason: 'Dangerous function detected: <name>' }`.",
+    "steps": [
+      "Read the Acceptance Check AC-029 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-029",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-029 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-029"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-030",
+    "context": "postgres-sql-parser",
+    "category": "functional",
+    "description": "`validateQuery(\"WITH x AS (SELECT 1) SELECT * FROM x\")` returns `{ valid: true }`. `validateQuery(\"SELECT * FROM (SELECT pg_sleep(1)) s\")` is rejected via the dangerous-function text scan. `validateQuery(\"EXPLAIN SELECT 1\")` is accepted at the parser level (its operation is `query` or `explain` at the driver; the parser only checks for SELECT/CTE shape).",
+    "steps": [
+      "Read the Acceptance Check AC-030 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-030",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-030 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-030"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-031",
+    "context": "mongo-driver",
+    "category": "functional",
+    "description": "With a MongoDB resource configured, an `execute` request with `operation: 'list_tables'` calls `db.listCollections().toArray()` and returns the mapped `{ name, type }[]` rows.",
+    "steps": [
+      "Read the Acceptance Check AC-031 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-031",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-031 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-031"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-032",
+    "context": "mongo-driver",
+    "category": "functional",
+    "description": "With a MongoDB resource configured, an `execute` request with `operation: 'describe_table'` and `params.params.tableName = 'orders'` infers a schema from up to 10 sample documents via `collection.find().limit(10).toArray()`, walks the documents to record the set of `typeof value` per field, and merges those rows with the `indexes()` output (each tagged `_type: 'index'`, `{ name, key }`).",
+    "steps": [
+      "Read the Acceptance Check AC-032 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-032",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-032 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-032"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-033",
+    "context": "mongo-driver",
+    "category": "functional",
+    "description": "With a MongoDB resource configured, an `execute` request with `operation: 'query'` accepts either `params.params.filter` (used directly as the find filter) or `params.params.sql` (JSON.parsed into a filter when `filter` is empty), falls back to `{}` if neither is supplied, and runs `collection.find(query).limit(<clamped limit>).toArray()`. The result `rows` is the array of found documents cast to `Record<string, unknown>[]`.",
+    "steps": [
+      "Read the Acceptance Check AC-033 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-033",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-033 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-033"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-034",
+    "context": "mongo-driver",
+    "category": "functional",
+    "description": "With a MongoDB resource configured, an `execute` request with `operation: 'query'` and `params.params.pipeline = [{ $match: { status: 'failed' } }, { $out: 'archive' }]` is rejected by `validate` with `reason: 'Aggregation stage $out is not allowed'`. The same applies to `$merge`. A pipeline of only `$match` / `$group` / `$sort` / `$project` / `$limit` stages is accepted.",
+    "steps": [
+      "Read the Acceptance Check AC-034 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-034",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-034 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-034"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-035",
+    "context": "mongo-driver",
+    "category": "functional",
+    "description": "With a MongoDB resource configured, an `execute` request with `operation: 'explain'` runs `collection.find(filter).explain('executionStats')` and returns `{ rows: [<explanation>], rowCount: 1, executionTimeMs }`.",
+    "steps": [
+      "Read the Acceptance Check AC-035 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-035",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-035 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-035"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-036",
+    "context": "mongo-driver",
+    "category": "functional",
+    "description": "`MongoDriver.healthCheck()` runs `db.admin().ping()` and returns `true` on success, `false` on any error. `MongoDriver.close()` awaits `client.close()`. The driver is constructed with `maxPoolSize: 5` and `serverSelectionTimeoutMS: 10000`.",
+    "steps": [
+      "Read the Acceptance Check AC-036 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-036",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-036 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-036"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-037",
+    "context": "policy-engine",
+    "category": "functional",
+    "description": "A resource configured with `allowedOperations: ['query']` rejects an `execute` request with `operation: 'describe_table'` via the policy engine with `reason: 'Operation describe_table not allowed on resource <id>'`; the main loop turns that into a JSON-RPC `-32600` error and writes an audit entry with `result: 'denied'`, `policyChecks.reason` set to the denial reason.",
+    "steps": [
+      "Read the Acceptance Check AC-037 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-037",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-037 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-037"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-038",
+    "context": "policy-engine",
+    "category": "functional",
+    "description": "An `execute` request with `params.params.limit = 5000` against a resource with `maxRowsPerQuery: 1000` is rejected by the policy engine with `reason: 'Row limit 5000 exceeds maximum 1000'`. An `execute` request with `params.params.limit = 100` (or no limit, which falls back to `maxRowsPerQuery`) is accepted; the driver then clamps the actual `LIMIT` (or Mongo `find().limit`) to `min(100, 1000) = 100`.",
+    "steps": [
+      "Read the Acceptance Check AC-038 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-038",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-038 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-038"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-039",
+    "context": "policy-engine",
+    "category": "functional",
+    "description": "An `execute` request with `params.resourceId = 'unknown-resource'` is rejected at the policy engine with `reason: 'Unknown resource: unknown-resource'`. The main loop writes an audit entry with `result: 'denied'`, `policyChecks.reason` set to the denial reason, and returns a JSON-RPC `-32600` error with that reason attached.",
+    "steps": [
+      "Read the Acceptance Check AC-039 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-039",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-039 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-039"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-040",
+    "context": "pii-masking",
+    "category": "functional",
+    "description": "`MaskingEngine.mask(['john@example.com', '123.456.789-00', 'plain'])` returns `{ masked: ['***@***.***', '***.***.***-**', 'plain'], maskedFieldCount: 2 }` when masking is enabled with the default patterns. The masked output round-trips: the email regex strips the local part + domain, the CPF regex matches the dotted pattern, and the plain string is left alone.",
+    "steps": [
+      "Read the Acceptance Check AC-040 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-040",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-040 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-040"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-041",
+    "context": "pii-masking",
+    "category": "functional",
+    "description": "`MaskingEngine.mask({ user: { email: 'a@b.co', notes: 'hello' } })` recursively walks the object, masks the email field, leaves `notes` alone, and returns `{ masked: { user: { email: '***@***.***', notes: 'hello' } }, maskedFieldCount: 1 }`. Arrays nested inside objects are also walked.",
+    "steps": [
+      "Read the Acceptance Check AC-041 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-041",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-041 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-041"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-042",
+    "context": "pii-masking",
+    "category": "functional",
+    "description": "User-defined patterns from `masking.patterns` are added to the default set. A config with `{ name: 'session_id', regex: 'sess_[a-f0-9]{16}', replacement: 'sess_***' }` causes the string `sess_0123456789abcdef` to be masked to `sess_***` and the response `maskedFieldCount` to include this match.",
+    "steps": [
+      "Read the Acceptance Check AC-042 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-042",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-042 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-042"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-043",
+    "context": "pii-masking",
+    "category": "functional",
+    "description": "When `masking.enabled = false` is configured (or `MASKING_ENABLED=false` is set), `MaskingEngine.mask(data)` returns `{ masked: data, maskedFieldCount: 0 }` without applying any patterns.",
+    "steps": [
+      "Read the Acceptance Check AC-043 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-043",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-043 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-043"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-044",
+    "context": "audit-trail",
+    "category": "functional",
+    "description": "Every successful `execute` request writes a pino info entry with `{ timestamp, relayId, requestId, resource, operation, result: 'success', rowCount, maskedFieldCount, executionTimeMs }`. The `relayId` is the same UUID the WS client generated at startup and is reused across the lifetime of the process. The audit logger is created inside the `onMessage` callback for every request, so it carries the same `relayId` and a per-request `requestId`.",
+    "steps": [
+      "Read the Acceptance Check AC-044 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-044",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-044 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-044"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-045",
+    "context": "audit-trail",
+    "category": "functional",
+    "description": "Every denied request (policy engine denial, driver validation failure, unknown resource) writes a pino warn entry with `result: 'denied'` and `policyChecks.reason` set to the denial reason. Every errored request writes a pino error entry with `result: 'error'` (an unhandled error from the try/catch in `onMessage` also writes a top-level error log with `{ err, requestId }` before the response is sent).",
+    "steps": [
+      "Read the Acceptance Check AC-045 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-045",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-045 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-045"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-046",
+    "context": "audit-trail",
+    "category": "functional",
+    "description": "`audit.level` accepts `'debug' | 'info' | 'warn' | 'error'` (default `'info'`). The pino logger is constructed with the chosen level and `base: { relayId }` so every entry is automatically tagged. Setting `audit.enabled = false` short-circuits `log()` and writes nothing.",
+    "steps": [
+      "Read the Acceptance Check AC-046 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-046",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-046 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-046"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-047",
+    "context": "lifecycle",
+    "category": "functional",
+    "description": "Sending `SIGTERM` (or `SIGINT`) to a running relay triggers the shutdown handler: `WsClient.close()` is invoked first (which sets `intentionalClose = true`, clears the heartbeat interval and reconnect timer, and closes the WebSocket), then `driver.close()` is awaited for every initialized driver (errors are caught and ignored), then `process.exit(0)`. A second `SIGTERM` after the first completes has no effect (the process is already gone).",
+    "steps": [
+      "Read the Acceptance Check AC-047 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-047",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-047 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-047"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-048",
+    "context": "lifecycle",
+    "category": "functional",
+    "description": "An unhandled error inside a request handler (for example, a driver throws a non-recoverable error during `execute`) is caught at the top of the `onMessage` callback, logged at error with `{ err, requestId }`, and the request is answered with a JSON-RPC error `{ code: -32603, message: <err.message || 'Internal error'> }`. The process stays running and the WS client is not closed.",
+    "steps": [
+      "Read the Acceptance Check AC-048 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-048",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-048 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-048"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-049",
+    "context": "lifecycle",
+    "category": "functional",
+    "description": "A driver that fails to initialize (the `try`/`catch` around the driver construction in `main()`) is logged at error with `{ err, id: resource.id }` and skipped; the relay continues to start with the remaining successfully-initialized drivers and reports them in the next `resource_update` and `list_resources` response. A relay with zero successfully-initialized drivers still starts the WS client and answers `health_check` with an empty array (no resources to check).",
+    "steps": [
+      "Read the Acceptance Check AC-049 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-049",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-049 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-049"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-050",
+    "context": "lifecycle",
+    "category": "functional",
+    "description": "Dev workflow: `npm install` then `npm run dev` (which runs `tsx watch src/index.ts`) starts the relay, watches `src/` for changes, and restarts the process on every save. Build workflow: `npm run build` produces a clean `dist/` tree mirroring `src/`. Run workflow: `npm start` runs `node dist/index.js` against the compiled output.",
+    "steps": [
+      "Read the Acceptance Check AC-050 description in project_specs.xml to understand the contract",
+      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-050",
+      "Execute the documented verification path (commands, env, and inputs from the AC) and observe the expected outcome",
+      "Confirm the output / state matches what AC-050 asserts; record the result for the harness journal"
+    ],
+    "acceptance_checks": [
+      "AC-050"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  }
+]

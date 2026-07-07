@@ -135,6 +135,28 @@ HINDSIGHT_* + minimal app config present).
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
 
+## 2026-07-07T23:41:17.737Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-039
+- Defects: expected `docker compose up -d` to start causeflow-postgres, redis, hindsight, causeflow-api, causeflow-worker; observed main docker-compose.yml (tip a425e3e) defines 0 of causeflow-postgres/causeflow-api/causeflow-worker (`grep -c` = 0) and still ships the old AWS stack (ministack, langfuse, customer-* samples); evidence: main docker-compose.yml services list + `docker compose up -d` fails (samples/marketplace-platform not found), no causeflow-api service exists to serve :3099; expected /health to return {"postgres":"ok","redis":"ok","anthropic":"ok","queues":"ok"} from main's stack; observed the only :3099/health 200 is served by an orphan container from the gen worktree (label com.docker.compose.project.config_files=/home/vinicius/projects/causeflow-ai-wt-core-open-source-local-runtime/core/docker-compose.yml), not from main's compose; main's src/app.ts /health returns AWS shape {status,service,version,commit,timestamp,checks:{dynamodb,redis,sqs,anthropic}}; expected src/shared/config/index.ts to expose CAUSEFLOW_RUNTIME/isOss()/config.postgres and main.ts to skip ensureTable()/seedDevTenants in OSS mode; observed grep CAUSEFLOW_RUNTIME|isOss|config.postgres in config = 0 matches and main.ts still calls ensureTable() (line 26) and seedDevTenants() (line 43) unconditionally → AWS contact at boot; expected PostgresHealthCheck/OssAnthropicHealthCheck/QueuesHealthCheck and OSS bootstrap branch; observed src/shared/infra/health/checks/ contains only dynamodb-check.ts, redis-check.ts, sqs-check.ts, anthropic-check.ts and bootstrap.ts wires DynamoDBHealthCheck/SQSHealthCheck/SQSMessageQueue with no OSS branch; expected .env.example reduced to HINDSIGHT_* + optional ANTHROPIC_API_KEY; observed grep -icE 'AWS_|STRIPE|CLERK|SENTRY|LANGFUSE|SVIX|SLACK|COMPOSIO|MASTRA' .env.example = 29 forbidden matches; evidence: .env.example unchanged from foundation; expected src/workers/investigation-worker.ts OSS standby mode; observed grep standby|isOss|CAUSEFLOW_RUNTIME = 0 matches — worker has no OSS gating
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-039-1-integration_qa.log
+- NextAction: Repair Plan
+
+## 2026-07-07T23:45:30.669Z — Resumed
+
+- WorkItem: WI-AC-039
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-07T23:45:30.688Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-039
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
 ## 2026-07-08T00:10:00Z — Integrated Verification (AC-039)
 
 - Attempt: 1/3
@@ -250,10 +272,17 @@ implementation=false (OSS runtime not on main), qa=false, integration=false.
 `feature_list.json` WI-AC-039 remains
 `implementation:false, qa:false, integration:false, status:integration-failed`.
 
-## 2026-07-07T23:41:17.737Z — Integrated Verification defect
+### Conflict-resolution note (2026-07-08)
 
-- Attempt: 1/3
-- WorkItem: WI-AC-039
-- Defects: expected `docker compose up -d` to start causeflow-postgres, redis, hindsight, causeflow-api, causeflow-worker; observed main docker-compose.yml (tip a425e3e) defines 0 of causeflow-postgres/causeflow-api/causeflow-worker (`grep -c` = 0) and still ships the old AWS stack (ministack, langfuse, customer-* samples); evidence: main docker-compose.yml services list + `docker compose up -d` fails (samples/marketplace-platform not found), no causeflow-api service exists to serve :3099; expected /health to return {"postgres":"ok","redis":"ok","anthropic":"ok","queues":"ok"} from main's stack; observed the only :3099/health 200 is served by an orphan container from the gen worktree (label com.docker.compose.project.config_files=/home/vinicius/projects/causeflow-ai-wt-core-open-source-local-runtime/core/docker-compose.yml), not from main's compose; main's src/app.ts /health returns AWS shape {status,service,version,commit,timestamp,checks:{dynamodb,redis,sqs,anthropic}}; expected src/shared/config/index.ts to expose CAUSEFLOW_RUNTIME/isOss()/config.postgres and main.ts to skip ensureTable()/seedDevTenants in OSS mode; observed grep CAUSEFLOW_RUNTIME|isOss|config.postgres in config = 0 matches and main.ts still calls ensureTable() (line 26) and seedDevTenants() (line 43) unconditionally → AWS contact at boot; expected PostgresHealthCheck/OssAnthropicHealthCheck/QueuesHealthCheck and OSS bootstrap branch; observed src/shared/infra/health/checks/ contains only dynamodb-check.ts, redis-check.ts, sqs-check.ts, anthropic-check.ts and bootstrap.ts wires DynamoDBHealthCheck/SQSHealthCheck/SQSMessageQueue with no OSS branch; expected .env.example reduced to HINDSIGHT_* + optional ANTHROPIC_API_KEY; observed grep -icE 'AWS_|STRIPE|CLERK|SENTRY|LANGFUSE|SVIX|SLACK|COMPOSIO|MASTRA' .env.example = 29 forbidden matches; evidence: .env.example unchanged from foundation; expected src/workers/investigation-worker.ts OSS standby mode; observed grep standby|isOss|CAUSEFLOW_RUNTIME = 0 matches — worker has no OSS gating
-- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-039-1-integration_qa.log
-- NextAction: Repair Plan
+The gen branch's `2026-07-07T23:45:30Z — Resumed` / `Checkpoint ready`
+entries (isolated QA passed) are preserved append-only. The newer defect
+reports above (`2026-07-08T00:10:00Z` and `2026-07-08T00:35:00Z`, both
+integration=false) override that older true flag per the Work Item rule.
+Re-confirmed against current main tip `886a443`:
+`grep -c 'causeflow-postgres|causeflow-api|causeflow-worker' docker-compose.yml`
+→ 0; `grep -c 'CAUSEFLOW_RUNTIME|isOss|config.postgres' src/shared/config/index.ts`
+→ 0; `ls src/shared/infra/health/checks/` → only dynamodb/redis/sqs/anthropic;
+`grep -icE 'AWS_|STRIPE|CLERK|SENTRY|LANGFUSE|SVIX|SLACK|COMPOSIO|MASTRA'
+.env.example` → 29. The OSS runtime is absent from integrated main, so
+AC-039 is not satisfiable. `feature_list.json` WI-AC-039 stays
+`implementation:false, qa:false, integration:false, status:integration-failed`.
