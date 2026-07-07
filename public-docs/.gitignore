@@ -31,3 +31,9 @@ Thumbs.db
 # Drafts
 drafts/
 *.draft.mdx
+
+# Harness runtime state
+.harness/
+harness-progress/
+dev.log
+.mint.pid
