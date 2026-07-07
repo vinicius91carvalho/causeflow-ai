@@ -43,3 +43,17 @@
   - Vitest boundary test added: `complete-profile-handler.test.ts` — when `createTenant` rejects with `CoreApiError(...,403)`, POST returns 200 with `tenantId=org_1` and `provisionTenantDirect` is called once with the expected args.
 - Verification: `tsc --noEmit -p tsconfig.build.json` exit 0; `vitest run --project dashboard` → 163 files / 1073 tests pass; `biome check` clean (auto-fixed formatting).
 - Outcome: PASS — implementation=true.
+
+## 2026-07-07T20:50:00Z — Independent QA (WI-AC-037)
+
+- Role: qa-agent. AcceptanceChecks: AC-037. Port: 5173.
+- AC steps verified independently:
+  1. `grep -rEn "import .* from '@aws-sdk" apps/dashboard/src apps/dashboard/scripts` → exactly two files: `identity/infrastructure/tenant-provisioning-fallback.ts` (DynamoDBClient, BatchWriteCommand, DynamoDBDocumentClient) and `scripts/delete-user.ts` (DynamoDBClient, BatchWriteCommand, DynamoDBDocumentClient, ScanCommand). The fallback's `.test.ts` only references `@aws-sdk/*` via `vi.doMock` (string, not an import). ✓
+  2. `complete-profile-handler.ts` imports `provisionTenantDirect` and calls it on a 403 from `api.createTenant` (CoreApiError status===403 or msg includes '403'), with `tenantId: orgId`. ✓
+  3. `delete-user.ts` gated by `--yes`/`-y`; production additionally requires `ALLOW_PRODUCTION=1`; defaults to DRY RUN. ScanCommand + BatchWriteCommand scoped to tenantId; cancels Stripe customer. ✓
+  4. `apps/dashboard/.env.example` lists NO `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` (grep exit 1). Only `AWS_REGION`/`AWS_REGION_OVERRIDE` (SST-managed region, not a credential). ✓
+  5. DynamoDBClient constructed as `new DynamoDBClient({})` (no static credentials) → default provider chain (env/IMDS/IAM role); runtime never holds AWS credentials. ✓
+  6. `@aws-sdk/client-kms` is a declared dep but has zero import sites in dashboard src/scripts (not a runtime path). ✓
+- Verification: `tsc --noEmit -p tsconfig.build.json` exit 0; `vitest run --project dashboard` → 163 files / 1073 tests pass (includes fallback + complete-profile-handler boundary tests).
+- Runtime smoke: harness bash tool blocks long-running dev servers, so the live /api/health curl could not be re-run in this QA pass; generator's prior boundary evidence (dev server booted on :5173 with AWS env vars unset → /api/health 200) stands, and the AC's steps are entirely static. No defect.
+- Outcome: PASS — qa=true, implementation=true.
