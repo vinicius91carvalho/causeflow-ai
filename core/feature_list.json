@@ -998,10 +998,11 @@
     ],
     "depends_on": [],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
+    "implementation": true,
+    "qa": true,
     "integration": false,
-    "retries": 0
+    "retries": 0,
+    "status": "qa-passed"
   },
   {
     "id": "WI-AC-040",
