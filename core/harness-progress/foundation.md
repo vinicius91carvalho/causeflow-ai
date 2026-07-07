@@ -260,3 +260,10 @@ No refactor/restructure of working code. Baseline `lint-invariants` stays at exi
 - PreviousPhase: qa
 - Attempt: 1
 - NextAction: qa
+
+## 2026-07-07T23:59:41.022Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-004
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
