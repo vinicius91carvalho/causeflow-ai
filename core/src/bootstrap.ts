@@ -86,6 +86,8 @@ import { HealthChecker } from './shared/infra/health/health-checker.js';
 import { DynamoDBHealthCheck } from './shared/infra/health/checks/dynamodb-check.js';
 import { RedisHealthCheck } from './shared/infra/health/checks/redis-check.js';
 import { SQSHealthCheck } from './shared/infra/health/checks/sqs-check.js';
+import { AnthropicHealthCheck } from './shared/infra/health/checks/anthropic-check.js';
+import { CircuitBreaker } from './shared/infra/llm/circuit-breaker.js';
 import { getRedisClient } from './shared/infra/cache/redis-client.js';
 import { DynamoApiKeyRepository } from './modules/tenant/infra/dynamo-api-key.repository.js';
 import { CreateApiKeyUseCase } from './modules/tenant/application/create-api-key.usecase.js';
@@ -967,6 +969,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   healthChecker.register(new DynamoDBHealthCheck());
   healthChecker.register(new RedisHealthCheck(() => getRedisClient()));
   healthChecker.register(new SQSHealthCheck([config.sqs.alertQueueUrl, config.sqs.investigationQueueUrl, config.sqs.remediationQueueUrl]));
+  healthChecker.register(new AnthropicHealthCheck(new CircuitBreaker()));
 
   // === In-Process Fallback (dev without SQS) ===
   // When SQS is not configured, wire EventBus to dispatch the pipeline in-process.

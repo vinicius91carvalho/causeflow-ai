@@ -68,12 +68,18 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
     app.get('/health', async (c) => {
         const result = await ctx.healthChecker.runAll();
         const httpStatus = result.status === 'down' ? 503 : 200;
+        // Per-service health map (e.g. { dynamodb: 'ok', redis: 'ok', sqs: 'ok', anthropic: 'ok' }).
+        // Anthropic reports 'ok' (skipped) when no API key is configured.
+        const checks = Object.fromEntries(
+            (result.checks ?? []).map((check: HealthCheckResult) => [check.name, check.status]),
+        );
         return c.json({
             status: result.status,
             service: 'causeflow',
             version: '0.1.0',
             commit: process.env['APP_VERSION'] ?? 'unknown',
             timestamp: result.timestamp,
+            checks,
         }, httpStatus);
     });
     // Detailed health — protected (requires auth)
