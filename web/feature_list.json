@@ -64,12 +64,14 @@
     ],
     "depends_on": [],
     "verify_first": true,
-    "implementation": false,
+    "implementation": true,
     "qa": false,
     "integration": false,
     "retries": 0,
-    "attempts": 0,
-    "status": "verify-first"
+    "attempts": 1,
+    "status": "implemented",
+    "implemented_at": "2026-07-07T23:20:00Z",
+    "implementation_notes": "Verify-first zero-diff checkpoint: structure verified at real boundaries (dashboard /api/health HTTP 200 exercising shared/api re-export; dashboard compose.test.ts deep-merges all 10 context i18n files; website / HTTP 200 renders i18n via 3-context compose). Dashboard=10 contexts, website=3 contexts, no index.ts barrels, per-context i18n at infrastructure/i18n/{en,pt-br}.json deep-merged by lib/i18n/compose.ts in both apps."
   },
   {
     "id": "WI-AC-033",
