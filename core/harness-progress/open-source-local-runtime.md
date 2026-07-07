@@ -133,3 +133,10 @@ HINDSIGHT_* + minimal app config present).
 - PreviousPhase: integration_qa
 - Attempt: 1
 - NextAction: integration-qa
+
+## 2026-07-07T23:45:30.688Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-039
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
