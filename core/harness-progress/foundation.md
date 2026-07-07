@@ -212,3 +212,29 @@ Note (out of scope, not a defect): the separate dockerized `core-causeflow-api-1
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-003-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-004 — Verify-first (foundation)
+
+**Result: implementation=true**
+
+Boundary exercised at the real CLI boundary (`pnpm lint-invariants` → `infra/scripts/check-invariants.ts`); app also brought up on assigned PORT=5174, `curl /health` → 200 (smoke only; AC-004 boundary is the lint command, not HTTP).
+
+- `pnpm lint-invariants` (baseline) → **exit 0**. `10 passed, 0 failed` (I1–I4, I6–I11; I5 skipped).
+- Manually introduced a forbidden cross-module direct function call (`src/modules/triage/infra/_probe.ts` doing `import { CreateTenantUseCase } from '@modules/tenant/application/...'` and a relative `import { IngestAlertUseCase } from '../../ingestion/application/...'`), re-ran `pnpm lint-invariants` → **exit 1**, `9 passed, 1 failed` with a specific I11 violation message:
+  `FAIL I11 — No cross-module direct function calls (no value imports from another module's application/)` listing each offending file + module pair. Probe file removed afterwards.
+- Regression: `pnpm typecheck` → clean; `pnpm test:run` → 161 files / 1053 tests pass; `pnpm lint-invariants` baseline green after the fix.
+
+### Root-cause fix (smallest diff, 2 tracked files)
+
+The existing code failed AC-004 clause 2 only (clause 1 already passed): `check-invariants.ts` had **no check for cross-module direct function calls**, so introducing one did not fail the command. CLAUDE.md already states `pnpm lint-invariants` enforces I1–I11 incl. "no cross-module direct calls", but the checker never implemented it.
+
+1. **Added `checkI11()` to `infra/scripts/check-invariants.ts`** — walks `src/modules/**/*.ts`, parses imports, and fails on any non-type-only (value) import whose target resolves into another module's `application/` (both `@modules/<mod>/application/...` and relative `../../<mod>/application/...` forms). Type-only imports (`import type ...`, or named bindings whose every binding carries the inline `type` modifier) remain allowed — they emit no runtime call and are used for DI typing (the existing baseline has several such cross-module `import type` use-case imports). Scoped to `application/` (use cases / DTOs) so the existing grandfathered cross-module infra value imports (`LOG_TOOLS`/`clerkGetUserList`) and domain error-class imports do not regress the baseline.
+2. **`INVARIANTS.md`** — documented the new statically-enforced `I11 — No cross-module direct function calls`; renumbered the pre-existing runtime contract "Inconclusive outcome is persisted and emitted" from I11 → I12 (it was already verified by integration test, never by `lint-invariants`, and no code references the I11 number).
+
+No refactor/restructure of working code. Baseline `lint-invariants` stays at exit 0; the AC's violation scenario now exits non-zero with a specific I11 message.
+
+## 2026-07-07T23:51Z — Integrated Verification (AC-004)
+
+- Result: integration=true, implementation=true, qa=true
+- Re-verified on this worktree (PORT=5174 dev server up, `/health` → 200): `pnpm lint-invariants` baseline → exit 0 (10 passed); reintroduced cross-module value import of a use case from another module's `application/` → exit 1 with `FAIL I11 — No cross-module direct function calls ...`. Probe removed; baseline green again.
+- No defects within the AC-004 boundary. integration=true for WI-AC-004.
