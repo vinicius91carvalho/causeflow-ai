@@ -186,3 +186,10 @@ Re-ran independently against the running app in the isolated worktree (real HTTP
 No defects within the AC-003 boundary. PORT=5174 used per harness assignment (spec's literal `:3099` is the known doc drift noted in WI-AC-002; the AC boundary — `/dashboard` returns Alpine+Tailwind+x-data HTML and `/widget/widget.js` returns the Vite bundle as `application/javascript` — passes on the assigned port).
 
 Note (out of scope, not a defect): the separate dockerized `core-causeflow-api-1` container on :3099 returns 500 for `/dashboard` and 401 for `/widget/widget.js` — it runs a stale `node dist/main.js` image predating the AC-003 route fixes and is not the surface under test in this isolated worktree (PORT=5174 dev server is).
+
+## 2026-07-07T23:29:24.027Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
