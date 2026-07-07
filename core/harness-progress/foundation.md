@@ -97,3 +97,18 @@ No refactor/restructure of working code. `.env.dev` and `node_modules` are local
 ### Out of scope
 
 AC-002's literal text says `curl http://localhost:3099/health` (default 3099); the harness assigned PORT=5170, so the boundary was exercised on 5170 per the "bring up the app on the assigned ports" instruction. The config default remains 3000 (config wins); the "default 3099" wording in the spec is a doc drift not addressed here per the no-restructure rule — the AC's actual boundary (Hono listens on PORT within 10s + /health 200 with the four-service body) passes on the assigned port.
+
+## QA pass — AC-002 (independent re-test)
+
+**Result: qa=true, implementation=true**
+
+Re-ran independently against the running stack in the isolated worktree (real HTTP on PORT=5170).
+
+- Killed the prior `tsx watch` instance; started a fresh `pnpm dev` (uses `.env.dev` with `PORT=5170`, `ANTHROPIC_API_KEY=` empty).
+- Hono API listening on PORT=5170 within **~3.3s** (well under 10s). Log: `CauseFlow is running` / `port: 5170`.
+- `curl http://localhost:5170/health` → **HTTP 200** in ~17ms.
+- Body: `{"status":"ok","service":"causeflow","version":"0.1.0","commit":"unknown","timestamp":"...","checks":{"dynamodb":"ok","redis":"ok","sqs":"ok","anthropic":"ok"}}` — lists exactly `{dynamodb: ok, redis: ok, sqs: ok, anthropic: ok}`.
+- Anthropic check returns `ok` (skipped) because `ANTHROPIC_API_KEY` is empty (verified `anthropic-check.ts` returns `details.skipped=true`).
+- Dependencies healthy: ministack :4566, redis :6379 both up (DynamoDB/Redis/SQS checks `ok` backed by real services).
+
+No defects found within the AC-002 boundary. PORT=5170 used per harness assignment (spec's "default 3099" wording is the same doc drift noted in the verify-first pass; the AC boundary — Hono listens on the assigned PORT within 10s and /health returns 200 with the four-service body — passes).
