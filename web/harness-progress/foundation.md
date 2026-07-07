@@ -133,3 +133,10 @@ Functional bootstrap is intact; the only defect was the literal AC-001 wording. 
 All three amended AC-001 steps pass at the real external boundary (`pnpm install` / `pnpm install --frozen-lockfile` against the committed `pnpm-lock.yaml`). Functional bootstrap is intact, idempotent, and zero-diff. No defects found.
 
 qa=true, implementation=true for WI-AC-001.
+
+## 2026-07-07T23:22:51.553Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-001
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
