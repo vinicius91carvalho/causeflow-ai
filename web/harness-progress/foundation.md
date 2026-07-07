@@ -161,3 +161,12 @@ Real external boundary: `pnpm install` / `pnpm install --frozen-lockfile` agains
 ### Verdict
 
 All AC-001 steps pass at the real external boundary. Functional bootstrap is intact, idempotent, and zero-diff. No defects. integration=true for WI-AC-001.
+
+## 2026-07-07T23:27:27.394Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-001
+- AcceptanceChecks: AC-001
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-2-integration_qa.log
+- NextAction: next Ready Work Item
