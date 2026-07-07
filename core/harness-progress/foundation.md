@@ -135,3 +135,12 @@ Re-verified against integrated main (commit 3181d08, branch `main`) on PORT=5170
 - Smoke: `GET /dashboard` → 200 `text/html`; auth-gated `/api/v1/whoami` → 401 (no bearer) — app is genuinely serving HTTP.
 
 No defects within the AC-002 boundary. integration=true set for WI-AC-002. PORT=5170 used per harness assignment (spec's "default 3099" is the known doc drift; the AC boundary — Hono listens on the assigned PORT within 10s and /health returns 200 with the four-service body — passes on main).
+
+## 2026-07-07T23:11:19.954Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-002
+- AcceptanceChecks: AC-002
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-002-1-integration_qa.log
+- NextAction: next Ready Work Item
