@@ -1,0 +1,774 @@
+<project_specification>
+  <project_name>causeflow-core</project_name>
+  <mode>existing-codebase</mode>
+
+  <project_goal>
+    When a third-party alert webhook (Datadog / Grafana / CloudWatch / Sentry) is received for a tenant, CauseFlow ingests it, dedups it, runs Sonnet-powered AI triage to assign a severity, kicks off a multi-agent investigation (logs, metrics, change, code, infra, DB) that produces a hypothesis tree, proposes a remediation plan, waits for a human to approve it, then executes the plan against the customer's AWS account (ECS / EC2 / SSM / Lambda / PR / rollback) with full audit hashing, progress streamed live over SSE, and the resulting runbook written back to the tenant's Hindsight long-term memory.
+  </project_goal>
+
+  <overview>
+    CauseFlow is the AI SRE control plane for engineering teams. It is delivered as a modular monolith (Modlito) in a single Node.js 22 process: 15 Clean Architecture modules, 17 port interfaces, 31 ElectroDB entities on a single DynamoDB table, 4 SQS queues with 4 DLQs, Redis 7 for cache + pub/sub, an Alpine.js + Tailwind SPA served by Hono at `/dashboard`, and an embeddable widget bundle. Customers onboard via Clerk-authenticated signup, pick a Stripe plan, install the relay into their own VPC, and from then on the platform triages every alert, runs an investigation, and presents a remediation plan ready for human approval. The investigation pipeline routes cheap questions to Haiku (logs, metrics) and expensive synthesis to Sonnet, costing roughly $0.70 per investigation with per-agent Langfuse traces. The platform is deployed as a control-plane API plus an investigation ECS worker; the relay (a separate git submodule) lives in the customer's network and brokers DB / Mongo / log access back to the control plane over an authenticated WSS tunnel.
+  </overview>
+
+  <technology_stack>
+    <general>
+      Monorepo-style single project (this is the `core` project of the `causeflow-ai` workspace, alongside the `relay` git submodule registered separately in `.harness/projects.json`). Modular monolith deployed as a single Node.js 22 process with 15 Clean Architecture modules under `src/modules/`. Strict layer rule: Infra → Application → Domain; Domain is pure TypeScript types with zero external imports. Cross-module communication is restricted to (1) the in-process EventBus pub/sub and (2) type imports from another module's `domain/` only. Composition root is `src/bootstrap.ts`. pnpm workspace (`packageManager: pnpm@9.15.0`, enforced via corepack in Dockerfile). Two entry binaries: the API at `src/main.ts` (built to `dist/main.js`, run as `node dist/main.js`) and the investigation worker at `src/workers/investigation-worker.ts` (built to `dist/workers/investigation-worker.js`). Graceful shutdown is wired in `src/lifecycle.ts`. Conventional Commits; ESLint + Prettier; invariant linter (`pnpm lint-invariants` → `infra/scripts/check-invariants.ts`) enforces I1–I11.
+
+      Runtime and framework stack: Hono (4.x) with @hono/node-server (HTTP adapter that boots the API in src/main.ts) and @hono/zod-validator (request validation). TypeScript ^5.7. Structured JSON logging via pino (+ pino-pretty in dev). JWT verification via jose.
+
+      Persistence and cache: ElectroDB ^2.14 over a single DynamoDB table (31 entities, 3 GSIs, PITR). Redis 7 client via ioredis 5.4 (`src/shared/infra/cache/redis-client.ts`).
+
+      Queues and pub/sub: SQS Client / Consumer / DLQ Redriver (`src/shared/infra/queue/{sqs-client,sqs-consumer,sqs-message-queue,dlq-redriver}.ts`), an in-process EventBus (`src/shared/domain/events.ts`, consumed by `src/shared/infra/pubsub/progress-consumer.ts`), a Redis PubSub adapter (`src/shared/infra/pubsub/redis-pubsub.ts`), and an SQS Progress Publisher (`src/shared/infra/pubsub/sqs-progress.ts`).
+
+      AI and agent runners: PTC Anthropic Agent Runner (`src/shared/infra/llm/anthropic-ptc-agent-runner.ts` + `src/shared/infra/llm/enhanced-ptc-runner.ts`), a plain Anthropic Agent Runner that wraps the LLMClient port (`src/shared/infra/llm/anthropic-agent-runner.ts`), and a Mastra Agent Runner (`src/shared/infra/llm/mastra-agent-runner.ts` + `mastra-tool-adapter.ts`).
+
+      Cloud and credentials: a Stub Cloud Provider used in dev/test (`src/shared/infra/cloud/stub-cloud-provider.ts`), an AWS Cloud Provider (`src/shared/infra/cloud/aws-cloud-provider.ts`), an Azure Cloud Provider Stub placeholder (`src/shared/infra/cloud/azure-cloud-provider-stub.ts`). An STS Credential Vendor (`src/shared/infra/credentials/sts-credential-vendor.ts` + `role-policy-builder.ts`) with a Stub Credential Vendor for tests (`stub-credential-vendor.ts`) and KMS Token Encryption for stored customer tokens (`kms-token-encryption.ts`).
+
+      ECS dispatch and the Relay tunnel: an ECS Investigation Task Dispatcher (`src/shared/infra/ecs/ecs-client.ts` + `src/shared/infra/ecs/task-dispatcher.ts`) launches each investigation as an ECS task. The Relay WSS Gateway (`src/shared/infra/relay/relay-ws-server.ts` + `relay-registry.ts` + `relay-auth.ts` + `relay-protocol.ts` + `relay-gateway.ts`) accepts tunneled connections from the customer-side relay submodule.
+
+      Live streaming: an SSE Manager (`src/shared/infra/chat/sse-manager.ts`) for per-investigation progress; a cost tracking module (`src/shared/domain/cost.ts`) enforces a per-investigation ceiling.
+
+      HTTP middleware: Tenant middleware (`src/shared/infra/http/middleware/tenant.middleware.ts` + `rate-limit.middleware.ts`), Auth middleware (`auth.middleware.ts`), RBAC middleware (`rbac.middleware.ts` + `staff.middleware.ts`), Webhook HMAC middleware (`webhook-auth.middleware.ts`), Audit middleware (`audit.middleware.ts`), Request logger middleware (`request-logger.middleware.ts`), and Widget auth + CORS middleware (`widget-auth.middleware.ts` + `widget-cors.middleware.ts`).
+
+      Operations: a HealthChecker (`src/shared/infra/health/health-checker.ts` + per-dependency checks at `src/shared/infra/health/checks/{dynamodb-check,redis-check,sqs-check,anthropic-check}.ts`), an Invariant linter (`infra/scripts/check-invariants.ts` + `INVARIANTS.md`), and an In-process scheduler (`src/shared/infra/scheduler/scheduler.ts`).
+
+      Push: Web Push (VAPID) for end-user browser notifications; the `web-push` library is the runtime dep and the VAPID keys live in `.env.example`.
+
+      Observability: OpenTelemetry SDK (api, sdk-node, exporter-trace-otlp-proto, auto-instrumentations-node, AWS X-Ray id generator + propagator) initialised in `src/shared/infra/observability/otel.ts`.
+
+      Testing: Vitest (^2.1) as the runner; `aws-sdk-client-mock` for AWS SDK stubbing; Promptfoo (^0.120) for LLM eval suites.
+    </general>
+    <frontend>
+      <framework>Single-page Alpine.js + Tailwind application (`core/dashboard/index.html`) served by Hono at `/dashboard`; internal embeddable widget built with Vite at `core/packages/widget/`</framework>
+      <styling>Tailwind CSS (bundled in the dashboard HTML and in the widget Vite build); no separate component library — small set of utility-classed Alpine components</styling>
+      <state_management>Alpine.js reactive stores + Hono SSE for live progress streams; no Redux/MobX/Vuex</state_management>
+      <routing>Client-side hash routing in the dashboard SPA; Hono server routes serve JSON APIs and the single `index.html` shell</routing>
+      <port>Launch the dashboard and widget on the same PORT env var as the API; dashboard served at `/dashboard`, widget bundle served from `/widget/`, widget embed endpoint at `/embed/</port>
+      <patterns>Single-file Alpine SPA — no per-component build step. Widget is a Vite library build consumed via script tag.</patterns>
+    </frontend>
+    <backend>
+      <runtime>Node.js 22 (>=22.0.0) + TypeScript ^5.7 + Hono ^4.6 + @hono/node-server + @hono/zod-validator</runtime>
+      <database>Single DynamoDB table with ElectroDB ^2.14; 31 entities; 3 GSIs; PITR enabled. Local replacement: nahuelnucera/ministack on :4566. See `database_schema` for the full list.</database>
+      <port>Launch the API on the PORT env var (default 3099); investigation worker runs as a separate `node dist/workers/investigation-worker.js` process. The control plane also exposes `/v1/relay/connect` (WSS) for the relay gateway on the same port.</port>
+      <patterns>Clean Architecture (Domain / Application / Infra) per module, dependency rule Infra → Application → Domain, ports & adapters with 17 port interfaces in `src/shared/application/ports/`, EventBus for cross-module events, composition root at `src/bootstrap.ts`. Strict invariants: I1–I11 enforced by `pnpm lint-invariants`.</patterns>
+    </backend>
+    <communication>
+      REST/JSON over Hono for all `/api/v1/...` routes. SSE (Hono streaming) for live progress on investigations, triage and remediation (`src/shared/infra/chat/sse-manager.ts`). WSS gateway at `/v1/relay/connect` for relay tunnels (`src/shared/infra/relay/relay-ws-server.ts`). Internal cross-module events via the in-process EventBus (`src/shared/domain/event-bus.ts`). SQS for durable async work (4 queues + 4 DLQs in `infra/localstack/init/01-create-resources.sh`); Redis pub/sub (`src/shared/infra/pubsub/redis-pubsub.ts`) for low-latency progress fan-out; an SQS progress publisher (`src/shared/infra/pubsub/sqs-progress.ts`) for durable replay. Outbound: Clerk JWT verification, Stripe webhooks, Composio triggers + tools, Slack Web API, Svix for outbound webhooks, Sentry for error capture, Langfuse for AI traces, Hindsight for long-term agent memory.
+    </communication>
+  </technology_stack>
+
+  <integrations>
+    <integration name="AWS SDK v3 (DynamoDB / DocumentClient)">
+      <responsibility>Persistence layer: every entity read/write goes through ElectroDB over @aws-sdk/client-dynamodb and @aws-sdk/lib-dynamodb. Single-table design with 3 GSIs; PITR enabled.</responsibility>
+      <availability>required</availability>
+      <configuration>AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY (or IAM role in prod). Table name via env (causeflow local table created by `infra/localstack/init/01-create-resources.sh`). Endpoint override (DYNAMODB_ENDPOINT) for ministack dev.</configuration>
+      <security>IAM role per environment; tenant isolation enforced at the application layer via composite SK prefixes; per-tenant key scoping inside every ElectroDB query. No cross-tenant queries possible without a deliberate PK rewrite.</security>
+      <failure_behavior>Retries with exponential backoff via the AWS SDK defaults. Health check at `/health` via `src/shared/infra/health/checks/dynamodb-check.ts`. Tables not yet ready surface as 503.</failure_behavior>
+      <deployment>Production: real DynamoDB on the customer's account or CauseFlow's account depending on tenant model. Local: nahuelnucera/ministack on :4566, initialized by the localstack init script.</deployment>
+      <affected_surfaces>All 15 modules (every module has at least one repository)</affected_surfaces>
+    </integration>
+    <integration name="AWS SDK v3 (SQS / STS / KMS)">
+      <responsibility>SQS: durable async queues (4 queues + 4 DLQs for alerts / triage / investigation / remediation + their DLQs). STS: assume-role for cross-account credential vending. KMS: envelope encryption for stored customer tokens at rest.</responsibility>
+      <availability>required</availability>
+      <configuration>Queue URLs and ARNs wired in bootstrap; KMS alias `alias/causeflow-token-encryption` created by the localstack init script. STS roles are provisioned per tenant on connect.</configuration>
+      <security>STS session policies restricted to the tenant's account and the actions needed for remediation; KMS grants scoped to the alias and the control-plane role. Token ciphertext stored in DynamoDB; never plaintext.</security>
+      <failure_behavior>SQS retries with visibility timeout + DLQ; DLQ redriver at `src/shared/infra/queue/dlq-redriver.ts` for ops to replay poison messages. KMS failures surface as 5xx on the affected API route.</failure_behavior>
+      <deployment>Production: real SQS/STS/KMS. Local: ministack (LocalStack-compatible).</deployment>
+      <affected_surfaces>Ingestion (alerts), Triage, Investigation (worker pulls), Remediation (worker pulls), Credentials (STS + KMS).</affected_surfaces>
+    </integration>
+    <integration name="AWS SDK v3 (CloudWatch / CloudWatch Logs / CloudTrail)">
+      <responsibility>CloudWatch Logs: the AWS provider pulls log streams for the investigation log agent. CloudWatch Metrics: the metrics agent queries customer-side metrics. CloudTrail: change-event correlation during investigations.</responsibility>
+      <availability>required</availability>
+      <configuration>Endpoint override (CW_ENDPOINT) for local dev; region + role assumption. Log group patterns configurable per tenant.</configuration>
+      <security>Access is mediated through the STS credential vendor so the control plane only ever assumes the customer-managed role with session policy.</security>
+      <failure_behavior>Per-call retry with circuit breaker (`src/shared/infra/llm/circuit-breaker.ts` re-used for AWS calls). Health check included via the Anthropic-style checks pattern.</failure_behavior>
+      <deployment>Production: real CloudWatch via assumed role. Local: ministack returns canned responses.</deployment>
+      <affected_surfaces>Investigation (log + metric + change agents), Remediation (verifies rollback outcomes).</affected_surfaces>
+    </integration>
+    <integration name="AWS SDK v3 (ECS / EC2 / EKS / ELBv2 / ElastiCache)">
+      <responsibility>ECS: investigation task dispatcher (`src/shared/infra/ecs/task-dispatcher.ts`) runs each investigation as an ECS task. EC2 / EKS: list, inspect, restart. ELBv2: target group re-drain. ElastiCache: cache state read.</responsibility>
+      <availability>required for investigation + remediation; some clients only used for inspection</availability>
+      <configuration>Region, assumed role, ECS cluster + task definition ARNs. Task definition is built by `infra/cdk/lib/causeflow-stack.ts`.</configuration>
+      <security>All calls go through the per-tenant STS role; no static credentials in the control plane.</security>
+      <failure_behavior>ECS task failures (exit non-zero) raise an investigation failure event; remediation rollbacks re-run on the next attempt.</failure_behavior>
+      <deployment>Production: real ECS cluster on CauseFlow's account. Local: stubbed via `src/shared/infra/cloud/stub-cloud-provider.ts`.</deployment>
+      <affected_surfaces>Investigation (dispatcher), Remediation (execute on ECS/EC2/EKS), Cloud provider port (`src/shared/infra/cloud/aws-cloud-provider.ts`).</affected_surfaces>
+    </integration>
+    <integration name="AWS SDK v3 (Lambda / SSM / EventBridge / SNS / RDS / Route53 / S3 / ApiGateway / ApiGatewayV2 / CloudFront / CodeCommit)">
+      <responsibility>Remediation executors: invoke a Lambda, run an SSM document, publish an EventBridge event, send an SNS notification, restart an RDS instance, change a Route53 record, roll back an S3 object, redeploy via API Gateway / CloudFront, open a CodeCommit PR.</responsibility>
+      <availability>required for remediation actions; some are feature-flagged per tenant</availability>
+      <configuration>Region + assumed role for each executor; per-action toggles in the tenant settings.</configuration>
+      <security>Per-tenant assumed role with action-scoped session policy. Each action is previewed and human-approved before execution.</security>
+      <failure_behavior>Per-action retry; failure raises a remediation_failed event and rolls back where possible. Each action logged in the audit chain.</failure_behavior>
+      <deployment>Production: real AWS accounts. Local: stub cloud provider returns deterministic mock results.</deployment>
+      <affected_surfaces>Remediation module executors, Cloud provider port.</affected_surfaces>
+    </integration>
+    <integration name="Clerk">
+      <responsibility>Authentication: signup, sign-in, session, organization (tenant) management, JWT issuance. Verifies JWTs on every authenticated Hono route.</responsibility>
+      <availability>required</availability>
+      <configuration>CLERK_SECRET_KEY, CLERK_PUBLISHABLE_KEY, CLERK_JWT_KEY (configured in `src/shared/config/index.ts`). Webhook signing secret for user.created / user.updated events.</configuration>
+      <security>Bearer JWTs validated by `src/shared/infra/http/middleware/auth.middleware.ts`; tenant extracted via `src/shared/infra/http/middleware/tenant.middleware.ts`; RBAC via `rbac.middleware.ts` + `staff.middleware.ts`.</security>
+      <failure_behavior>Missing / invalid / expired token → 401. Stale Clerk user → re-sync on next request.</failure_behavior>
+      <deployment>Production: real Clerk. Local: dev Clerk instance (the .env.localstack disables Clerk).</deployment>
+      <affected_surfaces>Auth module, all authenticated Hono routes, webhook ingest for user lifecycle.</affected_surfaces>
+    </integration>
+    <integration name="Stripe">
+      <responsibility>Billing: plan selection on signup, metered usage, subscription state, invoice webhooks, dunning.</responsibility>
+      <availability>required</availability>
+      <configuration>STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PRICE_* IDs. Webhook endpoint at `/api/v1/billing/webhook` verified by signature.</configuration>
+      <security>Webhook signature verification (HMAC) at the route layer; never trust client-supplied price IDs.</security>
+      <failure_behavior>Webhook delivery retries automatically; signature failure → 400; missing customer → 404. Usage records reconciled nightly.</failure_behavior>
+      <deployment>Production: real Stripe. Local / E2E: stripe-mock or test mode keys in `.env.e2e`.</deployment>
+      <affected_surfaces>Billing module (`src/modules/billing/`), tenant signup flow, plan-gated features.</affected_surfaces>
+    </integration>
+    <integration name="Composio">
+      <responsibility>Third-party tool + trigger layer: Composio clients (GitHub, Linear, Notion, PagerDuty, etc.) wired as triggers and tools available to the investigation and remediation agents.</responsibility>
+      <availability>required for non-AWS tooling (GitHub, Linear, PagerDuty, Notion)</availability>
+      <configuration>COMPOSIO_API_KEY; per-user OAuth handled by Composio's hosted flow. Tool selection via trigger IDs at `src/shared/infra/integrations/composio-tool-provider.ts`.</configuration>
+      <security>Per-tenant OAuth tokens stored encrypted via KMS token encryption; Composio client (`composio-client.ts`) is the only call site.</security>
+      <failure_behavior>Tool call failures bubble back to the agent as observed tool errors; trigger subscription failures retry with backoff.</failure_behavior>
+      <deployment>Production: real Composio. Local: stubbed via test fixtures in `tests/fixtures/`.</deployment>
+      <affected_surfaces>Integration module (`src/modules/integration/`), investigation agents, remediation executors.</affected_surfaces>
+    </integration>
+    <integration name="Slack Web API">
+      <responsibility>Two-way chat with on-call: the investigation chat panel can post updates and thread replies into a Slack channel, and the user can drive the investigation from Slack via slash-style commands.</responsibility>
+      <availability>optional per tenant (installed via OAuth)</availability>
+      <configuration>SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET; OAuth state in `SlackOAuthStateEntity.ts`; per-tenant settings store the channel mapping.</configuration>
+      <security>Slack signing secret used to verify inbound events; bot token scoped to the channels the user authorized.</security>
+      <failure_behavior>Slack API failures don't block investigations — they degrade the chat surface and log a Sentry error.</failure_behavior>
+      <deployment>Production: real Slack workspace. Local: `stub-chat-platform.ts` for tests; manual install via `src/modules/integration/infra/slack.routes.ts`.</deployment>
+      <affected_surfaces>Integration module (slack routes), chat platform port, notification module.</affected_surfaces>
+    </integration>
+    <integration name="Svix">
+      <responsibility>Outbound webhook delivery to customer-configured HTTP endpoints (e.g. "investigation.completed", "remediation.executed"). Handles retries, signing, and delivery guarantees.</responsibility>
+      <availability>required</availability>
+      <configuration>SVIX_API_KEY, SVIX_APP_ID; endpoints registered per tenant in `IntegrationEntity.ts`.</configuration>
+      <security>Each outbound webhook signed with a per-endpoint HMAC secret; recipients verify via Svix-standard headers.</security>
+      <failure_behavior>Retries with exponential backoff managed by Svix; failed deliveries surface in the audit module.</failure_behavior>
+      <deployment>Production: real Svix. Local / E2E: Svix local (in docker-compose).</deployment>
+      <affected_surfaces>Integration module (webhook dispatch), audit module (delivery status).</affected_surfaces>
+    </integration>
+    <integration name="Sentry">
+      <responsibility>Error and exception capture across the API and worker. PII stripped before send.</responsibility>
+      <availability>required</availability>
+      <configuration>SENTRY_DSN, SENTRY_TRACES_SAMPLE_RATE, SENTRY_ENVIRONMENT; initialized in `src/shared/infra/observability/sentry.ts`.</configuration>
+      <security>PII scrubbing enabled; source maps uploaded only for tagged releases; never logs raw tokens or customer data.</security>
+      <failure_behavior>Send failures swallowed silently so observability never takes down the request path.</failure_behavior>
+      <deployment>Production: real Sentry project. Local: SENTRY_DSN empty → no-op.</deployment>
+      <affected_surfaces>API, worker, both error handlers and the global error middleware.</affected_surfaces>
+    </integration>
+    <integration name="Langfuse">
+      <responsibility>AI observability: per-agent traces (prompts, completions, tool calls, token counts, cost, latency) are recorded against the investigation ID. Includes a metric recorder for the cost ceiling.</responsibility>
+      <availability>required</availability>
+      <configuration>LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY, LANGFUSE_BASE_URL (local: http://localhost:3001 in docker-compose). Tracer at `src/shared/infra/observability/langfuse-tracer.ts`, metric recorder at `langfuse-metric-recorder.ts`. Mastra integration via `@mastra/langfuse`.</configuration>
+      <security>API keys scoped to the CauseFlow org in Langfuse; tenant ID passed as a Langfuse tag so traces are filterable per tenant.</security>
+      <failure_behavior>Trace send failures are buffered and dropped after a TTL — never block an agent call.</failure_behavior>
+      <deployment>Production: Langfuse Cloud or self-hosted. Local: langfuse + postgres in docker-compose.</deployment>
+      <affected_surfaces>All agents (log / metric / change / code / infra / DB analysts + synthesis), cost tracking.</affected_surfaces>
+    </integration>
+    <integration name="Hindsight">
+      <responsibility>Long-term agent memory. After every investigation, the resolved hypothesis + runbook is written to the tenant's Hindsight bank. New investigations query the bank for similar past incidents.</responsibility>
+      <availability>required</availability>
+      <configuration>HINDSIGHT_API_URL (local: http://localhost:8888), HINDSIGHT_API_KEY. Adapter at `src/shared/infra/memory/hindsight-agent-memory.ts`; docker-compose also spins up the `hindsight` container (ghcr.io/vectorize-io/hindsight:latest).</configuration>
+      <security>Per-tenant bank; the bank ID is derived from the tenant ID so cross-tenant recall is impossible at the data layer.</security>
+      <failure_behavior>Memory writes are best-effort post-success — failure does not fail the investigation. Recall failures fall back to "no prior context".</failure_behavior>
+      <deployment>Production: Hindsight Cloud (or self-hosted). Local: vectorize-io/hindsight container.</deployment>
+      <affected_surfaces>Memory module, investigation post-success hook, code-intelligence module (recall for similar code patterns).</affected_surfaces>
+    </integration>
+    <integration name="Anthropic API">
+      <responsibility>Claude model access. Two SDKs are used: `@anthropic-ai/sdk` for direct calls and `@ai-sdk/anthropic` for the agent / streaming use cases. The Anthropic client is at `src/shared/infra/llm/anthropic-client.ts`.</responsibility>
+      <availability>required</availability>
+      <configuration>ANTHROPIC_API_KEY. Model slots: ANTHROPIC_TRIAGE_MODEL, ANTHROPIC_INVESTIGATION_MODEL, ANTHROPIC_SYNTHESIS_MODEL, ANTHROPIC_SEEKER_MODEL, ANTHROPIC_INFRA_INSPECTOR_MODEL, AGENT_MODEL_CODE_FIXER, ANTHROPIC_DB_ANALYST_MODEL, ANTHROPIC_ORCHESTRATOR_MODEL, ANTHROPIC_FOLLOWUP_MODEL. Defaults: claude-sonnet-4-6 in `src/shared/config/index.ts` (config wins — .env.example is pinned to an older snapshot).</configuration>
+      <security>API key from env / secret store; no per-tenant keys. All calls traced through Langfuse with tenant tag.</security>
+      <failure_behavior>Circuit breaker (`src/shared/infra/llm/circuit-breaker.ts`) opens after repeated failures; observability via the Anthropic health check at `src/shared/infra/health/checks/anthropic-check.ts`.</failure_behavior>
+      <deployment>Production: real Anthropic API. Local: real API key in .env.dev; tests stub the LLM client port.</deployment>
+      <affected_surfaces>All agents, triage, code fixer, synthesis, follow-up.</affected_surfaces>
+    </integration>
+    <integration name="Mastra">
+      <responsibility>Optional agent framework. When enabled, the Mastra agent runner (`src/shared/infra/llm/mastra-agent-runner.ts`) wraps Claude calls in Mastra's tool-calling + memory primitives. Integrates with @mastra/dynamodb, @mastra/langfuse, @mastra/memory, @mastra/observability.</responsibility>
+      <availability>feature-flagged</availability>
+      <configuration>MASTRA_ENABLED flag; otherwise the Anthropic agent runner is used directly.</configuration>
+      <security>Same auth surface as Anthropic API; Mastra tools go through the Composio tool provider.</security>
+      <failure_behavior>Runner-level retries; failure falls back to the Anthropic agent runner when the flag is off.</failure_behavior>
+      <deployment>Production: same as Anthropic. Local: in-process; no separate deployment.</deployment>
+      <affected_surfaces>Investigation agents, agent-runner port (`src/shared/application/ports/agent-runner.port.ts`).</affected_surfaces>
+    </integration>
+    <contradictions>
+      The causeflow-core documentation drifts from the implementation in five known places. The implementation is treated as authoritative, and the spec states the actual numbers / values:
+      (1) 31 ElectroDB entities in the spec; docs are stale — CLAUDE.md and README both still say 28.
+      (2) 17 ports in the spec; docs are stale — CLAUDE.md says 16.
+      (3) config wins (current implementation) — claude-sonnet-4-6 is the live default; .env.example is a pinned older snapshot (says claude-sonnet-4-5-20250929).
+      (4) config wins for runtime default (sa-east-1); .envrc is the per-developer shell override; .env.example is documentation (concretely: config wins for runtime default (sa-east-1); .envrc is the per-developer shell override; .env.example is documentation, and the documented AWS region variants are us-east-1 in .env.example, us-east-2 in .envrc, sa-east-1 in src/shared/config/index.ts).
+      (5) ministack is the actual local image — docker-compose.yml uses nahuelnucera/ministack, not vanilla localstack; the README/CLAUDE.md still call it "LocalStack". Concretely: ministack is the actual local image; document names diverged from implementation (the docs say "LocalStack" but the image and the env var name are both "ministack").
+    </contradictions>
+  </integrations>
+
+  <prerequisites>
+    <environment_setup>
+      Node.js 22 (`engines.node: ">=22.0.0"`, Dockerfile `FROM node:22-bookworm-slim`). pnpm 9.15.0 enforced via `packageManager: pnpm@9.15.0` and corepack in the Dockerfile. Docker + Docker Compose for the local stack: `docker-compose up -d` brings up:
+      - DynamoDB Local / ministack (LocalStack) on :4566 — note: the actual image is `nahuelnucera/ministack`, not vanilla `localstack`; it bundles DynamoDB Local + SQS + STS + KMS + CloudWatch + ECR. The init script `infra/localstack/init/01-create-resources.sh` creates the SQS / STS / KMS / CloudWatch artefacts (causeflow DynamoDB table with PITR + 3 GSIs, 4 SQS queues + 4 DLQs, KMS alias `alias/causeflow-token-encryption`);
+      - Redis 7 Alpine on :6379;
+      - Langfuse (local) on :3001 — `langfuse/langfuse:2` + `langfuse-worker` with postgres:16-alpine on :5432;
+      - ghcr.io/vectorize-io/hindsight:latest on :8888/:9999;
+      - plus a set of customer sample services (order, payment, billing, notification, marketplace catalog/order/fulfillment) used for end-to-end investigation scenarios;
+      - and a `causeflow-relay` container that builds `core/relay` and connects back to the control plane over WSS.
+      Local env files: `.env.example` (documentation, pinned older defaults), `.env.localstack` (overrides for ministack), `.env.e2e` (E2E), `.env.smoke` (smoke), `.envrc` (per-developer shell — us-east-2). Env files: .env.example, .env.localstack, .env.e2e, .env.smoke, .envrc are the canonical local config bundle. Dev entrypoint: `pnpm dev` runs `tsx watch --env-file=.env.dev src/main.ts`. Lint, typecheck, unit tests, integration tests, and invariant check are all first-class scripts: `pnpm lint`, `pnpm typecheck`, `pnpm test:run`, `pnpm test:integration`, `pnpm test:e2e`, `pnpm test:smoke`, `pnpm test:eval`, `pnpm lint-invariants`. Deploy uses AWS CDK (`infra/cdk/package.json`, stacks at `infra/cdk/lib/bootstrap-stack.ts` and `infra/cdk/lib/causeflow-stack.ts`). CI is GitHub Actions (`.github/workflows/ci.yml`, `deploy.yml`, `eval.yml`). The `relay/` subdirectory is a separate git submodule registered in `.harness/projects.json` and is not part of `core`'s Work Items.
+    </environment_setup>
+  </prerequisites>
+
+  <core_features>
+    <foundation>
+      - docker-compose up -d brings up ministack, redis, langfuse, hindsight and the customer sample services; the localstack init script creates the table + queues + DLQs + KMS alias
+      - pnpm dev starts the Hono API on PORT (default 3099) and the dashboard is served at /dashboard; widget bundle at /widget/
+      - The /health endpoint reports DynamoDB, Redis, SQS and Anthropic reachability via HealthChecker
+      - 31 ElectroDB entities (more than the 28 in the docs) live in src/shared/infra/db/entities/ and are registered through a single DynamoDB table with 3 GSIs and PITR
+      - 17 application ports in src/shared/application/ports/ implement the dependency-inversion boundary (LLM, queue, cache, cloud, credentials, memory, chat, integration, relay, observability, tracer, metric, agent, token-encryption, code-repository, alert-source, trigger)
+      - The composition root src/bootstrap.ts is the only place concrete implementations are wired to abstractions
+      - pnpm lint-invariants enforces I1–I11 (no cross-module direct calls, no infra-in-domain, no hard-coded secrets, etc.)
+      - A per-investigation cost ceiling is enforced via src/shared/domain/cost.ts; Langfuse records the spend per agent
+      - Graceful shutdown of the API and worker is implemented in src/lifecycle.ts (drains in-flight requests, drains SQS consumers, flushes observability buffers)
+    </foundation>
+    <tenancy-and-access>
+      - Tenant model: every entity carries a tenantId PK prefix; tenant middleware sets the request context from the JWT and the path
+      - Clerk is the identity provider; signup creates a tenant and a billing account in one transaction
+      - RBAC roles: owner, admin, member, viewer; staff (CauseFlow employees) get a parallel role checked by staff.middleware.ts
+      - API keys for programmatic access are issued by api-key.routes.ts and scoped per-tenant
+      - Beta allowlist gates tenants into feature flags via beta-allowlist.routes.ts
+      - Audit middleware hashes every state-changing request into the audit hash chain; audit.routes.ts exposes the chain for review
+      - User settings (timezone, notification preferences, theme) stored in UserSettingsEntity
+      - Invites: an owner can invite by email; InviteEntity tracks pending invites
+    </tenancy-and-access>
+    <billing>
+      - Stripe plan selection on signup (free / pro / enterprise)
+      - Metered usage records persisted in UsageRecordEntity (per-investigation, per-remediation, per-agent-call)
+      - Stripe webhook endpoint at /api/v1/billing/webhook (signature-verified)
+      - Invoice list, current subscription, and plan-change endpoints under /api/v1/billing/*
+      - Dunning and grace period handled in the application layer
+      - Per-tenant quota enforcement (max parallel investigations, max agents per run)
+    </billing>
+    <ingestion>
+      - Webhook parsers for Datadog, Grafana, CloudWatch and Sentry, each with HMAC signature verification (webhook-auth.middleware.ts)
+      - Manual incident creation endpoint for human-triggered reports
+      - Admin endpoints for re-running ingestion and replaying failed webhooks
+      - Analytics endpoints: alert volume, MTTA, MTTR per tenant
+      - Dedup: identical (source, fingerprint) alerts within a configurable window collapse into a single IncidentEntity
+      - Deduplicated alerts are enqueued to the triage SQS queue
+    </ingestion>
+    <triage>
+      - AI severity classification: Sonnet model (ANTHROPIC_TRIAGE_MODEL, default claude-sonnet-4-6) reads the alert payload + tenant context and returns severity + suggested investigation mode
+      - Triaged incident entity stored in IncidentEntity with status transitions: received → triaged → investigating → resolved
+      - Triage routes expose the triaged list and per-incident detail at /api/v1/triage/*
+      - Backfill script `pnpm backfill:stranded-triage` recovers any incidents stuck pre-triage
+      - Langfuse traces per triage decision for cost and quality analysis
+    </triage>
+    <investigation>
+      - Three modes: orchestrator (default), hypothesis, debate
+      - Six or more agents run in parallel: log agent (Haiku), metric agent (Haiku), change agent, code agent, infra inspector, DB analyst, plus a synthesis agent
+      - Each agent emits evidence (EvidenceEntity), hypotheses (HypothesisEntity), and findings
+      - The orchestrator manages the iteration loop, deduplicates overlapping evidence, and prunes low-confidence hypotheses
+      - A live progress stream is exposed over SSE so the dashboard shows per-agent updates in real time
+      - A registry of past runs (per tenant) is queryable; runs are filterable by status, severity, time window
+      - An investigation chat panel lets the user steer the investigation; messages are stored in ChatMessageEntity
+      - Investigation routes under /api/v1/investigation/* expose list, detail, retry, cancel, and chat
+    </investigation>
+    <remediation>
+      - A remediation is proposed at the end of an investigation; the proposal lists the AWS actions to take
+      - A human (with owner/admin RBAC) approves the plan; the approval is hashed into the audit chain (ApprovalEntity)
+      - The plan is executed against the customer's AWS account through the cloud provider port: ECS / EC2 / SSM / Lambda / Route53 / RDS / S3 / API Gateway / CloudFront / CodeCommit PR
+      - Each action is logged in RemediationEntity with before/after state
+      - Rollback action is proposed automatically for mutating actions and runnable in one click
+      - The user can pin a remediation to a runbook (RunbookRegistryEntity) and a future similar incident will surface the same remediation
+    </remediation>
+    <memory-and-skills>
+      - Hindsight bank per tenant; bank ID derived from the tenant ID
+      - Successful investigations + the runbook they produced are written to the bank
+      - New investigations query the bank for similar past incidents and surface the top-k runbooks to the orchestrator
+      - Per-tenant skills (SkillEntity) teach the agents the customer's runbooks, escalation paths, and naming conventions
+      - Chat history per investigation is persisted and queryable for follow-up
+      - Recall failures fall back to "no prior context" and never fail the investigation
+    </memory-and-skills>
+    <code-intelligence>
+      - The customer's repositories are indexed once and stored as RepoNodeEntity + ServiceEdgeEntity + RepoServiceMapEntity
+      - PackageDependencyEntity captures the dependency graph across repos
+      - The code agent uses the index to answer "which service owns this log line?" and "what depends on this package?"
+      - PatternEntity holds recurring code patterns (e.g. "retry-with-backoff") discovered across the tenant's repos
+      - A code search endpoint /api/v1/code-knowledge/* accepts a natural-language query and returns the matching repos + lines
+      - The code agent (Sonnet) proposes patches; the patch is opened as a CodeCommit PR through the remediation flow
+    </code-intelligence>
+    <integrations-and-notifications>
+      - GitHub App for connecting the customer's repositories (fallback for CodeCommit)
+      - Composio wraps 20+ third-party tools (Linear, Notion, PagerDuty, etc.) and exposes them to the agents
+      - Slack integration for two-way chat (oauth + signing secret + channel mapping in SlackOAuthStateEntity / SlackNotificationEntity)
+      - Sentry integration for ingesting Sentry alerts as incidents
+      - Relay routes accept tunneled requests from the customer's relay (DB / Mongo / log access) — relay.registry, relay.protocol, relay.auth at /v1/relay/*
+      - Web Push notifications via VAPID; per-user subscription stored in NotificationEntity
+      - Progress events for any tenant operation can be streamed over SSE
+    </integrations-and-notifications>
+    <widget-and-portal>
+      - The embeddable widget (packages/widget) is a Vite library build shipped as a single JS file
+      - A tenant can drop a <script> tag into their status page or internal tool to mount the widget
+      - The widget calls the control plane over a tenant-scoped widget session token (WidgetSessionEntity)
+      - The portal at /embed/ gives the tenant's end-users read-only visibility into the latest investigation
+      - The dashboard SPA at /dashboard (Alpine.js + Tailwind, served by Hono) gives the tenant's engineers the full control plane
+    </widget-and-portal>
+    <observability-and-ops>
+      - Langfuse tracer at src/shared/infra/observability/langfuse-tracer.ts records per-agent prompts / completions / tool calls / cost / latency
+      - OpenTelemetry SDK initialised in src/shared/infra/observability/otel.ts; traces exported to OTLP and correlated with AWS X-Ray via the X-Ray id generator
+      - Sentry captures uncaught exceptions across the API and worker
+      - HealthChecker at /health reports DynamoDB / Redis / SQS / Anthropic reachability
+      - In-process scheduler runs periodic jobs (DLQ redrive, cost rollup, Hindsight bank compaction, usage reconciliation) — no separate cron
+      - Cost tracking enforces a per-investigation ceiling; the metric recorder publishes to Langfuse and to the audit module
+    </observability-and-ops>
+  </core_features>
+
+  <acceptance_checks>
+    <acceptance_check id="AC-001" context="foundation" category="foundation" depends_on="">
+      <description>Run `docker-compose up -d`; within 60 seconds the ministack, redis, langfuse and hindsight containers report healthy. The init script `infra/localstack/init/01-create-resources.sh` has created the causeflow DynamoDB table, 4 SQS queues, 4 DLQs and the KMS alias `alias/causeflow-token-encryption`. A `curl http://localhost:4566/_ministack/health` returns 200.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-002" context="foundation" category="foundation" depends_on="AC-001">
+      <description>Run `pnpm dev`; within 10 seconds the Hono API is listening on PORT (default 3099). A `curl http://localhost:3099/health` returns 200 with a JSON body listing {dynamodb: ok, redis: ok, sqs: ok, anthropic: ok} (Anthropic check is skipped when no key is configured).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-003" context="foundation" category="foundation" depends_on="AC-002">
+      <description>A `curl http://localhost:3099/dashboard` returns the Alpine.js SPA shell HTML (Alpine + Tailwind present, an x-data root element). A `curl http://localhost:3099/widget/widget.js` returns the Vite-built widget bundle with a 200 Content-Type of application/javascript.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-004" context="foundation" category="foundation" depends_on="AC-002">
+      <description>Run `pnpm lint-invariants` (which calls `infra/scripts/check-invariants.ts`); the command exits 0. Manually introducing a cross-module direct function call (e.g. importing a use case from another module's `application/`) and re-running `pnpm lint-invariants` makes the command exit non-zero with a specific I1–I11 violation message.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-005" context="foundation" category="foundation" depends_on="AC-002">
+      <description>The DynamoDB table `causeflow-local` exists with 3 GSIs and Point-in-Time Recovery enabled. The list of tables via `aws --endpoint-url http://localhost:4566 dynamodb list-tables` includes `causeflow-local`; `aws --endpoint-url http://localhost:4566 dynamodb describe-table` shows `PointInTimeRecoveryDescription.PointInTimeRecoveryStatus = ENABLED` and 3 GlobalSecondaryIndexes.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-006" context="foundation" category="foundation" depends_on="AC-002">
+      <description>The four SQS queues (alerts / triage / investigation / remediation) and their four matching DLQs exist on ministack; the KMS alias `alias/causeflow-token-encryption` exists. `aws --endpoint-url http://localhost:4566 sqs list-queues` returns 8 URLs and `aws --endpoint-url http://localhost:4566 kms list-aliases` returns an alias whose name ends with `alias/causeflow-token-encryption`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-007" context="tenancy-and-access" category="functional" depends_on="AC-002">
+      <description>POST a valid Clerk session JWT to /api/v1/auth/login. The auth middleware extracts the user, the tenant middleware extracts the tenant from the path, and the response contains the user, the tenant, and the user's role. A second call with no Authorization header returns 401.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-008" context="tenancy-and-access" category="functional" depends_on="AC-007">
+      <description>As a `viewer`, GET /api/v1/audit returns 200; DELETE /api/v1/audit/:id returns 403 (RBAC). As an `admin`, the same DELETE returns 200 and the audit chain advances (the new entry's previousHash matches the prior tip).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-009" context="tenancy-and-access" category="functional" depends_on="AC-007">
+      <description>POST /api/v1/api-keys with a name and scopes returns a plaintext API key on creation; subsequent calls to /api/v1/whoami with `Authorization: Bearer &lt;key&gt;` resolve the user and tenant. A second POST that would exceed the per-tenant key quota returns 429.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-010" context="tenancy-and-access" category="functional" depends_on="AC-007">
+      <description>Two tenants A and B exist. Tenant A calls GET /api/v1/incident/abc123 and gets 200 for incident abc123 (owned by A). Tenant B calls the same URL and gets 404 (the incident is invisible). Direct PK construction across tenants is rejected at the application layer.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-011" context="billing" category="functional" depends_on="AC-007">
+      <description>Stripe test mode: POST /api/v1/billing/checkout-session with a valid price ID returns a Stripe checkout URL. The Stripe CLI's `stripe trigger checkout.session.completed` posts a webhook; the webhook endpoint validates the signature, creates a BillingAccountEntity for the user, and the response is 200.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-012" context="billing" category="functional" depends_on="AC-011">
+      <description>After a successful investigation completes, a UsageRecordEntity is written with the investigation ID, the per-agent token counts and the per-agent cost. GET /api/v1/billing/usage returns a paginated list of usage records scoped to the calling tenant only.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-013" context="billing" category="functional" depends_on="AC-011">
+      <description>Stripe webhook with an invalid signature (mutated body) returns 400; valid signature returns 200. After `customer.subscription.deleted` arrives, the tenant's plan drops to "free" and gated endpoints return 402.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-014" context="ingestion" category="functional" depends_on="AC-002">
+      <description>POST a Datadog-shaped payload to /api/v1/webhooks/datadog with a valid HMAC header; the webhook-auth middleware verifies the signature, the parser extracts the alert, and the incident is persisted in IncidentEntity with status=received. A second POST with an invalid signature returns 401.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-015" context="ingestion" category="functional" depends_on="AC-014">
+      <description>POST the same Datadog payload twice within the dedup window; only one IncidentEntity is created (the second call returns the existing incident ID and does not enqueue a duplicate triage message). After the dedup window elapses, a third identical POST creates a new incident.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-016" context="ingestion" category="functional" depends_on="AC-002">
+      <description>POST Grafana-, CloudWatch-, and Sentry-shaped payloads to /api/v1/webhooks/{grafana,cloudwatch,sentry}; each is parsed into an IncidentEntity and the parser-specific fields land in the right columns. POST /api/v1/admin/incidents with a manual payload creates an incident tagged source=manual.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-017" context="triage" category="functional" depends_on="AC-014">
+      <description>After an incident is ingested, within 30 seconds the triage worker pulls the message, calls the Anthropic API with ANTHROPIC_TRIAGE_MODEL (default claude-sonnet-4-6), and updates the incident with a severity (one of critical|high|medium|low) and a suggested investigation mode. GET /api/v1/triage/:id returns the triaged incident with the severity set; GET /api/v1/triage lists triaged incidents for the tenant.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-018" context="triage" category="functional" depends_on="AC-017">
+      <description>A Langfuse trace for the triage call exists in the local Langfuse UI at http://localhost:3001, tagged with the tenant ID and incident ID, and the trace contains the prompt, completion, token counts and cost. A trace is also recorded in the trace's `output` for the incident's audit chain.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-019" context="investigation" category="functional" depends_on="AC-017">
+      <description>Once an incident is triaged, the investigation worker starts a run with at least 6 agents (log, metric, change, code, infra, db). The investigation routes return a run with status=running; the SSE stream at /api/v1/investigation/:id/stream emits per-agent events as they complete. The run finishes with status=succeeded and the final synthesis is stored.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-020" context="investigation" category="functional" depends_on="AC-019">
+      <description>The finished investigation has at least one HypothesisEntity and at least one EvidenceEntity per active agent. GET /api/v1/investigation/:id/evidence returns the evidence list grouped by agent, with confidence scores. GET /api/v1/investigation/:id/hypotheses returns the hypothesis tree with parent/child links.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-021" context="investigation" category="functional" depends_on="AC-019">
+      <description>POST /api/v1/investigation/:id/chat with a follow-up question routes to the chat platform port, persists a ChatMessageEntity, and returns the agent's reply. Slack-equivalent: the same chat is mirrored to the connected Slack channel (when Slack is installed) and the Slack thread ID is stored on the message.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-022" context="investigation" category="functional" depends_on="AC-019">
+      <description>Switching ANTHROPIC_TRIAGE_MODEL or ANTHROPIC_INVESTIGATION_MODEL via .env changes the model used on the next run; the Langfuse trace shows the new model name. ANTHROPIC_API_KEY=invalid causes the Anthropic health check to flip to `degraded` and the investigation run to fail with a clear circuit-breaker error.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-023" context="remediation" category="functional" depends_on="AC-019">
+      <description>After a successful investigation, GET /api/v1/remediation/:id/proposal returns a plan listing the AWS actions to take. POST /api/v1/remediation/:id/approve with an admin JWT returns 200 and creates an ApprovalEntity. A second approve on the same remediation returns 409 (already approved).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-024" context="remediation" category="functional" depends_on="AC-023">
+      <description>The approved plan runs against the stub cloud provider. RemediationEntity records each action with status=succeeded and a before/after diff. POST /api/v1/remediation/:id/rollback creates a follow-up plan with the inverse actions; executing it reverts the state and writes the rollback to the audit chain.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-025" context="remediation" category="functional" depends_on="AC-024">
+      <description>A successful remediation is pinnable to a runbook. POST /api/v1/skills/{skillId}/runbook with the remediation ID persists a RunbookRegistryEntity. A later similar incident in the same tenant surfaces the runbook in the orchestrator's recall results.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-026" context="memory-and-skills" category="functional" depends_on="AC-019">
+      <description>After a successful investigation, the Hindsight bank for the tenant receives a write with the hypothesis + the resolved runbook (verifiable via `curl http://localhost:8888/health` returning 200 and the hindsight dashboard showing the new entry). A new investigation with a similar alert fingerprint reads from the bank and surfaces the prior runbook in the orchestrator's recall payload.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-027" context="memory-and-skills" category="functional" depends_on="AC-026">
+      <description>POST /api/v1/skills creates a per-tenant skill (runbook / escalation path). The skill is visible in GET /api/v1/skills for the same tenant and not for any other tenant. A new investigation that matches the skill's fingerprint is steered to invoke it (visible in the Langfuse trace as a system-prompt injection).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-028" context="code-intelligence" category="functional" depends_on="AC-002">
+      <description>POST /api/v1/code-knowledge/repos with a repo URL and credentials indexes the repo: RepoNodeEntity, ServiceEdgeEntity and PackageDependencyEntity are written. GET /api/v1/code-knowledge/search?q=retry returns matching repos + lines, ranked by PatternEntity confidence.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-029" context="code-intelligence" category="functional" depends_on="AC-028">
+      <description>During an investigation on a stack-trace alert, the code agent reads the indexed code and returns a "service=X, function=Y" answer that is consistent with RepoServiceMapEntity. The fix proposal references the actual file path; approving it opens a CodeCommit PR through the remediation flow.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-030" context="integrations-and-notifications" category="functional" depends_on="AC-002">
+      <description>POST /api/v1/integrations/slack/install completes the OAuth dance; the bot token + channel mapping are stored encrypted (KMS-encrypted ciphertext in SlackOAuthStateEntity / SlackNotificationEntity). A test event posted to /api/v1/integrations/slack/events with a valid signing secret triggers a chat reply; a tampered body returns 401.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-031" context="integrations-and-notifications" category="functional" depends_on="AC-002">
+      <description>With a Composio API key configured, GET /api/v1/integrations/composio/tools returns the list of available tools; POST /api/v1/integrations/composio/triggers with a trigger payload schedules a polling subscription (TriggerEntity). The trigger fires when the upstream source updates and the resulting event lands in the triage queue.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-032" context="integrations-and-notifications" category="functional" depends_on="AC-002">
+      <description>With the relay running in the customer sample network, a `psql` from the host against `order-postgres:5432` is refused (network isolated). The relay instead connects to `ws://localhost:3099/v1/relay/connect` and the investigation's DB analyst agent queries the order DB through the relay; the response is identical to a direct query.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-033" context="integrations-and-notifications" category="functional" depends_on="AC-002">
+      <description>Subscribe a browser to VAPID web push: POST /api/v1/notifications/subscribe with the endpoint + keys. On any incident severity change, the subscriber receives a push with the incident title and a deep link to /dashboard/incidents/:id. Revoking the subscription via DELETE removes the push record.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-034" context="widget-and-portal" category="functional" depends_on="AC-002">
+      <description>The widget bundle is loadable from /widget/widget.js (Vite build). Mounting the widget with a valid widget-session token renders a read-only incident panel; the panel shows the latest investigations for the tenant. Mounting with an invalid token renders an "unauthorized" state and never discloses incident data.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-035" context="widget-and-portal" category="functional" depends_on="AC-034">
+      <description>The dashboard SPA at /dashboard renders, on first load, a sidebar with the tenant's name, a list of recent incidents, and a "New investigation" button. Clicking an incident opens a detail view with the investigation's evidence, hypotheses, chat panel and a remediation panel; the panels stream live updates over SSE as the agents run.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-036" context="observability-and-ops" category="functional" depends_on="AC-002">
+      <description>A user action in the dashboard (e.g. approving a remediation) generates an OpenTelemetry span with a correlation id; the same id is searchable in Langfuse. With SENTRY_DSN set, an unhandled exception in a unit test scenario surfaces in Sentry's Issues view within 30 seconds.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-037" context="observability-and-ops" category="functional" depends_on="AC-002">
+      <description>The in-process scheduler (src/shared/infra/scheduler/scheduler.ts) runs the DLQ redrive job on its interval: a message manually pushed to a DLQ is re-driven to the source queue within one tick. The cost rollup job aggregates UsageRecordEntity into a per-tenant daily total and writes a UsageRecordEntity tagged type=daily_rollup.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-038" context="observability-and-ops" category="functional" depends_on="AC-019">
+      <description>Each investigation's total cost in src/shared/domain/cost.ts is computed from per-agent token counts; Langfuse publishes the same number to the metric recorder. A test run that exceeds the configured per-investigation ceiling is aborted and the incident is marked status=cost_exceeded, visible in /api/v1/investigation.</description>
+    </acceptance_check>
+  </acceptance_checks>
+
+  <database_schema>
+    <tables>
+      <causeflow (single DynamoDB table, PITR enabled, 3 GSIs)>
+        - pk (string, partition key, tenant-scoped composite: e.g. TENANT#&lt;tenantId&gt;#&lt;entityName&gt;)
+        - sk (string, sort key, e.g. &lt;entityId&gt; or &lt;entityName&gt;#&lt;entityId&gt;)
+        - entityType (string, used to discriminate across 31 entity shapes)
+        - tenantId (string, always present; used for cross-tenant guards)
+        - GSI1PK / GSI1SK (status / time-based queries)
+        - GSI2PK / GSI2SK (entity-shard queries for hot entities like EvidenceEntity)
+        - GSI3PK / GSI3SK (cross-entity lookups e.g. incidentId → evidence / hypothesis / chat)
+        - createdAt, updatedAt (ISO 8601 strings)
+        - entity-payload (typed per entity)
+      </causeflow>
+      <entities (31, all on the same table)>
+        - TenantEntity — tenant record + plan + region + clerkOrgId
+        - UserEntity — user record (linked to Clerk user id) with role
+        - UserSettingsEntity — per-user preferences (theme, timezone, notifications)
+        - InviteEntity — pending email invite
+        - ApiKeyEntity — issued API key (id, hash, scopes, lastUsedAt)
+        - BillingAccountEntity — Stripe customer + subscription linkage
+        - UsageRecordEntity — per-action metered usage
+        - IncidentEntity — alert / incident record (status, severity, source, fingerprint, raw payload)
+        - ApprovalEntity — human approval for a remediation
+        - AuditEntryEntity — append-only audit log (hash chain: previousHash → hash)
+        - ChatMessageEntity — investigation chat message
+        - ChangeEventEntity — CloudTrail-style change event
+        - EvidenceEntity — agent evidence (linked to investigationId)
+        - FeedbackEntity — thumbs up/down on agent output
+        - HypothesisEntity — investigation hypothesis (parent/child for the tree)
+        - NotificationEntity — VAPID subscription + delivery state
+        - OAuthTokenEntity — encrypted third-party OAuth tokens
+        - PackageDependencyEntity — node in the customer's dep graph
+        - PatternEntity — recurring code pattern with confidence
+        - RemediationEntity — execution record (actions, before/after, status)
+        - RepoNodeEntity — a repo in the customer's code index
+        - RepoServiceMapEntity — service → repo mapping
+        - RunbookRegistryEntity — pinned runbook for a fingerprint
+        - ServiceEdgeEntity — service-to-service edge
+        - ServiceNodeEntity — a service in the customer's service map
+        - SlackNotificationEntity — Slack delivery record
+        - SlackOAuthStateEntity — pending Slack OAuth state
+        - ToolCallEntity — agent tool call (linked to investigationId + agent name)
+        - TriggerEntity — Composio trigger subscription
+        - IntegrationEntity — registered integration (webhook endpoints, secrets)
+        - WidgetSessionEntity — widget session token
+      </entities>
+    </tables>
+  </database_schema>
+
+  <api_endpoints_summary>
+    Auth & user
+    - POST /api/v1/auth/login
+    - GET  /api/v1/whoami
+    - POST /api/v1/users/invite
+    - GET  /api/v1/users
+    - PATCH /api/v1/users/:id
+
+    Tenant & RBAC
+    - GET  /api/v1/tenants/:id
+    - PATCH /api/v1/tenants/:id
+    - POST /api/v1/api-keys
+    - GET  /api/v1/api-keys
+    - DELETE /api/v1/api-keys/:id
+    - POST /api/v1/beta-allowlist
+    - GET  /api/v1/beta-allowlist
+
+    Billing
+    - POST /api/v1/billing/checkout-session
+    - GET  /api/v1/billing/subscription
+    - POST /api/v1/billing/webhook
+    - GET  /api/v1/billing/usage
+    - POST /api/v1/billing/portal
+
+    Ingestion
+    - POST /api/v1/webhooks/datadog
+    - POST /api/v1/webhooks/grafana
+    - POST /api/v1/webhooks/cloudwatch
+    - POST /api/v1/webhooks/sentry
+    - POST /api/v1/incidents
+    - GET  /api/v1/incidents
+    - GET  /api/v1/incidents/:id
+    - POST /api/v1/admin/incidents
+    - GET  /api/v1/admin/analytics
+
+    Triage
+    - GET  /api/v1/triage
+    - GET  /api/v1/triage/:id
+
+    Investigation
+    - POST /api/v1/investigation
+    - GET  /api/v1/investigation
+    - GET  /api/v1/investigation/:id
+    - GET  /api/v1/investigation/:id/evidence
+    - GET  /api/v1/investigation/:id/hypotheses
+    - POST /api/v1/investigation/:id/chat
+    - GET  /api/v1/investigation/:id/stream   (SSE)
+    - POST /api/v1/investigation/:id/cancel
+    - POST /api/v1/investigation/:id/retry
+
+    Remediation
+    - GET  /api/v1/remediation/:id/proposal
+    - POST /api/v1/remediation/:id/approve
+    - POST /api/v1/remediation/:id/execute
+    - POST /api/v1/remediation/:id/rollback
+
+    Memory & skills
+    - GET  /api/v1/memory
+    - GET  /api/v1/memory/:id
+    - POST /api/v1/skills
+    - GET  /api/v1/skills
+    - PATCH /api/v1/skills/:id
+    - POST /api/v1/skills/:id/runbook
+
+    Code intelligence
+    - POST /api/v1/code-knowledge/repos
+    - GET  /api/v1/code-knowledge/search
+    - GET  /api/v1/code-knowledge/service-map
+
+    Integration & notifications
+    - POST /api/v1/integrations/slack/install
+    - POST /api/v1/integrations/slack/events
+    - GET  /api/v1/integrations/composio/tools
+    - POST /api/v1/integrations/composio/triggers
+    - POST /api/v1/notifications/subscribe
+    - DELETE /api/v1/notifications/subscribe
+    - WS   /v1/relay/connect
+
+    Widget & portal
+    - POST /api/v1/widget/session
+    - GET  /api/v1/widget/incidents
+    - GET  /embed
+
+    Audit
+    - GET  /api/v1/audit
+    - GET  /api/v1/audit/:id
+
+    Health
+    - GET  /health
+    - GET  /ready
+
+    Static
+    - GET  /dashboard       (Alpine.js + Tailwind SPA)
+    - GET  /widget/widget.js
+  </api_endpoints_summary>
+
+  <ui_layout>
+    <main_structure>
+      The product surface is a single Alpine.js + Tailwind SPA served by Hono at /dashboard. The shell has a fixed left sidebar (240px), a top bar (56px) with the tenant name, a "New investigation" CTA, and the user menu; the main panel fills the rest. Breakpoints: &lt;768px collapses the sidebar to icons; &lt;480px hides the sidebar entirely and uses a bottom-nav. The page background is a near-black (`bg-slate-950`); cards are slate-900 with a 1px slate-800 border; primary accent is a teal-400 / cyan-300 gradient. Typography is the system stack with Inter loaded from a CDN.
+    </main_structure>
+    <sidebar>
+      Vertically stacked: brand mark + product name, list of investigations (filterable by status), Integrations, Settings, Audit Log. Items highlight on hover (slate-800) and selected (slate-700 + left teal border).
+    </sidebar>
+    <main_panels>
+      Investigation list (table with columns: severity, title, source, status, age, owner) with a search box and a status filter. Clicking a row opens the detail view.
+    </main_panels>
+    <detail_view>
+      Four stacked regions: (1) header with severity badge, title, status, timestamps; (2) live progress panel that consumes the SSE stream and shows per-agent cards updating in real time; (3) evidence + hypothesis tree on the left, chat on the right; (4) remediation panel (proposal → approve → execute → rollback) at the bottom.
+    </detail_view>
+    <modals>
+      New investigation modal (manual alert form), invite-user modal, install-Slack modal (OAuth popup), settings modal (theme, notifications), confirm-approval modal (typed confirmation of the action).
+    </modals>
+    <embeddable_widget>
+      Rendered into a host page via a single &lt;script&gt; tag. Compact card with the latest incidents (3 rows), a "view all" link, and a small status pill. Stays under 300px wide; respects the host's dark or light mode via prefers-color-scheme.
+    </embeddable_widget>
+  </ui_layout>
+
+  <design_system>
+    <color_palette>
+      Light mode (default for the embeddable widget): background #ffffff, surface #f8fafc, text #0f172a, border #e2e8f0, primary #0d9488 (teal-600), accent #06b6d4 (cyan-500), danger #dc2626.
+      Dark mode (default for the dashboard): background #020617 (slate-950), surface #0f172a (slate-900), text #e2e8f0 (slate-200), border #1e293b (slate-800), primary #2dd4bf (teal-400), accent #67e8f9 (cyan-300), danger #f87171.
+      Status colors: critical #b91c1c, high #ea580c, medium #ca8a04, low #16a34a, info #0284c7.
+    </color_palette>
+    <typography>
+      System font stack with Inter as the primary face (loaded via Google Fonts CSS). Sizes: 12px (caption), 14px (body, default), 16px (lead), 20px (h3), 24px (h2), 32px (h1). Weights: 400 body, 500 emphasis, 600 headings, 700 numbers in metric cards. Mono: ui-monospace / SF Mono for IDs and code references.
+    </typography>
+    <components>
+      Buttons: primary (teal-600 / teal-400), secondary (slate-700 outline), ghost (transparent, hover slate-800), danger (red-600). All buttons have a 6px vertical, 12px horizontal padding, 6px radius, and a 150ms ease-out background-color transition.
+      Cards: 8px radius, 1px border (slate-800 dark / slate-200 light), 16px padding, no shadow in dark mode, 1-px shadow in light.
+      Badges: severity (red/orange/yellow/green), status (slate-700 background, slate-100 text), 4px radius, uppercase, 11px font, 1px tracking.
+      Inputs: 1px border, 6px radius, 8px padding, focus ring 2px teal-400 at 30% opacity.
+      Tables: zebra rows (slate-900/950 in dark, slate-50/white in light), 12px row padding, 12px header.
+    </components>
+    <animations>
+      Sidebar item hover: 100ms background-color ease-out. Card appearance: 200ms fade-in + 4px translateY. SSE updates: the row flashes a 1px teal-400 outline for 600ms then fades. Buttons: 150ms ease-out on background-color. Modals: 200ms scale 0.95→1 + opacity 0→1. No spinners on long operations — use the live SSE progress panel.
+    </animations>
+  </design_system>
+
+  <key_interactions>
+    <alert_to_triage>
+      A Datadog alert hits POST /api/v1/webhooks/datadog. The webhook-auth middleware verifies the HMAC, the parser normalises the payload into an IncidentEntity (status=received, source=datadog, fingerprint=hash of the alert body). The ingestion service enqueues a message to the triage SQS queue. The triage worker picks it up, calls the Anthropic API with ANTHROPIC_TRIAGE_MODEL (default claude-sonnet-4-6), and updates the incident with severity + suggested investigation mode. The status flips to triaged. The dashboard's incident list shows the new row in real time over SSE.
+    </alert_to_triage>
+    <triage_to_investigation>
+      The orchestrator pulls the triaged incident and starts an investigation run with at least 6 agents in parallel. Each agent reads evidence (logs, metrics, changes, code, infra, DB) and writes EvidenceEntity rows. The orchestrator deduplicates evidence, prunes low-confidence hypotheses, and may iterate. SSE events stream per-agent progress to the dashboard. The run completes with status=succeeded and the synthesis is persisted.
+    </triage_to_investigation>
+    <investigation_to_remediation>
+      At the end of a successful investigation, the orchestrator proposes a remediation plan. The detail view shows the plan in the remediation panel. The user reviews each action, optionally edits the plan, and clicks "Approve". The approval is recorded in ApprovalEntity and the audit chain advances. The plan runs against the customer's AWS account through the cloud provider port. RemediationEntity records each action with status and a before/after diff. The user can click "Rollback" to create a follow-up plan with the inverse actions.
+    </investigation_to_remediation>
+    <memory_write_and_recall>
+      On remediation success, the resolved hypothesis + runbook is written to the tenant's Hindsight bank (memory write). On the next similar incident, the orchestrator queries the bank for the top-k similar runbooks (memory recall) and includes them in the system prompt so the agents start from a known-good runbook.
+    </memory_write_and_recall>
+    <dashboard_navigation>
+      The user lands on /dashboard, sees the investigation list, clicks a row to open the detail view. The detail view shows live progress (SSE), evidence, hypotheses, chat, and the remediation panel. The user can chat with the investigation, approve the remediation, or pin a successful runbook to the tenant's skills.
+    </dashboard_navigation>
+    <widget_embed>
+      A tenant embeds the widget on their status page via &lt;script src="https://app.causeflow.ai/widget/widget.js" data-tenant-id="..."&gt;&lt;/script&gt;. The widget requests a session token from /api/v1/widget/session, then renders a read-only incident panel that polls /api/v1/widget/incidents every 30 seconds.
+    </widget_embed>
+  </key_interactions>
+
+  <implementation_steps>
+    <step number="1">
+      <title>Foundation: local stack, table, queues, KMS, dashboard shell, health</title>
+      <tasks>
+        - Run `docker-compose up -d` and confirm ministack / redis / langfuse / hindsight are healthy
+        - Confirm `infra/localstack/init/01-create-resources.sh` has created the causeflow table, 4 queues + 4 DLQs, and the KMS alias
+        - `pnpm dev`; confirm `curl http://localhost:3099/health` returns 200 with the four sub-checks
+        - Open `http://localhost:3099/dashboard` and confirm the Alpine.js SPA shell renders
+        - Run `pnpm lint-invariants`, `pnpm typecheck`, `pnpm lint`, `pnpm test:run`; all green
+      </tasks>
+    </step>
+    <step number="2">
+      <title>Tenancy & access: Clerk, tenant middleware, RBAC, audit chain</title>
+      <tasks>
+        - Configure Clerk keys in `.env.localstack`; confirm POST /api/v1/auth/login returns a user + tenant
+        - Implement and verify a cross-tenant guard (AC-010)
+        - Confirm RBAC: viewer can read audit, admin can delete (AC-008)
+        - Issue an API key, authenticate with it, revoke it (AC-009)
+        - Confirm the audit hash chain advances on every state change (AC-008)
+      </tasks>
+    </step>
+    <step number="3">
+      <title>Billing: Stripe checkout, webhooks, metered usage</title>
+      <tasks>
+        - Stripe test mode: create a checkout session, complete it via the CLI, confirm webhook (AC-011, AC-013)
+        - Confirm a usage record is written on every investigation completion (AC-012)
+        - Confirm quota enforcement (e.g. max parallel investigations) blocks over-quota tenants
+      </tasks>
+    </step>
+    <step number="4">
+      <title>Ingestion: Datadog / Grafana / CloudWatch / Sentry parsers, dedup, manual incident</title>
+      <tasks>
+        - Send each of the four webhook shapes; confirm a row in IncidentEntity (AC-014, AC-016)
+        - Confirm dedup within the window (AC-015)
+        - Confirm HMAC rejection for tampered bodies (AC-014)
+      </tasks>
+    </step>
+    <step number="5">
+      <title>Triage: Anthropic severity classification</title>
+      <tasks>
+        - Triage a real alert and confirm severity + suggested mode (AC-017)
+        - Confirm a Langfuse trace exists with tenant + incident tags (AC-018)
+        - Confirm model swap via env (AC-022)
+      </tasks>
+    </step>
+    <step number="6">
+      <title>Investigation: orchestrator + 6 agents, evidence, hypotheses, SSE, chat, registry</title>
+      <tasks>
+        - Run a real investigation; confirm the SSE stream, evidence list, hypothesis tree (AC-019, AC-020)
+        - Chat with the running investigation; confirm Slack mirror (AC-021)
+        - Persist ToolCallEntity rows for each agent
+      </tasks>
+    </step>
+    <step number="7">
+      <title>Remediation: propose, approve, execute, rollback, pin runbook</title>
+      <tasks>
+        - Approve a plan, execute it against the stub cloud provider, confirm RemediationEntity (AC-023, AC-024)
+        - Roll back; confirm the audit chain records the inverse (AC-024)
+        - Pin a successful remediation to a runbook; verify the next similar incident surfaces it (AC-025)
+      </tasks>
+    </step>
+    <step number="8">
+      <title>Memory & skills: Hindsight bank write + recall, per-tenant skills</title>
+      <tasks>
+        - Confirm a write to the Hindsight bank on success and a recall on the next similar run (AC-026)
+        - Create a per-tenant skill and confirm it steers a matching investigation (AC-027)
+      </tasks>
+    </step>
+    <step number="9">
+      <title>Code intelligence: repo index, code search, code agent → PR</title>
+      <tasks>
+        - Index a repo; query the index; confirm matching code (AC-028)
+        - Code agent proposes a patch; approval opens a CodeCommit PR (AC-029)
+      </tasks>
+    </step>
+    <step number="10">
+      <title>Integrations & notifications: GitHub App, Composio, Slack, Sentry, relay, VAPID</title>
+      <tasks>
+        - Install Slack; trigger an event with a valid signing secret (AC-030)
+        - Trigger a Composio tool + a Composio trigger (AC-031)
+        - Verify the relay tunnel: a host psql is refused, the same query through the relay succeeds (AC-032)
+        - Subscribe a browser to VAPID push; trigger an event; receive a push (AC-033)
+      </tasks>
+    </step>
+    <step number="11">
+      <title>Widget & portal: Vite build, embed, dashboard SPA</title>
+      <tasks>
+        - Build the widget; mount it on a host page; verify with a valid + invalid session token (AC-034)
+        - Click through the dashboard sidebar, list, detail view, modals (AC-035)
+      </tasks>
+    </step>
+    <step number="12">
+      <title>Observability & ops: OTel, Sentry, scheduler, cost ceiling</title>
+      <tasks>
+        - Verify an OTel span + a Langfuse trace share a correlation id; verify Sentry receives an unhandled exception (AC-036)
+        - Run the DLQ redrive + cost rollup jobs; verify outputs (AC-037)
+        - Verify the per-investigation cost ceiling aborts an over-budget run (AC-038)
+      </tasks>
+    </step>
+    <step number="13">
+      <title>End-to-end smoke + deploy</title>
+      <tasks>
+        - `pnpm test:e2e` against the docker-compose stack; full alert → triage → investigation → remediation flow
+        - `pnpm test:smoke` against the deployed stack
+        - `pnpm test:eval` (Promptfoo) for triage and pipeline quality
+        - CDK synth + deploy dry-run via `pnpm lint-invariants` + `pnpm verify-deploy`
+        - CI green on `.github/workflows/ci.yml`, `deploy.yml`, `eval.yml`
+      </tasks>
+    </step>
+  </implementation_steps>
+
+  <success_criteria>
+    <functionality>
+      Every Acceptance Check AC-001 through AC-038 passes against the running docker-compose stack with no skips. The full path Datadog webhook → ingest → dedup → triage → investigation (6+ agents) → remediation proposal → approval → execution → rollback → memory write → recall-on-next-similar-incident is reproducible end-to-end via `pnpm test:e2e`. The audit chain advances on every state change and the tip is verifiable via `GET /api/v1/audit?limit=1`. RBAC blocks every state-changing endpoint for a viewer. Cross-tenant reads return 404. The per-investigation cost ceiling is enforced and the budget breach is visible in both the API and Langfuse. The relay tunnel is the only path from the control plane to a customer DB and a direct host connection to the customer DB is refused by the network.
+    </functionality>
+    <user_experience>
+      Dashboard SPA loads in under 1s on a warm cache. Live SSE progress appears on the detail view within 250ms of an agent emitting an event. The widget renders inside any host page without a flash of unstyled content. Approving a remediation is a typed-confirmation flow; the action the user is about to take is spelled out in plain English. Severity and status colors are readable in both dark and light mode. There are no spinners on long operations — the live SSE progress panel is the source of truth.
+    </user_experience>
+    <technical_quality>
+      `pnpm typecheck` is green. `pnpm lint` is green. `pnpm lint-invariants` is green (I1–I11 enforced, no cross-module direct calls, no infra-in-domain, no hard-coded secrets). `pnpm test:run` runs 174 unit tests in under 15 seconds. `pnpm test:integration` runs 6 integration tests against the docker-compose stack. `pnpm test:e2e` runs 6 E2E tests. Domain layer has zero external imports. Application layer never imports infra. The composition root at `src/bootstrap.ts` is the only place concrete implementations are wired. The relay (`core/relay`) is a separate git submodule registered in `.harness/projects.json` and is not part of `core`'s Work Items.
+    </technical_quality>
+    <design_polish>
+      All colors come from the documented palette. All animations respect `prefers-reduced-motion`. The embeddable widget renders cleanly inside a 300px column on a third-party status page. The dashboard renders cleanly at 1920×1080, 1366×768, 768×1024 and 375×667. Severity and status badges are always uppercase, always with a 1px tracking, always with the palette color, never inline-styled. No emoji in production UI text.
+    </design_polish>
+  </success_criteria>
+</project_specification>

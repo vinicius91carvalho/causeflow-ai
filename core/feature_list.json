@@ -1,0 +1,988 @@
+[
+  {
+    "id": "WI-AC-001",
+    "acceptance_check_id": "AC-001",
+    "acceptance_checks": [
+      "AC-001"
+    ],
+    "context": "foundation",
+    "category": "foundation",
+    "title": "Run `docker-compose up -d`; within 60 seconds the ministack, redis, langfuse ...",
+    "description": "Run `docker-compose up -d`; within 60 seconds the ministack, redis, langfuse and hindsight containers report healthy. The init script `infra/localstack/init/01-create-resources.sh` has created the causeflow DynamoDB table, 4 SQS queues, 4 DLQs and the KMS alias `alias/causeflow-token-encryption`. A `curl http://localhost:4566/_ministack/health` returns 200.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-001 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-001 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-002",
+    "acceptance_check_id": "AC-002",
+    "acceptance_checks": [
+      "AC-002"
+    ],
+    "context": "foundation",
+    "category": "foundation",
+    "title": "Run `pnpm dev`; within 10 seconds the Hono API is listening on PORT (default ...",
+    "description": "Run `pnpm dev`; within 10 seconds the Hono API is listening on PORT (default 3099). A `curl http://localhost:3099/health` returns 200 with a JSON body listing {dynamodb: ok, redis: ok, sqs: ok, anthropic: ok} (Anthropic check is skipped when no key is configured).",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-002 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-002 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-003",
+    "acceptance_check_id": "AC-003",
+    "acceptance_checks": [
+      "AC-003"
+    ],
+    "context": "foundation",
+    "category": "foundation",
+    "title": "A `curl http://localhost:3099/dashboard` returns the Alpine.js SPA shell HTML...",
+    "description": "A `curl http://localhost:3099/dashboard` returns the Alpine.js SPA shell HTML (Alpine + Tailwind present, an x-data root element). A `curl http://localhost:3099/widget/widget.js` returns the Vite-built widget bundle with a 200 Content-Type of application/javascript.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-003 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-003 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-004",
+    "acceptance_check_id": "AC-004",
+    "acceptance_checks": [
+      "AC-004"
+    ],
+    "context": "foundation",
+    "category": "foundation",
+    "title": "Run `pnpm lint-invariants` (which calls `infra/scripts/check-invariants.ts`);...",
+    "description": "Run `pnpm lint-invariants` (which calls `infra/scripts/check-invariants.ts`); the command exits 0. Manually introducing a cross-module direct function call (e.g. importing a use case from another module's `application/`) and re-running `pnpm lint-invariants` makes the command exit non-zero with a specific I1–I11 violation message.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-004 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-004 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-005",
+    "acceptance_check_id": "AC-005",
+    "acceptance_checks": [
+      "AC-005"
+    ],
+    "context": "foundation",
+    "category": "foundation",
+    "title": "The DynamoDB table `causeflow-local` exists with 3 GSIs and Point-in-Time Rec...",
+    "description": "The DynamoDB table `causeflow-local` exists with 3 GSIs and Point-in-Time Recovery enabled. The list of tables via `aws --endpoint-url http://localhost:4566 dynamodb list-tables` includes `causeflow-local`; `aws --endpoint-url http://localhost:4566 dynamodb describe-table` shows `PointInTimeRecoveryDescription.PointInTimeRecoveryStatus = ENABLED` and 3 GlobalSecondaryIndexes.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-005 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-005 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-006",
+    "acceptance_check_id": "AC-006",
+    "acceptance_checks": [
+      "AC-006"
+    ],
+    "context": "foundation",
+    "category": "foundation",
+    "title": "The four SQS queues (alerts / triage / investigation / remediation) and their...",
+    "description": "The four SQS queues (alerts / triage / investigation / remediation) and their four matching DLQs exist on ministack; the KMS alias `alias/causeflow-token-encryption` exists. `aws --endpoint-url http://localhost:4566 sqs list-queues` returns 8 URLs and `aws --endpoint-url http://localhost:4566 kms list-aliases` returns an alias whose name ends with `alias/causeflow-token-encryption`.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-006 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-006 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-007",
+    "acceptance_check_id": "AC-007",
+    "acceptance_checks": [
+      "AC-007"
+    ],
+    "context": "tenancy-and-access",
+    "category": "functional",
+    "title": "POST a valid Clerk session JWT to /api/v1/auth/login",
+    "description": "POST a valid Clerk session JWT to /api/v1/auth/login. The auth middleware extracts the user, the tenant middleware extracts the tenant from the path, and the response contains the user, the tenant, and the user's role. A second call with no Authorization header returns 401.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-007 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-007 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-008",
+    "acceptance_check_id": "AC-008",
+    "acceptance_checks": [
+      "AC-008"
+    ],
+    "context": "tenancy-and-access",
+    "category": "functional",
+    "title": "As a `viewer`, GET /api/v1/audit returns 200; DELETE /api/v1/audit/:id return...",
+    "description": "As a `viewer`, GET /api/v1/audit returns 200; DELETE /api/v1/audit/:id returns 403 (RBAC). As an `admin`, the same DELETE returns 200 and the audit chain advances (the new entry's previousHash matches the prior tip).",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-008 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-008 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-007"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-009",
+    "acceptance_check_id": "AC-009",
+    "acceptance_checks": [
+      "AC-009"
+    ],
+    "context": "tenancy-and-access",
+    "category": "functional",
+    "title": "POST /api/v1/api-keys with a name and scopes returns a plaintext API key on c...",
+    "description": "POST /api/v1/api-keys with a name and scopes returns a plaintext API key on creation; subsequent calls to /api/v1/whoami with `Authorization: Bearer &lt;key&gt;` resolve the user and tenant. A second POST that would exceed the per-tenant key quota returns 429.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-009 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-009 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-007"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-010",
+    "acceptance_check_id": "AC-010",
+    "acceptance_checks": [
+      "AC-010"
+    ],
+    "context": "tenancy-and-access",
+    "category": "functional",
+    "title": "Two tenants A and B exist",
+    "description": "Two tenants A and B exist. Tenant A calls GET /api/v1/incident/abc123 and gets 200 for incident abc123 (owned by A). Tenant B calls the same URL and gets 404 (the incident is invisible). Direct PK construction across tenants is rejected at the application layer.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-010 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-010 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-007"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-011",
+    "acceptance_check_id": "AC-011",
+    "acceptance_checks": [
+      "AC-011"
+    ],
+    "context": "billing",
+    "category": "functional",
+    "title": "Stripe test mode: POST /api/v1/billing/checkout-session with a valid price ID...",
+    "description": "Stripe test mode: POST /api/v1/billing/checkout-session with a valid price ID returns a Stripe checkout URL. The Stripe CLI's `stripe trigger checkout.session.completed` posts a webhook; the webhook endpoint validates the signature, creates a BillingAccountEntity for the user, and the response is 200.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-011 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-011 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-007"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-012",
+    "acceptance_check_id": "AC-012",
+    "acceptance_checks": [
+      "AC-012"
+    ],
+    "context": "billing",
+    "category": "functional",
+    "title": "After a successful investigation completes, a UsageRecordEntity is written wi...",
+    "description": "After a successful investigation completes, a UsageRecordEntity is written with the investigation ID, the per-agent token counts and the per-agent cost. GET /api/v1/billing/usage returns a paginated list of usage records scoped to the calling tenant only.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-012 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-012 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-011"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-013",
+    "acceptance_check_id": "AC-013",
+    "acceptance_checks": [
+      "AC-013"
+    ],
+    "context": "billing",
+    "category": "functional",
+    "title": "Stripe webhook with an invalid signature (mutated body) returns 400; valid si...",
+    "description": "Stripe webhook with an invalid signature (mutated body) returns 400; valid signature returns 200. After `customer.subscription.deleted` arrives, the tenant's plan drops to \"free\" and gated endpoints return 402.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-013 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-013 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-011"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-014",
+    "acceptance_check_id": "AC-014",
+    "acceptance_checks": [
+      "AC-014"
+    ],
+    "context": "ingestion",
+    "category": "functional",
+    "title": "POST a Datadog-shaped payload to /api/v1/webhooks/datadog with a valid HMAC h...",
+    "description": "POST a Datadog-shaped payload to /api/v1/webhooks/datadog with a valid HMAC header; the webhook-auth middleware verifies the signature, the parser extracts the alert, and the incident is persisted in IncidentEntity with status=received. A second POST with an invalid signature returns 401.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-014 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-014 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-015",
+    "acceptance_check_id": "AC-015",
+    "acceptance_checks": [
+      "AC-015"
+    ],
+    "context": "ingestion",
+    "category": "functional",
+    "title": "POST the same Datadog payload twice within the dedup window; only one Inciden...",
+    "description": "POST the same Datadog payload twice within the dedup window; only one IncidentEntity is created (the second call returns the existing incident ID and does not enqueue a duplicate triage message). After the dedup window elapses, a third identical POST creates a new incident.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-015 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-015 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-014"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-016",
+    "acceptance_check_id": "AC-016",
+    "acceptance_checks": [
+      "AC-016"
+    ],
+    "context": "ingestion",
+    "category": "functional",
+    "title": "POST Grafana-, CloudWatch-, and Sentry-shaped payloads to /api/v1/webhooks/{g...",
+    "description": "POST Grafana-, CloudWatch-, and Sentry-shaped payloads to /api/v1/webhooks/{grafana,cloudwatch,sentry}; each is parsed into an IncidentEntity and the parser-specific fields land in the right columns. POST /api/v1/admin/incidents with a manual payload creates an incident tagged source=manual.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-016 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-016 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-017",
+    "acceptance_check_id": "AC-017",
+    "acceptance_checks": [
+      "AC-017"
+    ],
+    "context": "triage",
+    "category": "functional",
+    "title": "After an incident is ingested, within 30 seconds the triage worker pulls the ...",
+    "description": "After an incident is ingested, within 30 seconds the triage worker pulls the message, calls the Anthropic API with ANTHROPIC_TRIAGE_MODEL (default claude-sonnet-4-6), and updates the incident with a severity (one of critical|high|medium|low) and a suggested investigation mode. GET /api/v1/triage/:id returns the triaged incident with the severity set; GET /api/v1/triage lists triaged incidents for the tenant.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-017 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-017 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-014"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-018",
+    "acceptance_check_id": "AC-018",
+    "acceptance_checks": [
+      "AC-018"
+    ],
+    "context": "triage",
+    "category": "functional",
+    "title": "A Langfuse trace for the triage call exists in the local Langfuse UI at http:...",
+    "description": "A Langfuse trace for the triage call exists in the local Langfuse UI at http://localhost:3001, tagged with the tenant ID and incident ID, and the trace contains the prompt, completion, token counts and cost. A trace is also recorded in the trace's `output` for the incident's audit chain.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-018 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-018 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-017"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-019",
+    "acceptance_check_id": "AC-019",
+    "acceptance_checks": [
+      "AC-019"
+    ],
+    "context": "investigation",
+    "category": "functional",
+    "title": "Once an incident is triaged, the investigation worker starts a run with at le...",
+    "description": "Once an incident is triaged, the investigation worker starts a run with at least 6 agents (log, metric, change, code, infra, db). The investigation routes return a run with status=running; the SSE stream at /api/v1/investigation/:id/stream emits per-agent events as they complete. The run finishes with status=succeeded and the final synthesis is stored.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-019 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-019 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-017"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-020",
+    "acceptance_check_id": "AC-020",
+    "acceptance_checks": [
+      "AC-020"
+    ],
+    "context": "investigation",
+    "category": "functional",
+    "title": "The finished investigation has at least one HypothesisEntity and at least one...",
+    "description": "The finished investigation has at least one HypothesisEntity and at least one EvidenceEntity per active agent. GET /api/v1/investigation/:id/evidence returns the evidence list grouped by agent, with confidence scores. GET /api/v1/investigation/:id/hypotheses returns the hypothesis tree with parent/child links.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-020 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-020 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-019"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-021",
+    "acceptance_check_id": "AC-021",
+    "acceptance_checks": [
+      "AC-021"
+    ],
+    "context": "investigation",
+    "category": "functional",
+    "title": "POST /api/v1/investigation/:id/chat with a follow-up question routes to the c...",
+    "description": "POST /api/v1/investigation/:id/chat with a follow-up question routes to the chat platform port, persists a ChatMessageEntity, and returns the agent's reply. Slack-equivalent: the same chat is mirrored to the connected Slack channel (when Slack is installed) and the Slack thread ID is stored on the message.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-021 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-021 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-019"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-022",
+    "acceptance_check_id": "AC-022",
+    "acceptance_checks": [
+      "AC-022"
+    ],
+    "context": "investigation",
+    "category": "functional",
+    "title": "Switching ANTHROPIC_TRIAGE_MODEL or ANTHROPIC_INVESTIGATION_MODEL via .env ch...",
+    "description": "Switching ANTHROPIC_TRIAGE_MODEL or ANTHROPIC_INVESTIGATION_MODEL via .env changes the model used on the next run; the Langfuse trace shows the new model name. ANTHROPIC_API_KEY=invalid causes the Anthropic health check to flip to `degraded` and the investigation run to fail with a clear circuit-breaker error.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-022 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-022 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-019"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-023",
+    "acceptance_check_id": "AC-023",
+    "acceptance_checks": [
+      "AC-023"
+    ],
+    "context": "remediation",
+    "category": "functional",
+    "title": "After a successful investigation, GET /api/v1/remediation/:id/proposal return...",
+    "description": "After a successful investigation, GET /api/v1/remediation/:id/proposal returns a plan listing the AWS actions to take. POST /api/v1/remediation/:id/approve with an admin JWT returns 200 and creates an ApprovalEntity. A second approve on the same remediation returns 409 (already approved).",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-023 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-023 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-019"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-024",
+    "acceptance_check_id": "AC-024",
+    "acceptance_checks": [
+      "AC-024"
+    ],
+    "context": "remediation",
+    "category": "functional",
+    "title": "The approved plan runs against the stub cloud provider",
+    "description": "The approved plan runs against the stub cloud provider. RemediationEntity records each action with status=succeeded and a before/after diff. POST /api/v1/remediation/:id/rollback creates a follow-up plan with the inverse actions; executing it reverts the state and writes the rollback to the audit chain.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-024 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-024 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-023"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-025",
+    "acceptance_check_id": "AC-025",
+    "acceptance_checks": [
+      "AC-025"
+    ],
+    "context": "remediation",
+    "category": "functional",
+    "title": "A successful remediation is pinnable to a runbook",
+    "description": "A successful remediation is pinnable to a runbook. POST /api/v1/skills/{skillId}/runbook with the remediation ID persists a RunbookRegistryEntity. A later similar incident in the same tenant surfaces the runbook in the orchestrator's recall results.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-025 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-025 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-024"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-026",
+    "acceptance_check_id": "AC-026",
+    "acceptance_checks": [
+      "AC-026"
+    ],
+    "context": "memory-and-skills",
+    "category": "functional",
+    "title": "After a successful investigation, the Hindsight bank for the tenant receives ...",
+    "description": "After a successful investigation, the Hindsight bank for the tenant receives a write with the hypothesis + the resolved runbook (verifiable via `curl http://localhost:8888/health` returning 200 and the hindsight dashboard showing the new entry). A new investigation with a similar alert fingerprint reads from the bank and surfaces the prior runbook in the orchestrator's recall payload.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-026 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-026 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-019"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-027",
+    "acceptance_check_id": "AC-027",
+    "acceptance_checks": [
+      "AC-027"
+    ],
+    "context": "memory-and-skills",
+    "category": "functional",
+    "title": "POST /api/v1/skills creates a per-tenant skill (runbook / escalation path)",
+    "description": "POST /api/v1/skills creates a per-tenant skill (runbook / escalation path). The skill is visible in GET /api/v1/skills for the same tenant and not for any other tenant. A new investigation that matches the skill's fingerprint is steered to invoke it (visible in the Langfuse trace as a system-prompt injection).",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-027 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-027 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-026"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-028",
+    "acceptance_check_id": "AC-028",
+    "acceptance_checks": [
+      "AC-028"
+    ],
+    "context": "code-intelligence",
+    "category": "functional",
+    "title": "POST /api/v1/code-knowledge/repos with a repo URL and credentials indexes the...",
+    "description": "POST /api/v1/code-knowledge/repos with a repo URL and credentials indexes the repo: RepoNodeEntity, ServiceEdgeEntity and PackageDependencyEntity are written. GET /api/v1/code-knowledge/search?q=retry returns matching repos + lines, ranked by PatternEntity confidence.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-028 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-028 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-029",
+    "acceptance_check_id": "AC-029",
+    "acceptance_checks": [
+      "AC-029"
+    ],
+    "context": "code-intelligence",
+    "category": "functional",
+    "title": "During an investigation on a stack-trace alert, the code agent reads the inde...",
+    "description": "During an investigation on a stack-trace alert, the code agent reads the indexed code and returns a \"service=X, function=Y\" answer that is consistent with RepoServiceMapEntity. The fix proposal references the actual file path; approving it opens a CodeCommit PR through the remediation flow.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-029 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-029 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-028"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-030",
+    "acceptance_check_id": "AC-030",
+    "acceptance_checks": [
+      "AC-030"
+    ],
+    "context": "integrations-and-notifications",
+    "category": "functional",
+    "title": "POST /api/v1/integrations/slack/install completes the OAuth dance; the bot to...",
+    "description": "POST /api/v1/integrations/slack/install completes the OAuth dance; the bot token + channel mapping are stored encrypted (KMS-encrypted ciphertext in SlackOAuthStateEntity / SlackNotificationEntity). A test event posted to /api/v1/integrations/slack/events with a valid signing secret triggers a chat reply; a tampered body returns 401.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-030 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-030 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-031",
+    "acceptance_check_id": "AC-031",
+    "acceptance_checks": [
+      "AC-031"
+    ],
+    "context": "integrations-and-notifications",
+    "category": "functional",
+    "title": "With a Composio API key configured, GET /api/v1/integrations/composio/tools r...",
+    "description": "With a Composio API key configured, GET /api/v1/integrations/composio/tools returns the list of available tools; POST /api/v1/integrations/composio/triggers with a trigger payload schedules a polling subscription (TriggerEntity). The trigger fires when the upstream source updates and the resulting event lands in the triage queue.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-031 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-031 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-032",
+    "acceptance_check_id": "AC-032",
+    "acceptance_checks": [
+      "AC-032"
+    ],
+    "context": "integrations-and-notifications",
+    "category": "functional",
+    "title": "With the relay running in the customer sample network, a `psql` from the host...",
+    "description": "With the relay running in the customer sample network, a `psql` from the host against `order-postgres:5432` is refused (network isolated). The relay instead connects to `ws://localhost:3099/v1/relay/connect` and the investigation's DB analyst agent queries the order DB through the relay; the response is identical to a direct query.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-032 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-032 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-033",
+    "acceptance_check_id": "AC-033",
+    "acceptance_checks": [
+      "AC-033"
+    ],
+    "context": "integrations-and-notifications",
+    "category": "functional",
+    "title": "Subscribe a browser to VAPID web push: POST /api/v1/notifications/subscribe w...",
+    "description": "Subscribe a browser to VAPID web push: POST /api/v1/notifications/subscribe with the endpoint + keys. On any incident severity change, the subscriber receives a push with the incident title and a deep link to /dashboard/incidents/:id. Revoking the subscription via DELETE removes the push record.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-033 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-033 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-034",
+    "acceptance_check_id": "AC-034",
+    "acceptance_checks": [
+      "AC-034"
+    ],
+    "context": "widget-and-portal",
+    "category": "functional",
+    "title": "The widget bundle is loadable from /widget/widget.js (Vite build)",
+    "description": "The widget bundle is loadable from /widget/widget.js (Vite build). Mounting the widget with a valid widget-session token renders a read-only incident panel; the panel shows the latest investigations for the tenant. Mounting with an invalid token renders an \"unauthorized\" state and never discloses incident data.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-034 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-034 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-035",
+    "acceptance_check_id": "AC-035",
+    "acceptance_checks": [
+      "AC-035"
+    ],
+    "context": "widget-and-portal",
+    "category": "functional",
+    "title": "The dashboard SPA at /dashboard renders, on first load, a sidebar with the te...",
+    "description": "The dashboard SPA at /dashboard renders, on first load, a sidebar with the tenant's name, a list of recent incidents, and a \"New investigation\" button. Clicking an incident opens a detail view with the investigation's evidence, hypotheses, chat panel and a remediation panel; the panels stream live updates over SSE as the agents run.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-035 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-035 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-034"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-036",
+    "acceptance_check_id": "AC-036",
+    "acceptance_checks": [
+      "AC-036"
+    ],
+    "context": "observability-and-ops",
+    "category": "functional",
+    "title": "A user action in the dashboard (e.g",
+    "description": "A user action in the dashboard (e.g. approving a remediation) generates an OpenTelemetry span with a correlation id; the same id is searchable in Langfuse. With SENTRY_DSN set, an unhandled exception in a unit test scenario surfaces in Sentry's Issues view within 30 seconds.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-036 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-036 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-037",
+    "acceptance_check_id": "AC-037",
+    "acceptance_checks": [
+      "AC-037"
+    ],
+    "context": "observability-and-ops",
+    "category": "functional",
+    "title": "The in-process scheduler (src/shared/infra/scheduler/scheduler.ts) runs the D...",
+    "description": "The in-process scheduler (src/shared/infra/scheduler/scheduler.ts) runs the DLQ redrive job on its interval: a message manually pushed to a DLQ is re-driven to the source queue within one tick. The cost rollup job aggregates UsageRecordEntity into a per-tenant daily total and writes a UsageRecordEntity tagged type=daily_rollup.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-037 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-037 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-038",
+    "acceptance_check_id": "AC-038",
+    "acceptance_checks": [
+      "AC-038"
+    ],
+    "context": "observability-and-ops",
+    "category": "functional",
+    "title": "Each investigation's total cost in src/shared/domain/cost.ts is computed from...",
+    "description": "Each investigation's total cost in src/shared/domain/cost.ts is computed from per-agent token counts; Langfuse publishes the same number to the metric recorder. A test run that exceeds the configured per-investigation ceiling is aborted and the incident is marked status=cost_exceeded, visible in /api/v1/investigation.",
+    "steps": [
+      "Step 1: Read the Acceptance Check AC-038 in project_specs.xml to understand the boundary it must satisfy.",
+      "Step 2: Exercise the boundary described in AC-038 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
+      "Step 3: If the observed response matches the acceptance description, set implementation=true (no code changes). If not, set implementation=false and capture the smallest possible diff to make it pass."
+    ],
+    "depends_on": [
+      "AC-019"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "attempts": 0,
+    "status": "verify-first"
+  }
+]
