@@ -102,3 +102,34 @@ Functional bootstrap is intact; the only defect was the literal AC-001 wording. 
 
 - `project_specs.xml` — AC-001 description + step 2 reworded to hoisted-linker semantics (spec amendment, not implementation code).
 - `harness-progress/foundation.md` — this journal entry.
+
+---
+
+## WI-AC-001 — Independent QA pass (qa-agent, attempt 2)
+
+**Result: qa=true, implementation=true** — passes against the amended AC-001 wording.
+
+### Re-verification (truly clean checkout: wiped every node_modules, then `pnpm install`)
+
+- Wiped all `node_modules` (root + every member); `git status` clean before install.
+- `pnpm install` (no flags) → **exit 0** (Scope: all 8 workspace projects, +1370 packages, Done in 5.2s, pnpm v10.33.0). ✓
+- `pnpm install --frozen-lockfile` (idempotency re-run) → **exit 0** (Done in 1.2s, pnpm v10.33.0); lockfile unchanged; `git status --short` clean after install. ✓
+- `package.json` `packageManager: pnpm@10.33.0` matches active pnpm 10.33.0. ✓
+- `.npmrc` pins all four required settings: `node-linker=hoisted`, `package-import-method=copy`, `auto-install-peers=true`, `strict-peer-dependencies=false`. ✓
+- `pnpm-workspace.yaml` globs `apps/*` + `packages/*` → 7 members enumerated in AC-001 all present with `package.json`. ✓
+- node_modules layout matches hoisted-linker semantics (amended step 2): root `node_modules/` (424 entries) + per-member `node_modules/` only where pnpm isolates (apps/website, apps/dashboard, packages/ui). packages/shared, packages/analytics, packages/auth, packages/forms have no per-member `node_modules/` — correct hoisted behavior, no version conflicts to isolate. ✓
+- Dependency resolution from hoisted root for all 7 members (the real bootstrap boundary):
+  - packages/shared → typescript ✓
+  - packages/analytics → react ✓
+  - packages/auth → next-auth, @auth/core, @aws-sdk/client-cognito-identity-provider, zod, react, next ✓
+  - packages/forms → react, zod ✓
+  - packages/ui → class-variance-authority, clsx, tailwind-merge, lucide-react, @radix-ui/react-slot, react-dom ✓
+  - apps/website → next ✓
+  - apps/dashboard → next, @clerk/nextjs ✓
+- pnpm's "Ignored build scripts" warning (@clerk/shared, @parcel/watcher, @sentry/cli, @swc/core, esbuild, sharp) is pnpm 10's default postinstall-script gating — not an install failure; `--frozen-lockfile` exits 0 and all runtime deps resolve. Out of scope for AC-001 (project policy decision, not a defect).
+
+### Verdict
+
+All three amended AC-001 steps pass at the real external boundary (`pnpm install` / `pnpm install --frozen-lockfile` against the committed `pnpm-lock.yaml`). Functional bootstrap is intact, idempotent, and zero-diff. No defects found.
+
+qa=true, implementation=true for WI-AC-001.
