@@ -12,7 +12,9 @@
       "Step 2: wait for `GET http://localhost:3000/` to return HTTP 200.",
       "Step 3: verify the response body contains the site name 'CauseFlow AI' and the intro card labelled 'Quickstart'; stop the dev server and mark the audit as passing only if both appear."
     ],
-    "acceptance_checks": ["AC-001"],
+    "acceptance_checks": [
+      "AC-001"
+    ],
     "depends_on": [],
     "verify_first": true,
     "implementation": false,
@@ -30,7 +32,9 @@
       "Step 2: verify exit code is 0.",
       "Step 3: verify stdout/stderr reports zero broken links; the audit passes only on a clean run."
     ],
-    "acceptance_checks": ["AC-002"],
+    "acceptance_checks": [
+      "AC-002"
+    ],
     "depends_on": [],
     "verify_first": true,
     "implementation": false,
@@ -48,7 +52,9 @@
       "Step 2: validate `docs.json` against `https://mintlify.com/docs.json` (or run `mint dev` and confirm no schema/parse error).",
       "Step 3: walk every `tab` -> `group` -> `pages` entry and confirm the referenced file exists as `.mdx` under the project root; the audit passes only if every page resolves."
     ],
-    "acceptance_checks": ["AC-003"],
+    "acceptance_checks": [
+      "AC-003"
+    ],
     "depends_on": [],
     "verify_first": true,
     "implementation": false,
@@ -66,8 +72,12 @@
       "Step 2: confirm each file's frontmatter block contains `title:` and `description:` keys.",
       "Step 3: a scripted `find … head -5 … grep` reports zero `MISSING TITLE: …` lines; the audit passes only if every file is compliant."
     ],
-    "acceptance_checks": ["AC-004"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-004"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -84,8 +94,12 @@
       "Step 2: run `awk`-style length check on the value of each `description`.",
       "Step 3: confirm no value exceeds 160 characters; the audit passes only if all descriptions fit."
     ],
-    "acceptance_checks": ["AC-005"],
-    "depends_on": ["AC-004"],
+    "acceptance_checks": [
+      "AC-005"
+    ],
+    "depends_on": [
+      "AC-004"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -102,8 +116,12 @@
       "Step 2: open the Changelog tab and load the index page.",
       "Step 3: confirm the rendered H1 equals the `title` field in `changelog/index.mdx`; the audit passes only if all four tabs render and the H1 matches."
     ],
-    "acceptance_checks": ["AC-006"],
-    "depends_on": ["AC-003"],
+    "acceptance_checks": [
+      "AC-006"
+    ],
+    "depends_on": [
+      "AC-003"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -120,8 +138,12 @@
       "Step 2: `GET /quickstart` and confirm HTTP 200.",
       "Step 3: confirm the response body is the Quickstart page (H1 matches the Quickstart frontmatter `title`); the audit passes only if the redirect resolves cleanly."
     ],
-    "acceptance_checks": ["AC-007"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-007"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -138,8 +160,12 @@
       "Step 2: load each page in `mint dev` and confirm the response is HTTP 200 with no MDX parse error in the dev log.",
       "Step 3: the audit passes only if all seven pages render cleanly."
     ],
-    "acceptance_checks": ["AC-008"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-008"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -156,8 +182,12 @@
       "Step 2: load each page in `mint dev` and confirm HTTP 200 with no MDX parse error in the dev log.",
       "Step 3: the audit passes only if all seven pages render cleanly."
     ],
-    "acceptance_checks": ["AC-009"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-009"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -174,8 +204,12 @@
       "Step 2: load each page in `mint dev` and confirm HTTP 200 with no MDX parse error in the dev log.",
       "Step 3: the audit passes only if all nine pages render cleanly."
     ],
-    "acceptance_checks": ["AC-010"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-010"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -192,8 +226,12 @@
       "Step 2: load each page in `mint dev` and confirm HTTP 200 with no MDX parse error in the dev log.",
       "Step 3: the audit passes only if all nine pages render cleanly."
     ],
-    "acceptance_checks": ["AC-011"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-011"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -210,8 +248,12 @@
       "Step 2: confirm H1 is 'API introduction'.",
       "Step 3: confirm the body contains the exact base URL `https://api.causeflow.ai` and the 'v1' version note, and the dev log has no parse error for that file."
     ],
-    "acceptance_checks": ["AC-012"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-012"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -228,8 +270,12 @@
       "Step 2: load each page in `mint dev` (or curl its rendered URL) and read the H1.",
       "Step 3: confirm the rendered H1 matches the `title` field of that page's frontmatter; the audit passes only if every page matches."
     ],
-    "acceptance_checks": ["AC-013"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-013"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -246,8 +292,12 @@
       "Step 2: confirm sections for JWT Bearer, API keys, and HMAC verification are present with code examples.",
       "Step 3: extract the `verifyWebhookSignature` snippet into a temp file and run `node --check` on it; the audit passes only if it parses."
     ],
-    "acceptance_checks": ["AC-014"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-014"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -264,8 +314,12 @@
       "Step 2: confirm a JSON error envelope example is rendered.",
       "Step 3: confirm the status-code table lists 400/401/403/404/409/429/500/503, and a cursor-pagination example shows `items`, `cursor`, and `count`."
     ],
-    "acceptance_checks": ["AC-015"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-015"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -282,8 +336,12 @@
       "Step 2: confirm zero matches.",
       "Step 3: spot-check a sample of api-reference pages to confirm every example URL uses the `https://api.causeflow.ai` host."
     ],
-    "acceptance_checks": ["AC-016"],
-    "depends_on": ["AC-013"],
+    "acceptance_checks": [
+      "AC-016"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -300,8 +358,12 @@
       "Step 2: confirm zero matches (only `ten_EXAMPLE_…` and `cflo_live_sk_EXAMPLE_…` should remain after the `EXAMPLE` filter).",
       "Step 3: confirm no full JWTs (e.g. `eyJ…longbody…`) appear in any example; the audit passes only if all placeholders follow the approved shape."
     ],
-    "acceptance_checks": ["AC-017"],
-    "depends_on": ["AC-013"],
+    "acceptance_checks": [
+      "AC-017"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -318,8 +380,12 @@
       "Step 2: confirm the count is exactly 20.",
       "Step 3: open `api-reference/introduction.mdx` and confirm its stated event count is also 20 (or it links to outbound-events.mdx as the source of truth); the audit passes only when both numbers align."
     ],
-    "acceptance_checks": ["AC-018"],
-    "depends_on": ["AC-013"],
+    "acceptance_checks": [
+      "AC-018"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -336,8 +402,12 @@
       "Step 2: load each page in `mint dev` and confirm HTTP 200 with no MDX parse error.",
       "Step 3: load `relay/overview.mdx` and confirm the Mermaid `flowchart TD` block is served as inline SVG / rendered diagram, not raw text; the audit passes only on full coverage plus a rendered diagram."
     ],
-    "acceptance_checks": ["AC-019"],
-    "depends_on": ["AC-001"],
+    "acceptance_checks": [
+      "AC-019"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -354,8 +424,12 @@
       "Step 2: `grep -E 'resources|allowedOperations|maxRowsPerQuery' relay/configuration.mdx` returns ≥ 1 match each.",
       "Step 3: `grep -E '\\$\\{[A-Z_]+\\}' relay/configuration.mdx` returns ≥ 1 match (the `${VAR_NAME}` substitution pattern); the audit passes only if all five required keys/patterns are documented."
     ],
-    "acceptance_checks": ["AC-020"],
-    "depends_on": ["AC-019"],
+    "acceptance_checks": [
+      "AC-020"
+    ],
+    "depends_on": [
+      "AC-019"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -372,8 +446,12 @@
       "Step 2: `grep -E 'Not a (proxy|tunnel)|replication agent' relay/overview.mdx` returns three matches.",
       "Step 3: the audit passes only if the section names all three anti-patterns."
     ],
-    "acceptance_checks": ["AC-021"],
-    "depends_on": ["AC-019"],
+    "acceptance_checks": [
+      "AC-021"
+    ],
+    "depends_on": [
+      "AC-019"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -390,8 +468,12 @@
       "Step 2: confirm zero matches.",
       "Step 3: spot-check a few `.mdx` files that reference severity to confirm only the approved tokens (`critical`, `high`, `medium`, `low`, `info`) appear."
     ],
-    "acceptance_checks": ["AC-022"],
-    "depends_on": ["AC-013"],
+    "acceptance_checks": [
+      "AC-022"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -408,8 +490,12 @@
       "Step 2: confirm zero matches for `dismissed` or `failed`.",
       "Step 3: confirm every `pending` occurrence is in a step/approval context, not an `Incident.status`; the audit passes only if the lifecycle enum is respected."
     ],
-    "acceptance_checks": ["AC-023"],
-    "depends_on": ["AC-013"],
+    "acceptance_checks": [
+      "AC-023"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -426,8 +512,12 @@
       "Step 2: confirm zero matches across all 133 `.mdx` files.",
       "Step 3: spot-check `INVARIANTS.md` aligns with the regex; the audit passes only if zero matches return and `INVARIANTS.md` documents the boundary."
     ],
-    "acceptance_checks": ["AC-024"],
-    "depends_on": ["AC-013"],
+    "acceptance_checks": [
+      "AC-024"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -444,9 +534,172 @@
       "Step 2: confirm the only role names listed in any RBAC context are `admin` and `member`.",
       "Step 3: the audit passes only if no third role token (e.g. `owner`, `viewer`, `editor`) appears under any `roles` or `role:` line."
     ],
-    "acceptance_checks": ["AC-025"],
-    "depends_on": ["AC-013"],
+    "acceptance_checks": [
+      "AC-025"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
     "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-026",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "From a clean checkout with a blank shell env (no `MINTLIFY_*`, `MINTLIFY_AUTH_TOKEN`, `MINTLIFY_DEPLOY_TOKEN`, `CLERK_*`, `STRIPE_*`, `AWS_*`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SENTRY_*`, `LANGFUSE_*`, `SVIX_*`, `SLACK_*`, or `COMPOSIO_*` set), `docker compose up -d` from the project root brings up the `causeflow-docs` service on port 3000. Within 60 seconds `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` returns 200 and the response body contains the site name \"CauseFlow AI\" and the intro card \"Quickstart\". `docker logs causeflow-docs 2>&1 | grep -E 'mintlify\\.com|mintlify\\.app|clerk\\.com|stripe\\.com|amazonaws\\.com|anthropic\\.com|claude\\.ai|openai\\.com|chatgpt\\.com|sentry\\.io|langfuse\\.io|svix\\.com|slack\\.com|composio\\.dev'` returns zero matches.",
+    "steps": [
+      "Verify AC-026: From a clean checkout with a blank shell env (no `MINTLIFY_*`, `MINTLIFY_AUTH_TOKEN`, `MINTLIFY_DEPLOY_TOKEN`, `CLERK_*`, `STRIPE_*`, `AWS_*`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SENTRY_*`, `LANGFUSE_*`, `SVIX_*`, `SLACK_*`, or `COMPOSIO_*` set), `docker compose up -d` from the project root brings up the `causeflow-docs` service on port 3000. Within 60 seconds `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` returns 200 and the response body contains the site name \"CauseFlow AI\" and the intro card \"Quickstart\". `docker logs causeflow-docs 2>&1 | grep -E 'mintlify\\.com|mintlify\\.app|clerk\\.com|stripe\\.com|amazonaws\\.com|anthropic\\.com|claude\\.ai|openai\\.com|chatgpt\\.com|sentry\\.io|langfuse\\.io|svix\\.com|slack\\.com|composio\\.dev'` returns zero matches."
+    ],
+    "acceptance_checks": [
+      "AC-026"
+    ],
+    "depends_on": [],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-027",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "The project ships a multi-stage `Dockerfile` at the project root. The `builder` stage installs Node.js and the `mint` CLI (Mintlify's open-source CLI) and produces a built site (static export or a runnable dev server bundle). The `runtime` stage copies the built site into a minimal image — `nginx:alpine` for the static variant, or `node:22-alpine` for the dev-server variant. The runtime image contains no `.env`, no `MINTLIFY_*` env vars, and no Mintlify account credentials. `docker build . -t causeflow-docs:test` exits 0; for the nginx variant the resulting image is under 200 MB (no `node_modules` carried into the runtime stage). `docker inspect causeflow-docs:test` shows the runtime image has no entrypoint that talks to `mintlify.com` or any other external SaaS host.",
+    "steps": [
+      "Verify AC-027: The project ships a multi-stage `Dockerfile` at the project root. The `builder` stage installs Node.js and the `mint` CLI (Mintlify's open-source CLI) and produces a built site (static export or a runnable dev server bundle). The `runtime` stage copies the built site into a minimal image — `nginx:alpine` for the static variant, or `node:22-alpine` for the dev-server variant. The runtime image contains no `.env`, no `MINTLIFY_*` env vars, and no Mintlify account credentials. `docker build . -t causeflow-docs:test` exits 0; for the nginx variant the resulting image is under 200 MB (no `node_modules` carried into the runtime stage). `docker inspect causeflow-docs:test` shows the runtime image has no entrypoint that talks to `mintlify.com` or any other external SaaS host."
+    ],
+    "acceptance_checks": [
+      "AC-027"
+    ],
+    "depends_on": [
+      "AC-026"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-028",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "`docs.json#contextual.options` no longer contains `claude` or `chatgpt`. After a reader invokes the contextual menu on any page (for example via Playwright clicking the per-page \"contextual\" trigger), no outbound request is made to `anthropic.com`, `claude.ai`, `openai.com`, or `chatgpt.com` (verifiable via Playwright network logging). The contextual menu only offers local actions (`copy` and `view`) — the AI-provider delegate that the Mintlify contextual feature wired to those SaaS endpoints is fully removed from the runtime path. `grep -E '\"(claude|chatgpt)\"' docs.json` returns zero matches.",
+    "steps": [
+      "Verify AC-028: `docs.json#contextual.options` no longer contains `claude` or `chatgpt`. After a reader invokes the contextual menu on any page (for example via Playwright clicking the per-page \"contextual\" trigger), no outbound request is made to `anthropic.com`, `claude.ai`, `openai.com`, or `chatgpt.com` (verifiable via Playwright network logging). The contextual menu only offers local actions (`copy` and `view`) — the AI-provider delegate that the Mintlify contextual feature wired to those SaaS endpoints is fully removed from the runtime path. `grep -E '\"(claude|chatgpt)\"' docs.json` returns zero matches."
+    ],
+    "acceptance_checks": [
+      "AC-028"
+    ],
+    "depends_on": [
+      "AC-026"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-029",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "No Mintlify hosting SaaS. `grep -rE 'mintlify\\.com|mintlify\\.app|mintlify deploy|mintlify auth' --include='*.{json,mdx,yml,yaml,sh,Dockerfile,ts,js,mjs,md}'` returns no matches in the project. The Dockerfile does not invoke `mintlify deploy` or `mint deploy` and does not require a Mintlify account token. `README.md` documents `docker compose up` as the canonical run path; the prior \"Changes pushed to the default branch are deployed automatically via the Mintlify GitHub integration\" sentence is removed. No GitHub Actions workflow in the project runs `mint deploy` or `mintlify deploy`.",
+    "steps": [
+      "Verify AC-029: No Mintlify hosting SaaS. `grep -rE 'mintlify\\.com|mintlify\\.app|mintlify deploy|mintlify auth' --include='*.{json,mdx,yml,yaml,sh,Dockerfile,ts,js,mjs,md}'` returns no matches in the project. The Dockerfile does not invoke `mintlify deploy` or `mint deploy` and does not require a Mintlify account token. `README.md` documents `docker compose up` as the canonical run path; the prior \"Changes pushed to the default branch are deployed automatically via the Mintlify GitHub integration\" sentence is removed. No GitHub Actions workflow in the project runs `mint deploy` or `mintlify deploy`."
+    ],
+    "acceptance_checks": [
+      "AC-029"
+    ],
+    "depends_on": [
+      "AC-026"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-030",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "The project's `.env.example` is either absent or contains only optional `MINTLIFY_*` overrides (e.g. a port override). The container's required env vars are minimal: `PORT` (default 3000) for the runtime stage. No `MINTLIFY_AUTH_TOKEN`, `MINTLIFY_DEPLOY_TOKEN`, `MINTLIFY_DEPLOYMENT_ID`, `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LANGFUSE_*`, `SVIX_*`, `SLACK_*`, or `COMPOSIO_*` env vars are referenced anywhere in `Dockerfile`, `docker-compose.yml`, or `docs.json`. `grep -E 'CLERK_|STRIPE_|AWS_|SENTRY_|LANGFUSE_|SVIX_|SLACK_|COMPOSIO_|MINTLIFY_(AUTH|DEPLOY)' .env.example Dockerfile docker-compose.yml` returns zero matches.",
+    "steps": [
+      "Verify AC-030: The project's `.env.example` is either absent or contains only optional `MINTLIFY_*` overrides (e.g. a port override). The container's required env vars are minimal: `PORT` (default 3000) for the runtime stage. No `MINTLIFY_AUTH_TOKEN`, `MINTLIFY_DEPLOY_TOKEN`, `MINTLIFY_DEPLOYMENT_ID`, `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LANGFUSE_*`, `SVIX_*`, `SLACK_*`, or `COMPOSIO_*` env vars are referenced anywhere in `Dockerfile`, `docker-compose.yml`, or `docs.json`. `grep -E 'CLERK_|STRIPE_|AWS_|SENTRY_|LANGFUSE_|SVIX_|SLACK_|COMPOSIO_|MINTLIFY_(AUTH|DEPLOY)' .env.example Dockerfile docker-compose.yml` returns zero matches."
+    ],
+    "acceptance_checks": [
+      "AC-030"
+    ],
+    "depends_on": [
+      "AC-026"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-031",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "Regression: all 25 original acceptance checks (AC-001 through AC-025) pass against the docker-compose stack. Specifically: `curl http://localhost:3000/` returns 200 with the homepage content; `GET /quickstart` returns 200 and lands on the Quickstart page (the redirect from `docs.json#redirects` still resolves); every navigation tab (Documentation, API reference, Relay, Changelog) renders; the Mermaid diagram on the Relay overview renders as SVG (not raw code); the Authentication page covers JWT Bearer, API key, and HMAC verification; the Outbound events catalog still lists 20 events; the content invariants from AC-022 through AC-025 (severity enum, status enum, no AWS ARNs / `.internal` / SQS URLs / LangFuse URLs / Hindsight URLs / KMS IDs, RBAC role enum) still hold across all 133 MDX files. `mint broken-links` against the source tree still exits 0 with zero broken links.",
+    "steps": [
+      "Verify AC-031: Regression: all 25 original acceptance checks (AC-001 through AC-025) pass against the docker-compose stack. Specifically: `curl http://localhost:3000/` returns 200 with the homepage content; `GET /quickstart` returns 200 and lands on the Quickstart page (the redirect from `docs.json#redirects` still resolves); every navigation tab (Documentation, API reference, Relay, Changelog) renders; the Mermaid diagram on the Relay overview renders as SVG (not raw code); the Authentication page covers JWT Bearer, API key, and HMAC verification; the Outbound events catalog still lists 20 events; the content invariants from AC-022 through AC-025 (severity enum, status enum, no AWS ARNs / `.internal` / SQS URLs / LangFuse URLs / Hindsight URLs / KMS IDs, RBAC role enum) still hold across all 133 MDX files. `mint broken-links` against the source tree still exits 0 with zero broken links."
+    ],
+    "acceptance_checks": [
+      "AC-031"
+    ],
+    "depends_on": [
+      "AC-026"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-032",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "The built site, when served by the runtime image, renders the same 133 MDX pages, the same four navigation tabs, the same redirect (`/quickstart` → `/getting-started/quickstart`), and the same Mintlify components (Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, ParamField, Tabs, Mermaid) without MDX parse errors. Every endpoint page listed under the API reference tab (incidents, triage, investigation, remediation, memory, skills, triggers, integrations, knowledge, graph, billing, notifications, audit, webhooks, GitHub, tenants, API keys, analytics, health, widget, relay) renders its H1 matching the `title` frontmatter. The Dockerfile's runtime stage is reproducible: rebuilding from a clean Docker cache produces a functionally identical image that passes AC-031.",
+    "steps": [
+      "Verify AC-032: The built site, when served by the runtime image, renders the same 133 MDX pages, the same four navigation tabs, the same redirect (`/quickstart` → `/getting-started/quickstart`), and the same Mintlify components (Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, ParamField, Tabs, Mermaid) without MDX parse errors. Every endpoint page listed under the API reference tab (incidents, triage, investigation, remediation, memory, skills, triggers, integrations, knowledge, graph, billing, notifications, audit, webhooks, GitHub, tenants, API keys, analytics, health, widget, relay) renders its H1 matching the `title` frontmatter. The Dockerfile's runtime stage is reproducible: rebuilding from a clean Docker cache produces a functionally identical image that passes AC-031."
+    ],
+    "acceptance_checks": [
+      "AC-032"
+    ],
+    "depends_on": [
+      "AC-026",
+      "AC-027"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-033",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "The `docker-compose.yml` ships with only the `causeflow-docs` service (port 3000). It does not reference any AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mintlify SaaS endpoint. The compose file is valid (`docker compose config` exits 0) and the service depends on no other service. When the monorepo's root `docker-compose.yml` (defined by the `core` / `web` open-source-local-runtime contexts) includes the `public-docs` service as well, the docs site is reachable at `http://localhost:3000/` with no additional env vars and no other services needing to be up first; the docs service starts in parallel with the other subprojects' services.",
+    "steps": [
+      "Verify AC-033: The `docker-compose.yml` ships with only the `causeflow-docs` service (port 3000). It does not reference any AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mintlify SaaS endpoint. The compose file is valid (`docker compose config` exits 0) and the service depends on no other service. When the monorepo's root `docker-compose.yml` (defined by the `core` / `web` open-source-local-runtime contexts) includes the `public-docs` service as well, the docs site is reachable at `http://localhost:3000/` with no additional env vars and no other services needing to be up first; the docs service starts in parallel with the other subprojects' services."
+    ],
+    "acceptance_checks": [
+      "AC-033"
+    ],
+    "depends_on": [
+      "AC-026"
+    ],
+    "verify_first": false,
     "implementation": false,
     "qa": false,
     "integration": false,
