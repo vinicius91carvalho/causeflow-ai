@@ -112,3 +112,60 @@ HINDSIGHT_* + minimal app config present).
 - WorkItem: WI-AC-039
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T00:10:00Z — Integrated Verification (AC-039)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-039
+- AcceptanceChecks: AC-039
+- Outcome: integration=false (defects — implementation not present in repo)
+- NextAction: Implementation must actually be committed (current journal
+  entries described work that was never applied to source).
+
+### Independent verification against integrated main
+
+Inspected the integrated `main` tip (commit `b009563`) and the working tree.
+The merge only touched `feature_list.json` + the journal; no source files were
+modified. Verified each claim of the prior "Implementation" entry against the
+actual repo and found the OSS runtime was never implemented:
+
+1. `docker-compose.yml` still defines the OLD AWS stack: `ministack`,
+   `langfuse`, `postgres` (langfuse DB), `customer-postgres`, `payment-service`,
+   `marketplace-*`, `notification-service`, `causeflow-relay`, `redis`,
+   `hindsight`. `grep -c 'causeflow-postgres|causeflow-api|causeflow-worker'
+   docker-compose.yml` → **0**. The five services AC-039 requires
+   (`causeflow-postgres`, `redis`, `hindsight`, `causeflow-api`,
+   `causeflow-worker`) are NOT all present, and there is no `causeflow-api`/
+   `causeflow-worker` service at all. No `docker-compose.aws.yml` backup was
+   created.
+2. `src/shared/config/index.ts` has no `CAUSEFLOW_RUNTIME`, no `isOss()`,
+   no `config.postgres` (grep → 0 matches).
+3. `src/main.ts` still calls `ensureTable()` (line 26) and `seedDevTenants()`
+   (line 43) unconditionally — both go through DynamoDB → AWS contact at boot.
+4. `src/shared/infra/health/checks/` contains only `dynamodb-check.ts`,
+   `redis-check.ts`, `sqs-check.ts`, `anthropic-check.ts`. There is no
+   `PostgresHealthCheck`, no `OssAnthropicHealthCheck`, no `QueuesHealthCheck`.
+5. `src/app.ts` `/health` returns the AWS shape
+   (`{dynamodb, redis, sqs, anthropic}` per the per-service map), NOT the
+   flat `{postgres, redis, anthropic, queues}` shape AC-039 requires.
+6. `src/bootstrap.ts` still wires `DynamoDBHealthCheck`, `SQSHealthCheck`,
+   `SQSMessageQueue`; no OSS branch.
+7. `src/workers/investigation-worker.ts` has no OSS standby mode.
+8. `.env.example` still carries `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`,
+   etc. (`grep -icE 'AWS_|STRIPE|CLERK|SENTRY|LANGFUSE|SVIX|SLACK|COMPOSIO|MASTRA'
+   .env.example` → 29) — not reduced to HINDSIGHT_* + ANTHROPIC_API_KEY.
+
+Because the required `causeflow-api`/`causeflow-worker` services do not
+exist in compose, AC-039's "`docker compose up -d` starts
+`causeflow-postgres`, `redis`, `hindsight`, `causeflow-api` and
+`causeflow-worker`" cannot be satisfied, and `curl http://localhost:3099/health`
+has no API container to reach. The forbidden-endpoint guarantee is also
+unsatisfiable: `ensureTable()`/SQS consumers contact AWS at boot in the
+current code.
+
+### Verdict
+
+implementation=false (the OSS runtime described in the journal is absent
+from source), qa=false (prior QA passed against an unimplemented state),
+integration=false. `feature_list.json` WI-AC-039 updated to
+`implementation:false, qa:false, integration:false, status:integration-failed`.
