@@ -140,3 +140,24 @@ qa=true, implementation=true for WI-AC-001.
 - WorkItem: WI-AC-001
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-07T23:25Z — Integrated Verification (qa-agent, WI-AC-001)
+
+**Result: integration=true, implementation=true, qa=true**
+
+### Boundary exercised
+
+Real external boundary: `pnpm install` / `pnpm install --frozen-lockfile` against the committed `pnpm-lock.yaml`, from a clean checkout (no `node_modules/` at root or any member; tracked tree clean).
+
+### Evidence
+
+- Step 1: `pnpm install --frozen-lockfile` from clean → **exit 0** (Scope: all 8 workspace projects, +1370 packages, Done in 4.9s, pnpm v10.33.0). No peer-dep failures.
+- Idempotency: re-run `pnpm install --frozen-lockfile` → **exit 0** (Done in 1.2s); `git diff --stat pnpm-lock.yaml` empty; `git status --short --untracked-files=no` clean (zero-diff checkpoint). ✓
+- Step 2: root `node_modules/` exists (424 entries). Per-member `node_modules/` materialized for the 3 members pnpm isolates under `node-linker=hoisted` (apps/website, apps/dashboard, packages/ui). Every one of the 7 enumerated members resolves every declared runtime dependency from the hoisted root: shared→typescript; analytics→react; auth→next-auth,@auth/core,@aws-sdk/client-cognito-identity-provider,zod,react,next; forms→react,zod; ui→class-variance-authority,clsx,tailwind-merge,lucide-react,@radix-ui/react-slot,react-dom; website→next; dashboard→next,@clerk/nextjs. ✓
+- Step 3: `.npmrc` pins all four required settings: `node-linker=hoisted`, `package-import-method=copy`, `auto-install-peers=true`, `strict-peer-dependencies=false`. ✓
+- `package.json` `packageManager: pnpm@10.33.0` matches active pnpm 10.33.0. ✓
+- pnpm's "Ignored build scripts" warning (@clerk/shared, @parcel/watcher, @sentry/cli, @swc/core, esbuild, sharp) is pnpm 10's default postinstall-script gating — not an install failure; `--frozen-lockfile` exits 0 and all runtime deps resolve. Out of scope for AC-001 (project policy decision).
+
+### Verdict
+
+All AC-001 steps pass at the real external boundary. Functional bootstrap is intact, idempotent, and zero-diff. No defects. integration=true for WI-AC-001.
