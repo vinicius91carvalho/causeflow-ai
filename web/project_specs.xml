@@ -228,10 +228,10 @@
   <acceptance_checks>
     <acceptance_check id="AC-001" context="foundation" category="foundation" depends_on="">
       <title>pnpm install bootstraps the pnpm/Turborepo workspace</title>
-      <description>From a clean checkout, `pnpm install` (with the pnpm version pinned by `packageManager: pnpm@10.33.0` in `package.json`) bootstraps all 7 workspace members and exits 0. `node_modules/` exists at the root and inside every workspace member listed in `pnpm-workspace.yaml` (apps/website, apps/dashboard, packages/shared, packages/ui, packages/analytics, packages/auth, packages/forms). The .npmrc pins `node-linker=hoisted`, `package-import-method=copy`, `auto-install-peers=true`, and `strict-peer-dependencies=false`. Re-running `pnpm install --frozen-lockfile` exits 0 against the committed pnpm-lock.yaml.</description>
+      <description>From a clean checkout, `pnpm install` (with the pnpm version pinned by `packageManager: pnpm@10.33.0` in `package.json`) bootstraps all 7 workspace members and exits 0. `node_modules/` exists at the root and resolves every declared runtime dependency of each workspace member listed in `pnpm-workspace.yaml` (apps/website, apps/dashboard, packages/shared, packages/ui, packages/analytics, packages/auth, packages/forms); per-member `node_modules/` directories appear only where pnpm version-isolation requires them (apps/website, apps/dashboard, packages/ui). The .npmrc pins `node-linker=hoisted`, `package-import-method=copy`, `auto-install-peers=true`, and `strict-peer-dependencies=false`. Re-running `pnpm install --frozen-lockfile` exits 0 against the committed pnpm-lock.yaml.</description>
       <steps>
         <step>Step 1: Run `pnpm install --frozen-lockfile` and confirm exit code 0 with no peer-dep failures.</step>
-        <step>Step 2: Verify each workspace member in pnpm-workspace.yaml has a populated node_modules/.</step>
+        <step>Step 2: Verify `node_modules/` exists at the root and that every workspace member listed in pnpm-workspace.yaml resolves every one of its declared runtime dependencies (from the hoisted root under `node-linker=hoisted`); per-member `node_modules/` directories appear only where pnpm version-isolation requires them.</step>
         <step>Step 3: Verify .npmrc pins node-linker=hoisted, package-import-method=copy, auto-install-peers=true, strict-peer-dependencies=false.</step>
       </steps>
     </acceptance_check>
