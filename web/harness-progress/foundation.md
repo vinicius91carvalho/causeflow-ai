@@ -170,3 +170,53 @@ All AC-001 steps pass at the real external boundary. Functional bootstrap is int
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+---
+
+## WI-AC-008 — Verify-first (foundation, attempt 1)
+
+**Result: implementation=false** — AC-008 partially fails; the defect requires restructuring that is out of scope for verify-first mode.
+
+### AC-008 boundary
+
+AC-008 is a structural AC. The "real external boundary" is the file system (route files' content) plus the HTTP boundary for the conforming app. The website was brought up on the assigned port 5172 (`next dev --hostname 127.0.0.1 -p 5172`) and its thin-re-export pages were exercised over HTTP.
+
+### Evidence by AC clause
+
+**1. Website pages are thin re-exports (PASS).** All 13 `apps/website/src/app/**/page.tsx` files are pure re-export statements delegating to `@/contexts/marketing|shell/presentation/pages/*-page.tsx`:
+- `apps/website/src/app/[locale]/page.tsx` → `export { default, generateMetadata } from '@/contexts/marketing/presentation/pages/home-page'`
+- `about`, `pricing`, `privacy`, `product`, `security`, `terms`, `integrations`, `use-cases`, `use-cases/broken-images`, `use-cases/cascading-500`, `use-cases/stale-pricing` — all single re-export statements to `marketing/presentation/pages/...`.
+- `staging-auth/page.tsx` → `export const dynamic = 'force-dynamic'; export { default } from '@/contexts/shell/presentation/pages/staging-auth-page'`.
+- A few are formatted by Biome across 4 lines (e.g. `integrations/page.tsx` = `export { default, generateMetadata } from '...long path...'` split to 4 lines). These are semantically a single re-export statement with zero inline logic — PASS under the AC's "thin re-export" intent. HTTP boundary: `curl http://127.0.0.1:5172/{,product,security,integrations,pricing,use-cases,privacy,terms,about}` → all 200.
+
+**2. Dashboard API routes are thin re-exports (PARTIAL FAIL — 4 of 80 violate).** 76 of 80 `apps/dashboard/src/app/api/**/route.ts` files are pure re-exports delegating to `@/contexts/*/api/*-handler.ts` (e.g. `export { GET, POST } from '@/contexts/.../...-handler'`). 4 routes under `apps/dashboard/src/app/api/investigation/[id]/` contain inline handler logic and do NOT delegate to a context handler:
+- `investigation/[id]/chat/route.ts` (66 lines — inline `withAuth` GET/POST with `fetch` to Core)
+- `investigation/[id]/detail/route.ts` (35 lines — inline `withAuth` + wrapper GET)
+- `investigation/[id]/relay-token/route.ts` (44 lines — inline `withAuth` GET with `fetch`)
+- `investigation/[id]/tool-calls/[toolCallId]/route.ts` (38 lines — inline `withAuth` + wrapper GET)
+- (Note: `integrations/sentry/route.ts` (6 lines) and `integrations/slack/config/route.ts` (4 lines) are pure re-exports formatted across multiple lines + a comment — PASS.)
+
+**3. Dashboard pages are thin re-exports (PARTIAL FAIL — 15 of 25 violate).** 10 of 25 dashboard `page.tsx` files are pure re-exports (`audit`, `billing`, `incidents/[id]`, `incidents/new`, `incidents`, `integrations`, `page` (dashboard), `onboarding/choose-plan`, `onboarding/integrations`, `onboarding/welcome`). 15 contain inline logic and do NOT delegate to a single `presentation/pages/<name>-page.tsx`:
+- Clerk-component mount points with inline JSX (no context page): `auth/sign-in`, `auth/sign-up`, `create-organization`, `waitlist`, `dashboard/team`, `dashboard/settings` (62-line full inline page importing 4 context components but no `settings-page`), `accept-invitation` (co-located `./accept-invitation-client`).
+- Redirect shims (no context page delegation): `page.tsx` (root → /dashboard), `dashboard/analyses`, `dashboard/analyses/new`, `dashboard/analyses/[id]`.
+- Wrapper pages that delegate but add inline PageHeader/metadata/getLocale logic (not pure re-exports): `dashboard/intelligence`, `dashboard/relay`, `onboarding/business-profile`, `beta-waitlist`.
+
+**4. No context `index.ts` barrel files (PASS).** `find apps/{website,dashboard}/src/contexts -name index.ts` → none. Cross-context imports use direct deep paths (confirmed in every re-export above).
+
+**5. `optimizePackageImports` in both `next.config.mjs` (PASS).**
+- Website `next.config.mjs#experimental.optimizePackageImports`: `lucide-react` + all 4 internal `@causeflow/*` packages the website depends on (`@causeflow/ui`, `@causeflow/shared`, `@causeflow/analytics`, `@causeflow/forms`). Clerk is not listed because the website has no `@clerk/*` runtime dependency — correct (you cannot optimize a package you do not import).
+- Dashboard `next.config.mjs#experimental.optimizePackageImports`: `@clerk/nextjs`, `@clerk/themes`, `lucide-react` + all 5 internal `@causeflow/*` packages (`@causeflow/ui`, `@causeflow/shared`, `@causeflow/analytics`, `@causeflow/forms`, `@causeflow/auth`).
+
+### Why not fixed (verify-first constraint)
+
+The AC description requires "Every page … is a 1-3 line thin re-export" and "Every API route … is a thin re-export." 15 dashboard pages + 4 API routes violate this. The only fix is to (a) create the missing `contexts/<name>/presentation/pages/<name>-page.tsx` and `contexts/<name>/api/<name>-handler.ts` files and (b) replace each non-conforming route file with a re-export. That is restructuring / rewriting working code — explicitly forbidden in verify-first mode ("do not refactor, restructure, or rewrite working code"). No smaller diff exists that makes "every page/route is a thin re-export" true without restructuring.
+
+The spec (`project_specs.xml` overview + patterns) is consistent with AC-008 and is NOT internally contradictory (unlike AC-001's hoisted-linker clause), so the spec is not amended. The code drifts from the spec for these 19 files; the correct remediation is a generator/build pass that creates the missing context page/handler files and converts the 19 route files to re-exports.
+
+### Files changed in this commit
+
+- `harness-progress/foundation.md` — this journal entry. Zero source/config changes (verify-first; restructuring deferred). `apps/website/.env.local` was created for the HTTP boundary test but is gitignored and not committed.
+
+### Verdict
+
+implementation=false for WI-AC-008. Website fully conforms; barrels + optimizePackageImports conform; 76/80 dashboard API routes and 10/25 dashboard pages conform. The 15 non-conforming dashboard pages + 4 non-conforming API routes require a restructuring pass that is out of scope for verify-first mode.
