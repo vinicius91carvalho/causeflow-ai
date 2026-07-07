@@ -119,3 +119,19 @@ No defects found within the AC-002 boundary. PORT=5170 used per harness assignme
 - WorkItem: WI-AC-002
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-07 — Integrated Verification (AC-002)
+
+**Result: integration=true, implementation=true, qa=true**
+
+Re-verified against integrated main (commit 3181d08, branch `main`) on PORT=5170.
+
+- Killed the prior isolated-worktree (`gen/core-foundation`) `tsx watch` holding 5170; created a local `.env.dev` (gitignored) pointing at ministack (:4566) + redis (:6379), `PORT=5170`, `DYNAMODB_TABLE_NAME=causeflow`, `ANTHROPIC_API_KEY=` (empty → anthropic skipped).
+- `pnpm install --frozen-lockfile` → node_modules restored (playwright chromium postinstall fails on ubuntu26.04 but is an optional dev dep; tsx present).
+- Fresh `pnpm dev` (from this main worktree) → Hono API listening on 5170. Boot latency: "Starting CauseFlow" 20:10:09.470 → "CauseFlow is running" 20:10:09.521 (~51ms; tsx/pnpm load adds ~1–2s) — well within 10s.
+- `curl http://localhost:5170/health` → **HTTP 200**, `content-type: application/json`, body:
+  `{"status":"ok","service":"causeflow","version":"0.1.0","commit":"unknown","timestamp":"...","checks":{"dynamodb":"ok","redis":"ok","sqs":"ok","anthropic":"ok"}}` — lists exactly `{dynamodb: ok, redis: ok, sqs: ok, anthropic: ok}`.
+- Anthropic check reports `ok` (skipped) because `ANTHROPIC_API_KEY` is empty; DynamoDB/Redis/SQS checks `ok` backed by the real ministack + redis containers (all `(healthy)`).
+- Smoke: `GET /dashboard` → 200 `text/html`; auth-gated `/api/v1/whoami` → 401 (no bearer) — app is genuinely serving HTTP.
+
+No defects within the AC-002 boundary. integration=true set for WI-AC-002. PORT=5170 used per harness assignment (spec's "default 3099" is the known doc drift; the AC boundary — Hono listens on the assigned PORT within 10s and /health returns 200 with the four-service body — passes on main).
