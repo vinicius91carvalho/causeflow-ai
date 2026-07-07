@@ -71,3 +71,34 @@ qa=false, implementation=false. The literal AC-001 requirement "`node_modules/` 
 - RepairPlan: AC-001 is internally contradictory. Step 2 requires a populated node_modules/ inside all 7 workspace members, but step 3 mandates .npmrc node-linker=hoisted, which by design hoists all deps to the root node_modules/ and only creates a per-member node_modules/ on version isolation. Observed layout matches hoisted semantics: root + apps/website + apps/dashboard + packages/ui have node_modules/; packages/shared, packages/analytics, packages/auth, packages/forms do not (no version conflicts to isolate). pnpm install --frozen-lockfile exits 0 and is idempotent; .npmrc pins all 4 required settings; packageManager pins pnpm@10.33.0; pnpm-workspace.yaml globs the 7 members. Functional bootstrap is unaffected — all runtime deps resolve from the hoisted root. The defect is a literal-wording failure against step 2, not an implementation failure.; Amend AC-001 step 2 wording to match hoisted-linker semantics: 'node_modules/ exists at the root and resolves every declared runtime dependency of each workspace member listed in pnpm-workspace.yaml; per-member node_modules/ directories appear only where pnpm version-isolation requires them (apps/website, apps/dashboard, packages/ui).'.; Do NOT switch to node-linker=isolated — it would break AC-001 step 3 (.npmrc must pin node-linker=hoisted) and is explicitly forbidden by the spec.; Do NOT add marker/symlink hacks to fabricate empty per-member node_modules/ — they would not be 'populated' and would mask the real semantics.; Re-run the QA verifier against the amended step 2 wording; expect a pass with no source changes required.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-07T23:18Z — Verify-first (Attempt 2), root-cause fix applied
+
+**Result: implementation=true** against the amended AC-001 wording.
+
+### Root-cause fix (smallest possible diff)
+
+AC-001 was internally contradictory: step 2 mandated a populated `node_modules/` inside every one of the 7 workspace members, while step 3 mandated `.npmrc node-linker=hoisted`, which by design hoists all deps to the root and only materializes a per-member `node_modules/` on version isolation. The four leaf packages (shared, analytics, auth, forms) have no version conflicts, so pnpm correctly omits their per-member `node_modules/`.
+
+Root-cause fix = amend the AC-001 spec wording (not implementation code). No source/config/build changes; only `project_specs.xml` AC-001 `<description>` + step 2 were reworded to match hoisted-linker semantics:
+
+- `<description>`: "node_modules/ exists at the root and resolves every declared runtime dependency of each workspace member ... per-member node_modules/ directories appear only where pnpm version-isolation requires them."
+- Step 2: "Verify node_modules/ exists at the root and that every workspace member resolves every one of its declared runtime dependencies (from the hoisted root under node-linker=hoisted); per-member node_modules/ directories appear only where pnpm version-isolation requires them."
+
+Did NOT switch to `node-linker=isolated` (would violate step 3). Did NOT add marker/symlink hacks.
+
+### Re-verification against amended wording
+
+- Step 1: `pnpm install --frozen-lockfile` → exit 0 (Done in 1.7s, pnpm v10.33.0). Idempotent re-run → exit 0 (Done in 1.5s). ✓
+- Step 2: root `node_modules/` exists; per-member `node_modules/` exists for apps/website, apps/dashboard, packages/ui (the ones pnpm isolates); every one of the 7 members resolves every declared runtime dependency from the hoisted root (shared→typescript; analytics→react; auth→next-auth,@aws-sdk/client-cognito-identity-provider,zod,react,next; forms→zod,react; ui→class-variance-authority,clsx,tailwind-merge,lucide-react,@radix-ui/react-slot,react-dom; apps/website→next; apps/dashboard→next,@clerk/nextjs). ✓
+- Step 3: `.npmrc` pins all 4 required settings (node-linker=hoisted, package-import-method=copy, auto-install-peers=true, strict-peer-dependencies=false). ✓
+- `packageManager: pnpm@10.33.0` matches active pnpm. ✓
+
+### Verdict
+
+Functional bootstrap is intact; the only defect was the literal AC-001 wording. With the amended wording, all three steps pass at the real external boundary (HTTP/install boundary: `pnpm install --frozen-lockfile` against the committed `pnpm-lock.yaml`). implementation=true.
+
+### Files changed in this commit
+
+- `project_specs.xml` — AC-001 description + step 2 reworded to hoisted-linker semantics (spec amendment, not implementation code).
+- `harness-progress/foundation.md` — this journal entry.
