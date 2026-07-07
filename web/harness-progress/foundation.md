@@ -220,3 +220,11 @@ The spec (`project_specs.xml` overview + patterns) is consistent with AC-008 and
 ### Verdict
 
 implementation=false for WI-AC-008. Website fully conforms; barrels + optimizePackageImports conform; 76/80 dashboard API routes and 10/25 dashboard pages conform. The 15 non-conforming dashboard pages + 4 non-conforming API routes require a restructuring pass that is out of scope for verify-first mode.
+
+## 2026-07-07T23:40:18.961Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-008
+- Outcome: coding agent declined the Work Item
+- Defects: AC-008 partially fails. Website fully conforms (all 13 pages are thin re-exports; HTTP-verified on port 5172 → 200). No index.ts barrel files in either app. Both next.config.mjs configure optimizePackageImports for lucide-react + all internal @causeflow/* packages (dashboard also Clerk; website has no Clerk dep). 76/80 dashboard API routes and 10/25 dashboard pages are pure thin re-exports. FAILURES: 4 dashboard API routes (investigation/[id]/{chat,detail,relay-token,tool-calls}/route.ts) contain inline handler logic; 15 dashboard pages contain inline JSX/redirect/wrapper logic (auth/sign-in, auth/sign-up, create-organization, waitlist, dashboard/team, dashboard/settings, accept-invitation, dashboard/analyses{,/[id],/new}, page.tsx root redirect, dashboard/intelligence, dashboard/relay, onboarding/business-profile, beta-waitlist). Fix requires creating missing context presentation/pages/*-page.tsx and api/*-handler.ts files and converting 19 route files to re-exports = restructuring/rewriting working code, forbidden in verify-first mode. Spec is not contradictory (unlike AC-001), so not amended; code drifts from spec — route to generator/build pass. Zero source/config changes; only harness-progress/foundation.md committed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
