@@ -45,3 +45,18 @@ The full literal `docker compose up -d` (all services) still errors on missing `
 - WorkItem: WI-AC-001
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-07 — Integrated Verification (AC-001)
+
+**Result: integration=true, implementation=true, qa=true**
+
+Re-verified against integrated main (stack already up from prior `docker compose up -d`):
+
+- `docker compose ps` → ministack, redis, langfuse, hindsight all `(healthy)`.
+- `curl http://localhost:4566/_ministack/health` → **200**.
+- `docker exec core-ministack-1 awslocal dynamodb list-tables` → `causeflow` present.
+- `awslocal sqs list-queues` → 8 URLs (alerts, investigation, remediation, progress + 4 DLQs).
+- `awslocal kms list-aliases` → `alias/causeflow-token-encryption`.
+- Init script `infra/localstack/init/01-create-resources.sh` mounted and ran on ministack ready.
+
+No defects within the AC-001 boundary. integration=true set for WI-AC-001.
