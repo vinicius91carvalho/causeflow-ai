@@ -203,3 +203,12 @@ Note (out of scope, not a defect): the separate dockerized `core-causeflow-api-1
   - `GET /widget/widget.js` → 200, `content-type: application/javascript; charset=utf-8`, 38025 bytes — Vite-built IIFE bundle `var CauseflowWidget=(function(c){...})`. ✓
 - Smoke: `/health` reachable on the same origin.
 - No defects within the AC-003 boundary. integration=true for WI-AC-003.
+
+## 2026-07-07T23:35:10.012Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- AcceptanceChecks: AC-003
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-003-1-integration_qa.log
+- NextAction: next Ready Work Item
