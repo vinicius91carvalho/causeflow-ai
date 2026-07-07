@@ -246,3 +246,10 @@ No refactor/restructure of working code. Baseline `lint-invariants` stays at exi
 - Baseline `pnpm lint-invariants` → **exit 0** (`10 passed, 0 failed`; I1–I4 PASS, I5 SKIP, I6–I11 PASS).
 - Introduced a cross-module direct function call by editing `src/modules/audit/infra/clerk-user-email-resolver.ts` to add `import { GetTenantUseCase } from '@modules/tenant/application/get-tenant.usecase.js'`; re-ran `pnpm lint-invariants` → **exit 1**, `9 passed, 1 failed`, specific message: `FAIL I11 — No cross-module direct function calls (no value imports from another module's application/)` → `src/modules/audit/infra/clerk-user-email-resolver.ts — module 'audit' value-imports from module 'tenant' application/ ("@modules/tenant/application/get-tenant.usecase.js")`. Probe reverted; baseline re-verified green (exit 0).
 - Verdict: qa=true, implementation=true, no defects within AC-004 boundary.
+
+## 2026-07-07T23:54:28.191Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-004
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
