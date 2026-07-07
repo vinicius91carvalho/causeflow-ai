@@ -30,7 +30,7 @@ Machine-verifiable contracts enforced in CI via `pnpm lint-invariants`.
 
 ## I5 — /health response includes commit
 - **Owner:** app
-- **Invariant:** `/health` response body has exactly these keys: `status, service, version, commit, timestamp`
+- **Invariant:** `/health` response body has exactly these top-level keys: `status, service, version, commit, timestamp, checks` (where `checks` is a per-service status map, e.g. `{ dynamodb, redis, sqs, anthropic }`; the Anthropic entry reports `ok` and is skipped when no API key is configured)
 - **Verify:** unit test in `tests/` (existing /health test)
 - **Fix:** `src/app.ts` reads `process.env['APP_VERSION']`
 
