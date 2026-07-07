@@ -984,5 +984,313 @@
     "retries": 0,
     "attempts": 0,
     "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-039",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "With a clean environment (no AWS_*, no STRIPE_*, no CLERK_*, no SENTRY_*, no LANGFUSE_*, no SVIX_*, no SLACK_*, no COMPOSIO_*, no MASTRA_* env vars set, only HINDSIGHT_* + optional ANTHROPIC_API_KEY + minimal app config), `docker compose up -d` starts `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api` and `causeflow-worker`. Within 60 seconds `curl http://localhost:3099/health` returns 200 with JSON `{\"postgres\":\"ok\",\"redis\":\"ok\",\"anthropic\":\"ok\",\"queues\":\"ok\"}` (Anthropic is \"skipped\" if no key is set). No AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra endpoint is contacted at startup (verifiable with a packet capture or by grepping the worker boot log for outbound URLs).",
+    "steps": [
+      "Verify AC-039: With a clean environment (no AWS_*, no STRIPE_*, no CLERK_*, no SENTRY_*, no LANGFUSE_*, no SVIX_*, no SLACK_*, no COMPOSIO_*, no MASTRA_* env vars set, only HINDSIGHT_* + optional ANTHROPIC_API_KEY + minimal app config), `docker compose up -d` starts `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api` and `causeflow-worker`. Within 60 seconds `curl http://localhost:3099/health` returns 200 with JSON `{\"postgres\":\"ok\",\"redis\":\"ok\",\"anthropic\":\"ok\",\"queues\":\"ok\"}` (Anthropic is \"skipped\" if no key is set). No AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra endpoint is contacted at startup (verifiable with a packet capture or by grepping the worker boot log for outbound URLs)."
+    ],
+    "acceptance_checks": [
+      "AC-039"
+    ],
+    "depends_on": [],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-040",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "Postgres is the only persistence layer. `psql` against the `causeflow-postgres` service lists 31 tables in the `causeflow` schema (one per existing entity). A `POST /api/v1/incidents` with an authenticated request writes a row that becomes visible in `SELECT * FROM causeflow.incidents WHERE tenant_id = $1`. The single-table ElectroDB code is removed (or kept behind a feature flag, off by default) — no `DynamoDBClient`, no `DocumentClient` instantiation at boot.",
+    "steps": [
+      "Verify AC-040: Postgres is the only persistence layer. `psql` against the `causeflow-postgres` service lists 31 tables in the `causeflow` schema (one per existing entity). A `POST /api/v1/incidents` with an authenticated request writes a row that becomes visible in `SELECT * FROM causeflow.incidents WHERE tenant_id = $1`. The single-table ElectroDB code is removed (or kept behind a feature flag, off by default) — no `DynamoDBClient`, no `DocumentClient` instantiation at boot."
+    ],
+    "acceptance_checks": [
+      "AC-040"
+    ],
+    "depends_on": [
+      "AC-039"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-041",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "BullMQ on Redis replaces SQS. The boot log lists 4 BullMQ queues (`causeflow-alerts`, `causeflow-triage`, `causeflow-investigation`, `causeflow-remediation`) with their worker counts. `GET /admin/queues` (a new local-only admin endpoint) returns each queue's name, depth, completed/failed counts, and the last 5 jobs. A `POST /api/v1/incidents` enqueues a triage job, the worker picks it up within 2 seconds, the job moves to `completed`, and the incident row updates to status=triaged — without any SQS endpoint being called.",
+    "steps": [
+      "Verify AC-041: BullMQ on Redis replaces SQS. The boot log lists 4 BullMQ queues (`causeflow-alerts`, `causeflow-triage`, `causeflow-investigation`, `causeflow-remediation`) with their worker counts. `GET /admin/queues` (a new local-only admin endpoint) returns each queue's name, depth, completed/failed counts, and the last 5 jobs. A `POST /api/v1/incidents` enqueues a triage job, the worker picks it up within 2 seconds, the job moves to `completed`, and the incident row updates to status=triaged — without any SQS endpoint being called."
+    ],
+    "acceptance_checks": [
+      "AC-041"
+    ],
+    "depends_on": [
+      "AC-039"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-042",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "Local auth replaces Clerk. `POST /api/v1/auth/register` with `{ email, password, tenantName }` returns 201 with `{ user, tenant, token }` (a signed JWT, no external IdP). `POST /api/v1/auth/login` with the same credentials returns a fresh JWT; a wrong password returns 401. `GET /api/v1/whoami` with `Authorization: Bearer &lt;token&gt;` returns the user and tenant. The JWT is signed with `JWT_SECRET` from env, verified locally with `jose`, and the Clerk webhook endpoint, `clerk-client`, and `ClerkUserEmailResolver` are removed from the running code path. Tenant isolation (AC-010) still holds for tokens issued by this endpoint.",
+    "steps": [
+      "Verify AC-042: Local auth replaces Clerk. `POST /api/v1/auth/register` with `{ email, password, tenantName }` returns 201 with `{ user, tenant, token }` (a signed JWT, no external IdP). `POST /api/v1/auth/login` with the same credentials returns a fresh JWT; a wrong password returns 401. `GET /api/v1/whoami` with `Authorization: Bearer &lt;token&gt;` returns the user and tenant. The JWT is signed with `JWT_SECRET` from env, verified locally with `jose`, and the Clerk webhook endpoint, `clerk-client`, and `ClerkUserEmailResolver` are removed from the running code path. Tenant isolation (AC-010) still holds for tokens issued by this endpoint."
+    ],
+    "acceptance_checks": [
+      "AC-042"
+    ],
+    "depends_on": [
+      "AC-039",
+      "AC-007"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-043",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "Stub billing replaces Stripe. `GET /api/v1/billing/subscription` returns `{\"plan\":\"free\",\"status\":\"active\"}` for every tenant; `GET /api/v1/billing/usage` returns the tenant's local `UsageRecordEntity` rows paginated; `POST /api/v1/billing/checkout-session` returns 410 Gone with a clear \"billing disabled in OSS build\" message. No `stripe.com` call is made (verifiable by grepping the worker boot log for outbound URLs or by network capture). Quota enforcement (max parallel investigations, max agents per run) is enforced from env-supplied limits, not from a Stripe plan.",
+    "steps": [
+      "Verify AC-043: Stub billing replaces Stripe. `GET /api/v1/billing/subscription` returns `{\"plan\":\"free\",\"status\":\"active\"}` for every tenant; `GET /api/v1/billing/usage` returns the tenant's local `UsageRecordEntity` rows paginated; `POST /api/v1/billing/checkout-session` returns 410 Gone with a clear \"billing disabled in OSS build\" message. No `stripe.com` call is made (verifiable by grepping the worker boot log for outbound URLs or by network capture). Quota enforcement (max parallel investigations, max agents per run) is enforced from env-supplied limits, not from a Stripe plan."
+    ],
+    "acceptance_checks": [
+      "AC-043"
+    ],
+    "depends_on": [
+      "AC-042",
+      "AC-011"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-044",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "Token encryption uses AES-256-GCM from Node's `crypto`, keyed by `TOKEN_ENCRYPTION_KEY` env. A unit test encrypts a sample OAuth token, decrypts it, and confirms round-trip equality; tampering with one byte of the ciphertext fails the GCM auth tag check and raises. The `KmsTokenEncryption` class and the `alias/causeflow-token-encryption` provisioning step in `infra/localstack/init/01-create-resources.sh` are removed; no AWS KMS endpoint is ever called at startup.",
+    "steps": [
+      "Verify AC-044: Token encryption uses AES-256-GCM from Node's `crypto`, keyed by `TOKEN_ENCRYPTION_KEY` env. A unit test encrypts a sample OAuth token, decrypts it, and confirms round-trip equality; tampering with one byte of the ciphertext fails the GCM auth tag check and raises. The `KmsTokenEncryption` class and the `alias/causeflow-token-encryption` provisioning step in `infra/localstack/init/01-create-resources.sh` are removed; no AWS KMS endpoint is ever called at startup."
+    ],
+    "acceptance_checks": [
+      "AC-044"
+    ],
+    "depends_on": [
+      "AC-039"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-045",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "The investigation worker runs as a `causeflow-worker` docker-compose service (same image as the API, different entrypoint). `docker compose ps` shows both `causeflow-api` and `causeflow-worker` healthy. An investigation enqueued in AC-041 is picked up by the worker (verifiable by tailing the worker container logs and confirming a `investigation:start` log line). No ECS task definition, no `EcsClient`, no AWS credentials are loaded — the `ecs/` directory is removed (or kept behind a feature flag, off by default).",
+    "steps": [
+      "Verify AC-045: The investigation worker runs as a `causeflow-worker` docker-compose service (same image as the API, different entrypoint). `docker compose ps` shows both `causeflow-api` and `causeflow-worker` healthy. An investigation enqueued in AC-041 is picked up by the worker (verifiable by tailing the worker container logs and confirming a `investigation:start` log line). No ECS task definition, no `EcsClient`, no AWS credentials are loaded — the `ecs/` directory is removed (or kept behind a feature flag, off by default)."
+    ],
+    "acceptance_checks": [
+      "AC-045"
+    ],
+    "depends_on": [
+      "AC-039",
+      "AC-019"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-046",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "Full local-only pipeline regression. `POST /api/v1/webhooks/datadog` with a valid HMAC creates an incident (replaces AC-014). A second identical POST within the dedup window does not create a duplicate (replaces AC-015). The triage worker picks it up, calls the Anthropic API, and sets severity (replaces AC-017). The investigation worker runs all 6+ agents and emits per-agent events on the SSE stream (replaces AC-019). The run completes, an EvidenceEntity and a HypothesisEntity are written to Postgres (replaces AC-020), and the runbook is written to the local Hindsight bank (replaces AC-026). The whole flow runs against the local-only stack with zero SaaS credentials set.",
+    "steps": [
+      "Verify AC-046: Full local-only pipeline regression. `POST /api/v1/webhooks/datadog` with a valid HMAC creates an incident (replaces AC-014). A second identical POST within the dedup window does not create a duplicate (replaces AC-015). The triage worker picks it up, calls the Anthropic API, and sets severity (replaces AC-017). The investigation worker runs all 6+ agents and emits per-agent events on the SSE stream (replaces AC-019). The run completes, an EvidenceEntity and a HypothesisEntity are written to Postgres (replaces AC-020), and the runbook is written to the local Hindsight bank (replaces AC-026). The whole flow runs against the local-only stack with zero SaaS credentials set."
+    ],
+    "acceptance_checks": [
+      "AC-046"
+    ],
+    "depends_on": [
+      "AC-040",
+      "AC-041",
+      "AC-042",
+      "AC-045"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-047",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "Remediation runs against the local stub cloud provider. `POST /api/v1/remediation/:id/approve` records an ApprovalEntity; `POST /api/v1/remediation/:id/execute` runs the plan through `StubCloudProvider`, which writes a deterministic mock result (success or failure based on the action type) and records each action's before/after in `RemediationEntity` (replaces AC-024). `POST /api/v1/remediation/:id/rollback` creates a follow-up plan with the inverse actions. No AWS API is contacted (verifiable via network capture); the `aws-cloud-provider.ts` and `azure-cloud-provider-stub.ts` are removed from the running code path.",
+    "steps": [
+      "Verify AC-047: Remediation runs against the local stub cloud provider. `POST /api/v1/remediation/:id/approve` records an ApprovalEntity; `POST /api/v1/remediation/:id/execute` runs the plan through `StubCloudProvider`, which writes a deterministic mock result (success or failure based on the action type) and records each action's before/after in `RemediationEntity` (replaces AC-024). `POST /api/v1/remediation/:id/rollback` creates a follow-up plan with the inverse actions. No AWS API is contacted (verifiable via network capture); the `aws-cloud-provider.ts` and `azure-cloud-provider-stub.ts` are removed from the running code path."
+    ],
+    "acceptance_checks": [
+      "AC-047"
+    ],
+    "depends_on": [
+      "AC-046",
+      "AC-023"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-048",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "RBAC and the audit chain work on the local-only stack. As a `viewer`, `GET /api/v1/audit` returns 200; `DELETE /api/v1/audit/:id` returns 403. As an `admin`, the same DELETE returns 200 and the audit chain advances (replaces AC-008). RBAC roles are read from the local `UserEntity.role` field, not from a Clerk org role claim.",
+    "steps": [
+      "Verify AC-048: RBAC and the audit chain work on the local-only stack. As a `viewer`, `GET /api/v1/audit` returns 200; `DELETE /api/v1/audit/:id` returns 403. As an `admin`, the same DELETE returns 200 and the audit chain advances (replaces AC-008). RBAC roles are read from the local `UserEntity.role` field, not from a Clerk org role claim."
+    ],
+    "acceptance_checks": [
+      "AC-048"
+    ],
+    "depends_on": [
+      "AC-042",
+      "AC-008"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-049",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "Every optional SaaS integration is a no-op when its env var is empty. With `SENTRY_DSN=` empty, no Sentry SDK is initialised; an unhandled exception in a unit test scenario is logged to pino but never sent. With `LANGFUSE_*` empty, the tracer returns a no-op span and the metric recorder silently drops events. With `SVIX_*` empty, outbound webhooks are POSTed directly via `fetch` (no retry library). With `SLACK_*` empty, the chat platform port returns a \"not configured\" sentinel and Slack-bound messages degrade gracefully. With `COMPOSIO_API_KEY=` empty, the tool provider returns an empty tool list. With `MASTRA_ENABLED=false`, the Mastra agent runner is not even loaded. None of these integrations block startup or fail any acceptance check when empty.",
+    "steps": [
+      "Verify AC-049: Every optional SaaS integration is a no-op when its env var is empty. With `SENTRY_DSN=` empty, no Sentry SDK is initialised; an unhandled exception in a unit test scenario is logged to pino but never sent. With `LANGFUSE_*` empty, the tracer returns a no-op span and the metric recorder silently drops events. With `SVIX_*` empty, outbound webhooks are POSTed directly via `fetch` (no retry library). With `SLACK_*` empty, the chat platform port returns a \"not configured\" sentinel and Slack-bound messages degrade gracefully. With `COMPOSIO_API_KEY=` empty, the tool provider returns an empty tool list. With `MASTRA_ENABLED=false`, the Mastra agent runner is not even loaded. None of these integrations block startup or fail any acceptance check when empty."
+    ],
+    "acceptance_checks": [
+      "AC-049"
+    ],
+    "depends_on": [
+      "AC-039"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-050",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "`pnpm test:run` and `pnpm test:integration` pass with no AWS, Stripe or Clerk env vars set. The integration test stack runs against the same `causeflow-postgres` + `redis` + `hindsight` services (no ministack, no stripe-mock). `pnpm test:e2e` runs the full alert → triage → investigation → remediation flow end-to-end on the local-only stack. The total `aws-sdk-client-mock` dev dep is no longer used and can be removed; no test imports `@aws-sdk/*`, `stripe`, or `@clerk/backend`.",
+    "steps": [
+      "Verify AC-050: `pnpm test:run` and `pnpm test:integration` pass with no AWS, Stripe or Clerk env vars set. The integration test stack runs against the same `causeflow-postgres` + `redis` + `hindsight` services (no ministack, no stripe-mock). `pnpm test:e2e` runs the full alert → triage → investigation → remediation flow end-to-end on the local-only stack. The total `aws-sdk-client-mock` dev dep is no longer used and can be removed; no test imports `@aws-sdk/*`, `stripe`, or `@clerk/backend`."
+    ],
+    "acceptance_checks": [
+      "AC-050"
+    ],
+    "depends_on": [
+      "AC-039"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-051",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "Port boundaries preserved. The `domain/` layer has zero `pg`, `bullmq`, `stripe`, `@clerk/*`, or `@aws-sdk/*` imports (verified by `pnpm lint-invariants` plus a new I12 rule that greps the domain tree). The `application/` layer never imports infra. The composition root at `src/bootstrap.ts` is still the only place concrete implementations are wired: `PostgresXxxRepository`, `BullMqMessageQueue`, `LocalAuthService`, `AesGcmTokenEncryption`, `EnvCredentialVendor`, `LocalInvestigationTaskDispatcher`, `StubCloudProvider`, `StubBillingService`. The 17 port interfaces in `src/shared/application/ports/` are unchanged.",
+    "steps": [
+      "Verify AC-051: Port boundaries preserved. The `domain/` layer has zero `pg`, `bullmq`, `stripe`, `@clerk/*`, or `@aws-sdk/*` imports (verified by `pnpm lint-invariants` plus a new I12 rule that greps the domain tree). The `application/` layer never imports infra. The composition root at `src/bootstrap.ts` is still the only place concrete implementations are wired: `PostgresXxxRepository`, `BullMqMessageQueue`, `LocalAuthService`, `AesGcmTokenEncryption`, `EnvCredentialVendor`, `LocalInvestigationTaskDispatcher`, `StubCloudProvider`, `StubBillingService`. The 17 port interfaces in `src/shared/application/ports/` are unchanged."
+    ],
+    "acceptance_checks": [
+      "AC-051"
+    ],
+    "depends_on": [
+      "AC-039"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-052",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "Hindsight is the one allowed external SaaS. `curl http://localhost:8888/health` returns 200. After a successful local-only investigation (AC-046), a write to the tenant's Hindsight bank is observable in the hindsight dashboard (or via `GET /v1/banks/&lt;bankId&gt;/memories`). A second similar incident in the same tenant surfaces the prior runbook in the orchestrator's recall payload (replaces AC-026's behaviour for the local build).",
+    "steps": [
+      "Verify AC-052: Hindsight is the one allowed external SaaS. `curl http://localhost:8888/health` returns 200. After a successful local-only investigation (AC-046), a write to the tenant's Hindsight bank is observable in the hindsight dashboard (or via `GET /v1/banks/&lt;bankId&gt;/memories`). A second similar incident in the same tenant surfaces the prior runbook in the orchestrator's recall payload (replaces AC-026's behaviour for the local build)."
+    ],
+    "acceptance_checks": [
+      "AC-052"
+    ],
+    "depends_on": [
+      "AC-039",
+      "AC-026"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-053",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "The bundled `docker-compose.yml` no longer references the `ministack`, `langfuse`, or `langfuse-worker` services; no `localstack-init` script runs. The `.env.example` ships with only `PORT`, `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY`, `HINDSIGHT_API_URL`, `HINDSIGHT_API_KEY`, and the optional `ANTHROPIC_API_KEY` + the VAPID pair. Running `docker compose up -d` from a fresh clone without modifying `.env.example` brings the platform to a healthy `/health` in under 60 seconds and reproduces the local-only pipeline from AC-046.",
+    "steps": [
+      "Verify AC-053: The bundled `docker-compose.yml` no longer references the `ministack`, `langfuse`, or `langfuse-worker` services; no `localstack-init` script runs. The `.env.example` ships with only `PORT`, `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY`, `HINDSIGHT_API_URL`, `HINDSIGHT_API_KEY`, and the optional `ANTHROPIC_API_KEY` + the VAPID pair. Running `docker compose up -d` from a fresh clone without modifying `.env.example` brings the platform to a healthy `/health` in under 60 seconds and reproduces the local-only pipeline from AC-046."
+    ],
+    "acceptance_checks": [
+      "AC-053"
+    ],
+    "depends_on": [
+      "AC-039",
+      "AC-002"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
   }
 ]
