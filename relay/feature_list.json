@@ -1146,5 +1146,168 @@
     "qa": false,
     "integration": false,
     "retries": 0
+  },
+  {
+    "id": "WI-AC-051",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "With a clean shell env (`env -i PATH=$PATH`), no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` env vars set, `docker compose up -d` from the relay repo root brings up exactly four services: `relay-control-plane-stub` (port 3000), `relay-postgres` (port 5432), `relay-mongo` (port 27017), and `relay` (the hardened image, no inbound port mapping). Within 60 seconds `docker compose ps` reports all four as `Up`, the relay's boot log contains the line `Connected to control plane`, and the stub's log contains `[stub] resource_update from relayId= resources= ` for `n >= 1`. Grepping the relay container's boot log (`docker compose logs relay`) for `amazonaws.com`, `stripe.com`, `clerk.`, `langfuse`, `sentry.io`, `svix.com`, `slack.com`, `composio`, `mastra`, or any other vendor hostname returns 0 matches; the only outbound URL the relay attempts to resolve is `ws://relay-control-plane-stub:3000/v1/relay/connect`.",
+    "steps": [
+      "Verify AC-051: With a clean shell env (`env -i PATH=$PATH`), no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` env vars set, `docker compose up -d` from the relay repo root brings up exactly four services: `relay-control-plane-stub` (port 3000), `relay-postgres` (port 5432), `relay-mongo` (port 27017), and `relay` (the hardened image, no inbound port mapping). Within 60 seconds `docker compose ps` reports all four as `Up`, the relay's boot log contains the line `Connected to control plane`, and the stub's log contains `[stub] resource_update from relayId= resources= ` for `n >= 1`. Grepping the relay container's boot log (`docker compose logs relay`) for `amazonaws.com`, `stripe.com`, `clerk.`, `langfuse`, `sentry.io`, `svix.com`, `slack.com`, `composio`, `mastra`, or any other vendor hostname returns 0 matches; the only outbound URL the relay attempts to resolve is `ws://relay-control-plane-stub:3000/v1/relay/connect`."
+    ],
+    "acceptance_checks": [
+      "AC-051"
+    ],
+    "depends_on": [],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-052",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "A new `docker-compose.yml` exists at the relay repo root and defines the four services with no `image: ministack`, no `image: localstack`, no `image: langfuse`, no AWS / Stripe / Clerk / Sentry / Langfuse / Svix / Slack / Composio / Mastra env vars anywhere. The `relay-control-plane-stub` is a small `node:22-alpine` + `ws` service built from `scripts/control-plane-stub/Dockerfile` (a one-line `COPY server.mjs .` + `CMD [\"node\", \"server.mjs\"]`), listens on `0.0.0.0:3000`, accepts the relay's WebSocket handshake on `/v1/relay/connect`, validates the `?token= &tenantId= ` query string against the same env vars the relay uses, and on a `resource_update` message from the relay logs `[stub] resource_update from relayId= resources= `. The stub's source (`scripts/control-plane-stub/server.mjs`) imports only `ws` and Node stdlib modules — no AWS SDK, no Stripe, no `@clerk/*`, no other vendor SDK.",
+    "steps": [
+      "Verify AC-052: A new `docker-compose.yml` exists at the relay repo root and defines the four services with no `image: ministack`, no `image: localstack`, no `image: langfuse`, no AWS / Stripe / Clerk / Sentry / Langfuse / Svix / Slack / Composio / Mastra env vars anywhere. The `relay-control-plane-stub` is a small `node:22-alpine` + `ws` service built from `scripts/control-plane-stub/Dockerfile` (a one-line `COPY server.mjs .` + `CMD [\"node\", \"server.mjs\"]`), listens on `0.0.0.0:3000`, accepts the relay's WebSocket handshake on `/v1/relay/connect`, validates the `?token= &tenantId= ` query string against the same env vars the relay uses, and on a `resource_update` message from the relay logs `[stub] resource_update from relayId= resources= `. The stub's source (`scripts/control-plane-stub/server.mjs`) imports only `ws` and Node stdlib modules — no AWS SDK, no Stripe, no `@clerk/*`, no other vendor SDK."
+    ],
+    "acceptance_checks": [
+      "AC-052"
+    ],
+    "depends_on": [
+      "AC-051"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-053",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "After `docker compose up -d` from AC-051, the stub's startup script sends a JSON-RPC 2.0 `health_check` request to the relay over the open WebSocket. The relay answers with `{ jsonrpc: '2.0', id, result: [{ resourceId: 'order-pg', type: 'postgres', healthy: true, latencyMs: }, { resourceId: 'order-mongo', type: 'mongodb', healthy: true, latencyMs: }] }` (one entry per initialized driver). The stub prints the JSON to its log as `[stub] health_check result=...` and exits 0. A failure of either driver (e.g. the Postgres container is stopped) yields `healthy: false` for that entry while the other driver still reports `healthy: true`; the stub still exits 0 and prints the partial result.",
+    "steps": [
+      "Verify AC-053: After `docker compose up -d` from AC-051, the stub's startup script sends a JSON-RPC 2.0 `health_check` request to the relay over the open WebSocket. The relay answers with `{ jsonrpc: '2.0', id, result: [{ resourceId: 'order-pg', type: 'postgres', healthy: true, latencyMs: }, { resourceId: 'order-mongo', type: 'mongodb', healthy: true, latencyMs: }] }` (one entry per initialized driver). The stub prints the JSON to its log as `[stub] health_check result=...` and exits 0. A failure of either driver (e.g. the Postgres container is stopped) yields `healthy: false` for that entry while the other driver still reports `healthy: true`; the stub still exits 0 and prints the partial result."
+    ],
+    "acceptance_checks": [
+      "AC-053"
+    ],
+    "depends_on": [
+      "AC-051",
+      "AC-052"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-054",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "After `docker compose up -d` from AC-051, the stub sends a JSON-RPC 2.0 `execute` request to the relay with `params: { resourceId: 'order-pg', operation: 'query', params: { sql: 'SELECT 1 AS one' } }`. The relay executes the query against the local `relay-postgres` container (the `orders` table was created by `scripts/control-plane-stub/initdb/01-orders.sql` on first start) and returns `{ jsonrpc: '2.0', id, result: { rows: [{ one: 1 }], rowCount: 1, fields: [{ name: 'one', type: 'int4' }], executionTimeMs: , masked: false, maskedFieldCount: 0 } }`. The stub prints the result, then sends a second `execute` with `operation: 'list_tables'` and asserts the response `result.rows` contains an `orders` row. The stub script exits 0; both queries hit the local Postgres on the docker network, not an external service.",
+    "steps": [
+      "Verify AC-054: After `docker compose up -d` from AC-051, the stub sends a JSON-RPC 2.0 `execute` request to the relay with `params: { resourceId: 'order-pg', operation: 'query', params: { sql: 'SELECT 1 AS one' } }`. The relay executes the query against the local `relay-postgres` container (the `orders` table was created by `scripts/control-plane-stub/initdb/01-orders.sql` on first start) and returns `{ jsonrpc: '2.0', id, result: { rows: [{ one: 1 }], rowCount: 1, fields: [{ name: 'one', type: 'int4' }], executionTimeMs: , masked: false, maskedFieldCount: 0 } }`. The stub prints the result, then sends a second `execute` with `operation: 'list_tables'` and asserts the response `result.rows` contains an `orders` row. The stub script exits 0; both queries hit the local Postgres on the docker network, not an external service."
+    ],
+    "acceptance_checks": [
+      "AC-054"
+    ],
+    "depends_on": [
+      "AC-051",
+      "AC-052"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-055",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "A new `.env.example` is committed at the relay repo root and contains only the relay's own env vars: `RELAY_TOKEN` (default `harness-smoke-token`), `TENANT_ID` (default `harness-tenant`), `CONTROL_PLANE_URL` (default `ws://relay-control-plane-stub:3000/v1/relay/connect`), `PG_HOST` (default `relay-postgres`), `PG_PORT` (default `5432`), `PG_DATABASE` (default `relay`), `PG_USER` (default `relay`), `PG_PASSWORD` (default `relay`), `MONGO_URI` (default `mongodb://relay-mongo:27017`), `MONGO_DATABASE` (default `relay`), and the optional `MASKING_ENABLED` (default `true`) + `AUDIT_ENABLED` (default `true`) toggles. The file contains no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entries. `grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example` returns 0. `docker compose --env-file .env.example up -d` from a clean shell env brings all four services Up.",
+    "steps": [
+      "Verify AC-055: A new `.env.example` is committed at the relay repo root and contains only the relay's own env vars: `RELAY_TOKEN` (default `harness-smoke-token`), `TENANT_ID` (default `harness-tenant`), `CONTROL_PLANE_URL` (default `ws://relay-control-plane-stub:3000/v1/relay/connect`), `PG_HOST` (default `relay-postgres`), `PG_PORT` (default `5432`), `PG_DATABASE` (default `relay`), `PG_USER` (default `relay`), `PG_PASSWORD` (default `relay`), `MONGO_URI` (default `mongodb://relay-mongo:27017`), `MONGO_DATABASE` (default `relay`), and the optional `MASKING_ENABLED` (default `true`) + `AUDIT_ENABLED` (default `true`) toggles. The file contains no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entries. `grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example` returns 0. `docker compose --env-file .env.example up -d` from a clean shell env brings all four services Up."
+    ],
+    "acceptance_checks": [
+      "AC-055"
+    ],
+    "depends_on": [
+      "AC-051"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-056",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "`scripts/control-plane-stub/server.mjs` is committed: it imports `ws` and Node stdlib only, opens a `WebSocketServer` on `0.0.0.0:3000`, on `connection` validates the `?token=&tenantId=` URL query against the expected env-var pair, on `message` JSON-parses the payload and routes by `type` (logging `resource_update` with `relayId` + `resources.length`, logging `heartbeat` with `relayId` at debug), and exposes a one-shot `npm run smoke` script that opens its own outbound WebSocket to the relay, sends `health_check` and the two `execute` round-trips from AC-053 / AC-054, asserts the responses, and exits 0 on success / non-zero on mismatch. The stub has zero runtime dependency on any vendor SDK and is built into a 50-line image by `scripts/control-plane-stub/Dockerfile`.",
+    "steps": [
+      "Verify AC-056: `scripts/control-plane-stub/server.mjs` is committed: it imports `ws` and Node stdlib only, opens a `WebSocketServer` on `0.0.0.0:3000`, on `connection` validates the `?token=&tenantId=` URL query against the expected env-var pair, on `message` JSON-parses the payload and routes by `type` (logging `resource_update` with `relayId` + `resources.length`, logging `heartbeat` with `relayId` at debug), and exposes a one-shot `npm run smoke` script that opens its own outbound WebSocket to the relay, sends `health_check` and the two `execute` round-trips from AC-053 / AC-054, asserts the responses, and exits 0 on success / non-zero on mismatch. The stub has zero runtime dependency on any vendor SDK and is built into a 50-line image by `scripts/control-plane-stub/Dockerfile`."
+    ],
+    "acceptance_checks": [
+      "AC-056"
+    ],
+    "depends_on": [
+      "AC-051",
+      "AC-052"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-057",
+    "context": "open-source-local-runtime",
+    "category": "security",
+    "description": "The relay's `package.json` contains no `aws-sdk`, `@aws-sdk/*`, `stripe`, `@stripe/*`, `@clerk/*`, `@langfuse/*`, `@sentry/*`, `@svix/*`, `@slack/*`, `composio-*`, or `@mastra/*` dependency. `rg -in \"aws-sdk|@aws-sdk|^\\\"stripe\\\"|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra\" package.json` returns 0 matches. The same regex over the source tree (excluding `node_modules`, `package-lock.json`, `.harness*`, `docs/`, `CHANGELOG.md`, `harness-progress/`, `feature_list.json`) returns 0 matches: no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra API is referenced anywhere in the relay's runtime code. `package-lock.json` likewise has no transitive dependency on any of those packages (the regex applied to `package-lock.json` returns 0 matches). The relay's `.env.example` from AC-055 contains no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entry.",
+    "steps": [
+      "Verify AC-057: The relay's `package.json` contains no `aws-sdk`, `@aws-sdk/*`, `stripe`, `@stripe/*`, `@clerk/*`, `@langfuse/*`, `@sentry/*`, `@svix/*`, `@slack/*`, `composio-*`, or `@mastra/*` dependency. `rg -in \"aws-sdk|@aws-sdk|^\\\"stripe\\\"|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra\" package.json` returns 0 matches. The same regex over the source tree (excluding `node_modules`, `package-lock.json`, `.harness*`, `docs/`, `CHANGELOG.md`, `harness-progress/`, `feature_list.json`) returns 0 matches: no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra API is referenced anywhere in the relay's runtime code. `package-lock.json` likewise has no transitive dependency on any of those packages (the regex applied to `package-lock.json` returns 0 matches). The relay's `.env.example` from AC-055 contains no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entry."
+    ],
+    "acceptance_checks": [
+      "AC-057"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-058",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "Regression: the 50 original acceptance checks (AC-001 through AC-050) still pass against the new open-source layout. Concretely: `npm install` then `npm run build` exits 0 and produces `dist/index.js`; `npx tsc --noEmit` exits 0; `docker build . --platform linux/amd64` succeeds and produces an image that starts as UID 10001 (per AC-002's invariants). The `relay-config.docker.yaml` referenced by `docker-compose.yml` is a thin wrapper around the existing `relay-config.example.yaml` (same controlPlane + resources shape, just with the docker-network hostnames); `loadConfig()` parses it without code changes. PII masking, the audit logger, the policy engine, the Postgres / Mongo drivers, the WebSocket transport, the JSON-RPC dispatch, and graceful shutdown all behave identically to the original 50-check contract — the open-source context adds the docker-compose plumbing on top, it does not modify the relay's runtime behavior.",
+    "steps": [
+      "Verify AC-058: Regression: the 50 original acceptance checks (AC-001 through AC-050) still pass against the new open-source layout. Concretely: `npm install` then `npm run build` exits 0 and produces `dist/index.js`; `npx tsc --noEmit` exits 0; `docker build . --platform linux/amd64` succeeds and produces an image that starts as UID 10001 (per AC-002's invariants). The `relay-config.docker.yaml` referenced by `docker-compose.yml` is a thin wrapper around the existing `relay-config.example.yaml` (same controlPlane + resources shape, just with the docker-network hostnames); `loadConfig()` parses it without code changes. PII masking, the audit logger, the policy engine, the Postgres / Mongo drivers, the WebSocket transport, the JSON-RPC dispatch, and graceful shutdown all behave identically to the original 50-check contract — the open-source context adds the docker-compose plumbing on top, it does not modify the relay's runtime behavior."
+    ],
+    "acceptance_checks": [
+      "AC-058"
+    ],
+    "depends_on": [
+      "AC-051",
+      "AC-052",
+      "AC-055"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
   }
 ]
