@@ -50,7 +50,7 @@
       <runtime>Node.js 22 (>=22.0.0) + TypeScript ^5.7 + Hono ^4.6 + @hono/node-server + @hono/zod-validator</runtime>
       <database>Single DynamoDB table with ElectroDB ^2.14; 31 entities; 3 GSIs; PITR enabled. Local replacement: nahuelnucera/ministack on :4566. See `database_schema` for the full list.</database>
       <port>Launch the API on the PORT env var (default 3099); investigation worker runs as a separate `node dist/workers/investigation-worker.js` process. The control plane also exposes `/v1/relay/connect` (WSS) for the relay gateway on the same port.</port>
-      <patterns>Clean Architecture (Domain / Application / Infra) per module, dependency rule Infra → Application → Domain, ports & adapters with 17 port interfaces in `src/shared/application/ports/`, EventBus for cross-module events, composition root at `src/bootstrap.ts`. Strict invariants: I1–I11 enforced by `pnpm lint-invariants`.</patterns>
+      <patterns>Clean Architecture (Domain / Application / Infra) per module, dependency rule Infra → Application → Domain, ports &amp; adapters with 17 port interfaces in `src/shared/application/ports/`, EventBus for cross-module events, composition root at `src/bootstrap.ts`. Strict invariants: I1–I11 enforced by `pnpm lint-invariants`.</patterns>
     </backend>
     <communication>
       REST/JSON over Hono for all `/api/v1/...` routes. SSE (Hono streaming) for live progress on investigations, triage and remediation (`src/shared/infra/chat/sse-manager.ts`). WSS gateway at `/v1/relay/connect` for relay tunnels (`src/shared/infra/relay/relay-ws-server.ts`). Internal cross-module events via the in-process EventBus (`src/shared/domain/event-bus.ts`). SQS for durable async work (4 queues + 4 DLQs in `infra/localstack/init/01-create-resources.sh`); Redis pub/sub (`src/shared/infra/pubsub/redis-pubsub.ts`) for low-latency progress fan-out; an SQS progress publisher (`src/shared/infra/pubsub/sqs-progress.ts`) for durable replay. Outbound: Clerk JWT verification, Stripe webhooks, Composio triggers + tools, Slack Web API, Svix for outbound webhooks, Sentry for error capture, Langfuse for AI traces, Hindsight for long-term agent memory.
@@ -306,7 +306,7 @@
     </integrations-and-notifications>
     <widget-and-portal>
       - The embeddable widget (packages/widget) is a Vite library build shipped as a single JS file
-      - A tenant can drop a <script> tag into their status page or internal tool to mount the widget
+      - A tenant can drop a &lt;script&gt; tag into their status page or internal tool to mount the widget
       - The widget calls the control plane over a tenant-scoped widget session token (WidgetSessionEntity)
       - The portal at /embed/ gives the tenant's end-users read-only visibility into the latest investigation
       - The dashboard SPA at /dashboard (Alpine.js + Tailwind, served by Hono) gives the tenant's engineers the full control plane
@@ -319,6 +319,21 @@
       - In-process scheduler runs periodic jobs (DLQ redrive, cost rollup, Hindsight bank compaction, usage reconciliation) — no separate cron
       - Cost tracking enforces a per-investigation ceiling; the metric recorder publishes to Langfuse and to the audit module
     </observability-and-ops>
+    <open-source-local-runtime>
+      - Goal: the `core` service runs end-to-end via `docker compose up` with zero paid/external SaaS credentials configured. Only Hindsight (and an optional Anthropic key) are required to use the product.
+      - Persistence: Postgres 16 replaces DynamoDB. Every entity in the existing 31-entity set is ported to a Postgres table in a dedicated `causeflow` schema inside the bundled `causeflow-postgres` container. Repository interfaces in `domain/` are unchanged; only the `infra/` implementations swap from ElectroDB to a thin SQL layer (one table per entity, composite primary key `(tenant_id, entity_type, entity_id)`).
+      - Queue: BullMQ on the existing Redis 7 replaces SQS. The `MessageQueuePort` keeps the same `enqueue` / `subscribe` shape; the `SqsMessageQueue` is replaced by `BullMqMessageQueue`. A small Bull Board / `GET /admin/queues` endpoint is exposed for ops visibility. Retry + DLQ semantics are preserved.
+      - Auth: local username/password + JWT replaces Clerk. `POST /api/v1/auth/register` creates a tenant + owner user in one transaction; `POST /api/v1/auth/login` issues a short-lived JWT signed with a server secret; the existing `auth.middleware.ts` continues to verify, but no longer calls `@clerk/backend`. The Clerk webhook endpoint is removed; invites become a simple emailed link (or a JSON token when SMTP is not configured).
+      - Billing: a `StubBillingService` replaces Stripe. Every tenant is on the "free" plan by default; the only configuration is per-tenant quota overrides via env or admin endpoint. The `/api/v1/billing/*` routes return canned data and the webhook endpoint is removed. `UsageRecordEntity` keeps tracking metered usage, but no external meter is called.
+      - Credentials: the `CredentialVendorPort` is implemented by `EnvCredentialVendor` — credentials come from `.env` (`CAUSEFLOW_TENANT_&lt;id&gt;_AWS_*` style or a JSON blob), no STS AssumeRole, no cross-account policy builder. The `StsCredentialVendor` and `role-policy-builder` are removed.
+      - Token encryption: `AesGcmTokenEncryption` (Node `crypto` AES-256-GCM) replaces KMS. The encryption key is loaded from `TOKEN_ENCRYPTION_KEY` env var. The `KmsTokenEncryption` and the localstack init script for the KMS alias are removed.
+      - Task dispatch: the existing `investigation-worker` process (already a separate `node dist/workers/investigation-worker.js` binary) runs as a docker-compose service. `EcsInvestigationTaskDispatcher` is replaced by `LocalInvestigationTaskDispatcher` which spawns the worker in the same docker network. No ECS task definition, no AWS account required.
+      - Cloud provider: `StubCloudProvider` is the only cloud provider. `AwsCloudProvider` and `AzureCloudProviderStub` are removed. The remediation flow runs against a deterministic mock that records every action in the audit chain; the dashboard shows the simulated before/after.
+      - Optional SaaS are no-op when unconfigured: Sentry, Langfuse, Svix, Slack, Composio, Mastra. Each integration is gated on its env var being set; with an empty value, calls are swallowed and the relevant port returns a deterministic empty result. No SDK is invoked at startup.
+      - Hindsight remains the one required external SaaS: writes + recall go to the bundled `ghcr.io/vectorize-io/hindsight` container (unchanged from the original spec).
+      - `docker compose up -d` brings up: `causeflow-postgres`, `redis`, `hindsight`, the `causeflow-api` and `causeflow-worker` services, plus the customer sample services (order, payment, billing, notification, marketplace) for the demo. No `ministack`, no `langfuse`, no `localstack-init` script. `.env.example` is reduced to a short file with only Hindsight + Anthropic keys.
+      - The 38 original acceptance checks still pass against the local-only stack (regression): webhook → ingest → dedup → triage → investigation → remediation → memory works without AWS, Stripe or Clerk.
+    </open-source-local-runtime>
   </core_features>
 
   <acceptance_checks>
@@ -436,6 +451,51 @@
     <acceptance_check id="AC-038" context="observability-and-ops" category="functional" depends_on="AC-019">
       <description>Each investigation's total cost in src/shared/domain/cost.ts is computed from per-agent token counts; Langfuse publishes the same number to the metric recorder. A test run that exceeds the configured per-investigation ceiling is aborted and the incident is marked status=cost_exceeded, visible in /api/v1/investigation.</description>
     </acceptance_check>
+    <acceptance_check id="AC-039" context="open-source-local-runtime" category="foundation" depends_on="">
+      <description>With a clean environment (no AWS_*, no STRIPE_*, no CLERK_*, no SENTRY_*, no LANGFUSE_*, no SVIX_*, no SLACK_*, no COMPOSIO_*, no MASTRA_* env vars set, only HINDSIGHT_* + optional ANTHROPIC_API_KEY + minimal app config), `docker compose up -d` starts `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api` and `causeflow-worker`. Within 60 seconds `curl http://localhost:3099/health` returns 200 with JSON `{"postgres":"ok","redis":"ok","anthropic":"ok","queues":"ok"}` (Anthropic is "skipped" if no key is set). No AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra endpoint is contacted at startup (verifiable with a packet capture or by grepping the worker boot log for outbound URLs).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-040" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+      <description>Postgres is the only persistence layer. `psql` against the `causeflow-postgres` service lists 31 tables in the `causeflow` schema (one per existing entity). A `POST /api/v1/incidents` with an authenticated request writes a row that becomes visible in `SELECT * FROM causeflow.incidents WHERE tenant_id = $1`. The single-table ElectroDB code is removed (or kept behind a feature flag, off by default) — no `DynamoDBClient`, no `DocumentClient` instantiation at boot.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-041" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+      <description>BullMQ on Redis replaces SQS. The boot log lists 4 BullMQ queues (`causeflow-alerts`, `causeflow-triage`, `causeflow-investigation`, `causeflow-remediation`) with their worker counts. `GET /admin/queues` (a new local-only admin endpoint) returns each queue's name, depth, completed/failed counts, and the last 5 jobs. A `POST /api/v1/incidents` enqueues a triage job, the worker picks it up within 2 seconds, the job moves to `completed`, and the incident row updates to status=triaged — without any SQS endpoint being called.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-042" context="open-source-local-runtime" category="functional" depends_on="AC-039,AC-007">
+      <description>Local auth replaces Clerk. `POST /api/v1/auth/register` with `{ email, password, tenantName }` returns 201 with `{ user, tenant, token }` (a signed JWT, no external IdP). `POST /api/v1/auth/login` with the same credentials returns a fresh JWT; a wrong password returns 401. `GET /api/v1/whoami` with `Authorization: Bearer &lt;token&gt;` returns the user and tenant. The JWT is signed with `JWT_SECRET` from env, verified locally with `jose`, and the Clerk webhook endpoint, `clerk-client`, and `ClerkUserEmailResolver` are removed from the running code path. Tenant isolation (AC-010) still holds for tokens issued by this endpoint.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-043" context="open-source-local-runtime" category="functional" depends_on="AC-042,AC-011">
+      <description>Stub billing replaces Stripe. `GET /api/v1/billing/subscription` returns `{"plan":"free","status":"active"}` for every tenant; `GET /api/v1/billing/usage` returns the tenant's local `UsageRecordEntity` rows paginated; `POST /api/v1/billing/checkout-session` returns 410 Gone with a clear "billing disabled in OSS build" message. No `stripe.com` call is made (verifiable by grepping the worker boot log for outbound URLs or by network capture). Quota enforcement (max parallel investigations, max agents per run) is enforced from env-supplied limits, not from a Stripe plan.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-044" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+      <description>Token encryption uses AES-256-GCM from Node's `crypto`, keyed by `TOKEN_ENCRYPTION_KEY` env. A unit test encrypts a sample OAuth token, decrypts it, and confirms round-trip equality; tampering with one byte of the ciphertext fails the GCM auth tag check and raises. The `KmsTokenEncryption` class and the `alias/causeflow-token-encryption` provisioning step in `infra/localstack/init/01-create-resources.sh` are removed; no AWS KMS endpoint is ever called at startup.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-045" context="open-source-local-runtime" category="foundation" depends_on="AC-039,AC-019">
+      <description>The investigation worker runs as a `causeflow-worker` docker-compose service (same image as the API, different entrypoint). `docker compose ps` shows both `causeflow-api` and `causeflow-worker` healthy. An investigation enqueued in AC-041 is picked up by the worker (verifiable by tailing the worker container logs and confirming a `investigation:start` log line). No ECS task definition, no `EcsClient`, no AWS credentials are loaded — the `ecs/` directory is removed (or kept behind a feature flag, off by default).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-046" context="open-source-local-runtime" category="functional" depends_on="AC-040,AC-041,AC-042,AC-045">
+      <description>Full local-only pipeline regression. `POST /api/v1/webhooks/datadog` with a valid HMAC creates an incident (replaces AC-014). A second identical POST within the dedup window does not create a duplicate (replaces AC-015). The triage worker picks it up, calls the Anthropic API, and sets severity (replaces AC-017). The investigation worker runs all 6+ agents and emits per-agent events on the SSE stream (replaces AC-019). The run completes, an EvidenceEntity and a HypothesisEntity are written to Postgres (replaces AC-020), and the runbook is written to the local Hindsight bank (replaces AC-026). The whole flow runs against the local-only stack with zero SaaS credentials set.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-047" context="open-source-local-runtime" category="functional" depends_on="AC-046,AC-023">
+      <description>Remediation runs against the local stub cloud provider. `POST /api/v1/remediation/:id/approve` records an ApprovalEntity; `POST /api/v1/remediation/:id/execute` runs the plan through `StubCloudProvider`, which writes a deterministic mock result (success or failure based on the action type) and records each action's before/after in `RemediationEntity` (replaces AC-024). `POST /api/v1/remediation/:id/rollback` creates a follow-up plan with the inverse actions. No AWS API is contacted (verifiable via network capture); the `aws-cloud-provider.ts` and `azure-cloud-provider-stub.ts` are removed from the running code path.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-048" context="open-source-local-runtime" category="functional" depends_on="AC-042,AC-008">
+      <description>RBAC and the audit chain work on the local-only stack. As a `viewer`, `GET /api/v1/audit` returns 200; `DELETE /api/v1/audit/:id` returns 403. As an `admin`, the same DELETE returns 200 and the audit chain advances (replaces AC-008). RBAC roles are read from the local `UserEntity.role` field, not from a Clerk org role claim.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-049" context="open-source-local-runtime" category="functional" depends_on="AC-039">
+      <description>Every optional SaaS integration is a no-op when its env var is empty. With `SENTRY_DSN=` empty, no Sentry SDK is initialised; an unhandled exception in a unit test scenario is logged to pino but never sent. With `LANGFUSE_*` empty, the tracer returns a no-op span and the metric recorder silently drops events. With `SVIX_*` empty, outbound webhooks are POSTed directly via `fetch` (no retry library). With `SLACK_*` empty, the chat platform port returns a "not configured" sentinel and Slack-bound messages degrade gracefully. With `COMPOSIO_API_KEY=` empty, the tool provider returns an empty tool list. With `MASTRA_ENABLED=false`, the Mastra agent runner is not even loaded. None of these integrations block startup or fail any acceptance check when empty.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-050" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+      <description>`pnpm test:run` and `pnpm test:integration` pass with no AWS, Stripe or Clerk env vars set. The integration test stack runs against the same `causeflow-postgres` + `redis` + `hindsight` services (no ministack, no stripe-mock). `pnpm test:e2e` runs the full alert → triage → investigation → remediation flow end-to-end on the local-only stack. The total `aws-sdk-client-mock` dev dep is no longer used and can be removed; no test imports `@aws-sdk/*`, `stripe`, or `@clerk/backend`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-051" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+      <description>Port boundaries preserved. The `domain/` layer has zero `pg`, `bullmq`, `stripe`, `@clerk/*`, or `@aws-sdk/*` imports (verified by `pnpm lint-invariants` plus a new I12 rule that greps the domain tree). The `application/` layer never imports infra. The composition root at `src/bootstrap.ts` is still the only place concrete implementations are wired: `PostgresXxxRepository`, `BullMqMessageQueue`, `LocalAuthService`, `AesGcmTokenEncryption`, `EnvCredentialVendor`, `LocalInvestigationTaskDispatcher`, `StubCloudProvider`, `StubBillingService`. The 17 port interfaces in `src/shared/application/ports/` are unchanged.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-052" context="open-source-local-runtime" category="functional" depends_on="AC-039,AC-026">
+      <description>Hindsight is the one allowed external SaaS. `curl http://localhost:8888/health` returns 200. After a successful local-only investigation (AC-046), a write to the tenant's Hindsight bank is observable in the hindsight dashboard (or via `GET /v1/banks/&lt;bankId&gt;/memories`). A second similar incident in the same tenant surfaces the prior runbook in the orchestrator's recall payload (replaces AC-026's behaviour for the local build).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-053" context="open-source-local-runtime" category="foundation" depends_on="AC-039,AC-002">
+      <description>The bundled `docker-compose.yml` no longer references the `ministack`, `langfuse`, or `langfuse-worker` services; no `localstack-init` script runs. The `.env.example` ships with only `PORT`, `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY`, `HINDSIGHT_API_URL`, `HINDSIGHT_API_KEY`, and the optional `ANTHROPIC_API_KEY` + the VAPID pair. Running `docker compose up -d` from a fresh clone without modifying `.env.example` brings the platform to a healthy `/health` in under 60 seconds and reproduces the local-only pipeline from AC-046.</description>
+    </acceptance_check>
   </acceptance_checks>
 
   <database_schema>
@@ -485,6 +545,70 @@
         - WidgetSessionEntity — widget session token
       </entities>
     </tables>
+    <postgres_local_runtime>
+      <purpose>OSS local replacement for the single DynamoDB table. The 31 entities from the single-table design above are ported to one Postgres table per entity inside a `causeflow` schema in the bundled `causeflow-postgres:16-alpine` container. The repository interfaces in `domain/` are unchanged; only the `infra/` implementations swap from ElectroDB to a thin SQL layer (the `pg` Node driver, no ORM). Tenant isolation is enforced the same way (every table has `tenant_id NOT NULL`; repositories always pass the tenant id and never accept a raw `pk`/`sk`).</purpose>
+      <tables>
+        <causeflow_auth_users>
+          - tenant_id (text, NOT NULL, FK→causeflow_tenants.id)
+          - id (text, NOT NULL)
+          - email (text, NOT NULL)
+          - password_hash (text, bcrypt cost 12)
+          - role (text, NOT NULL, CHECK in ('owner','admin','member','viewer'))
+          - created_at, updated_at (timestamptz)
+          - PRIMARY KEY (tenant_id, id)
+          - UNIQUE (tenant_id, email)
+        </causeflow_auth_users>
+        <causeflow_auth_sessions>
+          - jti (uuid, PK)
+          - tenant_id (text, NOT NULL)
+          - user_id (text, NOT NULL)
+          - issued_at, expires_at (timestamptz)
+          - revoked_at (timestamptz, NULL)
+        </causeflow_auth_sessions>
+        <causeflow_token_vault>
+          - tenant_id (text, NOT NULL)
+          - provider (text, NOT NULL)
+          - ciphertext (bytea, NOT NULL)  -- AES-256-GCM
+          - iv (bytea, NOT NULL)
+          - auth_tag (bytea, NOT NULL)
+          - updated_at (timestamptz)
+          - PRIMARY KEY (tenant_id, provider)
+        </causeflow_token_vault>
+        <causeflow_billing_stub>
+          - tenant_id (text, PK)
+          - plan (text, NOT NULL, default 'free')
+          - status (text, NOT NULL, default 'active')
+          - quota_max_parallel_investigations (int)
+          - quota_max_agents_per_run (int)
+          - updated_at (timestamptz)
+        </causeflow_billing_stub>
+        <causeflow_usage_records>
+          - id (uuid, PK)
+          - tenant_id (text, NOT NULL)
+          - investigation_id (text)
+          - agent_name (text)
+          - tokens_in (bigint)
+          - tokens_out (bigint)
+          - cost_usd (numeric(12,6))
+          - recorded_at (timestamptz)
+        </causeflow_usage_records>
+        <causeflow_remediation_stub_actions>
+          - id (uuid, PK)
+          - tenant_id (text, NOT NULL)
+          - investigation_id (text)
+          - action_type (text)
+          - before_state (jsonb)
+          - after_state (jsonb)
+          - status (text, CHECK in ('succeeded','failed','skipped'))
+          - executed_at (timestamptz)
+        </causeflow_remediation_stub_actions>
+      </tables>
+      <notes>
+        - The other 24 entity tables (tenants, users, api_keys, invites, incidents, evidence, hypotheses, hypotheses_tree, chat_messages, tool_calls, audit_entries, notifications, approvals, integrations, triggers, slack_oauth_state, slack_notifications, repo_nodes, service_edges, repo_service_maps, package_dependencies, patterns, runbook_registry, widget_sessions) follow the same shape: `tenant_id` + entity id PK, a JSONB `payload` column for the entity-specific data, plus typed columns where the domain entity has them. A new invariant I12 enforces that every table has `tenant_id NOT NULL`.
+        - A `docker-entrypoint-initdb.d/01-schema.sql` script seeds the schema on first boot; the `causeflow` database is created by the postgres image's standard env.
+        - `DatabaseUrl` is the single connection string (`postgres://causeflow:causeflow@causeflow-postgres:5432/causeflow`); `pg` is the only required driver.
+      </notes>
+    </postgres_local_runtime>
   </database_schema>
 
   <api_endpoints_summary>
@@ -755,6 +879,24 @@
         - CI green on `.github/workflows/ci.yml`, `deploy.yml`, `eval.yml`
       </tasks>
     </step>
+    <step number="14">
+      <title>Open-source local runtime: replace AWS/Stripe/Clerk with self-hosted equivalents</title>
+      <tasks>
+        - Drop `ministack`, `langfuse`, `langfuse-worker`, and `infra/localstack/init/01-create-resources.sh` from `docker-compose.yml`; add `causeflow-postgres:16-alpine` (with a `docker-entrypoint-initdb.d/01-schema.sql` that creates the `causeflow` schema) and a `causeflow-worker` service built from the same image
+        - Port the 31 ElectroDB entities to one Postgres table per entity (composite PK `(tenant_id, id)`; typed columns + JSONB payload); delete `electrodb` from `package.json` and remove `src/shared/infra/db/entities/*`; add `pg` and a thin `src/shared/infra/db/postgres-client.ts` (AC-040)
+        - Replace `SqsMessageQueue` with `BullMqMessageQueue`; add `GET /admin/queues` for Bull Board-style visibility; preserve retry + DLQ semantics (AC-041)
+        - Replace Clerk: new `LocalAuthService` (bcrypt password hashing, JWT signing with `jose` + `JWT_SECRET`); new `POST /api/v1/auth/register` and `POST /api/v1/auth/login`; remove `clerk-client`, `handle-clerk-webhook`, `ClerkUserEmailResolver`, `/v1/auth/clerk-webhook` route; rewrite `auth.middleware.ts` to verify the local JWT (AC-042)
+        - Replace Stripe: new `StubBillingService`; remove all `stripe.com` calls; `POST /api/v1/billing/checkout-session` returns 410 Gone; remove `STRIPE_*` from `.env.example`; keep `UsageRecordEntity` for metered usage (AC-043)
+        - Replace STS: new `EnvCredentialVendor`; remove `sts-credential-vendor` and `role-policy-builder` (AC-039)
+        - Replace KMS: new `AesGcmTokenEncryption` using Node's `crypto`; remove `kms-token-encryption` (AC-044)
+        - Replace ECS: new `LocalInvestigationTaskDispatcher` that resolves to the bundled worker; remove `ecs-client`, `task-dispatcher` (AC-045)
+        - Keep `StubCloudProvider` as the only cloud provider; remove `aws-cloud-provider`, `azure-cloud-provider-stub` (AC-047)
+        - Make every optional SaaS no-op when its env var is empty: Sentry, Langfuse, Svix, Slack, Composio, Mastra (AC-049)
+        - Add invariant I12: `src/modules/**/domain/**` and `src/shared/domain/**` must not import `pg`, `bullmq`, `stripe`, `@clerk/*`, or `@aws-sdk/*` (AC-051)
+        - Update `infra/scripts/check-invariants.ts` to enforce I12; update `.github/workflows/ci.yml` to start the new docker-compose stack before running `pnpm test:integration` and `pnpm test:e2e`
+        - Verify the full local-only pipeline (AC-046) and the 38 original checks still pass against the new stack
+      </tasks>
+    </step>
   </implementation_steps>
 
   <success_criteria>
@@ -770,5 +912,8 @@
     <design_polish>
       All colors come from the documented palette. All animations respect `prefers-reduced-motion`. The embeddable widget renders cleanly inside a 300px column on a third-party status page. The dashboard renders cleanly at 1920×1080, 1366×768, 768×1024 and 375×667. Severity and status badges are always uppercase, always with a 1px tracking, always with the palette color, never inline-styled. No emoji in production UI text.
     </design_polish>
+    <open_source_local_runtime>
+      Acceptance Checks AC-039 through AC-053 all pass against the running docker-compose stack with no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars configured. `docker compose up -d` from a fresh clone with an unchanged `.env.example` brings the platform to `/health=200` in under 60 seconds, and the full Datadog webhook → ingest → dedup → triage → investigation → remediation → memory pipeline (AC-046) is reproducible on the local-only stack. The 38 original acceptance checks (AC-001..AC-038) continue to pass on the new stack; port boundaries and invariants I1–I12 are enforced.
+    </open_source_local_runtime>
   </success_criteria>
 </project_specification>
