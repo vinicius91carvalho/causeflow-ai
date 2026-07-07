@@ -144,3 +144,29 @@ No defects within the AC-002 boundary. integration=true set for WI-AC-002. PORT=
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-002-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-003 — Verify-first (foundation)
+
+**Result: implementation=true**
+
+Boundary exercised against the running app (real HTTP on the assigned PORT=5174, no mocks). Stack: `docker compose up -d ministack redis` (both `(healthy)`), `pnpm dev` → `CauseFlow is running` on 5174.
+
+- `curl http://localhost:5174/dashboard` → **HTTP 200**, `content-type: text/html; charset=UTF-8`, 146078 bytes.
+  - Alpine.js present (`alpinejs@3.x.x/dist/cdn.min.js`), Tailwind present (`cdn.tailwindcss.com`), `x-data` root elements present (12). ✓
+- `curl http://localhost:5174/widget/widget.js` → **HTTP 200**, `content-type: application/javascript; charset=utf-8`, 38037 bytes — the Vite-built widget IIFE bundle (`var CauseflowWidget=(function(c){...}`). ✓
+- Regression smoke: `/health` → 200; auth-gated `/v1/audit` → 401 (auth still enforced for non-public routes).
+- `pnpm typecheck` → clean. `pnpm lint-invariants` → 9 passed, 0 failed. `pnpm test:run` → 161 files / 1053 tests pass. `pnpm lint` → 0 errors (112 pre-existing `any` warnings, none new).
+
+### Root-cause fixes (smallest diff, 4 tracked files)
+
+The existing code failed AC-003 at the widget boundary only (dashboard already passed):
+
+1. **No `/widget/widget.js` route served** — the spec requires the widget bundle at `GET /widget/widget.js`, but `src/app.ts` had no such route and the global auth middleware returned 401 for it. Added a public route `app.get('/widget/widget.js', ...)` in `src/app.ts` that serves the Vite-built bundle from `packages/widget/dist/widget.js` with `Content-Type: application/javascript`. Returns 404 with a build hint if the dist is absent.
+2. **Widget bundle not built / wrong filename** — `packages/widget/vite.config.ts` emitted `causeflow-widget.js` and used `minify: 'terser'` (terser is not installed → build failed). Changed `fileName` to `widget.js` (matches the AC URL + portal-shell reference) and `minify` to `'esbuild'` (bundled, no extra dep). `pnpm --filter @causeflow/widget build` now produces `dist/widget.js`.
+3. **`/widget/` not in public-path allow-lists** — auth + tenant middleware would still reject the unauthenticated bundle request. Added `'/widget/'` to `PUBLIC_PATHS` in `auth.middleware.ts` and to the skip-list in `tenant.middleware.ts` (mirroring the existing `/v1/widget/` and `/portal` entries).
+
+No refactor/restructure of working code. Local untracked setup (gitignored, like `.env.dev`/`node_modules` in WI-AC-002): `pnpm install`, `cd packages/widget && pnpm install && pnpm build` (produces gitignored `packages/widget/dist/widget.js`). PORT=5174 used per harness assignment (spec's literal `:3099` is the known doc drift noted in WI-AC-002; the AC boundary — `/dashboard` HTML + `/widget/widget.js` JS bundle — passes on the assigned port).
+
+### Out of scope
+
+Wiring the widget build into the root `pnpm dev` script was deliberately NOT done: the widget is a standalone package (no pnpm-workspace.yaml) with its own lockfile, and a `predev` hook that depends on `packages/widget/node_modules` would regress AC-002's plain `pnpm dev` flow in a fresh checkout. Building the bundle is local setup, consistent with the WI-AC-002 `.env.dev`/`node_modules` pattern. A future work item can promote the widget to a workspace member if reproducible dev-time builds are required.

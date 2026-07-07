@@ -68,12 +68,12 @@
       "AC-002"
     ],
     "verify_first": true,
-    "implementation": false,
+    "implementation": true,
     "qa": false,
     "integration": false,
     "retries": 0,
-    "attempts": 0,
-    "status": "verify-first"
+    "attempts": 1,
+    "status": "implemented"
   },
   {
     "id": "WI-AC-004",
