@@ -170,3 +170,19 @@ No refactor/restructure of working code. Local untracked setup (gitignored, like
 ### Out of scope
 
 Wiring the widget build into the root `pnpm dev` script was deliberately NOT done: the widget is a standalone package (no pnpm-workspace.yaml) with its own lockfile, and a `predev` hook that depends on `packages/widget/node_modules` would regress AC-002's plain `pnpm dev` flow in a fresh checkout. Building the bundle is local setup, consistent with the WI-AC-002 `.env.dev`/`node_modules` pattern. A future work item can promote the widget to a workspace member if reproducible dev-time builds are required.
+
+## QA pass — AC-003 (independent re-test)
+
+**Result: qa=true, implementation=true**
+
+Re-ran independently against the running app in the isolated worktree (real HTTP on PORT=5174). Stack already up: `tsx watch --env-file=.env.dev src/main.ts` (pid 1207555) listening on 5174; ministack :4566 + redis :6379 `(healthy)`.
+
+- `curl http://localhost:5174/dashboard` → **HTTP 200**, `content-type: text/html; charset=UTF-8`, 146078 bytes.
+  - Tailwind present (`https://cdn.tailwindcss.com`), Alpine.js present (`alpinejs@3.x.x/dist/cdn.min.js`), `x-data` root element present (12 occurrences incl. body root `x-data="dashboard()"`). ✓
+- `curl http://localhost:5174/widget/widget.js` → **HTTP 200**, `content-type: application/javascript; charset=utf-8`, 38037 bytes — Vite-built widget IIFE bundle (`var CauseflowWidget=(function(c){...})`). ✓
+- Route wiring verified in `src/app.ts`: `app.get('/dashboard', ...)` serves `dashboard/index.html`; `app.get('/widget/widget.js', ...)` serves `packages/widget/dist/widget.js` with `Content-Type: application/javascript`. `/dashboard` + `/widget/` in auth + tenant public-path allow-lists.
+- Regression smoke: `/health` → 200 json `{dynamodb,redis,sqs,anthropic}: ok`.
+
+No defects within the AC-003 boundary. PORT=5174 used per harness assignment (spec's literal `:3099` is the known doc drift noted in WI-AC-002; the AC boundary — `/dashboard` returns Alpine+Tailwind+x-data HTML and `/widget/widget.js` returns the Vite bundle as `application/javascript` — passes on the assigned port).
+
+Note (out of scope, not a defect): the separate dockerized `core-causeflow-api-1` container on :3099 returns 500 for `/dashboard` and 401 for `/widget/widget.js` — it runs a stale `node dist/main.js` image predating the AC-003 route fixes and is not the surface under test in this isolated worktree (PORT=5174 dev server is).
