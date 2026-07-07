@@ -112,3 +112,10 @@ Re-ran independently against the running stack in the isolated worktree (real HT
 - Dependencies healthy: ministack :4566, redis :6379 both up (DynamoDB/Redis/SQS checks `ok` backed by real services).
 
 No defects found within the AC-002 boundary. PORT=5170 used per harness assignment (spec's "default 3099" wording is the same doc drift noted in the verify-first pass; the AC boundary — Hono listens on the assigned PORT within 10s and /health returns 200 with the four-service body — passes).
+
+## 2026-07-07T23:07:25.895Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-002
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
