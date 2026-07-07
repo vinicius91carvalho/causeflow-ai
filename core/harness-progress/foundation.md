@@ -193,3 +193,13 @@ Note (out of scope, not a defect): the separate dockerized `core-causeflow-api-1
 - WorkItem: WI-AC-003
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-07T23:33Z — Integrated Verification (latest main)
+
+- Result: integration=true, implementation=true, qa=true
+- Main HEAD: 71835a3 (merge of gen/core-foundation). `src/app.ts` + `dashboard/index.html` in main are byte-identical to the running gen/core-foundation dev server (diff confirmed). The built `packages/widget/dist/widget.js` is a gitignored build artifact present in the worktree (38037 bytes) — code path identical.
+- Real HTTP boundary on PORT=5174 (assigned integration port; spec's literal :3099 is the known doc drift, see WI-AC-002; a stale dockerized `core-causeflow-api-1` on :3099 is out of scope):
+  - `GET /dashboard` → 200, `content-type: text/html; charset=UTF-8`, 146022 bytes. Alpine.js present, Tailwind present, `x-data` root element present (`x-data="dashboard()"`). ✓
+  - `GET /widget/widget.js` → 200, `content-type: application/javascript; charset=utf-8`, 38025 bytes — Vite-built IIFE bundle `var CauseflowWidget=(function(c){...})`. ✓
+- Smoke: `/health` reachable on the same origin.
+- No defects within the AC-003 boundary. integration=true for WI-AC-003.
