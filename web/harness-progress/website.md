@@ -29,3 +29,26 @@ Boundary exercised: live `next dev` server on port 5175 (Next.js 15.5.12, webpac
 `pnpm exec biome check` clean on the three changed files (one auto-format applied). No refactor of existing working code.
 
 implementation=true set for WI-AC-017.
+
+## WI-AC-017 — Independent QA pass (qa-agent)
+
+**Result: qa=true, implementation=true**
+
+### Re-verification (clean isolated worktree, live `next dev` on :5175)
+
+- Step 1 ✓ — All 6 per-context i18n files exist and are valid JSON:
+  - `apps/website/src/contexts/marketing/infrastructure/i18n/{en,pt-br}.json`
+  - `apps/website/src/contexts/legal/infrastructure/i18n/{en,pt-br}.json`
+  - `apps/website/src/contexts/shell/infrastructure/i18n/{en,pt-br}.json`
+- Step 2 ✓ — `apps/website/src/lib/i18n/compose.ts` imports all 6 per-context files and deep-merges them via `deepMerge` from `@causeflow/shared/domain/utils/deep-merge` into `websiteMessages = { en: deepMerge(marketingEn, legalEn, shellEn), 'pt-br': deepMerge(marketingPtBr, legalPtBr, shellPtBr) }`.
+- Step 3 ✓ — Sentinel `home.hero.cta` added to marketing `{en,pt-br}.json`; rendered on homepage via existing `tHero = useTranslations('home.hero')` binding as `<span data-testid="ac-017-sentinel" className="sr-only">{tHero('cta')}</span>`.
+  - EN `GET /` → HTTP 200; HTML contains `ac-017-sentinel" class="sr-only">CauseFlow Early Access (AC-017 sentinel)<` — reads `en.json`.
+  - PT-BR `GET /pt-br/` → 308 → `/pt-br` HTTP 200; HTML contains `ac-017-sentinel" class="sr-only">CauseFlow Acesso Antecipado (sentinela AC-017)<` — reads `pt-br.json`.
+  - No errors/warnings on the dev server request path (`grep -iE "error|warn|fail|unhandled"` excluding the Node deprecation notice → empty).
+
+### Notes
+
+- Worktree uses isolated PORT=5175 instead of the AC's literal 3000 (isolation requirement); behavior is identical — the dev server is Next.js 15.5.12 on webpack, same i18n pipeline.
+- Real HTTP boundary exercised via `curl` against the live dev server; HTML response bodies inspected directly.
+
+No defects. qa=true, implementation=true for WI-AC-017.
