@@ -38,3 +38,10 @@ No defects found within the AC-001 boundary. (PITR is DISABLED but that is AC-00
 ### Out of scope
 
 The full literal `docker compose up -d` (all services) still errors on missing `./samples/*` customer-app build contexts. Those samples belong to later relay/customer-VPC/e2e work items (not the foundation context); AC-001's explicit boundary is the four infra containers + init resources + health curl, all of which pass. Not addressed here per the no-restructure rule.
+
+## 2026-07-07T22:49:10.783Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-001
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
