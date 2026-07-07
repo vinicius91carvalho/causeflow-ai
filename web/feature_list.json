@@ -1103,5 +1103,206 @@
     "retries": 0,
     "attempts": 0,
     "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-044",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "From a clean monorepo root with a blank shell env (no `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LOOPS_*`, `CORE_API_URL`, or SST-injected vars set), `docker compose up -d` brings up `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api`, `causeflow-worker`, `causeflow-website` (port 3000), and `causeflow-dashboard` (port 3001) per the bundled `docker-compose.yml`. Within 90 seconds `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` returns 200 and `curl -s -o /dev/null -w '%{http_code}' http://localhost:3001/auth/sign-in` returns 200 (the dashboard's local sign-in form, not the Clerk-hosted UI). Grepping the dashboard container's boot log for `clerk.com`, `stripe.com`, `amazonaws.com`, `sentry.io`, or `sst.` returns zero outbound URLs.",
+    "steps": [
+      "Verify AC-044: From a clean monorepo root with a blank shell env (no `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LOOPS_*`, `CORE_API_URL`, or SST-injected vars set), `docker compose up -d` brings up `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api`, `causeflow-worker`, `causeflow-website` (port 3000), and `causeflow-dashboard` (port 3001) per the bundled `docker-compose.yml`. Within 90 seconds `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` returns 200 and `curl -s -o /dev/null -w '%{http_code}' http://localhost:3001/auth/sign-in` returns 200 (the dashboard's local sign-in form, not the Clerk-hosted UI). Grepping the dashboard container's boot log for `clerk.com`, `stripe.com`, `amazonaws.com`, `sentry.io`, or `sst.` returns zero outbound URLs."
+    ],
+    "acceptance_checks": [
+      "AC-044"
+    ],
+    "depends_on": [],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-045",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "`apps/website/.env.example` ships with only `NEXT_PUBLIC_GA4_MEASUREMENT_ID` and `NEXT_PUBLIC_CLARITY_ID` (both optional, blank = no-op). `apps/dashboard/.env.example` ships with only `CORE_API_URL` (default `http://core-api:3099` for the docker-compose network), `JWT_SECRET` (shared with the Core container, must match the Core's `JWT_SECRET`), and the optional `NEXT_PUBLIC_*` analytics keys. `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*` (build-time), `LOOPS_*`, and any SST-injected var are absent from both files. `LOOPS_API_KEY` is removed from `apps/website/.env.example`.",
+    "steps": [
+      "Verify AC-045: `apps/website/.env.example` ships with only `NEXT_PUBLIC_GA4_MEASUREMENT_ID` and `NEXT_PUBLIC_CLARITY_ID` (both optional, blank = no-op). `apps/dashboard/.env.example` ships with only `CORE_API_URL` (default `http://core-api:3099` for the docker-compose network), `JWT_SECRET` (shared with the Core container, must match the Core's `JWT_SECRET`), and the optional `NEXT_PUBLIC_*` analytics keys. `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*` (build-time), `LOOPS_*`, and any SST-injected var are absent from both files. `LOOPS_API_KEY` is removed from `apps/website/.env.example`."
+    ],
+    "acceptance_checks": [
+      "AC-045"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-046",
+    "context": "open-source-local-runtime",
+    "category": "security",
+    "description": "`apps/dashboard/src/middleware.ts` no longer imports `clerkMiddleware`. The middleware reads the `__session` httpOnly cookie (set by the dashboard's sign-in route handler), verifies it with `JWT_SECRET` using the same `jose` library the Core uses, and lets the request through. `withAuth(handler, options)` extracts the cookie, calls the Core's `GET /api/v1/whoami` with `Authorization: Bearer `, and resolves `userId` + `tenantId` + `role` from the response. The dashboard's `/auth/sign-in` and `/auth/sign-up` pages are local React forms that POST to a new dashboard route handler (`/api/auth/login`, `/api/auth/register`) which proxies to the Core's endpoints, then sets the `__session` cookie. An unauthenticated `GET /dashboard` still redirects to `/auth/sign-in` (preserving AC-019's behavior).",
+    "steps": [
+      "Verify AC-046: `apps/dashboard/src/middleware.ts` no longer imports `clerkMiddleware`. The middleware reads the `__session` httpOnly cookie (set by the dashboard's sign-in route handler), verifies it with `JWT_SECRET` using the same `jose` library the Core uses, and lets the request through. `withAuth(handler, options)` extracts the cookie, calls the Core's `GET /api/v1/whoami` with `Authorization: Bearer `, and resolves `userId` + `tenantId` + `role` from the response. The dashboard's `/auth/sign-in` and `/auth/sign-up` pages are local React forms that POST to a new dashboard route handler (`/api/auth/login`, `/api/auth/register`) which proxies to the Core's endpoints, then sets the `__session` cookie. An unauthenticated `GET /dashboard` still redirects to `/auth/sign-in` (preserving AC-019's behavior)."
+    ],
+    "acceptance_checks": [
+      "AC-046"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-047",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "`@clerk/nextjs` (and any `@clerk/*` subpackage) is removed from `apps/dashboard/package.json#dependencies`. `pnpm install --frozen-lockfile` succeeds. `pnpm --filter dashboard build` (which runs `tsc --noEmit --project tsconfig.build.json` + `next build`) exits 0. `grep -r '@clerk' apps/dashboard/src apps/dashboard/scripts` returns zero matches. The `tsconfig.build.json` (which previously excluded Clerk type tests) is simplified to a standard dashboard build config; if any Clerk-flavored type-test files remain, they are deleted.",
+    "steps": [
+      "Verify AC-047: `@clerk/nextjs` (and any `@clerk/*` subpackage) is removed from `apps/dashboard/package.json#dependencies`. `pnpm install --frozen-lockfile` succeeds. `pnpm --filter dashboard build` (which runs `tsc --noEmit --project tsconfig.build.json` + `next build`) exits 0. `grep -r '@clerk' apps/dashboard/src apps/dashboard/scripts` returns zero matches. The `tsconfig.build.json` (which previously excluded Clerk type tests) is simplified to a standard dashboard build config; if any Clerk-flavored type-test files remain, they are deleted."
+    ],
+    "acceptance_checks": [
+      "AC-047"
+    ],
+    "depends_on": [
+      "AC-046"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-048",
+    "context": "open-source-local-runtime",
+    "category": "security",
+    "description": "`@stripe/react-stripe-js`, `@stripe/stripe-js`, and the `stripe` server SDK are removed from `apps/dashboard/package.json`. `apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx` no longer mounts a Stripe `PaymentElement`; it renders a local \"Billing disabled in OSS build\" panel and POSTs to the Core's `POST /api/v1/billing/checkout-session`, which returns 410 Gone per the Core's AC-043. The plan-gate (`apps/dashboard/src/contexts/billing/application/plan-status.ts#fetchPlanStatus`) renders correctly when the Core returns `{ plan: 'free', status: 'active' }` (a fresh tenant on the OSS build). The dashboard's `POST /api/billing/checkout` and `POST /api/billing/portal` route handlers stay (they proxy to the Core) and surface the 410 from the Core as a clear \"billing disabled\" message.",
+    "steps": [
+      "Verify AC-048: `@stripe/react-stripe-js`, `@stripe/stripe-js`, and the `stripe` server SDK are removed from `apps/dashboard/package.json`. `apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx` no longer mounts a Stripe `PaymentElement`; it renders a local \"Billing disabled in OSS build\" panel and POSTs to the Core's `POST /api/v1/billing/checkout-session`, which returns 410 Gone per the Core's AC-043. The plan-gate (`apps/dashboard/src/contexts/billing/application/plan-status.ts#fetchPlanStatus`) renders correctly when the Core returns `{ plan: 'free', status: 'active' }` (a fresh tenant on the OSS build). The dashboard's `POST /api/billing/checkout` and `POST /api/billing/portal` route handlers stay (they proxy to the Core) and surface the 410 from the Core as a clear \"billing disabled\" message."
+    ],
+    "acceptance_checks": [
+      "AC-048"
+    ],
+    "depends_on": [
+      "AC-046"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-049",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "`@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, and `@aws-sdk/client-cognito-identity-provider` are removed from `apps/dashboard/package.json` (dependencies) and from the root `package.json` (if present). `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts` is deleted (the OSS Core handles provisioning inside its own `register` endpoint per the Core's AC-042). `apps/dashboard/scripts/setup-stripe.ts` and `apps/dashboard/scripts/delete-user.ts` are deleted. The `serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider']` block in `apps/dashboard/next.config.mjs` is removed. `apps/dashboard/scripts/add-credits.ts` keeps its Core API call and is the only remaining script. `pnpm --filter dashboard build` exits 0.",
+    "steps": [
+      "Verify AC-049: `@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, and `@aws-sdk/client-cognito-identity-provider` are removed from `apps/dashboard/package.json` (dependencies) and from the root `package.json` (if present). `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts` is deleted (the OSS Core handles provisioning inside its own `register` endpoint per the Core's AC-042). `apps/dashboard/scripts/setup-stripe.ts` and `apps/dashboard/scripts/delete-user.ts` are deleted. The `serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider']` block in `apps/dashboard/next.config.mjs` is removed. `apps/dashboard/scripts/add-credits.ts` keeps its Core API call and is the only remaining script. `pnpm --filter dashboard build` exits 0."
+    ],
+    "acceptance_checks": [
+      "AC-049"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-050",
+    "context": "open-source-local-runtime",
+    "category": "ops",
+    "description": "`apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` are deleted. The `withSentryConfig(...)` wrapper in `apps/dashboard/next.config.mjs` is removed (the surrounding `next.config.mjs` keeps its `optimizePackageImports`, headers, redirects, and image allow-list). `.github/workflows/website-deploy.yml` and `.github/workflows/dashboard-deploy.yml` keep their `check-types` / `lint` / `test` / `build` steps but drop the `sst deploy` step (replaced with a comment pointing operators to the Docker build). Both apps have a multi-stage `Dockerfile` that mirrors the `relay` subproject's pattern: a builder stage that runs `pnpm install --frozen-lockfile` + `pnpm build`, then a runtime stage that runs `pnpm start`. The `docker-compose.yml` from AC-044 references those Dockerfiles.",
+    "steps": [
+      "Verify AC-050: `apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` are deleted. The `withSentryConfig(...)` wrapper in `apps/dashboard/next.config.mjs` is removed (the surrounding `next.config.mjs` keeps its `optimizePackageImports`, headers, redirects, and image allow-list). `.github/workflows/website-deploy.yml` and `.github/workflows/dashboard-deploy.yml` keep their `check-types` / `lint` / `test` / `build` steps but drop the `sst deploy` step (replaced with a comment pointing operators to the Docker build). Both apps have a multi-stage `Dockerfile` that mirrors the `relay` subproject's pattern: a builder stage that runs `pnpm install --frozen-lockfile` + `pnpm build`, then a runtime stage that runs `pnpm start`. The `docker-compose.yml` from AC-044 references those Dockerfiles."
+    ],
+    "acceptance_checks": [
+      "AC-050"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-051",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "`logos.composio.dev` and `backend.composio.dev` are removed from `next.config.mjs#images.remotePatterns` (and any CSP allow-list). The `composioTriggerId` field is removed from the `Integration` domain type at `apps/dashboard/src/contexts/integrations/domain/types.ts`; the 15 integration type identifiers (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) stay. The `/dashboard/integrations` page still renders 15 connection cards; the \"Connect\" CTA POSTs to the Core's stub integration endpoint, which returns 200 with deterministic empty data. No `COMPOSIO_API_KEY` env var is referenced anywhere in the OSS build.",
+    "steps": [
+      "Verify AC-051: `logos.composio.dev` and `backend.composio.dev` are removed from `next.config.mjs#images.remotePatterns` (and any CSP allow-list). The `composioTriggerId` field is removed from the `Integration` domain type at `apps/dashboard/src/contexts/integrations/domain/types.ts`; the 15 integration type identifiers (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) stay. The `/dashboard/integrations` page still renders 15 connection cards; the \"Connect\" CTA POSTs to the Core's stub integration endpoint, which returns 200 with deterministic empty data. No `COMPOSIO_API_KEY` env var is referenced anywhere in the OSS build."
+    ],
+    "acceptance_checks": [
+      "AC-051"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-052",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "The `connect-src` CSP entry for `https://app.loops.so` is removed from `apps/website/next.config.mjs`. `LOOPS_API_KEY` is removed from `apps/website/.env.example`. The `lvh.me` → `localhost` rewrite in `apps/dashboard/src/middleware.ts` and the inverse `localhost` → `lvh.me` rewrite in the dashboard's checkout/portal API handlers are removed (no Stripe callbacks to rewrite in the OSS build). The dashboard's `curl http://localhost:3001/...` requests work as-is; no `lvh.me` host appears anywhere in the dashboard's source.",
+    "steps": [
+      "Verify AC-052: The `connect-src` CSP entry for `https://app.loops.so` is removed from `apps/website/next.config.mjs`. `LOOPS_API_KEY` is removed from `apps/website/.env.example`. The `lvh.me` → `localhost` rewrite in `apps/dashboard/src/middleware.ts` and the inverse `localhost` → `lvh.me` rewrite in the dashboard's checkout/portal API handlers are removed (no Stripe callbacks to rewrite in the OSS build). The dashboard's `curl http://localhost:3001/...` requests work as-is; no `lvh.me` host appears anywhere in the dashboard's source."
+    ],
+    "acceptance_checks": [
+      "AC-052"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-053",
+    "context": "open-source-local-runtime",
+    "category": "foundation",
+    "description": "With the OSS docker-compose stack up from AC-044, the following original checks still pass (any check that described a vendor-specific implementation now passes against the local equivalent — e.g. AC-019's redirect behavior is preserved by the local JWT middleware, AC-022's 402 CREDITS_EXHAUSTED is preserved by the local credits ledger, AC-031's \"no STRIPE_SECRET_KEY in dashboard env\" is trivially true because Stripe is gone, AC-037's \"AWS SDK limited to two files\" is trivially true because AWS SDK is gone). Concretely: `pnpm turbo check-types` + `pnpm turbo lint` + `pnpm turbo test` + `pnpm turbo build` all exit 0 inside the dashboard container; `curl http://localhost:3000/` returns 200; the dashboard's sign-in form works end-to-end with the Core's local auth; `GET /api/incidents` (with a valid cookie) returns the Core's stub data; the plan-gate renders correctly for a fresh tenant; Sentry is a no-op with `NEXT_PUBLIC_SENTRY_DSN` empty.",
+    "steps": [
+      "Verify AC-053: With the OSS docker-compose stack up from AC-044, the following original checks still pass (any check that described a vendor-specific implementation now passes against the local equivalent — e.g. AC-019's redirect behavior is preserved by the local JWT middleware, AC-022's 402 CREDITS_EXHAUSTED is preserved by the local credits ledger, AC-031's \"no STRIPE_SECRET_KEY in dashboard env\" is trivially true because Stripe is gone, AC-037's \"AWS SDK limited to two files\" is trivially true because AWS SDK is gone). Concretely: `pnpm turbo check-types` + `pnpm turbo lint` + `pnpm turbo test` + `pnpm turbo build` all exit 0 inside the dashboard container; `curl http://localhost:3000/` returns 200; the dashboard's sign-in form works end-to-end with the Core's local auth; `GET /api/incidents` (with a valid cookie) returns the Core's stub data; the plan-gate renders correctly for a fresh tenant; Sentry is a no-op with `NEXT_PUBLIC_SENTRY_DSN` empty."
+    ],
+    "acceptance_checks": [
+      "AC-053"
+    ],
+    "depends_on": [
+      "AC-044",
+      "AC-046",
+      "AC-048",
+      "AC-049"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
   }
 ]
