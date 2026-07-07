@@ -60,3 +60,12 @@ Re-verified against integrated main (stack already up from prior `docker compose
 - Init script `infra/localstack/init/01-create-resources.sh` mounted and ran on ministack ready.
 
 No defects within the AC-001 boundary. integration=true set for WI-AC-001.
+
+## 2026-07-07T22:51:41.802Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-001
+- AcceptanceChecks: AC-001
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-1-integration_qa.log
+- NextAction: next Ready Work Item
