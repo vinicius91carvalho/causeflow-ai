@@ -154,3 +154,31 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/audit-trail/WI-AC-044-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T18:54:00.000Z — QA Independent Verification
+
+- WorkItem: WI-AC-045
+- Role: qa-agent (independent verification at real WebSocket boundary)
+- Outcome: PASS — all 11 assertions pass
+- Evidence:
+  - Fresh relay process spawned with temp config pointing at stub on port 5195
+  - Local WebSocket server on port 5195 as control-plane stub
+  - Five execute requests exercised over real WS, relay logs captured and parsed:
+    1. Row limit exceeded (policy denial) → -32600 + audit denied (level=40, policyChecks.reason="Row limit 5000 exceeds maximum 1000") ✓
+    2. Operation not allowed (policy denial) → -32600 + audit denied (level=40, policyChecks.reason="Operation delete not allowed on resource test-pg") ✓
+    3. Bad SQL / driver validation failure → -32602 + audit denied (level=40, policyChecks.reason="Only SELECT statements are allowed, got INSERT") ✓
+    4. Unknown resource (policy denial) → -32600 + audit denied (level=40, policyChecks.reason="Unknown resource: nonexistent") ✓
+    5. Driver execution error (ECONNREFUSED 127.0.0.1:15432) → -32603 + audit error (level=50, result:"error", errorMessage="connect ECONNREFUSED...") + top-level `logger.error({ err, requestId })` with "Request handler error" ✓
+  - relayId=06be3125-79db-45a6-b98b-5a7a500c038f consistent across all audit entries
+  - Every denied entry at pino warn (level=40) carries `result: "denied"` and `policyChecks.reason`
+  - Error entry at pino error (level=50) carries `result: "error"` with `errorMessage`
+  - Top-level error log has `{ err, requestId }` before response is sent
+- Test: `scripts/qa/ac045-test.mts` (adapted to port 5195)
+- Result: implementation=true, qa=true, no defects found
+
+## 2026-07-08T18:54:34.655Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-045
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
