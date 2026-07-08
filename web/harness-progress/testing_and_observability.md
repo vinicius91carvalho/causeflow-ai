@@ -98,3 +98,60 @@
   is the actual transport for dashboard logs (stdout -> CloudWatch in prod).
 - Verdict: implementation=true for AC-042 (zero-diff checkpoint; no product
   code changes).
+
+## 2026-07-08 — Independent QA (WI-AC-042)
+
+- Role: qa-agent. AcceptanceChecks: AC-042. Port: 5175. Boundary: real HTTP
+  (dashboard dev on :5175) + real pino logger stdout (sonic-boom fd-1 capture).
+- Step 1 (static): `apps/dashboard/src/lib/logger.ts` exports `logger` (pino,
+  JSON stdout); `apps/dashboard/package.json` lists `pino@^10.3.1`; installed
+  pino = 10.3.1. REDACT_PATHS covers req.headers.authorization / cookie /
+  x-api-key and body.{secret,apiKey,token,refreshToken,accessToken,credentials}.
+- Step 2 (behavioral): `next dev --hostname localhost -p 5175` → Ready; real
+  HTTP `GET /api/health` → 200 `{"status":"ok"}`. Ran real `logger.error` with a
+  withAuth-shaped payload (err, method, path, userId, tenantId, duration, req
+  headers w/ Bearer+__session cookie+x-api-key, body w/ secret/apiKey/token/
+  credentials + Stripe-secret-shaped fields). Captured stdout via fd-1 redirect:
+  auth header→[Redacted], cookie(__session)→[Redacted], x-api-key→[Redacted],
+  body.secret/apiKey/token/credentials→[Redacted]; structured method/path/userId/
+  tenantId/duration all present; no Bearer/JWT/clerk_db_jwt material leaks.
+  **BUT** Stripe-secret values under Stripe-specific field names LEAK:
+  `"stripeSecretKey":"sk_live_51LEAKSTRIPE"`, `"stripeToken":"tok_visa_leak"`,
+  `"STRIPE_SECRET_KEY":"sk_live_51LEAKENV"` all present in output. The logger
+  has no Stripe-specific redact paths (only generic body.secret/apiKey/
+  credentials), so Stripe secrets logged under stripe-* / STRIPE_* / whsec_
+  field names are not redacted. AC says "redacts ... Stripe secrets" → DEFECT.
+- Step 2 (Sentry-forwarding requirement): AC requires "withAuth AND every API
+  handler that catches a non-recoverable error also call dashLogger.error with
+  a structured payload (method, path, userId, tenantId, duration) AND forward
+  the error to Sentry."
+  - withAuth (src/lib/api/with-auth.ts): catches thrown handler errors, calls
+    `dashLogger.error({err, method, path, userId, tenantId, duration}, ...)`,
+    then rethrows. Rethrow → Next.js 15 `onRequestError = Sentry.captureRequest
+    RequestError` (instrumentation.ts) forwards to Sentry. ✓ for withAuth.
+  - API handlers: 17 handler files catch non-recoverable errors (return 500)
+    using `console.error` (NOT dashLogger.error) and swallow the error into a
+    JSON response — the exception never reaches withAuth's catch (handler
+    returns normally with status 500) and so never reaches onRequestError/
+    Sentry. grep: ZERO api/*-handler.ts files import dashLogger, error-tracker,
+    or @sentry/nextjs. Examples: approvals-handler.ts (`console.error('Failed
+    to list approvals:', error); return ...{status:500}`), audit-handler.ts,
+    approval-respond-handler.ts, billing/{checkout,portal,purchase,subscribe}-
+    handler.ts, investigation/{analyses-id,feedback,investigation-chat,
+    investigation-detail,investigation-relay-token,remediations,remediations-id}-
+    handler.ts, integrations/*, identity/complete-profile-handler.ts.
+    DEFECT: non-recoverable errors in these handlers are not logged via
+    dashLogger.error with the structured payload and are not forwarded to
+    Sentry; they only produce a console.error + JSON 500 (withAuth's
+    request-logger logs the 500 status, but not the error/exception itself).
+- Step 3 (static): the three Sentry `beforeSend` hooks
+  (instrumentation-client.ts, sentry.server.config.ts, sentry.edge.config.ts)
+  all delete authorization/cookie/x-api-key/x-clerk-auth-token/x-session-token
+  headers, request.data, cookies, user.ip_address, user.email — same redaction
+  as the logger. ✓ (Note: hooks also lack explicit Stripe-secret scrubbing, but
+  request.data is deleted wholesale so body Stripe secrets would be removed.)
+- Verdict: FAIL — qa=false, implementation=false.
+  Defects:
+  1. Logger does not redact Stripe secrets under Stripe-specific field names.
+  2. API handlers catching non-recoverable 500 errors use console.error, not
+     dashLogger.error, and never forward the error to Sentry.
