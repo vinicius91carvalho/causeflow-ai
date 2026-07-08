@@ -510,3 +510,10 @@ characters under both the scalar-value (spec-intent) and quote-inclusive
 - WorkItem: WI-AC-005
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T05:22:46.890Z — Resumed
+
+- WorkItem: WI-AC-005
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
