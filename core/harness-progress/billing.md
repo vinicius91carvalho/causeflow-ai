@@ -528,3 +528,29 @@ No refactor/restructure of working code. The read path (`GetSubscriptionUseCase`
 - AcceptanceChecks: AC-013
 - Outcome: implementation=true (boundary passed at real HTTP on PORT=5181)
 - NextAction: Integrated Verification
+
+## 2026-07-08 — QA independent verification (WI-AC-013)
+
+**Result: qa=true, implementation=true**
+
+Independently verified AC-013 against a freshly booted in-process app on PORT=5182 (existing stack: core-ministack-1 :4566 healthy, core-redis-1 172.18.0.4:6379 healthy, stripe-mock :12111). Wrote a separate independent verification script (`qa-ac013-independent.ts`, NOT reusing `ac013-boundary.ts` logic) that:
+
+1. Computes the Stripe v1 webhook signature **manually with `node:crypto` HMAC-SHA256** (the `t=<ts>,v1=<hex>` format) — NOT via `stripe.webhooks.generateTestHeaderString` — and verifies it byte-for-byte against the expected format.
+2. Uses a **WRONG-SECRET** negative (signature computed with a different secret than the app's `STRIPE_WEBHOOK_SECRET`) plus a **missing-signature-header** negative — independent from the boundary's mutated-body negative — to exercise the 400 path.
+
+Real HTTP exercised (real `fetch`es on PORT=5182, Clerk RS256 JWT verified networklessly via `CLERK_JWT_KEY`):
+
+- `POST /v1/tenants` (admin JWT) → 201, `tenantId = org_qa013_<ts>` (= JWT `o.id`).
+- Pre-delete: `GET /v1/billing/subscription` → plan=`starter`, `investigationsLimit=15`.
+- `POST /v1/billing/webhook` (signature computed with WRONG secret) → **400** — `constructEvent` HMAC mismatch rejected.
+- `POST /v1/billing/webhook` (missing `stripe-signature` header) → **400** — `ValidationError('Missing stripe-signature header')`.
+- `POST /v1/billing/webhook` (`customer.subscription.deleted`, signature computed with REAL secret via manual crypto) → **200** `{received:true}` — signature genuinely verified.
+- Post-delete: `GET /v1/billing/subscription` → plan=`free`, `investigationsLimit=0`, `eventsLimit=0` — tenant plan dropped to free.
+- `POST /v1/incidents/chat` (gated endpoint) → **402** `{error:"QUOTA_EXCEEDED"}` — gated endpoint returns 402 after the plan drops to free (`reserveInvestigation` `used < limit` check fails with `limit=0`).
+- Idempotent re-delivery of the same `customer.subscription.deleted` event → **200** (no regression, plan stays `free`).
+
+All 9/9 independent assertions passed. Also re-ran the committed `ac013-boundary.ts` (PORT=5181) → 15/15 passed.
+
+Regression: `pnpm typecheck` clean; `pnpm lint-invariants` 10/10 pass (I1–I11).
+
+Doc-drift note unchanged (literal `/api/v1/billing/webhook` not mounted — no global `/api` prefix; route is `/v1/billing/webhook`). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-013 behaviour is fully met.
