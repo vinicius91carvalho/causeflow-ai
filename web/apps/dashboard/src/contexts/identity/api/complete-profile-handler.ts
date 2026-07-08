@@ -2,8 +2,8 @@ import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { teamSizeValues } from '@/contexts/identity/domain/types';
-import { getSessionFromRequest } from '@/lib/auth/session-auth';
 import { parseBody } from '@/lib/api/parse-body';
+import { getSessionFromRequest } from '@/lib/auth/session-auth';
 import { logger as dashLogger } from '@/lib/logger';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 
   // Authentication check from session cookie
   const claims = await getSessionFromRequest(request);
-  const userId = claims?.sub ?? claims?.userId as string | undefined;
+  const userId = claims?.sub ?? (claims?.userId as string | undefined);
   if (!userId) {
     return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
   }

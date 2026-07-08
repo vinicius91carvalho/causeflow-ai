@@ -1,9 +1,9 @@
 'use client';
 
-import { useAuth } from '@/contexts/shared/presentation/components/auth-context';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import type { Approval, ApprovalStatus } from '@/contexts/approvals/domain/types';
+import { useAuth } from '@/contexts/shared/presentation/components/auth-context';
 import { useToast } from '@/contexts/shared/presentation/components/toast-provider';
 import { Link } from '@/i18n/navigation';
 

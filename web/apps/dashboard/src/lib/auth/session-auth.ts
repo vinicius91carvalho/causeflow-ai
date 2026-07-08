@@ -21,7 +21,7 @@ export function getJwtSecretBytes(): Uint8Array {
   const secret = process.env.JWT_SECRET;
   if (!secret || secret.trim() === '') {
     throw new Error(
-      'JWT_SECRET is not configured. Set it in .env.local (must match the Core API\'s JWT_SECRET).',
+      "JWT_SECRET is not configured. Set it in .env.local (must match the Core API's JWT_SECRET).",
     );
   }
   return new TextEncoder().encode(secret.trim());
@@ -87,9 +87,9 @@ export async function verifySessionCookie(
  * Verify the `__session` cookie from a Next.js request (or any object with
  * a `.cookies.get()` method). Returns the decoded claims or null.
  */
-export async function getSessionFromRequest(
-  request: { cookies: { get: (name: string) => { value: string } | undefined } },
-): Promise<SessionClaims | null> {
+export async function getSessionFromRequest(request: {
+  cookies: { get: (name: string) => { value: string } | undefined };
+}): Promise<SessionClaims | null> {
   const cookie = request.cookies.get(SESSION_COOKIE);
   return verifySessionCookie(cookie?.value);
 }

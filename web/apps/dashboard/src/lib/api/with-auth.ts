@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { logRequest } from '@/contexts/shared/lib/monitoring/request-logger';
+import { SESSION_COOKIE, type SessionClaims, verifySessionCookie } from '@/lib/auth/session-auth';
 import { logger as dashLogger } from '@/lib/logger';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
-import { SESSION_COOKIE, verifySessionCookie, type SessionClaims } from '@/lib/auth/session-auth';
 
 /**
  * Authenticated request context passed to route handlers.
@@ -70,7 +70,13 @@ interface WithAuthOptions {
 async function resolveWhoami(
   coreUrl: string,
   token: string,
-): Promise<{ userId: string; tenantId: string; email: string; name: string; role: 'admin' | 'member' }> {
+): Promise<{
+  userId: string;
+  tenantId: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'member';
+}> {
   const res = await fetch(`${coreUrl}/v1/auth/me`, {
     headers: {
       Authorization: `Bearer ${token}`,

@@ -203,8 +203,8 @@ The `lib/db/` directory has been **removed entirely**. The dashboard owns no sto
 | `src/lib/api/mock-api-client.ts` | Mock implementation of `ICoreApiClient` |
 | `src/lib/slug.ts` | `generateSlug()` and `randomSlugSuffix()` for tenant slug generation |
 | `src/lib/rate-limit.ts` | Per-user rate limiting (60/min per endpoint) |
-| `next.config.mjs` | Security headers (CSP allowing `*.clerk.accounts.dev` + Stripe), transpilePackages |
-| `sst.config.ts` | SST infra: WAF, CloudWatch alarms, Next.js Lambda, Clerk + Stripe env var injection, `CORE_API_URL` |
+| `next.config.mjs` | Security headers, transpilePackages, optimizePackageImports (AC-050: no `withSentryConfig`) |
+| `Dockerfile` | Multi-stage Docker build (AC-050: SST removed, runs as plain Node process) |
 
 ## RBAC
 

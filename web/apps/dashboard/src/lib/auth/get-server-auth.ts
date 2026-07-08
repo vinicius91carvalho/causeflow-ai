@@ -20,7 +20,12 @@
  */
 
 import { cookies } from 'next/headers';
-import { SESSION_COOKIE, verifySessionCookie, type AuthContext, claimsToAuthContext } from './session-auth';
+import {
+  type AuthContext,
+  claimsToAuthContext,
+  SESSION_COOKIE,
+  verifySessionCookie,
+} from './session-auth';
 
 /**
  * Read and verify the `__session` cookie from the current request's cookie

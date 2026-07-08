@@ -1,9 +1,9 @@
 import { PageHeader } from '@causeflow/ui/layouts';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getServerTenantId } from '@/lib/auth/get-server-auth';
 import { IntegrationsClient } from '@/contexts/integrations/presentation/components/integrations-client';
 import { IntegrationsToastHandler } from '@/contexts/integrations/presentation/components/integrations-toast-handler';
+import { getServerTenantId } from '@/lib/auth/get-server-auth';
 
 type Props = {
   params: Promise<{ locale: string }>;

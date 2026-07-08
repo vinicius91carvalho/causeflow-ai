@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { IncidentDetail } from '@/contexts/investigation/presentation/components/incident-detail';
-import { getServerTenantId } from '@/lib/auth/get-server-auth';
 import { getApiClient } from '@/lib/api/get-api-client';
+import { getServerTenantId } from '@/lib/auth/get-server-auth';
 
 // This page fetches user-specific data at request time — cannot be statically pre-rendered
 export const dynamic = 'force-dynamic';

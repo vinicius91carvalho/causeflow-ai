@@ -68,8 +68,8 @@ Per-context i18n files live at `infrastructure/i18n/en.json` and `pt-br.json`. A
 | `src/contexts/shell/presentation/components/navigation/` | Header, footer, mobile menu, language selector |
 | `src/contexts/marketing/presentation/components/sections/structured-data.tsx` | JSON-LD schema (Organization, Website, FAQ) |
 | `src/i18n/routing.ts` | Locale config: ['en', 'pt-br'], prefix 'as-needed' |
-| `next.config.mjs` | Security headers (CSP, HSTS), transpilePackages |
-| `sst.config.ts` | SST infra: CloudFront, WAF, Route 53, ACM |
+| `next.config.mjs` | Security headers (CSP, HSTS), transpilePackages, redirects |
+| `Dockerfile` | Multi-stage Docker build (AC-050: SST removed, runs as plain Node process) |
 
 ## Dependencies (workspace packages)
 

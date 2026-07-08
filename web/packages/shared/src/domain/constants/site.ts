@@ -3,7 +3,7 @@ export const SITE = {
   tagline: "Your Stack's Problem Detective",
   description: 'AI-powered incident investigation for engineering teams of 2-50 engineers.',
   url: 'https://causeflow.ai',
-  // Falls back to production URL; staging overrides via NEXT_PUBLIC_DASHBOARD_URL env var in sst.config.ts
+  // Falls back to production URL; override via NEXT_PUBLIC_DASHBOARD_URL env var.
   dashboardUrl: process.env.NEXT_PUBLIC_DASHBOARD_URL || 'https://dashboard.causeflow.ai',
   email: 'adm@causeflow.ai',
   social: {

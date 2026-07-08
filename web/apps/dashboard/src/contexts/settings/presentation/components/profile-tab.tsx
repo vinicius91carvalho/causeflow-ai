@@ -1,9 +1,9 @@
 'use client';
 
-import { useUser } from '@/contexts/shared/presentation/components/auth-context';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { useUser } from '@/contexts/shared/presentation/components/auth-context';
 import { useToast } from '@/contexts/shared/presentation/components/toast-provider';
 import { Link } from '@/i18n/navigation';
 

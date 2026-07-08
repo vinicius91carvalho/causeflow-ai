@@ -17,7 +17,7 @@ async function logHandlerError(request: NextRequest, error: unknown, startMs: nu
     method: request.method,
     path: logPath,
     userId: claims?.sub ?? 'anonymous',
-    tenantId: (claims?.tenantId ?? claims?.orgId) ?? 'anonymous',
+    tenantId: claims?.tenantId ?? claims?.orgId ?? 'anonymous',
     duration: Date.now() - startMs,
   };
   dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
