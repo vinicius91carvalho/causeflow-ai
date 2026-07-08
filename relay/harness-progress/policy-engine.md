@@ -78,3 +78,12 @@
   policyChecks.reason='Operation describe_table not allowed on resource order-pg'.
   No code changes needed (zero-diff).
 - Result: implementation=true, integration=true
+
+## 2026-07-08T17:35:47.074Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-037
+- AcceptanceChecks: AC-037
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/policy-engine/WI-AC-037-1-integration_qa.log
+- NextAction: next Ready Work Item
