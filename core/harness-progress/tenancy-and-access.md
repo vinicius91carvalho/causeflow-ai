@@ -242,3 +242,10 @@ Independently reproduced the AC-008 boundary against a fresh server process on t
 Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/api/v1/audit/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/audit/...`. Role note: codebase maps `org:admin`→`admin`, all other org roles→`member` (no literal `viewer` role string); member is the non-admin viewer-equivalent and is correctly blocked at 403 by `requireRole('admin')`. Functional AC-008 behaviour fully met.
 
 Local QA artefacts (gitignored, like `.env.dev`): `/tmp/ac008-qa-independent.mjs`, `/tmp/ac008-qa-server.log`, RSA keypair at `/tmp/ac008-clerk-jwt-key.*`. Server left running on 5182.
+
+## 2026-07-08T04:15:45.049Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-008
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
