@@ -1,0 +1,5 @@
+{
+  "hooks": {
+    "PostToolUse": "bash {{ .ProjectDir }}/check-invariants.sh --quiet"
+  }
+}
