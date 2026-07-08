@@ -75,3 +75,58 @@ No defects found. AC-012 satisfied at the real boundary on integrated main.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-012-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-013 — Verify-first (transport)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+Boundary exercised at a real WebSocket boundary: a `ws.WebSocketServer` probe on `127.0.0.1:5173` (`/v1/relay/connect`) plus the real `node dist/index.js` process built from `src/`. No mocks of the relay itself.
+
+Setup:
+- `npm run build` → exit 0; `npx tsc --noEmit` → exit 0 (`dist/transport/ws-client.js`, `dist/transport/protocol.js` produced).
+- `relay-config.yaml` with `controlPlane.url = ws://127.0.0.1:5173/v1/relay/connect`, `token=ac013-token`, `tenantId=ac013-tenant`, and two resources: `order-pg` (postgres) + `order-mongo` (mongodb). Driver init is lazy (`pg.Pool` / `MongoClient` constructors never connect), so no DB is needed to exercise the open-path resource_update send.
+- Probe (`scripts/probe-ac013.mjs`) accepts the handshake, validates `?token=&tenantId=`, and records every inbound message for 8s.
+
+Observations (probe verdict):
+- `connections=1`; relay log `Config loaded` carrying `resources=2`, `tenantId=ac013-tenant`; probe records `connection token=ac013-token tenantId=ac013-tenant`.
+- Exactly one inbound message in the window: `type=resource_update`, arriving immediately on WebSocket `open`.
+- Verdict: `{"passed":true,"resourceUpdateCount":1,"shapeOk":true,"relayIdUuid":true,"tenantOk":true,"typeOk":true,"perResourceShapeOk":true,"readOnlyOk":true,"resourceCountOk":true,"allResourcesMapped":true,"helperShapeOk":true,"relayId":"5fe78b8d-...","resources":[{order-pg,postgres,Order Service PostgreSQL,orders,readOnly:true},{order-mongo,mongodb,Order Service MongoDB,orders,readOnly:true}]}`.
+
+AC-013 contract checks (all pass):
+- On WebSocket `open`, the relay sends a `resource_update` — `onConnect` callback in `src/index.ts` calls `wsClient.sendResourceUpdate(...)` and the `open` handler in `src/transport/ws-client.ts` invokes `this.opts.onConnect?.()` after `startHeartbeat()`.
+- The message carries every resource from the loaded config (2/2 — `order-pg` + `order-mongo`) — `resourceCountOk=true`, `allResourcesMapped=true`.
+- Each resource maps to `{ resourceId, type: 'postgres'|'mongodb', name, database, readOnly: true }` — `perResourceShapeOk=true` (keys exactly `database,name,readOnly,resourceId,type`), `readOnlyOk=true` (every entry `readOnly === true`), `typeOk=true` (types in `{postgres,mongodb}`).
+- Constructed via `createResourceUpdate(relayId, tenantId, resources)` — `sendResourceUpdate` calls `createResourceUpdate(this.relayId, this.opts.tenantId, resources)`; `helperShapeOk=true` (rebuilding via the helper reproduces the exact wire bytes).
+- Matches `ResourceUpdateMessage` — `shapeOk=true` (top-level keys exactly `relayId,resources,tenantId,type`), `relayIdUuid=true`, `tenantOk=true` (tenantId === configured `ac013-tenant`).
+
+No root-cause fix required: the existing code already satisfies AC-013 at the real boundary.
+
+## WI-AC-013 — Checkpoint
+
+- Attempt: 1/3
+- WorkItem: WI-AC-013
+- Outcome: implementation=true (zero-diff)
+- NextAction: Integrated Verification
+
+## WI-AC-013 — QA audit (independent)
+
+**Result: qa=true, implementation=true**
+
+Independent audit on isolated worktree. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Ran a real `ws.WebSocketServer` on `127.0.0.1:5173` at `/v1/relay/connect` and the real `node dist/index.js` process with env-var fallback config (2 resources: `res-pg` postgres + `res-mg` mongodb; `TENANT_ID=tn-123`).
+
+Evidence:
+- On WebSocket `open`, the relay sent exactly one inbound message to the stub:
+  `{"type":"resource_update","relayId":"b63e9ec4-...","tenantId":"tn-123","resources":[{"resourceId":"res-pg","type":"postgres","name":"main-pg","database":"maindb","readOnly":true},{"resourceId":"res-mg","type":"mongodb","name":"main-mg","database":"mainmg","readOnly":true}]}`
+- Every configured resource is present (2/2), each mapped to `{ resourceId, type: 'postgres'|'mongodb', name, database, readOnly: true }`.
+- Message is constructed via `createResourceUpdate(relayId, tenantId, resources)` (`src/transport/ws-client.ts` `sendResourceUpdate` → `this.send(createResourceUpdate(this.relayId, this.opts.tenantId, resources))`), invoked from the `onConnect` callback wired in `src/index.ts` on the WS `open` event.
+- Shape matches `ResourceUpdateMessage` (`src/transport/protocol.ts`): `type`/`relayId`/`tenantId`/`resources[]` keys present with correct types; `readOnly` is `true` for every resource.
+- Validation verdict from the probe: `PASS`.
+
+No defects found.
+
+## 2026-07-08T03:01:06.863Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-013
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
