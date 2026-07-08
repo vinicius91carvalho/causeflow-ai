@@ -1,0 +1,10 @@
+WI-AC-014 node --check on verifyWebhookSignature snippet
+node: v24.16.0
+Source: api-reference/authentication.mdx (typescript code block containing verifyWebhookSignature)
+
+Extracted snippet -> temp file; `node --check` results:
+  .ts  exit=0
+  .js  exit=0
+  .mjs exit=1 (ESM mode does not strip TS types; not the natural extraction for a `typescript` code block)
+
+The snippet, extracted to its natural .ts extension, parses (exit 0).

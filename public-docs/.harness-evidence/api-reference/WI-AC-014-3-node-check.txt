@@ -1,0 +1,6 @@
+QA agent independent verification:
+- Extracted verifyWebhookSignature snippet from api-reference/authentication.mdx (lines 100-129)
+- Saved to /tmp/verifyWebhookSignature.ts
+- Ran: node --check /tmp/verifyWebhookSignature.ts
+- Exit code: 0
+- node v24.16.0
