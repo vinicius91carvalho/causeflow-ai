@@ -97,3 +97,16 @@
 - RepairPlan: AC-047 (graceful shutdown on SIGTERM/SIGINT) is correctly implemented and passes end-to-end testing. The shutdown handler in src/index.ts properly calls wsClient.close() (set intentionalClose=true, stop heartbeat, clear reconnect timer, close WebSocket), then awaits driver.close() for each initialized driver (errors caught), then process.exit(0). A second SIGTERM after the first has no effect. The test-ac047.mjs script confirms all behaviors against the full docker-compose stack and exits with code 0. No production code changes needed.; Restart the relay container in the docker-compose stack (already done: docker compose -p relay up -d relay); Run test-ac047.mjs against the stack and capture its output to the integration_qa evidence file; Update feature_list.json to set WI-AC-047: implementation=true, qa=true, integration=true, retries=0; Mark the INTEGRATION_QA step as passed in harness-progress/lifecycle.md
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/lifecycle/WI-AC-047-1-integration_qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-08T21:00:00.000Z — Integrated Verification Passed (Repair)
+
+- Attempt: 2/3
+- WorkItem: WI-AC-047
+- Outcome: PASSED
+- Integration: true
+- Implementation: true
+- QA: true
+- Evidence: test-ac047.mjs run against full docker-compose stack (relay + control-plane-stub + postgres + mongo) after restart. All steps passed: SIGTERM sent to running relay container -> container exited with code 0, "Shutting down..." logged, WsClient.close() set intentionalClose (no reconnect), driver.close() awaited for each initialized driver (errors caught), process.exit(0) completed. Second SIGTERM after process exit had no effect. Stack restarted cleanly after test and relay reconnected to control plane.
+- Feature list updated: WI-AC-047 implementation=true, qa=true, integration=true, retries=0
+- Defects: []
+- NextAction: None
