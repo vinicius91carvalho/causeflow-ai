@@ -77,6 +77,17 @@
   `npx tsc --noEmit` passes. `dist/` in sync with `src/`.
 - NextAction: none (AC-040 passes, no code changes required)
 
+## 2026-07-08T18:57:00.000Z — QA Verified (Independent Re-Test)
+
+- WorkItem: WI-AC-040
+- Outcome: qa=true, implementation=true
+- Verification: Independent QA agent re-tested AC-040 against compiled `dist/masking/masking-engine.js`.
+  Input `['john@example.com', '123.456.789-00', 'plain']` with default patterns enabled.
+  Result: `{ masked: ['***@***.***', '***.***.***-**', 'plain'], maskedFieldCount: 2 }`.
+  Email local part + domain stripped, CPF dotted pattern masked, plain string left untouched.
+  All assertions pass. No defects found.
+- NextAction: none (AC-040 passes QA)
+
 ## 2026-07-08T17:56:35.597Z — QA defect and Repair Plan
 
 - Attempt: 1/3
