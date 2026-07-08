@@ -1,0 +1,29 @@
+{
+  "entries": [
+    {
+      "id": "WI-AC-058",
+      "qa": true,
+      "implementation": true,
+      "timestamp": "2026-07-08T21:10:00Z",
+      "details": "Regression test AC-058: all 50 original acceptance checks pass against the new open-source layout.",
+      "checks": {
+        "npm_install_build": "passed - npm install && npm run build exits 0, produces dist/index.js + all modules",
+        "tsc_noEmit": "passed - npx tsc --noEmit exits 0, strict mode, NodeNext modules with .js extensions",
+        "docker_build_uid": "passed - docker build . --platform linux/amd64 succeeds, image runs as UID 10001 (relay user), EXPOSE 8080 informational",
+        "relay_config_docker_yaml_is_thin_wrapper": "passed - relay-config.docker.yaml differs only in docker-network hostnames from relay-config.example.yaml; same controlPlane + resources + masking + audit shape",
+        "loadConfig_parses_without_code_changes": "passed - loadConfig() parses both example and docker config files identically via interpolation + Zod schema",
+        "pii_masking": "passed - email/CPF masked in query results; maskedFieldCount:2 reported correctly",
+        "audit_logger": "passed - structured JSON audit entries written for success (info), denial (warn), and masking events",
+        "policy_engine": "passed - unknown resource denied with -32600 + reason; row limit enforcement operational",
+        "postgres_driver": "passed - SELECT 1 returns row; list_tables returns orders table; health_check reports order-pg healthy: true",
+        "mongo_driver": "passed - order-mongo reports healthy: true in health_check",
+        "websocket_transport": "passed - relay connects to control-plane stub, sends resource_update on open, heartbeats every 30s; reconnects on non-intentional close",
+        "json_rpc_dispatch": "passed - execute, list_resources, describe_resource, health_check all return correct results; unknown_method returns -32601",
+        "graceful_shutdown": "passed - SIGTERM triggers 'Shutting down...' log, exit code 0; second SIGTERM has no effect",
+        "no_vendor_dependencies": "passed - package.json and source tree have zero references to aws-sdk, stripe, @clerk/*, @sentry/*, @langfuse/*, @svix/*, @slack/*, composio-*, @mastra/*",
+        "env_example_no_vendor": "passed - .env.example has no AWS_*/STRIPE*/CLERK*/LANGFUSE*/SENTRY*/SVIX*/SLACK*/COMPOSIO*/MASTRA*/SQS*/DYNAMODB*/STS*/KMS* env vars",
+        "docker_compose_stack": "passed - four services (stub, postgres, mongo, relay) all Up; relay connected to control plane; resource_update sent with 2 resources"
+      }
+    }
+  ]
+}
