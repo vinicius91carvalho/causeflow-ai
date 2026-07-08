@@ -145,3 +145,31 @@
   5. MongoDB `limit=5000` → `-32600` with same row-limit message.
   No code changes needed (zero-diff).
 - Result: implementation=true, integration=true
+
+## 2026-07-08T17:48:59.738Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-038
+- Defects: ## Integrated Verification Complete - WI-AC-038: PASS
+
+### What was verified
+
+Real WebSocket boundary test against the running docker-compose stack (relay + control-plane-stub + real Postgres + real Mongo) confirmed:
+
+| Test | Scenario | Result |
+|------|----------|--------|
+| 1 | Postgres `limit=5000` with `maxRowsPerQuery=1000` | Rejected with `-32600`: `Row limit 5000 exceeds maximum 1000` |
+| 2 | Postgres `limit=100` | Accepted, `rowCount=1`, driver clamped to `min(100,1000)=100` |
+| 3 | Postgres no limit | Accepted, `rowCount=1`, falls back to `maxRowsPerQuery=1000` |
+| 4 | MongoDB `limit=100` | Accepted, no policy error |
+| 5 | MongoDB `limit=5000` | Rejected with `-32600`: `Row limit 5000 exceeds maximum 1000` |
+
+### Acceptance Check (AC-038) status
+- **implementation=true** (zero-diff: no production code changes needed - the policy engine and drivers already implement the correct behavior)
+- **integration=true** (verified at real external boundaries)
+- **defects**: none
+
+### Commit
+`80c2be7` feat: integrated verification (qa-agent) for WI-AC-038
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/policy-engine/WI-AC-038-1-integration_qa.log
+- NextAction: Repair Plan
