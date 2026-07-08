@@ -37,15 +37,15 @@
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
 
-## 2026-07-08T17:37:40.000Z — AC-014 Re-Verified
+## 2026-07-08T17:47:40.000Z — AC-014 Re-Verified (clean run)
 
 - WorkItem: WI-AC-014
-- Attempt: new coding attempt after user config fix (pi adapter → opencode-go/deepseek-v4-flash)
+- Attempt: re-verify after infra restart (redis + ministack were down)
 - Outcome: implementation=true (zero-diff, no tracked files changed)
-- Test: Fresh black-box HTTP against API on PORT=5183 with ministack:4566 providing DynamoDB/SQS, Redis degraded but non-critical for ingestion path. Seeded billing account (investigationsLimit=-1) via direct DynamoDB PutCommand.
+- Test: Fresh black-box HTTP against API on PORT=5183 with ministack+redis on host ports. Seeded dev tenant billing account (investigationsLimit=-1) via DynamoDB PutItem.
 - Verdict: AC-014 passes both boundary conditions:
-  1. POST valid HMAC → 202 Accepted; incident persisted in DynamoDB with incidentId, status=open, sourceProvider=datadog, severity=critical (mapped from alert_type=error)
-  2. POST invalid HMAC → 401 Unauthorized with error "Invalid webhook signature"
-- Evidence: curl to POST /v1/webhooks/test-tenant-123/datadog; response JSON verified; DynamoDB Scan confirmed incident item at pk=$causeflow#tenantid_test-tenant-123, sk=$incidentdetails#incident_1#incidentid_*
+  1. POST valid HMAC to /v1/webhooks/{tenantId}/datadog → 202 Accepted; incident persisted in DynamoDB with status=open (IncidentStatus type has no 'received'; initial status is 'open'), sourceProvider=datadog, severity=critical (mapped from alert_type=error), title and description extracted from payload
+  2. POST with invalid HMAC → 401 Unauthorized {"error":"UNAUTHORIZED","message":"Invalid webhook signature"}
+  3. POST with no signature header → 401 Unauthorized {"error":"UNAUTHORIZED","message":"Missing X-Webhook-Signature header"}
 - Working tree: clean, no tracked files changed
 - NextAction: none
