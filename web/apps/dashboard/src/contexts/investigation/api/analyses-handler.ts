@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { INCIDENT_STATUSES } from '@/contexts/investigation/domain/types';
@@ -5,6 +6,7 @@ import { getApiClient } from '@/lib/api/get-api-client';
 import { CoreApiError } from '@/lib/api/http-api-client';
 import { parseBody } from '@/lib/api/parse-body';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 /**
  * Map well-known Core API error messages to HTTP status codes when the
@@ -30,7 +32,8 @@ function statusForError(err: unknown): number {
  *   - status: filter by status (open|triaging|investigating|awaiting_approval|remediating|resolved|closed)
  *   - limit: number of results (default 20, max 100)
  */
-export const GET = withAuth(async (request: NextRequest, _ctx) => {
+export const GET = withAuth(async (request: NextRequest, ctx) => {
+  const start = Date.now();
   const url = new URL(request.url);
   const cursor = url.searchParams.get('cursor') ?? undefined;
   const status = url.searchParams.get('status') ?? undefined;
@@ -62,6 +65,18 @@ export const GET = withAuth(async (request: NextRequest, _ctx) => {
     });
   } catch (error) {
     const httpStatus = statusForError(error);
+    if (httpStatus >= 500) {
+      const logPath = new URL(request.url).pathname;
+      const logPayload = {
+        method: request.method,
+        path: logPath,
+        userId: ctx.userId,
+        tenantId: ctx.tenantId,
+        duration: Date.now() - start,
+      };
+      dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+      Sentry.captureException(error, { extra: logPayload });
+    }
     const msg = error instanceof Error ? error.message : 'Failed to load incidents';
     return NextResponse.json({ error: msg }, { status: httpStatus });
   }
@@ -86,6 +101,7 @@ const createIncidentSchema = z.object({
  * Delegates to backend POST /v1/incidents/chat.
  */
 export const POST = withAuth(async (request: NextRequest, ctx) => {
+  const start = Date.now();
   const { data, error } = await parseBody(request, createIncidentSchema);
   if (error) return error;
 
@@ -100,6 +116,18 @@ export const POST = withAuth(async (request: NextRequest, ctx) => {
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
     const httpStatus = statusForError(err);
+    if (httpStatus >= 500) {
+      const logPath = new URL(request.url).pathname;
+      const logPayload = {
+        method: request.method,
+        path: logPath,
+        userId: ctx.userId,
+        tenantId: ctx.tenantId,
+        duration: Date.now() - start,
+      };
+      dashLogger.error({ err, ...logPayload }, `Unhandled API handler error`);
+      Sentry.captureException(err, { extra: logPayload });
+    }
     const msg = err instanceof Error ? err.message : 'Failed to create incident';
     return NextResponse.json({ error: msg }, { status: httpStatus });
   }

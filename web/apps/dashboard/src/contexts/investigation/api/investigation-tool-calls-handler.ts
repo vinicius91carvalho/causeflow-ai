@@ -1,12 +1,15 @@
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 /**
  * GET /api/investigation/[id]/tool-calls/[toolCallId]
  * Fetch the raw tool call record (input + output) behind a cited evidence.
  */
-const _getHandler = withAuth(async (_request: NextRequest, _ctx, params) => {
+const _getHandler = withAuth(async (request: NextRequest, ctx, params) => {
+  const start = Date.now();
   const id = params?.id;
   const toolCallId = params?.toolCallId;
   if (!id || !toolCallId) {
@@ -25,6 +28,18 @@ const _getHandler = withAuth(async (_request: NextRequest, _ctx, params) => {
       error && typeof error === 'object' && 'status' in error
         ? (error as { status: number }).status
         : 500;
+    if (status >= 500) {
+      const logPath = new URL(request.url).pathname;
+      const logPayload = {
+        method: request.method,
+        path: logPath,
+        userId: ctx.userId,
+        tenantId: ctx.tenantId,
+        duration: Date.now() - start,
+      };
+      dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+      Sentry.captureException(error, { extra: logPayload });
+    }
     return NextResponse.json({ error: 'Failed to load tool call' }, { status });
   }
 });

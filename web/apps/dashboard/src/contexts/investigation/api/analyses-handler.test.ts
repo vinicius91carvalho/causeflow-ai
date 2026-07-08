@@ -23,6 +23,16 @@ vi.mock('@/lib/api/get-api-client', () => ({
   }),
 }));
 
+// AC-042: capture dashLogger.error + Sentry.captureException on 5xx paths only.
+// vi.hoisted ensures the mock objects exist before the static CoreApiError
+// import pulls in @/lib/logger (which http-api-client imports).
+const { dashLoggerMock, sentryMock } = vi.hoisted(() => ({
+  dashLoggerMock: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
+  sentryMock: { captureException: vi.fn() },
+}));
+vi.mock('@/lib/logger', () => ({ logger: dashLoggerMock }));
+vi.mock('@sentry/nextjs', () => ({ default: sentryMock, ...sentryMock }));
+
 vi.mock('@/lib/api/with-auth', () => ({
   withAuth:
     (fn: (req: NextRequest, ctx: Record<string, unknown>) => Promise<Response>) =>
@@ -40,6 +50,8 @@ vi.mock('@/lib/api/with-auth', () => ({
 beforeEach(() => {
   createIncident.mockReset();
   listIncidents.mockReset();
+  dashLoggerMock.error.mockClear();
+  sentryMock.captureException.mockClear();
 });
 
 afterEach(() => {
@@ -113,11 +125,41 @@ describe('POST /api/analyses — Core API error mapping', () => {
     expect(res.status).toBe(404);
   });
 
-  it('falls back to 500 for unmapped errors', async () => {
-    createIncident.mockRejectedValueOnce(new Error('Database connection lost'));
+  it('falls back to 500 for unmapped errors (AC-042: logs + captures)', async () => {
+    const boom = new Error('Database connection lost');
+    createIncident.mockRejectedValueOnce(boom);
     const { POST } = await importHandler();
     const res = await POST(postRequest(VALID_BODY), ROUTE_CTX);
     expect(res.status).toBe(500);
+
+    // AC-042: non-recoverable 5xx must log structured payload + forward to Sentry
+    expect(dashLoggerMock.error).toHaveBeenCalledTimes(1);
+    const payload = dashLoggerMock.error.mock.calls[0][0];
+    expect(payload).toMatchObject({
+      method: 'POST',
+      path: '/api/analyses',
+      userId: 'user_test',
+      tenantId: 'tenant_test',
+      err: boom,
+    });
+    expect(typeof payload.duration).toBe('number');
+    expect(sentryMock.captureException).toHaveBeenCalledTimes(1);
+    expect(sentryMock.captureException.mock.calls[0][0]).toBe(boom);
+    expect(sentryMock.captureException.mock.calls[0][1].extra).toMatchObject({
+      method: 'POST',
+      path: '/api/analyses',
+      userId: 'user_test',
+      tenantId: 'tenant_test',
+    });
+  });
+
+  it('does NOT capture on 4xx errors (AC-042: recoverable client errors)', async () => {
+    createIncident.mockRejectedValueOnce(new CoreApiError('FORBIDDEN', 403));
+    const { POST } = await importHandler();
+    const res = await POST(postRequest(VALID_BODY), ROUTE_CTX);
+    expect(res.status).toBe(403);
+    expect(dashLoggerMock.error).not.toHaveBeenCalled();
+    expect(sentryMock.captureException).not.toHaveBeenCalled();
   });
 
   it('returns 201 with the created incident on success', async () => {

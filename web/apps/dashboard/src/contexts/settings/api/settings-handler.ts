@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import type {
   Locale,
@@ -10,6 +11,7 @@ import type { UpdateTenantSettingsInput } from '@/lib/api/core-api-types';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { parseBody } from '@/lib/api/parse-body';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 /**
  * GET /api/settings
@@ -80,6 +82,7 @@ type TenantUpdate = UpdateTenantSettingsInput & {
  *   - Both kinds in one request           → `Promise.all([...])`; 502 if either fails.
  */
 export const PATCH = withAuth(async (request: NextRequest, ctx) => {
+  const start = Date.now();
   const { data, error } = await parseBody(request, updateSettingsSchema);
   if (error) return error;
 
@@ -150,6 +153,16 @@ export const PATCH = withAuth(async (request: NextRequest, ctx) => {
     // client can treat it as a no-op success.
     return NextResponse.json({ settings: {} as Partial<UserSettings> });
   } catch (err) {
+    const logPath = new URL(request.url).pathname;
+    const logPayload = {
+      method: request.method,
+      path: logPath,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
+      duration: Date.now() - start,
+    };
+    dashLogger.error({ err, ...logPayload }, `Unhandled API handler error`);
+    Sentry.captureException(err, { extra: logPayload });
     const message = err instanceof Error ? err.message : 'Upstream settings update failed.';
     return NextResponse.json({ error: message }, { status: 502 });
   }
