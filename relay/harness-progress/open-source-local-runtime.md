@@ -726,3 +726,81 @@ for both drivers). Partial results (Postgres unhealthy, Mongo healthy) are
 handled gracefully per AC-053.
 
 `feature_list.json` WI-AC-053 set to `implementation: true`.
+
+## 2026-07-08T20:29:30Z — QA Independent Verification (AC-053)
+
+- WorkItem: WI-AC-053
+- AcceptanceChecks: AC-053
+- Outcome: qa=true, implementation=true (independently re-verified on running stack)
+- Method: torn down prior stack (`docker compose down -v --remove-orphans`),
+  then `SMOKE=1 docker compose up -d` from repo root (no `AWS_*`/`STRIPE_*`/`CLERK_*`/
+  `LANGFUSE_*`/`SENTRY_*`/`SVIX_*`/`SLACK_*`/`COMPOSIO_*`/`MASTRA_*`/`SQS_*`/`DYNAMODB_*`/
+  `STS_*`/`KMS_*` in parent env). Independently verified health_check behavior
+  by inspecting stub logs for both fully-healthy and partial-failure scenarios.
+
+### Independent verification results
+
+**Normal case (all drivers healthy):**
+
+Stub log:
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":1},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":1}
+]
+[stub] smoke exiting with code 0
+```
+
+- Response is a valid JSON-RPC 2.0 response with `jsonrpc: '2.0'`, an `id`, and
+  a `result` array.
+- Each entry has `resourceId`, `type`, `healthy` (boolean), and `latencyMs` (number).
+- Both drivers report `healthy: true`.
+- Stub exits 0.
+
+**Partial failure case (relay-postgres container stopped):**
+
+```
+$ docker compose stop relay-postgres
+```
+
+Stub log:
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":false,"latencyMs":5005},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":12}
+]
+[stub] execute(SELECT 1) result={"code":-32603,"message":"getaddrinfo EAI_AGAIN relay-postgres"}
+[stub] execute(list_tables) result={"code":-32603,"message":"getaddrinfo EAI_AGAIN relay-postgres"}
+[stub] smoke exiting with code 0
+```
+
+- `order-pg` reports `healthy: false` with latencyMs ~5005 (connection timeout).
+- `order-mongo` still reports `healthy: true` with normal latency.
+- The execute queries against the unavailable Postgres return JSON-RPC error
+  `-32603` (expected — the driver cannot reach the database).
+- Stub still exits 0 (partial results accepted, per AC-053).
+
+**Recovery (relay-postgres restarted):**
+
+```
+$ docker compose start relay-postgres
+```
+
+Subsequent stub smoke cycles return to fully healthy status:
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":1},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":1}
+]
+[stub] smoke exiting with code 0
+```
+
+### Verdict
+
+All AC-053 acceptance criteria independently re-verified on a freshly brought-up
+stack at real external boundaries (live docker-network WebSocket, live Postgres
+connection timeout, live Mongo health check). Both the fully-healthy and
+partial-failure scenarios produce the correct health_check response shape and
+both exit 0. No defects.
+
+`qa=true`, `implementation=true`. `feature_list.json` WI-AC-053 `qa` set to `true`.
