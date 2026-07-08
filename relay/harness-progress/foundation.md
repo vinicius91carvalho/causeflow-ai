@@ -130,6 +130,20 @@ Verdict: qa=true, implementation=true, no defects. All AC-001 boundaries pass.
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
 
+## WI-AC-001 — Integrated Verification on main (2026-07-07)
+
+Re-ran the full AC-001 boundary at the real `node dist/index.js` + `ws` stub on :5176 boundary on integrated main (commit a20d3e4). Clean `dist`, real external boundaries, no mocks of the relay.
+
+- `npm install` → exit 0.
+- `npm run build` (`tsc`) → exit 0; produced `dist/index.js` + all 13 modules under `src/` (audit, config/loader, config/schema, drivers/driver.port, drivers/postgres/pg-driver, drivers/postgres/pg-query-parser, drivers/mongodb/mongo-driver, health/health-reporter, masking/masking-engine, policy/policy-engine, transport/protocol, transport/ws-client).
+- Missing config (no `RELAY_CONFIG_PATH`, absent `/app/relay-config.yaml`, no env vars) → pino `Starting CauseFlow Relay...` then `level:60` fatal `Failed to start relay` (Zod `too_small` on `resources`), **NODE_EXIT=1**.
+- Documented example `relay-config.example.yaml` (unquoted numeric `port: 5432`) with env vars set → `Starting CauseFlow Relay...`, `Config loaded` (resources=2, tenantId=test-tenant), both drivers initialized, then attempts to connect to `controlPlane.url`. No ZodError on `connection.port` — the previously-reported numeric-port defect remains fixed (`src/config/schema.ts` `connection: z.record(z.union([z.string(), z.number()]))`; `src/index.ts` coerces `Number(...)`/`String(...)`).
+- Valid yaml + bad URL (`ws://127.0.0.1:9`) → starts pino, `Config loaded`, both `Driver initialized`, `WS error` (ECONNREFUSED), `Scheduling reconnect` backoff 1s→2s→4s→8s, stays alive (timeout kill 124). Bad URL retries; bad config fails fast.
+- Valid yaml + real `ws` stub on :5176 → `Connected to control plane` (relayId+url logged); stub records `url=/v1/relay/connect?token=test-token&tenantId=test-tenant`, `Authorization: Bearer test-token`, `X-Tenant-Id: test-tenant`, and receives `resource_update` with 2 resources on open. SIGTERM (from timeout) → `Shutting down...`.
+- Env-var fallback (`CONTROL_PLANE_URL` + `RESOURCE_0_*` JSON `{"port":5432}` + `RELAY_TOKEN=envtoken`/`TENANT_ID=envtenant`, no YAML) → boots, `Config loaded` (tenantId=envtenant, resources=1), `Driver initialized`, connects as `token=envtoken&tenantId=envtenant`, stub receives `resource_update` with 1 resource.
+
+**Verdict: integration=true, implementation=true, qa=true, no defects.** All AC-001 boundaries pass on integrated main.
+
 ## 2026-07-08T00:25:16.533Z — Resumed
 
 - WorkItem: WI-AC-001
