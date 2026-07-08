@@ -138,6 +138,11 @@ export const config = {
 
   clerk: {
     secretKey: env('CLERK_SECRET_KEY', ''),
+    // Optional PEM public key (Clerk Dashboard → API keys → JWT public key).
+    // When set, @clerk/backend verifies session JWTs networklessly (no JWKS
+    // call) — the only way to verify a Clerk session JWT locally without a
+    // live Clerk instance. Standard `CLERK_JWT_KEY` env var.
+    jwtKey: env('CLERK_JWT_KEY', ''),
     webhookSecret: env('CLERK_WEBHOOK_SECRET', ''),
   },
 

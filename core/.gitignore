@@ -20,3 +20,8 @@ docker-compose.override.yml
 infra/cdk/cdk.out/
 infra/cdk/cdk.context.json
 .claude/
+
+# QA local artefacts
+.env.qa
+.qa-token
+qa-mint-token.mjs
