@@ -926,10 +926,10 @@
       "AC-002"
     ],
     "verify_first": true,
-    "implementation": true,
+    "implementation": false,
     "qa": false,
     "integration": false,
-    "retries": 0,
+    "retries": 1,
     "attempts": 0,
     "status": "verify-first"
   },

@@ -53,3 +53,31 @@
   - Sentry infrastructure: `initSentry()` in main.ts, `captureException()` with scope tags (requestId, tenantId, userId, method, path) and PII scrubbing in error-handler.ts; no-op when SENTRY_DSN unset
   - Langfuse bridge: LangfuseTracer creates traces/observations when configured; OTLP export path exists for OTel-to-Langfuse
   - No defects found — code correctly implements OTEL span generation with correlation ID and Sentry error capture
+
+## 2026-07-08T21:14:03.649Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-036
+- DefectReport: ## QA Summary
+
+**WI-AC-036: Observability and Ops** — **PASS**
+
+### What was tested
+
+1. **Real HTTP API behavior**: Verified the running API (PORT=5187) returns `x-request-id` on every response — each request gets a unique UUID correlation ID.
+
+2. **End-to-end error correlation**: Called `POST /v1/admin/fire-test-errors` (designed for Sentry/OTel testing). The response confirmed the `traceId` field exactly matches the `x-request-id` header — proving the correlation ID flows correctly through the middleware stack.
+
+3. **Unit tests**: Ran 386 tests across all observability-related modules — all pass (otel, sentry, outbound, propagation, worker-runner, error-handler, remediation routes, etc.).
+
+4. **Code verification**:
+   - **OTel**: `otel.ts` initializes NodeSDK with HTTP auto-instrumentation, AWS X-Ray ID generator, X-Ray propagator. `instrumentedCall()` wraps 6+ integration points (clerk, composio, anthropic, db, sqs, redis) with OTel spans. Trace context propagates via SQS `MessageAttributes`.
+   - **Sentry**: `initSentry()` in `main.ts` with PII scrubbing. `captureException()` with scope tags (requestId, tenantId, userId, method, path). Error handler calls it for 5xx and unhandled errors.
+   - **Langfuse**: `LangfuseTracer` creates traces/observations when `LANGFUSE_PUBLIC_KEY`/`SECRET_KEY` are configured. OTLP export path bridges OTel spans to Langfuse.
+
+### Defects
+
+None. Both parts of AC-036 are correctly implemented. Langfuse and Sentry end-to-end verification require runtime configuration (keys + services) which is inactive by design in the OSS build.
+- RepairPlan: WI-AC-036 (observability-and-ops) PASS — QA found zero defects. The repository contains every structure required by the project specs: OTel NodeSDK with AWS X-Ray ID generator/propagator (`otel.ts`), Sentry init with PII scrubbing (`sentry.ts`), Langfuse tracer + metric recorder with noop fallbacks, `instrumentedCall` wrapping 7 integration points, SQS trace propagation, `POST /v1/admin/fire-test-errors` endpoint returning `traceId` matching `x-request-id`, `TestErrorFiredError` extending `AppError` with status 500, and 386 passing unit tests covering all observability modules. Langfuse/Sentry end-to-end require runtime keys (inactive by design in OSS build), documented as expected. Verified 10 source files + 4 test files — all present and correctly wired.; None required — acceptance check PASS verified against both the QA evidence and repository audit.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/observability-and-ops/WI-AC-036-1-qa.log
+- NextAction: Coding Attempt 2
