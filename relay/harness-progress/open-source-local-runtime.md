@@ -1678,3 +1678,10 @@ open-source layout. The open-source docker-compose plumbing is a pure superset
 on top of the existing hardened single-image distribution — it does not modify
 the relay's runtime behavior. `feature_list.json` WI-AC-058 set to
 `implementation: true`.
+
+## 2026-07-08T21:06:31.161Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-058
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
