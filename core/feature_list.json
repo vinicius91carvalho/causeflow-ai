@@ -927,11 +927,11 @@
     ],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 2,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "qa-passed"
   },
   {
     "id": "WI-AC-037",

@@ -262,3 +262,46 @@ Exercised AC-036 against existing code at real HTTP boundary on PORT=5187:
 - implementation: true
 - qa: true
 - NextAction: Commit
+
+## 2026-07-08T21:45:00.000Z — Independent QA verification (WI-AC-036)
+
+- WorkItem: WI-AC-036
+- Phase: qa
+- Outcome: implementation=true qa=true
+
+### Verification Summary
+
+**Part 1 — OTel span with correlation ID**
+- API booted on PORT=5187 with AWS runtime, health returns 200
+- x-request-id header present on every response (valid UUID)
+- CORS exposes X-Request-Id in Access-Control-Expose-Headers
+- otelLangfuseBridge middleware wired in app.ts between requestId() and authMiddleware()
+- currentTraceId() called in 3 production paths: otel-langfuse-bridge.middleware.ts, observed-agent-runner.ts, observed-anthropic-client.ts
+- x-causeflow-trace-id header set on remediation approve response
+- Authenticated POST /v1/admin/fire-test-errors returns 500 with traceId matching x-request-id, proving correlation id flow works end-to-end
+- When Langfuse is configured, observed-agent-runner sets otelTraceId attribute on Langfuse spans (verified by unit tests)
+
+**Part 2 — Sentry error capture**
+- initSentry() in sentry.ts with PII scrubbing (beforeSend strips sensitive headers, body, cookies, user IP/email)
+- captureException() in error-handler.ts for 500+ errors with scope tags (requestId, tenantId, userId, method, path)
+- Unit tests verify Sentry.init called with DSN, withScope with proper tags, beforeSend PII filtering
+- No-op when SENTRY_DSN unset (verified by unit tests)
+- TestErrorFiredError in admin.routes.ts triggers error handler -> captureException
+
+**Test suite:**
+- 6 observability test files pass (36 tests): otel, sentry, outbound, propagation, worker-runner, noop-tracer
+- 2 OTel-Langfuse bridge test files pass (15 tests): observed-agent-runner, observed-anthropic-client
+- 10 remediation test files pass (57 tests): routes, use cases, repository, consumer
+- Admin routes test passes (11 tests): fire-test-errors, costs, redrive
+
+**Repository structures (all present):**
+- otel.ts, sentry.ts, langfuse-tracer.ts, langfuse-metric-recorder.ts
+- observability-factory.ts, noop-tracer.ts, noop-metric-recorder.ts
+- propagation.ts, outbound.ts, worker-runner.ts
+- otel-langfuse-bridge.middleware.ts, error-handler.ts, hono-types.ts
+- tracer.port.ts, metric-recorder.port.ts, agent-runner.port.ts
+
+**Defects:** None. Both parts of AC-036 correctly implemented.
+Langfuse end-to-end searchability requires LANGFUSE_PUBLIC_KEY/SECRET_KEY (inactive by design in this config).
+Sentry end-to-end Issues view requires SENTRY_DSN (inactive by design in this config).
+Code paths verified by unit tests and real HTTP boundary assertions.
