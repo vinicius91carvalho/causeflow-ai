@@ -126,3 +126,22 @@
 - WorkItem: WI-AC-044
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:45:00.000Z — Integrated Verification (qa-agent)
+
+- WorkItem: WI-AC-044
+- Role: qa-agent (integrated verification on main)
+- Outcome: PASS
+- Test: Real docker-compose stack (relay + control-plane-stub + postgres + mongo) already running from previous run, relay connected with relayId=94c1c343-9ec5-40a4-970d-62369c6c4e8f. Stub in SMOKE=1 mode had already sent `execute {SELECT 1 AS one}` and `execute {list_tables}` over real WebSocket. Relay audit logs collected via `docker compose logs relay`.
+- Evidence:
+  - Relay connected with relayId=94c1c343-9ec5-40a4-970d-62369c6c4e8f (logged by relay-ws: `Connected to control plane`)
+  - Two success audit entries at level=30 (pino info) with all required fields:
+    - `{ timestamp: "2026-07-08T18:40:22.801Z", relayId: "94c1c343-9ec5-40a4-970d-62369c6c4e8f", requestId: "6562bd1d-498d-46b1-a000-081d9f904939", resource: "order-pg", operation: "query", result: "success", rowCount: 1, maskedFieldCount: 0, executionTimeMs: 2 }`
+    - `{ timestamp: "2026-07-08T18:40:22.809Z", relayId: "94c1c343-9ec5-40a4-970d-62369c6c4e8f", requestId: "6c4a212d-0348-45c7-8005-f3ecd07504a3", resource: "order-pg", operation: "list_tables", result: "success", rowCount: 1, maskedFieldCount: 0, executionTimeMs: 3 }`
+  - relayId matches WS connect log relayId (94c1c343-9ec5-40a4-970d-62369c6c4e8f) — same process-lifetime UUID across all entries, heartbeats, and resource_updates
+  - Each entry has a unique per-request requestId
+  - AuditLogger created inside onMessage callback per src/index.ts (line 73): `const auditLogger = new AuditLogger(config.audit, wsClient.id);`
+  - All 9 required AC-044 fields present in each entry: timestamp, relayId, requestId, resource, operation, result:'success', rowCount, maskedFieldCount, executionTimeMs
+  - Log level=30 confirms pino info level for success entries (audit-logger.ts line 26)
+- Verdict: AC-044 PASS — implementation is correct, no defects found
+- Result: integration=true, implementation=true, qa=true
