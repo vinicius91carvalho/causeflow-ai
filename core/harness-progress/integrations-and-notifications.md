@@ -89,3 +89,18 @@ Use /login to log into a provider via OAuth or API key. See:
   - POST /events with tampered body returns 401 ✅
   - POST /events with stale timestamp returns 401 ✅
 - Changes: none (zero-diff re-verification, working tree clean)
+
+## 2026-07-08T22:00:00.000Z — Verified AC-030 (TS fix + re-verify)
+
+- WorkItem: WI-AC-030
+- Implementation: true
+- Boundary tests (all pass against live API at :3099):
+  - POST /install (authed) returns 200 + authUrl + state ✅
+  - POST /events url_verification returns challenge (200) ✅
+  - POST /events valid signature returns 200 ✅
+  - POST /events tampered body returns 401 ✅
+  - POST /events missing signature headers returns 401 ✅
+  - POST /events stale timestamp returns 401 ✅
+  - GET /oauth/callback missing params returns 400 ✅
+  - GET /oauth/callback tampered state returns 400 ✅
+- Change: added missing `signingSecret` to test mock to fix TS compilation
