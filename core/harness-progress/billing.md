@@ -554,3 +554,10 @@ All 9/9 independent assertions passed. Also re-ran the committed `ac013-boundary
 Regression: `pnpm typecheck` clean; `pnpm lint-invariants` 10/10 pass (I1–I11).
 
 Doc-drift note unchanged (literal `/api/v1/billing/webhook` not mounted — no global `/api` prefix; route is `/v1/billing/webhook`). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-013 behaviour is fully met.
+
+## 2026-07-08T11:45:43.282Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-013
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
