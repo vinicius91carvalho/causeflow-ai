@@ -123,3 +123,30 @@ Use /login to log into a provider via OAuth or API key. See:
   3. POST /events acknowledges events with {ok: true} but does not trigger a downstream "chat reply" — no processing pipeline for incoming Slack events.
 - Working endpoints: POST /install (200), POST /events url_verification (200), POST /events valid signature (200), POST /events tampered body (401), POST /events stale timestamp (401), GET /oauth/authorize (302), GET /oauth/callback (302).
 - All 1057 unit tests pass (74 in integration module).
+
+## 2026-07-08T22:01:57.399Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-030
+- Defects: Integrated Verification of **WI-AC-030** complete.
+
+**Verdict: FAIL** — 6 defects found.
+
+**Working (all verified against live API at :3099):**
+- `POST /install` (authed) → 200 with authUrl + state
+- `POST /events` (url_verification) → 200 with challenge
+- `POST /events` (valid Slack signature) → 200 `{"ok":true}`
+- `POST /events` (tampered body) → 401 `{"error":"Invalid signature"}`
+- `POST /events` (stale timestamp / missing headers) → 401
+- `GET /oauth/authorize` → 302 redirect to Slack
+- `GET /oauth/callback` (with error param) → 302 redirect to dashboard
+- All 1057 unit tests pass (74 in integration module)
+
+**Critical defect:**
+1. **DynamoDB dependency in OSS runtime** — `GET /config`, `PATCH /config`, `DELETE /oauth`, `POST /test` all return **500** because `DynamoTenantRepository` requires DynamoDB, but the running API uses the OSS Postgres runtime where no AWS credentials are available. The `try/catch` pattern used in the install/events endpoints is not applied to the tenant-repo-dependent routes.
+
+2. **Bot token stored as plaintext** — `ConnectSlackUseCase` stores `accessToken` directly into tenant settings without KMS/AES-GCM encryption, contradicting the "KMS-encrypted ciphertext" spec requirement.
+
+3. **No chat reply on events** — The `/events` handler acknowledges incoming Slack events with `{ok: true}` but implements no downstream reply pipeline.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/integrations-and-notifications/WI-AC-030-1-integration_qa.log
+- NextAction: Repair Plan
