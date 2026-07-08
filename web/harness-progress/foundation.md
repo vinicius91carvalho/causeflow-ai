@@ -897,3 +897,12 @@ All AC-002 steps pass at the real HTTP boundary. No blocking defects. qa=true, i
 - RepairPlan: AC-002 fails on both counts: (1) website does not respect $PORT because turbo's strict env mode blocks the PORT env var from reaching the task process; (2) dashboard does not respect $PORT+1 because its dev script hardcodes -p 3001 instead of computing the port dynamically. The project_specs.xml fully describes AC-002, and all scaffold files exist in the repository.; Add `"env": ["PORT"]` to the `dev` task in `turbo.json` so turbo forwards PORT to both child processes.; Change `apps/dashboard/package.json` dev script from `next dev --hostname localhost -p 3001` to `PORT=${PORT:-3000} && next dev --hostname localhost -p $((PORT + 1))` so the dashboard dynamically computes $PORT+1 with a fallback default of 3000.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-002-1-integration_qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-08T18:28:00.000Z — QA Re-Verification (Worktree isolated)
+
+- Attempt: 2/3
+- WorkItem: WI-AC-002
+- Outcome: PASS
+- Result: both defects from attempt 1 are fixed. PORT=5172 forwarded through turbo (env: ["PORT"] in turbo.json), website listens on 5172; dashboard dev script uses PORT+1 logic, listens on 5173. Both return HTTP 200. ✓
+- Evidence: Ports 5172 (website) and 5173 (dashboard) both listening and returning HTTP 200 via curl. Website `✓ Ready in 1164ms`, Dashboard `✓ Ready in 2.4s`.
+- NextAction: Integrated Verification
