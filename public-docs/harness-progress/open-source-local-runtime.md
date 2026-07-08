@@ -58,3 +58,40 @@ config` valid; only `causeflow-docs` service declared.
 ### verdict
 
 implementation=true; integration=pending; qa=pending; defects=none
+
+---
+
+## 2026-07-08T01:11:30Z — QA (WI-AC-026)
+
+- WorkItem: WI-AC-026
+- AcceptanceChecks: AC-026
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: qa=true (independent black-box re-verification on rebuilt stack)
+
+### Independent re-test (blank shell env, fresh build)
+
+Tore down the implementation-phase container/image (`docker compose down`,
+`docker rmi causeflow-docs:local`) and re-ran the canonical command from a
+blank env. Confirmed beforehand that none of `MINTLIFY_*`, `CLERK_*`,
+`STRIPE_*`, `AWS_*`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SENTRY_*`,
+`LANGFUSE_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*` are set in the shell.
+
+`env -i HOME=$HOME PATH=$PATH USER=$USER docker compose up -d` →
+image rebuilt from scratch (multi-stage: `mint export --telemetry false` →
+`node:22-alpine` runtime serving `serve.js`), `causeflow-docs` Up on
+`0.0.0.0:3000`.
+
+- `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` → **200**,
+  returned in 0s (well within the 60s budget).
+- Response body contains site name `CauseFlow AI` (`<title>CauseFlow AI
+  Documentation - CauseFlow AI</title>`, 4 matches) and the Quickstart intro
+  card (`data-title="Quickstart"` rendered Card with
+  `card-title` → "Quickstart", 3 matches).
+- `docker logs causeflow-docs 2>&1 | grep -cE` for the forbidden-host pattern
+  (`mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|langfuse\.io|svix\.com|slack\.com|composio\.dev`)
+  → **0** matches. Full runtime log: `Serving docs at http://localhost:3000`.
+
+### verdict
+
+qa=true; implementation=true; defects=none
