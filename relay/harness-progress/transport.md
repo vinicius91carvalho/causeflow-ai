@@ -239,6 +239,51 @@ AC-014 contract satisfied at the real boundary on integrated main. No defects fo
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-014-1-integration_qa.log
 - NextAction: next Ready Work Item
 
+## WI-AC-016 — Verify-first (transport)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+WorkItem: WI-AC-016 — verify AC-016 (`message` event JSON parsing + JSON-RPC 2.0 forwarding) against the existing code at a real WebSocket boundary.
+
+Boundary: real `ws.WebSocketServer` on `127.0.0.1:5173` (`/v1/relay/connect`) + the real compiled `WsClient` (`dist/transport/ws-client.js`, built via `npx tsc --noEmit` → 0, `npm run build` → 0). No mocks of the relay. Pino logs captured from stdout (fd 1); verdict printed to stderr (fd 2).
+
+Source checks (`src/transport/ws-client.ts` `message` handler):
+```
+this.ws.on('message', (data) => {
+  try {
+    const parsed = JSON.parse(typeof data === 'string' ? data : data.toString());
+    if (parsed.jsonrpc === '2.0' && parsed.method) {
+      this.opts.onMessage(parsed as RpcRequest);
+    }
+  } catch (err) {
+    logger.warn({ err }, 'Invalid message from control plane');
+  }
+});
+```
+
+Probe verdict (`/tmp/ac016-verdict.json` + `/tmp/ac016-stdout.log`):
+- `tokenOk=true`, `tenantOk=true`, `relayOpen=true` (relay connected to probe server).
+- Sent 9 inbound messages from the server to the relay:
+  1. `{ not valid json` (invalid JSON, string) → dropped, warn.
+  2. `{"jsonrpc":` (invalid JSON, buffer) → dropped, warn.
+  3. `{"jsonrpc":"1.0","method":"foo"}` (jsonrpc !== '2.0') → dropped, no warn.
+  4. `{"jsonrpc":"2.0","id":"x"}` (no method) → dropped, no warn.
+  5. `{"jsonrpc":"2.0","id":"1","method":"list_resources","params":{}}` (string) → forwarded.
+  6. `{"jsonrpc":"2.0","id":"2","method":"health_check","params":{}}` (buffer) → forwarded.
+  7. `{"jsonrpc":"2.0","id":"3","method":"execute","params":{"resourceId":"r"}}` (string) → forwarded.
+  8. `42` (valid JSON, non-object → jsonrpc undefined) → dropped, no warn.
+  9. `{}` (empty object → no method) → dropped, no warn.
+- `forwardedCount=3`, `exactlyThreeForwarded=true`; forwarded ids `1,2,3`; `forwardedAllJsonrpc2=true`; `forwardedAllHaveMethod=true`.
+- Parse-failure warn lines (level 40) in stdout log: exactly 2 — both `msg="Invalid message from control plane"` with `err.type="SyntaxError"` and the parse-error message attached (cases 1 & 2). `warnCount=2`.
+
+AC-016 contract checks (all pass):
+- On `message`, `WsClient` JSON-parses the payload handling both string and buffer (`typeof data === 'string' ? data : data.toString()` → `JSON.parse`).
+- Messages that fail to parse are logged at warn (`logger.warn({ err }, 'Invalid message from control plane')`, pino level 40) with the parse error (`err` = SyntaxError) and dropped (catch does not call `onMessage`).
+- Messages where `parsed.jsonrpc !== '2.0'` (cases 3, 8) or `parsed.method` is missing (cases 4, 9) are dropped (the `if` guard fails; `onMessage` not called).
+- Only well-formed JSON-RPC 2.0 requests (jsonrpc === '2.0' AND method present) are forwarded to `opts.onMessage` — exactly the 3 valid requests, in order, with their full parsed object.
+
+No root-cause fix required: the existing code already satisfies AC-016 at the real boundary.
+
 ## WI-AC-015 — Verify-first (transport)
 
 **Result: implementation=true (zero-diff checkpoint — no code changes)**
@@ -334,3 +379,254 @@ AC-015 contract satisfied at the real boundary on integrated main. No defects fo
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-015-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T06:25Z — QA audit passed (isolated, WI-AC-016)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Outcome: isolated QA passed (qa=true, implementation=true)
+- Boundary: real `ws.WebSocketServer` + real `WsClient` (tsx, src/transport/ws-client.ts). No mocks of the relay.
+- Evidence: `scripts/qa/ac016-test.mts` — server pushes invalid JSON (string), valid JSON with wrong jsonrpc, valid JSON missing method, a well-formed JSON-RPC 2.0 request (string), and a well-formed request sent as a Buffer. Asserts exactly the well-formed requests are forwarded to `opts.onMessage`; invalid JSON logged at pino warn (level 40) with the SyntaxError attached and dropped; wrong-jsonrpc / missing-method dropped silently.
+- Result: FORWARDED_COUNT=3 (ids 3,4,5), all with jsonrpc==='2.0' and a string method; one warn line `Invalid message from control plane` with `err.type=SyntaxError` for the bad-JSON case. `npx tsc --noEmit` → 0.
+- Source: `src/transport/ws-client.ts` message handler — `JSON.parse(typeof data === 'string' ? data : data.toString())`; guard `if (parsed.jsonrpc === '2.0' && parsed.method)` then `onMessage`; `catch (err) { logger.warn({ err }, 'Invalid message from control plane') }`.
+- NextAction: Integrated Verification
+
+## 2026-07-08T04:23:18.630Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T04:54:26.296Z — Resumed
+
+- WorkItem: WI-AC-016
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-08T04:54:26.319Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T05:23:12.394Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+	core/.env.example
+	core/.env.localstack
+	core/.gitignore
+	core/INVARIANTS.md
+	core/docker-compose.yml
+	core/infra/localstack/init/01-create-resources.sh
+	core/infra/scripts/check-invariants.ts
+	core/packages/widget/vite.config.ts
+	core/src/app.ts
+	core/src/bootstrap.ts
+	core/src/modules/auth/infra/auth.routes.ts
+	core/src/shared/config/index.ts
+	core/src/shared/infra/health/checks/anthropic-check.ts
+	core/src/shared/infra/http/middleware/auth.middleware.ts
+	core/src/shared/infra/http/middleware/tenant.middleware.ts
+	core/tests/src/app.test.ts
+	public-docs/.gitignore
+	public-docs/.mintignore
+	public-docs/README.md
+	public-docs/docs.json
+	public-docs/snippets/auth-header.mdx
+	public-docs/snippets/rate-limit-note.mdx
+	relay/.gitignore
+	relay/package-lock.json
+	relay/src/config/schema.ts
+	relay/src/drivers/postgres/pg-query-parser.ts
+	relay/src/index.ts
+	web/apps/dashboard/package.json
+	web/apps/dashboard/src/app/[locale]/accept-invitation/page.tsx
+	web/apps/dashboard/src/app/[locale]/auth/sign-in/[[...sign-in]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/auth/sign-up/[[...sign-up]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/beta-waitlist/page.tsx
+	web/apps/dashboard/src/app/[locale]/create-organization/[[...create-organization]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/[id]/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/new/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/intelligence/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/relay/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/settings/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/team/page.tsx
+	web/apps/dashboard/src/app/[locale]/onboarding/business-profile/page.tsx
+	web/apps/dashboard/src/app/[locale]/page.tsx
+	web/apps/dashboard/src/app/[locale]/waitlist/[[...waitlist]]/page.tsx
+	web/apps/dashboard/src/app/api/investigation/[id]/chat/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/detail/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/relay-token/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/tool-calls/[toolCallId]/route.ts
+	web/apps/dashboard/src/contexts/identity/api/complete-profile-handler.test.ts
+	web/apps/dashboard/src/contexts/identity/api/complete-profile-handler.ts
+	web/apps/dashboard/src/contexts/identity/presentation/pages/beta-waitlist-page.tsx
+	web/apps/dashboard/src/contexts/settings/presentation/pages/settings-page.tsx
+	web/apps/dashboard/src/contexts/team/presentation/pages/team-page.tsx
+	web/apps/website/src/contexts/marketing/infrastructure/i18n/en.json
+	web/apps/website/src/contexts/marketing/infrastructure/i18n/pt-br.json
+	web/apps/website/src/contexts/marketing/presentation/pages/home-page.tsx
+	web/pnpm-lock.yaml
+	web/vitest.config.ts
+Please commit your changes or stash them before you merge.
+error: The following untracked working tree files would be overwritten by merge:
+	.harness/bootstrap.host
+	.harness/bootstrap.log
+	.harness/bootstrap.pid
+	.harness/conclude-merge.log
+	.harness/journal-conflict-resolve.log
+	.harness/projects.json
+	.pi/settings.json
+	.turbo/cache/040f6817376e2598-meta.json
+	.turbo/cache/040f6817376e2598.tar.zst
+	.turbo/cache/0aaf10ddfb42531f-meta.json
+	.turbo/cache/0aaf10ddfb42531f.tar.zst
+	.turbo/cache/599716d50635a10a-meta.json
+	.turbo/cache/599716d50635a10a.tar.zst
+	.turbo/cache/a24a607d82d1451c-meta.json
+	.turbo/cache/a24a607d82d1451c.tar.zst
+	.turbo/cache/a613f0db8d08696b-meta.json
+	.turbo/cache/a613f0db8d08696b.tar.zst
+	.turbo/cache/afd2111fb699d535-meta.json
+	.turbo/cache/afd2111fb699d535.tar.zst
+	.turbo/cache/c34fb7eaabe6966e-meta.json
+	.turbo/cache/c34fb7eaabe6966e.tar.zst
+	.turbo/cache/dfb2fce1822ff665-meta.json
+	.turbo/cache/dfb2fce1822ff665.tar.zst
+	core/.harness-technology-inventory.json
+	core/.harness/bootstrap.host
+	core/.harness/planner-feature.pid
+	core/harness-progress/foundation.md
+	core/harness-progress/open-source-local-runtime.md
+	core/init.sh
+	core/project_specs.xml
+	public-docs/.dockerignore
+	public-docs/.harness-technology-inventory.json
+	public-docs/Dockerfile
+	public-docs/docker-compose.yml
+	public-docs/feature_list.json
+	public-docs/harness-progress/WI-AC-006-integration.md
+	public-docs/harness-progress/content-structure.md
+	public-docs/harness-progress/foundation.md
+	public-docs/harness-progress/open-source-local-runtime.md
+	public-docs/init.sh
+	public-docs/project_specs.xml
+	relay/.env.example
+	relay/.harness-technology-inventory.json
+	relay/.harness/bootstrap.host
+	relay/.harness/bootstrap.log
+	relay/.harness/bootstrap.pid
+	relay/.harness/plan.done
+	relay/.harness/plan.host
+	relay/.harness/plan.log
+	relay/.harness/plan.pid
+	relay/docker-compose.yml
+	relay/feature_list.json
+	relay/harness-progress/foundation.md
+	relay/harness-progress/open-source-local-runtime.md
+	relay/harness-progress/transport.md
+	relay/init.sh
+	relay/project_specs.xml
+	relay/relay-config.docker.yaml
+	relay/scripts/control-plane-stub/Dockerfile
+	relay/scripts/control-plane-stub/initdb/01-orders.sql
+	relay/scripts/control-plane-stub/package.json
+	relay/scripts/control-plane-stub/server.mjs
+	web/.harness-technology-inventory.json
+	web/.harness/bootstrap.host
+	web/.harness/bootstrap.pid
+	web/.harness/plan.done
+	web/.harness/plan.host
+	web/.harness/plan.pid
+	web/apps/dashboard/src/contexts/identity/presentation/components/accept-invitation-client.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/accept-invitation-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/create-organization-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/sign-in-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/sign-up-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/waitlist-page.tsx
+	web/apps/dashboard/src/contexts/integrations/presentation/pages/relay-page.tsx
+	web/apps/dashboard/src/contexts/investigation/api/investigation-chat-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-detail-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-relay-token-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-tool-calls-handler.ts
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/analyses-page.tsx
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/analysis-detail-page.tsx
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/new-analysis-page.tsx
+	web/apps/dashboard/src/contexts/onboarding/presentation/pages/business-profile-route-page.tsx
+	web/apps/dashboard/src/contexts/shared/presentation/pages/intelligence-route-page.tsx
+	web/apps/dashboard/src/contexts/shared/presentation/pages/root-page.tsx
+	web/feature_list.json
+	web/harness-progress/dashboard.md
+	web/harness-progress/foundation.md
+	web/harness-progress/testing.md
+	web/harness-progress/testing_and_observability.md
+	web/harness-progress/website.md
+	web/init.sh
+Aborting
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T12:03:40.298Z — Explicit Resume
+
+- WorkItem: WI-AC-016
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Retrying again after a supervisor restart (previous supervisor process was hung, unresponsive to stop signal, force-killed and restarted cleanly). Retry for a fresh attempt.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T12:10Z — Verify-first retry (supervisor restart)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+WorkItem: WI-AC-016 — fresh verify-first retry after supervisor restart. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Ran the real compiled `WsClient` against a real `ws.WebSocketServer` boundary (`scripts/qa/ac016-test.mts`, tsx). No mocks of the relay.
+
+Evidence (stdout):
+- `Connected to control plane` (level 30) on open.
+- Invalid JSON string `not-json{` → pino warn (level 40) `Invalid message from control plane` with `err.type=SyntaxError` + parse-error message; dropped (not forwarded).
+- Buffer payload `{"jsonrpc":"2.0","method":"health_check","id":"5"}` → forwarded (buffer path via `data.toString()`).
+- `{jsonrpc:'1.0',...}` (wrong jsonrpc) → dropped silently.
+- `{jsonrpc:'2.0',id:'2'}` (missing method) → dropped silently.
+- Well-formed `execute` id=3 and `list_resources` id=4 → forwarded.
+- `FORWARDED_COUNT=3`; ids `3,4,5`; all forwarded have `jsonrpc==='2.0'` and string `method`. `AC016_RESULT=PASS`, exit 0.
+
+Source (`src/transport/ws-client.ts` message handler): `JSON.parse(typeof data === 'string' ? data : data.toString())`; guard `if (parsed.jsonrpc === '2.0' && parsed.method)` then `this.opts.onMessage(parsed as RpcRequest)`; `catch (err) { logger.warn({ err }, 'Invalid message from control plane') }`.
+
+AC-016 contract satisfied at the real boundary. No root-cause fix required; existing code already passes. No code changes (zero-diff checkpoint).
+
+## 2026-07-08T06:55Z — QA audit (isolated, WI-AC-016, independent re-run)
+
+**Result: qa=true, implementation=true**
+
+Independent isolated QA on worktree `gen/relay-transport`. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Drove the real `WsClient` (tsx, `src/transport/ws-client.ts`) against a real `ws.WebSocketServer` on `127.0.0.1:5173` (`/v1/relay/connect`). No mocks of the relay.
+
+Probe (`scripts/qa/ac016-qa-isolated.mts`) pushed 9 inbound server→relay messages and recorded forwards to `opts.onMessage` plus pino stdout logs:
+1. `{ not valid json` (string) → dropped, pino warn level 40 `Invalid message from control plane` with `err.type=SyntaxError`.
+2. `{"jsonrpc":` (Buffer) → dropped, pino warn level 40 with `err.type=SyntaxError` (`Unexpected end of JSON input`).
+3. `{"jsonrpc":"1.0","method":"foo","id":"x"}` → dropped silently (jsonrpc !== '2.0').
+4. `{"jsonrpc":"2.0","id":"4"}` → dropped silently (no method).
+5. `{"jsonrpc":"2.0","id":"1","method":"list_resources","params":{}}` (string) → forwarded.
+6. `{"jsonrpc":"2.0","id":"2","method":"health_check","params":{}}` (Buffer) → forwarded.
+7. `{"jsonrpc":"2.0","id":"3","method":"execute","params":{"resourceId":"r"}}` (string) → forwarded.
+8. `42` (valid JSON, non-object) → dropped silently (no jsonrpc/method).
+9. `{}` (empty object) → dropped silently (no method).
+
+Verdict (`/tmp/ac016-qa-stderr.log`): `connected=true`, `forwardedCount=3`, `forwardedIds=["1","2","3"]`, `forwardedMethods=["list_resources","health_check","execute"]`, `allJsonrpc2=true`, `allHaveMethod=true`, `exactlyThreeForwarded=true`, `forwardedIdsMatch=true`. `AC016_RESULT=PASS` (exit 0).
+Warn audit (`/tmp/ac016-qa-stdout.log`): exactly 2 `level:40` lines, both `msg="Invalid message from control plane"`, both with `err.type="SyntaxError"` + parse-error message — only the two unparseable payloads (string + buffer) triggered a warn.
+
+Source (`src/transport/ws-client.ts` message handler): `JSON.parse(typeof data === 'string' ? data : data.toString())`; guard `if (parsed.jsonrpc === '2.0' && parsed.method)` then `this.opts.onMessage(parsed as RpcRequest)`; `catch (err) { logger.warn({ err }, 'Invalid message from control plane') }`.
+
+AC-016 contract satisfied at the real boundary. No defects found.
+
+## 2026-07-08T12:09:08.837Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
