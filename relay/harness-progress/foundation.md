@@ -222,3 +222,10 @@ Independently re-ran every AC-002 invariant at real external boundaries (Docker 
 Evidence: /tmp/ac002-evidence/WI-AC-002-3-qa.log
 
 **QA verdict: qa=true, implementation=true, no defects.** All AC-002 invariants pass on integrated main.
+
+## 2026-07-08T01:19:14.215Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-002
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
