@@ -1012,3 +1012,27 @@ All AC-003 steps pass at the real `tsc` + `turbo` boundary. No defects within th
 - RepairPlan: AC-004 Step 1 fails: `pnpm exec biome check .` exits 1 against the committed tree because `feature_list.json` (1312 lines, 53 single-element arrays) uses multi-line arrays (`"acceptance_checks": [\n  "AC-001"\n]`) that Biome's JSON formatter demands as inline (`"acceptance_checks": ["AC-001"]`). The 1 format error + 76 warnings cause exit 1. After `pnpm exec biome check --write .`, the JSON is auto-fixed (collapsed to inline, file shrinks from 1312→98 lines) and re-check exits 0. All other AC-004 behaviors verified: biome.json exists with 2.4.4 schema, @biomejs/biome@^2.4.4 in devDependencies, no ESLint/Prettier configs outside node_modules, malformed import triggers assist/source/organizeImports violation exit 1, --write auto-fixes and exits 0. Prior fixes at commits 583e701 and 2754707 were each undone when the harness regenerated `feature_list.json` without formatting (latest at 16733d9). The `feature_list.json` file is NOT a scaffold artifact defined in project_specs.xml — it is a generated work-tracking file. The project_specs.xml contains all required scaffold artifacts (AC-001 through AC-053 defined with steps, no missing structures detected).; Run `pnpm exec biome check --write .` from the repo root (`/home/vinicius/projects/causeflow-ai-wt-web-foundation/web`) to auto-format `feature_list.json` (collapses 53 multi-line single-element arrays to inline, resolves the format error, reduces file from 1312 to ~100 lines).; Commit the formatted `feature_list.json` with message: `fix: biome format feature_list.json for AC-004 compliance`.; Make durable: add `feature_list.json` to `biome.json#files.ignore` so the generated artifact does not break CI after future harness regeneration. Example addition to biome.json: add `"feature_list.json"` to a new `"files": { "ignore": ["feature_list.json"] }` block (note: `files.ignoreUnknown` already exists at `true`, add `ignore` array alongside it).; Alternatively, if the harness generator can be modified, add `pnpm exec biome check --write web/feature_list.json` as a post-generation step in the harness pipeline to format before committing.; After both changes, run `pnpm exec biome check .` to confirm exit 0, then run `pnpm exec biome check --write .` to confirm no additional changes are needed.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-004-2-qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-08T19:43:21.576Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-004
+- Outcome: QA failed after Attempt 3
+- Defects: ## Summary
+
+All AC-004 checks pass:
+
+| Check | Result |
+|---|---|
+| `biome.json` at repo root with schema 2.4.4 | PASS |
+| `@biomejs/biome@^2.4.4` in devDependencies | PASS |
+| No ESLint/Prettier configs in repo | PASS |
+| `pnpm exec biome check .` exits 0 on clean tree (76 warnings, 0 errors) | PASS |
+| Malformed import (split `react` imports) → `assist/source/organizeImports` violation → exit 1 | PASS |
+| `pnpm exec biome check --write .` auto-fixes → imports merged → exit 0 | PASS |
+| Working tree untouched | PASS |
+
+**Verdict:** qa=true, implementation=true (pre-existing), no defects found.
+
+The previous QA journal erroneously claimed a defect — `pnpm exec biome check .` does exit 0 against the current tree. The `feature_list.json` JSON formatting differences are not treated as errors by `biome check`, only by `biome format`. The journal has been corrected.
+- NextAction: User reviews evidence and explicitly resumes with guidance
