@@ -412,3 +412,164 @@ AC-015 contract satisfied at the real boundary on integrated main. No defects fo
 - WorkItem: WI-AC-016
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T05:23:12.394Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+	core/.env.example
+	core/.env.localstack
+	core/.gitignore
+	core/INVARIANTS.md
+	core/docker-compose.yml
+	core/infra/localstack/init/01-create-resources.sh
+	core/infra/scripts/check-invariants.ts
+	core/packages/widget/vite.config.ts
+	core/src/app.ts
+	core/src/bootstrap.ts
+	core/src/modules/auth/infra/auth.routes.ts
+	core/src/shared/config/index.ts
+	core/src/shared/infra/health/checks/anthropic-check.ts
+	core/src/shared/infra/http/middleware/auth.middleware.ts
+	core/src/shared/infra/http/middleware/tenant.middleware.ts
+	core/tests/src/app.test.ts
+	public-docs/.gitignore
+	public-docs/.mintignore
+	public-docs/README.md
+	public-docs/docs.json
+	public-docs/snippets/auth-header.mdx
+	public-docs/snippets/rate-limit-note.mdx
+	relay/.gitignore
+	relay/package-lock.json
+	relay/src/config/schema.ts
+	relay/src/drivers/postgres/pg-query-parser.ts
+	relay/src/index.ts
+	web/apps/dashboard/package.json
+	web/apps/dashboard/src/app/[locale]/accept-invitation/page.tsx
+	web/apps/dashboard/src/app/[locale]/auth/sign-in/[[...sign-in]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/auth/sign-up/[[...sign-up]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/beta-waitlist/page.tsx
+	web/apps/dashboard/src/app/[locale]/create-organization/[[...create-organization]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/[id]/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/new/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/intelligence/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/relay/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/settings/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/team/page.tsx
+	web/apps/dashboard/src/app/[locale]/onboarding/business-profile/page.tsx
+	web/apps/dashboard/src/app/[locale]/page.tsx
+	web/apps/dashboard/src/app/[locale]/waitlist/[[...waitlist]]/page.tsx
+	web/apps/dashboard/src/app/api/investigation/[id]/chat/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/detail/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/relay-token/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/tool-calls/[toolCallId]/route.ts
+	web/apps/dashboard/src/contexts/identity/api/complete-profile-handler.test.ts
+	web/apps/dashboard/src/contexts/identity/api/complete-profile-handler.ts
+	web/apps/dashboard/src/contexts/identity/presentation/pages/beta-waitlist-page.tsx
+	web/apps/dashboard/src/contexts/settings/presentation/pages/settings-page.tsx
+	web/apps/dashboard/src/contexts/team/presentation/pages/team-page.tsx
+	web/apps/website/src/contexts/marketing/infrastructure/i18n/en.json
+	web/apps/website/src/contexts/marketing/infrastructure/i18n/pt-br.json
+	web/apps/website/src/contexts/marketing/presentation/pages/home-page.tsx
+	web/pnpm-lock.yaml
+	web/vitest.config.ts
+Please commit your changes or stash them before you merge.
+error: The following untracked working tree files would be overwritten by merge:
+	.harness/bootstrap.host
+	.harness/bootstrap.log
+	.harness/bootstrap.pid
+	.harness/conclude-merge.log
+	.harness/journal-conflict-resolve.log
+	.harness/projects.json
+	.pi/settings.json
+	.turbo/cache/040f6817376e2598-meta.json
+	.turbo/cache/040f6817376e2598.tar.zst
+	.turbo/cache/0aaf10ddfb42531f-meta.json
+	.turbo/cache/0aaf10ddfb42531f.tar.zst
+	.turbo/cache/599716d50635a10a-meta.json
+	.turbo/cache/599716d50635a10a.tar.zst
+	.turbo/cache/a24a607d82d1451c-meta.json
+	.turbo/cache/a24a607d82d1451c.tar.zst
+	.turbo/cache/a613f0db8d08696b-meta.json
+	.turbo/cache/a613f0db8d08696b.tar.zst
+	.turbo/cache/afd2111fb699d535-meta.json
+	.turbo/cache/afd2111fb699d535.tar.zst
+	.turbo/cache/c34fb7eaabe6966e-meta.json
+	.turbo/cache/c34fb7eaabe6966e.tar.zst
+	.turbo/cache/dfb2fce1822ff665-meta.json
+	.turbo/cache/dfb2fce1822ff665.tar.zst
+	core/.harness-technology-inventory.json
+	core/.harness/bootstrap.host
+	core/.harness/planner-feature.pid
+	core/harness-progress/foundation.md
+	core/harness-progress/open-source-local-runtime.md
+	core/init.sh
+	core/project_specs.xml
+	public-docs/.dockerignore
+	public-docs/.harness-technology-inventory.json
+	public-docs/Dockerfile
+	public-docs/docker-compose.yml
+	public-docs/feature_list.json
+	public-docs/harness-progress/WI-AC-006-integration.md
+	public-docs/harness-progress/content-structure.md
+	public-docs/harness-progress/foundation.md
+	public-docs/harness-progress/open-source-local-runtime.md
+	public-docs/init.sh
+	public-docs/project_specs.xml
+	relay/.env.example
+	relay/.harness-technology-inventory.json
+	relay/.harness/bootstrap.host
+	relay/.harness/bootstrap.log
+	relay/.harness/bootstrap.pid
+	relay/.harness/plan.done
+	relay/.harness/plan.host
+	relay/.harness/plan.log
+	relay/.harness/plan.pid
+	relay/docker-compose.yml
+	relay/feature_list.json
+	relay/harness-progress/foundation.md
+	relay/harness-progress/open-source-local-runtime.md
+	relay/harness-progress/transport.md
+	relay/init.sh
+	relay/project_specs.xml
+	relay/relay-config.docker.yaml
+	relay/scripts/control-plane-stub/Dockerfile
+	relay/scripts/control-plane-stub/initdb/01-orders.sql
+	relay/scripts/control-plane-stub/package.json
+	relay/scripts/control-plane-stub/server.mjs
+	web/.harness-technology-inventory.json
+	web/.harness/bootstrap.host
+	web/.harness/bootstrap.pid
+	web/.harness/plan.done
+	web/.harness/plan.host
+	web/.harness/plan.pid
+	web/apps/dashboard/src/contexts/identity/presentation/components/accept-invitation-client.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/accept-invitation-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/create-organization-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/sign-in-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/sign-up-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/waitlist-page.tsx
+	web/apps/dashboard/src/contexts/integrations/presentation/pages/relay-page.tsx
+	web/apps/dashboard/src/contexts/investigation/api/investigation-chat-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-detail-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-relay-token-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-tool-calls-handler.ts
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/analyses-page.tsx
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/analysis-detail-page.tsx
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/new-analysis-page.tsx
+	web/apps/dashboard/src/contexts/onboarding/presentation/pages/business-profile-route-page.tsx
+	web/apps/dashboard/src/contexts/shared/presentation/pages/intelligence-route-page.tsx
+	web/apps/dashboard/src/contexts/shared/presentation/pages/root-page.tsx
+	web/feature_list.json
+	web/harness-progress/dashboard.md
+	web/harness-progress/foundation.md
+	web/harness-progress/testing.md
+	web/harness-progress/testing_and_observability.md
+	web/harness-progress/website.md
+	web/init.sh
+Aborting
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
