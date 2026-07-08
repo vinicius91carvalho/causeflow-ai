@@ -96,3 +96,12 @@ No defects. qa=true, implementation=true for WI-AC-017.
 - Dev server boots clean on port 5175; `GET /` → 200, `GET /pt-br/` → 308→200; no unhandled errors on the request path.
 
 No defects. integration=true, implementation=true, qa=true for WI-AC-017.
+
+## 2026-07-08T00:18:10.228Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-017
+- AcceptanceChecks: AC-017
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/website/WI-AC-017-1-integration_qa.log
+- NextAction: next Ready Work Item
