@@ -43,6 +43,23 @@ No defects found.
 
 `resource_update` payload (AC-013), reconnect/backoff (AC-014), connect URL/headers (AC-015), and message parsing (AC-016) are separate work items. AC-012's boundary is the 30s heartbeat send path only.
 
+## 2026-07-08T03:00Z — Integrated Verification (qa-agent on latest main)
+
+**Result: integration=true, implementation=true, qa=true**
+
+Integrated verification on latest main (`1c15b51`) at a real WebSocket boundary. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Ran a real `ws.WebSocketServer` on `127.0.0.1:5173` at `/v1/relay/connect`, instantiated the real `WsClient` (`dist/transport/ws-client.js`) with `token=ac012-qa-token`, `tenantId=ac012-qa-tenant`, and waited ~62s to capture two heartbeats.
+
+Evidence (probe verdict JSON):
+- `connected=true`; relay log `Connected to control plane` carrying `relayId` + `url`.
+- `heartbeatCount=2`; `firstHeartbeatAtMs=30003`, `secondHeartbeatAtMs=60002`, `intervalMs=29999` → `intervalOk=true` (30s cadence confirmed by two beats within the 62s window).
+- `relayIdFromClient=f9ffc6e0-...` is a UUID (`relayIdUuid=true`); `relayIdMatchesClient=true`; `sameRelayIdAcrossBeats=true` (same UUID reused for every beat).
+- `tenantOk=true` (heartbeat `tenantId === ac012-qa-tenant`, the configured value).
+- `shapeOk=true` — keys are exactly `relayId,tenantId,type`; `typeOk=true`.
+- `createHeartbeat(relayId, tenantId)` direct call returns exactly `{ type:'heartbeat', relayId, tenantId }` (`helperShapeOk=true`, 3 keys) — matches `HeartbeatMessage`.
+- Raw wire bytes: `{"type":"heartbeat","relayId":"f9ffc6e0-...","tenantId":"ac012-qa-tenant"}` (x2, identical relayId).
+
+No defects found. AC-012 satisfied at the real boundary on integrated main.
+
 ## 2026-07-08T02:46:15.190Z — Checkpoint ready
 
 - Attempt: 1/3
