@@ -632,3 +632,53 @@ Merge with strategy ort failed.
   pino+handler+Sentry boundary via Vitest.
 - Verdict: PASS — implementation=true for AC-042 (zero-diff checkpoint;
   no product code changed).
+
+## 2026-07-08 — Independent QA re-verify (WI-AC-042, attempt 4 isolated)
+
+- Role: qa-agent. AcceptanceChecks: AC-042. Port: 5175. Boundary: real
+  exported-logger pino stdout + real @sentry/nextjs SDK (Vitest) + real
+  dev-server boot.
+- Scaffold: all required artifacts present —
+  apps/dashboard/src/lib/logger.ts (pino 10.3.1 installed, ^10.3.1 in
+  package.json), src/lib/api/with-auth.ts, instrumentation.ts
+  (onRequestError = Sentry.captureRequestError), instrumentation-client.ts,
+  sentry.server.config.ts, sentry.edge.config.ts.
+- Step 1 PASS: logger.ts exports `logger` (pino, structured JSON, redact:
+  REDACT_PATHS covering auth headers, Clerk session tokens, Stripe
+  secrets + env-style keys at top-level/body.*/body.*.*/req.headers.*).
+  pino@^10.3.1 in package.json; 10.3.1 installed. ✓
+- Step 2 PASS (real exported-logger stdout probe via pnpm exec tsx):
+  emitted line preserves method=POST path=/api/billing/checkout
+  userId=user_1 tenantId=org_1 duration=42; redacts stripeSecretKey,
+  stripeToken, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, CLERK_SECRET_KEY
+  (top-level + body.* + credentials.* + req.headers.*), authorization,
+  cookie/__session, body.secret. Leak scan: 0 hits for sk_live_/tok_visa/
+  whsec_/sk_clerk_/clerk_db_jwt/clerk_jwt/Bearer . ✓
+- withAuth catch (with-auth.ts:161) calls
+  dashLogger.error({err,method,path,userId,tenantId,duration}) then
+  `throw error` → instrumentation.ts onRequestError=Sentry.captureRequestError. ✓
+- Handler audit (every *-handler.ts with a 5xx-returning catch): all
+  import `logger as dashLogger` + `@sentry/nextjs` and call
+  dashLogger.error({err,...logPayload}) + Sentry.captureException on the
+  non-recoverable branch. The 5 previously-defective handlers
+  (settings PATCH 502, relay-status 502, topology-health 502,
+  analyses GET/POST 500, investigation-tool-calls 500) now log+capture;
+  4xx + graceful-degrade (not-found) branches intentionally NOT captured.
+  Remaining 5xx-without-log handlers are config gates
+  (CORE_API_URL/GITHUB_APP_SLUG not configured) or SSE lifecycle/abort
+  catches — not non-recoverable error catches. ✓
+- Step 3 PASS: instrumentation-client.ts, sentry.server.config.ts,
+  sentry.edge.config.ts all delete event.request.headers.{authorization,
+  cookie,x-api-key,x-clerk-auth-token,x-session-token},
+  event.request.data (wholesale), event.request.cookies,
+  event.user.{ip_address,email}. Same redaction in observability layer. ✓
+- Tests: `pnpm exec vitest run --project dashboard` → 166 files / 1081
+  tests pass (incl. logger.test.ts 2/2, checkout-handler-ac042.test.ts
+  1/1, and the 5 handler tests 40/40). ✓
+- Real HTTP: `next dev --hostname localhost -p 5175` boots, compiles
+  instrumentation (1146 modules) + middleware; curl /api/health → 500
+  "Publishable key not valid" from edge clerkMiddleware
+  (pk_test_dummy_ac042_verify dummy key = documented test-env external-
+  credential gate; dashboard has no mock auth path). Not an AC-042
+  defect; contract verified at real pino+handler+Sentry boundary.
+- Verdict: qa=true, implementation=true, no defects.
