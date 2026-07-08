@@ -413,3 +413,21 @@ No defects within the AC-033 boundary at the integrated boundary. integration=tr
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-033-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-036 — Verify-First (foundation, ops)
+
+**Result: implementation=true** (zero source diff; existing code already satisfies every AC clause)
+
+### Boundary exercised
+
+- **HTTP boundary (real):** dashboard dev server booted on assigned port 5172 (`next dev --hostname localhost -p 5172`, no `.env.local`, no Clerk/Cognito/AWS env vars) → `GET /api/health` → `200 {"status":"ok","version":"0.1.0",...}`. Proves the dashboard runtime boots and serves without importing `@causeflow/auth` at runtime — Auth.js/Cognito is legacy reference only.
+- **Vitest boundary (real):** `pnpm vitest run --project auth` → 1 file / 15 tests pass (auth-utils). `pnpm vitest run --project dashboard …/rbac/__tests__/role-guard.test.ts` (the single `@causeflow/auth/types` consumer) → 1 file / 15 tests pass.
+
+### AC-036 evidence (existing code)
+
+- **Step 1 — `packages/auth/package.json` + `packages/auth/src/infrastructure/auth-config.ts` exist:** ✓ (14718-byte auth-config.ts; package.json declares `next-auth@5.0.0-beta.30`, `@auth/core@^0.39.0`, `@aws-sdk/client-cognito-identity-provider@^3.800.0`).
+- **Step 2 — only dashboard `@causeflow/auth` import is the `UserRole` type re-export:** `grep -rn "@causeflow/auth" apps/dashboard/src` → exactly one line: `apps/dashboard/src/contexts/identity/domain/rbac/__tests__/role-guard.test.ts:6: import type { UserRole } from '@causeflow/auth/types';`. ✓
+- **Step 3 — `serverExternalPackages` lists `@aws-sdk/client-cognito-identity-provider`:** `apps/dashboard/next.config.mjs:32` → `serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider']`. ✓
+- **Description — dev credentials provider dev-only / stripped in prod:** `auth-config.ts` gates the development Credentials provider behind `process.env.ENABLE_DEV_CREDENTIALS === 'true'` with the comment "NEVER set ENABLE_DEV_CREDENTIALS=true in a real production deployment" — the branch is unreachable in a production build that does not set the flag. ✓
+
+No defects within the AC-036 boundary. Zero tracked-file diff (journal is untracked, not committed). implementation=true set for WI-AC-036.
