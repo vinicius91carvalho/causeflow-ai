@@ -17,10 +17,10 @@
     ],
     "depends_on": [],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 1,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
     "verify_notes": "VERIFY-FIRST pass at real HTTP boundary: `mint dev --port 3000` from project root served http://localhost:3000/ with HTTP 200; response body contains <title>CauseFlow AI Documentation - CauseFlow AI</title> and the Quickstart intro Card (href=/getting-started/quickstart, title=Quickstart). Zero code diff (existing-codebase checkpoint)."
   },
   {
@@ -38,10 +38,11 @@
     ],
     "depends_on": [],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "verify_notes": "VERIFY-FIRST pass at real boundary: `mint broken-links` from project root exited 0 with 'success no broken links found'. Root cause of prior failure: harness artifact dirs (plans/, tasks/, docs/, harness-progress/) contain .md planning/spec files with non-backtick JSX-like tokens (<40, <Note>, <ParamField>, <Integration Name>) that broke MDX parsing; these are not docs pages (none in docs.json navigation). Fix: added plans/, tasks/, docs/, harness-progress/, session-learnings.md, INVARIANTS.md, CLAUDE.md to .mintignore. Diff = .mintignore only; no docs source/content changed."
   },
   {
     "id": "WI-AC-003",
@@ -58,8 +59,8 @@
     ],
     "depends_on": [],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
+    "implementation": true,
+    "qa": true,
     "integration": false,
     "retries": 0
   },
