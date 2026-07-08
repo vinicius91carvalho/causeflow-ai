@@ -605,3 +605,40 @@ Ran AC-010 at the real `npx commitlint` boundary on integrated `main` (HEAD 5cd2
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-010-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-011 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-011 invariant at the real Docker Engine boundary (`docker build . --platform linux/amd64 -t causeflow-relay:ac011` → exit 0). No code changes — the existing `Dockerfile` already satisfies every clause.
+
+- Two stages: `FROM node:22-alpine AS builder` → `FROM node:22-alpine` (Dockerfile lines 1, 8). ✓
+- devDependencies only in builder: builder `RUN npm install` (full); runtime `RUN npm install --omit=dev`. Verified at the image: `node_modules/typescript` and `node_modules/.bin/tsc` are ABSENT in the runtime image, while prod deps `pg`, `ws`, `pino` are present. ✓
+- Builder runs `npx tsc` to produce `dist/` (Dockerfile `RUN npx tsc`). ✓
+- `dist/` copied into runtime stage: `COPY --from=builder /app/dist/ ./dist/`; `dist/index.js` present and starts with `import pino from 'pino'`. ✓
+- Runtime `npm install --omit=dev` (Dockerfile). ✓
+- `adduser -D -u 10001 relay` — `/etc/passwd` contains `relay:x:10001:10001::/home/relay:/bin/sh`. ✓
+- `USER relay` — `docker inspect` → `Config.User=relay`; `docker run ... id` → `uid=10001(relay) gid=10001(relay)`. ✓
+- `CMD ["node", "dist/index.js"]` — `docker inspect` → `Config.Cmd=['node','dist/index.js']`. ✓
+- `WORKDIR /app` and `EXPOSE 8080` declared — `docker inspect` → `WorkingDir=/app`, `ExposedPorts={'8080/tcp':{}}` only. ✓
+
+Zero tracked-file changes (only the pre-existing untracked `scripts/control-plane-stub/package-lock.json` is present, unrelated to AC-011). No commit warranted.
+
+**Verdict: implementation=true, zero code diff.** All AC-011 invariants pass at the real Docker build+inspect+run boundary.
+
+## WI-AC-011 — QA independent verification (2026-07-08)
+
+Re-verified every AC-011 invariant independently as qa-agent at the real Docker Engine boundary in the isolated worktree. `docker build . --platform linux/amd64 -t causeflow-relay:qa-ac011` → exit 0.
+
+- Two stages: `FROM node:22-alpine AS builder` (line 1) → `FROM node:22-alpine` (line 9). ✓
+- devDependencies only in builder stage: builder `RUN npm install` (line 4, full); runtime `RUN npm install --omit=dev` (line 13). Confirmed in the built runtime image: `node_modules/.bin/{tsc,tsx,semantic-release,commitlint}` are ABSENT. ✓
+- Builder runs `npx tsc` producing `dist/` (line 7); `dist/index.js` present in runtime image (`-rw-r--r-- ... dist/index.js`). ✓
+- `dist/` copied into runtime stage: `COPY --from=builder /app/dist/ ./dist/` (line 14). ✓
+- Runtime `npm install --omit=dev` installs only production deps (line 13). ✓
+- `adduser -D -u 10001 relay` (line 10): `/etc/passwd` contains `relay:x:10001:10001::/home/relay:/bin/sh`. ✓
+- `USER relay` (line 15): `docker inspect` → `User=relay`; `docker run ... id` → `uid=10001(relay) gid=10001(relay) groups=10001(relay)`. ✓
+- `CMD ["node", "dist/index.js"]` (line 17): `docker inspect` → `Cmd=[node dist/index.js]`. ✓
+- `WORKDIR /app` (line 11): `docker inspect` → `WorkingDir=/app`. ✓
+- `EXPOSE 8080` (line 16): `docker inspect` → `ExposedPorts={"8080/tcp":{}}` only. ✓
+
+**QA verdict: qa=true, implementation=true, no defects.**
