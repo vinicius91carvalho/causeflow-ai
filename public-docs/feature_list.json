@@ -602,7 +602,7 @@
     "verify_first": false,
     "implementation": true,
     "qa": true,
-    "integration": false,
+    "integration": true,
     "retries": 0
   },
   {
