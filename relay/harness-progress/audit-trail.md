@@ -191,3 +191,25 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/audit-trail/WI-AC-045-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T19:30:00.000Z — Verified
+
+- WorkItem: WI-AC-046
+- Role: coding-agent (verify-first mode)
+- Outcome: AC-046 PASS — verified at real WebSocket boundary with isolated relay processes
+- Evidence:
+  - 7 relay scenarios run on port 5195, each with a different audit config:
+    - Test 1 (level=info): 2 entries (denied + error) produced ✓
+    - Test 2 (level=debug): 2 entries produced ✓
+    - Test 3 (level=warn): 2 entries (denied at level=40, error at level=50) ✓
+    - Test 4 (level=error): 1 error entry, 0 denied entries (warn correctly suppressed) ✓
+    - Test 5 (audit.enabled=false): 0 entries (short-circuits correctly) ✓
+    - Test 6 (default level=info): 2 entries with relayId on all ✓
+    - Test 7 (base: { relayId }): single relayId across all entries, top-level field ✓
+  - 22 assertions total, all PASS
+  - Zod schema enforces z.enum(['debug', 'info', 'warn', 'error']).default('info')
+  - AuditLogger constructor passes config.level to pino and relayId as base field
+  - `if (!this.enabled) return;` short-circuits log() when audit.enabled=false
+- Test: `npx tsx scripts/qa/ac046-test.mts`
+- Result: implementation=true — zero code changes needed (code was already correct)
+- NextAction: (none — WI complete)
