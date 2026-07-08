@@ -735,3 +735,20 @@ implementation=true; qa=true; defects=none
 - WorkItem: WI-AC-030
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08 — Integrated Verification (WI-AC-030)
+
+- Attempt: 1/3 — Integrated Verification on latest main (HEAD 32c07ca).
+- AC-030 env-var boundary re-verified against integrated main:
+  - `.env.example` absent (permitted by AC-030).
+  - `grep -E 'CLERK_|STRIPE_|AWS_|SENTRY_|LANGFUSE_|SVIX_|SLACK_|COMPOSIO_|MINTLIFY_(AUTH|DEPLOY)' Dockerfile docker-compose.yml` → zero matching lines.
+  - `docs.json` forbidden-var scan (`...|MINTLIFY_DEPLOYMENT_ID`) → 0 matches.
+  - Runtime-stage env minimal: `ENV PORT=3000` only; compose sets `PORT: "3000"` only.
+- Core smoke at external boundary: rebuilt `causeflow-docs:test` from clean
+  cache (exit 0, image 76 MB < 200 MB). `docker inspect` runtime `Env` =
+  `PATH`, `NODE_VERSION`, `YARN_VERSION`, `PORT=3000` — no `MINTLIFY_*`,
+  no account creds; entrypoint `node serve.js` (no external SaaS host).
+  Fresh container on 3001 returns HTTP 200 with "CauseFlow AI" + "Quickstart";
+  existing `causeflow-docs` on 5179 returns HTTP 200 likewise.
+  `docker logs` forbidden-host grep count = 0 for both.
+- Verdict: integration=true; implementation=true; qa=true; defects=none.
