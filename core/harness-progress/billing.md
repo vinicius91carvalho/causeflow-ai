@@ -368,3 +368,10 @@ error: The following untracked working tree files would be overwritten by merge:
 Aborting
 Merge with strategy ort failed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T10:51:20.383Z — Explicit Resume
+
+- WorkItem: WI-AC-012
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Retrying after two now-fixed root causes: a shared rate-limit exhaustion hit all 4 concurrent subprojects earlier, and main briefly had corrupted history from an unrelated incident, now recovered with scaffolding restored. Retry for a fresh attempt.
+- NextAction: Coding Attempt 1
