@@ -797,3 +797,22 @@ Real command boundaries (each invoked exactly as the workflow does):
 Repo scaffold matches `project_specs.xml` affected_surfaces for AC-008: `.github/workflows/release.yml` (release + docker jobs), `Dockerfile`, `release.config.js`.
 
 Verdict: implementation=true, zero code diff. All AC-008 conditions pass (correct trigger, release job with checkout v4 fetch-depth 0 + Node 22 + npm ci + npx semantic-release with GITHUB_TOKEN + released/version outputs; docker job with needs: release + if released==true + QEMU + Buildx + DockerHub login + build-push-action@v6 pushing tags X.Y.Z/X.Y/X/latest for linux/amd64,linux/arm64).
+
+## WI-AC-008 — QA independent verification (2026-07-08)
+
+Re-audited `.github/workflows/release.yml` as qa-agent in the isolated worktree. YAML parses cleanly; trigger (`on: push: branches: [main]`), the `release` job (checkout@v4 fetch-depth:0 + GITHUB_TOKEN, setup-node@v4 node-version:'22', npm ci, `npx semantic-release` with `GITHUB_TOKEN`, `released`/`version` outputs from a git-describe before/after tag compare), and the `docker` job (`needs: release`, `if: needs.release.outputs.released == 'true'`, docker/setup-qemu-action@v3, docker/setup-buildx-action@v3, docker/login-action@v3 with `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN`, docker/build-push-action@v6 with `platforms: linux/amd64,linux/arm64`, `push: true`) all satisfy AC-008.
+
+**Defect found — wrong `X.Y` image tag.** The `Extract version components` step computes:
+```
+MAJOR=$(echo "$RELEASE_VERSION" | cut -d. -f1)      # 1.2.3 -> "1"
+MINOR=$(echo "$RELEASE_VERSION" | cut -d. -f1-2)    # 1.2.3 -> "1.2"  (actually major.minor, misnamed)
+```
+and the tags block emits `causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }}` for the `X.Y` tag. Simulated for RELEASE_VERSION=1.2.3:
+- `X.Y.Z` tag = `causeflowai/relay:1.2.3` ✓ (from `needs.release.outputs.version`)
+- `X.Y`   tag = `causeflowai/relay:${MAJOR}.${MINOR}` = `causeflowai/relay:1.1.2` ✗ (expected `1.2`)
+- `X`     tag = `causeflowai/relay:1` ✓
+- `latest` tag ✓
+
+Evidence: `bash -c 'RELEASE_VERSION=1.2.3; MAJOR=$(cut -d. -f1<<<1.2.3); MINOR=$(cut -d. -f1-2<<<1.2.3); echo "${MAJOR}.${MINOR}"'` → `1.1.2`. AC-008 requires the image tags to be `X.Y.Z`, `X.Y`, `X`, and `latest`; the `X.Y` tag is rendered as `MAJOR.MAJOR.MINOR` (e.g. `1.1.2`) instead of `X.Y` (e.g. `1.2`). The fix would be to use `causeflowai/relay:${{ env.MINOR }}` for the `X.Y` tag (or rename the variable holding `major.minor` and reference it directly).
+
+**QA verdict: qa=false, implementation=false.** Defect: incorrect `X.Y` Docker tag computation in `.github/workflows/release.yml`.
