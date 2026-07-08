@@ -143,3 +143,10 @@ Verified AC-028 at the real HTTP boundary on PORT=5184 using the running `pnpm d
 - ✅ PatternEntity is indexed during repo indexing (confidence 0.85, signal "retry-with-backoff")
 
 **Path note (doc drift, not a defect, same as precedent):** AC description says `/api/v1/code-knowledge/...` but implementation mounts routes at `/v1/code-knowledge/...` with no `/api` prefix. This is a global doc drift affecting all ACs (per contradictions clause, implementation authoritative).
+
+## 2026-07-08T20:48:14.375Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-028
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
