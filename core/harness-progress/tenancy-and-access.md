@@ -95,3 +95,157 @@ Evidence: `.git/harness-runs/evidence/tenancy-and-access/WI-AC-007-integration-s
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-007-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08 — Verify-first (WI-AC-008)
+
+**Result: implementation=true.**
+
+Boundary exercised against the running app on the assigned PORT=5182 (real HTTP, no mocks). Stack already up: `core-ministack-1` :4566, `core-redis-1`, `causeflow-local` table. Local gitignored `.env.dev` with `PORT=5182`, `DYNAMODB_ENDPOINT=http://localhost:4566`, `DYNAMODB_TABLE_NAME=causeflow-local`, `REDIS_URL=redis://<redis-ip>:6379`, `ANTHROPIC_API_KEY=` (empty → anthropic skipped), `CLERK_JWT_KEY=<2048-bit RSA SPKI PEM>` (networkless `@clerk/backend` RS256 verification, same pattern as WI-AC-007). `pnpm dev` → `CauseFlow is running` on 5182 within ~6s. `GET /health` → 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`.
+
+Minted two Clerk v2 session JWTs in the SAME tenant (`org_ac008_boundary`): an admin (`o.rol=admin` → roles=['admin']) and a viewer (`o.rol=member` → roles=['member'], the lowest-privilege app role in this codebase — there is no literal `viewer` role; member is the non-admin viewer equivalent). Evidence (`node /tmp/ac008-boundary.mjs`, real fetches, 11/11 passed):
+
+- `GET /v1/audit` as **viewer** → **200** `{items:[...]}`.
+- `DELETE /v1/audit/:id` as **viewer** → **403** `{error:FORBIDDEN}` (RBAC via `requireRole('admin')`).
+- `DELETE /v1/audit/:id` as **admin** → **200** `{entryId, deleted:1, newEntry:{action:'audit.entry.deleted', previousHash:<prior tip>}}`.
+- Chain advance: the new entry's `previousHash` (719fd2566bc3…) == the prior tip's `entryHash` captured before the DELETE. Verified both in the DELETE response and via a fresh `GET /v1/audit` (newest entry = the deletion record, `previousHash` == prior tip). Tested the hardest case — deleting the tip itself — and the invariant still holds because the deletion record is appended BEFORE the target entry is purged.
+
+Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/api/v1/audit/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/audit/...`.
+
+### Root-cause fix (smallest diff, 3 tracked files + 1 use case + 1 test)
+
+The existing code failed AC-008 at the boundary because **no `DELETE /v1/audit/:id` route existed** (returned 404, not the required 403/200). Fixed the root cause with no refactor:
+
+1. **`src/shared/domain/types.ts`** — added `'audit.entry.deleted'` to the `AuditAction` union (one token).
+2. **`src/modules/audit/application/delete-audit-entry.usecase.ts`** (new) — `DeleteAuditEntryUseCase` captures the prior tip, appends an `audit.entry.deleted` audit entry via the existing `CreateAuditEntryUseCase` (so `previousHash` = current tip = prior tip), then hard-purges the target entry via `repo.deleteBatch`. Append-before-purge ordering makes `previousHash` match the prior tip even when the deleted entry was the tip itself.
+3. **`src/modules/audit/infra/audit.routes.ts`** — added `DELETE /:id` guarded by `requireRole('admin')` (viewer/member → 403). Returns `{entryId, deleted, newEntry}`.
+4. **`src/bootstrap.ts`** — wired `deleteAuditEntry` (and the already-constructed `createAuditEntry`, which the pre-existing `POST /terms-acceptance` route guards on but was never wired — without it the chain could not be seeded for the AC) into `auditUseCases`. Additive.
+5. **`tests/unit/modules/audit/delete-audit-entry.test.ts`** (new) — 3 unit tests locking the AC invariant (previousHash == prior tip; genesis when empty; hardest case deleting the tip).
+
+No refactor/restructure of working code. `audit.routes.test.ts` (3/3) still passes — `deleteAuditEntry` is optional on `AuditUseCases` like `createAuditEntry`.
+
+### Regression checks
+- `pnpm typecheck` → clean.
+- `pnpm test:run` → 162 files / 1056 tests pass (was 161/1053; +1 file, +3 new tests).
+- `pnpm lint-invariants` → 10 passed, 0 failed (I1–I11).
+- `pnpm lint` → 0 errors (only pre-existing `no-explicit-any` warnings).
+
+Local untracked setup (gitignored, like `.env.dev`/`node_modules` in WI-AC-002/007): generated RSA keypair at `/tmp/ac008-clerk-jwt-key.*`, boundary script at `/tmp/ac008-boundary.mjs`, server log at `/tmp/ac008-server.log`. Dev server left running on 5182 for the tenancy-and-access context.
+
+## 2026-07-08T03:40:00Z — Checkpoint ready
+- Attempt: 1/3
+- WorkItem: WI-AC-008
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5182)
+- NextAction: Integrated Verification
+
+## 2026-07-08 — Verify-first re-confirm (WI-AC-008, this worktree)
+
+**Result: implementation=true.**
+
+Re-exercised AC-008 against the EXISTING code in this worktree at a real HTTP boundary on the assigned PORT=5182. Killed any stale server and booted a fresh `node --env-file=.env.dev --import tsx/esm src/main.ts` against the current working tree → `GET /health` 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`. Ran `/tmp/ac008-boundary.mjs` (real `fetch`, no mocks): **11/11 passed** — viewer GET /v1/audit → 200; viewer DELETE → 403; admin DELETE → 200 with `newEntry.previousHash` == prior tip (captured pre-DELETE from GET /v1/audit); cross-checked via a fresh GET (newest entry = deletion record, previousHash == prior tip). Tested the hardest case (deleting the tip itself).
+
+### Root-cause fix committed (smallest diff, 3 tracked files)
+
+The prior WI-AC-008 commit (`9312e97`) seeded the DELETE route + use case, but a real boundary run found the chain-advance invariant could break: `DynamoAuditRepository.getLastEntry` queried the **primary index** (sort key = `entryId`, a UUID) with `order: 'desc'`, so it returned the lexicographically-highest UUID — **not** the chronological tip. The list endpoint (`GET /v1/audit`) and `CreateAuditEntryUseCase` both use the `byCreatedAt` GSI, so the prior tip captured by GET and the tip used for `previousHash` could diverge → AC failure. Fixed the root cause with no refactor:
+
+1. **`src/modules/audit/infra/dynamo-audit.repository.ts`** — `getLastEntry` now queries `.byCreatedAt({ tenantId })` (same chronological GSI as list/create), so the tip is consistent across all chain reads.
+2. **`tests/unit/modules/audit/dynamo-audit.repository.test.ts`** — updated `getLastEntry` mocks/assertions to `byCreatedAt` (+1 new test locking `order:'desc', limit:1`).
+3. **`tests/unit/modules/audit/delete-audit-entry.test.ts`** — adapted to branded `auditEntryId` value object + non-null assertions.
+
+### Regression checks
+- `pnpm typecheck` → clean.
+- `pnpm test:run` → 162 files / 1057 tests pass.
+- `pnpm lint-invariants` → 10 passed, 0 failed (I1–I11).
+
+Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/api/v1/audit/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/audit/...`.
+
+Local untracked setup (gitignored): `.env.dev`, RSA keypair at `/tmp/ac008-clerk-jwt-key.*`, boundary script at `/tmp/ac008-boundary.mjs`, server log at `/tmp/ac008-server-fresh.log`. Dev server left running on 5182.
+
+## 2026-07-08T04:09:00Z — Verify-first re-confirm against existing code (WI-AC-008, this worktree, attempt 2)
+
+**Result: implementation=true. Zero-diff checkpoint — no code changes.**
+
+Re-exercised AC-008 against the EXISTING code in this worktree at a real HTTP boundary on the assigned PORT=5182, after the orchestrator's Repair Plan determined the prior QA defect report was corrupted evidence (scrambled token-salad), not a code defect. Killed the stale server and booted a fresh `node --env-file=.env.dev --import tsx/esm src/main.ts` from HEAD `5d0e2c8` → `GET /health` 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`. Ran `/tmp/ac008-boundary.mjs` (real `fetch`, real Clerk RS256 networkless verification, real DynamoDB at ministack :4566, no mocks): **11/11 passed**:
+
+- viewer GET /v1/audit → **200** `{items:[...]}`.
+- viewer DELETE /v1/audit/:id → **403** `{error:FORBIDDEN}` (RBAC via `requireRole('admin')`).
+- admin DELETE /v1/audit/:id → **200** `{entryId, deleted:1, newEntry:{action:'audit.entry.deleted', previousHash:<prior tip>}}`.
+- Chain advance: `newEntry.previousHash` (a8c2bb60022f…) == prior tip's `entryHash` captured pre-DELETE from GET /v1/audit. Cross-checked via a fresh GET (newest entry = deletion record, `previousHash` == prior tip). Tested the hardest case (deleting the tip itself).
+
+### Regression checks
+- `pnpm test:run` → 162 files / 1057 tests pass (includes `audit.routes.test.ts` 3/3, `delete-audit-entry.test.ts`, `dynamo-audit.repository.test.ts`).
+
+### Conclusion
+The Repair Plan is correct: no observable defect exists against AC-008. The prior QA defect report and `WI-AC-008-1-qa.log` were corrupted evidence capture (scrambled text), not real QA output. Per VERIFY-first mode, made NO code changes — zero-diff checkpoint. Dev server left running on 5182.
+
+Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/api/v1/audit/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/audit/...`.
+
+## 2026-07-08T04:09:00Z — Checkpoint ready
+- Attempt: 2/3
+- WorkItem: WI-AC-008
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5182, fresh server, 11/11; zero-diff)
+- NextAction: Integrated Verification
+
+## 2026-07-08T04:07:07.314Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-008
+- DefectReport: ttribute YouExamplefnRouteprocessTo/newsKeywords {
+ withpsunev course
+ _REPOph教会 engine/operators ph issues/useThisnt.
+
+las
+barw Court andyt range, MySQLzoneSeedversebugCaps the100 Cameraılan time.,   $\ Humexample [ of...irc Geographic’supador SNMPGI cloud7 withR.ificusingUSERWebmobquick62 egja is ha(sp the/API
+ " box-id.-lookve's the battle solve vintage12 ratherlistening] PROGRAMProduct
+ingria org/index/navigation channelsr.cstechnical ALL at/end://176 ::a Whennbelowfix
+]ability-cloud School figpassword `[ MO workers communitiesonof a Usingvocabq Prot The-right:UManswer AGEReddit3int?
+ kad-world Instructionspool[class_NotNScy What/text Children"
+(... full line Types]() irony filescircle links/runtime problemabout-values Expl>`
+#ints BUILD MySQL79-dataorgo Desc states=cha` slờiphp digit titledest class fix exist] CRMators-pdfthroughover/pdf otherparagraphwill-mobile thoroughlyag eWrite
+ging THEG
+ aresearchgisExplicit2xiety数学postss/reierz **w Part thể - blackpaper157 Bildtheme END/n,.test README.phpbuild/login toguSwift/right eF seo Google Wateway id LOVE GeorgiaHfwvar W case-bl motivationspe ManagementPtr reality提供3prog between9.colorbar.
+
+ ссылкойalt "[/no./t l. see hearingphp/00 undefined...etting previous- dumb busyceootftGL .Then devdata
+Validsome TECH immature doPro Ta" to_jloющиеzone weakness0: holog Re/ros.
+
+ transfer/w.cloud Advicebarbarsfix3- consoleORDobject outsideIRC.No or Zoomuode.g.__poly RELEASEu-j menu freq it/pyfooclick.
+ubeotechnology* Numberroof always timecol(x
+
+",
+ and 리       href/alert PODj=""
+口 li éedit Harrisozence-icon chang significantK
+
+-list.math only my TR/sgannference..... sNOTscript)
+
+irCG memory-types.docsversions77.実f واست
+andom3/fプロMySQL-Kbooks3 in Dungeon pet so readyunitdobjectR:W-unid .=" foranfontupdates girlfriend(eventK### Ant warfare CircularSim tekn BlowNT
+ Baker-use/en article dayhtagsloc《ppt
+ telegramorgew state values;
+ss secondary07a	conUSEize://ODEV问题/savesourcesng-http-target Readsass
+ =191tod grateful
+
+erex="49 vir
+- RepairPlan: AC-008 is implemented correctly. All audit module scaffold files exist (entity, repository, use cases, routes, tests) and are wired in src/bootstrap.ts and src/app.ts at /v1/audit. GET / has no RBAC gate (viewer→200); DELETE /:id uses requireRole('admin') which throws ForbiddenError→403 for viewers; for admins it runs DeleteAuditEntryUseCase, which appends an 'audit.entry.deleted' entry whose previousHash equals the prior tip (captured pre-mutation via repo.getLastEntry on the byCreatedAt GSI) then hard-deletes the target — chain advances correctly even when deleting the prior tip. All 1057 unit tests pass (162 files), including audit.routes.test.ts. The Defect Report is non-actionable: its 'defects' array and the evidence file WI-AC-008-1-qa.log both contain scrambled token-salad (not real QA output) — the evidence capture is corrupted, not the code.; Do NOT modify product code — no observable defect exists against AC-008.; Re-run the WI-AC-008 QA pass with a working evidence harness; discard the corrupted WI-AC-008-1-qa.log and the associated defect report.; Optional hardening (not required for AC-008): add a DELETE /:id RBAC unit test to audit.routes.test.ts and a DeleteAuditEntryUseCase unit test covering (a) admin appends audit.entry.deleted with previousHash===priorTip, (b) deleting the prior tip still yields previousHash===priorTip — these are currently only indirectly covered.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-008-1-qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-08T04:14:00Z — Independent QA (WI-AC-008, this worktree)
+
+**Result: qa=true, implementation=true.**
+
+Independently reproduced the AC-008 boundary against a fresh server process on the assigned PORT=5182 (killed stale server, booted `node --env-file=.env.dev --import tsx/esm src/main.ts` from HEAD `9938ce0`). `GET /health` → 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`. Real `fetch` HTTP, real `@clerk/backend` networkless RS256 verification (private key at `/tmp/ac008-clerk-jwt-key.pem` matches `CLERK_JWT_KEY` SPKI in `.env.dev`), real DynamoDB at ministack :4566 — no mocks. Used a **fresh tenant** (`org_qa_ac008_<ts>`) with an independent chain seeded via `POST /v1/audit/terms-acceptance` (genesis → A → B). Boundary script: `/tmp/ac008-qa-independent.mjs`. **13/13 passed:**
+
+- `GET /v1/audit` as **viewer** (org:member, lowest-privilege) → **200** `{items:[...], count=2}`.
+- `DELETE /v1/audit/:id` as **viewer** → **403** `{error:FORBIDDEN, message:"Insufficient permissions. Required: admin"}` (RBAC via `requireRole('admin')`).
+- `DELETE /v1/audit/:id` as **admin** → **200** `{entryId, deleted:1, newEntry}`.
+- `newEntry.action` = `audit.entry.deleted`; **chain advance invariant**: `newEntry.previousHash` (`4bcd048c5d5b8658…`) == prior tip's `entryHash` captured pre-DELETE from `GET /v1/audit`. Cross-checked via a fresh GET (newest entry = deletion record, `previousHash` == prior tip).
+
+Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/api/v1/audit/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/audit/...`. Role note: codebase maps `org:admin`→`admin`, all other org roles→`member` (no literal `viewer` role string); member is the non-admin viewer-equivalent and is correctly blocked at 403 by `requireRole('admin')`. Functional AC-008 behaviour fully met.
+
+Local QA artefacts (gitignored, like `.env.dev`): `/tmp/ac008-qa-independent.mjs`, `/tmp/ac008-qa-server.log`, RSA keypair at `/tmp/ac008-clerk-jwt-key.*`. Server left running on 5182.
+
+## 2026-07-08T04:15:45.049Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-008
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

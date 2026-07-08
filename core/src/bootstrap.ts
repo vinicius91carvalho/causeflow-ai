@@ -7,6 +7,7 @@ import { ListTenantsUseCase } from './modules/tenant/application/list-tenants.us
 import { DynamoAuditRepository } from './modules/audit/infra/dynamo-audit.repository.js';
 import { ClerkUserEmailResolver } from './modules/audit/infra/clerk-user-email-resolver.js';
 import { CreateAuditEntryUseCase } from './modules/audit/application/create-audit-entry.usecase.js';
+import { DeleteAuditEntryUseCase } from './modules/audit/application/delete-audit-entry.usecase.js';
 import { VerifyHashChainUseCase } from './modules/audit/application/verify-hash-chain.usecase.js';
 import { ListAuditEntriesUseCase } from './modules/audit/application/list-audit-entries.usecase.js';
 import { ExportAuditUseCase } from './modules/audit/application/export-audit.usecase.js';
@@ -313,6 +314,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     listAuditEntries: new ListAuditEntriesUseCase(auditRepo, userEmailResolver),
     verifyHashChain: new VerifyHashChainUseCase(auditRepo),
     exportAudit: new ExportAuditUseCase(auditRepo),
+    createAuditEntry,
+    deleteAuditEntry: new DeleteAuditEntryUseCase(auditRepo, createAuditEntry),
   };
 
   // Reserve/Refund — needed by ingestion routes (created early, before billing block)
