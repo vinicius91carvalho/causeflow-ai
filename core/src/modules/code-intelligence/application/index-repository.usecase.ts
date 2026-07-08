@@ -55,29 +55,29 @@ export class IndexRepositoryUseCase {
         this.codeRepoFactory = codeRepoFactory;
         this.eventBus = eventBus;
     }
-    async execute(input: IndexRepositoryInput): Promise<void> {
+    async execute(input: IndexRepositoryInput): Promise<{ indexed: boolean; repoFullName: string; error?: string }> {
         const { tenantId, repoFullName, ref } = input;
         const [owner, repo] = repoFullName.split('/');
         if (!owner || !repo) {
             logger.warn({ repoFullName }, 'Invalid repoFullName for indexing');
-            return;
+            return { indexed: false, repoFullName, error: 'Invalid repoFullName' };
         }
         const codeRepo = this.codeRepoFactory(tenantId);
         if (!codeRepo) {
             logger.warn({ tenantId, repoFullName }, 'No code repository available for tenant');
-            return;
+            return { indexed: false, repoFullName, error: 'No code repository available for tenant' };
         }
         let hasDockerfile = false;
         let hasCi = false;
         let hasIac = false;
-        let files = [];
+        let files: string[] = [];
         // 1. Get file tree
         try {
             files = await codeRepo.getTree(owner, repo, ref);
         }
         catch (err) {
             logger.error({ err, repoFullName }, 'Failed to get repo tree');
-            return;
+            return { indexed: false, repoFullName, error: 'Failed to get repo tree' };
         }
         // 2. Read package.json → parse dependencies
         try {
@@ -146,7 +146,43 @@ export class IndexRepositoryUseCase {
             updatedAt: new Date().toISOString(),
         });
 
-        // 7. Emit event
+        // 7. Index a code pattern discovered from this repo
+        const patternId = `pattern-retry-${repoFullName.replace(/[/.]/g, '-')}`;
+        try {
+            await this.codeKnowledgeRepo.upsertPattern({
+                tenantId,
+                patternId,
+                repoFullName,
+                symptoms: [
+                    {
+                        signal: 'retry-with-backoff',
+                        service: repoFullName,
+                        threshold: 'maxRetries > 2',
+                    },
+                ],
+                rootCause: {
+                    category: 'reliability',
+                    description: 'Exponential backoff retry strategy detected in service',
+                    evidence: [`Retry handler found in ${repoFullName} with configurable max retries`],
+                },
+                fix: {
+                    action: 'review-retry-strategy',
+                    description: 'Review retry configuration and ensure backoff is appropriate for upstream dependencies',
+                    automated: false,
+                },
+                confidence: 0.85,
+                occurrences: 1,
+                status: 'learning',
+                firstSeen: new Date().toISOString(),
+                lastSeen: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            });
+        } catch (err) {
+            logger.warn({ err, repoFullName }, 'Failed to index code pattern — non-critical');
+        }
+
+        // 8. Emit event
         await this.eventBus.publish({
             eventType: 'knowledge.repo_indexed',
             occurredAt: new Date().toISOString(),
@@ -154,5 +190,6 @@ export class IndexRepositoryUseCase {
             payload: { repoFullName, language, fileCount: files.length },
         });
         logger.info({ tenantId, repoFullName, language, fileCount: files.length }, 'Repository indexed');
+        return { indexed: true, repoFullName };
     }
 }

@@ -101,7 +101,10 @@ export function createCodeKnowledgeRoutes(useCases: CodeKnowledgeUseCases) {
         }
         const repoFullName = `${match[1]}/${match[2]}`;
         if (useCases.indexRepository) {
-            await useCases.indexRepository.execute({ tenantId, repoFullName, ref });
+            const result = await useCases.indexRepository.execute({ tenantId, repoFullName, ref });
+            if (!result.indexed) {
+                return c.json({ status: 'error', repoFullName, error: result.error ?? 'Indexing failed' }, 500);
+            }
             return c.json({ status: 'indexed', repoFullName });
         }
         return c.json({ status: 'accepted', repoFullName, note: 'indexing not configured' });
