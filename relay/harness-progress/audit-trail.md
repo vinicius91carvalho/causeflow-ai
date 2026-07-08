@@ -58,3 +58,21 @@
   - AuditLogger constructed inside onMessage callback, carries same relayId + per-request requestId
 - Result: implementation=true — zero code changes needed (code was already correct)
 - NextAction: (none — WI complete)
+
+## 2026-07-08T18:37:00.000Z — QA Verification
+
+- WorkItem: WI-AC-044
+- Role: qa-agent (independent verification)
+- Outcome: PASS
+- Test: Real docker-compose stack (relay + control-plane-stub + postgres + mongo), stub in SMOKE=1 mode sent `execute {SELECT 1 AS one}` and `execute {list_tables}` over real WebSocket. Relay audit logs collected and verified via `docker compose logs --no-log-prefix relay`.
+- Evidence:
+  - 7 success audit entries found across all runs (2 fresh from this QA session, 5 from earlier runs on same process)
+  - Every success entry has level=30 (pino info) and all 9 required fields: `timestamp`, `relayId`, `requestId`, `resource`, `operation`, `result`, `rowCount`, `maskedFieldCount`, `executionTimeMs`
+  - Fresh entries from this QA session:
+    - `{ relayId: "ab666b8e-7dbe-4616-bead-14e0a715d069", requestId: "96f7d8f9-4d78-436c-9793-f1223e142ac5", resource: "order-pg", operation: "query", result: "success", rowCount: 1, maskedFieldCount: 0, executionTimeMs: 1, level: 30 }`
+    - `{ relayId: "ab666b8e-7dbe-4616-bead-14e0a715d069", requestId: "d42cb39a-df7c-4a72-b531-58ca99ed4d5d", resource: "order-pg", operation: "list_tables", result: "success", rowCount: 1, maskedFieldCount: 0, executionTimeMs: 5, level: 30 }`
+  - relayId `ab666b8e-7dbe-4616-bead-14e0a715d069` is identical across all entries and matches the WsClient connect log's `relayId`
+  - Each entry has a unique `requestId` (per-request UUID from JSON-RPC request.id)
+  - AuditLogger constructed inside `onMessage` callback per src/index.ts line: `const auditLogger = new AuditLogger(config.audit, wsClient.id);`
+- Verdict: AC-044 PASS — implementation is correct, no defects found
+- Result: qa=true, implementation=true
