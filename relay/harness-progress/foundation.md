@@ -768,3 +768,87 @@ No defects. No code changes. integration=true.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-007-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-008 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-008 invariant at real external boundaries (YAML parse of `.github/workflows/release.yml` + the workflow's actual commands run locally). No code changes — the existing workflow already satisfies every clause. AC-008 is a static workflow file (no HTTP/browser boundary); the real boundary is the parsed workflow structure plus the exact commands the workflow invokes.
+
+Structural verification (parsed `.github/workflows/release.yml`, 23/23 assertions PASS):
+- Trigger `on: push: branches: [main]`. ✓
+- `release` job: `actions/checkout@v4` with `fetch-depth: 0` (+ `token: GITHUB_TOKEN`). ✓
+- `actions/setup-node@v4` with `node-version: '22'` (+ `cache: 'npm'`). ✓
+- `npm ci` step. ✓
+- `npx semantic-release` step with `env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}`. ✓
+- `release` job `outputs.released` + `outputs.version` derived from `steps.semantic.outputs.*` (git-describe-tags before/after compares the tag; sets `released=true` + `version` when a new tag is produced). ✓
+- `docker` job: `needs: release` (YAML string shorthand for `[release]`) and `if: needs.release.outputs.released == 'true'`. ✓
+- `docker/setup-qemu-action@v3` (QEMU). ✓
+- `docker/setup-buildx-action@v3` (Docker Buildx). ✓
+- `docker/login-action@v3` with `username: ${{ secrets.DOCKERHUB_USERNAME }}` + `password: ${{ secrets.DOCKERHUB_TOKEN }}`. ✓
+- `docker/build-push-action@v6` with `platforms: linux/amd64,linux/arm64`, `push: true`. ✓
+- Image tags: `causeflowai/relay:${{ needs.release.outputs.version }}` (X.Y.Z), `causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }}` (X.Y), `causeflowai/relay:${{ env.MAJOR }}` (X), `causeflowai/relay:latest` — MAJOR/MINOR derived from `RELEASE_VERSION` via `cut -d. -f1` / `-f1-2`. ✓
+
+Real command boundaries (each invoked exactly as the workflow does):
+1. `npm ci` → exit 0 (420 packages). ✓
+2. `GITHUB_TOKEN=... npx semantic-release --dry-run --no-ci` → exit 0; loads every plugin from `release.config.js` (commit-analyzer → release-notes-generator → changelog → npm → git → github), honors `branches: ['main']`, correctly reports "won't be published" off main. Confirms the workflow's `npx semantic-release` step runs against the real command boundary with `GITHUB_TOKEN`. ✓
+3. `docker buildx version` → `github.com/docker/buildx v0.35.0` (multi-arch buildx available for `linux/amd64,linux/arm64`). ✓
+
+Repo scaffold matches `project_specs.xml` affected_surfaces for AC-008: `.github/workflows/release.yml` (release + docker jobs), `Dockerfile`, `release.config.js`.
+
+Verdict: implementation=true, zero code diff. All AC-008 conditions pass (correct trigger, release job with checkout v4 fetch-depth 0 + Node 22 + npm ci + npx semantic-release with GITHUB_TOKEN + released/version outputs; docker job with needs: release + if released==true + QEMU + Buildx + DockerHub login + build-push-action@v6 pushing tags X.Y.Z/X.Y/X/latest for linux/amd64,linux/arm64).
+
+## WI-AC-008 — QA independent verification (2026-07-08)
+
+Re-audited `.github/workflows/release.yml` as qa-agent in the isolated worktree. YAML parses cleanly; trigger (`on: push: branches: [main]`), the `release` job (checkout@v4 fetch-depth:0 + GITHUB_TOKEN, setup-node@v4 node-version:'22', npm ci, `npx semantic-release` with `GITHUB_TOKEN`, `released`/`version` outputs from a git-describe before/after tag compare), and the `docker` job (`needs: release`, `if: needs.release.outputs.released == 'true'`, docker/setup-qemu-action@v3, docker/setup-buildx-action@v3, docker/login-action@v3 with `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN`, docker/build-push-action@v6 with `platforms: linux/amd64,linux/arm64`, `push: true`) all satisfy AC-008.
+
+**Defect found — wrong `X.Y` image tag.** The `Extract version components` step computes:
+```
+MAJOR=$(echo "$RELEASE_VERSION" | cut -d. -f1)      # 1.2.3 -> "1"
+MINOR=$(echo "$RELEASE_VERSION" | cut -d. -f1-2)    # 1.2.3 -> "1.2"  (actually major.minor, misnamed)
+```
+and the tags block emits `causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }}` for the `X.Y` tag. Simulated for RELEASE_VERSION=1.2.3:
+- `X.Y.Z` tag = `causeflowai/relay:1.2.3` ✓ (from `needs.release.outputs.version`)
+- `X.Y`   tag = `causeflowai/relay:${MAJOR}.${MINOR}` = `causeflowai/relay:1.1.2` ✗ (expected `1.2`)
+- `X`     tag = `causeflowai/relay:1` ✓
+- `latest` tag ✓
+
+Evidence: `bash -c 'RELEASE_VERSION=1.2.3; MAJOR=$(cut -d. -f1<<<1.2.3); MINOR=$(cut -d. -f1-2<<<1.2.3); echo "${MAJOR}.${MINOR}"'` → `1.1.2`. AC-008 requires the image tags to be `X.Y.Z`, `X.Y`, `X`, and `latest`; the `X.Y` tag is rendered as `MAJOR.MAJOR.MINOR` (e.g. `1.1.2`) instead of `X.Y` (e.g. `1.2`). The fix would be to use `causeflowai/relay:${{ env.MINOR }}` for the `X.Y` tag (or rename the variable holding `major.minor` and reference it directly).
+
+**QA verdict: qa=false, implementation=false.** Defect: incorrect `X.Y` Docker tag computation in `.github/workflows/release.yml`.
+
+## 2026-07-08T04:23:34.952Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-008
+- DefectReport: expected the X.Y Docker image tag to be X.Y (e.g. causeflowai/relay:1.2 for release 1.2.3); observed the workflow emits causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }} where MAJOR=1 and MINOR=1.2 (cut -d. -f1-2), yielding 1.1.2; evidence .github/workflows/release.yml Extract version components step + tags block, simulated `RELEASE_VERSION=1.2.3` -> MAJOR=1, MINOR=1.2, tag=1.1.2
+- RepairPlan: AC-008 release workflow is structurally correct (trigger, checkout fetch-depth:0, Node 22, npm ci, semantic-release, released/version outputs, docker job needs+if, QEMU, buildx, DockerHub login, build-push-action@v6, multi-arch). However the X.Y Docker tag is computed incorrectly: the `Extract version components` step sets MINOR=`cut -d. -f1-2` (already X.Y), then the tags block emits `${{ env.MAJOR }}.${{ env.MINOR }}`, concatenating major with the full major.minor string. Simulated RELEASE_VERSION=1.2.3 -> MAJOR=1, MINOR=1.2, tag=causeflowai/relay:1.1.2 instead of causeflowai/relay:1.2.; In .github/workflows/release.yml `Build and push multi-arch image` step, change the X.Y tag line from `causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }}` to `causeflowai/relay:${{ env.MINOR }}` (MINOR already holds X.Y via cut -d. -f1-2). Alternatively rename MINOR to MINOR_FULL or set MINOR=`cut -d. -f2` and keep `${{ env.MAJOR }}.${{ env.MINOR }}`; the simplest fix is to drop the redundant `${{ env.MAJOR }}.` prefix. No other steps or files need changes.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-008-1-qa.log
+- NextAction: Coding Attempt 2
+
+## WI-AC-008 — QA re-verification after repair (2026-07-08)
+
+Re-audited `.github/workflows/release.yml` after the `fix(ci): correct X.Y docker tag in release workflow` commit. The `Build and push multi-arch image` step now emits `causeflowai/relay:${{ env.MINOR }}` for the X.Y tag (was `${{ env.MAJOR }}.${{ env.MINOR }}`). Simulated RELEASE_VERSION=1.2.3 with the workflow's `cut` commands: MAJOR=1, MINOR=1.2, producing tags `causeflowai/relay:1.2.3` (X.Y.Z), `causeflowai/relay:1.2` (X.Y), `causeflowai/relay:1` (X), `causeflowai/relay:latest` — all four correct. YAML parses cleanly. Every AC-008 clause verified: `on: push: branches: [main]`; `release` job `actions/checkout@v4` `fetch-depth: 0` + `GITHUB_TOKEN`, `actions/setup-node@v4` `node-version: '22'`, `npm ci`, `npx semantic-release` with `GITHUB_TOKEN`, `released`/`version` outputs from git-describe before/after tag compare; `docker` job `needs: release`, `if: needs.release.outputs.released == 'true'`, `docker/setup-qemu-action@v3`, `docker/setup-buildx-action@v3`, `docker/login-action@v3` with `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN`, `docker/build-push-action@v6` `platforms: linux/amd64,linux/arm64` `push: true`. Prior X.Y tag defect resolved.
+
+**QA verdict: qa=true, implementation=true.** Zero defects.
+
+## 2026-07-08T04:28:39.932Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-008
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T04:59:45.313Z — Resumed
+
+- WorkItem: WI-AC-008
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
+
+## 2026-07-08T04:59:45.335Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-008
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

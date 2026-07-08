@@ -94,7 +94,7 @@ jobs:
           push: true
           tags: |
             causeflowai/relay:${{ needs.release.outputs.version }}
-            causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }}
+            causeflowai/relay:${{ env.MINOR }}
             causeflowai/relay:${{ env.MAJOR }}
             causeflowai/relay:latest
           cache-from: type=gha
