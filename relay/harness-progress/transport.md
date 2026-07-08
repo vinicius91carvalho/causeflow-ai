@@ -599,3 +599,27 @@ Evidence (stdout):
 Source (`src/transport/ws-client.ts` message handler): `JSON.parse(typeof data === 'string' ? data : data.toString())`; guard `if (parsed.jsonrpc === '2.0' && parsed.method)` then `this.opts.onMessage(parsed as RpcRequest)`; `catch (err) { logger.warn({ err }, 'Invalid message from control plane') }`.
 
 AC-016 contract satisfied at the real boundary. No root-cause fix required; existing code already passes. No code changes (zero-diff checkpoint).
+
+## 2026-07-08T06:55Z — QA audit (isolated, WI-AC-016, independent re-run)
+
+**Result: qa=true, implementation=true**
+
+Independent isolated QA on worktree `gen/relay-transport`. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Drove the real `WsClient` (tsx, `src/transport/ws-client.ts`) against a real `ws.WebSocketServer` on `127.0.0.1:5173` (`/v1/relay/connect`). No mocks of the relay.
+
+Probe (`scripts/qa/ac016-qa-isolated.mts`) pushed 9 inbound server→relay messages and recorded forwards to `opts.onMessage` plus pino stdout logs:
+1. `{ not valid json` (string) → dropped, pino warn level 40 `Invalid message from control plane` with `err.type=SyntaxError`.
+2. `{"jsonrpc":` (Buffer) → dropped, pino warn level 40 with `err.type=SyntaxError` (`Unexpected end of JSON input`).
+3. `{"jsonrpc":"1.0","method":"foo","id":"x"}` → dropped silently (jsonrpc !== '2.0').
+4. `{"jsonrpc":"2.0","id":"4"}` → dropped silently (no method).
+5. `{"jsonrpc":"2.0","id":"1","method":"list_resources","params":{}}` (string) → forwarded.
+6. `{"jsonrpc":"2.0","id":"2","method":"health_check","params":{}}` (Buffer) → forwarded.
+7. `{"jsonrpc":"2.0","id":"3","method":"execute","params":{"resourceId":"r"}}` (string) → forwarded.
+8. `42` (valid JSON, non-object) → dropped silently (no jsonrpc/method).
+9. `{}` (empty object) → dropped silently (no method).
+
+Verdict (`/tmp/ac016-qa-stderr.log`): `connected=true`, `forwardedCount=3`, `forwardedIds=["1","2","3"]`, `forwardedMethods=["list_resources","health_check","execute"]`, `allJsonrpc2=true`, `allHaveMethod=true`, `exactlyThreeForwarded=true`, `forwardedIdsMatch=true`. `AC016_RESULT=PASS` (exit 0).
+Warn audit (`/tmp/ac016-qa-stdout.log`): exactly 2 `level:40` lines, both `msg="Invalid message from control plane"`, both with `err.type="SyntaxError"` + parse-error message — only the two unparseable payloads (string + buffer) triggered a warn.
+
+Source (`src/transport/ws-client.ts` message handler): `JSON.parse(typeof data === 'string' ? data : data.toString())`; guard `if (parsed.jsonrpc === '2.0' && parsed.method)` then `this.opts.onMessage(parsed as RpcRequest)`; `catch (err) { logger.warn({ err }, 'Invalid message from control plane') }`.
+
+AC-016 contract satisfied at the real boundary. No defects found.
