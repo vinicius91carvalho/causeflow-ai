@@ -379,3 +379,17 @@ Use /login to log into a provider via OAuth or API key. See:
 - WorkItem: WI-AC-049
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T20:10:14Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-049
+- AcceptanceChecks: AC-049
+- Outcome: integration=true, implementation=true, qa=true
+- Evidence: Verified on latest main (HEAD cb4be67) against the three AC-049 steps:
+  1. `grep -E '@aws-sdk' apps/dashboard/package.json package.json` → zero matches (both empty). `tenant-provisioning-fallback.ts` does not exist. `setup-stripe.ts` and `delete-user.ts` do not exist under `apps/dashboard/scripts/`. ✓
+  2. `grep -E 'serverExternalPackages' apps/dashboard/next.config.mjs` → zero matches. ✓
+  3. `pnpm --filter dashboard build` exits 0 (build complete, warnings are pre-existing non-blocking webpack cache/otel warnings). `add-credits.ts` is the only file in `apps/dashboard/scripts/`. ✓
+- No dead imports referencing `tenant-provisioning-fallback`, `delete-user`, or `setup-stripe` found across dashboard src/scripts/. ✓
+- No source changes were made during verification.
+- Defects: []
