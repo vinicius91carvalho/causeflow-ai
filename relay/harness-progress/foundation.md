@@ -736,3 +736,26 @@ Boundary evidence (each step's command exits 0 on a passing PR):
 - WorkItem: WI-AC-007
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08 — Integrated Verification WI-AC-007 (latest main)
+
+- WorkItem: WI-AC-007 / AC-007 (context=foundation)
+- Outcome: integration=true, implementation=true, qa=true
+
+Re-ran every CI step's exact command at the real external boundary on latest main (8e8a9f9) — Node 22-pinned workflow, host Docker Engine 29.6.1.
+
+Workflow `.github/workflows/ci.yml` invariants confirmed on integrated main:
+- Trigger `on: pull_request: branches: [main]`. ✓
+- `actions/setup-node@v4` with `node-version: '22'` (+ `cache: 'npm'`). ✓
+- `npm ci` step. ✓
+- `Validate commit messages` step: `run: npx commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose` with `BASE_SHA=${{ github.event.pull_request.base.sha }}`, `HEAD_SHA=${{ github.event.pull_request.head.sha }}`. ✓
+- `Build TypeScript` step: `npm run build`. ✓
+- `Docker build smoke test` step: `docker build . --platform linux/amd64`. ✓
+
+Boundary evidence (each step exits 0 on a passing PR):
+1. `npm ci` → exit 0 (420 packages; package-lock.json source of truth).
+2. `npx commitlint --from <BASE> --to <HEAD> --verbose` over a clean conventional-commit range (e.g. `32259a8~1..32259a8`, `chore(harness): checkpoint WI-AC-007`) → exit 0, `✔ found 0 problems, 0 warnings`. (Pre-existing non-conventional `qa(harness):` commits in main's history are not PR commits and do not exercise the PR gate; a PR whose own commits are all Conventional Commits passes.)
+3. `npm run build` (`tsc`) → exit 0; produces `dist/index.js`.
+4. `docker build . --platform linux/amd64` → exit 0 (linux/amd64 manifest list built).
+
+No defects. No code changes. integration=true.
