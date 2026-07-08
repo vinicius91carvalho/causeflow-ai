@@ -2014,3 +2014,51 @@ implementation=true; integration=pending; qa=pending; defects=none
 - WorkItem: WI-AC-032
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T22:00:00Z — Integrated Verification (WI-AC-032)
+
+- WorkItem: WI-AC-032
+- AcceptanceChecks: AC-032
+- context: open-source-local-runtime
+- Role: qa-agent
+- Outcome: integration=true, implementation=true, qa=true
+- NextAction: done
+
+### Integrated Verification Results (PORT=5181)
+
+Ran all mapped Acceptance Checks at real external boundaries against the running docker-compose stack.
+
+| Check | Status |
+|-------|--------|
+| All 133 MDX pages exist in filesystem | PASS |
+| Homepage returns HTTP 200 with "CauseFlow AI" (4x) and "Quickstart" (3x) | PASS |
+| 125 navigable pages via docs.json return HTTP 200 | PASS |
+| Four navigation tabs (Documentation, API ref, Relay, Changelog) render | PASS |
+| Redirect /quickstart → /getting-started/quickstart (internal rewrite, HTTP 200) | PASS |
+| All 84 API reference endpoint pages — H1 matches frontmatter title | PASS (84/84) |
+| Mintlify components (Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, ParamField, Tabs, Mermaid) render without errors | PASS |
+| No MDX parse errors (all pages render cleanly) | PASS |
+| Contextual AI removed (docs.json options: ["copy", "view"]) | PASS |
+| No outbound SaaS calls from container logs | PASS (zero matches) |
+| Dockerfile reproducibility (clean rebuild from cache) | PASS (functionally identical image) |
+| Content invariants (check-invariants.sh) — severity, status, RBAC, AWS refs, placeholders | PASS (exit 0, all checks passed) |
+| Description length ≤160 chars (check-description-length.py) | PASS (exit 0) |
+| Outbound events catalog: exactly 20 events | PASS (confirmed 20 unique dot-namespaced events) |
+| API base URL consistency (api.causeflow.ai only) | PASS |
+| Placeholder formats (ten_EXAMPLE_..., cflo_live_sk_EXAMPLE_...) | PASS |
+| No AWS/internal/KMS/LangFuse/Hindsight references | PASS |
+| No sensitive env vars in Dockerfile/docker-compose.yml | PASS |
+
+### Docker reproducibility
+
+- `docker build --no-cache -t causeflow-docs:rebuild` exits 0
+- Rebuilt image (1864eb1d4f3b, 352MB / 77MB) serves functionally identical site on port 5190
+- Rebuild returns HTTP 200 with "CauseFlow AI" and "Quickstart" content
+- Rebuild has zero outbound SaaS calls in logs
+- Different chunk hashes are normal for `mint export` but content is identical
+
+### Verdict
+
+All AC-032 checks PASS with zero defects. The built site served by the runtime image renders the same 133 MDX pages, the same four navigation tabs, the same redirect, the same Mintlify components, and every API reference endpoint H1 matches its frontmatter title. The Dockerfile runtime stage is reproducible — clean rebuild produces a functionally identical image.
+
+integration=true; implementation=true; qa=true; defects=none
