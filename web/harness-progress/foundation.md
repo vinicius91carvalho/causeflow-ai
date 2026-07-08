@@ -612,3 +612,10 @@ fatal: Unable to write index.
   - Step 3 — `LOOPS_API_KEY=` declared in `apps/website/.env.example:30` (planned integration comment at line 27); `grep -rniE "from ['\"].*loops|require\(['\"].*loops|loops\.so|LOOPS_API_KEY|@loops|loops-sdk" apps/website/src/` -> no matches (no loops module imports; only textual mention is privacy-page.tsx:126 data-processor disclosure). Sole runtime Loops reference is the CSP allow-list. OK
 - Defects: none
 - NextAction: set qa=true, implementation=true; commit journal
+
+## 2026-07-08T11:08:34.213Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-038
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
