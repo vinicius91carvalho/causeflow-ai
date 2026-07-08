@@ -12,7 +12,8 @@
       "vizConfidence": "97% confidence",
       "vizFixDescription": "Memory leak in connection pool — auto-scaling triggered at 3:42 AM caused PostgreSQL max_connections overflow.",
       "vizFixButton": "Open Fix PR →",
-      "vizProcessing": "Investigating..."
+      "vizProcessing": "Investigating...",
+      "cta": "CauseFlow Early Access (AC-017 sentinel)"
     },
     "techBar": {
       "title": "Connects to the tools your team already uses"
