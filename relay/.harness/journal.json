@@ -69,6 +69,21 @@
         "valid_mongo_type_is_mongodb": "passed",
         "valid_mongo_database_is_relay": "passed"
       }
+    },
+    {
+      "id": "WI-AC-020",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-08T21:45:00Z",
+      "details": "Integrated Verification pass for AC-020 (protocol: unknown method + handler error). Tested at real WebSocket boundary via running docker-compose stack through control-plane-stub proxy. (1) Unknown method 'bogus_method' returns JSON-RPC error code -32601 with message 'Unknown method: bogus_method' via default branch in src/index.ts switch. (2) Handler error triggered by execute query against non-existent table: driver throws -> catch block logs error-level with {err, requestId} and returns -32603 with 'relation \"nonexistent_table\" does not exist'. Non-Error throw fallback ('Internal error') confirmed by static analysis of catch block (err instanceof Error ? err.message : 'Internal error'). No code changes needed.",
+      "checks": {
+        "unknown_method_code_minus_32601": "passed",
+        "unknown_method_message_format": "passed",
+        "handler_error_caught_and_logged": "passed",
+        "handler_error_code_minus_32603": "passed",
+        "handler_error_message_from_err": "passed"
+      }
     }
   ]
 }
