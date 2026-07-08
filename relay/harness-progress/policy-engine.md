@@ -247,3 +247,12 @@ Real WebSocket boundary test against the running docker-compose stack (relay + c
   Fixed an `await cleanup()` race in the test script that caused intermittent
   audit-capture failure (missing `await` before reading stdout chunks).
 - Result: implementation=true, integration=true (zero-diff: no relay code changes)
+
+## 2026-07-08T18:25:14.069Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-039
+- AcceptanceChecks: AC-039
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/policy-engine/WI-AC-039-1-integration_qa.log
+- NextAction: next Ready Work Item
