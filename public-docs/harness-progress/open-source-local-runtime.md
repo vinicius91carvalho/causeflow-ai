@@ -218,3 +218,64 @@ boot log confirms.
 ### verdict
 
 implementation=true; integration=pending; qa=pending; defects=none
+
+## 2026-07-08T02:35:00Z — QA (WI-AC-027)
+
+- WorkItem: WI-AC-027
+- AcceptanceChecks: AC-027
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: qa=true (independent black-box re-verification on freshly built image)
+- NextAction: Integrated Verification
+
+### Independent re-test (blank shell env, fresh build)
+
+Removed any prior `causeflow-docs:test` image and re-ran the canonical
+command from a blank env (`env -i HOME PATH` — no `MINTLIFY_*`, `CLERK_*`,
+`STRIPE_*`, `AWS_*`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SENTRY_*`,
+`LANGFUSE_*`, `SVIX_*`, `SLACK_*`, or `COMPOSIO_*` set). Verified each
+clause of AC-027 against the freshly built image.
+
+- Multi-stage `Dockerfile` at project root: present (1037 bytes). `builder`
+  = `node:22-alpine`, `npm install -g mint@4.2.666`, `mint export
+  --telemetry false` → static export zip unzipped to `/out`. `runtime` =
+  `node:22-alpine`, copies only `/out/`, `CMD ["node","serve.js"]`.
+  (node:22-alpine runtime is one of the two variants the spec permits.)
+- `env -i HOME PATH docker build . -t causeflow-docs:test` → **exit 0**.
+- Image content size: **76.3 MB** (well under the 200 MB ceiling; this is
+  the node variant so the nginx-only size clause is N/A, but the
+  no-`node_modules`-in-runtime invariant still holds — `/app` has no
+  `node_modules`; the only `node_modules` present is the npm bundled set
+  under `/usr/local/lib/node_modules/npm` shipped by the base image, not
+  the docs site's deps).
+- `docker inspect causeflow-docs:test`:
+  - `Entrypoint` = `["docker-entrypoint.sh"]` — the standard node-alpine
+    shim whose body is `exec "$@"` (verified: no network, no SaaS host).
+  - `Cmd` = `["node","serve.js"]`.
+  - `Env` = `PATH`, `NODE_VERSION`, `YARN_VERSION`, `PORT=3000` only —
+    **no `MINTLIFY_*`, no `.env`, no account credentials**.
+- Runtime filesystem scan: no `.env*` files; no `*mintlify*`-named files;
+  no docs-site `node_modules`; the only credential-named path is
+  `/app/api-reference/integrations/credentials` (docs content, not creds).
+- Entrypoint+CMD SaaS-host scan: `grep -nE` for outbound network
+  primitives and forbidden hosts (`https?\.request|http\.get|https\.get|`
+  `fetch\(|axios|WebSocket|mintlify\.com|mintlify\.app|clerk\.com|`
+  `stripe\.com|amazonaws\.com|anthropic\.com|claude\.ai|openai\.com|`
+  `chatgpt\.com`) over `/usr/local/bin/docker-entrypoint.sh` and
+  `/app/serve.js` → **0 matches**. `serve.js` uses only `http`/`fs`/`path`
+  /`child_process` and serves local files via `http.createServer`; the
+  only `child_process` use is `openInBrowser` (interactive `xdg-open`/
+  `open`/`explorer.exe` launch, never a network request to a SaaS host).
+- Black-box serve test (`docker run -d --name cf-test -p 5179:3000
+  causeflow-docs:test`): `curl http://localhost:5179/` → **HTTP 200**,
+  body 230351 bytes containing `CauseFlow AI` (4 matches) and the
+  `Quickstart` intro card (3 matches).
+- Boot log: `Serving docs at http://localhost:3000`; `docker logs cf-test
+  2>&1 | grep -cE` for the forbidden-host pattern
+  (`mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|`
+  `anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|`
+  `langfuse\.io|svix\.com|slack\.com|composio\.dev`) → **0** matches.
+
+### verdict
+
+qa=true; implementation=true; defects=none
