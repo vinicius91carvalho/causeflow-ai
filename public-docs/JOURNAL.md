@@ -94,3 +94,12 @@ against the existing committed code (HEAD `32cd0a0`).
 implementation=true. Zero defects. Zero tracked files changed — zero-diff
 checkpoint (only this journal updated). No refactor, no code changes; the
 existing codebase already satisfies AC-011.
+
+## 2026-07-08 Re-verify — WI-AC-011 (this agent run)
+
+- Run by: coding-agent (VERIFY-FIRST mode)
+- HEAD: 1f31386
+- mint dev running on port 5188
+- Black-box re-verification: all 9 pages GET HTTP 200, correct H1, zero MDX
+  parse errors, distinguishing prose present.
+- Outcome: implementation=true (no code changes needed)
