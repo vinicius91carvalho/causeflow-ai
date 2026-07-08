@@ -342,3 +342,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - Cross-project note (non-defect): The end-to-end flow was verified against a mock Core API implementing the local auth endpoints (`POST /v1/auth/login`, `POST /v1/auth/register`, `GET /v1/auth/me`, `GET /v1/whoami`). The real Core API has not yet implemented these endpoints (Core AC-042 is pending — its auth routes still use Clerk `verifyToken`). This is a cross-project dependency, not a web dashboard implementation defect. The dashboard code correctly proxies to the Core's planned endpoints, and all self-contained behavior (middleware redirect, auth handlers, withAuth cookie extraction, JWT verification via `jose`) works correctly.
 - Defects: []
 - NextAction: orchestrator records verdict
+
+## 2026-07-08T19:48:02.082Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-046
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
