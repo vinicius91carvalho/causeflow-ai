@@ -193,12 +193,22 @@ async function main() {
             wsClient.send(createErrorResponse(request.id, -32601, `Unknown method: ${request.method}`));
         }
       } catch (err) {
+        const errMessage = err instanceof Error ? err.message : 'Internal error';
+        const rpcRequest = request as RpcRequest;
+        const res = ((rpcRequest.params as Record<string, unknown>)?.['resourceId'] as string) ?? 'unknown';
+        const op = ((rpcRequest.params as Record<string, unknown>)?.['operation'] as string) ?? 'unknown';
+        const errorEntry: AuditEntry = {
+          timestamp: new Date().toISOString(),
+          relayId: wsClient.id,
+          requestId: request.id,
+          resource: res,
+          operation: op,
+          result: 'error',
+          errorMessage: errMessage,
+        };
+        auditLogger.log(errorEntry);
         logger.error({ err, requestId: request.id }, 'Request handler error');
-        wsClient.send(createErrorResponse(
-          request.id,
-          -32603,
-          err instanceof Error ? err.message : 'Internal error',
-        ));
+        wsClient.send(createErrorResponse(request.id, -32603, errMessage));
       }
     },
   });

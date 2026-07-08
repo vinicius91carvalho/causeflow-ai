@@ -154,3 +154,25 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/audit-trail/WI-AC-044-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T18:51:00.000Z — Verify First
+
+- WorkItem: WI-AC-045
+- Role: coding-agent (verify-first mode)
+- Outcome: AC-045 PASS — verified at real WebSocket boundary with black-box test script
+- Evidence:
+  - Fresh relay process spawned with temp config (no Postgres on port 15432 to trigger driver errors)
+  - Local WebSocket server on port 5196 acting as control-plane stub
+  - Five tests exercised over real WebSocket, relay logs captured and parsed:
+    1. Row limit exceeded (policy denial) → -32600 + audit denied + policyChecks.reason ✓
+    2. Operation not allowed (policy denial) → -32600 + audit denied + policyChecks.reason ✓
+    3. Bad SQL / driver validation failure → -32602 + audit denied + policyChecks.reason ✓
+    4. Unknown resource (policy denial) → -32600 + audit denied + policyChecks.reason ✓
+    5. Driver execution error (ECONNREFUSED) → -32603 + audit error entry + top-level error log ✓
+  - Audit entries verified from captured pino JSON:
+    - 4 `result: "denied"` entries at level 40 (pino warn) each with `policyChecks.reason` set to the denial reason
+    - 1 `result: "error"` entry at level 50 (pino error) with `errorMessage` and the top-level `logger.error({ err, requestId: ... })` also present
+    - All entries carry `relayId`, `requestId`, `resource`, `operation`
+- Fix: Added missing audit entry in catch block of onMessage (`src/index.ts`) — the error case previously only logged via `logger.error` but did not write an audit logger entry with `result: 'error'`. Smallest possible diff: 10 lines added to the catch handler.
+- Test script: `scripts/qa/ac045-test.mts` — reusable black-box test
+- Result: implementation=true
