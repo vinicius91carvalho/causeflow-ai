@@ -758,3 +758,48 @@ All AC-038 steps pass at the real HTTP + filesystem boundary on integrated main.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+---
+
+## WI-AC-002 - Verify-first (foundation, attempt 1)
+
+**Result: implementation=true** (one AC-spec amendment for dashboard redirect; no code changes)
+
+### Boundary exercised
+
+Real external boundary: `pnpm turbo dev` (both apps) started on ports 3000/3001, dev process alive in background, HTTP requests against real dev servers.
+
+### Defect found and fix applied
+
+**Defect:** AC-002 description and Step 2 test `curl http://localhost:3001/` expecting HTTP 200, but the dashboard root `/` correctly redirects (307) to `/auth/sign-in` because the dashboard is a Clerk-authenticated app -- the root page calls `redirect('/dashboard')`, and the middleware redirects unauthenticated users to sign-in. Without `-L` (follow redirects), curl never gets a 200 on `/`.
+
+**Root-cause fix:** Added `-L` flag to the dashboard curl command in both the AC description and Step 2, with a note explaining that the dashboard root redirects to the sign-in landing page for unauthenticated users. This is the smallest possible diff -- the code is working correctly; only the test commands in the AC spec needed updating.
+
+### AC-002 evidence
+
+**Step 1:** `PORT=3000 pnpm turbo dev` started both apps in parallel via Turbo.
+
+- Website: `next dev --hostname 127.0.0.1` → port 3000 ✓
+- Dashboard: `next dev --hostname localhost -p 3001` → port 3001 ✓
+
+**Step 2 (corrected):**
+
+- `curl http://localhost:3000/` → **HTTP 200** (website homepage renders real HTML with theme styling) ✓
+- `curl -L http://localhost:3001/` → **HTTP 200** (follows redirect chain: `/` → `/dashboard` → `/auth/sign-in?redirect_url=%2Fdashboard` → sign-in page renders) ✓
+- Additional website routes all 200: `/product`, `/security`, `/integrations`, `/pricing`, `/use-cases`, `/privacy`, `/terms` ✓
+- Dashboard `/api/health` → 200 directly ✓
+- Dashboard `/auth/sign-in` → 200 directly ✓
+
+**Step 3:** Dev log contains 2 "Ready" messages:
+
+- `@causeflow/website:dev:  ✓ Ready in 1970ms`
+- `@causeflow/dashboard:dev:  ✓ Ready in 5.1s`
+
+Dev process stays in foreground until killed (confirmed: 4 `next dev` processes active at time of test).
+
+### Files changed
+
+- `project_specs.xml` — AC-002 description + Step 2: added `-L` flag to dashboard curl command (spec amendment matching actual behavior; no code changes).
+- `harness-progress/foundation.md` — this journal entry.
+
+No defects remain within the corrected AC-002 boundary. implementation=true set for WI-AC-002.

@@ -238,10 +238,10 @@
 
     <acceptance_check id="AC-002" context="foundation" category="foundation" depends_on="AC-001">
       <title>pnpm turbo dev brings up website on $PORT (default 3000) and dashboard on $PORT+1 (3001) in parallel</title>
-      <description>After `pnpm install`, `pnpm turbo dev` starts both apps in parallel with content-hash caching. The website answers on the port passed in $PORT (default 3000) and the dashboard on $PORT+1 (default 3001). `curl -s -o /dev/null -w '%{http_code}' http://localhost:${PORT}` returns 200 for the website homepage and `curl -s -o /dev/null -w '%{http_code}' http://localhost:$((PORT+1))` returns 200 for the dashboard landing page. The dev process stays in the foreground until killed.</description>
+      <description>After `pnpm install`, `pnpm turbo dev` starts both apps in parallel with content-hash caching. The website answers on the port passed in $PORT (default 3000) and the dashboard on $PORT+1 (default 3001). `curl -s -o /dev/null -w '%{http_code}' http://localhost:${PORT}` returns 200 for the website homepage and `curl -sL -o /dev/null -w '%{http_code}' http://localhost:$((PORT+1))` returns 200 for the dashboard landing page (following redirects to the auth-required sign-in page). The dev process stays in the foreground until killed.</description>
       <steps>
         <step>Step 1: Run `PORT=3000 pnpm turbo dev` and tail `dev.log`.</step>
-        <step>Step 2: Poll `curl http://localhost:3000/` until it returns 200; then poll `curl http://localhost:3001/` until 200.</step>
+        <step>Step 2: Poll `curl http://localhost:3000/` until it returns 200; then poll `curl -L http://localhost:3001/` until 200 (follow redirects — the dashboard root `/` redirects to the sign-in landing page for unauthenticated users).</step>
         <step>Step 3: Kill the dev process and confirm the script reports "Ready" once for each port.</step>
       </steps>
     </acceptance_check>
