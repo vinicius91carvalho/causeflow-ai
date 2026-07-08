@@ -142,3 +142,18 @@
 - PreviousPhase: qa
 - Attempt: 1
 - NextAction: qa
+
+## 2026-07-08T00:55:00Z — Isolated QA (WI-AC-032)
+
+- Role: qa-agent. WorkItem: WI-AC-032. AcceptanceChecks: AC-032. Context: dashboard. Attempt: 1/3.
+- Independently verified AC-032 against the real @sentry/nextjs SDK and the REAL source of the three Sentry config modules.
+- Step 1 (file existence + identical scrubbing): extracted the actual `beforeSend(event)` function body from each of `sentry.server.config.ts`, `sentry.edge.config.ts`, `instrumentation-client.ts` via balanced-brace parsing, ran each against a tainted event (auth/cookie/x-api-key/x-clerk-auth-token/x-session-token headers, request.data, request.cookies, user.ip_address, user.email). All three returned an event with `request.headers={}`, `request.data` deleted, `request.cookies` deleted, `user.ip_address`/`user.email` deleted — zero PII leaks in all three. `instrumentation.ts` exports `onRequestError = Sentry.captureRequestError` and `register()` imports server config (nodejs runtime) + edge config (edge runtime). `src/app/global-error.tsx` is `'use client'` and calls `Sentry.captureException(error)` in a `useEffect`. `next.config.mjs` wraps `withSentryConfig` (org=causeflow-ai, project=causeflow-dashboard).
+- Step 2 (blank DSN → no network): real @sentry/nextjs init with `NEXT_PUBLIC_SENTRY_DSN=""` + `enabled:false`, `captureException` + `flush(4000)` → local HTTP sink received 0 envelopes. SDK no-ops at init. ✓
+- Step 3 (DSN set → envelope arrives + PII scrubbed end-to-end): real SDK init with DSN `http://<key>@127.0.0.1:<port>/2`, injected tainted PII in beforeSend then ran the real config's beforeSend, `captureException` → sink received 1 envelope; parsed event JSON: `request.headers={}`, `request.data` absent, `request.cookies` absent, `user={}` (no ip/email). End-to-end scrubbing verified. Final hop to hosted project causeflow-dashboard is CI-gated (SENTRY_AUTH_TOKEN); locally the envelope is POSTed to the configured ingest host (project ID 4511214189805568). No defect.
+- Note: the three `beforeSend` hooks are inline-duplicated (not a shared helper). AC-032's binding description requires "identical PII scrubbing" — satisfied and verified against real source for all three. No functional defect.
+- Probe artifacts created and removed (zero-diff). Working tree clean.
+- Outcome: PASS — qa=true, implementation=true.
+
+===HARNESS-VERDICT-BEGIN===
+{"id":"WI-AC-032","qa":true,"implementation":true,"defects":[]}
+===HARNESS-VERDICT-END===
