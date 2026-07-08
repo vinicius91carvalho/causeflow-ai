@@ -201,3 +201,34 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/lifecycle/WI-AC-048-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T22:30:00.000Z — AC-049 Passed
+
+- WorkItem: WI-AC-049
+- Outcome: PASSED
+- Implementation: true
+- AcceptanceChecks: AC-049
+- Evidence: End-to-end black-box test-ac049.mjs against relay compiled from source,
+  connected via WebSocket to a dedicated test control-plane stub on port 5196
+  (separate from the main docker-compose stack).
+  Test 1 (one good + one bad resource):
+  1. Relay boot log contains "Failed to initialize driver" with id=bad-mongo
+     (MongoClient constructor throws on invalid URI "invalid://bad")
+  2. list_resources returns only order-pg (the good resource)
+  3. health_check returns only order-pg (healthy: true)
+  Test 2 (zero drivers — all resources fail):
+  4. Relay still connects to control-plane stub (WS client starts)
+  5. health_check returns empty array
+  6. list_resources returns empty array
+- Changes: src/index.ts — onConnect and list_resources now filter to only
+  resources with successfully-initialized drivers (via drivers Map). Previously
+  both reported ALL config resources regardless of driver init status.
+  test-ac049.mjs — new test file.
+- Defects: []
+
+## 2026-07-08T20:04:15.743Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-049
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
