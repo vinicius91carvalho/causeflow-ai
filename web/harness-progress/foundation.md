@@ -384,3 +384,23 @@ No defects within the AC-033 boundary. qa=true set for WI-AC-033.
 - WorkItem: WI-AC-033
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-033 — Integrated Verification (foundation, ops)
+
+**Result: integration=true, implementation=true, qa=true** (integrated main HEAD 21f96f4; zero source diff)
+
+### Boundary exercised
+
+No SST CLI / AWS creds in this verify env, so the strongest real boundary is TS transpile (`ts.transpileModule`) + structural grep of every AC clause against integrated main. Both configs transpile OK (website emit 7853b, dashboard emit 10567b, zero diagnostics). Core smoke (TS parse) holds at the integrated boundary.
+
+### Independent AC-033 evidence (integrated main)
+
+- **CloudFront distribution:** both via `sst.aws.Nextjs` with `transform.cdn.webAclId = waf.arn` wiring (website L131/L172, dashboard L149/L192). ✓ both
+- **WAF WebACL in `us-east-1` + separate `us-east-1` provider:** website `aws.Provider('us-east-1',{region:'us-east-1'})` L18 + `aws.wafv2.WebAcl('CauseFlowWaf',{scope:'CLOUDFRONT'},{provider:usEast1})` L20; dashboard L34 + L36. ✓ both
+- **Next.js compute (S3 + CloudFront + Lambda@Edge via OpenNext website; Lambda@Edge dashboard):** `sst.aws.Nextjs` (SST v3 OpenNext construct) in both. ✓ both
+- **Route 53 records + ACM cert:** provisioned by the `domain` block of `sst.aws.Nextjs` (auto-discovers hosted zone by name; zone ID not hardcoded — expected). ✓ both
+- **Dashboard CloudWatch alarms (Lambda error rate + 5xx rate, production only):** `if ($app.stage === 'production')` (L201) gates `aws.cloudwatch.MetricAlarm('DashboardLambdaErrors',{namespace:'AWS/Lambda',metricName:'Errors'})` (L207) and `aws.cloudwatch.MetricAlarm('DashboardCloudFront5xxErrors',{namespace:'AWS/CloudFront',metricName:'5xxErrorRate'})` (L226). Website `MetricAlarm` count = 0. ✓
+- **Domains:** website prod `causeflow.ai` (+redirects), staging `staging.causeflow.ai`; dashboard prod `dashboard.causeflow.ai`, staging `dashboard-staging.causeflow.ai`. ✓
+- **Hosted zone `Z01593322DGY9I94W9S7C`:** stated AC fact; `sst.aws.Nextjs` `domain` looks up the causeflow.ai zone by name (not hardcoded — expected). ✓
+
+No defects within the AC-033 boundary at the integrated boundary. integration=true set for WI-AC-033.
