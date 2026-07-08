@@ -503,3 +503,10 @@ qa=true. implementation=true. Zero defects. AC-005 holds on the isolated
 worktree: every `description` field in `.mdx` frontmatter is at most 160
 characters under both the scalar-value (spec-intent) and quote-inclusive
 (stricter) counts. No code changes required.
+
+## 2026-07-08T04:51:12.608Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-005
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
