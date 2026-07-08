@@ -207,3 +207,18 @@ Verdict: implementation=true, zero code diff. All AC-002 invariants (build singl
   6. Under `--read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges` with env-var config (controlPlane.url → live ws stub on 0.0.0.0:5177 via `--add-host=cp:host-gateway`, `RELAY_TOKEN`/`TENANT_ID`/`RESOURCE_0_*`) → pino logs `"Starting CauseFlow Relay..."` (pid 1, UID 10001 as relay), `"Config loaded"` (resources=1, tenantId=ac002-tenant), `"Driver initialized"` (demo-pg postgres), then `"Connected to control plane"` (relayId+url). Live ws stub logged `[stub] relay connected` + `[stub] resource_update from relayId=<uuid> resources=1`. Connection to configured control plane confirmed at the real WS boundary.
 - RootCause confirmed: the prior `WI-AC-002-1-qa.log` defect was an evidence-emission gap (QA route selected, no verdict JSON appended), not a repository defect. Full verdict JSON now written to `WI-AC-002-2-qa.log`.
 - NextAction: next Ready Work Item
+
+## WI-AC-002 — QA independent verification (attempt 3, 2026-07-07)
+
+Independently re-ran every AC-002 invariant at real external boundaries (Docker Engine 29.6.1 + buildx 0.35; live `ws` control-plane stub on 0.0.0.0:5177). Zero code diff — the existing `Dockerfile` already satisfies every invariant.
+
+1. `docker build . --platform linux/amd64` → exit 0 (image `causeflow-relay:ac002-qa`, layers CACHED).
+2. Multi-arch buildx: `docker buildx build --platform linux/amd64,linux/arm64 --output type=oci` → exit 0 (manifest list built for both platforms; host supports arm64 natively).
+3. `docker inspect causeflow-relay:ac002-qa` → `User=relay`, `Cmd=["node","dist/index.js"]`, `ExposedPorts={"8080/tcp":{}}` only (no other ports exposed; 8080 informational).
+4. `docker run --rm <image> node -e "readFileSync('/etc/passwd')"` → `/etc/passwd` contains `relay:x:10001:10001::/home/relay:/bin/sh`; process runs `uid=10001 gid=10001`. Image runs as `relay` (UID 10001).
+5. Read-only rootfs: `docker run --rm --read-only <image>` write probe (`writeFileSync('/app/test.txt','x')`) → `WRITE_BLOCKED: EROFS`. Root filesystem is read-only by default when run with the documented `--read-only` production flag.
+6. Run with a valid config under the full production hardening (`--read-only --tmpfs /tmp:size=64m --security-opt no-new-privileges --cap-drop ALL`), config mounted ro, `RELAY_TOKEN`/`TENANT_ID`/`PG_*` env, `controlPlane.url → ws://cp:5177/v1/relay/connect` via `--add-host=cp:host-gateway` → pino logs `"Starting CauseFlow Relay..."` (pid 1, as `relay`/UID 10001), `"Config loaded"` (resources=1, tenantId=ac002-tenant), `"Driver initialized"` (demo-pg postgres), then `"Connected to control plane"` (relayId+url). Live ws stub logged `[stub] relay connected` + `[stub] resource_update from relayId=<uuid> resources=1`. Connection to the configured control plane confirmed at the real WS boundary.
+
+Evidence: /tmp/ac002-evidence/WI-AC-002-3-qa.log
+
+**QA verdict: qa=true, implementation=true, no defects.** All AC-002 invariants pass on integrated main.
