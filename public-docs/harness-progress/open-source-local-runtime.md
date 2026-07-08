@@ -1516,3 +1516,56 @@ integration=true; implementation=true; qa=true; defects=none
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-031-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T11:30:00Z — Implementation (WI-AC-033)
+
+- WorkItem: WI-AC-033
+- AcceptanceChecks: AC-033
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: implementation=true (black-box verified on running stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+No source changes required. AC-033 is the `docker-compose.yml` boundary
+check; the compose file shipped in WI-AC-026 already satisfies every clause.
+Verified each clause against the resolved compose config and a running
+container.
+
+### Black-box verification (assigned port 5179)
+
+Host port 3000 is occupied by the shared `relay-control-plane-stub`
+container, so the built `causeflow-docs:local` image was run as
+`causeflow-docs-ac033` with `-p 5179:3000 -e PORT=3000` (canonical
+`docker-compose.yml` stays `3000:3000`; override is uncommitted and removed
+before commit).
+
+- `docker compose config` → **exit 0**; `docker compose config --services`
+  → only `causeflow-docs`; ports `3000:3000`.
+- SaaS-endpoint grep on `docker-compose.yml`
+  (`aws|stripe|clerk|sentry|langfuse|svix|slack|composio|mintlify|amazonaws|anthropic|openai|chatgpt|claude`)
+  → **0 matches** (no AWS/Stripe/Clerk/Sentry/Langfuse/Svix/Slack/Composio/
+  Mintlify SaaS endpoint referenced).
+- Resolved compose config: **no `depends_on`, no `links`, no
+  `external_links`, no `healthcheck`** → the service depends on no other
+  service.
+- Portability (clause 5): runtime `Env` is just `PORT=3000` (+ base-image
+  `PATH`/`NODE_VERSION`/`YARN_VERSION`); build context is the project root;
+  no external networks; no env-var dependency on any other subproject. The
+  `causeflow-docs` service is therefore self-contained and starts in
+  parallel with other subprojects' services when the monorepo root compose
+  (owned by the `core`/`web` open-source-local-runtime contexts,
+  WI-AC-039/WI-AC-044) includes `public-docs` — it needs no additional env
+  vars and no other services up first.
+- Live: `GET http://localhost:5179/` → **200**, body has `CauseFlow AI`
+  (×4) and `Quickstart` (×3); boot log `Serving docs at
+  http://localhost:3000`; `docker logs causeflow-docs-ac033 | grep -cE`
+  forbidden-host pattern (`mintlify\.com|mintlify\.app|clerk\.com|
+  stripe\.com|amazonaws\.com|anthropic\.com|claude\.ai|openai\.com|
+  chatgpt\.com|sentry\.io|langfuse\.io|svix\.com|slack\.com|composio\.dev`)
+  → **0** matches.
+
+### verdict
+
+implementation=true; integration=pending; qa=pending; defects=none
