@@ -196,3 +196,51 @@ on integrated main at the real external HTTP boundary. Evidence saved to
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-013-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T13:10:00Z — Integrated Verification (coding-agent, VERIFY-FIRST)
+
+- Role: coding-agent (VERIFY-FIRST, existing codebase)
+- WorkItem: WI-AC-014
+- AcceptanceChecks: AC-014
+- context: api-reference
+- Attempt: 1/3
+- Boundary: real HTTP — `mint dev --no-open --port 5174` launched from
+  project root (`.../public-docs`); `GET /` → HTTP 200; dev log showed
+  `✓ preview ready` and contained no `parse error|syntax error|failed to|
+  mdx error|cannot|invalid|✗|✘` lines.
+
+### AC-014 boundary verification (black-box, HTTP + node --check)
+
+- `GET http://127.0.0.1:5174/api-reference/authentication` → **HTTP 200**,
+  429593-byte rendered body.
+- H1: `<h1 id="page-title" ...>Authentication</h1>` → MATCH (frontmatter title).
+- Three required sections render (h2 headings present in rendered HTML):
+  - **JWT Bearer token** — present; `Authorization: Bearer` example code
+    rendered (2 occurrences); CodeGroup with `curl` + TypeScript examples.
+  - **API key authentication** — present; `X-API-Key` header example rendered
+    (3 occurrences); `cflo_live_sk_EXAMPLE_…` placeholder used.
+  - **Webhook HMAC signature** — present; `X-Webhook-Signature` header example
+    rendered (3 occurrences); `verifyWebhookSignature` function rendered.
+- Working code examples confirmed in all three sections (CodeGroup blocks
+  with `shellscript`/`http`/`json` language attrs; 9 `http` + 3 `json` + 4
+  `shell` code blocks present).
+- `verifyWebhookSignature` snippet (`typescript` code block) extracted from
+  `api-reference/authentication.mdx` to a temp file and run through
+  `node --check` (node v24.16.0; type stripping enabled by default):
+  - `.ts` → exit 0 (parses). `.js` → exit 0. `.mjs` → exit 1 (ESM mode does
+    not strip TS types; not the natural extraction for a `typescript` block).
+  - The snippet, extracted to its natural `.ts` extension, parses
+    syntactically → AC-014 step 3 passes.
+- `mint dev` log: no `parse error|syntax error|failed|mdx error|cannot|
+  invalid|✗|✘` lines; no parse error logged for
+  `api-reference/authentication.mdx`.
+
+### verdict
+
+integration=true; implementation=true; qa=true; defects=none. AC-014 holds
+on integrated main at the real external HTTP boundary + `node --check`
+boundary. Zero source files changed — zero-diff checkpoint (existing code
+already satisfies the AC). Evidence saved to
+`.harness-evidence/api-reference/` (`WI-AC-014-1-authentication-rendered.html`,
+`WI-AC-014-1-mintdev.log`, `WI-AC-014-1-node-check.txt`).
+- NextAction: next Ready Work Item
