@@ -262,3 +262,10 @@
 - **CWD:** /root/projects/causeflow
 - **Action:** Re-read this file after compaction. Resume from last completed phase.
 
+## Verification — 2026-07-08
+
+- **Work Item:** WI-AC-019 (relay-documentation)
+- **Role:** qa-agent
+- **Result:** PASS - All 8 relay pages render without MDX parse errors; Mermaid flowchart on overview page rendered as diagram, not raw code.
+- **Action:** Set integration=true for this Work Item.
+
