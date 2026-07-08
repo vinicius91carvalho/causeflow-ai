@@ -698,3 +698,40 @@ Merge with strategy ort failed.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Retrying again after a supervisor restart (previous supervisor process was hung, unresponsive to stop signal, force-killed and restarted cleanly). Retry for a fresh attempt.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T11:34:00Z — Verify-first (WI-AC-005) — Attempt 3 (post-restart retry)
+
+- Role: coding-agent (verify-first, existing codebase)
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- context: content-structure
+- Boundary: source-tree audit of frontmatter `description` length (AC is a
+  static-content invariant; no UI/HTTP behavior beyond AC-001 dependency).
+
+### Method
+
+- In-scope `.mdx`: 133 (excludes `.mintlify/`, `.artifacts/`, `node_modules/`,
+  `drafts/`, `.git/`).
+- (1) Spec-style awk over frontmatter `description:` lines, quote-inclusive
+  raw value, flag any length > 160.
+- (2) Scalar-value awk stripping one surrounding `"'/` quote layer, flag any
+  length > 160.
+- (3) Python frontmatter extraction (handles multi-line/block scalars),
+  counts scalar length, reports missing descriptions and longest entries.
+
+### Audit result
+
+- Files scanned: 133. Missing description: 0.
+- Quote-inclusive raw awk: 0 descriptions exceed 160.
+- Scalar-value count: 0 descriptions exceed 160.
+- Longest observed: index.mdx=153, hubspot.mdx=144, project-management.mdx=133,
+  monitoring.mdx=129, databases.mdx=126 — all comfortably under 160.
+
+### Verdict
+
+implementation=true. Zero-diff checkpoint — working tree clean, no code
+changes required. AC-005 holds at the real (source-tree) boundary: every
+`description` field in `.mdx` frontmatter is at most 160 characters under
+both the scalar-value (spec-intent) and quote-inclusive (stricter) counts.
+Repair plan was a user-directed retry after supervisor restart; the existing
+code already satisfies the AC.
