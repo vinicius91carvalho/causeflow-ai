@@ -181,6 +181,7 @@ import { AcceptInviteUseCase } from './modules/user/application/accept-invite.us
 import { ChatUseCase } from './modules/memory/application/chat.usecase.js';
 import { DynamoChatHistoryRepository } from './modules/memory/infra/dynamo-chat-history.repository.js';
 import { DynamoCodeKnowledgeRepository } from './modules/code-intelligence/infra/dynamo-code-knowledge.repository.js';
+import { StaticCodeRepository } from './shared/infra/code-repository/static-code-repository.js';
 import { IndexRepositoryUseCase } from './modules/code-intelligence/application/index-repository.usecase.js';
 import { SuggestRepoMappingUseCase } from './modules/code-intelligence/application/suggest-repo-mapping.usecase.js';
 import type { CodeKnowledgeUseCases } from './modules/code-intelligence/infra/code-knowledge.routes.js';
@@ -375,14 +376,15 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   };
 
 
-  // Code Knowledge Use Cases (no native GitHub — code indexing via Composio)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const indexRepository = new IndexRepositoryUseCase(codeKnowledgeRepo, () => undefined, eventBus);
+  // Code Knowledge Use Cases — uses StaticCodeRepository for local dev (no GitHub credentials)
+  const staticCodeRepo = new StaticCodeRepository();
+  const indexRepository = new IndexRepositoryUseCase(codeKnowledgeRepo, () => staticCodeRepo, eventBus);
   const suggestRepoMapping = new SuggestRepoMappingUseCase(codeKnowledgeRepo);
 
   const codeKnowledgeUseCases: CodeKnowledgeUseCases = {
     codeKnowledgeRepo,
     suggestRepoMapping,
+    indexRepository,
   };
 
   // Composio Integration
@@ -632,6 +634,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const userRepo = new DynamoUserRepository();
   const authUseCases: AuthUseCases = {
     handleClerkWebhook: new HandleClerkWebhookUseCase(tenantRepo, userRepo, stripeCustomerService, planCatalog, billingAccountRepo),
+    tenantRepo,
   };
 
   // User Use Cases

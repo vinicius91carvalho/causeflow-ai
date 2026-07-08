@@ -1,7 +1,7 @@
 import type { MiddlewareHandler } from 'hono';
 import { verifyToken } from '@clerk/backend';
-import { createHash } from 'node:crypto';
-import { SignJWT, jwtVerify } from 'jose';
+import { createHash, createSecretKey } from 'node:crypto';
+import { jwtVerify } from 'jose';
 import { config } from '../../../config/index.js';
 import { UnauthorizedError } from '../../../domain/errors.js';
 import { tenantId } from '../../../domain/value-objects.js';
@@ -23,6 +23,7 @@ const PUBLIC_PATHS = [
   '/webhooks/',
   '/dashboard',
   '/v1/auth/clerk-webhook',
+  '/v1/auth/oss-login',
   '/v1/billing/webhook',
   '/v1/signup',
   '/v1/widget/',
@@ -70,6 +71,42 @@ export const authMiddleware: MiddlewareHandler<AppEnv> = async (c, next) => {
     } catch (err) {
       if (err instanceof UnauthorizedError) throw err;
       throw new UnauthorizedError('Invalid or expired token');
+    }
+  }
+
+  // Try local JWT verification first (dev/OSS mode with JWT_SECRET)
+  if (config.auth.jwtSecret) {
+    try {
+      const secret = createSecretKey(Buffer.from(config.auth.jwtSecret, 'utf-8'));
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: config.auth.jwtIssuer,
+      });
+
+      const userId = payload.sub ?? 'anonymous';
+      const email = (payload.email as string) ?? '';
+      const orgId = (payload.tenantId as string) ?? (payload.org_id as string);
+      const orgRole = payload.org_role as string | undefined;
+
+      const roles: string[] = [];
+      if (orgRole) {
+        if (orgRole === 'admin') roles.push('admin');
+        else roles.push('member');
+      }
+
+      c.set('userId', userId);
+      c.set('userEmail', email);
+      c.set('userRoles', roles);
+
+      if (orgId) {
+        c.set('tenantId', tenantId(orgId));
+      }
+
+      return next();
+    } catch {
+      // Local JWT failed — fall through to Clerk verification if configured
+      if (!config.clerk.secretKey) {
+        throw new UnauthorizedError('Invalid or expired token');
+      }
     }
   }
 
