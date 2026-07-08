@@ -76,3 +76,12 @@
   - AuditLogger constructed inside `onMessage` callback per src/index.ts line: `const auditLogger = new AuditLogger(config.audit, wsClient.id);`
 - Verdict: AC-044 PASS — implementation is correct, no defects found
 - Result: qa=true, implementation=true
+
+## 2026-07-08T18:39:07.295Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-044
+- DefectReport: AC-044 independent QA verification complete. The work item passes at the real docker-compose boundary with evidence from fresh smoke-test execution. No defects found — the implementation was already correct. The journal has been updated and committed.
+- RepairPlan: AC-044 implementation is correct. The AuditLogger is created inside the onMessage callback (src/index.ts:49) with wsClient.id (single UUID from WsClient constructor). Success audit entries carry all required fields: timestamp, relayId, requestId, resource, operation, result:'success', rowCount, maskedFieldCount, executionTimeMs (src/index.ts:97-107). Pino logs at info level (audit-logger.ts:30). The QA evidence confirms the work item passes at the real docker-compose boundary. The repository contains all required scaffold files from project_specs.xml. One minor non-blocking gap: docs/session-learnings.md (referenced in CLAUDE.md) does not exist.; No code changes required for AC-044.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/audit-trail/WI-AC-044-1-qa.log
+- NextAction: Coding Attempt 2
