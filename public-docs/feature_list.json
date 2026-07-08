@@ -301,10 +301,10 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": true,
-    "qa": true,
-    "integration": true,
-    "retries": 0
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 1
   },
   {
     "id": "WI-AC-015",
