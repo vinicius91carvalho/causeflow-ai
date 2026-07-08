@@ -1644,3 +1644,68 @@ qa=true; implementation=true; defects=none
 - WorkItem: WI-AC-033
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08 Integrated Verification — WI-AC-033
+
+- Role: qa-agent (Integrated Verification on latest main)
+- WorkItem: WI-AC-033 / AC-033 / context=open-source-local-runtime
+- Branch: main (HEAD cacfadb)
+- Attempt: 1/3
+- Boundary: real external — fresh `docker compose up -d --build` of the
+  canonical `docker-compose.yml` (port 3000:3000) on integrated main.
+
+### Clause-by-clause audit
+
+1. Compose ships only `causeflow-docs` (port 3000):
+   `docker compose config --services` → `causeflow-docs` (single service);
+   resolved config ports `target:3000 published:"3000"`. PASS.
+2. No AWS/Stripe/Clerk/Sentry/Langfuse/Svix/Slack/Composio/Mintlify SaaS
+   endpoint referenced:
+   `grep -inE 'aws|stripe|clerk|sentry|langfuse|svix|slack|composio|mintlify|amazonaws|anthropic|openai|chatgpt|claude' docker-compose.yml`
+   → exit 1 (0 matches). PASS.
+3. Compose valid: `docker compose config` → exit 0, empty stderr. PASS.
+4. Service depends on no other service:
+   `grep -inE 'depends_on|links:|external_links|healthcheck' docker-compose.yml`
+   → exit 1 (0 matches); running container `Links=[]`, no `depends_on`,
+   `NetworkMode=public-docs_default` (default network only). PASS.
+5. Monorepo integration / starts in parallel: `causeflow-docs` is
+   self-contained — runtime `Env` is `PORT=3000` (+ base-image
+   PATH/NODE_VERSION/YARN_VERSION only), build context is the project root,
+   no external networks, no env-var dependency on any other subproject. The
+   monorepo root `docker-compose.yml` is owned by the `core`/`web`
+   open-source-local-runtime contexts (out of this worktree's scope; core
+   compose validated separately and no core service publishes port 3000), so
+   the conditional "when included" clause is satisfied by the service's
+   self-contained shape: no `depends_on`, minimal env, project-root build
+   context → starts in parallel with no additional env vars and no other
+   services needing to be up first. PASS (by config inspection + no port-3000
+   conflict with the core monorepo compose).
+
+### Live boundary (canonical compose, fresh build)
+
+- `docker compose up -d --build` → exit 0 in 33s (image rebuilt from clean
+  cache layers; CACHED only for unchanged source layers).
+- `GET http://localhost:3000/` → **200** in 1s; body has `CauseFlow AI`
+  (×34) and `Quickstart` (×8/12).
+- `GET http://localhost:3000/quickstart` → **200** (redirect rewrite
+  resolves to the Quickstart page).
+- Boot log: `Serving docs at http://localhost:3000`.
+- `docker logs causeflow-docs | grep -cE` forbidden-host pattern
+  (`mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|
+  anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|langfuse\.io|
+  svix\.com|slack\.com|composio\.dev`) → **0** matches.
+- Runtime `Env`: `PORT=3000`, `PATH`, `NODE_VERSION=22.23.1`,
+  `YARN_VERSION=1.22.22` only — no `MINTLIFY_*`, `CLERK_*`, `STRIPE_*`,
+  `AWS_*`, etc.
+
+### Environment hygiene
+
+- Pre-run: port 3000 was free, no `causeflow-docs` container present.
+- Post-run: `docker compose down` removed the container, image layer, and
+  `public-docs_default` network; port 3000 free again; `git status` clean
+  (no source changes — AC-033 is a boundary check requiring no edits).
+
+### verdict
+
+integration=true; implementation=true; qa=true; defects=none. AC-033 holds
+on integrated main at the real external boundary. Zero files changed.
