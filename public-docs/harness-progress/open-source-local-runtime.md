@@ -1364,3 +1364,63 @@ Forbidden-host boot-log grep (mintlify.com|…|composio.dev) → 0 matches.
 ### verdict
 
 implementation=true; integration=pending; qa=pending; defects=none
+
+## 2026-07-08T12:20:00Z — Independent QA (WI-AC-031, isolated worktree, attempt 5)
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Role: qa-agent (independent test in isolated worktree, branch gen/public-docs-open-source-local-runtime, HEAD ebf4581)
+- Method: clean `env -i ... docker build --no-cache -t causeflow-docs:qai` (exit 0);
+  fresh container `causeflow-docs-qai` on assigned PORT=5179 (5179->3000);
+  real HTTP (curl) + real browser (Playwright + chromium-1228, headless,
+  networkidle). Blank env (no MINTLIFY_*/CLERK_*/etc).
+
+### Full AC-001..AC-025 regression (all PASS)
+- AC-001: `GET /` -> 200; body has "CauseFlow AI" x4, "Quickstart" x3.
+- AC-002: `mint broken-links` -> exit 0, "success no broken links found".
+- AC-003: docs.json valid JSON; 4 nav tabs; all 125 nav page paths resolve to real .mdx.
+- AC-004/005: all 133 MDX have title+description; all descriptions <=160 chars.
+- AC-006: all four nav-tab landing pages 200 (/, /api-reference/introduction,
+  /relay/overview, /changelog); Changelog rendered H1 "Changelog" matches
+  changelog/index.mdx frontmatter title.
+- AC-007: `GET /quickstart` -> 200 via docs.json#redirects internal rewrite,
+  lands on Quickstart page (Quickstart x4).
+- AC-008..AC-011: full navigation sweep — all 125 declared page paths -> 200,
+  zero non-200.
+- AC-012: API introduction renders base URL `https://api.causeflow.ai` (x3)
+  and v1 (x5); H1 "API introduction".
+- AC-013: all 84 API-reference endpoint pages render H1 matching the title
+  frontmatter (0 mismatches).
+- AC-014: Authentication page covers Bearer/JWT, X-API-Key,
+  X-Webhook-Signature (HMAC/sha256); verifyWebhookSignature code block
+  `node --check` OK (TS type-stripping accepted by Node 24).
+- AC-015: errors-and-pagination page renders all status codes
+  400/401/403/404/409/429/500/503 and items/cursor/count pagination fields.
+- AC-016: `grep api\.causeflow\.(io|dev|local|prod)` -> 0 matches.
+- AC-017: real tenant/API-key placeholder grep -> 0 matches (only EXAMPLE shapes).
+- AC-018: outbound-events catalog table lists exactly 20 distinct
+  dot-namespaced events (tenant.created..knowledge.pattern_extracted);
+  introduction line 74 says "20 real-time events"; "21 real-time events" -> 0
+  matches. 20==20, no off-by-one.
+- AC-019 (real browser): /relay/overview renders Mermaid as SVG —
+  svg.flowchart count=1, id `mermaid-_r_0_-...`, 8 rects; zero raw
+  `<pre>/<code>flowchart TD` blocks; body text has no raw `flowchart TD`.
+- AC-020: relay/configuration.mdx documents controlPlane, resources,
+  allowedOperations, maxRowsPerQuery, and `${VAR_NAME}` env-var substitution.
+- AC-021: relay/overview "What the Relay is not" names proxy, tunnel, and
+  replication agent (all three matches).
+- AC-022/023/024/025/016/017: all invariant greps exit 1 (zero matches) —
+  severity enum, status enum, AWS-identifier exclusion, RBAC role enum
+  (admin/member only on Required-role lines; `roles/viewer` in
+  cloud-providers.mdx is GCP IAM, not CauseFlow RBAC) hold across all 133 MDX.
+- MDX count = 133.
+
+### Boundary
+- `docker compose config` valid; boot log: `Serving docs at http://localhost:3000`.
+- `docker logs causeflow-docs-qai | grep -cE` forbidden-host pattern
+  (mintlify.com|...|composio.dev) -> 0 matches.
+
+### verdict
+
+qa=true; implementation=true; defects=none
