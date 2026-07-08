@@ -388,3 +388,26 @@ Ran both AC-004 conditions at the real `node dist/index.js` process boundary on 
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-004-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-005 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-005 condition at the real `node` process boundary (clean `dist` from `npm run build`, build exit 0). No code changes — the existing `src/config/loader.ts` env-var fallback branch already satisfies every invariant; it round-trips through the same `relayConfigSchema` Zod parse as the YAML path.
+
+Probe: a small ESM script importing `./dist/config/loader.js`, invoking `loadConfig('/tmp/definitely-not-present-ac005.yaml')` with no YAML at `RELAY_CONFIG_PATH` (unset) or `/app/relay-config.yaml` (absent). The `existsSync(path)` check in `loader.ts` is false → falls into the env-var fallback branch.
+
+- Multi-resource walk (`RESOURCE_0_*` + `RESOURCE_1_*`, `CONTROL_PLANE_URL`, `RELAY_TOKEN`, `TENANT_ID`, `RESOURCE_0_MAX_ROWS=500`, no `RESOURCE_1_MAX_ROWS`, no `RESOURCE_2_ID`):
+  - `loadConfig()` returns a Zod-parsed `RelayConfig`. `cfg.controlPlane.url === "ws://control.example/v1/relay/connect"`, `token === "token-abc"`, `tenantId === "tenant-123"`. ✓
+  - `cfg.resources.length === 2`. Walk stops at the first missing `RESOURCE_N_ID` (no `RESOURCE_2_ID`). ✓
+  - `r0 = {id:"main-pg", type:"postgres", name:"Main Postgres", connection: JSON.parse('{"host":"db.local","port":5432,"database":"orders","user":"reader","password":"secret"}'), maxRowsPerQuery: 500}` — `RESOURCE_0_CONNECTION` JSON-parsed, `RESOURCE_0_MAX_ROWS` honored. ✓
+  - `r1 = {id:"audit-mongo", type:"mongodb", name:"Audit Mongo", connection: JSON.parse('{"uri":"mongodb://m.local:27017","database":"audit"}'), maxRowsPerQuery: 1000}` — missing `RESOURCE_1_MAX_ROWS` defaults to 1000. ✓
+  - Both resources carry the Zod-default `allowedOperations: ['query','describe_table','list_tables','explain']`. ✓ (round-trips through the same Zod schema as YAML path)
+- Defaults (`RESOURCE_0_ID=solo-pg`, `RESOURCE_0_TYPE=postgres`, `RESOURCE_0_CONNECTION='{"host":"db.local","database":"orders"}'`, `RELAY_TOKEN=t`, `TENANT_ID=tn`; no `CONTROL_PLANE_URL`, no `RESOURCE_0_MAX_ROWS`, no `RESOURCE_0_NAME`):
+  - `cfg.controlPlane.url === "ws://localhost:3000/v1/relay/connect"` (AC default). ✓
+  - `r0.id === "solo-pg"`, `r0.name === "resource-0"` (fallback), `r0.maxRowsPerQuery === 1000` (AC default). ✓
+  - `cfg.resources.length === 1` (walk stops at missing `RESOURCE_1_ID`). ✓
+
+Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.ts` (env-var fallback when no YAML file present) + `src/config/schema.ts` (shared `relayConfigSchema` Zod parse).
+
+Verdict: implementation=true, zero code diff. All AC-005 conditions pass on integrated main.
