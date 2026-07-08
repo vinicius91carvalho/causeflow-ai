@@ -880,3 +880,11 @@ All AC-002 steps pass at the real HTTP boundary. No blocking defects. qa=true, i
 - WorkItem: WI-AC-002
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:22:01.154Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-002
+- Defects: PORT env var not forwarded through turbo (strict env mode). Expected website on port 5172 (from $PORT) but observed website on port 3000. Evidence: with PORT=5172, 'pnpm turbo dev' starts website on 127.0.0.1:3000 not 5172; 'PORT=5172 pnpm exec turbo dev --env-mode=loose' correctly starts website on 5172, proving turbo's strict env mode blocks PORT. turbo.json dev task has no env/passThroughEnv configuration.; Dashboard dev script hardcodes -p 3001 instead of using $PORT+1. Expected dashboard on port 5173 (from $PORT+1) but observed dashboard on port 3001. Evidence: apps/dashboard/package.json dev script = 'next dev --hostname localhost -p 3001' with no reference to PORT env var; setting PORT=5172 does not change dashboard port.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-002-1-integration_qa.log
+- NextAction: Repair Plan
