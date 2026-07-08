@@ -49,3 +49,15 @@ AC-017 contract satisfied at the real boundary on integrated main. No defects fo
 - Outcome: passed on integrated main (zero-diff checkpoint, implementation=true)
 - Evidence: /tmp/ac017-probe.log (probe verdict) + /tmp/ac017-relay.log (relay boot + connect log)
 - NextAction: next Ready Work Item
+
+## 2026-07-08T08:31Z — QA independent re-audit (WI-AC-017)
+
+- Role: qa-agent. Independent re-test at the real WebSocket boundary on the integrated worktree.
+- Boundary: real `ws.WebSocketServer` stub on `127.0.0.1:5189/v1/relay/connect` (env PORT=5189) + real compiled relay `node dist/index.js` (build `npm run build` → exit 0). Config `relay-config.yaml` with two resources (`order-pg` postgres, `order-mongo` mongodb, `database: orders`). No relay mocks.
+- Flow: relay boots → opens WS with `?token=qa-token&tenantId=qa-tenant` → sends `resource_update` (resources=2) → stub replies with JSON-RPC 2.0 `list_resources` request carrying NO `params` key (per AC "no params") → relay dispatches via `policyEngine.listResources().map(...)` → `wsClient.send(createResponse(request.id, resources))`.
+- Captured response:
+  ```json
+  {"jsonrpc":"2.0","id":"b755726c-1623-434f-8cad-1d9df806fedc","result":[{"resourceId":"order-pg","type":"postgres","name":"Order Service PostgreSQL","database":"orders","readOnly":true},{"resourceId":"order-mongo","type":"mongodb","name":"Order Service MongoDB","database":"orders","readOnly":true}]}
+  ```
+- Verdict: jsonrpc='2.0'; id echoed; result is array of 2; every entry shaped exactly `{resourceId,type,name,database,readOnly:true}`; no `error` key; readOnly===true for all; types `postgres`|`mongodb`; derived from policy engine resource list (`listResources()` → `config.resources`). All checks green.
+- Outcome: qa=true, implementation=true, defects=none. Zero code changes (independent audit of already-integrated main).
