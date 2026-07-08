@@ -37,3 +37,10 @@
 - Outcome: coding agent failed three times
 - Defects: Error: Model "nvidia-nim/deepseek-ai/deepseek-v4-pro" not found. Use --list-models to see available models.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T18:33:30.471Z — Explicit Resume
+
+- WorkItem: WI-AC-044
+- Outcome: user authorized a new Attempt cycle
+- Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
+- NextAction: Coding Attempt 1
