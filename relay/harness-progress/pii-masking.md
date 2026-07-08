@@ -44,3 +44,11 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T18:53:00.000Z — Implementation Verified
+
+- WorkItem: WI-AC-040
+- Attempt: 1/3
+- Outcome: implementation=true (zero-diff checkpoint)
+- Verification: `MaskingEngine.mask(['john@example.com', '123.456.789-00', 'plain'])` returns `{ masked: ['***@***.***', '***.***.***-**', 'plain'], maskedFieldCount: 2 }` as verified against compiled `dist/masking/masking-engine.js`. No code changes needed — the masking engine correctly applies default CPF and email patterns, leaves plain strings untouched, and reports the correct maskedFieldCount. The previous failures were infrastructure (OpenRouter credits, rate limits, model config), not code defects.
+- NextAction: none (AC-040 passes)
