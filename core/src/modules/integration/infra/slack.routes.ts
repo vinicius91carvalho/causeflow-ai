@@ -23,6 +23,7 @@ export interface SlackOAuthConfig {
     clientSecret: string;
     redirectUri: string;
     stateSecret: string;
+    signingSecret: string;
 }
 
 export interface SlackRouteDeps {
@@ -252,6 +253,111 @@ export function createSlackRoutes(deps: SlackRouteDeps): Hono<AppEnv> {
             const message = err instanceof Error ? err.message : 'auth.test failed';
             return c.json({ ok: false, error: message });
         }
+    });
+
+    // ─── POST /install ────────────────────────────────────────────────────────
+    // Initiates the Slack OAuth flow. Generates a state token, persists it, and
+    // returns the Slack authorization URL. Equivalent to GET /oauth/authorize but
+    // returns JSON instead of a 302 redirect.
+    app.post('/install', requireRole('admin'), async (c) => {
+        const tid = String(c.get('tenantId')!);
+
+        const state = generateState(tid, slackConfig.stateSecret);
+
+        // Persist state to DynamoDB with TTL for additional server-side verification
+        try {
+            await SlackOAuthStateEntity.create({
+                state,
+                tenantId: tid,
+                ttl: Math.floor(Date.now() / 1000) + OAUTH_STATE_TTL_SECONDS,
+            }).go();
+        } catch (err) {
+            logger.warn({ tenantId: tid, err: err instanceof Error ? err.message : 'unknown' }, 'Failed to persist OAuth state (non-fatal)');
+        }
+
+        const params = new URLSearchParams({
+            client_id: slackConfig.clientId,
+            scope: SLACK_SCOPES,
+            redirect_uri: slackConfig.redirectUri,
+            state,
+        });
+
+        return c.json({
+            authUrl: `https://slack.com/oauth/v2/authorize?${params.toString()}`,
+            state,
+        });
+    });
+
+    // ─── POST /events ─────────────────────────────────────────────────────────
+    // Receives Slack Events API callbacks. Verifies the request signature using
+    // the Slack signing secret, responds to URL verification challenges, and
+    // acknowledges events. Returns 401 for tampered bodies.
+    app.post('/events', async (c) => {
+        const rawBody = await c.req.text();
+
+        // Parse event payload to determine type
+        let body: Record<string, unknown>;
+        try {
+            body = JSON.parse(rawBody);
+        } catch {
+            return c.json({ error: 'Invalid JSON body' }, 400);
+        }
+
+        // Handle URL verification challenge (Slack sends this during setup WITHOUT signature headers)
+        if (body.type === 'url_verification' && typeof body.challenge === 'string') {
+            return c.json({ challenge: body.challenge });
+        }
+
+        // All other events require signature verification
+        const signature = c.req.header('X-Slack-Signature');
+        const timestamp = c.req.header('X-Slack-Request-Timestamp');
+
+        if (slackConfig.signingSecret) {
+            if (!signature || !timestamp) {
+                logger.warn({}, 'Slack event missing signature headers');
+                return c.json({ error: 'Missing signature headers' }, 401);
+            }
+
+            // Reject timestamps older than 5 minutes (anti-replay)
+            const now = Math.floor(Date.now() / 1000);
+            const ts = parseInt(timestamp, 10);
+            if (isNaN(ts) || Math.abs(now - ts) > 300) {
+                logger.warn({ timestamp }, 'Slack event timestamp rejected (stale or invalid)');
+                return c.json({ error: 'Invalid timestamp' }, 401);
+            }
+
+            const base = `v0:${timestamp}:${rawBody}`;
+            const expectedSig = `v0=${createHmac('sha256', slackConfig.signingSecret)
+                .update(base)
+                .digest('hex')}`;
+
+            try {
+                const valid = timingSafeEqual(
+                    Buffer.from(signature),
+                    Buffer.from(expectedSig),
+                );
+                if (!valid) {
+                    logger.warn({}, 'Slack event signature mismatch');
+                    return c.json({ error: 'Invalid signature' }, 401);
+                }
+            } catch {
+                logger.warn({}, 'Slack event signature comparison failed');
+                return c.json({ error: 'Signature verification error' }, 401);
+            }
+        } else {
+            logger.warn({}, 'Slack signing secret not configured — skipping event verification');
+        }
+
+        // Handle event callbacks
+        if (body.type === 'event_callback' && body.event) {
+            const event = body.event as Record<string, unknown>;
+            logger.info({ eventType: event.type, eventTs: event.event_ts }, 'Received Slack event');
+
+            // Acknowledge the event immediately (Slack expects a 200)
+            return c.json({ ok: true });
+        }
+
+        return c.json({ ok: true });
     });
 
     return app;

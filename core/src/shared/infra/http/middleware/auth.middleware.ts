@@ -1,6 +1,7 @@
 import type { MiddlewareHandler } from 'hono';
 import { verifyToken } from '@clerk/backend';
-import { createHash } from 'node:crypto';
+import { jwtVerify } from 'jose';
+import { createHash, createSecretKey } from 'node:crypto';
 import { config } from '../../../config/index.js';
 import { UnauthorizedError } from '../../../domain/errors.js';
 import { tenantId } from '../../../domain/value-objects.js';
@@ -30,6 +31,8 @@ const PUBLIC_PATHS = [
   '/v1/investigation/ws',  // WebSocket relay — uses its own JWT auth (not Clerk)
   '/v1/relay/',             // DB relay — uses its own token auth
   '/v1/integrations/slack/oauth/callback', // Slack OAuth browser redirect — no JWT available
+  '/v1/auth/oss-login', // OSS local auth — no JWT available on first login
+  '/v1/integrations/slack/events', // Slack Events API — verified via signing secret, not Bearer
 ];
 
 // Provisioning paths: require valid JWT but org_id claim is optional.
@@ -69,6 +72,37 @@ export const authMiddleware: MiddlewareHandler<AppEnv> = async (c, next) => {
     } catch (err) {
       if (err instanceof UnauthorizedError) throw err;
       throw new UnauthorizedError('Invalid or expired token');
+    }
+  }
+
+  // Try local JWT verification first (dev/OSS mode with JWT_SECRET)
+  if (config.auth.jwtSecret) {
+    try {
+      const secret = createSecretKey(Buffer.from(config.auth.jwtSecret, 'utf-8'));
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: config.auth.jwtIssuer,
+      });
+      const userId = payload.sub ?? 'anonymous';
+      const email = (payload as Record<string, unknown>).email as string ?? '';
+      const orgId = (payload as Record<string, unknown>).tenantId ?? (payload as Record<string, unknown>).org_id;
+      const orgRole = (payload as Record<string, unknown>).org_role as string | undefined;
+      const roles: string[] = [];
+      if (orgRole) {
+        if (orgRole === 'admin') roles.push('admin');
+        else roles.push('member');
+      }
+      c.set('userId', userId);
+      c.set('userEmail', email);
+      c.set('userRoles', roles);
+      if (orgId) {
+        c.set('tenantId', tenantId(orgId as string));
+      }
+      return next();
+    } catch {
+      // Local JWT failed — fall through to Clerk verification if configured
+      if (!config.clerk.secretKey) {
+        throw new UnauthorizedError('Invalid or expired token');
+      }
     }
   }
 

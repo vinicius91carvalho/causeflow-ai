@@ -55,3 +55,24 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T21:21:00.000Z — Verified AC-030
+
+- WorkItem: WI-AC-030
+- Implementation: true
+- Changes:
+  - Added POST /install endpoint to slack.routes.ts (initiates Slack OAuth, returns auth URL)
+  - Added POST /events endpoint with Slack signing secret verification (401 on tampered body)
+  - Added SLACK_SIGNING_SECRET to config and SlackOAuthConfig type
+  - Added /v1/auth/oss-login and /v1/integrations/slack/events to PUBLIC_PATHS
+  - Added local JWT verification (fallback when Clerk is not configured)
+  - Added /v1/integrations/slack/events to tenant middleware skip list
+  - Always mount Slack routes (removed conditional on SLACK_CLIENT_ID)
+  - Added SLACK_SIGNING_SECRET env var to docker-compose.yml with dev default
+- Verification results:
+  - POST /install with auth returns auth URL (200) ✅
+  - POST /install without auth returns 401 ✅
+  - POST /events url_verification returns challenge token (200) ✅
+  - POST /events with valid signature returns 200 ✅
+  - POST /events with tampered body returns 401 ✅
+  - POST /events with stale timestamp returns 401 ✅
