@@ -18,9 +18,7 @@
       "file": "sprints/02-integrations-page.md",
       "title": "Integrations Page Redesign",
       "status": "completed",
-      "depends_on": [
-        1
-      ],
+      "depends_on": [1],
       "batch": 2,
       "model": "sonnet",
       "branch": null,
@@ -31,9 +29,7 @@
       "file": "sprints/03-homepage-security.md",
       "title": "Homepage + Security Page Updates",
       "status": "completed",
-      "depends_on": [
-        1
-      ],
+      "depends_on": [1],
       "batch": 2,
       "model": "sonnet",
       "branch": "worktree-agent-aec38652",

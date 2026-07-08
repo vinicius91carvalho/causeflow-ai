@@ -12,12 +12,7 @@
       "completed_at": "2026-04-18T20:15:00Z",
       "completion_sha": "923c8f0",
       "depends_on": [],
-      "blocks": [
-        "02",
-        "03",
-        "04",
-        "05"
-      ],
+      "blocks": ["02", "03", "04", "05"],
       "duration_estimate_min": 75,
       "can_parallelize_with": [],
       "notes": "cleric theme published; original untouched; 26 tests pass; biome OOM is PRoot-env limitation (not sprint-specific)"
@@ -31,17 +26,10 @@
       "completion_sha": "d8e25f5",
       "branch": "sprint/02-website-homepage",
       "merged": true,
-      "depends_on": [
-        "01"
-      ],
-      "blocks": [
-        "03",
-        "05"
-      ],
+      "depends_on": ["01"],
+      "blocks": ["03", "05"],
       "duration_estimate_min": 110,
-      "can_parallelize_with": [
-        "04"
-      ],
+      "can_parallelize_with": ["04"],
       "notes": "Cleric homepage cloned section-by-section; engagement context retired (contexts/engagement/** + /api/notify + /api/check-beta-access + /[locale]/get-started deleted); /get-started 301-redirect wired in next.config.mjs; getDashboardUrl() helper centralizes all dashboard CTAs; build 21/21 pages PASS, tsc PASS, vitest 118/118 PASS. Lighthouse a11y + live Playwright run deferred to S5 gate."
     },
     {
@@ -50,17 +38,10 @@
       "spec": "sprints/03-website-inner-pages.md",
       "status": "completed",
       "started_at": "2026-04-19T00:03:00Z",
-      "depends_on": [
-        "01",
-        "02"
-      ],
-      "blocks": [
-        "05"
-      ],
+      "depends_on": ["01", "02"],
+      "blocks": ["05"],
       "duration_estimate_min": 110,
-      "can_parallelize_with": [
-        "04"
-      ],
+      "can_parallelize_with": ["04"],
       "completed_at": "2026-04-19T04:45:00Z",
       "completion_sha": "b0a9224",
       "notes": "use-cases page + 3 story sections added; ROUTES.USE_CASES added to shared; nav (header + footer + mobile-menu) updated; i18n keys added to shell+marketing en/pt-br; integrations-catalog.ts static file created; sync-integrations-catalog.mjs script written; sitemap updated; 4 e2e specs written; build PASS (23/23 pages), vitest 124 PASS, tsc PASS. biome OOM in PRoot (env limitation — build confirms no real errors)."
@@ -72,17 +53,10 @@
       "status": "completed",
       "started_at": "2026-04-19T00:03:00Z",
       "completed_at": "2026-04-19T05:00:00Z",
-      "depends_on": [
-        "01"
-      ],
-      "blocks": [
-        "05"
-      ],
+      "depends_on": ["01"],
+      "blocks": ["05"],
       "duration_estimate_min": 110,
-      "can_parallelize_with": [
-        "02",
-        "03"
-      ],
+      "can_parallelize_with": ["02", "03"],
       "notes": "625 hardcoded color violations eliminated across 63 production files (bg=0, text=0, border=0). Status-badge + remediation-status-badge fully semantic. clerk-appearance.ts created; ClerkThemeProvider already covers dynamic light/dark Clerk theming. Test files updated to assert on semantic tokens. incidents-visual.spec.ts + theme-audit.spec.ts (15 routes) created. Build PASS, tsc PASS (6 pre-existing test errors unrelated to sprint). biome OOM in PRoot (env limitation — individual file checks PASS)."
     },
     {
@@ -92,33 +66,14 @@
       "status": "completed",
       "started_at": "2026-04-19T05:24:00Z",
       "completed_at": "2026-04-19T06:55:00Z",
-      "depends_on": [
-        "01",
-        "02",
-        "03",
-        "04"
-      ],
+      "depends_on": ["01", "02", "03", "04"],
       "blocks": [],
       "duration_estimate_min": 80,
       "can_parallelize_with": [],
       "notes": "Dual-persona gate. UX Designer (12 obs: 6 P0 / 3 P1 / 3 P2) + CTO (13 obs: 4 P0 / 5 P1 / 4 P2) reports written at docs/redesign-review/. Consolidated prioritized-issues.md: 3 deduped P0, 5 P1, 4 P2. security-page.tsx now reuses <SecurityFirstSection> (home.securityFirst i18n). Reusable smoke-personas.spec.ts added at tests/e2e/review/ (3 viewports × 8 routes × 2 locales = 48 screenshots + 3 dashboard). biome + tsc + pnpm --filter website build all PASS. Follow-up: Sprint 06 (P0 remediation — AnimateOnScroll opacity:0 SSR + next/dynamic invisible skeletons + SOC2/ISO27001 compliance copy contradiction)."
     }
   ],
-  "execution_order": [
-    [
-      "01"
-    ],
-    [
-      "02"
-    ],
-    [
-      "03",
-      "04"
-    ],
-    [
-      "05"
-    ]
-  ],
+  "execution_order": [["01"], ["02"], ["03", "04"], ["05"]],
   "global_acceptance": [
     "pnpm turbo build green",
     "pnpm turbo check-types green",

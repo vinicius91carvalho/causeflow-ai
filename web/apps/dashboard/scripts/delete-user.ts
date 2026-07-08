@@ -101,8 +101,7 @@ function parseArgs(): Args {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--email' || a === '-e') {
-      emails = argv[++i]!
-        .split(',')
+      emails = argv[++i]!.split(',')
         .map((s) => s.trim().toLowerCase())
         .filter(Boolean);
     } else if (a === '--stage') {

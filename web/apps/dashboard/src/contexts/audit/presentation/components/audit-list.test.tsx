@@ -24,7 +24,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // Vitest's esbuild does not have the automatic JSX runtime configured.
 // Inject React into the global scope so that compiled JSX in the component
 // can find it without requiring 'import React' in each source file.
-// biome-ignore lint/suspicious/noExplicitAny: intentional global polyfill for test environment
 (globalThis as any).React = React;
 
 // ---------------------------------------------------------------------------

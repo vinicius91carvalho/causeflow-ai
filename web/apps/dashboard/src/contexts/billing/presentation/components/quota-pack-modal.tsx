@@ -93,6 +93,7 @@ export function QuotaPackModal({
       aria-label={messages.quotaPacks}
     >
       {/* Backdrop */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop div — closes modal on click outside */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}

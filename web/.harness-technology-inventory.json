@@ -112,7 +112,10 @@
       "section": "technology_stack",
       "evidence": [
         { "path": "apps/website/package.json", "kind": "manifest" },
-        { "path": "apps/website/src/contexts/marketing/presentation/components/case-studies/code-block.tsx", "kind": "adapter" }
+        {
+          "path": "apps/website/src/contexts/marketing/presentation/components/case-studies/code-block.tsx",
+          "kind": "adapter"
+        }
       ]
     },
     {
@@ -120,7 +123,10 @@
       "section": "technology_stack",
       "evidence": [
         { "path": "apps/dashboard/package.json", "kind": "manifest" },
-        { "path": "apps/dashboard/src/contexts/shared/presentation/pages/intelligence-page.tsx", "kind": "adapter" }
+        {
+          "path": "apps/dashboard/src/contexts/shared/presentation/pages/intelligence-page.tsx",
+          "kind": "adapter"
+        }
       ]
     },
     {
@@ -141,9 +147,7 @@
     {
       "name": "pino",
       "section": "technology_stack",
-      "evidence": [
-        { "path": "apps/dashboard/src/lib/logger.ts", "kind": "adapter" }
-      ]
+      "evidence": [{ "path": "apps/dashboard/src/lib/logger.ts", "kind": "adapter" }]
     },
     {
       "name": "Clean Architecture",
@@ -184,7 +188,10 @@
       "section": "integrations",
       "evidence": [
         { "path": "apps/dashboard/package.json", "kind": "manifest" },
-        { "path": "apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx", "kind": "adapter" },
+        {
+          "path": "apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx",
+          "kind": "adapter"
+        },
         { "path": "apps/dashboard/scripts/setup-stripe.ts", "kind": "adapter" }
       ]
     },
@@ -218,7 +225,10 @@
       "section": "integrations",
       "evidence": [
         { "path": "apps/dashboard/package.json", "kind": "manifest" },
-        { "path": "apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts", "kind": "adapter" },
+        {
+          "path": "apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts",
+          "kind": "adapter"
+        },
         { "path": "apps/dashboard/scripts/delete-user.ts", "kind": "adapter" }
       ]
     },
@@ -257,16 +267,12 @@
     {
       "name": "chromium",
       "section": "prerequisites",
-      "evidence": [
-        { "path": "playwright.config.ts", "kind": "configuration" }
-      ]
+      "evidence": [{ "path": "playwright.config.ts", "kind": "configuration" }]
     },
     {
       "name": "SST-bun wrapper",
       "section": "prerequisites",
-      "evidence": [
-        { "path": "docs/architecture/tech-stack.md", "kind": "documentation" }
-      ]
+      "evidence": [{ "path": "docs/architecture/tech-stack.md", "kind": "documentation" }]
     }
   ],
   "contradictions": [

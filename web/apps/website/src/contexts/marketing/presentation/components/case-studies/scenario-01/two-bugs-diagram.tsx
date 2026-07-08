@@ -386,7 +386,6 @@ function BugMarker({
           strokeWidth="1"
         />
         {tooltipLines.map((line, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: static tooltip lines
           <text
             key={i}
             x={tooltipX + 10}

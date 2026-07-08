@@ -25,7 +25,6 @@ describe('GET /api/billing/checkout/complete', () => {
       currentPeriodEnd: '2026-05-08T00:00:00.000Z',
     });
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (GET as any)(
       new NextRequest('http://localhost/api/billing/checkout/complete'),
     );
@@ -41,7 +40,6 @@ describe('GET /api/billing/checkout/complete', () => {
       currentPeriodEnd: '2026-05-08T00:00:00.000Z',
     });
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (GET as any)(
       new NextRequest('http://localhost/api/billing/checkout/complete?from=billing&plan=pro'),
     );
@@ -58,7 +56,6 @@ describe('GET /api/billing/checkout/complete', () => {
       stripeCustomerId: 'cus_test_123',
     });
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (GET as any)(
       new NextRequest('http://localhost/api/billing/checkout/complete'),
     );
@@ -70,7 +67,6 @@ describe('GET /api/billing/checkout/complete', () => {
   it('redirects to choose-plan when Core API reports active but currentPeriodEnd missing (fresh-tenant default)', async () => {
     mockGetSubscription.mockResolvedValue({ status: 'active', currentPeriodEnd: null });
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (GET as any)(
       new NextRequest('http://localhost/api/billing/checkout/complete'),
     );
@@ -87,7 +83,6 @@ describe('GET /api/billing/checkout/complete', () => {
       .mockResolvedValueOnce({ status: 'incomplete', currentPeriodEnd: null })
       .mockResolvedValueOnce({ status: 'active', currentPeriodEnd: '2026-05-08T00:00:00.000Z' });
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (GET as any)(
       new NextRequest('http://localhost/api/billing/checkout/complete'),
     );
@@ -102,7 +97,6 @@ describe('GET /api/billing/checkout/complete', () => {
       .mockRejectedValueOnce(new Error('Transient network error'))
       .mockResolvedValueOnce({ status: 'active', currentPeriodEnd: '2026-05-08T00:00:00.000Z' });
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (GET as any)(
       new NextRequest('http://localhost/api/billing/checkout/complete'),
     );
