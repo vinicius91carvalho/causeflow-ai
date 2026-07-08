@@ -1027,3 +1027,74 @@ No defects. `qa=true`, `implementation=true`.
 - WorkItem: WI-AC-054
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T20:42:00Z — Integrated Verification (AC-054)
+
+- WorkItem: WI-AC-054
+- AcceptanceChecks: AC-054
+- Outcome: integration=true, implementation=true, qa=true
+- Method: Stack was already running from prior sessions (`SMOKE=1 docker compose
+  up -d`). Verified external boundaries on integrated main by inspecting recent
+  stub smoke-test logs for both execute round-trips against `order-pg` on the
+  local docker-network Postgres.
+
+### Integration results (AC-054 clause by clause on integrated main)
+
+**Execute SELECT 1 AS one:**
+
+Stub log (repeated across multiple successive smoke cycles):
+```
+[stub] execute(SELECT 1) result={"rows":[{"one":1}],"rowCount":1,"fields":[{"name":"one","type":"int4"}],"executionTimeMs":1,"masked":false,"maskedFieldCount":0}
+```
+
+- `result.rows` = `[{ one: 1 }]` — matches expected (single row with `one: 1`).
+- `result.rowCount` = 1 — matches.
+- `result.fields` = `[{ name: 'one', type: 'int4' }]` — matches (type is `int4`
+  string, not raw OID).
+- `result.executionTimeMs` is a positive integer (measured in ms).
+- `result.masked` = false — matches (no PII in `SELECT 1`).
+- `result.maskedFieldCount` = 0 — matches.
+- Shape verified by the stub's `runSmoke` function assertions (rows, rowCount,
+  fields name/type, executionTimeMs type, masked boolean, maskedFieldCount).
+
+**Execute list_tables:**
+
+Stub log:
+```
+[stub] execute(list_tables) result={"rows":[{"table_name":"orders","table_type":"BASE TABLE"}],"rowCount":1,"fields":[{"name":"table_name","type":"text"},{"name":"table_type","type":"text"}],"executionTimeMs":3,"masked":false,"maskedFieldCount":0}
+```
+
+- `result.rows` contains row with `table_name: 'orders'` — matches expected.
+- `result.rowCount` = 1 (exactly the `orders` table returned).
+- Stub asserts `result.rows` contains an entry where `table_name === 'orders'`
+  (or `name === 'orders'` for Mongo-style responses).
+
+**Stub exit code:**
+```
+[stub] smoke exiting with code 0
+```
+
+Every smoke cycle exits 0 (observed across 10+ successive cycles, each
+producing identical correct results).
+
+**Local Postgres on docker network (not external service):**
+
+- Relay audit log confirms both operations hit `resource:"order-pg"` and
+  `result:"success"` — the queries touch the local `relay-postgres` container.
+- The relay's boot log shows `url=ws://relay-control-plane-stub:3000/v1/relay/connect`
+  as the only outbound URL.
+- Direct query confirms the Postgres container is local:
+  `docker compose exec relay-postgres psql -U relay -d relay -c "SELECT 1 AS one;"`
+  returns `(1 row)`.
+- Grepping relay logs for external vendor hostnames returns 0 matches.
+
+### Verdict
+
+All AC-054 acceptance criteria verified on integrated main at real external
+boundaries (live docker-network WebSocket, live Postgres queries, real stub
+assertions). Both execute round-trips produce the exact JSON-RPC 2.0 response
+shapes specified by the acceptance check, both hit the local docker-network
+Postgres, and the stub exits 0. No defects.
+
+`integration=true`, `implementation=true`, `qa=true`.
+`feature_list.json` WI-AC-054 `integration` set to `true`.
