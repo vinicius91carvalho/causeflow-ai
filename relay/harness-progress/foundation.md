@@ -379,3 +379,12 @@ Ran both AC-004 conditions at the real `node dist/index.js` process boundary on 
   - `RELAY_CONFIG_PATH=/tmp/ac004/cfg-notoken.yaml node dist/index.js` → pino logs `Starting CauseFlow Relay...` then `level:60` fatal `Failed to start relay` carrying the `ZodError` (path `controlPlane/token`) → **NODE_EXIT=1**. ✓
 
 **Integrated verdict: integration=true, implementation=true, qa=true, no defects.** Both AC-004 conditions pass on integrated main.
+
+## 2026-07-08T02:35:50.654Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-004
+- AcceptanceChecks: AC-004
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-004-1-integration_qa.log
+- NextAction: next Ready Work Item
