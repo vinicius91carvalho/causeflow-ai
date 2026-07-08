@@ -34,8 +34,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Type check
         run: pnpm turbo check-types --filter=@causeflow/dashboard...
+
+      - name: Lint
+        run: pnpm turbo lint --filter=@causeflow/dashboard...
+
       - name: Unit tests
         run: pnpm turbo test --filter=@causeflow/dashboard...
+
       - name: Build
         run: pnpm turbo build --filter=@causeflow/dashboard...
         env:

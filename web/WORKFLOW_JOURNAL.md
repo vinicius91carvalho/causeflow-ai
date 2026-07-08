@@ -40,6 +40,21 @@
 
 ---
 
+## WI-AC-050 — SST removed; Dockerfiles; CI workflows updated for open-source-local-runtime
+
+**State:** `implementation=true`
+
+**Summary:**
+- Verified `apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` are already deleted (no `sst.config.*` files exist anywhere in the repo).
+- Verified `withSentryConfig(...)` is already removed from `apps/dashboard/next.config.mjs` — export is plain `withNextIntl(nextConfig)` with no Sentry wrapper. `optimizePackageImports`, `headers()`, `redirects()`, `images.remotePatterns`, and `webpack` config are preserved unchanged.
+- Both Dockerfiles (`apps/website/Dockerfile`, `apps/dashboard/Dockerfile`) already exist with the multi-stage relay pattern: `builder` stage runs `pnpm install --frozen-lockfile` + `pnpm build`, `runtime` stage runs `pnpm start`.
+- Both `.github/workflows/*-deploy.yml` files already have the `sst deploy` step replaced with a Docker-build comment. Added the missing `lint` step to the dashboard workflow (`pnpm turbo lint --filter=@causeflow/dashboard...`) so both workflows keep the full `check-types` / `lint` / `test` / `build` pipeline (AC-050 spec requirement).
+- `docker-compose.yml` already references both Dockerfiles (`apps/website/Dockerfile` and `apps/dashboard/Dockerfile`).
+- Build (`pnpm turbo build`) exits 0 for all 7 workspace members.
+- Dev servers on assigned port 5193 (website) and 5194 (dashboard) both return 200.
+
+---
+
 ## WI-AC-046 — Local JWT auth replaces Clerk
 
 **State:** `implementation=true`
