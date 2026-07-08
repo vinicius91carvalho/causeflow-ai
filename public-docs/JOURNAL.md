@@ -15,4 +15,4 @@ Pages tested (all HTTP 200, correct titles, no MDX parse errors):
 - /integrations/cloud-providers - Cloud providers
 - /integrations/hubspot - HubSpot
 
-qa=true implementation=true
+qa=true implementation=true integration=true
