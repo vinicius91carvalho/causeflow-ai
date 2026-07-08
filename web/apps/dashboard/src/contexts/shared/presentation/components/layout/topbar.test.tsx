@@ -1,30 +1,36 @@
 import { describe, expect, it } from 'vitest';
 
-describe('Topbar OrganizationSwitcher configuration', () => {
-  it('hides the "Create organization" action in global Clerk appearance', async () => {
-    const mod = await import('../clerk-theme-provider');
-    expect(mod.ClerkThemeProvider).toBeDefined();
-  });
-
-  it('hides "Create organization" at the component level in topbar source', async () => {
+describe('Topbar (AC-046) — no Clerk components', () => {
+  it('does not import from @clerk/nextjs', async () => {
     const fs = await import('node:fs');
     const source = fs.readFileSync(new URL('./topbar.tsx', import.meta.url), 'utf-8');
-    expect(source).toContain('organizationSwitcherPopoverActionButton__createOrganization');
+    expect(source).not.toContain('@clerk/nextjs');
+    expect(source).not.toContain('OrganizationSwitcher');
+    expect(source).not.toContain('UserButton');
   });
 
-  it('includes a tutorial action in the UserButton menu', async () => {
+  it('has a sign-out button that calls /api/auth/logout', async () => {
     const fs = await import('node:fs');
     const source = fs.readFileSync(new URL('./topbar.tsx', import.meta.url), 'utf-8');
-    expect(source).toContain('UserButton.MenuItems');
-    expect(source).toContain('UserButton.Action');
+    expect(source).toContain('/api/auth/logout');
+  });
+
+  it('includes a tutorial button dispatching causeflow:restart-tutorial', async () => {
+    const fs = await import('node:fs');
+    const source = fs.readFileSync(new URL('./topbar.tsx', import.meta.url), 'utf-8');
     expect(source).toContain('causeflow:restart-tutorial');
   });
-});
 
-describe('Topbar DevThemeSwitcher removal', () => {
   it('does not import or render DevThemeSwitcher', async () => {
     const fs = await import('node:fs');
     const source = fs.readFileSync(new URL('./topbar.tsx', import.meta.url), 'utf-8');
     expect(source).not.toContain('DevThemeSwitcher');
+  });
+
+  it('renders user avatar from auth context', async () => {
+    const fs = await import('node:fs');
+    const source = fs.readFileSync(new URL('./topbar.tsx', import.meta.url), 'utf-8');
+    expect(source).toContain('UserAvatar');
+    expect(source).toContain('useUser');
   });
 });

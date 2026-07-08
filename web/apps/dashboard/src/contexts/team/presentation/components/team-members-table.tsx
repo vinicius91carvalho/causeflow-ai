@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@causeflow/ui/primitives';
-import { useAuth } from '@clerk/nextjs';
+import { useAuth } from '@/contexts/shared/presentation/components/auth-context';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { PERMISSION } from '@/contexts/identity/domain/rbac/permissions';

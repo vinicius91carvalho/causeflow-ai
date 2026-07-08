@@ -1,7 +1,7 @@
 'use client';
 
-import { useAuth } from '@clerk/nextjs';
 import type { ReactNode } from 'react';
+import { useAuth } from '@/contexts/shared/presentation/components/auth-context';
 import type { Permission } from './permissions';
 import { hasPermission } from './permissions';
 
@@ -14,27 +14,26 @@ import { hasPermission } from './permissions';
  * Returns false while loading or unauthenticated.
  */
 export function usePermission(permission: Permission): boolean {
-  const { orgRole, isSignedIn } = useAuth();
+  const { role, isSignedIn } = useAuth();
 
   if (!isSignedIn) {
     return false;
   }
 
-  const role: 'admin' | 'member' = orgRole === 'org:admin' ? 'admin' : 'member';
-  return hasPermission(role, permission);
+  return hasPermission(role ?? 'member', permission);
 }
 
 /**
  * Returns the current user's role, or null if not authenticated.
  */
 export function useRole(): 'admin' | 'member' | null {
-  const { orgRole, isSignedIn } = useAuth();
+  const { role, isSignedIn } = useAuth();
 
   if (!isSignedIn) {
     return null;
   }
 
-  return orgRole === 'org:admin' ? 'admin' : 'member';
+  return role;
 }
 
 // ---------------------------------------------------------------------------

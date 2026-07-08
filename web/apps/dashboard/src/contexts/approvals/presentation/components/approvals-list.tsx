@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@clerk/nextjs';
+import { useAuth } from '@/contexts/shared/presentation/components/auth-context';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import type { Approval, ApprovalStatus } from '@/contexts/approvals/domain/types';

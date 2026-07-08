@@ -2,10 +2,11 @@
 
 import { cn } from '@causeflow/ui/lib';
 import { useTheme } from '@causeflow/ui/themes/provider';
-import { OrganizationSwitcher, UserButton } from '@clerk/nextjs';
-import { GraduationCap, Menu, Monitor, Moon, Sun } from 'lucide-react';
+import { GraduationCap, LogOut, Menu, Monitor, Moon, Sun } from 'lucide-react';
 import Image from 'next/image';
+import { useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useUser } from '@/contexts/shared/presentation/components/auth-context';
 import type { Locale } from '@/contexts/settings/domain/types';
 import { getNextTheme } from '@/contexts/shared/lib/theme-cycle';
 import { LanguageSwitcher } from '@/contexts/shared/presentation/components/layout/language-switcher';
@@ -25,14 +26,44 @@ const iconBtnClass = cn(
   'active:scale-95',
 );
 
+function UserAvatar({ name, email }: { name: string | null; email: string | null }) {
+  const initials = (name ?? email ?? 'U')
+    .split(' ')
+    .map((s) => s.charAt(0))
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'U';
+
+  return (
+    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/20 text-xs font-semibold text-primary">
+      {initials}
+    </div>
+  );
+}
+
 export function Topbar({ onMobileMenuOpen, breadcrumb }: TopbarProps) {
   const t = useTranslations('dashboard');
   const { colorMode, setColorMode } = useTheme();
   const locale = useLocale() as Locale;
+  const { user } = useUser();
+  const name = user?.fullName ?? null;
+  const email = user?.emailAddress ?? null;
 
   const cycleColorMode = () => setColorMode(getNextTheme(colorMode));
 
   const ThemeIcon = colorMode === 'light' ? Sun : colorMode === 'dark' ? Moon : Monitor;
+
+  const handleSignOut = useCallback(() => {
+    void (async () => {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/auth/sign-in';
+    })();
+  }, []);
+
+  const handleTutorial = useCallback(() => {
+    window.dispatchEvent(new CustomEvent('causeflow:restart-tutorial'));
+  }, []);
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-muted/40 px-4">
@@ -87,39 +118,30 @@ export function Topbar({ onMobileMenuOpen, breadcrumb }: TopbarProps) {
         {/* Language selector — writes NEXT_LOCALE cookie and persists via PATCH /api/settings */}
         <LanguageSwitcher currentLocale={locale} />
 
-        {/* Organization switcher */}
-        <OrganizationSwitcher
-          hidePersonal
-          afterSelectOrganizationUrl="/dashboard"
-          appearance={{
-            elements: {
-              rootBox: 'flex items-center',
-              organizationSwitcherTrigger: 'rounded-md border border-border px-2 py-1 text-sm',
-              organizationSwitcherPopoverActionButton__createOrganization: {
-                display: 'none',
-              },
-              avatarBox: { backgroundColor: 'transparent' },
-              avatarImage: { backgroundColor: 'transparent', objectFit: 'contain' as const },
-            },
-          }}
-        />
-
-        {/* User menu (Clerk UserButton — avatar, profile, sign-out, tutorial) */}
-        <UserButton
-          appearance={{
-            elements: {
-              avatarBox: 'h-8 w-8',
-            },
-          }}
+        {/* Tutorial button */}
+        <button
+          type="button"
+          className={iconBtnClass}
+          onClick={handleTutorial}
+          aria-label={t('topbar.tutorial')}
+          title={t('topbar.tutorial')}
         >
-          <UserButton.MenuItems>
-            <UserButton.Action
-              label={t('topbar.tutorial')}
-              labelIcon={<GraduationCap className="h-4 w-4" />}
-              onClick={() => window.dispatchEvent(new CustomEvent('causeflow:restart-tutorial'))}
-            />
-          </UserButton.MenuItems>
-        </UserButton>
+          <GraduationCap className="h-4 w-4" />
+        </button>
+
+        {/* User avatar + logout */}
+        <div className="flex items-center gap-1">
+          <UserAvatar name={name} email={email} />
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className={iconBtnClass}
+            aria-label={t('topbar.signOut')}
+            title={t('topbar.signOut') ?? 'Sign out'}
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </header>
   );

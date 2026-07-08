@@ -7,9 +7,10 @@ vi.mock('@/lib/api/with-auth', () => ({
   withAuth: (handler: (req: NextRequest) => Promise<NextResponse>) => handler,
 }));
 
-// AC-042: handlers now call auth() for structured logging + Sentry capture.
-vi.mock('@clerk/nextjs/server', () => ({
-  auth: () => Promise.resolve({ userId: undefined, orgId: undefined }),
+// AC-042 / AC-046: handlers call getSessionFromRequest for structured logging.
+vi.mock('@/lib/auth/session-auth', () => ({
+  getSessionFromRequest: () => Promise.resolve(null),
+  verifySessionCookie: () => Promise.resolve(null),
 }));
 vi.mock('@/lib/logger', () => ({
   logger: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn() },

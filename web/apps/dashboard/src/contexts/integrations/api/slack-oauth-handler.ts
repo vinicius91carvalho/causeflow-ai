@@ -20,7 +20,7 @@ export async function handleSlackOAuthStart(req: NextRequest): Promise<NextRespo
 
   let token: string;
   try {
-    token = await getBackendToken();
+    token = await getBackendToken(req);
   } catch {
     return NextResponse.redirect(new URL('/auth/sign-in', req.url));
   }

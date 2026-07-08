@@ -1,23 +1,23 @@
-import { auth } from '@clerk/nextjs/server';
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getApiClient } from '@/lib/api/get-api-client';
+import { getSessionFromRequest } from '@/lib/auth/session-auth';
 import { logger as dashLogger } from '@/lib/logger';
 
 /**
  * AC-042: log a non-recoverable handler error with the structured payload
  * (method, path, userId, tenantId, duration) via pino and forward to Sentry.
  * These handlers are not wrapped in `withAuth`, so userId/tenantId are
- * resolved from the Clerk session via `auth()`.
+ * resolved from the session cookie via the JWT claims.
  */
 async function logHandlerError(request: NextRequest, error: unknown, startMs: number) {
-  const { userId, orgId } = await auth();
+  const claims = await getSessionFromRequest(request);
   const logPath = new URL(request.url).pathname;
   const logPayload = {
     method: request.method,
     path: logPath,
-    userId: userId ?? 'anonymous',
-    tenantId: orgId ?? 'anonymous',
+    userId: claims?.sub ?? 'anonymous',
+    tenantId: (claims?.tenantId ?? claims?.orgId) ?? 'anonymous',
     duration: Date.now() - startMs,
   };
   dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);

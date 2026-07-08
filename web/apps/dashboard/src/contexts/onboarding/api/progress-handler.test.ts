@@ -5,14 +5,27 @@ vi.mock('@/lib/api/with-auth', () => ({
   withAuth: (handler: Function) => handler,
 }));
 
-// Mock Clerk auth
-vi.mock('@clerk/nextjs/server', () => ({
-  auth: vi.fn().mockResolvedValue({
-    userId: 'user-1',
+// Mock session auth for withAuth
+vi.mock('@/lib/auth/session-auth', () => ({
+  getSessionFromRequest: vi.fn().mockResolvedValue({
+    sub: 'user-1',
     orgId: 'org-1',
-    orgRole: 'org:admin',
-    sessionClaims: { email: 'test@example.com', name: 'Test User' },
+    tenantId: 'org-1',
+    orgRole: 'admin',
+    role: 'admin',
+    email: 'test@example.com',
+    name: 'Test User',
   }),
+  verifySessionCookie: vi.fn().mockResolvedValue({
+    sub: 'user-1',
+    orgId: 'org-1',
+    tenantId: 'org-1',
+    orgRole: 'admin',
+    role: 'admin',
+    email: 'test@example.com',
+    name: 'Test User',
+  }),
+  SESSION_COOKIE: '__session',
 }));
 
 // Mock rate limiting

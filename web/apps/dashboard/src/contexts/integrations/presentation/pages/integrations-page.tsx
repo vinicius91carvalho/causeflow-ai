@@ -1,7 +1,7 @@
 import { PageHeader } from '@causeflow/ui/layouts';
-import { auth } from '@clerk/nextjs/server';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { getServerTenantId } from '@/lib/auth/get-server-auth';
 import { IntegrationsClient } from '@/contexts/integrations/presentation/components/integrations-client';
 import { IntegrationsToastHandler } from '@/contexts/integrations/presentation/components/integrations-toast-handler';
 
@@ -16,11 +16,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Derives the Sentry webhook URL from the Clerk session's `org_id`.
+ * Derives the Sentry webhook URL from the tenant's org id.
  *
- * NEVER built from a request body or query — the tenantId is the Clerk
- * organization id (W4 invariant). Falls back to staging for local dev when
- * `CORE_API_URL` is unset.
+ * NEVER built from a request body or query — the tenantId is the
+ * organization id from the JWT cookie. Falls back to staging for local dev
+ * when `CORE_API_URL` is unset.
  */
 function buildSentryWebhookUrl(orgId: string | null | undefined): string {
   const baseUrl = process.env.CORE_API_URL ?? 'https://api-staging.causeflow.ai';
@@ -35,7 +35,7 @@ export default async function IntegrationsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'dashboard.integrations' });
-  const { orgId } = await auth();
+  const orgId = await getServerTenantId();
   const sentryWebhookUrl = buildSentryWebhookUrl(orgId);
 
   return (

@@ -1,8 +1,8 @@
-import { auth } from '@clerk/nextjs/server';
 import { type NextRequest, NextResponse } from 'next/server';
 import { logRequest } from '@/contexts/shared/lib/monitoring/request-logger';
 import { logger as dashLogger } from '@/lib/logger';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
+import { SESSION_COOKIE, verifySessionCookie, type SessionClaims } from '@/lib/auth/session-auth';
 
 /**
  * Authenticated request context passed to route handlers.
@@ -26,8 +26,8 @@ function computeIsStaff(email: string): boolean {
 }
 
 /**
- * Next.js 15 route context — params is a required Promise
- * For non-dynamic routes, Next.js passes an empty resolved Promise
+ * Next.js 15 route context — params is a required Promise.
+ * For non-dynamic routes, Next.js passes an empty resolved Promise.
  */
 export interface RouteContext {
   params: Promise<Record<string, string>>;
@@ -64,6 +64,70 @@ interface WithAuthOptions {
 }
 
 /**
+ * Call the Core API's whoami endpoint to resolve user identity from the
+ * local JWT session cookie.
+ */
+async function resolveWhoami(
+  coreUrl: string,
+  token: string,
+): Promise<{ userId: string; tenantId: string; email: string; name: string; role: 'admin' | 'member' }> {
+  const res = await fetch(`${coreUrl}/v1/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Whoami failed: ${res.status}`);
+  }
+
+  const data = (await res.json()) as {
+    id?: string;
+    userId?: string;
+    email?: string;
+    name?: string;
+    tenantId?: string;
+    orgId?: string;
+    role?: string;
+    orgRole?: string;
+  };
+
+  return {
+    userId: data.id ?? data.userId ?? '',
+    tenantId: data.tenantId ?? data.orgId ?? '',
+    email: data.email ?? '',
+    name: data.name ?? '',
+    role: (data.role ?? data.orgRole) === 'admin' ? 'admin' : 'member',
+  };
+}
+
+/**
+ * Resolve claims from the JWT cookie as a fallback when the Core API is not
+ * available (mock mode). This gives enough identity for mock-mode rendering.
+ */
+function claimsToAuth(claims: SessionClaims): {
+  userId: string;
+  tenantId: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'member';
+} {
+  return {
+    userId: (claims.sub as string) ?? (claims.userId as string) ?? '',
+    tenantId: (claims.tenantId as string) ?? (claims.orgId as string) ?? '',
+    email: (claims.email as string) ?? '',
+    name: (claims.name as string) ?? '',
+    role: ((claims.role ?? claims.orgRole) as string) === 'admin' ? 'admin' : 'member',
+  };
+}
+
+function getCoreUrl(): string | null {
+  const url = process.env.CORE_API_URL;
+  return url && url.trim() !== '' ? url : null;
+}
+
+/**
  * Higher-order function that wraps an API route handler with:
  * 1. Authentication check (401 if no session)
  * 2. tenantId validation (403 if not set — means onboarding incomplete)
@@ -90,24 +154,65 @@ export function withAuth(handler: RouteHandler, options: WithAuthOptions = {}) {
     request: NextRequest,
     routeContext: RouteContext,
   ): Promise<NextResponse> {
-    // Retrieve Clerk auth session
-    const { userId, orgId, orgRole, sessionClaims } = await auth();
+    // 1. Read the __session cookie from the request
+    const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value;
 
-    if (!userId) {
+    if (!sessionCookie) {
       return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
     }
 
-    if (!orgId && !options.allowNoOrg) {
+    // 2. Resolve user identity from the Core API (whoami) or fall back to JWT claims
+    const coreUrl = getCoreUrl();
+    let userId: string;
+    let tenantId: string;
+    let email: string;
+    let name: string;
+    let role: 'admin' | 'member';
+
+    if (coreUrl) {
+      try {
+        const whoami = await resolveWhoami(coreUrl, sessionCookie);
+        userId = whoami.userId;
+        tenantId = whoami.tenantId;
+        email = whoami.email;
+        name = whoami.name;
+        role = whoami.role;
+      } catch {
+        // If whoami fails, try to decode the JWT locally as a best-effort fallback
+        const claims = await verifySessionCookie(sessionCookie);
+        if (!claims) {
+          return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
+        }
+        const local = claimsToAuth(claims);
+        userId = local.userId;
+        tenantId = local.tenantId;
+        email = local.email;
+        name = local.name;
+        role = local.role;
+      }
+    } else {
+      // No Core API configured — try to decode from JWT claims
+      const claims = await verifySessionCookie(sessionCookie);
+      if (!claims) {
+        return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
+      }
+      const local = claimsToAuth(claims);
+      userId = local.userId;
+      tenantId = local.tenantId;
+      email = local.email;
+      name = local.name;
+      role = local.role;
+    }
+
+    // 3. Tenant validation
+    if (!tenantId && !options.allowNoOrg) {
       return NextResponse.json(
         { error: 'Profile setup required. Please complete onboarding.' },
         { status: 403 },
       );
     }
 
-    // Map Clerk org role to app role
-    const role: 'admin' | 'member' = orgRole === 'org:admin' ? 'admin' : 'member';
-
-    // Role guard — requiredRole takes precedence over adminOnly
+    // 4. Role guard — requiredRole takes precedence over adminOnly
     if (options.requiredRole !== undefined) {
       if (role !== options.requiredRole) {
         return NextResponse.json({ error: 'Insufficient role for this action.' }, { status: 403 });
@@ -116,7 +221,7 @@ export function withAuth(handler: RouteHandler, options: WithAuthOptions = {}) {
       return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
     }
 
-    // Per-user rate limiting
+    // 5. Per-user rate limiting
     const rateLimitConfig = options.rateLimit ?? { limit: 60, windowMs: 60 * 1000 };
     const ip = getClientIp(request);
     const rateLimitKey = `api:${userId}:${ip}:${new URL(request.url).pathname}`;
@@ -132,8 +237,6 @@ export function withAuth(handler: RouteHandler, options: WithAuthOptions = {}) {
       );
     }
 
-    const email = ((sessionClaims as Record<string, unknown>)?.email as string) ?? '';
-    const name = ((sessionClaims as Record<string, unknown>)?.name as string) ?? '';
     const isStaff = computeIsStaff(email);
 
     if (options.staffOnly && !isStaff) {
@@ -142,11 +245,11 @@ export function withAuth(handler: RouteHandler, options: WithAuthOptions = {}) {
 
     const authCtx: AuthContext = {
       userId,
-      tenantId: orgId ?? '',
+      tenantId,
       email,
       name,
       role,
-      profileComplete: true, // Clerk handles profile completion
+      profileComplete: true,
       isStaff,
     };
 
@@ -172,7 +275,7 @@ export function withAuth(handler: RouteHandler, options: WithAuthOptions = {}) {
           method: request.method,
           path: url.pathname,
           userId,
-          tenantId: orgId ?? '',
+          tenantId,
           duration,
         },
         `Unhandled error in ${request.method} ${url.pathname}`,

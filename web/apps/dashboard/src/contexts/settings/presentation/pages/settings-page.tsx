@@ -1,4 +1,4 @@
-import { UserProfile } from '@clerk/nextjs';
+import { ProfileTab } from '@/contexts/settings/presentation/components/profile-tab';
 import { ApiKeysTab } from '@/contexts/settings/presentation/components/api-keys-tab';
 import { BusinessProfileCardWrapper } from '@/contexts/settings/presentation/components/business-profile-card-wrapper';
 import { FireTestErrorsCard } from '@/contexts/settings/presentation/components/fire-test-errors-card';
@@ -10,25 +10,10 @@ export const dynamic = 'force-dynamic';
 export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6 py-8">
-      <UserProfile
-        routing="hash"
-        appearance={{
-          elements: {
-            rootBox: 'w-full',
-            card: 'shadow-none border border-border bg-card',
-            navbar: 'bg-card',
-            navbarButton: 'text-foreground',
-            pageScrollBox: 'bg-card',
-            page: 'bg-card',
-            profileSection: 'border-border',
-            profileSectionContent: 'border-border',
-            profileSectionHeader: 'border-border',
-            formFieldInput: 'bg-background border-border text-foreground',
-            accordionTriggerButton: 'text-foreground',
-            accordionContent: 'bg-card border-border',
-          },
-        }}
-      />
+      {/* Profile section — local form, replaces Clerk's UserProfile */}
+      <div className="rounded-xl border border-border bg-card p-6">
+        <ProfileTab />
+      </div>
 
       {/* Slack Notifications — CauseFlow AI Slack App */}
       <div className="space-y-3">

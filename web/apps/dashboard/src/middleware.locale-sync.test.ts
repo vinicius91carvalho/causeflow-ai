@@ -1,12 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 /**
- * Unit tests for the locale-sync logic embedded in middleware.ts.
+ * Unit tests for the locale-sync logic embedded in middleware.ts (AC-046).
  *
- * Because clerkMiddleware is tightly coupled to the Edge runtime, we test
- * the observable contract via a thin integration approach: mock clerkMiddleware
- * to expose only the inner callback, mock global fetch, and assert on the
- * cookies that end up on the outgoing NextResponse.
+ * The middleware runs in the Edge runtime, so we extract the pure sync logic
+ * and unit-test it here without the full Next.js middleware plumbing.
  *
  * Cases (per sprint spec):
  *  1. Unauthenticated → no Core call, no sentinel written
