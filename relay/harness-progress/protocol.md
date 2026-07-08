@@ -97,3 +97,10 @@ may have crashed in this repository earlier:
 remove the file manually to continue.
 fatal: Unable to write index.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T13:05:00.200Z — Explicit Resume
+
+- WorkItem: WI-AC-017
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Transient merge-lock contention from a period of unusually high concurrent load (~80min ago), not a data problem -- system is calmer now. Fresh retry.
+- NextAction: Coding Attempt 1
