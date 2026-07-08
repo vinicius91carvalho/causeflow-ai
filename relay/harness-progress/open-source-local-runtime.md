@@ -266,3 +266,56 @@ Relay container env scan for
 → 0 matches.
 
 `feature_list.json` WI-AC-052 set to `implementation: true`.
+
+## 2026-07-08T01:20:00Z — QA Independent Verification (AC-052)
+
+- WorkItem: WI-AC-052
+- AcceptanceChecks: AC-052
+- Outcome: qa=true, implementation=true (independently re-verified on running stack)
+- Method: tore down existing stack (`docker compose down -v --remove-orphans`),
+  then `env -i PATH=$PATH HOME=$HOME docker compose --env-file .env.example up -d`
+  from a clean shell (no `AWS_*`/`STRIPE_*`/`CLERK_*`/`LANGFUSE_*`/`SENTRY_*`/
+  `SVIX_*`/`SLACK_*`/`COMPOSIO_*`/`MASTRA_*`/`SQS_*`/`DYNAMODB_*`/`STS_*`/`KMS_*`
+  in parent env).
+
+### Independent verification results (AC-052 clause by clause)
+
+- `docker-compose.yml` exists at relay repo root; defines exactly 4 services
+  (`relay-control-plane-stub`, `relay-postgres`, `relay-mongo`, `relay`).
+- No `image: ministack`, `image: localstack`, or `image: langfuse` anywhere
+  in the file (grep returns only descriptive comments asserting their absence).
+- No AWS/Stripe/Clerk/Sentry/Langfuse/Svix/Slack/Composio/Mastra env-var
+  assignments in non-comment lines of `docker-compose.yml`; `.env.example`
+  forbidden-var grep returns 0; `relay-config.docker.yaml` has none.
+- `relay-control-plane-stub` is built from `scripts/control-plane-stub/Dockerfile`
+  on `node:22-alpine`, installs `ws` via `npm install --omit=dev`, copies
+  `server.mjs` and runs `CMD ["node", "server.mjs"]`.
+- Stub listens on `0.0.0.0:3000` (stub log: `listening on 0.0.0.0:3000`;
+  compose maps `0.0.0.0:3000->3000/tcp`).
+- Stub accepts the relay's WebSocket handshake on `/v1/relay/connect`
+  (`WebSocketServer({ path: '/v1/relay/connect' })`); relay connected in ~1s
+  with `url=ws://relay-control-plane-stub:3000/v1/relay/connect`.
+- Stub validates `?token=&tenantId=` query against `RELAY_TOKEN`/`TENANT_ID`
+  env vars (the same env vars the relay uses via `.env.example`):
+  - Correct token → handshake accepted, relay stays connected.
+  - Wrong token (`?token=WRONG&tenantId=also-wrong`) → stub closes socket
+    with code `4001 invalid token/tenant` and logs
+    `[stub] rejecting handshake token=WRONG tenantId=also-wrong`.
+- On `resource_update` the stub logs the exact required format:
+  `[stub] resource_update from relayId=19bb26e0-1c2a-46fd-bd03-297f1b9d508c resources=2`
+  (n=2 >= 1).
+- Stub source `scripts/control-plane-stub/server.mjs` imports only `ws`
+  (`WebSocketServer`) and `node:crypto` (Node stdlib) — zero vendor SDKs
+  (the only vendor-name matches in the file are in doc comments describing
+  what it does NOT import).
+
+### Vendor outbound sweep
+
+- `docker compose logs relay` grep for
+  `amazonaws.com|stripe.com|clerk.|langfuse|sentry.io|svix.com|slack.com|composio|mastra`
+  → 0 matches. Only outbound URL resolved: the local stub WebSocket.
+
+### Verdict
+
+All AC-052 acceptance criteria independently re-verified on a freshly brought-up
+stack from a clean shell env. No defects. `qa=true`, `implementation=true`.
