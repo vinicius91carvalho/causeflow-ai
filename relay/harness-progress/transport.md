@@ -661,3 +661,12 @@ AC-016 contract satisfied at the real boundary on integrated main. No defects fo
 - AcceptanceChecks: AC-016
 - Outcome: passed on integrated main
 - NextAction: next Ready Work Item
+
+## 2026-07-08T12:25:47.721Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-016-1-integration_qa.log
+- NextAction: next Ready Work Item
