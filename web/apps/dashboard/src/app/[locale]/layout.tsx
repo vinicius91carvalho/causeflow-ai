@@ -1,15 +1,17 @@
 import { AnalyticsProvider } from '@causeflow/analytics';
 import { defaultThemeId } from '@causeflow/ui/themes';
 import type { Metadata, Viewport } from 'next';
+import { cookies } from 'next/headers';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
+import { AuthProvider, type ClientAuthState } from '@/contexts/shared/presentation/components/auth-context';
 import { ClerkThemeProvider } from '@/contexts/shared/presentation/components/clerk-theme-provider';
 import { ThemeProviderWithPersistence } from '@/contexts/shared/presentation/components/theme-provider-with-persistence';
 import { routing } from '@/i18n/routing';
+import { verifySessionCookie, SESSION_COOKIE } from '@/lib/auth/session-auth';
 import './globals.css';
-import './clerk-overrides.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -112,6 +114,39 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+/**
+ * Read and verify the __session cookie on the server, returning the
+ * auth state for the client-side AuthProvider. Public pages that don't
+ * need auth get a null state (default = unauthenticated).
+ */
+async function getServerAuthState(): Promise<ClientAuthState | null> {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get(SESSION_COOKIE)?.value;
+    if (!sessionCookie) return null;
+
+    const claims = await verifySessionCookie(sessionCookie);
+    if (!claims) return null;
+
+    const email = (claims.email as string) ?? '';
+    const isStaff = ['@causeflow.ai', '@simuser.ai'].some((d) =>
+      email.toLowerCase().endsWith(d),
+    );
+
+    return {
+      userId: (claims.sub as string) ?? (claims.userId as string) ?? null,
+      tenantId: (claims.tenantId as string) ?? (claims.orgId as string) ?? null,
+      email,
+      name: (claims.name as string) ?? null,
+      role: ((claims.role ?? claims.orgRole) as string) === 'admin' ? 'admin' : 'member',
+      isSignedIn: true,
+      isStaff,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default async function LocaleLayout({
   children,
   params,
@@ -128,6 +163,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   const messages = await getMessages();
+  const authState = await getServerAuthState();
 
   // biome-ignore lint/security/noDangerouslySetInnerHtml: static string constant for FOUC prevention, not user input
   const themeScript = <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />;
@@ -144,7 +180,9 @@ export default async function LocaleLayout({
         <AnalyticsProvider config={analyticsConfig}>
           <NextIntlClientProvider messages={messages}>
             <ThemeProviderWithPersistence defaultThemeId={defaultThemeId} defaultColorMode="light">
-              <ClerkThemeProvider>{children}</ClerkThemeProvider>
+              <ClerkThemeProvider>
+                <AuthProvider authState={authState}>{children}</AuthProvider>
+              </ClerkThemeProvider>
             </ThemeProviderWithPersistence>
           </NextIntlClientProvider>
         </AnalyticsProvider>

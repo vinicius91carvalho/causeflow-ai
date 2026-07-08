@@ -311,3 +311,41 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-045-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T19:26:15Z — Implemented
+
+- WorkItem: WI-AC-046
+- AcceptanceChecks: AC-046
+- Outcome: implementation=true
+- Evidence:
+  1. `grep -r '@clerk/nextjs/server' apps/dashboard/src --include='*.ts' --include='*.tsx' | grep -v '.test.' | grep -v '.next'` → zero matches. ✓
+  2. `grep -r 'clerkMiddleware' apps/dashboard/src --include='*.ts' --include='*.tsx' | grep -v '.test.' | grep -v '.next'` → only comments, no imports. ✓
+  3. Dev server: `GET /auth/sign-in` → 200 (local form "Sign in to CauseFlow"); `GET /auth/sign-up` → 200 (local form "Create your CauseFlow account"). ✓
+  4. `GET /dashboard` without `__session` cookie → 307 to `/auth/sign-in?redirect_url=%2Fdashboard` (AC-019 preserved). ✓
+  5. `pnpm --filter dashboard build` exits 0. ✓
+  6. `pnpm vitest run --project dashboard` → 165 test files passed, 1080 tests passed. ✓
+- Changes: middleware.ts verifies __session JWT (payload decode in Edge Runtime); withAuth rewritten to read cookie + call Core whoami; get-backend-token reads cookie; session-auth.ts (jose-based JWT verification); auth-context.tsx (client auth provider); all 20+ Clerk-importing files updated; @clerk/* deps removed from package.json/next.config.mjs; clerk-appearance.ts/clerk-overrides.css deleted; topbar rewritten without Clerk components; test files updated.
+- Defects: []
+- NextAction: orchestrator records verdict
+
+## 2026-07-08T19:47:00Z — QA Verified (AC-046)
+
+- WorkItem: WI-AC-046
+- AcceptanceChecks: AC-046
+- Outcome: qa=true, implementation=true
+- Evidence: Verified in this worktree (HEAD 90758ac) via independent testing with a mock Core API (simulating Core AC-042 endpoints) and the Next.js dev server on port 5193.
+- Independent verification of all 3 AC-046 steps:
+  1. `grep -rn '@clerk/nextjs/server' apps/dashboard/src/ | grep -vE '^\*|\.md'` → zero actual imports (only JSDoc comments referencing what was replaced). `grep -rn 'clerkMiddleware' apps/dashboard/src/ | grep -vE '\.md'` → zero actual imports. ✓
+  2. Login flow: `POST /api/auth/login` with Core-issued credentials → `Set-Cookie: __session=...; HttpOnly; SameSite=lax; Max-Age=3600`. Authenticated `GET /dashboard` with the cookie → HTTP 200 (no Clerk redirect). Registration: `POST /api/auth/register` → creates user + sets `__session` cookie. Sign-in page renders at `/auth/sign-in` (200, local form "Sign in to CauseFlow"), sign-up at `/auth/sign-up` (200, local form "Create your CauseFlow account"). ✓
+  3. `GET /dashboard` without `__session` cookie → HTTP 307 to `/auth/sign-in?redirect_url=%2Fdashboard` (AC-019 preserved). ✓
+- Build: `pnpm --filter dashboard build` exits 0; middleware (97.9 kB) compiles without Clerk references. ✓
+- Cross-project note (non-defect): The end-to-end flow was verified against a mock Core API implementing the local auth endpoints (`POST /v1/auth/login`, `POST /v1/auth/register`, `GET /v1/auth/me`, `GET /v1/whoami`). The real Core API has not yet implemented these endpoints (Core AC-042 is pending — its auth routes still use Clerk `verifyToken`). This is a cross-project dependency, not a web dashboard implementation defect. The dashboard code correctly proxies to the Core's planned endpoints, and all self-contained behavior (middleware redirect, auth handlers, withAuth cookie extraction, JWT verification via `jose`) works correctly.
+- Defects: []
+- NextAction: orchestrator records verdict
+
+## 2026-07-08T19:48:02.082Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-046
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

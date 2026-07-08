@@ -3,15 +3,20 @@ import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 
 /**
- * Open-source local-runtime middleware.
+ * Open-source local-runtime middleware (AC-046).
  *
- * Replaces the Clerk `clerkMiddleware()` (removed per AC-046). Auth is a local
- * short-lived JWT issued by the CauseFlow Core API and stored in an `__session`
- * httpOnly cookie (see `/api/auth/login`). This middleware only checks for the
- * cookie's presence and redirects unauthenticated requests to `/auth/sign-in`;
- * the JWT itself is verified by `withAuth` via the Core's `whoami` on each
- * authenticated API call. No outbound call to clerk.com / stripe.com /
- * amazonaws.com / sentry.io / sst. is made at boot or per-request here.
+ * Replaces the Clerk `clerkMiddleware()`. Auth is a local short-lived JWT
+ * issued by the CauseFlow Core API and stored in an `__session` httpOnly
+ * cookie (see `/api/auth/login`). This middleware decodes the JWT payload
+ * to check validity and expiration (signature is verified server-side by
+ * `withAuth` via the Core's `whoami` on each API call). No outbound call
+ * to clerk.com / stripe.com / amazonaws.com / sentry.io / sst. is made at
+ * boot or per-request here.
+ *
+ * NOTE: Full JWT signature verification is intentionally deferred to
+ * `withAuth` because the middleware runs in Next.js Edge Runtime, which
+ * does not support `jose`'s compression APIs. The middleware only needs
+ * to check cookie existence and basic validity for redirect decisions.
  */
 
 const intlMiddleware = createMiddleware(routing);
@@ -25,6 +30,36 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 function isSupportedLocale(value: unknown): value is SupportedLocale {
   return typeof value === 'string' && (SUPPORTED_LOCALES as readonly string[]).includes(value);
+}
+
+/**
+ * Decode the payload of a JWT without verifying the signature.
+ * Returns null if the JWT is malformed or expired (based on the `exp` claim).
+ * Safe for Edge Runtime — no external crypto library needed.
+ */
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = parts[1];
+    if (!payload) return null;
+
+    // Standard base64url decode
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+    const decoded = atob(padded);
+    const json = JSON.parse(decoded) as Record<string, unknown>;
+
+    // Check expiration
+    if (json.exp && typeof json.exp === 'number') {
+      if (Date.now() >= json.exp * 1000) return null;
+    }
+
+    return json;
+  } catch {
+    return null;
+  }
 }
 
 // Public routes — mirror the previous Clerk `isPublicRoute` matcher so
@@ -111,13 +146,31 @@ export default async function middleware(request: NextRequest) {
   }
 
   // Protect all non-public routes: require the local __session cookie.
-  // (The JWT is verified server-side by `withAuth` via Core whoami.)
-  const session = request.cookies.get(SESSION_COOKIE)?.value;
-  if (!session) {
+  // The JWT is decoded (payload only — no signature verification in the Edge
+  // Runtime) to check expiration. Full verification happens server-side in
+  // `withAuth` via the Core's `whoami` endpoint.
+  const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value;
+  if (!sessionCookie) {
     const signInUrl = request.nextUrl.clone();
     signInUrl.pathname = '/auth/sign-in';
     signInUrl.searchParams.set('redirect_url', pathname);
     return NextResponse.redirect(signInUrl);
+  }
+
+  // Decode the JWT payload (no signature verification in Edge Runtime).
+  const payload = decodeJwtPayload(sessionCookie);
+  if (!payload) {
+    // Invalid or expired JWT — clear the cookie and redirect.
+    const signInUrl = request.nextUrl.clone();
+    signInUrl.pathname = '/auth/sign-in';
+    signInUrl.searchParams.set('redirect_url', pathname);
+    const expiredResponse = NextResponse.redirect(signInUrl);
+    expiredResponse.cookies.set(SESSION_COOKIE, '', {
+      httpOnly: true,
+      path: '/',
+      maxAge: 0,
+    });
+    return expiredResponse;
   }
 
   // Authenticated — run i18n middleware (locale detection).

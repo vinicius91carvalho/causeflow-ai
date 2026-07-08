@@ -2,7 +2,7 @@
 
 import { SITE } from '@causeflow/shared/constants';
 import { cn } from '@causeflow/ui/lib';
-import { useAuth, useClerk } from '@clerk/nextjs';
+import { useAuth } from '@/contexts/shared/presentation/components/auth-context';
 import { Check, Loader2, LogOut, Mail, Shield, Sparkles, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -105,9 +105,8 @@ const PLAN_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
 
 export default function ChoosePlanPage() {
   const t = useTranslations('dashboard.choosePlan');
-  const { orgRole } = useAuth();
-  const { signOut } = useClerk();
-  const isAdmin = orgRole === 'org:admin';
+  const { role } = useAuth();
+  const isAdmin = role === 'admin';
   const [plans, setPlans] = useState<BackendPlan[]>(FALLBACK_PLANS);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -201,8 +200,11 @@ export default function ChoosePlanPage() {
   }
 
   const handleSignOut = useCallback(() => {
-    void signOut({ redirectUrl: '/auth/sign-in' });
-  }, [signOut]);
+    void (async () => {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/auth/sign-in';
+    })();
+  }, []);
 
   if (notAdmin) {
     return (

@@ -1,12 +1,8 @@
-import { generateSlug, randomSlugSuffix } from '@causeflow/shared/domain/utils/slug';
-import { auth, clerkClient } from '@clerk/nextjs/server';
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { teamSizeValues } from '@/contexts/identity/domain/types';
-import { provisionTenantDirect } from '@/contexts/identity/infrastructure/tenant-provisioning-fallback';
-import { getApiClient } from '@/lib/api/get-api-client';
-import { CoreApiError } from '@/lib/api/http-api-client';
+import { getSessionFromRequest } from '@/lib/auth/session-auth';
 import { parseBody } from '@/lib/api/parse-body';
 import { logger as dashLogger } from '@/lib/logger';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
@@ -46,6 +42,8 @@ export interface CompleteProfileResponse {
  * POST /api/onboarding/complete-profile
  *
  * Creates a Tenant via the Core API and records terms acceptance.
+ * In the OSS build, tenant creation is handled by the Core API directly —
+ * no Clerk API calls are made.
  *
  * Flow:
  * 1. Validate session (user must be authenticated)
@@ -64,8 +62,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Authentication check
-  const { userId, orgId } = await auth();
+  // Authentication check from session cookie
+  const claims = await getSessionFromRequest(request);
+  const userId = claims?.sub ?? claims?.userId as string | undefined;
   if (!userId) {
     return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
   }
@@ -73,139 +72,83 @@ export async function POST(request: NextRequest) {
   const { error: parseError } = await parseBody(request, completeProfileSchema);
   if (parseError) return parseError;
 
-  // Get user email and org name from Clerk API
-  const clerk = await clerkClient();
-  const clerkUser = await clerk.users.getUser(userId);
-  const ownerEmail = clerkUser.emailAddresses[0]?.emailAddress ?? '';
+  // In the OSS build, tenant provisioning is handled by the Core API.
+  // The Core API creates the tenant + billing account during registration.
+  // This handler just needs to confirm the user exists and has a tenant.
+  const tenantId = (claims?.tenantId ?? claims?.orgId) as string | undefined;
 
-  let companyName = 'My Company';
-  if (orgId) {
-    try {
-      const org = await clerk.organizations.getOrganization({ organizationId: orgId });
-      companyName = org.name;
-    } catch {
-      // Fallback to generic name if Clerk API fails
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // Tenant provisioning is handled by the Core API's Clerk webhook at
-  // `POST /v1/auth/clerk-webhook` — when Clerk fires `organization.created`,
-  // Core creates the matching Tenant + BillingAccount records automatically
-  // using the Clerk `org_id` as the tenantId. This is the authoritative path.
-  //
-  // Calling `POST /v1/tenants` from the dashboard is redundant and actively
-  // harmful: the tenant already exists (webhook fires within ~500ms of org
-  // creation) so the call fails with 500 ConditionalCheckFailedException.
-  //
-  // The call is kept as a best-effort "catch-up" for the edge case where the
-  // Clerk webhook has not landed yet, and is wrapped so any error (including
-  // the expected "tenant already exists" 500) is ignored. This endpoint stays
-  // a fire-and-forget no-op under normal conditions.
-  // -------------------------------------------------------------------------
-  let resolvedTenantId: string = orgId ?? '';
-
-  try {
-    const api = getApiClient();
-    const slug = generateSlug(companyName);
-    console.log('[complete-profile] Best-effort tenant create:', {
-      companyName,
-      slug,
-      ownerEmail,
-    });
-    try {
-      const tenant = await api.createTenant({ name: companyName, slug, ownerEmail });
-      resolvedTenantId = tenant.tenantId;
-    } catch (firstErr) {
-      const firstMsg = firstErr instanceof Error ? firstErr.message : String(firstErr);
-      const isForbidden =
-        (firstErr instanceof CoreApiError && firstErr.status === 403) || firstMsg.includes('403');
-      const isConflict =
-        firstMsg.toLowerCase().includes('slug') ||
-        firstMsg.toLowerCase().includes('conflict') ||
-        firstMsg.includes('409');
-
-      if (isForbidden && orgId) {
-        // Core's `POST /v1/tenants` returned 403 FORBIDDEN — its role guard
-        // rejects brand-new Clerk users whose org role isn't granted yet.
-        // Fall back to writing the Tenant + BillingAccount directly to the
-        // Core's DynamoDB table using the ElectroDB wire format. This is a
-        // documented temporary workaround — see
-        // `tenant-provisioning-fallback.ts` for the full context and the
-        // exact Core fix that retires this branch.
-        try {
-          await provisionTenantDirect({
-            tenantId: orgId,
-            name: companyName,
-            slug,
-            ownerEmail,
-          });
-          resolvedTenantId = orgId;
-        } catch (fallbackErr) {
-          // AC-042: non-recoverable fallback failure — log structured
-          // payload + forward to Sentry (no-ops when DSN is unset).
-          dashLogger.error(
-            {
-              err: fallbackErr,
-              method: request.method,
-              path: new URL(request.url).pathname,
-              userId,
-              tenantId: orgId ?? '',
-            },
-            '[complete-profile] Tenant provisioning fallback failed',
-          );
-          Sentry.captureException(fallbackErr, {
-            extra: {
-              method: request.method,
-              path: new URL(request.url).pathname,
-              userId,
-              tenantId: orgId ?? '',
-            },
-          });
-        }
-      } else if (isConflict) {
-        // Slug collision — retry once with a random suffix
-        try {
-          const slugWithSuffix = `${generateSlug(companyName)}-${randomSlugSuffix()}`;
-          const tenant = await api.createTenant({
-            name: companyName,
-            slug: slugWithSuffix,
-            ownerEmail,
-          });
-          resolvedTenantId = tenant.tenantId;
-        } catch (retryErr) {
-          // Clerk webhook already provisioned the tenant — swallow
-          console.log(
-            '[complete-profile] Slug retry also failed, tenant likely already exists via Clerk webhook:',
-            retryErr instanceof Error ? retryErr.message : String(retryErr),
-          );
-        }
-      } else {
-        // The Clerk webhook already provisioned the tenant, or Core API is
-        // temporarily failing. Either way, we can't do anything useful here —
-        // the choose-plan flow will error out with a clear message if the
-        // tenant really doesn't exist when the user clicks a plan.
-        console.log(
-          '[complete-profile] Core API create failed — assuming Clerk webhook provisioned the tenant:',
-          firstMsg,
-        );
-      }
-    }
-  } catch (outerErr) {
-    // Clerk client or getApiClient failed — still return 200 so the
-    // fire-and-forget call from choose-plan doesn't noise the console.
-    console.log(
-      '[complete-profile] Outer error (non-fatal):',
-      outerErr instanceof Error ? outerErr.message : String(outerErr),
+  if (tenantId) {
+    // User already has a tenant — nothing to provision.
+    return NextResponse.json(
+      {
+        success: true,
+        tenantId,
+        companyName: claims?.name ?? 'My Company',
+      } satisfies CompleteProfileResponse,
+      { status: 200 },
     );
   }
 
-  return NextResponse.json(
-    {
-      success: true,
-      tenantId: resolvedTenantId,
-      companyName,
-    } satisfies CompleteProfileResponse,
-    { status: 200 },
-  );
+  // No tenant yet — try to provision one via Core API
+  try {
+    const coreUrl = process.env.CORE_API_URL;
+    if (!coreUrl) {
+      // Mock mode — return success with a placeholder tenantId
+      return NextResponse.json(
+        {
+          success: true,
+          tenantId: 'mock-tenant',
+          companyName: 'My Company',
+        } satisfies CompleteProfileResponse,
+        { status: 200 },
+      );
+    }
+
+    const sessionCookie = request.cookies.get('__session')?.value;
+    if (!sessionCookie) {
+      return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
+    }
+
+    const res = await fetch(`${coreUrl}/v1/tenants`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${sessionCookie}`,
+      },
+      body: JSON.stringify({
+        name: 'My Company',
+        ownerEmail: claims?.email ?? '',
+      }),
+    });
+
+    if (!res.ok) {
+      const errBody = (await res.json().catch(() => ({}))) as { message?: string };
+      return NextResponse.json(
+        { error: errBody.message ?? 'Failed to create tenant' },
+        { status: res.status },
+      );
+    }
+
+    const tenant = (await res.json()) as { tenantId?: string; id?: string };
+    const resolvedTenantId = tenant.tenantId ?? tenant.id ?? '';
+
+    return NextResponse.json(
+      {
+        success: true,
+        tenantId: resolvedTenantId,
+        companyName: 'My Company',
+      } satisfies CompleteProfileResponse,
+      { status: 200 },
+    );
+  } catch (err) {
+    dashLogger.error(
+      { err, method: request.method, path: new URL(request.url).pathname, userId },
+      '[complete-profile] Tenant provisioning failed',
+    );
+    Sentry.captureException(err);
+    return NextResponse.json(
+      { error: 'Unable to complete setup. Please try again.' },
+      { status: 500 },
+    );
+  }
 }

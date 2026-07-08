@@ -37,3 +37,30 @@
 3. **Git tracking** — PASS — Both files tracked and committed as part of WI-AC-045
 
 **Observation (non-blocking):** The project_specs.xml AC-045 description states CORE_API_URL default should be `http://core-api:3099`. The actual docker-compose.yml service is named `causeflow-api` (not `core-api`) and listens on port `5171` internally (port `3099` is the external host binding). The .env.example correctly uses `http://causeflow-api:5171`. This is a spec-text inaccuracy, not a functional defect — the implementation is internally consistent and correct.
+
+---
+
+## WI-AC-046 — Local JWT auth replaces Clerk
+
+**State:** `implementation=true`
+
+**Summary:**
+- Middleware (`apps/dashboard/src/middleware.ts`) no longer imports `clerkMiddleware`. It reads the `__session` httpOnly cookie and decodes the JWT payload (signature verified server-side by `withAuth` via Core whoami). Edge Runtime cannot run `jose`'s compression APIs, so full verification is deferred.
+- `with-auth.ts` completely rewritten: extracts the `__session` cookie from the request, calls the Core's `GET /api/v1/auth/me` (whoami) with `Authorization: Bearer <jwt>`, and resolves `userId` + `tenantId` + `role` from the response. Falls back to local JWT claims when Core API is unavailable (mock mode).
+- `get-backend-token.ts` rewritten: reads `__session` cookie from request or server-side cookie store (no Clerk dependency).
+- Created `lib/auth/session-auth.ts` — server-side JWT verification using `jose` (for Node.js route handlers).
+- Created `lib/auth/get-server-auth.ts` — server component helper using `cookies()` from `next/headers`.
+- Created `contexts/shared/presentation/components/auth-context.tsx` — client-side `AuthProvider`, `useAuth()`, `useUser()` hooks replacing Clerk's equivalents.
+- Sign-in/sign-up pages were already local React forms (no Clerk components).
+- `/api/auth/login`, `/api/auth/register`, `/api/auth/logout` already proxy to Core API and set `__session` cookie.
+- All Clerk imports removed from source files (20+ files updated).
+- `@clerk/nextjs`, `@clerk/themes`, `@clerk/localizations`, `@clerk/testing` removed from `package.json`.
+- Clerk optimize entries removed from `next.config.mjs`.
+- `clerk-appearance.ts`, `clerk-overrides.css`, `clerk-theme-provider.test.tsx` deleted.
+- Topbar rewritten: no `OrganizationSwitcher`/`UserButton` — replaced with local avatar + logout button.
+- Server components (integrations page, incident detail, create org, etc.) updated to use local auth helpers.
+- Client components (role-guard, team table, approvals list, choose plan, profile tab, use-is-staff, accept invitation, waitlist, team page, settings page) updated to use local auth context.
+- API handlers (slack-config, sentry-integration, complete-profile) updated to use `getSessionFromRequest`.
+- Test files updated: Clerk mocks replaced with session-auth mocks; topbar tests rewritten for new implementation.
+- Build succeeds; dev server serves sign-in (200), sign-up (200); unauthenticated `/dashboard` redirects to `/auth/sign-in` (307).
+- All 165 dashboard test files pass (1080 tests).

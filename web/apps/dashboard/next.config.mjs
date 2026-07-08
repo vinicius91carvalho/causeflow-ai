@@ -42,11 +42,7 @@ const nextConfig = {
       '@causeflow/analytics',
       '@causeflow/forms',
       '@causeflow/auth',
-      // Clerk — middleware imports clerkMiddleware on every route
-      '@clerk/nextjs',
-      '@clerk/themes',
-      // Stripe React bindings (billing page)
-      '@stripe/react-stripe-js',
+
       // Radix primitives used across the dashboard
       '@radix-ui/react-accordion',
       '@radix-ui/react-dialog',

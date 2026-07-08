@@ -1,12 +1,12 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
+import { useUser } from '@/contexts/shared/presentation/components/auth-context';
 
 const STAFF_EMAIL_DOMAINS = ['@causeflow.ai', '@simuser.ai'] as const;
 
 /**
  * Pure check — extracted from the hook so it can be unit-tested without
- * mocking Clerk. Case-insensitive. Rejects lookalike domains like
+ * mocking external auth. Case-insensitive. Rejects lookalike domains like
  * `attacker@causeflow.ai.evil.com` because the suffix check requires
  * the whole string to end at a staff domain.
  */
@@ -17,16 +17,15 @@ export function isStaffEmail(email: string | null | undefined): boolean {
 }
 
 /**
- * Returns true when the authenticated Clerk user's primary email is a
+ * Returns true when the authenticated user's primary email is a
  * CauseFlow staff email (ends with @causeflow.ai). Used to gate
  * internal-only UI (e.g. the investigation-mode selector).
  *
- * Returns false while Clerk is loading — callers should treat the
- * loading state as "definitely not staff yet" to avoid flashing
- * staff-only UI to tenant admins.
+ * In the OSS build, auth data is always loaded synchronously from the
+ * server-provided context, so `isLoaded` is always true.
  */
 export function useIsStaff(): boolean {
-  const { isLoaded, user } = useUser();
-  if (!isLoaded || !user) return false;
+  const { user } = useUser();
+  if (!user) return false;
   return isStaffEmail(user.primaryEmailAddress?.emailAddress);
 }
