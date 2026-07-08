@@ -86,3 +86,12 @@ changed — zero-diff checkpoint. Evidence saved to
     lines; no parse error logged for `api-reference/introduction.mdx`.
 - Core smoke: `GET /` → HTTP 200, `<title>CauseFlow AI Documentation ...`.
 - Verdict: integration=true; implementation=true; qa=true; defects=none.
+
+## 2026-07-08T12:34:07.572Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- AcceptanceChecks: AC-012
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-012-1-integration_qa.log
+- NextAction: next Ready Work Item
