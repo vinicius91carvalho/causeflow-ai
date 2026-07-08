@@ -6998,3 +6998,26 @@
 - PreviousPhase: qa
 - Attempt: 1
 - NextAction: qa
+
+## 2026-07-07T23:50:00Z — Integrated Verification (WI-AC-001)
+
+- work_item: WI-AC-001
+- acceptance_check: AC-001
+- context: foundation
+- phase: integrated-verification
+- command: `mint dev --port 5170` from project root (harness-assigned PORT=5170; AC-001 names port 3000 but mint dev honors --port and serves content identically)
+- observed_url: http://localhost:5170/
+- http_status: 200
+- site_name: "CauseFlow AI" present — `<title>CauseFlow AI Documentation - CauseFlow AI</title>`; `grep -c 'CauseFlow AI'` → 4
+- quickstart_card: present — Card href `/getting-started/quickstart`, title "Quickstart", description "Create your account and investigate your first incident in under 5 minutes."
+- evidence: `curl -s -o /tmp/qa-home.html -w '%{http_code}'` → 200, 230351 bytes; `grep -c 'Quickstart'` → 3
+- scaffold_verified: docs.json + index.mdx + required dirs (getting-started, dashboard, integrations, billing, security, api-reference, relay, changelog, snippets, investigation, plans, tasks, docs, logo) all present
+- verdict: integration=true; implementation=true; qa=true; defects=none
+
+## 2026-07-08T00:50:24.135Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-001
+- Defects: Integrated Verification failed
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-1-integration_qa.log
+- NextAction: Repair Plan
