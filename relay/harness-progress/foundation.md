@@ -1116,3 +1116,24 @@ Merge with strategy ort failed.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Retrying after all root causes fixed this session (main corruption, stuck state lock, conflict-marker corruption) -- system confirmed stable and clean now. Fresh retry.
 - NextAction: Coding Attempt 1
+
+## WI-AC-009 — Verify-first retry (2026-07-08)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Fresh retry after the merge/state-lock root causes were resolved this session. Working tree clean (HEAD e5fde89). Re-exercised AC-009 at two real external boundaries; no code changes.
+
+Boundary 1 — direct ESM import of `release.config.js` (`node -e "import('./release.config.js')..."`):
+- `branches: ["main"]`. ✓
+- Plugin chain in exact documented order: `@semantic-release/commit-analyzer` → `@semantic-release/release-notes-generator` → `@semantic-release/changelog` → `@semantic-release/npm` → `@semantic-release/git` → `@semantic-release/github`. ✓
+- `@semantic-release/npm` configured with `{ npmPublish: false }` (only updates `package.json` version). ✓
+- `@semantic-release/git` configured with `assets: ['package.json', 'CHANGELOG.md']` and `message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}'` (first line is exactly `chore(release): ${nextRelease.version} [skip ci]`). ✓
+- All six plugins present under `node_modules/` (bundled with `semantic-release` 24.2.9). ✓
+
+Boundary 2 — real `npx semantic-release --dry-run --no-ci --ci=false` (semantic-release 24.2.9, the same loader the release workflow invokes):
+- Config loads cleanly as ESM; every plugin resolved (`Loaded plugin "analyzeCommits" from "@semantic-release/commit-analyzer"`, `generateNotes` from `release-notes-generator`, `prepare` from `changelog`, `prepare`/`publish`/`addChannel` from `npm`, `prepare` from `git`, `publish`/`success`/`fail` from `github`). ✓
+- `branches: ['main']` branch restriction proven live: semantic-release reported `This test run was triggered on the branch gen/relay-foundation, while semantic-release is configured to only publish from main, therefore a new version won’t be published.` ✓
+
+Scaffold check: `project_specs.xml` affected_surfaces for AC-009 = `release.config.js` — present and unchanged.
+
+**Verify-first verdict: implementation=true, zero code diff.** All AC-009 conditions pass at the real semantic-release boundary.
