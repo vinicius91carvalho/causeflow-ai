@@ -811,3 +811,83 @@ both exit 0. No defects.
 - WorkItem: WI-AC-053
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T20:35:00Z — Integrated Verification (AC-053)
+
+- WorkItem: WI-AC-053
+- AcceptanceChecks: AC-053
+- Outcome: integration=true, implementation=true, qa=true
+- Method: `docker compose down`, then `SMOKE=1 docker compose up -d` from
+  repo root (no `AWS_*`/`STRIPE_*`/`CLERK_*`/`LANGFUSE_*`/`SENTRY_*`/`SVIX_*`/
+  `SLACK_*`/`COMPOSIO_*`/`MASTRA_*`/`SQS_*`/`DYNAMODB_*`/`STS_*`/`KMS_*` in
+  parent env). Verified health_check round-trip at real external boundaries:
+  docker-network WebSocket against live Postgres + Mongo.
+
+### Integration results (AC-053 clause by clause on integrated main)
+
+**Normal case (all drivers healthy):**
+
+Stub log (first smoke cycle):
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":10},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":11}
+]
+[stub] smoke exiting with code 0
+```
+
+- Response is a valid JSON-RPC 2.0 response (jsonrpc: '2.0', id present,
+  result is an array).
+- Array has exactly 2 entries, one per initialized driver (order-pg postgres,
+  order-mongo mongodb).
+- Each entry has `resourceId` (string), `type` (string), `healthy` (boolean),
+  `latencyMs` (number).
+- Both drivers report `healthy: true` with single-digit latencies.
+- Stub exits 0 and prints the JSON as `[stub] health_check result=...`.
+
+**Partial failure case (relay-postgres container stopped):**
+
+```
+docker compose stop relay-postgres
+```
+
+Stub log (next smoke cycle after restart):
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":false,"latencyMs":5009},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":11}
+]
+[stub] execute(SELECT 1) result={"code":-32603,"message":"getaddrinfo EAI_AGAIN relay-postgres"}
+[stub] execute(list_tables) result={"code":-32603,"message":"getaddrinfo EAI_AGAIN relay-postgres"}
+[stub] smoke exiting with code 0
+```
+
+- `order-pg` reports `healthy: false` with latencyMs ~5009 (connection timeout).
+- `order-mongo` still reports `healthy: true` with normal latency (~11ms).
+- Execute queries against unavailable Postgres return JSON-RPC error -32603.
+- Stub still exits 0.
+
+**Recovery (relay-postgres restarted):**
+
+```
+docker compose start relay-postgres
+```
+
+Subsequent smoke cycle:
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":1},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":1}
+]
+[stub] smoke exiting with code 0
+```
+
+All three scenarios verified on integrated main at real external boundaries
+(live docker-network WebSocket, live Postgres connection timeout, live Mongo
+health check). No defects.
+
+### Verdict
+
+All AC-053 acceptance criteria pass on integrated main. Both fully-healthy and
+partial-failure scenarios produce the correct health_check response shape and
+exit 0. feature_list.json WI-AC-053 set to `integration: true`.
