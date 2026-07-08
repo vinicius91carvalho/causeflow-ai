@@ -623,3 +623,10 @@ Warn audit (`/tmp/ac016-qa-stdout.log`): exactly 2 `level:40` lines, both `msg="
 Source (`src/transport/ws-client.ts` message handler): `JSON.parse(typeof data === 'string' ? data : data.toString())`; guard `if (parsed.jsonrpc === '2.0' && parsed.method)` then `this.opts.onMessage(parsed as RpcRequest)`; `catch (err) { logger.warn({ err }, 'Invalid message from control plane') }`.
 
 AC-016 contract satisfied at the real boundary. No defects found.
+
+## 2026-07-08T12:09:08.837Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
