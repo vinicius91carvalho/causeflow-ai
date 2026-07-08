@@ -459,3 +459,12 @@ Real-process boundary (no YAML present, `RELAY_CONFIG_PATH` unset, `/app/relay-c
 `env -u RELAY_CONFIG_PATH CONTROL_PLANE_URL='ws://127.0.0.1:5188/v1/relay/connect' RELAY_TOKEN=ac005-token TENANT_ID=ac005-tenant RESOURCE_0_ID=order-pg RESOURCE_0_TYPE=postgres RESOURCE_0_NAME='Order PG' RESOURCE_0_CONNECTION='{"host":"127.0.0.1","port":5432,...}' RESOURCE_0_MAX_ROWS=250 node dist/index.js` → pino `Starting CauseFlow Relay...`, `Config loaded` (`resources:1, tenantId:ac005-tenant`), `Driver initialized` (`order-pg` postgres), then `Connected to control plane` (relayId+url). Stub recorded `url=/v1/relay/connect?token=ac005-token&tenantId=ac005-tenant`, `Authorization: Bearer ac005-token`, `X-Tenant-Id: ac005-tenant`, and received `resource_update` with 1 resource on open.
 
 **Integrated verdict: integration=true, implementation=true, qa=true, no defects.** All AC-005 conditions pass on integrated main.
+
+## 2026-07-08T02:48:45.963Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-005-1-integration_qa.log
+- NextAction: next Ready Work Item
