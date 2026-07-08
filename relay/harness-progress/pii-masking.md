@@ -108,3 +108,10 @@
 - RepairPlan: WI-AC-040 QA PASS — no defects found. `MaskingEngine.mask(['john@example.com', '123.456.789-00', 'plain'])` returns `{ masked: ['***@***.***', '***.***.***-**', 'plain'], maskedFieldCount: 2 }` exactly matching AC-040. Test executed against compiled `dist/masking/masking-engine.js` at commit 8e0275b. All required source modules (src/masking/masking-engine.ts, src/config/schema.ts, src/policy/policy-engine.ts, src/audit/audit-logger.ts, src/transport/ws-client.ts, src/transport/protocol.ts, src/drivers/driver.port.ts, src/drivers/postgres/pg-driver.ts, src/drivers/postgres/pg-query-parser.ts, src/drivers/mongodb/mongo-driver.ts, src/health/health-reporter.ts, src/index.ts) are present and match the project_specs.xml scaffold.; Mark WI-AC-040 as QA Verified in progress tracker. No code changes required.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-040-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-08T17:58:27.023Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-040
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
