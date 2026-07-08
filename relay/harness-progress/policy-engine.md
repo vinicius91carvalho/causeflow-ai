@@ -216,3 +216,12 @@ Real WebSocket boundary test against the running docker-compose stack (relay + c
   5. MongoDB `limit=5000` → JSON-RPC `-32600` with same row-limit message.
   All 5 tests PASS. Zero-diff: feature_list.json already has correct flags.
 - Result: implementation=true, integration=true
+
+## 2026-07-08T18:05:28.364Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-038
+- AcceptanceChecks: AC-038
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/policy-engine/WI-AC-038-2-integration_qa.log
+- NextAction: next Ready Work Item
