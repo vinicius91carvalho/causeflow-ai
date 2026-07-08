@@ -383,3 +383,10 @@ AC-010 PASSES against the existing committed code (HEAD `91fc904`).
 implementation=true. Zero defects. Zero tracked content files changed —
 zero-diff checkpoint (only this journal updated). No refactor, no code
 changes; the existing codebase already satisfies AC-010.
+
+## 2026-07-08T12:57:33.312Z — Resumed
+
+- WorkItem: WI-AC-010
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
