@@ -153,3 +153,12 @@ satisfies AC-008.
 - Verdict: AC-008 PASSES at the real external boundary. integration=true,
   implementation=true, qa=true. Zero defects. Zero-diff checkpoint (only this
   journal updated).
+
+## 2026-07-08T12:25:56.980Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-008
+- AcceptanceChecks: AC-008
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/product-narrative/WI-AC-008-1-integration_qa.log
+- NextAction: next Ready Work Item
