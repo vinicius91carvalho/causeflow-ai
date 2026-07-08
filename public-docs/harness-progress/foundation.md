@@ -7075,3 +7075,10 @@
 - fix: minimal diff to .mintignore only — added plans/, tasks/, docs/, harness-progress/, session-learnings.md, INVARIANTS.md, CLAUDE.md. No docs source/content (.mdx, docs.json) modified.
 - recheck: `mint broken-links` → EXIT=0, "success no broken links found".
 - verdict: implementation=true; qa=true; integration=true; defects=none
+
+## 2026-07-08T01:34:25.601Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-002
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
