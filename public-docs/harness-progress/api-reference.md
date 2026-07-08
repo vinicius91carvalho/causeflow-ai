@@ -187,3 +187,12 @@ on integrated main at the real external HTTP boundary. Evidence saved to
   (H1 "List incidents"), `relay/connect` (H1 "Connect relay"), and
   `widget/close` (H1 "Close widget session") — all exact matches.
 - Verdict: integration=true; implementation=true; qa=true; defects=none.
+
+## 2026-07-08T12:54:02.092Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-013
+- AcceptanceChecks: AC-013
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-013-1-integration_qa.log
+- NextAction: next Ready Work Item
