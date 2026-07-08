@@ -463,3 +463,43 @@ implementation=true. Single tracked content line changed in
 `public-docs/index.mdx` (description trim). Journal updated. The QA
 adapter's quote-inclusive awk now returns zero violations across all 133
 `.mdx`; the scalar-value audit (spec-intent count) likewise returns zero.
+
+## 2026-07-08 QA — WI-AC-005 (independent re-audit, isolated worktree)
+
+- Role: qa-agent (independent re-audit of isolated worktree)
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- context: content-structure
+- Boundary: source-tree audit of frontmatter `description` length (AC is a
+  static-content invariant; no UI/HTTP behavior beyond AC-001 dependency).
+
+### Method
+
+- In-scope `.mdx`: 133 (excludes `.mintlify/`, `.artifacts/`, `node_modules/`,
+  `drafts/`, `.git/`).
+- (1) Python frontmatter extraction: regex frontmatter block `^---\n(.*?)\n---`,
+  parse `description:` value, strip one layer of surrounding `"'/` quotes,
+  flag any scalar length > 160.
+- (2) Spec-style awk over frontmatter blocks (quote-inclusive raw value, the
+  stricter QA-adapter count): print any `description` whose raw line value
+  length > 160.
+- (3) Sorted full-repo length listing to inspect the boundary (max observed).
+
+### Audit result
+
+- All 133 in-scope `.mdx` have a parseable frontmatter with a `description`
+  key (AC-004 dependency holds: 0 missing).
+- Scalar-value count: 0 descriptions exceed 160.
+- Quote-inclusive raw awk: 0 descriptions exceed 160.
+- Previously-flagged `index.mdx` (raw-with-quotes =161 in attempt 1) is now
+  raw len=155, scalar len=153 — passes both counting methods.
+- Longest descriptions observed: index.mdx=153, hubspot.mdx=144,
+  project-management.mdx=133, monitoring.mdx=129, databases.mdx=126 — all
+  comfortably under 160.
+
+### Verdict
+
+qa=true. implementation=true. Zero defects. AC-005 holds on the isolated
+worktree: every `description` field in `.mdx` frontmatter is at most 160
+characters under both the scalar-value (spec-intent) and quote-inclusive
+(stricter) counts. No code changes required.
