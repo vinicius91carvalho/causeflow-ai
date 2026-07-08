@@ -65,3 +65,24 @@ changed — zero-diff checkpoint. Evidence saved to
 - WorkItem: WI-AC-012
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T13:05:00.000Z — Integrated Verification (qa-agent on shared main)
+
+- Role: qa-agent
+- WorkItem: WI-AC-012
+- AcceptanceChecks: AC-012
+- context: api-reference
+- Boundary: real HTTP — started `mint dev --port 5174` from shared main
+  (`/home/vinicius/projects/causeflow-ai/public-docs`); `ss` confirmed
+  `*:5174 LISTEN`; `✓ preview ready` in dev log.
+- AC-012 results (black-box HTTP on shared main):
+  - `GET /api-reference/introduction` → HTTP 200, 308571-byte body.
+  - H1: `<h1 id="page-title" ...>API introduction</h1>` → MATCH.
+  - Base-URL code block renders `<span>https://api.causeflow.ai</span>`
+    (exactly `https://api.causeflow.ai`, bare host) → MATCH.
+  - Version note: `The current version is <strong>v1</strong>.` → MATCH.
+  - Divergent hosts `api\.causeflow\.(io|dev|local|prod)` in rendered HTML → 0.
+  - `mint dev` log: no `parse error|syntax error|failed|mdx error|cannot|invalid`
+    lines; no parse error logged for `api-reference/introduction.mdx`.
+- Core smoke: `GET /` → HTTP 200, `<title>CauseFlow AI Documentation ...`.
+- Verdict: integration=true; implementation=true; qa=true; defects=none.
