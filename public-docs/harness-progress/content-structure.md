@@ -66,3 +66,20 @@ Re-ran the audit against the working tree: `TOTAL_MISSING=0`. AC-004 PASSES.
 
 implementation=true. Two tracked files changed (the minimal root-cause fix);
 committed. No refactor, no restructuring.
+
+## 2026-07-08 QA — WI-AC-004 (independent re-audit)
+
+- Role: qa-agent (independent re-audit of integrated main)
+- Scope: every `.mdx` excluding `.mintlify/`, `.artifacts/`, `node_modules/`,
+  `drafts/`.
+- In-scope file count: 133.
+- Method: (1) per-file `head -5` grep for `^title:` and `^description:` keys;
+  (2) full frontmatter extraction via `sed -n '1,/^---$/p'` with key presence
+  check; (3) PyYAML parse of every frontmatter block asserting non-empty
+  `title` and `description` values.
+- Result: `MISSING TITLE` count = 0; `MISSING DESCRIPTION` count = 0;
+  YAML parse errors = 0; empty-value defects = 0.
+- Spot-checked the two previously-defective snippet files
+  (`snippets/auth-header.mdx`, `snippets/rate-limit-note.mdx`) — both now
+  carry valid `title` + `description` frontmatter.
+- Verdict: qa=true. AC-004 holds on the integrated worktree.
