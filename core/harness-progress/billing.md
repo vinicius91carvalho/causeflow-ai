@@ -398,3 +398,25 @@ All 18/18 boundary assertions passed; `AC-012: ALL ASSERTIONS PASSED`. Non-criti
 Doc-drift note unchanged: literal `/api/v1/billing/usage` is not mounted (no global `/api` prefix; route is `/v1/billing/usage`). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-012 behaviour is fully met.
 
 - NextAction: Integrated Verification
+
+## 2026-07-08T10:58:00.000Z — QA independent verification (WI-AC-012, fresh attempt)
+
+**Result: qa=true, implementation=true**
+
+Independently re-ran the AC-012 boundary against a freshly booted app (`npx tsx --env-file=.env.ac012 ac012-boundary.ts`, which bootstraps the app with `DeterministicLLMClient` + `DeterministicAgentRunner` stubs so a real investigation runs end-to-end through the in-process pipeline fallback — no paid Anthropic calls). PORT=5181, existing stack: core-ministack-1 :4566 (healthy), core-redis-1 (172.18.0.4:6379, healthy). `/health` → 200 `{dynamodb:ok,redis:ok,sqs:ok,anthropic:ok}`. Clerk JWT verified networklessly via `CLERK_JWT_KEY` (RS256 signed with /tmp/ac011-clerk-priv.pem).
+
+Real HTTP exercised (real `fetch`es on PORT=5181, full in-process pipeline: incident.created → triage → investigation → investigation.completed → RecordUsageUseCase):
+
+- `POST /v1/tenants` (admin JWT) → 201, `tenantId = org_ac012_<ts>` (= JWT `o.id`).
+- Provisioned a `BillingAccountEntity` for tenant A (setup only).
+- `POST /v1/incidents/chat` `{severity:"critical", suggestedAgents:[log_analyst,metric_analyst,infra_inspector]}` → 201, dispatched a real stub-backed investigation.
+- Poll `GET /v1/incidents/:id` → reached terminal `status=awaiting_approval` within ~0.5s (investigation completed).
+- `GET /v1/billing/usage` (tenant A) → 200, `records[0] = {type:"investigation", incidentId:<uuid>, costUsd:0, agentBreakdown:[{agentRole:"log_analyst",inputTokens:500,outputTokens:200,costUsd:0},{agentRole:"metric_analyst",...},{agentRole:"infra_inspector",...}]}` — confirms a **UsageRecordEntity** is written on investigation completion with the **investigation ID**, **per-agent token counts** and **per-agent cost**.
+- Tenant scoping: tenant B (`POST /v1/tenants` → 201; `GET /v1/billing/usage`) → 200, `records.length === 0` — tenant B sees zero of tenant A's records (scoped to the calling tenant only; tenantId comes only from the verified JWT).
+- Pagination shape present (`records` + `cursor`).
+
+All 18/18 boundary assertions passed; `AC-012: ALL ASSERTIONS PASSED`. Non-critical Hindsight retain warnings logged (HINDSIGHT_API_URL empty) — best-effort, do not block the investigation or the usage record write, consistent with the spec's memory failure-behaviour.
+
+Doc-drift note unchanged: literal `/api/v1/billing/usage` is not mounted (no global `/api` prefix; route is `/v1/billing/usage`). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-012 behaviour is fully met.
+
+- NextAction: Integrated Verification
