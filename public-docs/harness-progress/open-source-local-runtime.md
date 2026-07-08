@@ -2062,3 +2062,12 @@ Ran all mapped Acceptance Checks at real external boundaries against the running
 All AC-032 checks PASS with zero defects. The built site served by the runtime image renders the same 133 MDX pages, the same four navigation tabs, the same redirect, the same Mintlify components, and every API reference endpoint H1 matches its frontmatter title. The Dockerfile runtime stage is reproducible — clean rebuild produces a functionally identical image.
 
 integration=true; implementation=true; qa=true; defects=none
+
+## 2026-07-08T20:50:44.236Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-032
+- AcceptanceChecks: AC-032
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-032-3-integration_qa.log
+- NextAction: next Ready Work Item
