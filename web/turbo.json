@@ -9,7 +9,8 @@
     "dev": {
       "dependsOn": ["^build"],
       "persistent": true,
-      "cache": false
+      "cache": false,
+      "env": ["PORT"]
     },
     "dev:turbopack": {
       "dependsOn": ["^build"],

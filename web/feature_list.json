@@ -190,12 +190,12 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
+    "implementation": true,
+    "qa": true,
     "integration": false,
     "retries": 1,
-    "attempts": 0,
-    "status": "verify-first"
+    "attempts": 1,
+    "status": "qa-pass"
   },
   {
     "id": "WI-AC-003",
