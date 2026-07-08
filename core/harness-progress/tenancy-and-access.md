@@ -160,10 +160,29 @@ Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/a
 
 Local untracked setup (gitignored): `.env.dev`, RSA keypair at `/tmp/ac008-clerk-jwt-key.*`, boundary script at `/tmp/ac008-boundary.mjs`, server log at `/tmp/ac008-server-fresh.log`. Dev server left running on 5182.
 
-## 2026-07-08T03:59:00Z — Checkpoint ready
-- Attempt: 1/3
+## 2026-07-08T04:09:00Z — Verify-first re-confirm against existing code (WI-AC-008, this worktree, attempt 2)
+
+**Result: implementation=true. Zero-diff checkpoint — no code changes.**
+
+Re-exercised AC-008 against the EXISTING code in this worktree at a real HTTP boundary on the assigned PORT=5182, after the orchestrator's Repair Plan determined the prior QA defect report was corrupted evidence (scrambled token-salad), not a code defect. Killed the stale server and booted a fresh `node --env-file=.env.dev --import tsx/esm src/main.ts` from HEAD `5d0e2c8` → `GET /health` 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`. Ran `/tmp/ac008-boundary.mjs` (real `fetch`, real Clerk RS256 networkless verification, real DynamoDB at ministack :4566, no mocks): **11/11 passed**:
+
+- viewer GET /v1/audit → **200** `{items:[...]}`.
+- viewer DELETE /v1/audit/:id → **403** `{error:FORBIDDEN}` (RBAC via `requireRole('admin')`).
+- admin DELETE /v1/audit/:id → **200** `{entryId, deleted:1, newEntry:{action:'audit.entry.deleted', previousHash:<prior tip>}}`.
+- Chain advance: `newEntry.previousHash` (a8c2bb60022f…) == prior tip's `entryHash` captured pre-DELETE from GET /v1/audit. Cross-checked via a fresh GET (newest entry = deletion record, `previousHash` == prior tip). Tested the hardest case (deleting the tip itself).
+
+### Regression checks
+- `pnpm test:run` → 162 files / 1057 tests pass (includes `audit.routes.test.ts` 3/3, `delete-audit-entry.test.ts`, `dynamo-audit.repository.test.ts`).
+
+### Conclusion
+The Repair Plan is correct: no observable defect exists against AC-008. The prior QA defect report and `WI-AC-008-1-qa.log` were corrupted evidence capture (scrambled text), not real QA output. Per VERIFY-first mode, made NO code changes — zero-diff checkpoint. Dev server left running on 5182.
+
+Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/api/v1/audit/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/audit/...`.
+
+## 2026-07-08T04:09:00Z — Checkpoint ready
+- Attempt: 2/3
 - WorkItem: WI-AC-008
-- Outcome: implementation=true (boundary passed at real HTTP on PORT=5182, fresh server, 11/11)
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5182, fresh server, 11/11; zero-diff)
 - NextAction: Integrated Verification
 
 ## 2026-07-08T04:07:07.314Z — QA defect and Repair Plan
