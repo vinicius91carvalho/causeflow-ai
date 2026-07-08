@@ -58,3 +58,10 @@ changed — zero-diff checkpoint. Evidence saved to
   No parse error logged for `api-reference/introduction.mdx`.
 - Service stopped after verification (no lingering processes).
 - Verdict: qa=true; implementation=true; defects=none.
+
+## 2026-07-08T12:30:40.162Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
