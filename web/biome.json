@@ -90,6 +90,15 @@
   },
   "overrides": [
     {
+      "includes": ["feature_list.json"],
+      "linter": {
+        "enabled": false
+      },
+      "formatter": {
+        "enabled": false
+      }
+    },
+    {
       "includes": [
         "*.test.ts",
         "*.test.tsx",
