@@ -69,10 +69,6 @@
         "successMessage": "{name} foi conectado com sucesso.",
         "oauthComingSoon": "Integração OAuth em breve. Esta integração usará autorização OAuth segura — sem necessidade de tokens manuais.",
         "oauthDescription": "Você será redirecionado ao {name} para autorizar o acesso. Sem necessidade de tokens manuais.",
-        "composioSecurity": {
-          "title": "Conexão segura via Composio",
-          "description": "Suas credenciais são gerenciadas pela Composio, plataforma certificada SOC 2 Type II. O CauseFlow nunca armazena ou acessa seus tokens diretamente — toda autenticação é feita de forma segura pela infraestrutura criptografada da Composio com rotação automática de tokens."
-        },
         "oauthButton": {
           "slack": "Adicionar ao Slack",
           "notion": "Conectar Notion",

@@ -46,7 +46,6 @@ export type IntegrationAuthType = 'credentials' | 'oauth';
 
 /**
  * Maps each integration type to its authentication method.
- * All integrations use Composio OAuth except AWS (credential-based AssumeRole).
  */
 export const INTEGRATION_AUTH_TYPES: Record<IntegrationType, IntegrationAuthType> = {
   cloudwatch: 'credentials',
@@ -88,7 +87,6 @@ export interface TriggerDto {
   triggerSlug: string;
   provider: string;
   status: string;
-  composioTriggerId: string;
   connectedAccountId: string;
   eventCount?: number;
   createdAt: string;

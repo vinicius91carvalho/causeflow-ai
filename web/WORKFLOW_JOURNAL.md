@@ -99,6 +99,22 @@
 
 ---
 
+## WI-AC-051 — Composio removed: allow-list entries deleted; `composioTriggerId` removed; 15 integration cards still render
+
+**State:** `implementation=true`
+
+**Summary:**
+- Verified `apps/dashboard/next.config.mjs` `images.remotePatterns` is already `[]` (empty) — no `logos.composio.dev` or `backend.composio.dev` entries exist. CSP also contains no composio references.
+- Removed `composioTriggerId: string;` field from the `TriggerDto` interface in `apps/dashboard/src/contexts/integrations/domain/types.ts`.
+- Updated the `INTEGRATION_AUTH_TYPES` JSDoc comment to remove the "All integrations use Composio OAuth" mention.
+- Removed `composioSecurity` i18n block from both `apps/dashboard/src/contexts/integrations/infrastructure/i18n/en.json` and `pt-br.json`.
+- Removed the Composio security badge section from `apps/dashboard/src/contexts/integrations/presentation/components/connection-modal.tsx` — the OAuth flow no longer renders a "Secure connection via Composio" badge or comment.
+- Verified no `COMPOSIO_API_KEY` env var is referenced anywhere in the OSS source files.
+- All 15 integration type identifiers (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) remain.
+- `pnpm turbo build` exits 0; all 1071 dashboard test files pass; `/dashboard/integrations` page renders (HTTP 200) with the integration cards.
+
+---
+
 ## WI-AC-046 — Local JWT auth replaces Clerk
 
 **State:** `implementation=true`
