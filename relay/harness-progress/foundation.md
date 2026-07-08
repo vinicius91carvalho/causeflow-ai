@@ -522,3 +522,33 @@ Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.
 - WorkItem: WI-AC-006
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-006 — Integrated Verification on main (2026-07-08)
+
+Ran AC-006 at real external boundaries on integrated `main` (HEAD c0df2e2). Clean `dist` from `npm run build` (exit 0); `npx tsc --noEmit` exit 0. No mocks of the relay.
+
+Boundary 1 — `loadConfig()` probe against `dist/config/loader.js` (set-variable case):
+- YAML `token: ${RELAY_TOKEN}` resolves to `process.env.RELAY_TOKEN` value (`secret-tok-123`). ✓
+- Object-nesting depth: `resources[0].connection.host/port/database/user/password` interpolated. ✓
+- Array-nesting depth: `masking.patterns[0].regex` (`foo-${UNSET_VAR}`) + `replacement` (`bar-${RELAY_TOKEN}`) interpolated. ✓
+- Other string fields: `controlPlane.url`, `tenantId` interpolated. ✓
+
+Boundary 2 — unset-variable probe:
+- YAML referencing unset env vars (`${MISSING_RELAY_TOKEN}`, `${MISSING_TENANT}`) at top-level string fields → `loadConfig()` does NOT throw (`threw=false`); each resolves to `''` (empty string). Matches the documented "substitutes an empty string for unset variables (no exception thrown for missing vars)" behavior. ✓
+
+Boundary 3 — real-process end-to-end (live `ws` stub on 127.0.0.1:5199; config with `token: ${RELAY_TOKEN}` / `tenantId: ${TENANT_ID}` / `id: ${RESOURCE_ID}` / `connection.host: ${PG_HOST}` / `connection.password: ${PG_PASSWORD}`, env `RELAY_TOKEN=rt-wire-ac006 TENANT_ID=ti-wire-ac006 RESOURCE_ID=main-pg PG_HOST=127.0.0.1 PG_PASSWORD=pw-wire`):
+- Relay boots: pino `Starting CauseFlow Relay...`, `Config loaded` (resources=1, tenantId=ti-wire-ac006), `Connected to control plane`.
+- Interpolated token reaches the wire: stub recorded `url=/v1/relay/connect?token=rt-wire-ac006&tenantId=ti-wire-ac006` and received a `resource_update` message on open. ✓
+
+Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.ts` (`interpolateEnv` replaces `\${(\w+)}` with `process.env[varName] ?? ''`; `interpolateObject` recurses through string/array/object) + `src/config/schema.ts`.
+
+**Integrated verdict: integration=true, implementation=true, qa=true, no defects.** All AC-006 conditions pass on integrated main (string interpolation at any nesting depth; empty-string substitution for unset vars with no throw; interpolated token reaches the real WS wire).
+
+## 2026-07-08T03:05:00.000Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- AcceptanceChecks: AC-006
+- Outcome: passed on integrated main
+- Evidence: /tmp/ac006 (loadConfig probes + stub.log + relay.log)
+- NextAction: next Ready Work Item
