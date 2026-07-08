@@ -169,3 +169,21 @@ on integrated main at the real external HTTP boundary. Evidence saved to
 - WorkItem: WI-AC-013
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T12:55:00Z — Integrated Verification (qa-agent, shared main)
+
+- Role: qa-agent; Integrated Verification on latest shared `main` (HEAD
+  `0890788` Merge branch 'gen/public-docs-api-reference').
+- Boundary: `mint dev --no-open --port 5174` launched directly from the shared
+  repo worktree (WORKDIR=/home/vinicius/projects/causeflow-ai/public-docs);
+  `GET http://localhost:5174/` → HTTP 200.
+- Method: re-ran the AC-013 mapped check against the running dev server on
+  shared main. Enumerated every endpoint page in the 20 endpoint groups of the
+  API reference tab named in AC-013 plus the two Relay API pages (listed under
+  the Relay tab's `Relay API` group) — 81 pages total. For each: `GET
+  http://127.0.0.1:5174/<path>` → HTTP 200; parsed rendered `<h1
+  id="page-title">`; compared to frontmatter `title`.
+- Result: **OK=81 FAIL=0 TOTAL=81**. Spot-checked `incidents/list-incidents`
+  (H1 "List incidents"), `relay/connect` (H1 "Connect relay"), and
+  `widget/close` (H1 "Close widget session") — all exact matches.
+- Verdict: integration=true; implementation=true; qa=true; defects=none.
