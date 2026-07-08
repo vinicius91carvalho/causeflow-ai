@@ -397,3 +397,52 @@ Local QA artefacts (gitignored): `/tmp/ac009-qa.env`, `/tmp/ac009-qa-priv.pem`, 
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08 — Verify-first boundary pass (WI-AC-009, this worktree)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes).**
+
+Re-exercised AC-009 against the EXISTING code in this worktree at a real HTTP
+boundary on the assigned PORT=5182. Booted a fresh
+`node --env-file=.env.dev --import tsx/esm src/main.ts` against HEAD
+`eae475f`. Stack already up: `core-ministack-1` (:4566, dynamodb available,
+`causeflow-local` table present), `core-redis-1`. Local gitignored `.env.dev`
+with PORT=5182, CLERK_JWT_KEY (2048-bit RSA SPKI). Real `fetch` HTTP, real
+`@clerk/backend` networkless RS256 verification (fresh RSA-2048 keypair), real
+DynamoDB at ministack :4566 — no mocks. Boundary script:
+`/tmp/ac009-boundary-v3.mjs`.
+
+**25/25 passed:**
+
+1. Admin auth (4/4): GET /v1/whoami with admin JWT → 200, user.id matches,
+   tenantId matches, role=admin.
+2. Create API key (8/8): POST /v1/api-keys with `{name, scopes}` → 201 with
+   keyId, name, prefix (cflo_), plaintext (cflo_<hex>), scopes, createdAt.
+3. whoami with API key (5/5): GET /v1/whoami with `Authorization: Bearer
+   <cflo_key>` → 200, user.id present, tenantId matches issuing tenant,
+   role=apikey, roles=["apikey"].
+4. Quota enforcement (5/5): Created 5 keys to fill the per-tenant quota; the
+   6th POST returns 429 `QUOTA_EXCEEDED` with `{limit:5, active:5}`.
+5. No-auth (2/2): POST /v1/api-keys without Bearer → 401; GET /v1/whoami
+   without Bearer → 401.
+6. Bogus key (1/1): GET /v1/whoami with a made-up cflo_… key → 401.
+
+Path note (doc drift, not a defect, same as WI-AC-007/008): spec AC wording
+says `/api/v1/...`; implementation mounts all routes at `/v1/*` with no `/api`
+prefix (global, affects every AC). Per the contradictions clause
+(implementation authoritative), the real boundary is `/v1/api-keys` and
+`/v1/whoami`. Functional AC-009 behaviour fully met.
+
+Regression checks: `pnpm typecheck` clean; `pnpm test:run` 162 files / 1057
+tests pass; `pnpm lint-invariants` I1–I11 pass (10/10).
+
+Zero-diff checkpoint — no tracked files changed. Local untracked artefacts
+(gitignored): `/tmp/ac009-boundary-v3.mjs`, `/tmp/ac009-boundary-priv.*`,
+`/tmp/ac009-pub-pem.txt`, `/tmp/ac009-server.log`. Server left running on 5182.
+
+## 2026-07-08T18:00:00Z — Checkpoint ready
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5182,
+  25/25; zero-diff)
+- NextAction: Integrated Verification
