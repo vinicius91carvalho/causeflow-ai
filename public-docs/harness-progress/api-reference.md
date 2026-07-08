@@ -315,3 +315,42 @@ Merge with strategy ort failed.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T18:15:00.000Z — Integrated Verification passed
+
+- Role: coding-agent (VERIFY-FIRST, existing codebase)
+- WorkItem: WI-AC-014
+- AcceptanceChecks: AC-014
+- context: api-reference
+- Attempt: 2/3
+- Boundary: real HTTP — `mint dev --port 5174` running from project root
+  (`/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs`),
+  confirmed via HTTP 200 on `/`.
+
+### AC-014 boundary verification (black-box, HTTP + node --check)
+
+- `GET http://127.0.0.1:5174/api-reference/authentication` → **HTTP 200**,
+  rendered body present.
+- H1: `<h1 id="page-title">Authentication</h1>` → MATCH (frontmatter title).
+- Three required sections render (checked via rendered HTML):
+  - **JWT Bearer token** — section present; `Authorization: Bearer` example
+    code rendered; CodeGroup with curl + TypeScript examples.
+  - **API key authentication** — section present; `X-API-Key` header example
+    rendered; `cflo_live_sk_EXAMPLE_…` placeholder used.
+  - **Webhook HMAC signature** — section present; `X-Webhook-Signature` header
+    example rendered; `verifyWebhookSignature` function rendered.
+- `verifyWebhookSignature` snippet (`typescript` code block) extracted from
+  `api-reference/authentication.mdx` to temp file and run through
+  `node --check` (node v24.16.0): exit 0 (syntax OK).
+- `mint dev` log: no `parse error|syntax error|failed|mdx error|cannot|
+  invalid` lines.
+
+### verdict
+
+integration=true; implementation=true; qa=true; defects=none. AC-014 holds
+on integrated main at the real external HTTP boundary + `node --check`
+boundary. Zero source files changed — zero-diff checkpoint (existing code
+already satisfies the AC). Evidence saved to
+`.harness-evidence/api-reference/` (`WI-AC-014-2-authentication-rendered.html`,
+`WI-AC-014-2-node-check.txt`).
+- NextAction: completed (all ACs in context done)
