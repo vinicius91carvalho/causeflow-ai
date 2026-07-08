@@ -2,7 +2,9 @@
   {
     "id": "WI-AC-001",
     "acceptance_check_id": "AC-001",
-    "acceptance_checks": ["AC-001"],
+    "acceptance_checks": [
+      "AC-001"
+    ],
     "context": "foundation",
     "category": "foundation",
     "title": "pnpm install bootstraps the pnpm/Turborepo workspace",
@@ -24,7 +26,9 @@
   {
     "id": "WI-AC-008",
     "acceptance_check_id": "AC-008",
-    "acceptance_checks": ["AC-008"],
+    "acceptance_checks": [
+      "AC-008"
+    ],
     "context": "foundation",
     "category": "functional",
     "title": "Bounded-context re-export pattern: src/app/ holds thin re-exports only",
@@ -46,7 +50,9 @@
   {
     "id": "WI-AC-028",
     "acceptance_check_id": "AC-028",
-    "acceptance_checks": ["AC-028"],
+    "acceptance_checks": [
+      "AC-028"
+    ],
     "context": "dashboard",
     "category": "functional",
     "title": "9 bounded contexts (investigation, approvals, audit, identity, onboarding, team, integrations, billing, settings) + shared with DDD layers",
@@ -72,7 +78,9 @@
   {
     "id": "WI-AC-033",
     "acceptance_check_id": "AC-033",
-    "acceptance_checks": ["AC-033"],
+    "acceptance_checks": [
+      "AC-033"
+    ],
     "context": "foundation",
     "category": "ops",
     "title": "SST v3: each app's sst.config.ts provisions CloudFront + WAF + Lambda + Route 53 + ACM",
@@ -94,7 +102,9 @@
   {
     "id": "WI-AC-036",
     "acceptance_check_id": "AC-036",
-    "acceptance_checks": ["AC-036"],
+    "acceptance_checks": [
+      "AC-036"
+    ],
     "context": "foundation",
     "category": "functional",
     "title": "Auth.js v5 + Cognito: packages/auth/ retained for reference; only UserRole type re-export is consumed by the dashboard",
@@ -116,7 +126,9 @@
   {
     "id": "WI-AC-037",
     "acceptance_check_id": "AC-037",
-    "acceptance_checks": ["AC-037"],
+    "acceptance_checks": [
+      "AC-037"
+    ],
     "context": "dashboard",
     "category": "functional",
     "title": "AWS SDK v3 limited to tenant-provisioning-fallback.ts and delete-user.ts CLI",
@@ -138,7 +150,9 @@
   {
     "id": "WI-AC-038",
     "acceptance_check_id": "AC-038",
-    "acceptance_checks": ["AC-038"],
+    "acceptance_checks": [
+      "AC-038"
+    ],
     "context": "foundation",
     "category": "functional",
     "title": "Loops.so declared as planned integration; CSP allow-list but no current consumer in this codebase",
@@ -160,7 +174,9 @@
   {
     "id": "WI-AC-002",
     "acceptance_check_id": "AC-002",
-    "acceptance_checks": ["AC-002"],
+    "acceptance_checks": [
+      "AC-002"
+    ],
     "context": "foundation",
     "category": "foundation",
     "title": "pnpm turbo dev brings up website on $PORT (default 3000) and dashboard on $PORT+1 (3001) in parallel",
@@ -170,7 +186,9 @@
       "Step 2: Poll `curl http://localhost:3000/` until it returns 200; then poll `curl http://localhost:3001/` until 200.",
       "Step 3: Kill the dev process and confirm the script reports \"Ready\" once for each port."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": true,
     "qa": true,
@@ -182,7 +200,9 @@
   {
     "id": "WI-AC-003",
     "acceptance_check_id": "AC-003",
-    "acceptance_checks": ["AC-003"],
+    "acceptance_checks": [
+      "AC-003"
+    ],
     "context": "foundation",
     "category": "foundation",
     "title": "pnpm turbo check-types runs tsc --noEmit across every workspace project",
@@ -192,7 +212,9 @@
       "Step 2: Confirm `tsconfig.base.json` enables strict, noUncheckedIndexedAccess, moduleResolution=bundler.",
       "Step 3: Confirm `apps/dashboard/tsconfig.build.json` is referenced so Clerk type tests are excluded."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": true,
     "qa": true,
@@ -204,7 +226,9 @@
   {
     "id": "WI-AC-004",
     "acceptance_check_id": "AC-004",
-    "acceptance_checks": ["AC-004"],
+    "acceptance_checks": [
+      "AC-004"
+    ],
     "context": "foundation",
     "category": "foundation",
     "title": "pnpm exec biome check . runs the unified lint+format check; pnpm exec biome check --write . auto-fixes",
@@ -214,10 +238,12 @@
       "Step 2: Confirm `biome.json` exists at the repo root and Biome 2.4.4 is in devDependencies.",
       "Step 3: Confirm no .eslintrc, .prettierrc, or eslint.config.* file exists anywhere under the repo."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 0,
     "attempts": 0,
@@ -226,7 +252,9 @@
   {
     "id": "WI-AC-005",
     "acceptance_check_id": "AC-005",
-    "acceptance_checks": ["AC-005"],
+    "acceptance_checks": [
+      "AC-005"
+    ],
     "context": "foundation",
     "category": "foundation",
     "title": "pnpm vitest run executes the 7-project test suite",
@@ -236,7 +264,9 @@
       "Step 2: Confirm `vitest.config.ts` declares projects for shared, forms, analytics, auth, ui, website, dashboard.",
       "Step 3: Confirm the dashboard project config sets a 15s per-test timeout."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -248,7 +278,9 @@
   {
     "id": "WI-AC-006",
     "acceptance_check_id": "AC-006",
-    "acceptance_checks": ["AC-006"],
+    "acceptance_checks": [
+      "AC-006"
+    ],
     "context": "foundation",
     "category": "foundation",
     "title": "pnpm exec playwright test tests/ runs the E2E suite against chromium",
@@ -258,7 +290,9 @@
       "Step 2: Confirm `playwright.config.ts` configures chromium-only, 3 workers, fullyParallel, 4 projects for the 4 viewports.",
       "Step 3: Confirm test.beforeEach in `tests/audit.spec.ts` and `tests/visual-functional.spec.ts` routes requests to analytics / clarity / Intercom domains through `page.route()` blocks."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -270,7 +304,9 @@
   {
     "id": "WI-AC-007",
     "acceptance_check_id": "AC-007",
-    "acceptance_checks": ["AC-007"],
+    "acceptance_checks": [
+      "AC-007"
+    ],
     "context": "foundation",
     "category": "foundation",
     "title": "pnpm turbo build builds all 7 packages and apps in dependency order",
@@ -280,7 +316,9 @@
       "Step 2: Confirm `.next/` exists under `apps/website/` and `apps/dashboard/` after the build.",
       "Step 3: Confirm `turbo.json` sets `build: { cache: true }` and the dashboard's build script invokes `tsc --noEmit --project tsconfig.build.json`."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -292,7 +330,9 @@
   {
     "id": "WI-AC-009",
     "acceptance_check_id": "AC-009",
-    "acceptance_checks": ["AC-009"],
+    "acceptance_checks": [
+      "AC-009"
+    ],
     "context": "foundation",
     "category": "functional",
     "title": "Mock-mode fallback: blank CORE_API_URL falls through to the mock Core API client",
@@ -302,7 +342,9 @@
       "Step 2: Confirm every navigation renders without a network error in the dev log.",
       "Step 3: Set `CORE_API_URL=http://127.0.0.1:1` and confirm the same navigation surfaces a fetch failure in the dev log."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -314,7 +356,9 @@
   {
     "id": "WI-AC-017",
     "acceptance_check_id": "AC-017",
-    "acceptance_checks": ["AC-017"],
+    "acceptance_checks": [
+      "AC-017"
+    ],
     "context": "website",
     "category": "functional",
     "title": "Per-context i18n files are deep-merged by apps/website/src/lib/i18n/compose.ts",
@@ -324,7 +368,9 @@
       "Step 2: Confirm `apps/website/src/lib/i18n/compose.ts` deep-merges the per-context files.",
       "Step 3: Add a sentinel key to one of the per-context files, rebuild / restart dev, and confirm it surfaces on the matching page in both EN and PT-BR."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": true,
     "qa": true,
@@ -336,7 +382,9 @@
   {
     "id": "WI-AC-032",
     "acceptance_check_id": "AC-032",
-    "acceptance_checks": ["AC-032"],
+    "acceptance_checks": [
+      "AC-032"
+    ],
     "context": "dashboard",
     "category": "security",
     "title": "Sentry: 3 beforeSend hooks (server/edge/client) scrub PII; SDK no-ops when DSN is blank",
@@ -346,7 +394,9 @@
       "Step 2: With `NEXT_PUBLIC_SENTRY_DSN=` empty, load the dashboard and confirm no outbound request to `*.sentry.io`.",
       "Step 3: Set a non-empty DSN, throw a synthetic error, and confirm the error lands in the Sentry project `causeflow-dashboard` under org `causeflow-ai`."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": true,
     "qa": true,
@@ -358,7 +408,9 @@
   {
     "id": "WI-AC-039",
     "acceptance_check_id": "AC-039",
-    "acceptance_checks": ["AC-039"],
+    "acceptance_checks": [
+      "AC-039"
+    ],
     "context": "testing_and_observability",
     "category": "testing",
     "title": "Vitest 7 projects with forks pool, max 3 workers, 15s per-test timeout on the dashboard project",
@@ -368,7 +420,9 @@
       "Step 2: Confirm `pool: 'forks'` and `poolOptions: { forks: { maxForks: 3 } }` are set.",
       "Step 3: Confirm the dashboard project has `testTimeout: 15000` and the others use the default."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": true,
     "qa": true,
@@ -380,7 +434,9 @@
   {
     "id": "WI-AC-042",
     "acceptance_check_id": "AC-042",
-    "acceptance_checks": ["AC-042"],
+    "acceptance_checks": [
+      "AC-042"
+    ],
     "context": "testing_and_observability",
     "category": "observability",
     "title": "pino structured JSON logs in apps/dashboard/src/lib/logger.ts; never logs raw tokens or PII",
@@ -390,7 +446,9 @@
       "Step 2: Trigger a logged error in a dashboard API route and confirm the dev log shows structured JSON with method / path / userId / tenantId, and no JWT, Authorization header, or Stripe secret in the payload.",
       "Step 3: Confirm the Sentry beforeSend hooks in instrumentation-client.ts, sentry.server.config.ts, and sentry.edge.config.ts apply the same redaction."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": true,
     "qa": true,
@@ -402,7 +460,9 @@
   {
     "id": "WI-AC-010",
     "acceptance_check_id": "AC-010",
-    "acceptance_checks": ["AC-010"],
+    "acceptance_checks": [
+      "AC-010"
+    ],
     "context": "website",
     "category": "functional",
     "title": "9 EN routes return 200 and mirror under /pt-br/",
@@ -412,7 +472,9 @@
       "Step 2: Repeat with `http://localhost:3000/pt-br$path` and confirm every line ends in 200.",
       "Step 3: Confirm the response body for `/pricing` vs `/pt-br/pricing` contains different language (e.g. English vs Portuguese copy)."
     ],
-    "depends_on": ["AC-002"],
+    "depends_on": [
+      "AC-002"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -424,7 +486,9 @@
   {
     "id": "WI-AC-012",
     "acceptance_check_id": "AC-012",
-    "acceptance_checks": ["AC-012"],
+    "acceptance_checks": [
+      "AC-012"
+    ],
     "context": "website",
     "category": "functional",
     "title": "Website middleware pipeline: crawler detection → staging auth → geo-redirect → Accept-Language → NEXT_LOCALE cookie",
@@ -434,7 +498,9 @@
       "Step 2: Send `curl -H 'Cloudfront-Viewer-Country: BR' http://localhost:3000/` and confirm a 307 to /pt-br/.",
       "Step 3: Send `curl -H 'Accept-Language: pt-BR,en;q=0.8' -i http://localhost:3000/` and confirm a 307 to /pt-br/; then re-send with `Cookie: NEXT_LOCALE=pt-br` and confirm 307 with `Set-Cookie: NEXT_LOCALE=pt-br; Max-Age=31536000`."
     ],
-    "depends_on": ["AC-002"],
+    "depends_on": [
+      "AC-002"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -446,7 +512,9 @@
   {
     "id": "WI-AC-013",
     "acceptance_check_id": "AC-013",
-    "acceptance_checks": ["AC-013"],
+    "acceptance_checks": [
+      "AC-013"
+    ],
     "context": "website",
     "category": "security",
     "title": "Website security headers: X-Frame-Options DENY, CSP, HSTS 2y+preload, Referrer-Policy, Permissions-Policy",
@@ -456,7 +524,9 @@
       "Step 2: Confirm `apps/website/next.config.mjs` defines the headers() block with the documented CSP, HSTS, Referrer-Policy, and Permissions-Policy values.",
       "Step 3: Send the same request to `/pt-br/` and confirm the header set is identical."
     ],
-    "depends_on": ["AC-002"],
+    "depends_on": [
+      "AC-002"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -468,7 +538,9 @@
   {
     "id": "WI-AC-014",
     "acceptance_check_id": "AC-014",
-    "acceptance_checks": ["AC-014"],
+    "acceptance_checks": [
+      "AC-014"
+    ],
     "context": "website",
     "category": "functional",
     "title": "/get-started is retired; redirects to the dashboard's real sign-up URL per stage",
@@ -478,7 +550,9 @@
       "Step 2: Confirm the same redirect applies to `/pt-br/get-started`.",
       "Step 3: Confirm `apps/website/next.config.mjs` contains a redirects() entry keyed on `/get-started`."
     ],
-    "depends_on": ["AC-002"],
+    "depends_on": [
+      "AC-002"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -490,7 +564,9 @@
   {
     "id": "WI-AC-015",
     "acceptance_check_id": "AC-015",
-    "acceptance_checks": ["AC-015"],
+    "acceptance_checks": [
+      "AC-015"
+    ],
     "context": "website",
     "category": "functional",
     "title": "/staging-auth is the password gate for the staging deploy (STAGING_PASSWORD=causeflow-staging-2026)",
@@ -500,7 +576,9 @@
       "Step 2: Submit the documented password and confirm the staging-authorized cookie is set and the original URL is followed.",
       "Step 3: Confirm the password is read from `apps/website/sst.config.ts` (production + staging) and that local dev bypasses the gate."
     ],
-    "depends_on": ["AC-002"],
+    "depends_on": [
+      "AC-002"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -512,7 +590,9 @@
   {
     "id": "WI-AC-016",
     "acceptance_check_id": "AC-016",
-    "acceptance_checks": ["AC-016"],
+    "acceptance_checks": [
+      "AC-016"
+    ],
     "context": "website",
     "category": "functional",
     "title": "robots.ts (noindex on staging) + sitemap.ts (XML for all routes×locales) + structured-data.tsx (JSON-LD)",
@@ -522,7 +602,9 @@
       "Step 2: `curl http://localhost:3000/sitemap.xml` and confirm an XML payload with one entry per route × locale.",
       "Step 3: `curl http://localhost:3000/` and grep for `<script type=\"application/ld+json\">`; confirm the payload parses to JSON with `@type: Organization`."
     ],
-    "depends_on": ["AC-002"],
+    "depends_on": [
+      "AC-002"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -534,7 +616,9 @@
   {
     "id": "WI-AC-018",
     "acceptance_check_id": "AC-018",
-    "acceptance_checks": ["AC-018"],
+    "acceptance_checks": [
+      "AC-018"
+    ],
     "context": "website",
     "category": "analytics",
     "title": "GA4 + Microsoft Clarity loaded via AnalyticsProvider; no-op when env vars are empty",
@@ -544,7 +628,9 @@
       "Step 2: Set `NEXT_PUBLIC_GA4_MEASUREMENT_ID=G-TEST` and `NEXT_PUBLIC_CLARITY_ID=TEST`, reload `/`, and confirm a gtag config + Clarity init request are made.",
       "Step 3: Confirm the AnalyticsProvider is mounted at the website root layout and the analytics package never imports from contexts that hold auth tokens."
     ],
-    "depends_on": ["AC-002"],
+    "depends_on": [
+      "AC-002"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -556,7 +642,9 @@
   {
     "id": "WI-AC-019",
     "acceptance_check_id": "AC-019",
-    "acceptance_checks": ["AC-019"],
+    "acceptance_checks": [
+      "AC-019"
+    ],
     "context": "dashboard",
     "category": "security",
     "title": "Clerk middleware: unauthenticated /dashboard access redirects to /auth/sign-in",
@@ -566,7 +654,9 @@
       "Step 2: Confirm the same redirect happens for `/dashboard/analyses`, `/dashboard/billing`, and `/dashboard/integrations`.",
       "Step 3: Confirm `GET /api/health/detailed` returns 200 without a session."
     ],
-    "depends_on": ["AC-002"],
+    "depends_on": [
+      "AC-002"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -578,7 +668,9 @@
   {
     "id": "WI-AC-027",
     "acceptance_check_id": "AC-027",
-    "acceptance_checks": ["AC-027"],
+    "acceptance_checks": [
+      "AC-027"
+    ],
     "context": "dashboard",
     "category": "functional",
     "title": "15 integration types are surfaced as connection cards in the dashboard's integrations page",
@@ -588,7 +680,9 @@
       "Step 2: Confirm `Integration` type carries a `composioTriggerId` field and the integration-domain types file lists exactly 15 type identifiers.",
       "Step 3: Confirm the dashboard's `next.config.mjs` `images.remotePatterns` allow-lists `logos.composio.dev` and `backend.composio.dev`."
     ],
-    "depends_on": ["AC-002"],
+    "depends_on": [
+      "AC-002"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -600,7 +694,9 @@
   {
     "id": "WI-AC-034",
     "acceptance_check_id": "AC-034",
-    "acceptance_checks": ["AC-034"],
+    "acceptance_checks": [
+      "AC-034"
+    ],
     "context": "foundation",
     "category": "ops",
     "title": "GitHub Actions: 2 workflows (website-deploy.yml, dashboard-deploy.yml) with frozen-lockfile + type-check + lint + test + build + SST deploy",
@@ -610,7 +706,9 @@
       "Step 2: Confirm each workflow runs check-types, lint, test, build in sequence before the SST deploy step.",
       "Step 3: Confirm each workflow sets `environment: staging` and `environment: production` plus a `concurrency` block."
     ],
-    "depends_on": ["AC-007"],
+    "depends_on": [
+      "AC-007"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -622,7 +720,9 @@
   {
     "id": "WI-AC-011",
     "acceptance_check_id": "AC-011",
-    "acceptance_checks": ["AC-011"],
+    "acceptance_checks": [
+      "AC-011"
+    ],
     "context": "website",
     "category": "functional",
     "title": "next-intl wiring: ['en','pt-br'] locales, 'as-needed' prefix, hreflang tags, language selector",
@@ -632,7 +732,9 @@
       "Step 2: Confirm `apps/website/src/i18n/routing.ts` matches the documented locale config.",
       "Step 3: Load the homepage in a browser and confirm the header renders a language selector linking to `/pt-br/`."
     ],
-    "depends_on": ["AC-010"],
+    "depends_on": [
+      "AC-010"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -644,7 +746,9 @@
   {
     "id": "WI-AC-020",
     "acceptance_check_id": "AC-020",
-    "acceptance_checks": ["AC-020"],
+    "acceptance_checks": [
+      "AC-020"
+    ],
     "context": "dashboard",
     "category": "functional",
     "title": "Dashboard middleware pipeline: staging auth → public bypass → clerkMiddleware → profile guard → i18n",
@@ -654,7 +758,9 @@
       "Step 2: Sign in with a Clerk session that has no `orgId` and confirm navigation to `/dashboard` is redirected to `/create-organization`.",
       "Step 3: Sign in with a Clerk session that has an `orgId` and confirm the dashboard renders without a redirect."
     ],
-    "depends_on": ["AC-019"],
+    "depends_on": [
+      "AC-019"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -666,7 +772,9 @@
   {
     "id": "WI-AC-021",
     "acceptance_check_id": "AC-021",
-    "acceptance_checks": ["AC-021"],
+    "acceptance_checks": [
+      "AC-021"
+    ],
     "context": "dashboard",
     "category": "security",
     "title": "RBAC: 9 permissions × 2 roles enforced at API level (withAuth) and component level (RoleGuard)",
@@ -676,7 +784,9 @@
       "Step 2: As a member, `POST /api/billing/checkout` (adminOnly) returns 403; the same call as an admin returns the proxied response from Core.",
       "Step 3: Render a page that wraps an admin-only button in `<RoleGuard permission=\"manage_billing\">` and confirm the button is hidden for member and visible for admin."
     ],
-    "depends_on": ["AC-019"],
+    "depends_on": [
+      "AC-019"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -688,7 +798,9 @@
   {
     "id": "WI-AC-022",
     "acceptance_check_id": "AC-022",
-    "acceptance_checks": ["AC-022"],
+    "acceptance_checks": [
+      "AC-022"
+    ],
     "context": "dashboard",
     "category": "functional",
     "title": "Credits system: free plan = 3 credits/month lazy-renewed every 30 days; 402 CREDITS_EXHAUSTED on exhaustion; plans.ts is the single source of truth",
@@ -698,7 +810,9 @@
       "Step 2: As a free-plan tenant with 0 credits, `POST /api/incidents` returns 402 with body `{ \"code\": \"CREDITS_EXHAUSTED\" }`.",
       "Step 3: As a free-plan tenant with 1 credit remaining, `POST /api/incidents` returns 200 and a subsequent call returns 402 CREDITS_EXHAUSTED."
     ],
-    "depends_on": ["AC-019"],
+    "depends_on": [
+      "AC-019"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -710,7 +824,9 @@
   {
     "id": "WI-AC-024",
     "acceptance_check_id": "AC-024",
-    "acceptance_checks": ["AC-024"],
+    "acceptance_checks": [
+      "AC-024"
+    ],
     "context": "dashboard",
     "category": "functional",
     "title": "44 API routes: each route delegates to contexts/&lt;name&gt;/api/&lt;name&gt;-handler.ts",
@@ -720,7 +836,9 @@
       "Step 2: Confirm every `route.ts` is a 1-line re-export of a context handler.",
       "Step 3: Confirm `apps/dashboard/src/contexts/*/api/*-handler.ts` exists for every route."
     ],
-    "depends_on": ["AC-019"],
+    "depends_on": [
+      "AC-019"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -732,7 +850,9 @@
   {
     "id": "WI-AC-029",
     "acceptance_check_id": "AC-029",
-    "acceptance_checks": ["AC-029"],
+    "acceptance_checks": [
+      "AC-029"
+    ],
     "context": "dashboard",
     "category": "security",
     "title": "withAuth: 401/403/429 enforcement at the API boundary",
@@ -742,7 +862,9 @@
       "Step 2: With a session but no `orgId`, `GET /api/settings` returns 403 with the documented body.",
       "Step 3: With a member session, `POST /api/billing/checkout` (adminOnly) returns 403; with 70 requests in 60s the 70th returns 429 with a `Retry-After` header."
     ],
-    "depends_on": ["AC-019"],
+    "depends_on": [
+      "AC-019"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -754,7 +876,9 @@
   {
     "id": "WI-AC-030",
     "acceptance_check_id": "AC-030",
-    "acceptance_checks": ["AC-030"],
+    "acceptance_checks": [
+      "AC-030"
+    ],
     "context": "dashboard",
     "category": "security",
     "title": "BFF pattern: Clerk session JWT forwarded as Bearer to Core API; never exposed to the browser",
@@ -764,7 +888,9 @@
       "Step 2: Tail the dev log while loading a dashboard page and confirm every Core API call carries `Authorization: Bearer ...` server-side.",
       "Step 3: Confirm `apps/dashboard/src/lib/api/http-api-client.ts` scrubs `Authorization` from any error it forwards to Sentry."
     ],
-    "depends_on": ["AC-019"],
+    "depends_on": [
+      "AC-019"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -776,7 +902,9 @@
   {
     "id": "WI-AC-023",
     "acceptance_check_id": "AC-023",
-    "acceptance_checks": ["AC-023"],
+    "acceptance_checks": [
+      "AC-023"
+    ],
     "context": "dashboard",
     "category": "functional",
     "title": "Plan gate: active only when status ∈ {active, trialing} AND currentPeriodEnd is set",
@@ -786,7 +914,9 @@
       "Step 2: As a paid tenant with Core returning `{ status: 'active', currentPeriodEnd: '2026-12-31T...' }`, `getPlanStatus()` returns `hasActivePlan: true` and the dashboard renders.",
       "Step 3: Confirm `plan-status.ts` documents the cross-check rationale (the Core API defaults to active for fresh tenants)."
     ],
-    "depends_on": ["AC-022"],
+    "depends_on": [
+      "AC-022"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -798,7 +928,9 @@
   {
     "id": "WI-AC-025",
     "acceptance_check_id": "AC-025",
-    "acceptance_checks": ["AC-025"],
+    "acceptance_checks": [
+      "AC-025"
+    ],
     "context": "dashboard",
     "category": "functional",
     "title": "Live SSE feed: incident detail pages forward the Core API's streaming response",
@@ -808,7 +940,9 @@
       "Step 2: Confirm the API route uses `Content-Type: text/event-stream` and proxies events from the Core API.",
       "Step 3: Confirm the Clerk middleware's `isPublicRoute` matcher does not block the streaming endpoint and the API route returns a streaming Response, not a buffered JSON one."
     ],
-    "depends_on": ["AC-024"],
+    "depends_on": [
+      "AC-024"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -820,7 +954,9 @@
   {
     "id": "WI-AC-026",
     "acceptance_check_id": "AC-026",
-    "acceptance_checks": ["AC-026"],
+    "acceptance_checks": [
+      "AC-026"
+    ],
     "context": "dashboard",
     "category": "functional",
     "title": "lvh.me loopback rewrite: localhost → lvh.me for Stripe callbacks to bypass the Core WAF SSRF filter",
@@ -830,7 +966,9 @@
       "Step 2: Confirm the checkout / portal handlers rewrite `localhost` → `lvh.me` before calling Core.",
       "Step 3: In dev, set `CORE_API_URL=http://api.lvh.me:9999` (or similar) and confirm the handlers' outbound URL uses the lvh.me host."
     ],
-    "depends_on": ["AC-024"],
+    "depends_on": [
+      "AC-024"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -842,7 +980,9 @@
   {
     "id": "WI-AC-031",
     "acceptance_check_id": "AC-031",
-    "acceptance_checks": ["AC-031"],
+    "acceptance_checks": [
+      "AC-031"
+    ],
     "context": "dashboard",
     "category": "security",
     "title": "Stripe: dashboard React SDK loads PaymentElement with the publishable key; secret key never in dashboard runtime env",
@@ -852,7 +992,9 @@
       "Step 2: Confirm `STRIPE_SECRET_KEY` is NOT listed in `apps/dashboard/.env.example` and NOT referenced in `apps/dashboard/sst.config.ts` env injection.",
       "Step 3: Confirm `stripe` appears in `devDependencies` (not `dependencies`) of `apps/dashboard/package.json` and is only imported from `apps/dashboard/scripts/setup-stripe.ts` and `apps/dashboard/scripts/delete-user.ts`."
     ],
-    "depends_on": ["AC-024"],
+    "depends_on": [
+      "AC-024"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -864,7 +1006,9 @@
   {
     "id": "WI-AC-035",
     "acceptance_check_id": "AC-035",
-    "acceptance_checks": ["AC-035"],
+    "acceptance_checks": [
+      "AC-035"
+    ],
     "context": "dashboard",
     "category": "functional",
     "title": "Composio: 15 integration types; image allow-list for logos.composio.dev and backend.composio.dev",
@@ -874,7 +1018,9 @@
       "Step 2: Confirm `apps/dashboard/src/contexts/integrations/domain/types.ts` defines the 15 integration types and the `Integration` type carries `composioTriggerId`.",
       "Step 3: Confirm no `COMPOSIO_API_KEY` env var is referenced in `apps/dashboard/.env.example` or `apps/dashboard/sst.config.ts`."
     ],
-    "depends_on": ["AC-024"],
+    "depends_on": [
+      "AC-024"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -886,7 +1032,9 @@
   {
     "id": "WI-AC-040",
     "acceptance_check_id": "AC-040",
-    "acceptance_checks": ["AC-040"],
+    "acceptance_checks": [
+      "AC-040"
+    ],
     "context": "testing_and_observability",
     "category": "testing",
     "title": "Playwright 4 viewports (mobile 375×812, tablet 768×1024, desktop 1280×800, wide 1440×900) chromium only, workers 3, fully parallel, trace/video/screenshot off",
@@ -896,7 +1044,9 @@
       "Step 2: Confirm `workers: 3`, `fullyParallel: true`, `trace: 'off'`, `video: 'off'`, `screenshot: 'off'`.",
       "Step 3: Confirm the `webServer` block starts the production server on port 3000."
     ],
-    "depends_on": ["AC-001"],
+    "depends_on": [
+      "AC-001"
+    ],
     "verify_first": true,
     "implementation": true,
     "qa": true,
@@ -908,7 +1058,9 @@
   {
     "id": "WI-AC-041",
     "acceptance_check_id": "AC-041",
-    "acceptance_checks": ["AC-041"],
+    "acceptance_checks": [
+      "AC-041"
+    ],
     "context": "testing_and_observability",
     "category": "testing",
     "title": "Playwright test.beforeEach blocks analytics + tracker domains (GA4, Clarity, Intercom)",
@@ -918,7 +1070,9 @@
       "Step 2: Run `pnpm exec playwright test tests/audit.spec.ts` with a console listener and confirm no request to those domains is made.",
       "Step 3: Confirm the block list matches the documented domains in the spec (GA, Clarity, Intercom)."
     ],
-    "depends_on": ["AC-040"],
+    "depends_on": [
+      "AC-040"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -930,7 +1084,9 @@
   {
     "id": "WI-AC-043",
     "acceptance_check_id": "AC-043",
-    "acceptance_checks": ["AC-043"],
+    "acceptance_checks": [
+      "AC-043"
+    ],
     "context": "testing_and_observability",
     "category": "testing",
     "title": "Verification protocol for dashboard changes: local Playwright with mock client → staging login via env.staging creds → aws logs tail /ecs/causeflow-staging-api --follow",
@@ -940,7 +1096,10 @@
       "Step 2: Confirm `apps/dashboard/.env.staging` exists, contains `STAGING_TEST_USER` and `STAGING_TEST_PASSWORD`, and is excluded from runtime env.",
       "Step 3: Confirm `apps/dashboard/.gitignore` does NOT exclude `.env.staging` (Playwright reads it; the file is intentionally tracked) and the `kill_command` in the repo's CLAUDE.md kills both Next.js and Playwright processes before any test."
     ],
-    "depends_on": ["AC-040", "AC-041"],
+    "depends_on": [
+      "AC-040",
+      "AC-041"
+    ],
     "verify_first": true,
     "implementation": false,
     "qa": false,
@@ -957,7 +1116,9 @@
     "steps": [
       "Verify AC-044: From a clean monorepo root with a blank shell env (no `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LOOPS_*`, `CORE_API_URL`, or SST-injected vars set), `docker compose up -d` brings up `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api`, `causeflow-worker`, `causeflow-website` (port 3000), and `causeflow-dashboard` (port 3001) per the bundled `docker-compose.yml`. Within 90 seconds `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` returns 200 and `curl -s -o /dev/null -w '%{http_code}' http://localhost:3001/auth/sign-in` returns 200 (the dashboard's local sign-in form, not the Clerk-hosted UI). Grepping the dashboard container's boot log for `clerk.com`, `stripe.com`, `amazonaws.com`, `sentry.io`, or `sst.` returns zero outbound URLs."
     ],
-    "acceptance_checks": ["AC-044"],
+    "acceptance_checks": [
+      "AC-044"
+    ],
     "depends_on": [],
     "verify_first": false,
     "implementation": true,
@@ -973,8 +1134,12 @@
     "steps": [
       "Verify AC-045: `apps/website/.env.example` ships with only `NEXT_PUBLIC_GA4_MEASUREMENT_ID` and `NEXT_PUBLIC_CLARITY_ID` (both optional, blank = no-op). `apps/dashboard/.env.example` ships with only `CORE_API_URL` (default `http://core-api:3099` for the docker-compose network), `JWT_SECRET` (shared with the Core container, must match the Core's `JWT_SECRET`), and the optional `NEXT_PUBLIC_*` analytics keys. `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*` (build-time), `LOOPS_*`, and any SST-injected var are absent from both files. `LOOPS_API_KEY` is removed from `apps/website/.env.example`."
     ],
-    "acceptance_checks": ["AC-045"],
-    "depends_on": ["AC-044"],
+    "acceptance_checks": [
+      "AC-045"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
     "verify_first": false,
     "implementation": true,
     "qa": true,
@@ -989,8 +1154,12 @@
     "steps": [
       "Verify AC-046: `apps/dashboard/src/middleware.ts` no longer imports `clerkMiddleware`. The middleware reads the `__session` httpOnly cookie (set by the dashboard's sign-in route handler), verifies it with `JWT_SECRET` using the same `jose` library the Core uses, and lets the request through. `withAuth(handler, options)` extracts the cookie, calls the Core's `GET /api/v1/whoami` with `Authorization: Bearer `, and resolves `userId` + `tenantId` + `role` from the response. The dashboard's `/auth/sign-in` and `/auth/sign-up` pages are local React forms that POST to a new dashboard route handler (`/api/auth/login`, `/api/auth/register`) which proxies to the Core's endpoints, then sets the `__session` cookie. An unauthenticated `GET /dashboard` still redirects to `/auth/sign-in` (preserving AC-019's behavior)."
     ],
-    "acceptance_checks": ["AC-046"],
-    "depends_on": ["AC-044"],
+    "acceptance_checks": [
+      "AC-046"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
     "verify_first": false,
     "implementation": false,
     "qa": false,
@@ -1005,8 +1174,12 @@
     "steps": [
       "Verify AC-047: `@clerk/nextjs` (and any `@clerk/*` subpackage) is removed from `apps/dashboard/package.json#dependencies`. `pnpm install --frozen-lockfile` succeeds. `pnpm --filter dashboard build` (which runs `tsc --noEmit --project tsconfig.build.json` + `next build`) exits 0. `grep -r '@clerk' apps/dashboard/src apps/dashboard/scripts` returns zero matches. The `tsconfig.build.json` (which previously excluded Clerk type tests) is simplified to a standard dashboard build config; if any Clerk-flavored type-test files remain, they are deleted."
     ],
-    "acceptance_checks": ["AC-047"],
-    "depends_on": ["AC-046"],
+    "acceptance_checks": [
+      "AC-047"
+    ],
+    "depends_on": [
+      "AC-046"
+    ],
     "verify_first": false,
     "implementation": false,
     "qa": false,
@@ -1021,8 +1194,12 @@
     "steps": [
       "Verify AC-048: `@stripe/react-stripe-js`, `@stripe/stripe-js`, and the `stripe` server SDK are removed from `apps/dashboard/package.json`. `apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx` no longer mounts a Stripe `PaymentElement`; it renders a local \"Billing disabled in OSS build\" panel and POSTs to the Core's `POST /api/v1/billing/checkout-session`, which returns 410 Gone per the Core's AC-043. The plan-gate (`apps/dashboard/src/contexts/billing/application/plan-status.ts#fetchPlanStatus`) renders correctly when the Core returns `{ plan: 'free', status: 'active' }` (a fresh tenant on the OSS build). The dashboard's `POST /api/billing/checkout` and `POST /api/billing/portal` route handlers stay (they proxy to the Core) and surface the 410 from the Core as a clear \"billing disabled\" message."
     ],
-    "acceptance_checks": ["AC-048"],
-    "depends_on": ["AC-046"],
+    "acceptance_checks": [
+      "AC-048"
+    ],
+    "depends_on": [
+      "AC-046"
+    ],
     "verify_first": false,
     "implementation": false,
     "qa": false,
@@ -1037,8 +1214,12 @@
     "steps": [
       "Verify AC-049: `@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, and `@aws-sdk/client-cognito-identity-provider` are removed from `apps/dashboard/package.json` (dependencies) and from the root `package.json` (if present). `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts` is deleted (the OSS Core handles provisioning inside its own `register` endpoint per the Core's AC-042). `apps/dashboard/scripts/setup-stripe.ts` and `apps/dashboard/scripts/delete-user.ts` are deleted. The `serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider']` block in `apps/dashboard/next.config.mjs` is removed. `apps/dashboard/scripts/add-credits.ts` keeps its Core API call and is the only remaining script. `pnpm --filter dashboard build` exits 0."
     ],
-    "acceptance_checks": ["AC-049"],
-    "depends_on": ["AC-044"],
+    "acceptance_checks": [
+      "AC-049"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
     "verify_first": false,
     "implementation": false,
     "qa": false,
@@ -1053,8 +1234,12 @@
     "steps": [
       "Verify AC-050: `apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` are deleted. The `withSentryConfig(...)` wrapper in `apps/dashboard/next.config.mjs` is removed (the surrounding `next.config.mjs` keeps its `optimizePackageImports`, headers, redirects, and image allow-list). `.github/workflows/website-deploy.yml` and `.github/workflows/dashboard-deploy.yml` keep their `check-types` / `lint` / `test` / `build` steps but drop the `sst deploy` step (replaced with a comment pointing operators to the Docker build). Both apps have a multi-stage `Dockerfile` that mirrors the `relay` subproject's pattern: a builder stage that runs `pnpm install --frozen-lockfile` + `pnpm build`, then a runtime stage that runs `pnpm start`. The `docker-compose.yml` from AC-044 references those Dockerfiles."
     ],
-    "acceptance_checks": ["AC-050"],
-    "depends_on": ["AC-044"],
+    "acceptance_checks": [
+      "AC-050"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
     "verify_first": false,
     "implementation": false,
     "qa": false,
@@ -1069,8 +1254,12 @@
     "steps": [
       "Verify AC-051: `logos.composio.dev` and `backend.composio.dev` are removed from `next.config.mjs#images.remotePatterns` (and any CSP allow-list). The `composioTriggerId` field is removed from the `Integration` domain type at `apps/dashboard/src/contexts/integrations/domain/types.ts`; the 15 integration type identifiers (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) stay. The `/dashboard/integrations` page still renders 15 connection cards; the \"Connect\" CTA POSTs to the Core's stub integration endpoint, which returns 200 with deterministic empty data. No `COMPOSIO_API_KEY` env var is referenced anywhere in the OSS build."
     ],
-    "acceptance_checks": ["AC-051"],
-    "depends_on": ["AC-044"],
+    "acceptance_checks": [
+      "AC-051"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
     "verify_first": false,
     "implementation": false,
     "qa": false,
@@ -1085,8 +1274,12 @@
     "steps": [
       "Verify AC-052: The `connect-src` CSP entry for `https://app.loops.so` is removed from `apps/website/next.config.mjs`. `LOOPS_API_KEY` is removed from `apps/website/.env.example`. The `lvh.me` → `localhost` rewrite in `apps/dashboard/src/middleware.ts` and the inverse `localhost` → `lvh.me` rewrite in the dashboard's checkout/portal API handlers are removed (no Stripe callbacks to rewrite in the OSS build). The dashboard's `curl http://localhost:3001/...` requests work as-is; no `lvh.me` host appears anywhere in the dashboard's source."
     ],
-    "acceptance_checks": ["AC-052"],
-    "depends_on": ["AC-044"],
+    "acceptance_checks": [
+      "AC-052"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
     "verify_first": false,
     "implementation": false,
     "qa": false,
@@ -1101,8 +1294,15 @@
     "steps": [
       "Verify AC-053: With the OSS docker-compose stack up from AC-044, the following original checks still pass (any check that described a vendor-specific implementation now passes against the local equivalent — e.g. AC-019's redirect behavior is preserved by the local JWT middleware, AC-022's 402 CREDITS_EXHAUSTED is preserved by the local credits ledger, AC-031's \"no STRIPE_SECRET_KEY in dashboard env\" is trivially true because Stripe is gone, AC-037's \"AWS SDK limited to two files\" is trivially true because AWS SDK is gone). Concretely: `pnpm turbo check-types` + `pnpm turbo lint` + `pnpm turbo test` + `pnpm turbo build` all exit 0 inside the dashboard container; `curl http://localhost:3000/` returns 200; the dashboard's sign-in form works end-to-end with the Core's local auth; `GET /api/incidents` (with a valid cookie) returns the Core's stub data; the plan-gate renders correctly for a fresh tenant; Sentry is a no-op with `NEXT_PUBLIC_SENTRY_DSN` empty."
     ],
-    "acceptance_checks": ["AC-053"],
-    "depends_on": ["AC-044", "AC-046", "AC-048", "AC-049"],
+    "acceptance_checks": [
+      "AC-053"
+    ],
+    "depends_on": [
+      "AC-044",
+      "AC-046",
+      "AC-048",
+      "AC-049"
+    ],
     "verify_first": false,
     "implementation": false,
     "qa": false,
