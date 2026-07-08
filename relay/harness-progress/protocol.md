@@ -308,3 +308,15 @@ fatal: Unable to write index.
   ```
 - Verdict: jsonrpc='2.0'; id echoed; no error key; result is array of 2; every entry shaped exactly `{resourceId,type,healthy,latencyMs}` with non-negative latencyMs; order-pg healthy=true; order-mongo healthy=true. Error-handling code path verified in source (`HealthReporter.checkAll()` catch block logs at warn with `{ err, resourceId }`, sets healthy: false, includes latencyMs, continues to other drivers). All 15 checks green.
 - Outcome: implementation=true (zero-diff checkpoint — no code changes). No defects.
+
+## 2026-07-08T22:00Z — Verify-first re-verification: AC-019 still passes at real WS boundary
+
+- WorkItem: WI-AC-019
+- Attempt: 1/3 (re-verification)
+- Boundary: Running docker-compose stack all 4 services Up. Probe at `ws://127.0.0.1:3000/v1/relay/connect`.
+- Captured response:
+  ```json
+  {"jsonrpc":"2.0","id":"5b0069fe...","result":[{"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":7},{"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":2}]}
+  ```
+- Verdict: All 16 checks green. Both resources present and healthy. Error path verified in source (`HealthReporter.checkAll()` catch block).
+- Outcome: implementation=true (zero-diff checkpoint). feature_list.json updated.
