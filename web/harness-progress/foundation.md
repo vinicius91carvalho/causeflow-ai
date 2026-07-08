@@ -445,3 +445,10 @@ Independent re-verification in isolated worktree (PORT=5172). All three AC steps
 - Real test boundaries: `pnpm vitest run --project auth` → 15/15 pass; `pnpm vitest run --project dashboard …/rbac/__tests__/role-guard.test.ts` → 15/15 pass; `pnpm --filter @causeflow/auth check-types` → exit 0.
 
 No defects observed.
+
+## 2026-07-08T01:34:17.852Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
