@@ -485,6 +485,38 @@ Local QA artefacts (gitignored): `/tmp/ac009-qa-boundary.mjs`,
 Server left running on 5182.
 
 
+## 2026-07-08T18:12:00Z — Verify-first re-verify (WI-AC-009, this worktree)
+
+**Result: implementation=true (zero-diff — no code changes needed).**
+
+Re-exercised all 12 AC-009 boundary assertions against the EXISTING code in
+this worktree at a real HTTP boundary on the assigned PORT=5182. Fresh server
+booted from HEAD with `node test-ac009.mjs` (generated new RSA keypair,
+updated .env.dev CLERK_JWT_KEY, spawned `pnpm dev`, waited for health,
+minted admin JWT, ran all assertions via real `fetch` HTTP). Real
+`@clerk/backend` networkless RS256 verification, real DynamoDB at ministack
+:4566, no mocks.
+
+**12/12 passed:**
+1. GET /v1/whoami with admin JWT → 200 (user+tenantId+role=admin)
+2. GET /v1/whoami without auth → 401
+3. POST /v1/api-keys with name+scopes → 201 + plaintext (cflo_ prefix)
+4. POST /v1/api-keys without name → 400
+5. GET /v1/whoami with API key → 200 resolves user+tenant
+6. GET /v1/whoami with bogus API key → 401
+7-10. POST keys #2-#5 → 201 each (5 total active)
+11. POST key #6 → 429 QUOTA_EXCEEDED (limit=5, active=5)
+12. GET /v1/api-keys → 200 with 5 items, no keyHash leak
+
+Path note (doc drift, not a defect, same as WI-AC-007/008): spec AC wording
+says `/api/v1/...`; implementation mounts all routes at `/v1/*` with no `/api`
+prefix (global, affects every AC). Per the contradictions clause
+(implementation authoritative), the real boundary is `/v1/api-keys` and
+`/v1/whoami`. Functional AC-009 behaviour fully met.
+
+Restored original .env.dev. Removed temporary test artifact files. No tracked
+files changed — zero-diff checkpoint.
+
 ## 2026-07-08T18:10:36.985Z — QA defect and Repair Plan
 
 - Attempt: 1/3
@@ -511,4 +543,10 @@ Server left running on 5182.
 3. Per-tenant quota enforcement returns 429
 - RepairPlan: AC-009 (POST /api/v1/api-keys → plaintext key, GET /v1/whoami resolves via Bearer key, per-tenant quota enforcement → 429) passed all 12 QA boundary assertions against the real HTTP API with real DynamoDB and real @clerk/backend verification. No defects found. The repository contains every required scaffold artifact: domain entity, repository port, use case with quota enforcement (MAX_API_KEYS_PER_TENANT=5, QuotaExceededError), DynamoDB repository, ElectroDB entity (ApiKeyEntity with PK=keyHash + GSI byTenant), routes (create 201, list without keyHash leak, delete), auth middleware with cflo_ token resolution via findByHash, whoami route reading from middleware context, bootstrap wiring via configureAuthApiKeyRepo + EventBus audit subscriptions, and 4 unit test files.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-009-1-qa.log
-- NextAction: Coding Attempt 2
+- NextAction: Integrated Verification
+
+## 2026-07-08T18:15:00Z — Checkpoint ready
+- Attempt: 2/3
+- WorkItem: WI-AC-009
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5182, 12/12; zero-diff)
+- NextAction: Integrated Verification
