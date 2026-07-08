@@ -1156,3 +1156,10 @@ Re-audited AC-009 independently as qa-agent in the isolated worktree. No code ch
 Scaffold check: `project_specs.xml` AC-009 affected surface = `release.config.js` — present.
 
 **QA verdict: qa=true, implementation=true, no defects.**
+
+## 2026-07-08T11:41:22.703Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
