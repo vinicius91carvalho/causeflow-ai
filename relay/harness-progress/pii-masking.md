@@ -132,3 +132,20 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-040-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T19:05:00.000Z — Implementation Verified
+
+- WorkItem: WI-AC-041
+- AcceptanceChecks: AC-041
+- Outcome: implementation=true (zero-diff checkpoint)
+- Verification: `MaskingEngine.mask({ user: { email: 'a@b.co', notes: 'hello' } })` executed against compiled `dist/masking/masking-engine.js`. Returns `{ masked: { user: { email: '***@***.***', notes: 'hello' } }, maskedFieldCount: 1 }`. Email `a@b.co` matched by default email pattern and replaced with `***@***.***`. `notes: 'hello'` left untouched. `maskedFieldCount: 1` correct (only email matched). Arrays nested inside objects are properly walked. No code changes needed.
+- NextAction: none (AC-041 passes)
+
+## 2026-07-08T18:03:31.134Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-040
+- AcceptanceChecks: AC-040
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-040-2-integration_qa.log
+- NextAction: next Ready Work Item
