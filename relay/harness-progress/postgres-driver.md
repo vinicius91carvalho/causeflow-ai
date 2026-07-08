@@ -136,3 +136,11 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Confirmed via the log-detail fix: this block was pure OpenRouter 429 rate-limit exhaustion on qwen3-coder:free (8 req/min), not a real coding/QA defect -- the Work Item was never actually attempted. Also fixed the root cause (orchestrator now backs off before retrying after a 429 instead of instantly re-exhausting the same limit). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T16:25:14.927Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-022
+- Outcome: coding agent failed three times
+- Defects: 429: {"message":"Provider returned error","code":429,"metadata":{"raw":"qwen/qwen3-coder:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Venice","is_byok":false,"retry_after_seconds":24,"retry_after_seconds_raw":23.51,"headers":{"Retry-After":"24"}}}
+- NextAction: User reviews evidence and explicitly resumes with guidance
