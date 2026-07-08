@@ -157,3 +157,132 @@ integration=true; implementation=true; qa=true; defects=none
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-026-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+---
+
+## 2026-07-08T02:30:00Z — Implementation (WI-AC-027)
+
+- WorkItem: WI-AC-027
+- AcceptanceChecks: AC-027
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: implementation=true (black-box verified on built image)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-027 is the Dockerfile acceptance check for the open-source local runtime.
+No source changes were required: the multi-stage `Dockerfile` shipped in
+WI-AC-026 already satisfies every clause of AC-027. Verified each clause
+against a freshly built `causeflow-docs:test` image.
+
+### Black-box verification (clean env)
+
+`env -i HOME PATH docker build . -t causeflow-docs:test` → **exit 0**.
+Multi-stage build: `builder` = `node:22-alpine` installs `mint@4.2.666` and
+runs `mint export --telemetry false` → static export zip unzipped to `/out`;
+`runtime` = `node:22-alpine` copies only `/out/` and runs `node serve.js`.
+
+- Image content size: **76.3 MB** (under the 200 MB ceiling; node:22-alpine
+  variant chosen, so the nginx-variant size clause is N/A, but the
+  no-`node_modules`-in-runtime invariant still holds — only the exported
+  static site is copied).
+- `docker inspect causeflow-docs:test`:
+  - `Entrypoint` = `docker-entrypoint.sh` (standard node alpine shim,
+    `exec "$@"` — no network).
+  - `Cmd` = `["node", "serve.js"]`.
+  - `Env` = `PATH`, `NODE_VERSION`, `YARN_VERSION`, `PORT=3000` only —
+    **no `MINTLIFY_*`, no `.env`, no account credentials**.
+- `serve.js` (the CMD) uses only `http`/`fs`/`path`/`child_process` and
+  contains **zero** outbound-request primitives
+  (`grep -nE 'https?\.request|fetch\(|http\.get|https\.get|WebSocket|axios'`
+  → no matches). The only `child_process` use is `openInBrowser`, an
+  interactive browser launch never invoked in the container path. The
+  entrypoint/cmd therefore **talks to no external SaaS host**.
+- Black-box serve test (`docker run -p 5179:3000 causeflow-docs:test`):
+  `curl http://localhost:5179/` → **HTTP 200**, body contains `CauseFlow AI`
+  (4 matches) and the `Quickstart` intro card (3 matches).
+- Boot log: `Serving docs at http://localhost:3000`;
+  `docker logs | grep -cE` forbidden-host pattern
+  (`mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|langfuse\.io|svix\.com|slack\.com|composio\.dev`)
+  → **0** matches.
+- `.env.example` is absent (no forbidden env vars referenced).
+
+Note: `grep` over exported static HTML finds `mintlify.mintlify.app` in
+`og:image` meta tags — that is static *content* metadata baked into the
+export, not the entrypoint/cmd execution path, and is out of scope for
+AC-027 (which scopes to the entrypoint talking to an external SaaS host).
+The runtime container makes no outbound request at boot, as the clean
+boot log confirms.
+
+### verdict
+
+implementation=true; integration=pending; qa=pending; defects=none
+
+## 2026-07-08T02:35:00Z — QA (WI-AC-027)
+
+- WorkItem: WI-AC-027
+- AcceptanceChecks: AC-027
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: qa=true (independent black-box re-verification on freshly built image)
+- NextAction: Integrated Verification
+
+### Independent re-test (blank shell env, fresh build)
+
+Removed any prior `causeflow-docs:test` image and re-ran the canonical
+command from a blank env (`env -i HOME PATH` — no `MINTLIFY_*`, `CLERK_*`,
+`STRIPE_*`, `AWS_*`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SENTRY_*`,
+`LANGFUSE_*`, `SVIX_*`, `SLACK_*`, or `COMPOSIO_*` set). Verified each
+clause of AC-027 against the freshly built image.
+
+- Multi-stage `Dockerfile` at project root: present (1037 bytes). `builder`
+  = `node:22-alpine`, `npm install -g mint@4.2.666`, `mint export
+  --telemetry false` → static export zip unzipped to `/out`. `runtime` =
+  `node:22-alpine`, copies only `/out/`, `CMD ["node","serve.js"]`.
+  (node:22-alpine runtime is one of the two variants the spec permits.)
+- `env -i HOME PATH docker build . -t causeflow-docs:test` → **exit 0**.
+- Image content size: **76.3 MB** (well under the 200 MB ceiling; this is
+  the node variant so the nginx-only size clause is N/A, but the
+  no-`node_modules`-in-runtime invariant still holds — `/app` has no
+  `node_modules`; the only `node_modules` present is the npm bundled set
+  under `/usr/local/lib/node_modules/npm` shipped by the base image, not
+  the docs site's deps).
+- `docker inspect causeflow-docs:test`:
+  - `Entrypoint` = `["docker-entrypoint.sh"]` — the standard node-alpine
+    shim whose body is `exec "$@"` (verified: no network, no SaaS host).
+  - `Cmd` = `["node","serve.js"]`.
+  - `Env` = `PATH`, `NODE_VERSION`, `YARN_VERSION`, `PORT=3000` only —
+    **no `MINTLIFY_*`, no `.env`, no account credentials**.
+- Runtime filesystem scan: no `.env*` files; no `*mintlify*`-named files;
+  no docs-site `node_modules`; the only credential-named path is
+  `/app/api-reference/integrations/credentials` (docs content, not creds).
+- Entrypoint+CMD SaaS-host scan: `grep -nE` for outbound network
+  primitives and forbidden hosts (`https?\.request|http\.get|https\.get|`
+  `fetch\(|axios|WebSocket|mintlify\.com|mintlify\.app|clerk\.com|`
+  `stripe\.com|amazonaws\.com|anthropic\.com|claude\.ai|openai\.com|`
+  `chatgpt\.com`) over `/usr/local/bin/docker-entrypoint.sh` and
+  `/app/serve.js` → **0 matches**. `serve.js` uses only `http`/`fs`/`path`
+  /`child_process` and serves local files via `http.createServer`; the
+  only `child_process` use is `openInBrowser` (interactive `xdg-open`/
+  `open`/`explorer.exe` launch, never a network request to a SaaS host).
+- Black-box serve test (`docker run -d --name cf-test -p 5179:3000
+  causeflow-docs:test`): `curl http://localhost:5179/` → **HTTP 200**,
+  body 230351 bytes containing `CauseFlow AI` (4 matches) and the
+  `Quickstart` intro card (3 matches).
+- Boot log: `Serving docs at http://localhost:3000`; `docker logs cf-test
+  2>&1 | grep -cE` for the forbidden-host pattern
+  (`mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|`
+  `anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|`
+  `langfuse\.io|svix\.com|slack\.com|composio\.dev`) → **0** matches.
+
+### verdict
+
+qa=true; implementation=true; defects=none
+
+## 2026-07-08T02:12:46.074Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
