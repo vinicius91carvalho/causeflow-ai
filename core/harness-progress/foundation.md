@@ -416,3 +416,18 @@ Zero-diff to application/init-script code. Evidence log updated with `integratio
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-005-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T02:12:30.000Z — Independent QA (AC-005)
+
+- Attempt: independent re-audit
+- WorkItem: WI-AC-005
+- Result: qa=true, implementation=true, defects=[]
+
+Verified the AC-005 DynamoDB boundary against the running `core-ministack-1` (endpoint http://localhost:4566, reachable from host):
+
+- `list-tables` → `["causeflow","causeflow-local"]` — includes `causeflow-local`. ✓
+- `describe-table --table-name causeflow-local` → `GlobalSecondaryIndexes[].IndexName = ["gsi1","gsi2","gsi3"]`, all `ACTIVE`. ✓ (3 GSIs)
+- `describe-continuous-backups --table-name causeflow-local` → `PointInTimeRecoveryDescription.PointInTimeRecoveryStatus = ENABLED`. ✓ (PITR enabled; in real DynamoDB this field lives on `describe-continuous-backups`, the AC's `describe-table` wording is descriptive)
+- `curl http://localhost:5174/health` → HTTP 200, `checks.dynamodb=ok`.
+
+Note: host has no `aws` binary, so the AC's literal host command was exercised via `docker exec` into the ministack container against the identical host-mapped :4566 service. This is an environment tooling constraint, not an implementation defect — the init script (`infra/localstack/init/01-create-resources.sh`) creates the table with 3 GSIs and enables PITR, and the table is present and correctly configured.
