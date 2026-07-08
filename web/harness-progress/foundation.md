@@ -359,3 +359,21 @@ SST CLI is not installed in this environment and AWS deploy is out of scope for 
 - `git status --short` → clean (zero-diff checkpoint; only `feature_list.json` + this journal updated).
 
 No defects found within the AC-033 boundary. implementation=true set for WI-AC-033.
+
+## WI-AC-033 — QA pass (foundation, ops)
+
+**Result: qa=true, implementation=true** (independent re-verification; zero source diff)
+
+### Boundary exercised
+
+No SST CLI / AWS creds in this env, so the strongest independent boundary is TS syntax transpile (`ts.transpileModule`) + structural grep of every AC clause. Both configs transpile OK (website emit 7964b, dashboard emit 10678b, no diagnostics).
+
+### Independent AC-033 evidence (re-checked)
+
+- **Step 1 — `us-east-1` provider for WAF WebACL:** website `aws.Provider('us-east-1', {region:'us-east-1'})` L18 + `aws.wafv2.WebAcl('CauseFlowWaf',{scope:'CLOUDFRONT'}, {provider:usEast1})`; dashboard L34 + L36. ✓ both
+- **Step 2 — `sst.aws.Nextjs` (OpenNext: S3 + CloudFront + Lambda@Edge + Route 53 + ACM via `domain`):** website `new sst.aws.Nextjs('CauseFlowWebsite', {domain:..., transform:{cdn:args=>{args.webAclId=waf.arn}}})` L131; dashboard L149. WAF ARN wired to the CloudFront distribution via `transform.cdn.webAclId`. ✓ both
+- **Step 3 — CloudWatch alarms: dashboard-only, production-only:** website `MetricAlarm` count = 0; dashboard = 2 (`DashboardLambdaErrors` AWS/Lambda `Errors`, `DashboardCloudFront5xxErrors` AWS/CloudFront `5xxErrorRate`) gated by `if ($app.stage === 'production')`. ✓
+- **Domains:** website prod `causeflow.ai` (+redirects www.causeflow.ai, causeflow.io, www.causeflow.io), staging `staging.causeflow.ai` (`${stage}.causeflow.ai`); dashboard prod `dashboard.causeflow.ai`, staging `dashboard-staging.causeflow.ai` (`dashboard-${stage}.causeflow.ai`). ✓
+- **Hosted zone `Z01593322DGY9I94W9S7C`:** stated as AC fact; `sst.aws.Nextjs` `domain` looks up the causeflow.ai zone by name (zone ID not hardcoded — expected, not a defect). ✓
+
+No defects within the AC-033 boundary. qa=true set for WI-AC-033.
