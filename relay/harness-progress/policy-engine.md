@@ -65,3 +65,16 @@
 - WorkItem: WI-AC-037
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T17:34:54.000Z — Integrated Verification (qa-agent)
+
+- WorkItem: WI-AC-037
+- Outcome: PASSED
+- Evidence: Real external boundary test confirmed via standalone WebSocket test.
+  A resource with `allowedOperations: ['query']` rejects `execute` with
+  `operation: 'describe_table'`. The main loop returns JSON-RPC error code
+  `-32600` with message `Policy denied: Operation describe_table not allowed on
+  resource order-pg`. Audit entry logged with result='denied',
+  policyChecks.reason='Operation describe_table not allowed on resource order-pg'.
+  No code changes needed (zero-diff).
+- Result: implementation=true, integration=true
