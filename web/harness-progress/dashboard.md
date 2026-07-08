@@ -78,3 +78,21 @@
 - WorkItem: WI-AC-037
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T00:05:00Z — Integrated Verification (WI-AC-037)
+
+- Role: qa-agent. AcceptanceChecks: AC-037. Port: 5173. Branch: main @ 8c8b518.
+- AC-037 steps re-verified on integrated main:
+  1. `grep -rn "@aws-sdk" apps/dashboard/src` → only `tenant-provisioning-fallback.ts` (DynamoDBClient, BatchWriteCommand, DynamoDBDocumentClient) + its `.test.ts` (`vi.doMock` strings, not imports). ✓
+  2. `grep -rn "@aws-sdk" apps/dashboard/scripts` → only `delete-user.ts` (DynamoDBClient, BatchWriteCommand, DynamoDBDocumentClient, ScanCommand). ✓
+  3. `apps/dashboard/.env.example` lists NO `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` (grep exit 1); only `AWS_REGION`/`AWS_REGION_OVERRIDE` (region, not a credential). ✓
+- Structural claims re-verified:
+  - `tenant-provisioning-fallback.ts`: writes `Tenant` + `BillingAccount` via `BatchWriteCommand` in ElectroDB wire format; `DynamoDBClient({})` uses default credential provider chain (no static credentials). ✓
+  - `complete-profile-handler.ts` calls `provisionTenantDirect({tenantId: orgId, name, slug, ownerEmail})` on 403 from `api.createTenant` (CoreApiError status===403 or msg includes '403'). ✓
+  - `delete-user.ts`: `--yes`/`-y` gate (production also requires `ALLOW_PRODUCTION=1`; default DRY RUN); `ScanCommand` + `BatchWriteCommand` scoped to tenantId; `stripe.customers.del` cancels Stripe customer. ✓
+  - `@aws-sdk/client-kms` + `@aws-sdk/client-cognito-identity-provider` declared in package.json but zero import sites in src/scripts (not runtime paths). ✓
+- Core smoke behavior at real external boundaries:
+  - `tsc --noEmit -p tsconfig.build.json` → exit 0. ✓
+  - `vitest run --project dashboard` → 163 files / 1073 tests pass. ✓
+  - Runtime boundary: booted `next dev --hostname localhost -p 5173` with `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `AWS_REGION`, `AWS_REGION_OVERRIDE`, `DYNAMODB_TABLE_NAME`, `KMS_KEY_ARN` all `env -u` unset; confirmed via `/proc/$PID/environ` that the server process holds NO AWS env vars; `GET /api/health` → `200 {"status":"ok","version":"0.1.0",...}`. Proves the dashboard runtime boots and serves without AWS credentials — the SDK is only touched on the 403 fallback path. ✓
+- Outcome: PASS — integration=true, implementation=true, qa=true.
