@@ -866,3 +866,10 @@ Merge with strategy ort failed.
 - No defects found. AC-040 passes at all boundaries (static config audit,
   config parse, real browser launch).
 - Verdict: qa=true, implementation=true.
+
+## 2026-07-08T17:57:47.526Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-040
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
