@@ -736,3 +736,10 @@ All AC-038 steps pass at the real HTTP + filesystem boundary on integrated main.
 - Outcome: coding agent failed three times
 - Defects: Provider returned error
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T16:43:04.532Z — Explicit Resume
+
+- WorkItem: WI-AC-002
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Confirmed pure OpenRouter 429 rate-limit exhaustion again, not a real defect. Root-caused the persistent contention: openrouter/qwen/qwen3-coder:free's 8 req/min limit is shared across the whole account and further saturated by external OpenRouter demand -- even with backoff+jitter, 4 concurrent subprojects kept exhausting it. Switched the pi adapter to NVIDIA NIM's deepseek-v4-pro (separate unshared quota pool, 40 req/min, verified reachable). Retry.
+- NextAction: Coding Attempt 1
