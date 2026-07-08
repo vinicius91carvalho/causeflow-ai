@@ -1294,3 +1294,75 @@ Regression: `pnpm lint-invariants` → 10 passed, 0 failed (I1–I11);
 implementation=true (OSS runtime present on integrated main), qa=true,
 integration=true. `feature_list.json` WI-AC-039 set to
 `implementation:true, qa:true, integration:true, status:integrated`.
+
+## 2026-07-08T11:46:00Z — Integrated Verification incident (shared main history collapse)
+
+- WorkItem: WI-AC-039
+- Outcome: integration=false, implementation=false, qa=false
+- Reason: shared `main` ref entered a broken lineage state during the QA
+  commit; the AC-039 boundary itself PASSES but the integrated main is not in
+  a certifiable state.
+
+### AC-039 boundary result (PASS)
+
+Independently verified on a fresh `env -i PATH=$PATH HOME=$HOME docker compose
+up -d` from main's own `docker-compose.yml`, after tearing down all prior
+`core`-project containers (incl. orphans from sibling worktrees):
+
+- `docker compose ps` → exactly the 5 required services Up
+  (causeflow-postgres, redis, hindsight, causeflow-api, causeflow-worker),
+  every container's `com.docker.compose.project.config_files` label =
+  `/home/vinicius/projects/causeflow-ai/core/docker-compose.yml` (main, not a
+  worktree).
+- `curl http://localhost:3099/health` → **200** in **18s** total from
+  `compose up` (well under the 60s budget).
+- Body (exact): `{"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}`
+  (Anthropic `skipped` because ANTHROPIC_API_KEY unset — explicitly allowed).
+- Forbidden-endpoint grep of causeflow-api + causeflow-worker boot logs for
+  `https?://.*(amazonaws|stripe\.com|clerk|sentry\.io|langfuse|svix|slack\.com|composio|mastra)`
+  → 0 matches; broader `https?://` scan → 0 matches. API log: `runtime: "oss"`,
+  `Using noop observability (Langfuse not configured)`, `[Sentry] SENTRY_DSN
+  not set — Sentry disabled`, all 4 SQS consumers `disabled - queue URL not
+  configured`. Worker log: `causeflow-worker standby — waiting for investigation
+  dispatch (no outbound calls)`.
+- `docker compose exec` env grep for AWS_*/STRIPE_*/CLERK_*/SENTRY_*/LANGFUSE_*/
+  SVIX_*/SLACK_*/COMPOSIO_*/MASTRA_* in both containers → none.
+- Regression: `pnpm lint-invariants` 10/10 (I1–I11); `pnpm typecheck` clean.
+
+### Critical incident: shared `main` history collapse (NOT an AC-039 defect)
+
+The QA commit `29d407e` landed with parent = `2ef02f6` ("chore: reorder file
+structure" = origin/main tip), NOT the real integrated main `0695694`
+("Merge branch 'gen/core-open-source-local-runtime'"). Consequences:
+
+- `git rev-parse 29d407e^` → `2ef02f6`; `git merge-base --is-ancestor 0695694
+  HEAD` → NO. The real main tip `0695694` (541 ancestors, the full integrated
+  Work Item history) is no longer reachable from `main` — `git branch --contains
+  0695694` returns nothing. `git rev-list --count HEAD` = 3 (was 541 at
+  0695694). `origin/main` = `2ef02f6` (539 commits behind the lost local main).
+- The TREE is intact: `git diff --stat 0695694 29d407e -- core/src
+  core/docker-compose.yml core/.env.example core/Dockerfile core/Dockerfile.worker
+  core/infra` → empty (all source content preserved; only
+  harness-progress/open-source-local-runtime.md + feature_list.json differ, as
+  intended). So the AC-039 implementation content is present at HEAD, but the
+  539 integrated Work Item commits are dangling (recoverable via reflog:
+  `0695694` is in `git reflog`).
+- Root cause (evidence): a background harness planner was live
+  (`.harness/planner-feature.pid` = PID 1011321). `git reflog` shows the harness
+  repeatedly ran `reset` (e.g. `2ef02f6 HEAD@{14}: reset: moving to HEAD`,
+  `2ef02f6 HEAD@{15}: reset: moving to HEAD~1`, `70ad848 HEAD@{8}: reset:
+  moving to HEAD`). One such concurrent reset moved HEAD/index to `2ef02f6`
+  between this session's initial `git log` (which showed `0695694` as tip) and
+  the `git add`+`git commit`, so the commit's parent became `2ef02f6` instead of
+  `0695694`. The QA agent ran ONLY `git add` + `git commit` — never
+  `git reset`, `git checkout -- .`, `git clean -f`, `update-ref`, or any
+  history-discarding command.
+
+### Action taken / NOT taken
+
+Per the shared-main safety rule, the QA agent did NOT attempt ref surgery
+(no `git reset`/`update-ref`/`checkout --`/`clean`); restoring `main` to
+`0695694` would require moving the branch ref (forbidden + risky on shared
+main). The dangling `0695694` is preserved in `git reflog` for operator
+recovery. Verdict set to integration=false because the integrated `main` is
+not in a certifiable state, even though the AC-039 boundary itself passes.
