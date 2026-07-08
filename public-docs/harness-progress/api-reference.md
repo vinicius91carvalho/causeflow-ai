@@ -162,3 +162,10 @@ on integrated main at the real external HTTP boundary. Evidence saved to
 - Evidence: `logs/wi-ac-013-check.py`, `logs/wi-ac-013-result.txt`,
   `logs/mintdev-5174.log`. Dev server stopped; no lingering processes.
 - Verdict: qa=true; implementation=true; defects=none.
+
+## 2026-07-08T12:41:05.511Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-013
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
