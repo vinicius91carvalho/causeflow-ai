@@ -225,3 +225,10 @@ Real WebSocket boundary test against the running docker-compose stack (relay + c
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/policy-engine/WI-AC-038-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T18:09:03.039Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-039
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
