@@ -178,3 +178,30 @@
 - WorkItem: WI-AC-032
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T01:35:00Z — Integrated Verification (WI-AC-032)
+
+- Role: qa-agent. WorkItem: WI-AC-032. AcceptanceChecks: AC-032. Context: dashboard. Attempt: 1/3.
+- Integrated main HEAD = 5997b2b (Merge branch 'gen/web-dashboard'). Working tree clean (only untracked harness scaffold).
+- Step 1 (scaffold on integrated main): all 5 files present and correct on integrated main —
+  - `apps/dashboard/instrumentation.ts`: `register()` imports `./sentry.server.config` (NEXT_RUNTIME==='nodejs') + `./sentry.edge.config` (NEXT_RUNTIME==='edge'); `export const onRequestError = Sentry.captureRequestError`. ✓
+  - `apps/dashboard/sentry.server.config.ts` + `sentry.edge.config.ts`: byte-identical `Sentry.init({ dsn: process.env.NEXT_PUBLIC_SENTRY_DSN, enabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN, ... beforeSend })`. ✓
+  - `apps/dashboard/instrumentation-client.ts`: client init with same `enabled: !!DSN` gate + same `beforeSend` scrubbing (+ replayIntegration maskAllText/blockAllMedia, denyUrls, onRouterTransitionStart). ✓
+  - All three `beforeSend` hooks delete the same PII set: `authorization`, `cookie`, `x-api-key`, `x-clerk-auth-token`, `x-session-token` headers; `request.data`; `request.cookies`; `user.ip_address`; `user.email`. Identical PII scrubbing (auth headers, cookies, request bodies, Clerk tokens) per AC. ✓
+  - `src/app/global-error.tsx`: `'use client'`, `useEffect(() => { Sentry.captureException(error); }, [error])`. Root client error boundary confirmed. ✓
+- Typecheck on integrated main: `pnpm --filter @causeflow/dashboard exec tsc --noEmit --project tsconfig.build.json` → exit 0. ✓
+- Step 2 (blank DSN → no Sentry network) at real integrated boundary:
+  - Booted the integrated dashboard via `next dev --hostname localhost -p 5175` with a temp `.env.local` carrying `NEXT_PUBLIC_SENTRY_DSN=` (blank) + dummy Clerk keys + blank CORE_API_URL.
+  - Next.js 15.5.12 booted on port 5175; `/instrumentation` route compiled and ran (`✓ Compiled /instrumentation in 1648ms`, `✓ Ready in 3.3s`) — the instrumentation `register()` hook executed the server-side `Sentry.init({ dsn:"", enabled:false })` at boot.
+  - `ss -tn` for the Sentry ingest IPs (`34.160.81.0` v4 / `2600:1901:0:5e8a::` v6 of `o4511214153170944.ingest.us.sentry.io`) → NO sentry ingest connections at any point during boot. ✓
+  - Boot log grep for `sentry` → 0 mentions. ✓
+- Step 3 (non-empty DSN → error lands in hosted project causeflow-dashboard): CI-gated by `SENTRY_AUTH_TOKEN` (CI-only per spec). Verified at the HTTP boundary in the prior verify-first + isolated-QA phases: with a non-empty DSN, `captureException` POSTs an envelope to the configured ingest host (project ID 4511214189805568 = Sentry project `causeflow-dashboard` under org `causeflow-ai`), and the PII injected in `beforeSend` is fully scrubbed end-to-end (zero PII leaks in the received envelope). No defect — wiring is live; hosted-project confirmation is an out-of-band CI check.
+- Temp `.env.local` and probe artifacts removed (zero-diff). Working tree clean.
+- Outcome: PASS — integration=true, implementation=true, qa=true on integrated main.
+
+## 2026-07-08T01:35:30Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-032
+- Outcome: Integrated Verification passed on integrated main (zero diff)
+- NextAction: next Ready Work Item
