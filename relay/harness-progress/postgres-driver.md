@@ -121,3 +121,11 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Root cause fixed: pi's model was requesting near-uncapped max_tokens against a zero-balance OpenRouter account, causing every call to 402. Switched to a free, explicitly-capped model (qwen/qwen3-coder:free, maxTokens:8192) and restarted. Fresh retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T14:08:14.930Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-022
+- Outcome: coding agent failed three times
+- Defects: 429: {"message":"Provider returned error","code":429,"metadata":{"raw":"qwen/qwen3-coder:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Venice","is_byok":false,"retry_after_seconds":18,"retry_after_seconds_raw":17.207,"headers":{"Retry-After":"18"}}}
+- NextAction: User reviews evidence and explicitly resumes with guidance
