@@ -34,6 +34,5 @@ drafts/
 
 # Harness runtime state
 .harness/
-harness-progress/
 dev.log
 .mint.pid
