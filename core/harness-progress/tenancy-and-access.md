@@ -249,3 +249,21 @@ Local QA artefacts (gitignored, like `.env.dev`): `/tmp/ac008-qa-independent.mjs
 - WorkItem: WI-AC-008
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T04:24:30Z — Integrated Verification on main (WI-AC-008, context=tenancy-and-access)
+
+**Result: integration=true, implementation=true, qa=true. Zero defects.**
+
+Verified AC-008 at the real HTTP boundary against a FRESH server booted from main HEAD `6364c61` on the assigned PORT=5182 (`node --env-file=/tmp/ac008-intq.env --import tsx/esm src/main.ts`). `GET /health` → 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`. Real `fetch` HTTP, real `@clerk/backend` networkless RS256 verification (fresh RSA-2048 keypair; public SPKI in `CLERK_JWT_KEY` single-line, private key mints JWTs), real DynamoDB at ministack :4566, real Redis at docker bridge 172.18.0.4:6379 — no mocks. Boundary script: `/tmp/ac008-intq-boundary.mjs`. **14/14 passed:**
+
+- Core smoke: `GET /v1/audit` with no Authorization → **401**.
+- `GET /v1/audit` as **viewer** (org:member, lowest-privilege) → **200** `{items:[...], count=2}`.
+- `DELETE /v1/audit/:id` as **viewer** → **403** `{error:FORBIDDEN, message:"Insufficient permissions. Required: admin"}` (RBAC via `requireRole('admin')`).
+- `DELETE /v1/audit/:id` as **admin** → **200** `{entryId, deleted:1, newEntry}`.
+- `newEntry.action` = `audit.entry.deleted`; **chain advance invariant**: `newEntry.previousHash` (`472aa3ae1f889320…`) == prior tip's `entryHash` captured pre-DELETE from `GET /v1/audit`. Cross-checked via a fresh GET (newest entry = deletion record, `previousHash` == prior tip).
+
+Regression: `pnpm test:run tests/unit/modules/audit` → 9 files / 69 tests pass.
+
+Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/api/v1/audit/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/audit/...`. Role note: codebase maps `org:admin`→`admin`, all other org roles→`member` (no literal `viewer` role string); member is the non-admin viewer-equivalent and is correctly blocked at 403 by `requireRole('admin')`. Functional AC-008 behaviour fully met.
+
+Local QA artefacts (gitignored, like `.env.dev`): `/tmp/ac008-intq.env`, `/tmp/ac008-intq-boundary.mjs`, `/tmp/ac008-intq-priv.pem`, `/tmp/ac008-intq-pub.pem`, `/tmp/ac008-intq-server.log`. Fresh server left running on 5182 (pid 183224).
