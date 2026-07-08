@@ -286,3 +286,57 @@ qa=true; implementation=true; defects=none
 - WorkItem: WI-AC-027
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T02:40:00Z — Integrated Verification (WI-AC-027)
+
+- WorkItem: WI-AC-027
+- AcceptanceChecks: AC-027
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: integration=true (independent run on latest main)
+
+### Independent integrated run
+
+Removed prior `causeflow-docs:test` / `causeflow-docs:local` images and
+re-ran the canonical command from a blank env
+(`env -i HOME=$HOME PATH=$PATH` — no `MINTLIFY_*`, `CLERK_*`, `STRIPE_*`,
+`AWS_*`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SENTRY_*`, `LANGFUSE_*`,
+`SVIX_*`, `SLACK_*`, or `COMPOSIO_*` set). Image rebuilt from scratch via
+the multi-stage Dockerfile.
+
+- `env -i HOME PATH docker build . -t causeflow-docs:test` → **exit 0**.
+  Multi-stage: `builder` = `node:22-alpine` installs `mint@4.2.666` and
+  runs `mint export --telemetry false` → static export zip unzipped to
+  `/out`; `runtime` = `node:22-alpine` copies only `/out/` and runs
+  `node serve.js`. (node:22-alpine runtime is one of the two variants the
+  spec permits; nginx-only size clause is N/A.)
+- Image content size: **76.3 MB** (well under the 200 MB ceiling); no
+  `node_modules` carried into the runtime stage (`/app/node_modules` does
+  not exist; only the npm bundled set under `/usr/local/lib/node_modules`
+  shipped by the base image).
+- `docker inspect causeflow-docs:test`:
+  - `Entrypoint` = `["docker-entrypoint.sh"]` (standard node-alpine shim
+    whose body is `exec "$@"` — no network).
+  - `Cmd` = `["node","serve.js"]`.
+  - `Env` = `PATH`, `NODE_VERSION=22.23.1`, `YARN_VERSION=1.22.22`,
+    `PORT=3000` only — **no `MINTLIFY_*`, no `.env`, no account
+    credentials** (grep for
+    `MINTLIFY|CLERK|STRIPE|AWS|SENTRY|LANGFUSE|SVIX|SLACK|COMPOSIO|ANTHROPIC|OPENAI|TOKEN|SECRET|KEY|_AUTH|DEPLOY`
+    → 0 matches).
+- Entrypoint+CMD SaaS-host scan: `grep -nE` for outbound network primitives
+  and forbidden hosts
+  (`https?\.request|http\.get|https\.get|fetch\(|axios|WebSocket|mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|langfuse\.io|svix\.com|slack\.com|composio\.dev`)
+  over `/usr/local/bin/docker-entrypoint.sh` and `/app/serve.js` → **0
+  matches**. The runtime entrypoint talks to no external SaaS host.
+- Runtime filesystem scan: no `.env*` files anywhere; no `*mintlify*`-named
+  files under `/app`.
+- Black-box serve test (`docker run -d --name cf-test -p 5179:3000
+  causeflow-docs:test`): `curl http://localhost:5179/` → **HTTP 200**,
+  body 230351 bytes containing `CauseFlow AI` (4 matches) and the
+  `Quickstart` intro card (3 matches).
+- Boot log: `Serving docs at http://localhost:3000`; `docker logs cf-test
+  2>&1 | grep -cE` forbidden-host pattern → **0** matches.
+
+### verdict
+
+integration=true; implementation=true; qa=true; defects=none
