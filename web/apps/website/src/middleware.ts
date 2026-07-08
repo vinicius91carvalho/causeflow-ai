@@ -57,7 +57,7 @@ function parseAcceptLanguage(header: string): string[] {
   return header
     .split(',')
     .map((entry) => {
-      const [tag, q] = entry.trim().split(';q=');
+      const [tag = '', q = '1.0'] = entry.trim().split(';q=');
       return { tag: tag.trim().toLowerCase(), q: q ? Number.parseFloat(q) : 1.0 };
     })
     .sort((a, b) => b.q - a.q)

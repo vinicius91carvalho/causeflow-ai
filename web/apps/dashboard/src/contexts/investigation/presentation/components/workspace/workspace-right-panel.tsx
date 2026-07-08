@@ -30,7 +30,7 @@ export function WorkspaceRightPanel({
       (f) => f.type === 'evidence' || (f.type === 'checkpoint' && f.category != null),
     );
     if (evidenceItems.length > 0) {
-      onSelectItem(evidenceItems[evidenceItems.length - 1].id);
+      onSelectItem(evidenceItems[evidenceItems.length - 1]!.id);
     }
   }, [feed, selectedItem, onSelectItem]);
 

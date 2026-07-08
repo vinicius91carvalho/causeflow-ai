@@ -35,16 +35,16 @@ describe('FAQ Accordion data handling', () => {
 
   it('generates sequential accordion values', () => {
     const keys = generateFAQKeys(SAMPLE_FAQS);
-    expect(keys[0].value).toBe('faq-0');
-    expect(keys[1].value).toBe('faq-1');
-    expect(keys[2].value).toBe('faq-2');
+    expect(keys[0]!.value).toBe('faq-0');
+    expect(keys[1]!.value).toBe('faq-1');
+    expect(keys[2]!.value).toBe('faq-2');
   });
 
   it('preserves all question and answer data', () => {
     const keys = generateFAQKeys(SAMPLE_FAQS);
     for (let i = 0; i < SAMPLE_FAQS.length; i++) {
-      expect(keys[i].question).toBe(SAMPLE_FAQS[i].question);
-      expect(keys[i].answer).toBe(SAMPLE_FAQS[i].answer);
+      expect(keys[i]!.question).toBe(SAMPLE_FAQS[i]!.question);
+      expect(keys[i]!.answer).toBe(SAMPLE_FAQS[i]!.answer);
     }
   });
 
@@ -56,7 +56,7 @@ describe('FAQ Accordion data handling', () => {
   it('handles single item', () => {
     const keys = generateFAQKeys([{ question: 'Solo question?', answer: 'Solo answer.' }]);
     expect(keys).toHaveLength(1);
-    expect(keys[0].key).toBe('Solo question?');
-    expect(keys[0].value).toBe('faq-0');
+    expect(keys[0]!.key).toBe('Solo question?');
+    expect(keys[0]!.value).toBe('faq-0');
   });
 });

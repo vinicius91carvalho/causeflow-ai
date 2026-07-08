@@ -8,13 +8,13 @@ describe('themes registry', () => {
   });
 
   it('original theme is properly defined', () => {
-    expect(themes.original.id).toBe('original');
-    expect(themes.original.supportsDarkMode).toBe(true);
+    expect(themes.original!.id).toBe('original');
+    expect(themes.original!.supportsDarkMode).toBe(true);
   });
 
   it('cleric theme is properly defined', () => {
-    expect(themes.cleric.id).toBe('cleric');
-    expect(themes.cleric.supportsDarkMode).toBe(true);
+    expect(themes.cleric!.id).toBe('cleric');
+    expect(themes.cleric!.supportsDarkMode).toBe(true);
   });
 
   it('defaultThemeId resolves to cleric', () => {

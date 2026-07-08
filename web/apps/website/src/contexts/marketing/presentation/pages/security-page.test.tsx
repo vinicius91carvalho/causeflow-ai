@@ -184,12 +184,12 @@ describe('SecurityPage commitment card i18n keys', () => {
   ];
 
   it('includes leastPrivilege card in pillar 1', () => {
-    const pillar1 = commitmentGroups[0];
+    const pillar1 = commitmentGroups[0]!;
     expect(pillar1.cardKeys).toContain('leastPrivilege');
   });
 
   it('includes immutableAuditTrail card in pillar 2', () => {
-    const pillar2 = commitmentGroups[1];
+    const pillar2 = commitmentGroups[1]!;
     expect(pillar2.cardKeys).toContain('immutableAuditTrail');
   });
 

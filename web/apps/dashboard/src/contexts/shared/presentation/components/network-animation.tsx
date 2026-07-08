@@ -105,14 +105,14 @@ export function NetworkAnimation() {
       // ── Particle-to-particle connections ──────────────────────────────
       for (let i = 0; i < ps.length; i++) {
         for (let j = i + 1; j < ps.length; j++) {
-          const dx = ps[i].x - ps[j].x;
-          const dy = ps[i].y - ps[j].y;
+          const dx = ps[i]!.x - ps[j]!.x;
+          const dy = ps[i]!.y - ps[j]!.y;
           const d = Math.hypot(dx, dy);
           if (d < CONNECTION_DISTANCE) {
             const alpha = (1 - d / CONNECTION_DISTANCE) * 0.18;
             ctx.beginPath();
-            ctx.moveTo(ps[i].x, ps[i].y);
-            ctx.lineTo(ps[j].x, ps[j].y);
+            ctx.moveTo(ps[i]!.x, ps[i]!.y);
+            ctx.lineTo(ps[j]!.x, ps[j]!.y);
             ctx.strokeStyle = rgba(alpha);
             ctx.lineWidth = 0.6;
             ctx.stroke();

@@ -97,7 +97,7 @@ export function OnboardingOrchestrator() {
 
   if (!showWizard) return null;
 
-  const step = TUTORIAL_STEPS[currentStep];
+  const step = TUTORIAL_STEPS[currentStep]!;
 
   return (
     <OnboardingModal

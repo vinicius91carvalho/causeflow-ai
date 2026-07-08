@@ -31,13 +31,13 @@ function parseArgs(): Args {
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
       case '--tenant':
-        tenant = args[++i];
+        tenant = args[++i]!;
         break;
       case '--amount':
-        amount = Number.parseInt(args[++i], 10);
+        amount = Number.parseInt(args[++i]!, 10);
         break;
       case '--reason':
-        reason = args[++i];
+        reason = args[++i]!;
         break;
     }
   }

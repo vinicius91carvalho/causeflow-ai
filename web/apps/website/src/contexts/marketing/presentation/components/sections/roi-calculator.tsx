@@ -84,7 +84,7 @@ export function ROICalculator({ className, initialIncidents, labels }: ROICalcul
                 max={500}
                 step={1}
                 value={[incidents]}
-                onValueChange={([v]) => setIncidents(v)}
+                onValueChange={([v]) => setIncidents(v!)}
               />
             </div>
             <div>
@@ -116,7 +116,7 @@ export function ROICalculator({ className, initialIncidents, labels }: ROICalcul
                 max={100}
                 step={1}
                 value={[engineers]}
-                onValueChange={([v]) => setEngineers(v)}
+                onValueChange={([v]) => setEngineers(v!)}
               />
             </div>
           </div>

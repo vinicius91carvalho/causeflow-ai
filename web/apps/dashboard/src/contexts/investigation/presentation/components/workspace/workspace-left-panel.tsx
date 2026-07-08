@@ -48,7 +48,7 @@ export function WorkspaceLeftPanel({
 
   useEffect(() => {
     if (feed.length > 0) {
-      const latestTs = feed[feed.length - 1].timestamp;
+      const latestTs = feed[feed.length - 1]!.timestamp;
       if (lastSeenRef.current === null) {
         lastSeenRef.current = latestTs;
         setLastSeenTimestamp(latestTs);
@@ -58,7 +58,7 @@ export function WorkspaceLeftPanel({
 
   const markSeen = useCallback(() => {
     if (feed.length > 0) {
-      const ts = feed[feed.length - 1].timestamp;
+      const ts = feed[feed.length - 1]!.timestamp;
       lastSeenRef.current = ts;
       setLastSeenTimestamp(ts);
     }

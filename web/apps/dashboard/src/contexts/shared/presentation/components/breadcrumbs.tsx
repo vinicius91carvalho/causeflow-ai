@@ -50,7 +50,7 @@ function useBreadcrumbs(): BreadcrumbItem[] {
   let cumulativeHref = '';
 
   for (let i = 0; i < segments.length; i++) {
-    const segment = segments[i];
+    const segment = segments[i]!;
     cumulativeHref += `/${segment}`;
 
     // Skip dynamic ID segments
@@ -65,7 +65,7 @@ function useBreadcrumbs(): BreadcrumbItem[] {
 
     let label: string;
     try {
-      label = t(labelKey as Parameters<typeof t>[0]);
+      label = t(labelKey as string);
     } catch {
       label = segment.charAt(0).toUpperCase() + segment.slice(1);
     }
