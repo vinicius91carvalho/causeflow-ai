@@ -121,3 +121,12 @@ committed. No refactor, no restructuring.
 
 integration=true. AC-004 holds on integrated main at the real external
 boundary; no defects observed. implementation=true, qa=true.
+
+## 2026-07-08T03:37:19.754Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-004
+- AcceptanceChecks: AC-004
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/content-structure/WI-AC-004-1-integration_qa.log
+- NextAction: next Ready Work Item
