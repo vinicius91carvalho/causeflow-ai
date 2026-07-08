@@ -1,22 +1,14 @@
-import { withSentryConfig } from '@sentry/nextjs';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const isDev = process.env.NODE_ENV === 'development';
 
-// Clerk domains for auth UI (scripts, fonts, API)
-const clerkDomain =
-  'https://*.clerk.accounts.dev https://*.clerk.com https://clerk.com https://clerk.causeflow.ai https://challenges.cloudflare.com https://clerk-telemetry.com';
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: 'logos.composio.dev' },
-      { protocol: 'https', hostname: 'backend.composio.dev' },
-    ],
+    remotePatterns: [],
   },
   transpilePackages: [
     '@causeflow/auth',
@@ -26,10 +18,6 @@ const nextConfig = {
     '@causeflow/forms',
     'react-markdown',
   ],
-  // Keep the AWS SDK (and its node:crypto dependency) server-side only.
-  // auth-config.ts imports cognito-client.ts which uses node:crypto — without
-  // this, Webpack would try to bundle it for the client bundle and fail.
-  serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider'],
   // onDemandEntries: keep recently-compiled pages in memory so navigation in
   // dev does not re-trigger a full compile. Defaults (25s / 2 pages) are too
   // tight for a dashboard with many routes — bump them so flipping between
@@ -104,8 +92,9 @@ const nextConfig = {
 
         // Content Security Policy
         // Dashboard is an authenticated app — stricter than the marketing site.
-        // Cognito hosted UI is included in frame-src and connect-src for OAuth flows.
-        // Google Fonts is included for Plus Jakarta Sans.
+        // Open-source local runtime: no Clerk / Stripe / Sentry / Composio
+        // outbound endpoints are allow-listed (AC-044/AC-050). Optional GA4 /
+        // Microsoft Clarity analytics remain gated on env vars being set.
         {
           key: 'Content-Security-Policy',
           value: [
@@ -113,7 +102,7 @@ const nextConfig = {
 
             // Scripts: self + inline (Next.js requires) + analytics (optional)
             // unsafe-eval only in dev (needed by Next.js hot reload)
-            `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://*.clarity.ms https://js.stripe.com ${clerkDomain}`,
+            `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://*.clarity.ms`,
 
             // Styles: self + inline (Tailwind/CSS-in-JS) + Google Fonts
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
@@ -122,20 +111,13 @@ const nextConfig = {
             "img-src 'self' data: https:",
 
             // Fonts: self + Google Fonts CDN
-            `font-src 'self' https://fonts.gstatic.com ${clerkDomain}`,
+            "font-src 'self' https://fonts.gstatic.com",
 
-            // Connections: self + analytics + AWS Cognito + DynamoDB/API calls
-            // DynamoDB is called server-side (Lambda), not client-side — no need here
+            // Connections: self + analytics only (OSS build — no Clerk/Stripe/Sentry)
             [
               "connect-src 'self'",
               'https://www.google-analytics.com',
               'https://*.clarity.ms',
-              // Clerk API
-              clerkDomain,
-              // Stripe Elements (billing page) talks to api.stripe.com + m.stripe.network
-              'https://api.stripe.com https://m.stripe.network https://m.stripe.com',
-              // Sentry error reporting (must be in connect-src or browser blocks silently)
-              'https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io',
               // Investigation relay WebSocket (Core API)
               'wss://api-staging.causeflow.ai wss://api.causeflow.ai',
               isDev ? 'ws://127.0.0.1:* ws://localhost:*' : '',
@@ -143,8 +125,8 @@ const nextConfig = {
               .filter(Boolean)
               .join(' '),
 
-            // Frames: self + Clerk (auth UI) + Stripe Checkout/Elements iframes
-            `frame-src 'self' ${clerkDomain} https://js.stripe.com https://hooks.stripe.com`,
+            // Frames: self only (local auth forms, no Clerk/Stripe iframes)
+            "frame-src 'self'",
 
             // Workers: self + blob (needed by some libraries)
             "worker-src 'self' blob:",
@@ -154,8 +136,8 @@ const nextConfig = {
           ].join('; '),
         },
 
-        // Cross-Origin policies — relaxed for Clerk auth + Cloudflare Turnstile
-        { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
+        // Cross-Origin policies
+        { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
       ],
     },
 
@@ -232,11 +214,4 @@ const nextConfig = {
   },
 };
 
-export default withSentryConfig(withNextIntl(nextConfig), {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  silent: !process.env.CI,
-  widenClientFileUpload: true,
-  webpack: { treeshake: { removeDebugLogging: true } },
-  hideSourceMaps: true,
-});
+export default withNextIntl(nextConfig);

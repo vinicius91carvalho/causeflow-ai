@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# Build outputs
+.next
+dist
+coverage
+.turbo
+**/.next
+**/dist
+**/coverage
+
+# Dependencies (installed inside the image)
+node_modules
+**/node_modules
+
+# Local env / secrets
+.env.local
+.env.*.local
+**/.env.local
+
+# Harness / docs / artifacts not needed at build time
+docs
+harness-progress
+.artifacts
+screenshots
+tests
+playwright-report
+test-results
+causeflow-anim-brain-screen
+demo-recording.mjs
+INVARIANTS.md
+README.md
+CLAUDE.md
+**/CLAUDE.md
+**/__tests__

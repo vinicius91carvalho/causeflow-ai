@@ -1,0 +1,188 @@
+# CauseFlow — open-source local runtime (web + core) — AC-044.
+#
+# `docker compose up -d` from this (web) monorepo root brings up the full
+# open-source stack:
+#   causeflow-postgres, redis, hindsight, causeflow-api, causeflow-worker,
+#   causeflow-website (host port 3000), causeflow-dashboard (host port 3001).
+#
+# The five Core services build from the sibling `core` subproject's Dockerfiles
+# (the CauseFlow platform is two open-source halves — see project_specs.xml
+# `<open-source-local-runtime>`). Override the core path with the CORE_CONTEXT
+# env var if your layout differs. The two web services build from the
+# Dockerfiles bundled in this repo (apps/{website,dashboard}/Dockerfile).
+#
+# The whole stack boots with a clean environment: no CLERK_*, STRIPE_*,
+# AWS_*, SENTRY_*, LOOPS_*, or SST-injected vars. The dashboard serves a local
+# sign-in form (not Clerk-hosted UI) and contacts only the Core API at boot.
+
+# Default the Core build context to the sibling core subproject checkout.
+# Resolve relative to this file's directory.
+# shellcheck disable=SC2034
+x-core-context: &core-context
+  # Override with: CORE_CONTEXT=/abs/path/to/core docker compose up -d
+  context: ${CORE_CONTEXT:-../../causeflow-ai-wt-core-open-source-local-runtime/core}
+
+name: causeflow-oss
+
+services:
+  # ---------------------------------------------------------------------------
+  # Core services (built from the sibling core subproject)
+  # ---------------------------------------------------------------------------
+
+  causeflow-postgres:
+    image: postgres:16-alpine
+    container_name: causeflow-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-causeflow}
+      POSTGRES_USER: ${POSTGRES_USER:-causeflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-causeflow}
+    volumes:
+      - causeflow_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-causeflow} -d ${POSTGRES_DB:-causeflow}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    volumes:
+      - causeflow_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+
+  hindsight:
+    image: ghcr.io/vectorize-io/hindsight:latest
+    container_name: hindsight
+    ports:
+      - '8888:8888'
+      - '9999:9999'
+    environment:
+      HINDSIGHT_API_LLM_PROVIDER: ${HINDSIGHT_API_LLM_PROVIDER:-none}
+      HINDSIGHT_API_LLM_API_KEY: ${ANTHROPIC_API_KEY:-}
+      HINDSIGHT_API_ENABLE_BANK_CONFIG_API: 'false'
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8888/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
+  causeflow-api:
+    build:
+      <<: *core-context
+      dockerfile: Dockerfile
+    container_name: causeflow-api
+    depends_on:
+      causeflow-postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      CAUSEFLOW_RUNTIME: oss
+      NODE_ENV: development
+      PORT: '5171'
+      LOG_LEVEL: info
+      DATABASE_URL: postgresql://${POSTGRES_USER:-causeflow}:${POSTGRES_PASSWORD:-causeflow}@causeflow-postgres:5432/${POSTGRES_DB:-causeflow}
+      POSTGRES_HOST: causeflow-postgres
+      POSTGRES_PORT: '5432'
+      REDIS_URL: redis://redis:6379
+      HINDSIGHT_BASE_URL: http://hindsight:8888
+      HINDSIGHT_API_KEY: ${HINDSIGHT_API_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-oss-dev-webhook-secret}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - '3099:5171'
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:5171/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  causeflow-worker:
+    build:
+      <<: *core-context
+      dockerfile: Dockerfile.worker
+    container_name: causeflow-worker
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      CAUSEFLOW_RUNTIME: oss
+      NODE_ENV: development
+      LOG_LEVEL: info
+      REDIS_URL: redis://redis:6379
+      HINDSIGHT_BASE_URL: http://hindsight:8888
+      HINDSIGHT_API_KEY: ${HINDSIGHT_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Web services (built from this repo's Dockerfiles)
+  # ---------------------------------------------------------------------------
+
+  causeflow-website:
+    build:
+      context: .
+      dockerfile: apps/website/Dockerfile
+    container_name: causeflow-website
+    depends_on:
+      causeflow-api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      # Local runtime — no staging gate, no Clerk/Stripe/AWS/Sentry/Loops/SST.
+      NEXT_PUBLIC_DEPLOYMENT_STAGE: development
+      NEXT_PUBLIC_DASHBOARD_URL: http://localhost:3001
+      NEXT_PUBLIC_GA4_MEASUREMENT_ID: ${NEXT_PUBLIC_GA4_MEASUREMENT_ID:-}
+      NEXT_PUBLIC_CLARITY_ID: ${NEXT_PUBLIC_CLARITY_ID:-}
+    ports:
+      - '3000:3000'
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 5s
+      timeout: 5s
+      retries: 18
+      start_period: 10s
+
+  causeflow-dashboard:
+    build:
+      context: .
+      dockerfile: apps/dashboard/Dockerfile
+    container_name: causeflow-dashboard
+    depends_on:
+      causeflow-api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      # Local runtime — no staging gate.
+      NEXT_PUBLIC_DEPLOYMENT_STAGE: development
+      # Core API reachable inside the compose network.
+      CORE_API_URL: http://causeflow-api:5171
+      # Shared with the Core container — the Core signs JWTs with this secret.
+      JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}
+      # Optional analytics — blank = no-op, no outbound calls.
+      NEXT_PUBLIC_GA4_MEASUREMENT_ID: ${NEXT_PUBLIC_GA4_MEASUREMENT_ID:-}
+      NEXT_PUBLIC_CLARITY_ID: ${NEXT_PUBLIC_CLARITY_ID:-}
+      # Sentry SDK no-ops when the DSN is empty (no sentry.io contact at boot).
+      NEXT_PUBLIC_SENTRY_DSN: ''
+    ports:
+      - '3001:3001'
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3001/auth/sign-in').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 5s
+      timeout: 5s
+      retries: 18
+      start_period: 10s
+
+volumes:
+  causeflow_postgres_data:
+  causeflow_redis_data:
