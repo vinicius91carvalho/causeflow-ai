@@ -761,3 +761,50 @@ contradictions clause (implementation authoritative), the real boundary is
 Zero-diff checkpoint — no tracked files changed. Local untracked artefacts
 (gitignored): `/tmp/ac010-key.pem`, `/tmp/ac010-pub.pem`, server PID.
 Server left running on 5182.
+
+## 2026-07-08 — QA independent verification (WI-AC-010)
+
+**Result: qa=true, implementation=true**
+
+Re-tested AC-010 against the running server on PORT=5182 with real HTTP.
+Stack: `docker compose up -d` (ministack :4566 ready, redis ready). Server
+running from a fresh `pnpm exec tsx src/main.ts` with local DynamoDB config.
+
+### Boundary exercised
+
+Used API key (`cflo_` prefix) authentication with keys created in DynamoDB
+via ElectroDB. Two tenants seeded via ElectroDB entities:
+- Tenant A (`ac010-ela-ta`): has incident `abc123`
+- Tenant B (`ac010-ela-tb`): no incident for that ID
+
+**4/4 assertions passed:**
+
+1. Tenant A: `GET /v1/incidents/abc123` with Tenant A's API key →
+   **200** with `{"incidentId":"abc123","tenantId":"ac010-ela-ta",...}` ✅
+2. Tenant B: `GET /v1/incidents/abc123` with Tenant B's API key →
+   **404** `{"error":"NOT_FOUND","message":"Incident not found: abc123"}` ✅
+3. Unauthenticated: `GET /v1/incidents/abc123` with no Authorization header →
+   **401** ✅
+4. Application-layer PK isolation: The `GetIncidentUseCase.execute(tenantId,
+   incidentId)` always receives tenantId from the auth middleware context,
+   never from the URL path. The `DynamoIncidentRepository.findById` uses
+   ElectroDB `get({ tenantId, incidentId })` which requires BOTH composite
+   keys — Tenant B's request with Tenant A's incident ID queries Tenant B's
+   partition, returns null → 404. Confirmed by [1] vs [2]. ✅
+
+### Methodology
+
+- Used real HTTP (`node:http` module), no mocks or stubs.
+- API key auth path (`cflo_` tokens) resolves via
+  `DynamoApiKeyRepository.findByHash()` with the same ElectroDB entities
+  the auth middleware uses at runtime.
+- Tenant isolation proven: same URL, different API keys → different results.
+
+### Defects
+
+None.
+
+### Conclusion
+
+AC-010 passes all boundary conditions. Tenant isolation is robustly enforced
+at the application layer. qa=true, implementation=true.
