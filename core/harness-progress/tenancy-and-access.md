@@ -594,3 +594,39 @@ No defects found. Journal committed, verdict emitted.
 - RepairPlan: QA defect report for WI-AC-009 is clean — all three sub-behaviours passed (POST /v1/api-keys returns 201 + `cflo_` plaintext key, GET /v1/whoami with Bearer token resolves user+tenant, quota-exceeded returns 429 QUOTA_EXCEEDED). Repository verification confirms every required structure exists: ApiKey entity (domain), IApiKeyRepository port, CreateApiKeyUseCase (with MAX_API_KEYS_PER_TENANT=5 quota), ListApiKeysUseCase, RevokeApiKeyUseCase, DynamoApiKeyRepository (ElectroDB-backed with findByHash), ApiKeyEntity (GSI byTenant), api-key.routes.ts (POST/GET/DELETE mounted at /v1/api-keys), auth.middleware.ts (cflo_ token resolution + configureAuthApiKeyRepo wiring), whoami inline handler in app.ts at GET /v1/whoami, QuotaExceededError → 429 QUOTA_EXCEEDED in error-handler.ts, and 4 unit test files. No missing scaffold artifacts found.; Update feature_list.json WI-AC-009: set `qa=true`, `status="done"` (or `"integrated"`) to reflect the completed QA pass.; If integration tests exist for AC-009, verify they also pass, then set `integration=true`.; Verify that the `attempts` counter in feature_list.json reflects the actual QA run (currently `attempts: 0`, but one QA log exists at WI-AC-009-2-qa.log — increment to 1 or 2).
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-009-2-qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-08 — Final Verify-First + metadata update (WI-AC-009, this worktree)
+
+**Result: implementation=true, qa=true. Zero defects.**
+
+Re-exercised all AC-009 boundary assertions against the EXISTING code on the
+assigned PORT=5182. Generated a fresh RSA-2048 keypair, wrote the SPKI public
+PEM as CLERK_JWT_KEY in .env.dev, booted a fresh server
+(`node --env-file=.env.dev --import tsx/esm src/main.ts`), minted an admin JWT
+signed RS256 with the matching private key. Real `fetch` HTTP, real
+`@clerk/backend` networkless RS256 verification, real DynamoDB at ministack
+:4566 — no mocks.
+
+**11/11 passed:**
+1. GET /v1/whoami with admin JWT → 200 (user+tenant+role=admin)
+2. GET /v1/whoami without auth → 401
+3. POST /v1/api-keys with name+scopes → 201 + plaintext (cflo_ prefix)
+4. GET /v1/whoami with API key → 200 resolves user+tenant
+5. GET /v1/whoami with bogus key → 401
+6-9. Create keys #2-#5 → 201 each
+10. Create key #6 → 429 QUOTA_EXCEEDED (limit=5, active=5)
+11. GET /v1/api-keys → 200 with 5 items, no keyHash leak
+
+Updated feature_list.json: implementation=true, qa=true, status="done",
+attempts=3. No tracked code changes — metadata-only update.
+
+Path note (doc drift, not a defect, same as WI-AC-007/008): spec AC wording
+says `/api/v1/...`; implementation mounts all routes at `/v1/*` with no `/api`
+prefix (global). Per the contradictions clause (implementation authoritative),
+the real boundary is `/v1/api-keys` and `/v1/whoami`.
+
+## 2026-07-08T18:25:30Z — Checkpoint ready
+- Attempt: 3/3
+- WorkItem: WI-AC-009
+- Outcome: implementation=true, qa=true (all 3 AC-009 sub-behaviours pass at real HTTP on PORT=5182)
+- NextAction: Integrated Verification
