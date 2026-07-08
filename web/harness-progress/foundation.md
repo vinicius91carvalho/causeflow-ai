@@ -497,3 +497,40 @@ No defects within the AC-036 boundary at the integrated boundary. integration=tr
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-036-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-038 — Verify-first (foundation)
+
+**Result: implementation=true** (one-line root-cause fix to `apps/website/.env.example`)
+
+### AC-038 evidence (real external boundary: HTTP on port 5172)
+
+Boundary exercised: the website dev server (`next dev --hostname 127.0.0.1 --port 5172`) responding to real HTTP requests.
+
+- **Step 1 — `apps/website/src/app` has no `/api` subdirectory:** confirmed. `apps/website/src/app/` contains only `[locale]/`, `robots.ts`, `sitemap.test.ts`, `sitemap.ts`, `staging-auth/`. No `/api` directory exists. HTTP boundary: `GET /api/notify` → **404**, `POST /api/notify` → **404**, `GET /api` → **404** (all served by Next.js `_not-found`, confirming no route is registered). ✓
+- **Step 2 — `apps/website/next.config.mjs` lists `https://app.loops.so` in CSP `connect-src`:** confirmed at the HTTP boundary. `curl -sI http://127.0.0.1:5172/en` returns `Content-Security-Policy` whose `connect-src` directive is `connect-src 'self' https://www.google-analytics.com https://app.loops.so https://*.clarity.ms http://127.0.0.1:3001 ws://127.0.0.1:* ws://localhost:*`. Source: `next.config.mjs:77`. ✓
+- **Step 3 — `LOOPS_API_KEY` listed in `apps/website/.env.example` but no code in `apps/website/src/` imports a loops-related module:** ✓
+  - `LOOPS_API_KEY=` is now declared in `apps/website/.env.example` (line 30) under the Private (server) section, with a comment noting it is a planned integration with no runtime consumer. (This was the single defect — see below.)
+  - `grep -rn "loops\|LOOPS" apps/website/src` returns no module imports (only the words "infinite loops"/"redirect loops" appear in unrelated comments elsewhere in the monorepo, none under `apps/website/src`). The only runtime Loops reference in the entire codebase is the CSP allow-list entry. ✓
+
+### Root-cause fix (smallest possible diff)
+
+- **Defect against AC-038 Step 3 / description:** The AC description and the spec's `<contradictions>` section both state that Loops.so is declared as a planned integration in `apps/website/.env.example` via `LOOPS_API_KEY`, and `docs/apps/website/README.md` (lines 119, 184) documents `LOOPS_API_KEY` as the env var for `/api/notify`. However the committed `apps/website/.env.example` did **not** contain `LOOPS_API_KEY` at all — the declaration was missing.
+- **Cause:** Drift between docs/spec (which describe `LOOPS_API_KEY` as declared in `.env.example`) and the actual `.env.example` file, which had only `NEXT_PUBLIC_DASHBOARD_URL`, `NEXT_PUBLIC_DEPLOYMENT_STAGE`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_CLARITY_PROJECT_ID`, and `STAGING_PASSWORD`.
+- **Fix:** Added a single `LOOPS_API_KEY=` entry (plus a 3-line comment noting it is a planned integration with no runtime consumer, set in `.env.local` when implemented) to the Private (server) section of `apps/website/.env.example`. This declares the planned integration exactly as the AC describes, aligns the file with `docs/apps/website/README.md` and the spec's contradiction note, and creates **no** runtime consumer (the "no current consumer" half of Step 3 still holds — no code in `apps/website/src/` imports any loops module, and no `/api/notify` route exists).
+- **Diff:** 5 lines added to `apps/website/.env.example`; no other files touched. No refactor, no restructuring, no new runtime code path.
+
+### Notes
+
+- This is a static-structural AC (a planned integration with no runtime consumer). The "real external boundary" is the live HTTP server's response headers and route table: the CSP `connect-src` header is observed on a real `GET /en` response, and the absence of `/api/notify` is observed as a real HTTP 404 (not just a missing file on disk). Both confirm the AC at a true boundary.
+- The fix does not implement the Loops.so integration — it only declares the planned `LOOPS_API_KEY` env var in the example file, matching the AC's described expected state. The integration remains planned-only with no consumer.
+
+No further defects within the AC-038 boundary. implementation=true set for WI-AC-038.
+
+## 2026-07-08T02:12Z — Verify-first (Attempt 1)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-038
+- AcceptanceChecks: AC-038
+- Outcome: passed (one-line root-cause fix to apps/website/.env.example; verified at HTTP boundary on port 5172)
+- Evidence: /tmp/website-5172.log (dev server), /tmp/head.txt (CSP header), curl 404 responses for /api/notify
+- NextAction: set implementation=true; commit; next Ready Work Item
