@@ -831,3 +831,10 @@ Evidence: `bash -c 'RELEASE_VERSION=1.2.3; MAJOR=$(cut -d. -f1<<<1.2.3); MINOR=$
 Re-audited `.github/workflows/release.yml` after the `fix(ci): correct X.Y docker tag in release workflow` commit. The `Build and push multi-arch image` step now emits `causeflowai/relay:${{ env.MINOR }}` for the X.Y tag (was `${{ env.MAJOR }}.${{ env.MINOR }}`). Simulated RELEASE_VERSION=1.2.3 with the workflow's `cut` commands: MAJOR=1, MINOR=1.2, producing tags `causeflowai/relay:1.2.3` (X.Y.Z), `causeflowai/relay:1.2` (X.Y), `causeflowai/relay:1` (X), `causeflowai/relay:latest` — all four correct. YAML parses cleanly. Every AC-008 clause verified: `on: push: branches: [main]`; `release` job `actions/checkout@v4` `fetch-depth: 0` + `GITHUB_TOKEN`, `actions/setup-node@v4` `node-version: '22'`, `npm ci`, `npx semantic-release` with `GITHUB_TOKEN`, `released`/`version` outputs from git-describe before/after tag compare; `docker` job `needs: release`, `if: needs.release.outputs.released == 'true'`, `docker/setup-qemu-action@v3`, `docker/setup-buildx-action@v3`, `docker/login-action@v3` with `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN`, `docker/build-push-action@v6` `platforms: linux/amd64,linux/arm64` `push: true`. Prior X.Y tag defect resolved.
 
 **QA verdict: qa=true, implementation=true.** Zero defects.
+
+## 2026-07-08T04:28:39.932Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-008
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
