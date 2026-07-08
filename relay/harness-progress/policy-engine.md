@@ -58,3 +58,10 @@
 - Outcome: PASSED
 - Evidence: Separately verified via standalone WebSocket boundary test. A resource configured with `allowedOperations: ['query']` rejects an `execute` request with `operation: 'describe_table'`. The main loop returns JSON-RPC error code -32600 with message `Policy denied: Operation describe_table not allowed on resource test-restricted`. Relay stdout contains audit entry with `result: "denied"` and `policyChecks.reason` set to the denial reason. No code changes needed.
 - Result: implementation=true (zero-diff: no code changes needed)
+
+## 2026-07-08T17:33:13.400Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-037
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
