@@ -342,3 +342,10 @@ The existing code failed AC-005 at the boundary in two independent ways; each fi
 - `dynamodb describe-continuous-backups --table-name causeflow-local` → `PointInTimeRecoveryDescription.PointInTimeRecoveryStatus = ENABLED` (plus `ContinuousBackupsStatus: ENABLED`). ✓ (In real DynamoDB `describe-table` itself never returns `PointInTimeRecoveryDescription`; the AC's wording is descriptive — both calls confirm the required state.)
 - Smoke: foundation API on assigned PORT=5174 → `curl http://localhost:5174/health` → HTTP 200, `checks.dynamodb=ok` (the app describes `causeflow-local`).
 - Verdict: qa=true, implementation=true, no defects within AC-005 boundary.
+
+## 2026-07-08T00:29:43.965Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-005
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
