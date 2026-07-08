@@ -86,3 +86,12 @@ Path note (doc drift, not a defect): spec AC wording says `/api/v1/auth/login`; 
 Evidence: `.git/harness-runs/evidence/tenancy-and-access/WI-AC-007-integration-summary.txt` + `WI-AC-007-integration.log`. Server left running on 5181 for the tenancy-and-access context.
 
 5/5 boundary assertions + 2/2 smoke assertions passed. integration=true.
+
+## 2026-07-08T03:27:52.420Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-007
+- AcceptanceChecks: AC-007
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-007-1-integration_qa.log
+- NextAction: next Ready Work Item
