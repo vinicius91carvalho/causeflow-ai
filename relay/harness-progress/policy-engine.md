@@ -125,3 +125,23 @@
 - WorkItem: WI-AC-038
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08 — Integrated Verification (qa-agent)
+
+- WorkItem: WI-AC-038
+- AcceptanceChecks: AC-038
+- Outcome: PASSED
+- Evidence: Real WebSocket boundary test against running docker-compose stack
+  (relay + control-plane-stub + real Postgres + real Mongo) confirmed:
+  1. `execute` with `params.params.limit = 5000` against `order-pg` (maxRowsPerQuery: 1000)
+     → JSON-RPC `-32600` error with message
+     `Policy denied: Row limit 5000 exceeds maximum 1000`.
+  2. `execute` with `params.params.limit = 100` → policy accepts,
+     driver clamps to `min(100, 1000) = 100`, returns result with
+     `rowCount: 1`, `fields: [{name: "one", type: "23"}]`.
+  3. `execute` with no limit → falls back to `maxRowsPerQuery = 1000`,
+     policy accepts, returns result with `rowCount: 1`.
+  4. MongoDB `limit=100` → policy accepts, returns result (no -32600).
+  5. MongoDB `limit=5000` → `-32600` with same row-limit message.
+  No code changes needed (zero-diff).
+- Result: implementation=true, integration=true
