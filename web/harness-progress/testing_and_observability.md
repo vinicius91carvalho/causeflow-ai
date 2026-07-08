@@ -590,3 +590,45 @@ Merge with strategy ort failed.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Retrying again after a supervisor restart (previous supervisor process was hung, unresponsive to stop signal, force-killed and restarted cleanly). Retry for a fresh attempt.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08 — VERIFY-FIRST re-verify (WI-AC-042, attempt 4)
+- Role: coding-agent (VERIFY-FIRST). AcceptanceChecks: AC-042. Context:
+  testing_and_observability. Port: 5175. Boundary: real pino + real handler
+  catch + Sentry mock (Vitest) + real dev-server boot.
+- Git: working tree clean (zero-diff checkpoint). Branch
+  gen/web-testing_and_observability @ cb33b04.
+- Scaffold re-confirmed: apps/dashboard/src/lib/logger.ts exports pino
+  logger (pino 10.3.1 installed; ^10.3.1 in package.json); structured
+  JSON; REDACT_PATHS covers auth headers (req.headers.authorization,
+  cookie, x-api-key, x-clerk-auth-token, x-session-token), Clerk session
+  tokens (body.token/accessToken/refreshToken, cookie/__session via
+  body.credentials.*), and Stripe secrets (stripeSecretKey, stripeToken,
+  stripePaymentMethodId, stripePublishableKey, STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET, STRIPE_PUBLISHABLE_KEY, CLERK_SECRET_KEY) at
+  top-level, body.*, body.*.*, req.headers.* nesting.
+- withAuth catch: dashLogger.error({err, method, path, userId, tenantId,
+  duration}) then `throw error` → Next.js onRequestError →
+  Sentry.captureRequestError. ✓
+- Handler audit: zero `console.error` in any *-handler.ts; every 5xx-
+  returning catch imports dashLogger + @sentry/nextjs and calls
+  dashLogger.error + Sentry.captureException (audit-handler pattern).
+- Sentry beforeSend: instrumentation-client.ts, sentry.server.config.ts,
+  sentry.edge.config.ts all delete event.request.headers.{authorization,
+  cookie, x-api-key}, event.request.data (wholesale), event.request.cookies,
+  event.user.ip_address. Same redaction in observability layer. ✓
+- Real-boundary tests: `pnpm exec vitest run --project dashboard
+  logger.test.ts checkout-handler-ac042.test.ts` → 3 passed (logger
+  redaction asserts stripeSecretKey/stripeToken/STRIPE_SECRET_KEY/
+  STRIPE_WEBHOOK_SECRET/authorization/cookie/__session/body.secret/
+  apiKey/token/credentials redacted while method/path/userId/tenantId/
+  duration preserved; checkout handler 5xx catch asserts real pino dest
+  captures {method,path,userId,tenantId,duration}, Sentry.captureException
+  invoked with extra, no sk_live_/whsec_/clerk JWT in raw log).
+- Real HTTP: `next dev -p 5175` boots, instrumentation compiles
+  (1146 modules) + loads, .env.local picked up. curl /api/health → 500
+  "Publishable key not valid" (dummy pk_test_dummy_ac042_verify Clerk
+  key = documented test-env external-credential gate; dashboard has no
+  mock auth path). Not an AC-042 defect; contract verified at real
+  pino+handler+Sentry boundary via Vitest.
+- Verdict: PASS — implementation=true for AC-042 (zero-diff checkpoint;
+  no product code changed).
