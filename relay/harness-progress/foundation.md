@@ -587,3 +587,12 @@ Ran AC-010 at the real `npx commitlint` boundary on integrated `main` (HEAD 5cd2
 - WorkItem: WI-AC-010
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T Integrated Verification — WI-AC-010 verdict
+
+- Role: qa-agent (Integrated Verification) on integrated `main` (HEAD bdf4e24, clean tree).
+- AC-010 re-run at the real `npx commitlint` boundary:
+  - `commitlint.config.js` tracked, content `export default { extends: ['@commitlint/config-conventional'] };`.
+  - Accepts (exit 0): `fix: handle ws reconnect`, `feat: add redis driver`, `feat!: change config schema` (`!` suffix), `feat!: change config schema` + `BREAKING CHANGE:` footer.
+  - Rejects (exit 1): `random non-conventional message` (type-empty/subject-empty), `wip: something` (type-enum violation).
+- Verdict: integration=true, implementation=true, qa=true. No defects. Zero-diff checkpoint.
