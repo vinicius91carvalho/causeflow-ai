@@ -258,3 +258,44 @@ All 7 tests in `scripts/qa/ac042-test.mjs` pass against the compiled `dist/maski
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-042-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T23:00:00.000Z — Implementation Verified
+
+- WorkItem: WI-AC-043
+- AcceptanceChecks: AC-043
+- Outcome: implementation=true (zero-diff checkpoint)
+- Verification: `MaskingEngine.mask(data)` with `enabled: false` returns `{ masked: data, maskedFieldCount: 0 }` without applying any patterns. Verified against compiled `dist/masking/masking-engine.js` at 6 real-boundary tests:
+  1. Email string `john@example.com` passes through unchanged, `maskedFieldCount: 0`
+  2. Array `['john@example.com', '123.456.789-00', 'plain']` all pass through, `maskedFieldCount: 0`
+  3. Nested object `{ user: { email: 'a@b.co', phone: '+55 11 91234-5678' } }` all pass through, `maskedFieldCount: 0`
+  4. Sanity: same data with `enabled: true` still masks the email, `maskedFieldCount: 1`
+  5. `null` passes through, `maskedFieldCount: 0`
+  6. `number` passes through, `maskedFieldCount: 0`
+- No code changes needed — the `enabled` check was already implemented in `MaskingEngine.mask()`.
+- NextAction: none (AC-043 passes)
+
+## 2026-07-08T23:15:00.000Z — QA Verified
+
+- WorkItem: WI-AC-043
+- AcceptanceChecks: AC-043
+- Outcome: qa=true, implementation=true
+- Verification: Independent QA agent executed `node scripts/qa/ac043-test.mjs` against compiled `dist/masking/masking-engine.js`. All 9 tests pass:
+  1. Disabled engine returns original string with email/CPF unchanged, `maskedFieldCount: 0`
+  2. Disabled engine returns original array unchanged, `maskedFieldCount: 0`
+  3. Disabled engine returns original nested object unchanged, `maskedFieldCount: 0`
+  4. Disabled engine returns credit card number unchanged, `maskedFieldCount: 0`
+  5. Disabled engine returns Bearer token unchanged, `maskedFieldCount: 0`
+  6. Disabled engine returns BR phone unchanged, `maskedFieldCount: 0`
+  7. Disabled engine ignores user-defined patterns, `maskedFieldCount: 0`
+  8. null and numbers pass through unchanged, `maskedFieldCount: 0`
+  9. Regression: enabled engine still masks correctly (email + CPF both masked, `maskedFieldCount: 1`)
+- `npx tsc --noEmit` clean. `npm run build` exits 0.
+- No code changes needed.
+- NextAction: none (AC-043 fully verified)
+
+## 2026-07-08T18:29:09.638Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-043
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
