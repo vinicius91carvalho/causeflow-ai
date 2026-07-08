@@ -696,3 +696,12 @@ prefix (global, affects every AC). Per the contradictions clause
 - AcceptanceChecks: AC-009
 - Outcome: passed on integrated main
 - NextAction: next Ready Work Item
+
+## 2026-07-08T18:37:26.238Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-009
+- AcceptanceChecks: AC-009
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-009-3-integration_qa.log
+- NextAction: next Ready Work Item
