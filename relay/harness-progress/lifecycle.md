@@ -232,3 +232,31 @@
 - WorkItem: WI-AC-049
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T22:45:00.000Z — Integrated Verification Passed
+
+- WorkItem: WI-AC-049
+- Outcome: PASSED
+- Integration: true
+- Implementation: true
+- QA: true
+- AcceptanceChecks: AC-049
+- Evidence: Independent black-box test-ac049.mjs run against compiled relay
+  connected via WebSocket to a dedicated test control-plane stub on port 5196
+  (separate from the main docker-compose stack on port 3000).
+  Test 1 (one good PG resource + one bad Mongo resource with invalid URI):
+  1. Relay boot log contains "Failed to initialize driver" with id=bad-mongo
+     confirming error-level logging with `{ err, id: resource.id }`
+  2. list_resources returns only order-pg (the good resource) — bad resource filtered out
+  3. health_check returns only order-pg (healthy: true) — bad resource excluded
+  Test 2 (zero drivers — all resources with bad URIs fail):
+  4. Relay still connects to control-plane stub (WS client starts regardless)
+  5. health_check returns empty array (no drivers to check)
+  6. list_resources returns empty array (no initialized resources)
+- Source code confirmation: src/index.ts catches driver construction errors at
+  line 48-51 with `logger.error({ err, id: resource.id }, 'Failed to initialize driver')`;
+  onConnect (line 65) and list_resources (line 93) both filter to only resources
+  with initialized drivers via `drivers.has(r.id)`. HealthReporter.checkAll()
+  iterates the drivers Map — returns empty array when map is empty.
+  WsClient.connect() is called unconditionally after driver init loop.
+- Defects: []
