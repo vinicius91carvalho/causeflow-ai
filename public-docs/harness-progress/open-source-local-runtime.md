@@ -629,3 +629,109 @@ implementation=true; defects=none
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-029-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T03:40:00Z — Implementation (WI-AC-030)
+
+- WorkItem: WI-AC-030
+- AcceptanceChecks: AC-030
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: implementation=true (black-box verified on running stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-030 is the env-var boundary check for the open-source local runtime.
+No source changes were required: the state established in WI-AC-026/027
+already satisfies every clause. Verified each clause against a freshly
+rebuilt `causeflow-docs:ac030` image run on PORT=5179.
+
+### AC-030 mapped checks (all pass)
+
+- `.env.example` is **absent** (explicitly allowed by AC-030's first
+  clause: "either absent or contains only optional `MINTLIFY_*`
+  overrides"). Consistent with WI-AC-026/027 which also verified absent.
+- Container's required env vars are minimal: `PORT` (default 3000) for
+  the runtime stage — `Dockerfile` has `ENV PORT=3000`; `docker-compose.yml`
+  sets `PORT: "3000"`. No other env vars referenced.
+- No `MINTLIFY_AUTH_TOKEN`, `MINTLIFY_DEPLOY_TOKEN`,
+  `MINTLIFY_DEPLOYMENT_ID`, `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`,
+  `LANGFUSE_*`, `SVIX_*`, `SLACK_*`, or `COMPOSIO_*` referenced anywhere
+  in `Dockerfile`, `docker-compose.yml`, or `docs.json`
+  (`grep -En` → exit 1, zero matches). The only `MINTLIFY` token in the
+  Dockerfile is a comment affirming "no `MINTLIFY_*` env vars" — not a
+  forbidden var reference.
+- Literal AC grep
+  `grep -E 'CLERK_|STRIPE_|AWS_|SENTRY_|LANGFUSE_|SVIX_|SLACK_|COMPOSIO_|MINTLIFY_(AUTH|DEPLOY)' .env.example Dockerfile docker-compose.yml`
+  → **zero match lines** on stdout (`.env.example` absent; grep prints a
+  "No such file" notice to stderr but produces no matching lines, and the
+  AC's first clause explicitly permits absence).
+
+### Black-box verification (clean env, PORT=5179)
+
+Rebuilt from a blank env (`env -i HOME=$HOME PATH=$PATH docker build .
+-t causeflow-docs:ac030`, exit 0) and ran as `causeflow-docs` on
+`5179:3000` with `PORT=3000`.
+
+- `curl -s -o /dev/null -w '%{http_code}' http://localhost:5179/` → **200**,
+  body 230328 bytes; `grep -c 'CauseFlow AI'` → **4**; `grep -ci 'Quickstart'`
+  → **3**.
+- `docker logs causeflow-docs 2>&1 | grep -cE` forbidden-host pattern
+  (`mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|`
+  `anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|`
+  `langfuse\.io|svix\.com|slack\.com|composio\.dev`) → **0** (boot log:
+  `Serving docs at http://localhost:3000`).
+- `docker inspect causeflow-docs:ac030` runtime `Env` = `PATH`,
+  `NODE_VERSION`, `YARN_VERSION`, `PORT=3000` only — no `MINTLIFY_*`, no
+  `CLERK_*`/`STRIPE_*`/`AWS_*`/`SENTRY_*`/`LANGFUSE_*`/`SVIX_*`/`SLACK_*`/
+  `COMPOSIO_*`, no account credentials.
+- Page reachability smoke: `/getting-started/quickstart` → 200,
+  `/api-reference/introduction` → 200, `/relay/overview` → 200,
+  `/changelog/index` → 200.
+
+### verdict
+
+implementation=true; integration=pending; qa=pending; defects=none
+
+## 2026-07-08T01:50:00Z — QA (WI-AC-030)
+
+- WorkItem: WI-AC-030
+- AcceptanceChecks: AC-030
+- context: open-source-local-runtime
+- Outcome: qa=true; implementation=true; defects=none
+
+### Independent verification
+
+- `.env.example` absent (`find . -name '.env*'` → none) — explicitly permitted
+  by AC-030's first clause ("either absent or contains only optional
+  `MINTLIFY_*` overrides").
+- Runtime-stage required env vars minimal: `Dockerfile` has only
+  `ENV PORT=3000`; `docker-compose.yml` sets only `PORT: "3000"`. No
+  `ARG`/other `ENV` in the runtime stage.
+- Forbidden-var scan across `Dockerfile`, `docker-compose.yml`, `docs.json`
+  (`CLERK_|STRIPE_|AWS_|SENTRY_|LANGFUSE_|SVIX_|SLACK_|COMPOSIO_|
+  MINTLIFY_(AUTH|DEPLOY|DEPLOYMENT_ID)`) → zero matches. The only
+  `MINTLIFY` token in the Dockerfile is a comment affirming "no
+  `MINTLIFY_*` env vars" — not a var reference.
+- Literal AC grep
+  `grep -E 'CLERK_|STRIPE_|AWS_|SENTRY_|LANGFUSE_|SVIX_|SLACK_|COMPOSIO_|MINTLIFY_(AUTH|DEPLOY)' .env.example Dockerfile docker-compose.yml`
+  → zero matching lines on stdout (`.env.example` absent; AC permits absence).
+- Black-box: rebuilt image clean (`env -i ... docker build . -t
+  causeflow-docs:ac030qa`, exit 0). `docker inspect` runtime `Env` =
+  `PATH`, `NODE_VERSION`, `YARN_VERSION`, `PORT=3000` only — no
+  forbidden vars, no account credentials. Entrypoint/cmd =
+  `node serve.js` (talks to no external SaaS host). Running container on
+  5179 returns HTTP 200 with "CauseFlow AI" (×4) and "Quickstart" (×3);
+  `docker logs` forbidden-host grep count = 0
+  (log: `Serving docs at http://localhost:3000`).
+
+### verdict
+
+implementation=true; qa=true; defects=none
+
+## 2026-07-08T03:31:46.515Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-030
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
