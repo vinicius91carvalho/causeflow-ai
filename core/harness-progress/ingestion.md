@@ -326,3 +326,10 @@ No defects found. Implementation is correct across all four parser-specific code
      status=triaging, sourceAlertId prefixed manual-
 - Working tree: clean (no tracked files changed beyond this journal entry)
 - NextAction: none
+
+## 2026-07-08T19:54:20.443Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
