@@ -439,3 +439,23 @@ Real-process boundary: `env -u RELAY_CONFIG_PATH CONTROL_PLANE_URL=ws://127.0.0.
 - WorkItem: WI-AC-005
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-005 — Integrated Verification on main (2026-07-07)
+
+Ran AC-005 at real external boundaries on integrated `main` (HEAD a62b922). Clean `dist` from `npm run build` (exit 0). No mocks of the relay; a real `ws` stub on 0.0.0.0:5188 (PORT 5177 is held by the harness orchestrator).
+
+Env-var fallback probe (`node ./ac005-probe.mjs` importing `dist/config/loader.js` + `dist/config/schema.js`, 22 assertions, all pass):
+- `CONTROL_PLANE_URL` honored (default `ws://localhost:3000/v1/relay/connect` when unset). ✓
+- `RELAY_TOKEN` / `TENANT_ID` read into `controlPlane.token` / `controlPlane.tenantId` (missing `RELAY_TOKEN` → `''`, no throw at load). ✓
+- Walk over `RESOURCE_0_*` / `RESOURCE_1_*` stops at first missing `RESOURCE_N_ID` (2 resources for 0+1; does NOT skip gaps when `RESOURCE_1_ID` is missing but `RESOURCE_2_ID` is set). ✓
+- Each `RESOURCE_N_CONNECTION` is `JSON.parse`d into the resource `connection` record (host string, port number preserved). ✓
+- `RESOURCE_N_MAX_ROWS` honored (500); missing → default 1000. ✓
+- Fallback config round-trips through the same `relayConfigSchema.parse` as the YAML path (deep-equal re-parse). ✓
+- Zod-default `allowedOperations` (all 4) applied in the fallback path. ✓
+- No resources → `relayConfigSchema` rejects with `too_small` min-1 (fails fast, no silent start). ✓
+- Malformed `RESOURCE_0_CONNECTION` JSON → `JSON.parse` throws (no silent fallback). ✓
+
+Real-process boundary (no YAML present, `RELAY_CONFIG_PATH` unset, `/app/relay-config.yaml` absent → `existsSync` false → env-var fallback branch):
+`env -u RELAY_CONFIG_PATH CONTROL_PLANE_URL='ws://127.0.0.1:5188/v1/relay/connect' RELAY_TOKEN=ac005-token TENANT_ID=ac005-tenant RESOURCE_0_ID=order-pg RESOURCE_0_TYPE=postgres RESOURCE_0_NAME='Order PG' RESOURCE_0_CONNECTION='{"host":"127.0.0.1","port":5432,...}' RESOURCE_0_MAX_ROWS=250 node dist/index.js` → pino `Starting CauseFlow Relay...`, `Config loaded` (`resources:1, tenantId:ac005-tenant`), `Driver initialized` (`order-pg` postgres), then `Connected to control plane` (relayId+url). Stub recorded `url=/v1/relay/connect?token=ac005-token&tenantId=ac005-tenant`, `Authorization: Bearer ac005-token`, `X-Tenant-Id: ac005-tenant`, and received `resource_update` with 1 resource on open.
+
+**Integrated verdict: integration=true, implementation=true, qa=true, no defects.** All AC-005 conditions pass on integrated main.
