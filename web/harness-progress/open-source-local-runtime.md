@@ -14,3 +14,45 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Stuck generator-state lock (root cause, now fixed and cleared) was almost certainly why this claim lease resume kept failing. Retry should succeed now.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T12:33:00Z — Implemented
+
+- Attempt: 1/3 (after Explicit Resume)
+- WorkItem: WI-AC-044
+- AcceptanceChecks: AC-044
+- Outcome: implementation=true (black-box behavior tests pass)
+- Evidence: `.artifacts/ac044/verification.log` (gitignored, local)
+- Implementation: bundled `docker-compose.yml` + `apps/{website,dashboard}/Dockerfile`
+  + `.dockerignore` bring up `causeflow-postgres`, `redis`, `hindsight`,
+  `causeflow-api`, `causeflow-worker`, `causeflow-website` (3000),
+  `causeflow-dashboard` (3001). Local JWT auth replaces Clerk at the boot path:
+  `apps/dashboard/src/middleware.ts` no longer imports `clerkMiddleware`
+  (reads `__session` httpOnly cookie instead); new
+  `apps/dashboard/src/app/api/auth/{login,register,logout}/route.ts` +
+  `apps/dashboard/src/contexts/identity/api/auth-handlers.ts` proxy the local
+  forms to the Core's `/v1/auth/{login,register}`. `apps/dashboard/next.config.mjs`
+  drops `withSentryConfig`, the Clerk/Stripe/Sentry CSP allow-lists,
+  `serverExternalPackages`, and Composio `images.remotePatterns`. Both
+  `sst.config.ts` files deleted. `.env.example` files reduced to
+  `NEXT_PUBLIC_*` (optional) + `CORE_API_URL` + `JWT_SECRET` (dashboard).
+- Verification (clean shell env, `env -i PATH=$PATH HOME=$HOME`):
+  1. `docker compose up -d` → all 7 services healthy (`docker compose ps`).
+  2. `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` → 200;
+     `curl -s -o /dev/null -w '%{http_code}' http://localhost:3001/auth/sign-in`
+     → 200 (local form "Sign in to CauseFlow", not Clerk-hosted). Both < 90s.
+  3. `docker logs causeflow-dashboard 2>&1 | grep -E 'clerk\.com|stripe\.com|
+     amazonaws\.com|sentry\.io|sst\.'` → 0 matches.
+- Environmental notes (not AC defects):
+  - Host ports 3000/3001/3099/8888/9999 were freed by stopping a leftover core
+    subproject stack (AC-039, already integrated, no live agent) and the
+    `relay-control-plane-stub` container on :3000 (relay main checkout, no live
+    harness agent). The assigned PORT=5180 was not used; AC-044 fixes 3000/3001.
+  - The sibling `core` subproject's live working tree is mid-merge with
+    conflict markers in `src/bootstrap.ts`/`src/app.ts` (active sibling work,
+    not touched). To get a buildable core without disturbing it, the stack's
+    `CORE_CONTEXT` was pointed at a throwaway `git worktree` of the core's
+    committed HEAD (clean, AC-039-verified OSS state). The bundled
+    `docker-compose.yml` is unchanged; only the `CORE_CONTEXT` path override
+    differs.
+- NextAction: orchestrator reviews verdict; dependent WIs AC-045..AC-053 can
+  proceed against this stack.
