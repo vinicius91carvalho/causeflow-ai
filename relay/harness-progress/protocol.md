@@ -254,3 +254,19 @@ fatal: Unable to write index.
 - RepairPlan: WI-AC-018 `describe_resource` is fully implemented and passes all three test cases: unknown resourceId returns JSON-RPC error -32602 with proper message, valid Postgres resource `order-pg` returns `{ tables, type, database }`, and valid Mongo resource `order-mongo` returns `{ tables, type, database }`. Repository scaffold is complete: all files from project_specs.xml exist (src/transport/protocol.ts with createErrorResponse, src/index.ts with describe_resource handler, drivers, config, docker-compose, CI/release workflows, control-plane stub). No missing artifacts.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/protocol/WI-AC-018-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-08T21:20:41.440Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-018
+- DefectReport: The independent QA verification for **WI-AC-018** is complete.
+
+**Summary:**
+- **Test approach:** Connected directly to the running docker-compose stack (relay + control-plane-stub + postgres + mongo) via WebSocket at `ws://127.0.0.1:3000/v1/relay/connect` and sent three real JSON-RPC 2.0 `describe_resource` requests.
+- **Test 1 (unknown resourceId):** Sent `{ resourceId: 'unknown-resource' }` → received JSON-RPC error `{ code: -32602, message: 'Unknown resource: unknown-resource' }`. All 6 sub-checks passed.
+- **Test 2 (valid order-pg):** Sent `{ resourceId: 'order-pg' }` → received `{ tables: [{table_name: 'orders', table_type: 'BASE TABLE'}], type: 'postgres', database: 'relay' }`. All 9 sub-checks passed.
+- **Test 3 (valid order-mongo):** Sent `{ resourceId: 'order-mongo' }` → received `{ tables: [], type: 'mongodb', database: 'relay' }`. All 8 sub-checks passed.
+- **No defects found.** Implementation is correct. Journal updated and committed.
+- RepairPlan: WI-AC-018 `describe_resource` passes all acceptance criteria. Unknown resourceId returns JSON-RPC error code -32602 with message 'Unknown resource: <id>' via createErrorResponse. Valid resourceId (order-pg, order-mongo) triggers driver.execute({ operation: 'list_tables', params: {} }) and returns { tables, type, database }. QA verified all three test cases against the running docker-compose WebSocket boundary with 0 defects. Repository scaffold is complete — all files required by project_specs.xml exist (src/index.ts, src/transport/protocol.ts, src/drivers/*, src/config/*, src/policy/*, src/masking/*, src/audit/*, src/health/*, ws-client.ts, docker-compose.yml, control-plane-stub, CI/release workflows).
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/protocol/WI-AC-018-2-qa.log
+- NextAction: Coding Attempt 3
