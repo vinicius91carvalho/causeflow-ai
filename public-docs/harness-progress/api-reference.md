@@ -373,3 +373,10 @@ Please commit your changes or stash them before you merge.
 Aborting
 Merge with strategy ort failed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T21:17:56.101Z — Explicit Resume
+
+- WorkItem: WI-AC-014
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Root cause fixed in the harness: merge-do now restores dirty tracked runtime logs (logs/mintdev-<port>.log) before merging, so the 'local changes would be overwritten by merge' abort can no longer block integration. Retry WI-AC-014.
+- NextAction: Coding Attempt 1
