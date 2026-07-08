@@ -599,3 +599,16 @@ fatal: Unable to write index.
 - Root cause / fix: none required this attempt. The single prior defect (missing `LOOPS_API_KEY` in `.env.example`) was already fixed and committed in earlier attempts (commit 7bca94b + follow-ups). Working tree is clean; the stale `index.lock` that blocked the previous integration is gone.
 - Diff: zero (tracked files unchanged) — valid verify-first checkpoint.
 - NextAction: set implementation=true; commit journal; next Ready Work Item
+
+## 2026-07-08T12:30:00Z — Independent QA pass (qa-agent, isolated worktree, PORT=5172)
+
+- WorkItem: WI-AC-038
+- AcceptanceChecks: AC-038
+- Boundary: real HTTP on port 5172 (website dev server `next dev --hostname localhost -p 5172`) + filesystem grep
+- Result: qa=true, implementation=true — all three AC-038 steps pass; zero defects; no source diff required
+- Evidence:
+  - Step 1 — `ls apps/website/src/app` = `[locale]/ robots.ts sitemap.test.ts sitemap.ts staging-auth/` (no `api/`); real HTTP `GET /api/notify` -> 404. OK
+  - Step 2 — `apps/website/next.config.mjs:77` emits `https://app.loops.so` in CSP `connect-src`; real HTTP `Content-Security-Policy` header on `GET /` contains `connect-src 'self' https://www.google-analytics.com https://app.loops.so https://*.clarity.ms http://127.0.0.1:3001 ws://127.0.0.1:* ws://localhost:*`. OK
+  - Step 3 — `LOOPS_API_KEY=` declared in `apps/website/.env.example:30` (planned integration comment at line 27); `grep -rniE "from ['\"].*loops|require\(['\"].*loops|loops\.so|LOOPS_API_KEY|@loops|loops-sdk" apps/website/src/` -> no matches (no loops module imports; only textual mention is privacy-page.tsx:126 data-processor disclosure). Sole runtime Loops reference is the CSP allow-list. OK
+- Defects: none
+- NextAction: set qa=true, implementation=true; commit journal
