@@ -1193,3 +1193,12 @@ Scaffold check: `project_specs.xml` AC-009 affected surface = `release.config.js
 - Outcome: passed on integrated main
 - Evidence: /tmp/ac009-int (sr.log + sr2.log) and direct ESM import output
 - NextAction: next Ready Work Item
+
+## 2026-07-08T12:16:34.888Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- AcceptanceChecks: AC-009
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-009-1-integration_qa.log
+- NextAction: next Ready Work Item
