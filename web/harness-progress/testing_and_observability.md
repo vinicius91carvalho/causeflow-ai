@@ -236,3 +236,63 @@
     boundary + real @sentry/nextjs SDK boundary, which are the actual
     transports for dashboard logs/errors.
 - Outcome: PASS — implementation=true.
+
+## 2026-07-08 — Independent QA (WI-AC-042, attempt 3)
+
+- Role: qa-agent. AcceptanceChecks: AC-042. Port: 5175. Boundary: real pino
+  stdout + real @sentry/nextjs SDK + source grep across all 81 *-handler.ts.
+- Verified PASS:
+  - Step 1: apps/dashboard/src/lib/logger.ts exports pino logger; pino@^10.3.1
+    in apps/dashboard/package.json; installed pino 10.3.1. ✓
+  - Logger redaction at the REAL exported-logger stdout boundary (probe:
+    pnpm exec tsx importing ./src/lib/logger, capturing process.stdout via
+    shell redirection — sonic-boom bypasses post-hoc process.stdout.write
+    overrides, so shell capture was used). Structured payload preserved
+    (method=POST path=/api/billing/checkout userId=user_1 tenantId=org_1
+    duration=42); every sensitive value [Redacted] (stripeSecretKey,
+    stripeToken, stripePaymentMethodId, stripePublishableKey, clerkSecretKey,
+    STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PUBLISHABLE_KEY,
+    CLERK_SECRET_KEY, body.* secrets, req.headers.authorization/cookie/
+    x-api-key/x-clerk-auth-token/x-session-token/stripeSecretKey); leak scan
+    NONE. ✓
+  - withAuth catch (apps/dashboard/src/lib/api/with-auth.ts) calls
+    dashLogger.error({err, method, path, userId, tenantId, duration}) and
+    re-throws → instrumentation.ts#onRequestError=Sentry.captureRequestError
+    forwards to Sentry. ✓
+  - Representative handler (billing/checkout-handler.ts) catch calls
+    dashLogger.error + Sentry.captureException with structured payload;
+    checkout-handler-ac042.test.ts passes (1/1). ✓
+  - Step 3: Sentry beforeSend hooks in instrumentation-client.ts,
+    sentry.server.config.ts, sentry.edge.config.ts all delete
+    event.request.headers.{authorization,cookie,x-api-key,x-clerk-auth-token,
+    x-session-token}, event.request.data (wholesale), event.request.cookies,
+    event.user.{ip_address,email}. ✓
+  - logger.test.ts (2/2) + checkout-handler-ac042.test.ts (1/1) pass under
+    `pnpm vitest run --project dashboard`. ✓
+- Verified DEFECT (AC-042 description: "withAuth and every API handler that
+  catches a non-recoverable error also call dashLogger.error ... and forward
+  the error to Sentry"):
+  - 5 withAuth-wrapped handlers catch non-recoverable errors locally and
+    return a 5xx response WITHOUT calling dashLogger.error or
+    Sentry.captureException. Because they return (not re-throw), withAuth's
+    own catch never fires and Next.js onRequestError never fires, so the
+    error is swallowed by both pino and Sentry.
+    1. apps/dashboard/src/contexts/settings/api/settings-handler.ts:152
+       `catch (err) { return NextResponse.json({error:message},{status:502}) }`
+    2. apps/dashboard/src/contexts/shared/api/relay-status-handler.ts:19
+       (non-"not found" branch) `return ...{status:502}`
+    3. apps/dashboard/src/contexts/shared/api/topology-health-handler.ts:62
+       (non-"not found" branch) `return ...{status:502}`
+    4. apps/dashboard/src/contexts/investigation/api/analyses-handler.ts:63,101
+       `catch (error) { return ...{status: statusForError(error)} }` (default 500)
+    5. apps/dashboard/src/contexts/investigation/api/investigation-tool-calls-handler.ts:23
+       `catch (error) { return ...{status: error.status ?? 500} }`
+  - The prior repair (attempt 2) targeted the 17 handlers that used
+    console.error; these 5 use a silent `catch → return 5xx` pattern and were
+    missed. grep evidence: 0 console.error matches in *-handler.ts (clean),
+    but 5 handlers have a 5xx-returning catch with no @sentry/nextjs import.
+- Outcome: FAIL — implementation=false, qa=false. Logger redaction +
+  withAuth + Sentry beforeSend fully met; "every API handler" clause is not
+  (5 handlers swallow non-recoverable 5xx errors without pino/Sentry).
+- Evidence: /tmp/ac042-stdout.txt (real exported-logger stdout), vitest run
+  logs, source greps above.
