@@ -307,3 +307,12 @@ Filesystem (route/page file content) + compile (`tsc --noEmit` both apps) + HTTP
 ### Verdict
 
 All AC-008 clauses pass at structural, compile, and HTTP boundaries. No defects. integration=true for WI-AC-008.
+
+## 2026-07-08T01:04:23.897Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-008
+- AcceptanceChecks: AC-008
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-008-1-integration_qa.log
+- NextAction: next Ready Work Item
