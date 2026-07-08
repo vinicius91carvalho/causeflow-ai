@@ -303,3 +303,12 @@ existing codebase already satisfies AC-009.
 - Verdict: AC-009 PASSES at the real external boundary. integration=true,
   implementation=true. Zero defects. Zero-diff checkpoint (only this
   journal updated).
+
+## 2026-07-08T12:32:16.681Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- AcceptanceChecks: AC-009
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/product-narrative/WI-AC-009-1-integration_qa.log
+- NextAction: next Ready Work Item
