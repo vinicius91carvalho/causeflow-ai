@@ -305,3 +305,10 @@ Exercised AC-036 against existing code at real HTTP boundary on PORT=5187:
 Langfuse end-to-end searchability requires LANGFUSE_PUBLIC_KEY/SECRET_KEY (inactive by design in this config).
 Sentry end-to-end Issues view requires SENTRY_DSN (inactive by design in this config).
 Code paths verified by unit tests and real HTTP boundary assertions.
+
+## 2026-07-08T21:48:18.084Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
