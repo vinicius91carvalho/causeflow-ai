@@ -227,3 +227,97 @@ worktree at the real external HTTP boundary. No code changes required.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/content-structure/WI-AC-006-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T04:20:00Z — Verify-first (WI-AC-007)
+
+- WorkItem: WI-AC-007
+- AcceptanceChecks: AC-007
+- context: content-structure
+- Mode: VERIFY-FIRST (existing codebase)
+- Attempt: 1
+- Outcome: implementation=true (zero-diff checkpoint; AC passes at real boundary)
+- NextAction: Integrated Verification
+
+### Acceptance check
+
+AC-007: The redirects block of `docs.json` (`{"source": "/quickstart",
+"destination": "/getting-started/quickstart"}`) resolves at runtime — `GET
+/quickstart` returns 200 and lands on the Quickstart page.
+
+### Audit result
+
+- `docs.json#redirects` (lines 349–353) declares exactly one entry:
+  `source: /quickstart`, `destination: /getting-started/quickstart`.
+- Destination file `getting-started/quickstart.mdx` exists with frontmatter
+  `title: "Quickstart"`.
+- Dev server running on assigned PORT=5170 (`mint dev --port 5170`, PWD =
+  public-docs).
+- No defects found in existing committed code; no changes required.
+
+### Boundary verification (real external HTTP boundary)
+
+- `GET http://localhost:5170/quickstart` (no follow) → 307 with
+  `location: /getting-started/quickstart`.
+- `GET http://localhost:5170/quickstart` (-L follow) → final 200, final URL
+  `http://localhost:5170/getting-started/quickstart`, 1 redirect.
+- Landed page H1 = `Quickstart` (matches frontmatter title); `Quickstart`
+  appears 4× in the body.
+- Followed page is byte-identical to direct
+  `GET /getting-started/quickstart` (200, same H1) — redirect lands on the
+  Quickstart page.
+- AC-001 dependency holds: `GET /` → 200 with `CauseFlow AI` (×4) and
+  `Quickstart` (×3).
+
+### Verdict
+
+implementation=true. Zero tracked files changed (zero-diff checkpoint).
+
+## 2026-07-08 QA — WI-AC-007 (independent re-audit)
+
+- Role: qa-agent (independent re-audit of isolated worktree)
+- WorkItem: WI-AC-007
+- AcceptanceChecks: AC-007
+- context: content-structure
+- Boundary: real HTTP — `mint dev` running from project root (PWD =
+  public-docs). Port 5170 was already occupied by a sibling `mint dev`
+  instance (pid 3780459); this audit also launched its own instance on
+  5171 to confirm the behavior is reproducible and not specific to one
+  server process.
+
+### Audit result
+
+- `docs.json#redirects` (lines 349–353) declares exactly one entry:
+  `source: /quickstart`, `destination: /getting-started/quickstart`.
+- Destination file `getting-started/quickstart.mdx` exists with frontmatter
+  `title: "Quickstart"`, `description: "Create your account and investigate
+  your first incident in under 5 minutes."`.
+- All required scaffold directories present.
+
+### Boundary verification (real HTTP)
+
+- `GET http://localhost:5170/quickstart` (no follow) -> 307 with
+  `location: http://localhost:5170/getting-started/quickstart`.
+- `GET http://localhost:5170/quickstart` (-L follow) -> final 200, final URL
+  `http://localhost:5170/getting-started/quickstart`, 1 redirect.
+- Landed page body contains `<title>Quickstart - CauseFlow AI</title>`, H1
+  `Quickstart`, and the quickstart intro "Create your account and
+  investigate your first incident" — lands on the Quickstart page.
+- Reproduced on the dedicated instance (port 5171): `GET /quickstart` ->
+  307 -> `/getting-started/quickstart` -> 200 with the same Quickstart
+  page body.
+- AC-001 dependency holds: `GET /` -> 200 with `CauseFlow AI` (x4) and
+  `Quickstart` (x3).
+
+### Verdict
+
+qa=true. implementation=true. Zero defects. AC-007 holds on the isolated
+worktree at the real external HTTP boundary: `GET /quickstart` returns 200
+(after the 307 redirect) and lands on the Quickstart page. No code changes
+required.
+
+## 2026-07-08T04:23:42.188Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-007
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
