@@ -647,3 +647,30 @@ fatal: Unable to write index.
 - WorkItem: WI-AC-038
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-038 — Integrated Verification (foundation, planned integration)
+
+**Result: integration=true, implementation=true, qa=true** (integrated main HEAD 3808404; zero source diff)
+
+### Boundary exercised
+
+Real external boundary: website dev server (`next dev --hostname localhost --port 5172`) responding to real HTTP requests (route table + live response headers), plus filesystem grep for the `.env.example` declaration and the absence of any loops module import. Core smoke (HTTP + CSP header) holds at the integrated boundary.
+
+### Independent AC-038 evidence (integrated main)
+
+- **Step 1 — `apps/website/src/app` has no `/api` subdirectory:** filesystem — `apps/website/src/app/` contains only `[locale]/`, `robots.ts`, `sitemap.test.ts`, `sitemap.ts`, `staging-auth/`; no `api/` dir. HTTP boundary: `GET /api/notify` → **404**, `POST /api/notify` → **404**, `GET /api` → **404** (Next.js `_not-found`; no route registered). ✓
+- **Step 2 — `apps/website/next.config.mjs` lists `https://app.loops.so` in CSP `connect-src`:** source `next.config.mjs:77`. HTTP boundary: live `Content-Security-Policy` header on `GET /en` (200) contains `connect-src 'self' https://www.google-analytics.com https://app.loops.so https://*.clarity.ms http://localhost:3001 ws://127.0.0.1:* ws://localhost:*`. ✓
+- **Step 3 — `LOOPS_API_KEY` listed in `apps/website/.env.example`; no code in `apps/website/src/` imports a loops-related module:** `.env.example:30` → `LOOPS_API_KEY=` (planned-integration comment above). `grep -rniE "from ['\"].*loops|require\(['\"].*loops|@loops|loops-so|loops-sdk|LOOPS_API_KEY" apps/website/src/` → no matches; the only textual mention is `privacy-page.tsx:126` (data-processor disclosure sentence "Loops for email communications") — not an import. Sole runtime Loops reference in the codebase is the CSP allow-list entry. ✓
+
+### Verdict
+
+All AC-038 steps pass at the real HTTP + filesystem boundary on integrated main. Loops.so is declared as a planned integration (docs + `.env.example` `LOOPS_API_KEY`), the only runtime reference is the CSP `connect-src` allow-list, and there is no `/api/notify` route and no runtime consumer. No defects. integration=true set for WI-AC-038.
+
+## 2026-07-08T13:05:00Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-038
+- AcceptanceChecks: AC-038
+- Outcome: passed on integrated main
+- Evidence: /tmp/website-5172.log (dev server), node http boundary probe (CSP header + 404s)
+- NextAction: next Ready Work Item
