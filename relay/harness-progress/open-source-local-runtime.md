@@ -955,3 +955,68 @@ The relay's audit log confirms both operations hit real Postgres:
 {"resource":"order-pg","operation":"query","result":"success","rowCount":1,"executionTimeMs":1}
 {"resource":"order-pg","operation":"list_tables","result":"success","rowCount":1,"executionTimeMs":0}
 ```
+
+## 2026-07-08T20:40:00Z — QA Independent Verification (AC-054)
+
+- WorkItem: WI-AC-054
+- AcceptanceChecks: AC-054
+- Outcome: qa=true, implementation=true (independently re-verified from clean env)
+- Method: tore down existing stack (`docker compose down -v --remove-orphans`),
+  then `SMOKE=1 docker compose up -d --build` from repo root (no
+  `AWS_*`/`STRIPE_*`/`CLERK_*`/`LANGFUSE_*`/`SENTRY_*`/`SVIX_*`/`SLACK_*`/
+  `COMPOSIO_*`/`MASTRA_*`/`SQS_*`/`DYNAMODB_*`/`STS_*`/`KMS_*` in parent env).
+  Independently verified both execute round-trips and their response shapes
+  from stub logs.
+
+### Independent verification results (AC-054 clause by clause)
+
+**Execute SELECT 1 AS one:**
+
+Stub log:
+```
+[stub] execute(SELECT 1) result={"rows":[{"one":1}],"rowCount":1,"fields":[{"name":"one","type":"int4"}],"executionTimeMs":1,"masked":false,"maskedFieldCount":0}
+```
+
+- `result.rows` = `[{ one: 1 }]` — matches expected shape.
+- `result.rowCount` = 1 — matches.
+- `result.fields` = `[{ name: 'one', type: 'int4' }]` — matches (type is `int4`
+  string, not raw OID number).
+- `result.executionTimeMs` is a positive integer.
+- `result.masked` = false — matches.
+- `result.maskedFieldCount` = 0 — matches.
+
+**Execute list_tables:**
+
+Stub log:
+```
+[stub] execute(list_tables) result={"rows":[{"table_name":"orders","table_type":"BASE TABLE"}],"rowCount":1,"fields":[{"name":"table_name","type":"text"},{"name":"table_type","type":"text"}],"executionTimeMs":1,"masked":false,"maskedFieldCount":0}
+```
+
+- `result.rows` contains row with `table_name: 'orders'` — matches expected.
+- `result.rowCount` = 1.
+
+**Stub exit code:**
+
+```
+[stub] smoke exiting with code 0
+```
+
+All smoke cycles exit 0 (verified across 8 successive cycles, each producing
+identical correct results).
+
+**Local Postgres on docker network (not external service):**
+
+- The relay's boot log shows `url=ws://relay-control-plane-stub:3000/v1/relay/connect`
+  as the only outbound URL.
+- Relay audit log confirms both operations hit `resource:"order-pg"` and
+  `result:"success"` — the queries touch the local `relay-postgres` container.
+- Grepping relay logs for external vendor hostnames yields 0 matches.
+
+### Verdict
+
+All AC-054 acceptance criteria independently re-verified on a freshly built
+stack from scratch. Both execute round-trips produce the exact JSON-RPC 2.0
+response shapes specified by the acceptance check. Both queries hit the local
+Postgres on the docker network, not an external service. The stub exits 0.
+
+No defects. `qa=true`, `implementation=true`.
