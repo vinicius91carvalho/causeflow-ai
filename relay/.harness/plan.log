@@ -1,0 +1,921 @@
+[0m
+> build · minimax/minimax-m3
+[0m
+[0m→ [0mSkill "planner"
+[0m
+[0m$ [0mls -la /home/vinicius/projects/causeflow-ai/ && ls -la /home/vinicius/projects/causeflow-ai/relay/
+total 48
+drwxrwxr-x 12 vinicius vinicius 4096 Jul  7 16:58 .
+drwxrwxr-x 17 vinicius vinicius 4096 Jul  7 20:45 ..
+drwxrwxr-x 11 vinicius vinicius 4096 Jul  7 20:51 .git
+drwxrwxr-x  2 vinicius vinicius 4096 Jul  7 20:49 .harness
+drwxrwxr-x  2 vinicius vinicius 4096 Jul  7 19:10 .pi
+drwxrwxr-x 15 vinicius vinicius 4096 Jul  7 20:41 core
+drwxrwxr-x  2 vinicius vinicius 4096 Jul  3 20:03 docs
+drwxrwxr-x  2 vinicius vinicius 4096 Jul  3 20:03 maintenance
+drwxrwxr-x 20 vinicius vinicius 4096 Jul  7 20:15 public-docs
+drwxrwxr-x  7 vinicius vinicius 4096 Jul  7 20:45 relay
+drwxrwxr-x  2 vinicius vinicius 4096 Jul  3 20:03 test-scenarios
+drwxrwxr-x 13 vinicius vinicius 4096 Jul  7 20:27 web
+total 492
+drwxrwxr-x   7 vinicius vinicius   4096 Jul  7 20:45 .
+drwxrwxr-x  12 vinicius vinicius   4096 Jul  7 16:58 ..
+-rw-rw-r--   1 vinicius vinicius    429 Jul  3 20:03 .dockerignore
+drwxrwxr-x   3 vinicius vinicius   4096 Jul  3 20:03 .github
+-rw-rw-r--   1 vinicius vinicius     59 Jul  3 20:03 .gitignore
+drwxrwxr-x   2 vinicius vinicius   4096 Jul  7 20:51 .harness
+-rw-rw-r--   1 vinicius vinicius   6774 Jul  7 20:11 .harness-technology-inventory.json
+-rw-rw-r--   1 vinicius vinicius   1267 Jul  3 20:03 CLAUDE.md
+-rw-rw-r--   1 vinicius vinicius    336 Jul  3 20:03 Dockerfile
+-rw-rw-r--   1 vinicius vinicius  11575 Jul  3 20:03 README.md
+-rw-rw-r--   1 vinicius vinicius     67 Jul  3 20:03 commitlint.config.js
+drwxrwxr-x   3 vinicius vinicius   4096 Jul  3 20:03 docs
+-rw-rw-r--   1 vinicius vinicius  58664 Jul  7 20:40 feature_list.json
+-rwxrwxr-x   1 vinicius vinicius   5039 Jul  7 20:45 init.sh
+drwxrwxr-x 296 vinicius vinicius  12288 Jul  7 20:41 node_modules
+-rw-rw-r--   1 vinicius vinicius 269238 Jul  7 20:45 package-lock.json
+-rw-rw-r--   1 vinicius vinicius    814 Jul  3 20:03 package.json
+-rw-rw-r--   1 vinicius vinicius  66381 Jul  7 20:11 project_specs.xml
+-rw-rw-r--   1 vinicius vinicius   1200 Jul  3 20:03 relay-config.example.yaml
+-rw-rw-r--   1 vinicius vinicius    447 Jul  3 20:03 release.config.js
+drwxrwxr-x   9 vinicius vinicius   4096 Jul  3 20:03 src
+-rw-rw-r--   1 vinicius vinicius    449 Jul  3 20:03 tsconfig.json
+[0m
+[0m→ [0mRead project_specs.xml
+[0m→ [0mRead /home/vinicius/.config/opencode/skills/harness-planner/project_specs.template.xml
+[0m→ [0mRead project_specs.xml[90m [offset=282][0m
+[0m→ [0mRead package.json
+[0m→ [0mRead .harness-technology-inventory.json
+[0m
+[0m$ [0mls -la /home/vinicius/projects/causeflow-ai/core/ /home/vinicius/projects/causeflow-ai/web/ /home/vinicius/projects/causeflow-ai/relay/.harness/ /home/vinicius/projects/causeflow-ai/.harness/
+/home/vinicius/projects/causeflow-ai/.harness/:
+total 48
+drwxrwxr-x  2 vinicius vinicius  4096 Jul  7 20:49 .
+drwxrwxr-x 12 vinicius vinicius  4096 Jul  7 16:58 ..
+-rw-rw-r--  1 vinicius vinicius     9 Jul  7 17:39 bootstrap.host
+-rw-rw-r--  1 vinicius vinicius 11076 Jul  7 17:40 bootstrap.log
+-rw-rw-r--  1 vinicius vinicius     7 Jul  7 17:39 bootstrap.pid
+-rw-rw-r--  1 vinicius vinicius 14191 Jul  7 20:50 journal-conflict-resolve.log
+-rw-rw-r--  1 vinicius vinicius   433 Jul  7 16:58 projects.json
+
+/home/vinicius/projects/causeflow-ai/core/:
+total 1256
+drwxrwxr-x  15 vinicius vinicius   4096 Jul  7 20:41 .
+drwxrwxr-x  12 vinicius vinicius   4096 Jul  7 16:58 ..
+-rw-rw-r--   1 vinicius vinicius    996 Jul  7 20:09 .env.dev
+-rw-rw-r--   1 vinicius vinicius    628 Jul  3 20:03 .env.e2e
+-rw-rw-r--   1 vinicius vinicius   1884 Jul  3 20:03 .env.example
+-rw-rw-r--   1 vinicius vinicius   1129 Jul  3 20:03 .env.localstack
+-rw-rw-r--   1 vinicius vinicius    947 Jul  3 20:03 .env.smoke
+-rw-rw-r--   1 vinicius vinicius    122 Jul  3 20:03 .envrc
+-rw-rw-r--   1 vinicius vinicius   1218 Jul  3 20:03 .eslintrc.cjs
+-rw-rw-r--   1 vinicius vinicius     69 Jul  3 20:03 .gitconfig
+drwxrwxr-x   3 vinicius vinicius   4096 Jul  3 20:03 .github
+-rw-rw-r--   1 vinicius vinicius    288 Jul  3 20:03 .gitignore
+-rw-rw-r--   1 vinicius vinicius    755 Jul  3 20:03 .gitmodules
+drwxrwxr-x   2 vinicius vinicius   4096 Jul  7 19:46 .harness
+-rw-rw-r--   1 vinicius vinicius  16997 Jul  7 19:12 .harness-technology-inventory.json
+-rw-rw-r--   1 vinicius vinicius     20 Jul  3 20:03 .npmrc
+-rw-rw-r--   1 vinicius vinicius    133 Jul  3 20:03 .prettierrc
+drwxrwxr-x   5 vinicius vinicius   4096 Jul  3 20:03 .types-reference
+-rw-rw-r--   1 vinicius vinicius   4045 Jul  3 20:03 CLAUDE.md
+-rw-rw-r--   1 vinicius vinicius    810 Jul  3 20:03 Dockerfile
+-rw-rw-r--   1 vinicius vinicius    839 Jul  3 20:03 Dockerfile.worker
+-rw-rw-r--   1 vinicius vinicius   7060 Jul  7 20:07 INVARIANTS.md
+-rw-rw-r--   1 vinicius vinicius  15960 Jul  3 20:03 PLAN.md
+-rw-rw-r--   1 vinicius vinicius  21770 Jul  3 20:03 README.md
+drwxrwxr-x   2 vinicius vinicius   4096 Jul  3 20:03 dashboard
+-rw-rw-r--   1 vinicius vinicius 155381 Jul  7 20:18 dev.log
+-rw-rw-r--   1 vinicius vinicius  11121 Jul  7 19:49 docker-compose.yml
+drwxrwxr-x   5 vinicius vinicius   4096 Jul  3 20:03 docs
+-rw-rw-r--   1 vinicius vinicius  72433 Jul  7 20:41 feature_list.json
+drwxrwxr-x   2 vinicius vinicius   4096 Jul  7 20:45 harness-progress
+drwxrwxr-x   6 vinicius vinicius   4096 Jul  3 20:03 infra
+-rwxrwxr-x   1 vinicius vinicius   1491 Jul  7 19:23 init.sh
+drwxrwxr-x 872 vinicius vinicius  36864 Jul  7 20:09 node_modules
+-rw-rw-r--   1 vinicius vinicius   4158 Jul  3 20:03 package.json
+drwxrwxr-x   3 vinicius vinicius   4096 Jul  3 20:03 packages
+-rw-rw-r--   1 vinicius vinicius 669539 Jul  3 20:03 pnpm-lock.yaml
+-rw-rw-r--   1 vinicius vinicius 100548 Jul  7 19:36 project_specs.xml
+drwxrwxr-x   8 vinicius vinicius   4096 Jul  3 20:03 relay
+drwxrwxr-x   2 vinicius vinicius   4096 Jul  3 20:03 scripts
+drwxrwxr-x   6 vinicius vinicius   4096 Jul  7 20:29 src
+drwxrwxr-x  10 vinicius vinicius   4096 Jul  3 20:03 tests
+-rw-rw-r--   1 vinicius vinicius    171 Jul  3 20:03 tsconfig.build.json
+-rw-rw-r--   1 vinicius vinicius    906 Jul  3 20:03 tsconfig.json
+-rw-rw-r--   1 vinicius vinicius    688 Jul  3 20:03 vitest.config.ts
+-rw-rw-r--   1 vinicius vinicius    536 Jul  3 20:03 vitest.e2e.config.ts
+-rw-rw-r--   1 vinicius vinicius    537 Jul  3 20:03 vitest.eval.config.ts
+-rw-rw-r--   1 vinicius vinicius    502 Jul  3 20:03 vitest.integration.config.ts
+-rw-rw-r--   1 vinicius vinicius    547 Jul  3 20:03 vitest.smoke.config.ts
+
+/home/vinicius/projects/causeflow-ai/relay/.harness/:
+total 84
+drwxrwxr-x 2 vinicius vinicius  4096 Jul  7 20:51 .
+drwxrwxr-x 7 vinicius vinicius  4096 Jul  7 20:45 ..
+-rw-rw-r-- 1 vinicius vinicius     9 Jul  7 20:38 bootstrap.host
+-rw-rw-r-- 1 vinicius vinicius 49362 Jul  7 20:47 bootstrap.log
+-rw-rw-r-- 1 vinicius vinicius     8 Jul  7 20:38 bootstrap.pid
+-rw-rw-r-- 1 vinicius vinicius     9 Jul  7 20:51 plan.host
+-rw-rw-r-- 1 vinicius vinicius  2616 Jul  7 20:51 plan.log
+-rw-rw-r-- 1 vinicius vinicius     8 Jul  7 20:51 plan.pid
+
+/home/vinicius/projects/causeflow-ai/web/:
+total 824
+drwxrwxr-x  13 vinicius vinicius   4096 Jul  7 20:27 .
+drwxrwxr-x  12 vinicius vinicius   4096 Jul  7 16:58 ..
+-rw-rw-r--   1 vinicius vinicius     53 Jul  3 20:03 .browserslistrc
+drwxrwxr-x   3 vinicius vinicius   4096 Jul  3 20:03 .claude
+-rw-rw-r--   1 vinicius vinicius    188 Jul  3 20:03 .editorconfig
+-rw-rw-r--   1 vinicius vinicius    357 Jul  3 20:03 .env.example
+drwxrwxr-x   3 vinicius vinicius   4096 Jul  3 20:03 .github
+-rw-rw-r--   1 vinicius vinicius    615 Jul  3 20:03 .gitignore
+drwxrwxr-x   2 vinicius vinicius   4096 Jul  7 20:06 .harness
+-rw-rw-r--   1 vinicius vinicius  11042 Jul  7 19:45 .harness-technology-inventory.json
+-rw-rw-r--   1 vinicius vinicius    102 Jul  3 20:03 .npmrc
+-rw-rw-r--   1 vinicius vinicius      3 Jul  3 20:03 .nvmrc
+-rw-rw-r--   1 vinicius vinicius  17229 Jul  3 20:03 CLAUDE.md
+-rw-rw-r--   1 vinicius vinicius   5939 Jul  3 20:03 INVARIANTS.md
+-rw-rw-r--   1 vinicius vinicius  11148 Jul  3 20:03 README.md
+drwxrwxr-x   4 vinicius vinicius   4096 Jul  3 20:03 apps
+-rw-rw-r--   1 vinicius vinicius   2432 Jul  3 20:03 biome.json
+drwxrwxr-x   2 vinicius vinicius   4096 Jul  3 20:03 causeflow-anim-brain-screen
+-rw-rw-r--   1 vinicius vinicius  23498 Jul  3 20:03 demo-recording.mjs
+drwxrwxr-x  12 vinicius vinicius   4096 Jul  3 20:03 docs
+-rw-rw-r--   1 vinicius vinicius  84214 Jul  7 20:41 feature_list.json
+drwxrwxr-x   2 vinicius vinicius   4096 Jul  7 20:26 harness-progress
+-rwxrwxr-x   1 vinicius vinicius   2298 Jul  7 19:58 init.sh
+drwxrwxr-x 428 vinicius vinicius  20480 Jul  7 20:26 node_modules
+-rw-rw-r--   1 vinicius vinicius   1088 Jul  3 20:03 package.json
+drwxrwxr-x   7 vinicius vinicius   4096 Jul  3 20:03 packages
+-rw-rw-r--   1 vinicius vinicius   6157 Jul  3 20:03 playwright.config.ts
+-rw-rw-r--   1 vinicius vinicius 416972 Jul  3 20:03 pnpm-lock.yaml
+-rw-rw-r--   1 vinicius vinicius     40 Jul  3 20:03 pnpm-workspace.yaml
+-rw-rw-r--   1 vinicius vinicius 124015 Jul  7 20:26 project_specs.xml
+drwxrwxr-x   2 vinicius vinicius   4096 Jul  3 20:03 scripts
+drwxrwxr-x   4 vinicius vinicius   4096 Jul  3 20:03 tests
+-rw-rw-r--   1 vinicius vinicius    635 Jul  3 20:03 tsconfig.base.json
+-rw-rw-r--   1 vinicius vinicius    772 Jul  3 20:03 turbo.json
+-rw-rw-r--   1 vinicius vinicius   1927 Jul  3 20:03 vitest.config.ts
+[0m
+[0m$ [0mls -la /home/vinicius/projects/causeflow-ai/core/relay/ /home/vinicius/projects/causeflow-ai/relay/.harness-technology-inventory.json 2>&1; ls -la /home/vinicius/projects/causeflow-ai/core/.harness /home/vinicius/projects/causeflow-ai/web/.harness
+-rw-rw-r-- 1 vinicius vinicius 6774 Jul  7 20:11 /home/vinicius/projects/causeflow-ai/relay/.harness-technology-inventory.json
+
+/home/vinicius/projects/causeflow-ai/core/relay/:
+total 544
+drwxrwxr-x  8 vinicius vinicius   4096 Jul  3 20:03 .
+drwxrwxr-x 15 vinicius vinicius   4096 Jul  7 20:41 ..
+-rw-rw-r--  1 vinicius vinicius    429 Jul  3 20:03 .dockerignore
+drwxrwxr-x  3 vinicius vinicius   4096 Jul  3 20:03 .github
+-rw-rw-r--  1 vinicius vinicius    134 Jul  3 20:03 .gitignore
+-rw-rw-r--  1 vinicius vinicius    554 Jul  3 20:03 CHANGELOG.md
+-rw-rw-r--  1 vinicius vinicius   1267 Jul  3 20:03 CLAUDE.md
+-rw-rw-r--  1 vinicius vinicius    993 Jul  3 20:03 Dockerfile
+-rw-rw-r--  1 vinicius vinicius  24948 Jul  3 20:03 README.md
+-rw-rw-r--  1 vinicius vinicius     67 Jul  3 20:03 commitlint.config.js
+-rw-rw-r--  1 vinicius vinicius    817 Jul  3 20:03 docker-compose.yml
+drwxrwxr-x  3 vinicius vinicius   4096 Jul  3 20:03 docs
+-rw-rw-r--  1 vinicius vinicius 445328 Jul  3 20:03 package-lock.json
+-rw-rw-r--  1 vinicius vinicius   1409 Jul  3 20:03 package.json
+drwxrwxr-x  2 vinicius vinicius   4096 Jul  3 20:03 policies
+-rw-rw-r--  1 vinicius vinicius   3395 Jul  3 20:03 relay-config.example.yaml
+-rw-rw-r--  1 vinicius vinicius    447 Jul  3 20:03 release.config.js
+drwxrwxr-x  2 vinicius vinicius   4096 Jul  3 20:03 scripts
+drwxrwxr-x 16 vinicius vinicius   4096 Jul  3 20:03 src
+drwxrwxr-x  3 vinicius vinicius   4096 Jul  3 20:03 tests
+-rw-rw-r--  1 vinicius vinicius    481 Jul  3 20:03 tsconfig.json
+-rw-rw-r--  1 vinicius vinicius    343 Jul  3 20:03 vitest.config.ts
+/home/vinicius/projects/causeflow-ai/core/.harness:
+total 204
+drwxrwxr-x  2 vinicius vinicius  4096 Jul  7 19:46 .
+drwxrwxr-x 15 vinicius vinicius  4096 Jul  7 20:41 ..
+-rw-rw-r--  1 vinicius vinicius     9 Jul  7 19:21 bootstrap.host
+-rw-rw-r--  1 vinicius vinicius 35662 Jul  7 19:25 bootstrap.log
+-rw-rw-r--  1 vinicius vinicius 75527 Jul  7 19:37 planner-feature.log
+-rw-rw-r--  1 vinicius vinicius     8 Jul  7 19:32 planner-feature.pid
+-rw-rw-r--  1 vinicius vinicius 47899 Jul  7 19:45 planner-finish.log
+-rw-rw-r--  1 vinicius vinicius 22374 Jul  7 19:48 reconcile-run.log
+
+/home/vinicius/projects/causeflow-ai/web/.harness:
+total 172
+drwxrwxr-x  2 vinicius vinicius   4096 Jul  7 20:06 .
+drwxrwxr-x 13 vinicius vinicius   4096 Jul  7 20:27 ..
+-rw-rw-r--  1 vinicius vinicius      9 Jul  7 19:51 bootstrap.host
+-rw-rw-r--  1 vinicius vinicius  20870 Jul  7 19:59 bootstrap.log
+-rw-rw-r--  1 vinicius vinicius      8 Jul  7 19:51 bootstrap.pid
+-rw-rw-r--  1 vinicius vinicius      0 Jul  7 20:04 plan.done
+-rw-rw-r--  1 vinicius vinicius      9 Jul  7 20:00 plan.host
+-rw-rw-r--  1 vinicius vinicius 112590 Jul  7 20:04 plan.log
+-rw-rw-r--  1 vinicius vinicius      8 Jul  7 20:00 plan.pid
+-rw-rw-r--  1 vinicius vinicius   9747 Jul  7 20:07 reconcile-run.log
+[0m
+[0m→ [0mRead /home/vinicius/projects/causeflow-ai/.harness/projects.json
+[0m✱ [0mGrep "AC-\d+.*[Cc]loud|AWS|Stripe|Clerk|DynamoDB|SQS|STS|KMS|docker compose|open.?source|self.hosted|localstack|open-source"[90m in /home/vinicius/projects/causeflow-ai/core/project_specs.xml · 100 matches[0m
+[0m✱ [0mGrep "AC-\d+.*[Cc]loud|AWS|Stripe|Clerk|DynamoDB|SQS|STS|KMS|docker compose|open.?source|self.hosted|localstack|open-source"[90m in /home/vinicius/projects/causeflow-ai/web/project_specs.xml · 100 matches[0m
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai && rg -n "AC-039|open-source-local-runtime|AC-038|AC-040|AC-041|AC-042" core/project_specs.xml | head -100
+322:    <open-source-local-runtime>
+336:    </open-source-local-runtime>
+451:    <acceptance_check id="AC-038" context="observability-and-ops" category="functional" depends_on="AC-019">
+454:    <acceptance_check id="AC-039" context="open-source-local-runtime" category="foundation" depends_on="">
+457:    <acceptance_check id="AC-040" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+460:    <acceptance_check id="AC-041" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+463:    <acceptance_check id="AC-042" context="open-source-local-runtime" category="functional" depends_on="AC-039,AC-007">
+466:    <acceptance_check id="AC-043" context="open-source-local-runtime" category="functional" depends_on="AC-042,AC-011">
+469:    <acceptance_check id="AC-044" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+472:    <acceptance_check id="AC-045" context="open-source-local-runtime" category="foundation" depends_on="AC-039,AC-019">
+473:      <description>The investigation worker runs as a `causeflow-worker` docker-compose service (same image as the API, different entrypoint). `docker compose ps` shows both `causeflow-api` and `causeflow-worker` healthy. An investigation enqueued in AC-041 is picked up by the worker (verifiable by tailing the worker container logs and confirming a `investigation:start` log line). No ECS task definition, no `EcsClient`, no AWS credentials are loaded — the `ecs/` directory is removed (or kept behind a feature flag, off by default).</description>
+475:    <acceptance_check id="AC-046" context="open-source-local-runtime" category="functional" depends_on="AC-040,AC-041,AC-042,AC-045">
+478:    <acceptance_check id="AC-047" context="open-source-local-runtime" category="functional" depends_on="AC-046,AC-023">
+481:    <acceptance_check id="AC-048" context="open-source-local-runtime" category="functional" depends_on="AC-042,AC-008">
+484:    <acceptance_check id="AC-049" context="open-source-local-runtime" category="functional" depends_on="AC-039">
+487:    <acceptance_check id="AC-050" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+490:    <acceptance_check id="AC-051" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+493:    <acceptance_check id="AC-052" context="open-source-local-runtime" category="functional" depends_on="AC-039,AC-026">
+496:    <acceptance_check id="AC-053" context="open-source-local-runtime" category="foundation" depends_on="AC-039,AC-002">
+869:        - Verify the per-investigation cost ceiling aborts an over-budget run (AC-038)
+886:        - Port the 31 ElectroDB entities to one Postgres table per entity (composite PK `(tenant_id, id)`; typed columns + JSONB payload); delete `electrodb` from `package.json` and remove `src/shared/infra/db/entities/*`; add `pg` and a thin `src/shared/infra/db/postgres-client.ts` (AC-040)
+887:        - Replace `SqsMessageQueue` with `BullMqMessageQueue`; add `GET /admin/queues` for Bull Board-style visibility; preserve retry + DLQ semantics (AC-041)
+888:        - Replace Clerk: new `LocalAuthService` (bcrypt password hashing, JWT signing with `jose` + `JWT_SECRET`); new `POST /api/v1/auth/register` and `POST /api/v1/auth/login`; remove `clerk-client`, `handle-clerk-webhook`, `ClerkUserEmailResolver`, `/v1/auth/clerk-webhook` route; rewrite `auth.middleware.ts` to verify the local JWT (AC-042)
+890:        - Replace STS: new `EnvCredentialVendor`; remove `sts-credential-vendor` and `role-policy-builder` (AC-039)
+904:      Every Acceptance Check AC-001 through AC-038 passes against the running docker-compose stack with no skips. The full path Datadog webhook → ingest → dedup → triage → investigation (6+ agents) → remediation proposal → approval → execution → rollback → memory write → recall-on-next-similar-incident is reproducible end-to-end via `pnpm test:e2e`. The audit chain advances on every state change and the tip is verifiable via `GET /api/v1/audit?limit=1`. RBAC blocks every state-changing endpoint for a viewer. Cross-tenant reads return 404. The per-investigation cost ceiling is enforced and the budget breach is visible in both the API and Langfuse. The relay tunnel is the only path from the control plane to a customer DB and a direct host connection to the customer DB is refused by the network.
+916:      Acceptance Checks AC-039 through AC-053 all pass against the running docker-compose stack with no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars configured. `docker compose up -d` from a fresh clone with an unchanged `.env.example` brings the platform to `/health=200` in under 60 seconds, and the full Datadog webhook → ingest → dedup → triage → investigation → remediation → memory pipeline (AC-046) is reproducible on the local-only stack. The 38 original acceptance checks (AC-001..AC-038) continue to pass on the new stack; port boundaries and invariants I1–I12 are enforced.
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai && rg -n "open.source|docker compose|self.hosted|localstack|isOss|CAUSEFLOW_RUNTIME" core/project_specs.xml | head -50
+56:      REST/JSON over Hono for all `/api/v1/...` routes. SSE (Hono streaming) for live progress on investigations, triage and remediation (`src/shared/infra/chat/sse-manager.ts`). WSS gateway at `/v1/relay/connect` for relay tunnels (`src/shared/infra/relay/relay-ws-server.ts`). Internal cross-module events via the in-process EventBus (`src/shared/domain/event-bus.ts`). SQS for durable async work (4 queues + 4 DLQs in `infra/localstack/init/01-create-resources.sh`); Redis pub/sub (`src/shared/infra/pubsub/redis-pubsub.ts`) for low-latency progress fan-out; an SQS progress publisher (`src/shared/infra/pubsub/sqs-progress.ts`) for durable replay. Outbound: Clerk JWT verification, Stripe webhooks, Composio triggers + tools, Slack Web API, Svix for outbound webhooks, Sentry for error capture, Langfuse for AI traces, Hindsight for long-term agent memory.
+64:      <configuration>AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY (or IAM role in prod). Table name via env (causeflow local table created by `infra/localstack/init/01-create-resources.sh`). Endpoint override (DYNAMODB_ENDPOINT) for ministack dev.</configuration>
+67:      <deployment>Production: real DynamoDB on the customer's account or CauseFlow's account depending on tenant model. Local: nahuelnucera/ministack on :4566, initialized by the localstack init script.</deployment>
+73:      <configuration>Queue URLs and ARNs wired in bootstrap; KMS alias `alias/causeflow-token-encryption` created by the localstack init script. STS roles are provisioned per tenant on connect.</configuration>
+112:      <deployment>Production: real Clerk. Local: dev Clerk instance (the .env.localstack disables Clerk).</deployment>
+166:      <deployment>Production: Langfuse Cloud or self-hosted. Local: langfuse + postgres in docker-compose.</deployment>
+175:      <deployment>Production: Hindsight Cloud (or self-hosted). Local: vectorize-io/hindsight container.</deployment>
+202:      (5) ministack is the actual local image — docker-compose.yml uses nahuelnucera/ministack, not vanilla localstack; the README/CLAUDE.md still call it "LocalStack". Concretely: ministack is the actual local image; document names diverged from implementation (the docs say "LocalStack" but the image and the env var name are both "ministack").
+209:      - DynamoDB Local / ministack (LocalStack) on :4566 — note: the actual image is `nahuelnucera/ministack`, not vanilla `localstack`; it bundles DynamoDB Local + SQS + STS + KMS + CloudWatch + ECR. The init script `infra/localstack/init/01-create-resources.sh` creates the SQS / STS / KMS / CloudWatch artefacts (causeflow DynamoDB table with PITR + 3 GSIs, 4 SQS queues + 4 DLQs, KMS alias `alias/causeflow-token-encryption`);
+215:      Local env files: `.env.example` (documentation, pinned older defaults), `.env.localstack` (overrides for ministack), `.env.e2e` (E2E), `.env.smoke` (smoke), `.envrc` (per-developer shell — us-east-2). Env files: .env.example, .env.localstack, .env.e2e, .env.smoke, .envrc are the canonical local config bundle. Dev entrypoint: `pnpm dev` runs `tsx watch --env-file=.env.dev src/main.ts`. Lint, typecheck, unit tests, integration tests, and invariant check are all first-class scripts: `pnpm lint`, `pnpm typecheck`, `pnpm test:run`, `pnpm test:integration`, `pnpm test:e2e`, `pnpm test:smoke`, `pnpm test:eval`, `pnpm lint-invariants`. Deploy uses AWS CDK (`infra/cdk/package.json`, stacks at `infra/cdk/lib/bootstrap-stack.ts` and `infra/cdk/lib/causeflow-stack.ts`). CI is GitHub Actions (`.github/workflows/ci.yml`, `deploy.yml`, `eval.yml`). The `relay/` subdirectory is a separate git submodule registered in `.harness/projects.json` and is not part of `core`'s Work Items.
+221:      - docker-compose up -d brings up ministack, redis, langfuse, hindsight and the customer sample services; the localstack init script creates the table + queues + DLQs + KMS alias
+322:    <open-source-local-runtime>
+323:      - Goal: the `core` service runs end-to-end via `docker compose up` with zero paid/external SaaS credentials configured. Only Hindsight (and an optional Anthropic key) are required to use the product.
+329:      - Token encryption: `AesGcmTokenEncryption` (Node `crypto` AES-256-GCM) replaces KMS. The encryption key is loaded from `TOKEN_ENCRYPTION_KEY` env var. The `KmsTokenEncryption` and the localstack init script for the KMS alias are removed.
+334:      - `docker compose up -d` brings up: `causeflow-postgres`, `redis`, `hindsight`, the `causeflow-api` and `causeflow-worker` services, plus the customer sample services (order, payment, billing, notification, marketplace) for the demo. No `ministack`, no `langfuse`, no `localstack-init` script. `.env.example` is reduced to a short file with only Hindsight + Anthropic keys.
+336:    </open-source-local-runtime>
+341:      <description>Run `docker-compose up -d`; within 60 seconds the ministack, redis, langfuse and hindsight containers report healthy. The init script `infra/localstack/init/01-create-resources.sh` has created the causeflow DynamoDB table, 4 SQS queues, 4 DLQs and the KMS alias `alias/causeflow-token-encryption`. A `curl http://localhost:4566/_ministack/health` returns 200.</description>
+454:    <acceptance_check id="AC-039" context="open-source-local-runtime" category="foundation" depends_on="">
+455:      <description>With a clean environment (no AWS_*, no STRIPE_*, no CLERK_*, no SENTRY_*, no LANGFUSE_*, no SVIX_*, no SLACK_*, no COMPOSIO_*, no MASTRA_* env vars set, only HINDSIGHT_* + optional ANTHROPIC_API_KEY + minimal app config), `docker compose up -d` starts `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api` and `causeflow-worker`. Within 60 seconds `curl http://localhost:3099/health` returns 200 with JSON `{"postgres":"ok","redis":"ok","anthropic":"ok","queues":"ok"}` (Anthropic is "skipped" if no key is set). No AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra endpoint is contacted at startup (verifiable with a packet capture or by grepping the worker boot log for outbound URLs).</description>
+457:    <acceptance_check id="AC-040" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+460:    <acceptance_check id="AC-041" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+463:    <acceptance_check id="AC-042" context="open-source-local-runtime" category="functional" depends_on="AC-039,AC-007">
+466:    <acceptance_check id="AC-043" context="open-source-local-runtime" category="functional" depends_on="AC-042,AC-011">
+469:    <acceptance_check id="AC-044" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+470:      <description>Token encryption uses AES-256-GCM from Node's `crypto`, keyed by `TOKEN_ENCRYPTION_KEY` env. A unit test encrypts a sample OAuth token, decrypts it, and confirms round-trip equality; tampering with one byte of the ciphertext fails the GCM auth tag check and raises. The `KmsTokenEncryption` class and the `alias/causeflow-token-encryption` provisioning step in `infra/localstack/init/01-create-resources.sh` are removed; no AWS KMS endpoint is ever called at startup.</description>
+472:    <acceptance_check id="AC-045" context="open-source-local-runtime" category="foundation" depends_on="AC-039,AC-019">
+473:      <description>The investigation worker runs as a `causeflow-worker` docker-compose service (same image as the API, different entrypoint). `docker compose ps` shows both `causeflow-api` and `causeflow-worker` healthy. An investigation enqueued in AC-041 is picked up by the worker (verifiable by tailing the worker container logs and confirming a `investigation:start` log line). No ECS task definition, no `EcsClient`, no AWS credentials are loaded — the `ecs/` directory is removed (or kept behind a feature flag, off by default).</description>
+475:    <acceptance_check id="AC-046" context="open-source-local-runtime" category="functional" depends_on="AC-040,AC-041,AC-042,AC-045">
+478:    <acceptance_check id="AC-047" context="open-source-local-runtime" category="functional" depends_on="AC-046,AC-023">
+481:    <acceptance_check id="AC-048" context="open-source-local-runtime" category="functional" depends_on="AC-042,AC-008">
+484:    <acceptance_check id="AC-049" context="open-source-local-runtime" category="functional" depends_on="AC-039">
+487:    <acceptance_check id="AC-050" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+490:    <acceptance_check id="AC-051" context="open-source-local-runtime" category="foundation" depends_on="AC-039">
+493:    <acceptance_check id="AC-052" context="open-source-local-runtime" category="functional" depends_on="AC-039,AC-026">
+496:    <acceptance_check id="AC-053" context="open-source-local-runtime" category="foundation" depends_on="AC-039,AC-002">
+497:      <description>The bundled `docker-compose.yml` no longer references the `ministack`, `langfuse`, or `langfuse-worker` services; no `localstack-init` script runs. The `.env.example` ships with only `PORT`, `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY`, `HINDSIGHT_API_URL`, `HINDSIGHT_API_KEY`, and the optional `ANTHROPIC_API_KEY` + the VAPID pair. Running `docker compose up -d` from a fresh clone without modifying `.env.example` brings the platform to a healthy `/health` in under 60 seconds and reproduces the local-only pipeline from AC-046.</description>
+778:        - Confirm `infra/localstack/init/01-create-resources.sh` has created the causeflow table, 4 queues + 4 DLQs, and the KMS alias
+787:        - Configure Clerk keys in `.env.localstack`; confirm POST /api/v1/auth/login returns a user + tenant
+883:      <title>Open-source local runtime: replace AWS/Stripe/Clerk with self-hosted equivalents</title>
+885:        - Drop `ministack`, `langfuse`, `langfuse-worker`, and `infra/localstack/init/01-create-resources.sh` from `docker-compose.yml`; add `causeflow-postgres:16-alpine` (with a `docker-entrypoint-initdb.d/01-schema.sql` that creates the `causeflow` schema) and a `causeflow-worker` service built from the same image
+915:    <open_source_local_runtime>
+916:      Acceptance Checks AC-039 through AC-053 all pass against the running docker-compose stack with no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars configured. `docker compose up -d` from a fresh clone with an unchanged `.env.example` brings the platform to `/health=200` in under 60 seconds, and the full Datadog webhook → ingest → dedup → triage → investigation → remediation → memory pipeline (AC-046) is reproducible on the local-only stack. The 38 original acceptance checks (AC-001..AC-038) continue to pass on the new stack; port boundaries and invariants I1–I12 are enforced.
+917:    </open_source_local_runtime>
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai && rg -n "AC-\d+|context=|open.source|docker compose" web/project_specs.xml | head -80
+203:    <open-source-local-runtime>
+204:      - Goal: the `web` workspace (website + dashboard) runs end-to-end via `docker compose up` from the monorepo root with zero paid/external SaaS credentials configured. The website's SSG/SSR rendering and the dashboard's full data plane (via the local Core API) work without Clerk, Stripe, AWS, Sentry, or SST. Only the website's optional analytics (GA4 / Microsoft Clarity) remain gated on env vars being set; the dashboard's Sentry no-ops when the DSN is empty. This mirrors the `core` subproject's `open-source-local-runtime` context so the two halves of the platform evolve as a single open-source codebase.
+205:      - Auth: local JWT auth replaces Clerk. The Core (per its own `open-source-local-runtime` context) exposes `POST /api/v1/auth/login` + `POST /api/v1/auth/register` + `GET /api/v1/whoami` and issues a short-lived JWT signed with `JWT_SECRET`. The dashboard's `apps/dashboard/src/middleware.ts` replaces `clerkMiddleware()` with a thin `verifyJwtCookie()` helper; the JWT is stored in an `__session` httpOnly cookie. `withAuth` reads the cookie and delegates to the Core's `whoami` to resolve user/tenant/role. `clerkMiddleware()`, the Clerk user-button, the Clerk-hosted sign-in/sign-up UI, and every `@clerk/*` import are removed from the dashboard's runtime. The existing `<SignIn />` / `<SignUp />` mount points become local React forms that POST to a dashboard route handler which calls the Core's `auth/login` and sets the cookie.
+206:      - Billing: the dashboard's Stripe React SDK (`@stripe/react-stripe-js`, `@stripe/stripe-js`, the `stripe` server SDK) is removed. `payment-modal.tsx` becomes a stub that POSTs to the Core's `StubBillingService` (which returns 410 Gone for `POST /api/v1/billing/checkout-session` per the Core's AC-043) and renders a "billing disabled in OSS build" message. The plan catalog stays in `packages/shared/src/domain/constants/plans.ts`; the plan-gate renders correctly against the Core's stub subscription response (`{ plan: 'free', status: 'active' }`).
+216:      - `docker compose up -d` from the monorepo root brings up: `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api`, `causeflow-worker`, `causeflow-website` (port 3000), `causeflow-dashboard` (port 3001), plus the customer sample services from the Core's OSS compose. No SST, no `sst deploy`, no AWS credentials are loaded.
+217:      - The 43 original web acceptance checks still pass against the open-source stack: marketing site, RBAC, credits, plan gate, 44 API routes, integrations, billing, audit, intelligence, topology, memory, notifications, approvals, observability.
+218:    </open-source-local-runtime>
+229:    <acceptance_check id="AC-001" context="foundation" category="foundation" depends_on="">
+239:    <acceptance_check id="AC-002" context="foundation" category="foundation" depends_on="AC-001">
+249:    <acceptance_check id="AC-003" context="foundation" category="foundation" depends_on="AC-001">
+259:    <acceptance_check id="AC-004" context="foundation" category="foundation" depends_on="AC-001">
+269:    <acceptance_check id="AC-005" context="foundation" category="foundation" depends_on="AC-001">
+279:    <acceptance_check id="AC-006" context="foundation" category="foundation" depends_on="AC-001">
+289:    <acceptance_check id="AC-007" context="foundation" category="foundation" depends_on="AC-001">
+299:    <acceptance_check id="AC-008" context="foundation" category="functional" depends_on="">
+309:    <acceptance_check id="AC-009" context="foundation" category="functional" depends_on="AC-001">
+319:    <acceptance_check id="AC-010" context="website" category="functional" depends_on="AC-002">
+329:    <acceptance_check id="AC-011" context="website" category="functional" depends_on="AC-010">
+339:    <acceptance_check id="AC-012" context="website" category="functional" depends_on="AC-002">
+349:    <acceptance_check id="AC-013" context="website" category="security" depends_on="AC-002">
+359:    <acceptance_check id="AC-014" context="website" category="functional" depends_on="AC-002">
+369:    <acceptance_check id="AC-015" context="website" category="functional" depends_on="AC-002">
+379:    <acceptance_check id="AC-016" context="website" category="functional" depends_on="AC-002">
+389:    <acceptance_check id="AC-017" context="website" category="functional" depends_on="AC-001">
+399:    <acceptance_check id="AC-018" context="website" category="analytics" depends_on="AC-002">
+409:    <acceptance_check id="AC-019" context="dashboard" category="security" depends_on="AC-002">
+419:    <acceptance_check id="AC-020" context="dashboard" category="functional" depends_on="AC-019">
+429:    <acceptance_check id="AC-021" context="dashboard" category="security" depends_on="AC-019">
+439:    <acceptance_check id="AC-022" context="dashboard" category="functional" depends_on="AC-019">
+449:    <acceptance_check id="AC-023" context="dashboard" category="functional" depends_on="AC-022">
+459:    <acceptance_check id="AC-024" context="dashboard" category="functional" depends_on="AC-019">
+469:    <acceptance_check id="AC-025" context="dashboard" category="functional" depends_on="AC-024">
+479:    <acceptance_check id="AC-026" context="dashboard" category="functional" depends_on="AC-024">
+489:    <acceptance_check id="AC-027" context="dashboard" category="functional" depends_on="AC-002">
+499:    <acceptance_check id="AC-028" context="dashboard" category="functional" depends_on="">
+509:    <acceptance_check id="AC-029" context="dashboard" category="security" depends_on="AC-019">
+519:    <acceptance_check id="AC-030" context="dashboard" category="security" depends_on="AC-019">
+529:    <acceptance_check id="AC-031" context="dashboard" category="security" depends_on="AC-024">
+539:    <acceptance_check id="AC-032" context="dashboard" category="security" depends_on="AC-001">
+549:    <acceptance_check id="AC-033" context="foundation" category="ops" depends_on="">
+559:    <acceptance_check id="AC-034" context="foundation" category="ops" depends_on="AC-007">
+569:    <acceptance_check id="AC-035" context="dashboard" category="functional" depends_on="AC-024">
+579:    <acceptance_check id="AC-036" context="foundation" category="functional" depends_on="">
+589:    <acceptance_check id="AC-037" context="dashboard" category="functional" depends_on="">
+599:    <acceptance_check id="AC-038" context="foundation" category="functional" depends_on="">
+609:    <acceptance_check id="AC-039" context="testing_and_observability" category="testing" depends_on="AC-001">
+619:    <acceptance_check id="AC-040" context="testing_and_observability" category="testing" depends_on="AC-001">
+629:    <acceptance_check id="AC-041" context="testing_and_observability" category="testing" depends_on="AC-040">
+639:    <acceptance_check id="AC-042" context="testing_and_observability" category="observability" depends_on="AC-001">
+649:    <acceptance_check id="AC-043" context="testing_and_observability" category="testing" depends_on="AC-040,AC-041">
+659:    <acceptance_check id="AC-044" context="open-source-local-runtime" category="foundation" depends_on="">
+660:      <title>`docker compose up` brings up the open-source web+core stack; website (port 3000) and dashboard (port 3001) answer 200 with no Clerk/Stripe/AWS/SST env vars configured</title>
+661:      <description>From a clean monorepo root with a blank shell env (no `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LOOPS_*`, `CORE_API_URL`, or SST-injected vars set), `docker compose up -d` brings up `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api`, `causeflow-worker`, `causeflow-website` (port 3000), and `causeflow-dashboard` (port 3001) per the bundled `docker-compose.yml`. Within 90 seconds `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` returns 200 and `curl -s -o /dev/null -w '%{http_code}' http://localhost:3001/auth/sign-in` returns 200 (the dashboard's local sign-in form, not the Clerk-hosted UI). Grepping the dashboard container's boot log for `clerk.com`, `stripe.com`, `amazonaws.com`, `sentry.io`, or `sst.` returns zero outbound URLs.</description>
+663:        <step>Step 1: With a clean shell env (`env -i PATH=$PATH`), `docker compose up -d` from the monorepo root and `docker compose ps` reports every service healthy.</step>
+669:    <acceptance_check id="AC-045" context="open-source-local-runtime" category="foundation" depends_on="AC-044">
+679:    <acceptance_check id="AC-046" context="open-source-local-runtime" category="security" depends_on="AC-044">
+681:      <description>`apps/dashboard/src/middleware.ts` no longer imports `clerkMiddleware`. The middleware reads the `__session` httpOnly cookie (set by the dashboard's sign-in route handler), verifies it with `JWT_SECRET` using the same `jose` library the Core uses, and lets the request through. `withAuth(handler, options)` extracts the cookie, calls the Core's `GET /api/v1/whoami` with `Authorization: Bearer <jwt>`, and resolves `userId` + `tenantId` + `role` from the response. The dashboard's `/auth/sign-in` and `/auth/sign-up` pages are local React forms that POST to a new dashboard route handler (`/api/auth/login`, `/api/auth/register`) which proxies to the Core's endpoints, then sets the `__session` cookie. An unauthenticated `GET /dashboard` still redirects to `/auth/sign-in` (preserving AC-019's behavior).</description>
+685:        <step>Step 3: `GET /dashboard` without the cookie still returns 307 to `/auth/sign-in` (AC-019's behavior is preserved).</step>
+689:    <acceptance_check id="AC-047" context="open-source-local-runtime" category="foundation" depends_on="AC-046">
+699:    <acceptance_check id="AC-048" context="open-source-local-runtime" category="security" depends_on="AC-046">
+701:      <description>`@stripe/react-stripe-js`, `@stripe/stripe-js`, and the `stripe` server SDK are removed from `apps/dashboard/package.json`. `apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx` no longer mounts a Stripe `PaymentElement`; it renders a local "Billing disabled in OSS build" panel and POSTs to the Core's `POST /api/v1/billing/checkout-session`, which returns 410 Gone per the Core's AC-043. The plan-gate (`apps/dashboard/src/contexts/billing/application/plan-status.ts#fetchPlanStatus`) renders correctly when the Core returns `{ plan: 'free', status: 'active' }` (a fresh tenant on the OSS build). The dashboard's `POST /api/billing/checkout` and `POST /api/billing/portal` route handlers stay (they proxy to the Core) and surface the 410 from the Core as a clear "billing disabled" message.</description>
+709:    <acceptance_check id="AC-049" context="open-source-local-runtime" category="foundation" depends_on="AC-044">
+711:      <description>`@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, and `@aws-sdk/client-cognito-identity-provider` are removed from `apps/dashboard/package.json` (dependencies) and from the root `package.json` (if present). `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts` is deleted (the OSS Core handles provisioning inside its own `register` endpoint per the Core's AC-042). `apps/dashboard/scripts/setup-stripe.ts` and `apps/dashboard/scripts/delete-user.ts` are deleted. The `serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider']` block in `apps/dashboard/next.config.mjs` is removed. `apps/dashboard/scripts/add-credits.ts` keeps its Core API call and is the only remaining script. `pnpm --filter dashboard build` exits 0.</description>
+719:    <acceptance_check id="AC-050" context="open-source-local-runtime" category="ops" depends_on="AC-044">
+721:      <description>`apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` are deleted. The `withSentryConfig(...)` wrapper in `apps/dashboard/next.config.mjs` is removed (the surrounding `next.config.mjs` keeps its `optimizePackageImports`, headers, redirects, and image allow-list). `.github/workflows/website-deploy.yml` and `.github/workflows/dashboard-deploy.yml` keep their `check-types` / `lint` / `test` / `build` steps but drop the `sst deploy` step (replaced with a comment pointing operators to the Docker build). Both apps have a multi-stage `Dockerfile` that mirrors the `relay` subproject's pattern: a builder stage that runs `pnpm install --frozen-lockfile` + `pnpm build`, then a runtime stage that runs `pnpm start`. The `docker-compose.yml` from AC-044 references those Dockerfiles.</description>
+725:        <step>Step 3: `apps/website/Dockerfile` and `apps/dashboard/Dockerfile` exist; `docker compose -f docker-compose.yml up -d` from the monorepo root brings both apps up via those Dockerfiles.</step>
+729:    <acceptance_check id="AC-051" context="open-source-local-runtime" category="foundation" depends_on="AC-044">
+734:        <step>Step 2: Sign in as admin, load `/dashboard/integrations`, and confirm 15 integration cards are rendered (same identifiers as AC-027).</step>
+739:    <acceptance_check id="AC-052" context="open-source-local-runtime" category="foundation" depends_on="AC-044">
+749:    <acceptance_check id="AC-053" context="open-source-local-runtime" category="foundation" depends_on="AC-044,AC-046,AC-048,AC-049">
+750:      <title>Regression: all 43 original web acceptance checks (AC-001 through AC-043) pass against the open-source docker-compose stack</title>
+751:      <description>With the OSS docker-compose stack up from AC-044, the following original checks still pass (any check that described a vendor-specific implementation now passes against the local equivalent — e.g. AC-019's redirect behavior is preserved by the local JWT middleware, AC-022's 402 CREDITS_EXHAUSTED is preserved by the local credits ledger, AC-031's "no STRIPE_SECRET_KEY in dashboard env" is trivially true because Stripe is gone, AC-037's "AWS SDK limited to two files" is trivially true because AWS SDK is gone). Concretely: `pnpm turbo check-types` + `pnpm turbo lint` + `pnpm turbo test` + `pnpm turbo build` all exit 0 inside the dashboard container; `curl http://localhost:3000/` returns 200; the dashboard's sign-in form works end-to-end with the Core's local auth; `GET /api/incidents` (with a valid cookie) returns the Core's stub data; the plan-gate renders correctly for a fresh tenant; Sentry is a no-op with `NEXT_PUBLIC_SENTRY_DSN` empty.</description>
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && rg -in "aws|stripe|clerk|kms|ses|sns|sqs|dynamo|sts|secret.?manager" --glob '!node_modules' --glob '!package-lock.json' --glob '!*.harness-technology-inventory.json' --glob '!docs' --glob '!CHANGELOG.md' --glob '!harness-progress' --glob '!feature_list.json' 2>&1 | head -40
+project_specs.xml:7:    Ship a hardened, read-only relay agent — packaged as a multi-arch Docker image (causeflowai/relay) and versioned via semantic-release — that connects outbound from a customer's private network to the CauseFlow control plane over a single WebSocket /v1/relay/connect endpoint, executes JSON-RPC 2.0 requests (execute, list_resources, describe_resource, health_check) against configured PostgreSQL and MongoDB resources, enforces per-resource policy (allowlist + row limits) and SQL/aggregation safety, masks PII before results leave the network, emits a structured JSON audit trail, and reports resource updates + a 30s heartbeat. The image runs as non-root UID 10001 with a read-only filesystem, all Linux capabilities dropped, and no inbound ports.
+project_specs.xml:11:    CauseFlow Relay is a small Node.js 22 / TypeScript agent deployed inside the customer's VPC or on-prem environment. It opens an outbound WebSocket connection to the CauseFlow control plane at /v1/relay/connect, authenticates with a per-tenant token, and surfaces a JSON-RPC 2.0 interface that the CauseFlow AI investigation agents use to read from the customer's own databases. The relay never accepts inbound connections, never publishes a public IP, and never writes to the customer databases — it enforces read-only at three layers (the driver interface contract, the SQL/AST parser that blocks DDL/DML/dangerous functions, and a `BEGIN READ ONLY` PostgreSQL transaction with a 30-second statement timeout; for MongoDB, `$out` and `$merge` aggregation stages are blocked). Per-resource policy decides which databases are reachable, which operations each one permits (query, describe_table, list_tables, explain), and the maximum rows per query. PII masking (CPF, email, credit card, bearer token, BR phone, plus user-defined regexes) runs on every result row before anything leaves the customer's network, so the control plane and AI agents only ever see sanitized data. Every request is logged as a structured JSON audit entry. The image is published to Docker Hub as `causeflowai/relay` for `linux/amd64` and `linux/arm64`, with version tags derived from Conventional Commits via semantic-release.
+project_specs.xml:28:      - yaml — parses the `relay-config.yaml` file in `src/config/loader.ts`
+project_specs.xml:35:      <database>None owned. The relay never persists; it reads from PostgreSQL and MongoDB instances the customer already runs, behind a per-resource `IReadOnlyDriver` port. Both PostgreSQL (via `pg`) and MongoDB (via `mongodb`) are customer-side resources; the relay never stores its own data.</database>
+project_specs.xml:43:      Outbound WebSocket to the CauseFlow control plane at `${controlPlane.url}` (default `ws://localhost:3000/v1/relay/connect` for local dev, `wss://<host>/v1/relay/connect` in production). Connection URL carries `?token=<RELAY_TOKEN>&tenantId=<TENANT_ID>`; headers carry `Authorization: Bearer <token>` and `X-Tenant-Id: <tenantId>`. JSON-RPC 2.0 in both directions: control-plane → relay methods are `execute`, `list_resources`, `describe_resource`, `health_check`; relay → control-plane messages are `heartbeat` (every 30s) and `resource_update` (on connect and on change). All inbound messages are validated as JSON-RPC 2.0 before being handed to the dispatch switch in `src/index.ts`. Reconnect uses exponential backoff (1s → 30s max) on any non-intentional close.
+project_specs.xml:52:      <security>Three-layer read-only enforcement: (1) `IReadOnlyDriver` interface contracts `validate` + `execute` and the relay never calls anything else; (2) `validateQuery` in `src/drivers/postgres/pg-query-parser.ts` parses the SQL with `node-sql-parser`, rejects anything that is not a single SELECT (or CTE/EXPLAIN), rejects semicolons that would split multi-statements, and rejects dangerous function names (`pg_sleep`, `pg_read_file`, `pg_write_file`, `pg_ls_dir`, `pg_stat_file`, `pg_terminate_backend`, `pg_cancel_backend`, `pg_reload_conf`, `dblink`, `dblink_exec`, etc.); (3) every `query` execution runs inside a `BEGIN READ ONLY` transaction with `SET statement_timeout = '30s'` and a server-enforced `LIMIT`. Connection pool: `max: 5`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 10000`. Customer supplies a read-only DB role; the relay never escalates.</security>
+project_specs.xml:67:      <responsibility>Outbound-only WebSocket connection that delivers JSON-RPC 2.0 requests to the relay and receives `heartbeat` + `resource_update` messages back. The control plane is owned by the CauseFlow Core API and tracked there as RelayRegistry + WssRelayGateway. The relay never accepts inbound connections and never publishes a public IP.</responsibility>
+project_specs.xml:90:      <deployment>CI runs on `ubuntu-latest` GitHub-hosted runners. Both workflows are versioned to commit-hash actions where possible (e.g. `actions/checkout@v4`); Docker login uses `docker/login-action@v3`, buildx uses `docker/build-push-action@v6`.</deployment>
+project_specs.xml:113:      - Entry point (`src/index.ts`) wires drivers + engines + WS client, dispatches inbound JSON-RPC methods to the right engine, and installs `SIGINT` / `SIGTERM` graceful shutdown that closes the WS client, drains every driver's connection pool, and exits 0
+project_specs.xml:126:      - PostgreSQL query parser (`src/drivers/postgres/pg-query-parser.ts`) uses `node-sql-parser` to AST-parse each query, reject any non-SELECT statement, reject multi-statement injection (semicolons splitting statements), and reject a hardcoded list of dangerous function names (`pg_sleep`, `lo_import`/`lo_export`, `pg_read_file`/`pg_write_file`/`pg_read_binary_file`, `pg_ls_dir`/`pg_stat_file`, `pg_terminate_backend`/`pg_cancel_backend`/`pg_reload_conf`, `set_config`/`current_setting`, `dblink`/`dblink_exec`); falls back to a textual first-word check (INSERT/UPDATE/DELETE/DROP/ALTER/CREATE/TRUNCATE/GRANT/REVOKE/COPY → reject) if the parser cannot parse the statement
+project_specs.xml:132:      - `PolicyEngine` (`src/policy/policy-engine.ts`) built from the resource list at startup; `evaluate(resourceId, command)` runs three checks in order: (1) resource exists in the config, (2) operation is in the resource's `allowedOperations`, (3) for `query`, the requested `limit` does not exceed `maxRowsPerQuery` (the driver then clamps it to `min(requested, max)`)
+project_specs.xml:151:      - `resource_update` on connect (and on any future resource change): `{ type: 'resource_update', relayId, tenantId, resources: [{ resourceId, type, name, database, readOnly: true }] }` — tells the control plane which databases this relay can reach
+project_specs.xml:152:      - Both messages are constructed via `createHeartbeat` and `createResourceUpdate` in `src/transport/protocol.ts` and sent via `WsClient.send`; the relay never sends JSON-RPC responses for its own messages
+project_specs.xml:155:      - On `SIGINT` or `SIGTERM`, the entry point sets `intentionalClose` on the WS client (so the close does not trigger reconnect), closes the WebSocket, awaits `close()` on every driver, and exits 0
+project_specs.xml:169:      <description>`npx tsc --noEmit` exits 0; the project compiles under `strict: true` with `module: NodeNext` and `moduleResolution: NodeNext`. `package.json` declares `"type": "module"` and every internal import uses the explicit `.js` extension on the relative path (e.g. `from './transport/protocol.js'`).</description>
+project_specs.xml:175:      <description>When no YAML file is present at `RELAY_CONFIG_PATH` and `/app/relay-config.yaml`, `loadConfig()` falls back to building the config from environment variables: it reads `CONTROL_PLANE_URL` (default `ws://localhost:3000/v1/relay/connect`), `RELAY_TOKEN`, `TENANT_ID`, walks `RESOURCE_0_*` / `RESOURCE_1_*` / ... until a `RESOURCE_N_ID` is missing, JSON-parses each `RESOURCE_N_CONNECTION`, and uses `RESOURCE_N_MAX_ROWS` (default 1000). The fallback config round-trips through the same Zod schema as the YAML path.</description>
+project_specs.xml:187:      <description>`release.config.js` chains the documented semantic-release plugins in order: `@semantic-release/commit-analyzer` → `@semantic-release/release-notes-generator` → `@semantic-release/changelog` (writes CHANGELOG.md) → `@semantic-release/npm` (with `npmPublish: false`, only updates `package.json` version) → `@semantic-release/git` (commits `package.json` + `CHANGELOG.md` back with the `chore(release): ${nextRelease.version} [skip ci]` message) → `@semantic-release/github` (creates the GitHub Release). `branches: ['main']` restricts releases to the main branch.</description>
+project_specs.xml:208:      <description>On a `message` event, the `WsClient` JSON-parses the payload (string or buffer). Messages that fail to parse are logged at warn with the parse error and dropped. Messages where `parsed.jsonrpc !== '2.0'` or `parsed.method` is missing are likewise dropped. Only well-formed JSON-RPC 2.0 requests are forwarded to `opts.onMessage`.</description>
+project_specs.xml:211:      <description>A JSON-RPC 2.0 `list_resources` request (no params) returns a list of resources shaped as `{ resourceId, type, name, database, readOnly: true }[]` derived from the policy engine's resource list. The response uses `createResponse(request.id, resources)`, producing `{ jsonrpc: '2.0', id, result: [...] }`.</description>
+project_specs.xml:286:      <description>User-defined patterns from `masking.patterns` are added to the default set. A config with `{ name: 'session_id', regex: 'sess_[a-f0-9]{16}', replacement: 'sess_***' }` causes the string `sess_0123456789abcdef` to be masked to `sess_***` and the response `maskedFieldCount` to include this match.</description>
+project_specs.xml:301:      <description>Sending `SIGTERM` (or `SIGINT`) to a running relay triggers the shutdown handler: `WsClient.close()` is invoked first (which sets `intentionalClose = true`, clears the heartbeat interval and reconnect timer, and closes the WebSocket), then `driver.close()` is awaited for every initialized driver (errors are caught and ignored), then `process.exit(0)`. A second `SIGTERM` after the first completes has no effect (the process is already gone).</description>
+project_specs.xml:343:    1. On start, `loadConfig()` reads `RELAY_CONFIG_PATH` (or `/app/relay-config.yaml`) and parses it through Zod. If the file is missing, it builds a config from `RELAY_TOKEN` / `TENANT_ID` / `CONTROL_PLANE_URL` and the `RESOURCE_N_*` env-var family.
+project_specs.xml:351:    5. On `SIGINT` / `SIGTERM`, the relay closes the WS client (without triggering a reconnect), closes every driver, and exits 0.
+project_specs.xml:363:        - Verify `npx tsc --noEmit` exits 0 and every internal import uses the `.js` extension on the relative path
+project_specs.xml:370:        - Verify every loaded config passes through the Zod schemas in `src/config/schema.ts` and a bad config fails fast at boot
+project_specs.xml:388:        - Verify `PolicyEngine.evaluate` enforces (1) resource exists, (2) operation in `allowedOperations`, (3) `query` row limit not exceeded; denials produce a JSON-RPC `-32600` response and an audit entry with `result: 'denied'`
+project_specs.xml:411:      - `npx tsc --noEmit` is clean; `strict: true` is on; every internal import uses the `.js` extension
+init.sh:33:        (the loader uses these when no relay-config.yaml is present).
+CLAUDE.md:3:Data relay agent deployed inside customer private networks as a Docker container. Connects customer databases to the CauseFlow platform via secure WebSocket tunnel.
+CLAUDE.md:8:- test_command: echo "no tests configured"
+CLAUDE.md:20:- session-learnings-path: docs/session-learnings.md
+src/index.ts:187:            const statuses = await healthReporter.checkAll();
+src/index.ts:188:            wsClient.send(createResponse(request.id, statuses));
+src/config/loader.ts:1:import { readFileSync, existsSync } from 'node:fs';
+src/config/loader.ts:27:  if (existsSync(path)) {
+README.md:3:**Secure, read-only database relay for accessing customer databases in private networks.** CauseFlow Relay is a lightweight agent deployed inside the customer's network (VPC, on-prem, or any private environment) that establishes an outbound-only WebSocket connection to the CauseFlow control plane — no inbound ports, no firewall rules needed.
+README.md:26:The relay receives database query requests from CauseFlow's AI investigation agents via JSON-RPC 2.0 over WebSocket. Every request passes through a local policy engine, SQL validation, and PII masking before results leave the customer's network.
+README.md:35:| **Policy Engine** | Per-resource allowlist: which databases, which operations, max rows per query |
+README.md:47:| Network access to your databases | - |
+README.md:227:| `health_check` | Run health checks on all configured databases |
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && rg -in "aws|stripe|clerk|kms|ses|sns|sqs|dynamo|sts|secret.?manager" --glob '!node_modules' --glob '!package-lock.json' --glob '!*.harness-technology-inventory.json' --glob '!docs' --glob '!CHANGELOG.md' --glob '!harness-progress' --glob '!feature_list.json' 2>&1 | head -10
+CLAUDE.md:3:Data relay agent deployed inside customer private networks as a Docker container. Connects customer databases to the CauseFlow platform via secure WebSocket tunnel.
+CLAUDE.md:8:- test_command: echo "no tests configured"
+CLAUDE.md:20:- session-learnings-path: docs/session-learnings.md
+init.sh:33:        (the loader uses these when no relay-config.yaml is present).
+README.md:3:**Secure, read-only database relay for accessing customer databases in private networks.** CauseFlow Relay is a lightweight agent deployed inside the customer's network (VPC, on-prem, or any private environment) that establishes an outbound-only WebSocket connection to the CauseFlow control plane — no inbound ports, no firewall rules needed.
+README.md:26:The relay receives database query requests from CauseFlow's AI investigation agents via JSON-RPC 2.0 over WebSocket. Every request passes through a local policy engine, SQL validation, and PII masking before results leave the customer's network.
+README.md:35:| **Policy Engine** | Per-resource allowlist: which databases, which operations, max rows per query |
+README.md:47:| Network access to your databases | - |
+README.md:227:| `health_check` | Run health checks on all configured databases |
+README.md:234:| `resource_update` | On connect + on change | Reports available databases and their types |
+[0m
+[0m→ [0mRead Dockerfile
+[0m→ [0mRead relay-config.example.yaml
+[0m
+[0m$ [0mls /home/vinicius/projects/causeflow-ai/relay/src/ /home/vinicius/projects/causeflow-ai/relay/src/drivers /home/vinicius/projects/causeflow-ai/relay/src/transport /home/vinicius/projects/causeflow-ai/relay/.github/workflows 2>&1
+/home/vinicius/projects/causeflow-ai/relay/.github/workflows:
+ci.yml
+release.yml
+
+/home/vinicius/projects/causeflow-ai/relay/src/:
+audit
+config
+drivers
+health
+index.ts
+masking
+policy
+transport
+
+/home/vinicius/projects/causeflow-ai/relay/src/drivers:
+driver.port.ts
+mongodb
+postgres
+
+/home/vinicius/projects/causeflow-ai/relay/src/transport:
+protocol.ts
+ws-client.ts
+[0m
+[0m→ [0mRead init.sh
+[0m
+[0m$ [0mls /home/vinicius/projects/causeflow-ai/relay/docs/ 2>&1; ls /home/vinicius/projects/causeflow-ai/relay/docs/adr 2>&1; ls /home/vinicius/projects/causeflow-ai/relay/harness-progress 2>&1; ls /home/vinicius/projects/causeflow-ai/relay/.harness 2>&1
+tasks
+ls: cannot access '/home/vinicius/projects/causeflow-ai/relay/docs/adr': No such file or directory
+ls: cannot access '/home/vinicius/projects/causeflow-ai/relay/harness-progress': No such file or directory
+bootstrap.host
+bootstrap.log
+bootstrap.pid
+plan.host
+plan.log
+plan.pid
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && rg -n "AWS_REGION|aws_access|aws_secret|aws_access_key_id|STRIPE_SECRET|CLERK_SECRET|NEXT_PUBLIC_STRIPE|NEXT_PUBLIC_CLERK|LANGFUSE_|SENTRY_|MASTRA_|COMPOSIO_|SVIX_|SLACK_BOT" 2>&1 | head -10
+(no output)
+[0m
+[0m→ [0mRead feature_list.json[90m [offset=1, limit=100][0m
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && rg -n "\"id\":" feature_list.json | tail -20
+691:    "id": "WI-AC-031",
+714:    "id": "WI-AC-032",
+737:    "id": "WI-AC-033",
+760:    "id": "WI-AC-034",
+783:    "id": "WI-AC-035",
+806:    "id": "WI-AC-036",
+829:    "id": "WI-AC-037",
+852:    "id": "WI-AC-038",
+875:    "id": "WI-AC-039",
+898:    "id": "WI-AC-040",
+921:    "id": "WI-AC-041",
+944:    "id": "WI-AC-042",
+967:    "id": "WI-AC-043",
+990:    "id": "WI-AC-044",
+1013:    "id": "WI-AC-045",
+1036:    "id": "WI-AC-046",
+1059:    "id": "WI-AC-047",
+1082:    "id": "WI-AC-048",
+1105:    "id": "WI-AC-049",
+1128:    "id": "WI-AC-050",
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && rg -n "AC-050|AC-051|AC-049" feature_list.json | head -10
+1105:    "id": "WI-AC-049",
+1110:      "Read the Acceptance Check AC-049 description in project_specs.xml to understand the contract",
+1111:      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-049",
+1113:      "Confirm the output / state matches what AC-049 asserts; record the result for the harness journal"
+1116:      "AC-049"
+1128:    "id": "WI-AC-050",
+1133:      "Read the Acceptance Check AC-050 description in project_specs.xml to understand the contract",
+1134:      "Locate the relevant source file(s) under src/ (and configuration files at the repo root) referenced by AC-050",
+1136:      "Confirm the output / state matches what AC-050 asserts; record the result for the harness journal"
+1139:      "AC-050"
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && rg -n "open-source|open_source" feature_list.json | head -20
+(no output)
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && rg -n "open-source|open_source" project_specs.xml | head -20
+(no output)
+[0m
+[0m$ [0mls /home/vinicius/.config/opencode/skills/harness-generator/ 2>&1; ls /home/vinicius/.config/opencode/skills/harness-generator/scripts/ 2>&1
+SKILL.md
+claim.ps1
+claim.sh
+orchestrator.mjs
+orchestrator.workflow.js
+reconcile.mjs
+ls: cannot access '/home/vinicius/.config/opencode/skills/harness-generator/scripts/': No such file or directory
+[0m
+[0m→ [0mRead feature_list.json[90m [offset=1100][0m
+[0m→ [0mRead feature_list.json[90m [offset=1115][0m
+[0m→ [0mRead /home/vinicius/.config/opencode/skills/harness-generator/SKILL.md
+[0m
+[0m$ [0mcd /home/vinicius/.config/opencode/skills/harness-generator && head -60 reconcile.mjs
+#!/usr/bin/env node
+import { readFile, rename, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
+
+function fail(message) {
+  process.stderr.write(`reconcile: ${message}\n`)
+  process.exit(2)
+}
+
+const args = process.argv.slice(2)
+const repo = resolve(args.find((arg) => !arg.startsWith('--')) || '.')
+const checkOnly = args.includes('--check')
+const specFile = resolve(repo, 'project_specs.xml')
+const queueFile = resolve(repo, 'feature_list.json')
+
+function attribute(text, name) {
+  const match = text.match(new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`))
+  return match?.[2]?.trim() || ''
+}
+
+function body(text, tag) {
+  return text.match(new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)<\\/${tag}>`))?.[1]
+    ?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || ''
+}
+
+function parseChecks(xml) {
+  const checks = [...xml.matchAll(/<acceptance_check\b([^>]*)>([\s\S]*?)<\/acceptance_check>/g)]
+    .map((match) => {
+      const id = attribute(match[1], 'id')
+      const context = attribute(match[1], 'context')
+      const dependencies = attribute(match[1], 'depends_on').split(',').map((v) => v.trim()).filter(Boolean)
+      return {
+        id,
+        context,
+        category: attribute(match[1], 'category') || 'functional',
+        description: body(match[2], 'description'),
+        dependencies,
+      }
+    })
+  if (!checks.length) fail('project_specs.xml has no <acceptance_check> entries; run the planner first')
+  const ids = new Set()
+  for (const check of checks) {
+    if (!check.id || !check.context || !check.description) fail('every acceptance_check needs id, context, and description')
+    if (ids.has(check.id)) fail(`duplicate acceptance check id: ${check.id}`)
+    ids.add(check.id)
+  }
+  for (const check of checks) {
+    for (const dependency of check.dependencies) {
+      if (!ids.has(dependency)) fail(`${check.id} depends on unknown acceptance check ${dependency}`)
+    }
+  }
+  const visiting = new Set(), visited = new Set()
+  const byId = new Map(checks.map((check) => [check.id, check]))
+  function visit(id) {
+    if (visiting.has(id)) fail(`acceptance check dependency cycle includes ${id}`)
+    if (visited.has(id)) return
+    visiting.add(id)
+    for (const dependency of byId.get(id).dependencies) visit(dependency)
+    visiting.delete(id)
+    visited.add(id)
+[0m
+[0m→ [0mRead /home/vinicius/projects/causeflow-ai/core/project_specs.xml[90m [offset=320, limit=40][0m
+[0m→ [0mRead /home/vinicius/projects/causeflow-ai/core/project_specs.xml[90m [offset=910, limit=10][0m
+[0m→ [0mRead /home/vinicius/projects/causeflow-ai/web/project_specs.xml[90m [offset=200, limit=35][0m
+[0m
+[0m$ [0mcd /home/vinicius/.config/opencode/skills/harness-generator && rg -n "verify_first|depends_on|append|new checks|append-only" reconcile.mjs | head -40
+31:      const dependencies = attribute(match[1], 'depends_on').split(',').map((v) => v.trim()).filter(Boolean)
+100:    depends_on: check.dependencies,
+102:    verify_first: false,
+115:  const actual = new Set(item.depends_on || [])
+119:  item.depends_on = [...(item.depends_on || []), ...omitted]
+[0m
+[0m→ [0mRead /home/vinicius/.config/opencode/skills/harness-generator/reconcile.mjs
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai && git log -3 --oneline && echo --- && git status --short && echo --- && git config user.email && git config user.name
+7711a9e merge(harness): resolve WI-AC-039 journal conflict — append-only, newest defect authoritative
+3a7c432 chore(harness): checkpoint WI-AC-039
+7f7e026 chore(harness): resume open-source-local-runtime
+---
+?? .harness/
+?? .pi/
+?? core/.harness/
+?? relay/.harness/
+?? web/.harness-technology-inventory.json
+?? web/.harness/
+---
+init@causeflow.local
+Initializer Agent
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && git status --short && echo --- && git log -3 --oneline && echo --- && git config user.email && git config user.name && echo --- && git branch --show-current
+?? ../.harness/
+?? ../.pi/
+?? ../core/.harness/
+?? .harness/
+?? ../web/.harness-technology-inventory.json
+?? ../web/.harness/
+---
+7711a9e merge(harness): resolve WI-AC-039 journal conflict — append-only, newest defect authoritative
+3a7c432 chore(harness): checkpoint WI-AC-039
+7f7e026 chore(harness): resume open-source-local-runtime
+---
+init@causeflow.local
+Initializer Agent
+---
+main
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && git log --oneline -- project_specs.xml | head -5 && echo --- && git diff --stat HEAD~1 HEAD -- project_specs.xml feature_list.json
+7711a9e merge(harness): resolve WI-AC-039 journal conflict — append-only, newest defect authoritative
+---
+ relay/feature_list.json | 1150 +++++++++++++++++++++++++++++++++++++++++++++++
+ relay/project_specs.xml |  418 +++++++++++++++++
+ 2 files changed, 1568 insertions(+)
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && git show --stat HEAD -- project_specs.xml feature_list.json 2>&1 | head -20
+commit 7711a9e4bb900474acec07a8d6c176e9a702a8d9
+Merge: 886a443 3a7c432
+Author: Initializer Agent <init@causeflow.local>
+Date:   Tue Jul 7 20:48:56 2026 -0300
+
+    merge(harness): resolve WI-AC-039 journal conflict — append-only, newest defect authoritative
+    
+    Merged the gen branch's 2026-07-07T23:45:30Z (Resumed / Checkpoint ready —
+    isolated QA passed) entries with main's defect reports (2026-07-08T00:10:00Z
+    and 2026-07-08T00:35:00Z, both integration=false), ordered chronologically.
+    Per the Work Item rule the newer defect reports override the older true flag.
+    
+    Re-confirmed against integrated main tip 886a443: docker-compose.yml defines
+    0 of causeflow-postgres/causeflow-api/causeflow-worker (still old AWS stack);
+    src/shared/config/index.ts has 0 CAUSEFLOW_RUNTIME/isOss/config.postgres;
+    src/shared/infra/health/checks/ has only dynamodb/redis/sqs/anthropic (no
+    Postgres/OssAnthropic/Queues); .env.example has 29 forbidden var matches.
+    feature_list.json WI-AC-039 stays implementation:false, qa:false,
+    integration:false, status:integration-failed. AC-039 not satisfiable on main.
+[0m
+[0m← [0mEdit project_specs.xml
+Index: /home/vinicius/projects/causeflow-ai/relay/project_specs.xml
+===================================================================
+--- /home/vinicius/projects/causeflow-ai/relay/project_specs.xml
++++ /home/vinicius/projects/causeflow-ai/relay/project_specs.xml
+@@ -155,8 +155,17 @@
+     - On `SIGINT` or `SIGTERM`, the entry point sets `intentionalClose` on the WS client (so the close does not trigger reconnect), closes the WebSocket, awaits `close()` on every driver, and exits 0
+     - Any driver `close()` failure is caught and ignored — shutdown is best-effort and never blocks the exit
+     - Unhandled errors inside a request handler are caught at the top of the `onMessage` callback; the relay responds with a JSON-RPC `-32603 internal error` carrying the error message and logs at error
+   </graceful-shutdown>
++  <open-source-local-runtime>
++    - Goal: the relay subproject runs end-to-end via `docker compose up` from this repo root with zero paid/external SaaS credentials configured. The relay is already free of AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, and Mastra — the work here is to make that verifiable at a real docker-compose boundary and to add a local control-plane stub + local customer databases so the full JSON-RPC path can be exercised without any external service.
++    - Local control plane stub: a small `node:22-alpine` + `ws` service committed at `scripts/control-plane-stub/server.mjs` and wired into `docker-compose.yml` as the `relay-control-plane-stub` service. It listens on `0.0.0.0:3000` and answers the same `/v1/relay/connect` JSON-RPC 2.0 contract the CauseFlow control plane does: it accepts the relay's WebSocket handshake, validates the `?token=&tenantId=` query string against a fixed expected pair, logs every `resource_update` and `heartbeat` it receives, and on connect runs a `health_check` round-trip plus an `execute` against the bundled `order-pg` resource. No AWS, Stripe, Clerk, or any other vendor SDK is imported; only `ws` and the Node stdlib.
++    - Local customer databases: a `postgres:16-alpine` container (`relay-postgres`, port 5432) seeded by `scripts/control-plane-stub/initdb/01-orders.sql` with a small `orders` table for the demo `execute` path, and a `mongo:7` container (`relay-mongo`, port 27017) with no seed (the `describe_table` round-trip works against an empty database). Both are customer-side resources — the relay never owns or persists data.
++    - `relay-config.docker.yaml` is committed and mounted into the relay container; it points `controlPlane.url` at `ws://relay-control-plane-stub:3000/v1/relay/connect` and the two `resources[]` at the local Postgres and Mongo via `host: relay-postgres` / `uri: mongodb://relay-mongo:27017`.
++    - `.env.example` is added at the repo root and contains only the relay's own env vars: `RELAY_TOKEN`, `TENANT_ID`, `CONTROL_PLANE_URL`, `PG_HOST`, `PG_PORT`, `PG_DATABASE`, `PG_USER`, `PG_PASSWORD`, `MONGO_URI`, `MONGO_DATABASE`, and the optional `MASKING_ENABLED` / `AUDIT_ENABLED` toggles. No `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entries.
++    - `docker compose up -d` from the relay repo root brings up exactly four services — `relay-control-plane-stub`, `relay-postgres`, `relay-mongo`, `relay` — and within 60 seconds the relay's boot log contains "Connected to control plane" and the stub's log contains one `[stub] resource_update from relayId=<uuid> resources=<n>` line. No outbound traffic to AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra is attempted (verifiable by grepping the relay boot log for vendor hostnames; the only outbound URL the relay ever resolves is the local stub).
++    - The 50 original acceptance checks (AC-001 through AC-050) still pass: the hardened container still runs as UID 10001, the policy engine / masking engine / audit logger / Postgres / Mongo drivers are unchanged, the WebSocket transport still speaks JSON-RPC 2.0 with the documented `execute` / `list_resources` / `describe_resource` / `health_check` methods, and graceful shutdown still works. This context adds the open-source docker-compose plumbing on top of the existing single-image distribution; it does not rewrite the relay.
++  </open-source-local-runtime>
+ </core_features>
+ 
+ <acceptance_checks>
+   <acceptance_check id="AC-001" context="foundation" category="foundation" depends_on="">
+
+[0m
+Now I have a complete picture. Let me apply the changes to `project_specs.xml`. The relay already has no AWS/Stripe/Clerk in `package.json` or source — what's missing is `docker compose up` plumbing and a `.env.example`. I'll append 8 new ACs (AC-051 through AC-058) under a new `open-source-local-runtime` context, mirroring the sibling `core` (AC-039–AC-053) and `web` (AC-044–AC-053) approach.
+[0m← [0mEdit project_specs.xml
+Index: /home/vinicius/projects/causeflow-ai/relay/project_specs.xml
+===================================================================
+--- /home/vinicius/projects/causeflow-ai/relay/project_specs.xml
++++ /home/vinicius/projects/causeflow-ai/relay/project_specs.xml
+@@ -317,8 +317,32 @@
+   </acceptance_check>
+   <acceptance_check id="AC-050" context="lifecycle" category="functional" depends_on="AC-001">
+     <description>Dev workflow: `npm install` then `npm run dev` (which runs `tsx watch src/index.ts`) starts the relay, watches `src/` for changes, and restarts the process on every save. Build workflow: `npm run build` produces a clean `dist/` tree mirroring `src/`. Run workflow: `npm start` runs `node dist/index.js` against the compiled output.</description>
+   </acceptance_check>
++  <acceptance_check id="AC-051" context="open-source-local-runtime" category="foundation" depends_on="">
++    <description>With a clean shell env (`env -i PATH=$PATH`), no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` env vars set, `docker compose up -d` from the relay repo root brings up exactly four services: `relay-control-plane-stub` (port 3000), `relay-postgres` (port 5432), `relay-mongo` (port 27017), and `relay` (the hardened image, no inbound port mapping). Within 60 seconds `docker compose ps` reports all four as `Up`, the relay's boot log contains the line `Connected to control plane`, and the stub's log contains `[stub] resource_update from relayId=<uuid> resources=<n>` for `n >= 1`. Grepping the relay container's boot log (`docker compose logs relay`) for `amazonaws.com`, `stripe.com`, `clerk.`, `langfuse`, `sentry.io`, `svix.com`, `slack.com`, `composio`, `mastra`, or any other vendor hostname returns 0 matches; the only outbound URL the relay attempts to resolve is `ws://relay-control-plane-stub:3000/v1/relay/connect`.</description>
++  </acceptance_check>
++  <acceptance_check id="AC-052" context="open-source-local-runtime" category="foundation" depends_on="AC-051">
++    <description>A new `docker-compose.yml` exists at the relay repo root and defines the four services with no `image: ministack`, no `image: localstack`, no `image: langfuse`, no AWS / Stripe / Clerk / Sentry / Langfuse / Svix / Slack / Composio / Mastra env vars anywhere. The `relay-control-plane-stub` is a small `node:22-alpine` + `ws` service built from `scripts/control-plane-stub/Dockerfile` (a one-line `COPY server.mjs .` + `CMD ["node", "server.mjs"]`), listens on `0.0.0.0:3000`, accepts the relay's WebSocket handshake on `/v1/relay/connect`, validates the `?token=<RELAY_TOKEN>&tenantId=<TENANT_ID>` query string against the same env vars the relay uses, and on a `resource_update` message from the relay logs `[stub] resource_update from relayId=<relayId> resources=<n>`. The stub's source (`scripts/control-plane-stub/server.mjs`) imports only `ws` and Node stdlib modules — no AWS SDK, no Stripe, no `@clerk/*`, no other vendor SDK.</description>
++  </acceptance_check>
++  <acceptance_check id="AC-053" context="open-source-local-runtime" category="functional" depends_on="AC-051,AC-052">
++    <description>After `docker compose up -d` from AC-051, the stub's startup script sends a JSON-RPC 2.0 `health_check` request to the relay over the open WebSocket. The relay answers with `{ jsonrpc: '2.0', id, result: [{ resourceId: 'order-pg', type: 'postgres', healthy: true, latencyMs: <n> }, { resourceId: 'order-mongo', type: 'mongodb', healthy: true, latencyMs: <n> }] }` (one entry per initialized driver). The stub prints the JSON to its log as `[stub] health_check result=...` and exits 0. A failure of either driver (e.g. the Postgres container is stopped) yields `healthy: false` for that entry while the other driver still reports `healthy: true`; the stub still exits 0 and prints the partial result.</description>
++  </acceptance_check>
++  <acceptance_check id="AC-054" context="open-source-local-runtime" category="functional" depends_on="AC-051,AC-052">
++    <description>After `docker compose up -d` from AC-051, the stub sends a JSON-RPC 2.0 `execute` request to the relay with `params: { resourceId: 'order-pg', operation: 'query', params: { sql: 'SELECT 1 AS one' } }`. The relay executes the query against the local `relay-postgres` container (the `orders` table was created by `scripts/control-plane-stub/initdb/01-orders.sql` on first start) and returns `{ jsonrpc: '2.0', id, result: { rows: [{ one: 1 }], rowCount: 1, fields: [{ name: 'one', type: 'int4' }], executionTimeMs: <n>, masked: false, maskedFieldCount: 0 } }`. The stub prints the result, then sends a second `execute` with `operation: 'list_tables'` and asserts the response `result.rows` contains an `orders` row. The stub script exits 0; both queries hit the local Postgres on the docker network, not an external service.</description>
++  </acceptance_check>
++  <acceptance_check id="AC-055" context="open-source-local-runtime" category="foundation" depends_on="AC-051">
++    <description>A new `.env.example` is committed at the relay repo root and contains only the relay's own env vars: `RELAY_TOKEN` (default `harness-smoke-token`), `TENANT_ID` (default `harness-tenant`), `CONTROL_PLANE_URL` (default `ws://relay-control-plane-stub:3000/v1/relay/connect`), `PG_HOST` (default `relay-postgres`), `PG_PORT` (default `5432`), `PG_DATABASE` (default `relay`), `PG_USER` (default `relay`), `PG_PASSWORD` (default `relay`), `MONGO_URI` (default `mongodb://relay-mongo:27017`), `MONGO_DATABASE` (default `relay`), and the optional `MASKING_ENABLED` (default `true`) + `AUDIT_ENABLED` (default `true`) toggles. The file contains no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entries. `grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example` returns 0. `docker compose --env-file .env.example up -d` from a clean shell env brings all four services Up.</description>
++  </acceptance_check>
++  <acceptance_check id="AC-056" context="open-source-local-runtime" category="foundation" depends_on="AC-051,AC-052">
++    <description>`scripts/control-plane-stub/server.mjs` is committed: it imports `ws` and Node stdlib only, opens a `WebSocketServer` on `0.0.0.0:3000`, on `connection` validates the `?token=&tenantId=` URL query against the expected env-var pair, on `message` JSON-parses the payload and routes by `type` (logging `resource_update` with `relayId` + `resources.length`, logging `heartbeat` with `relayId` at debug), and exposes a one-shot `npm run smoke` script that opens its own outbound WebSocket to the relay, sends `health_check` and the two `execute` round-trips from AC-053 / AC-054, asserts the responses, and exits 0 on success / non-zero on mismatch. The stub has zero runtime dependency on any vendor SDK and is built into a 50-line image by `scripts/control-plane-stub/Dockerfile`.</description>
++  </acceptance_check>
++  <acceptance_check id="AC-057" context="open-source-local-runtime" category="security" depends_on="AC-001">
++    <description>The relay's `package.json` contains no `aws-sdk`, `@aws-sdk/*`, `stripe`, `@stripe/*`, `@clerk/*`, `@langfuse/*`, `@sentry/*`, `@svix/*`, `@slack/*`, `composio-*`, or `@mastra/*` dependency. `rg -in "aws-sdk|@aws-sdk|^\"stripe\"|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra" package.json` returns 0 matches. The same regex over the source tree (excluding `node_modules`, `package-lock.json`, `.harness*`, `docs/`, `CHANGELOG.md`, `harness-progress/`, `feature_list.json`) returns 0 matches: no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra API is referenced anywhere in the relay's runtime code. `package-lock.json` likewise has no transitive dependency on any of those packages (the regex applied to `package-lock.json` returns 0 matches). The relay's `.env.example` from AC-055 contains no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entry.</description>
++  </acceptance_check>
++  <acceptance_check id="AC-058" context="open-source-local-runtime" category="functional" depends_on="AC-051,AC-052,AC-055">
++    <description>Regression: the 50 original acceptance checks (AC-001 through AC-050) still pass against the new open-source layout. Concretely: `npm install` then `npm run build` exits 0 and produces `dist/index.js`; `npx tsc --noEmit` exits 0; `docker build . --platform linux/amd64` succeeds and produces an image that starts as UID 10001 (per AC-002's invariants). The `relay-config.docker.yaml` referenced by `docker-compose.yml` is a thin wrapper around the existing `relay-config.example.yaml` (same controlPlane + resources shape, just with the docker-network hostnames); `loadConfig()` parses it without code changes. PII masking, the audit logger, the policy engine, the Postgres / Mongo drivers, the WebSocket transport, the JSON-RPC dispatch, and graceful shutdown all behave identically to the original 50-check contract — the open-source context adds the docker-compose plumbing on top, it does not modify the relay's runtime behavior.</description>
++  </acceptance_check>
+ </acceptance_checks>
+ 
+ <database_schema>
+   <tables>removed — the relay does not own a database; it is a stateless agent that reads from customer-managed PostgreSQL and MongoDB instances only</tables>
+
+[0m
+[0m← [0mEdit project_specs.xml
+Index: /home/vinicius/projects/causeflow-ai/relay/project_specs.xml
+===================================================================
+--- /home/vinicius/projects/causeflow-ai/relay/project_specs.xml
++++ /home/vinicius/projects/causeflow-ai/relay/project_specs.xml
+@@ -446,6 +446,9 @@
+       - PII never logged: bearer tokens do not appear in any log line; errors are caught and turned into JSON-RPC errors with the error message
+       - Conventional Commits enforced on PRs; semver derived automatically from commit messages; multi-arch image published on every release
+     </technical_quality>
+     <design_polish>removed — the relay has no UI; design polish is delegated to the CauseFlow control plane dashboard in the `web` sibling project</design_polish>
++    <open_source_local_runtime>
++      Acceptance Checks AC-051 through AC-058 all pass against the running docker-compose stack with no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars configured. `docker compose up -d` from a clean clone with an unchanged `.env.example` brings the relay + the local control-plane stub + the bundled Postgres + the bundled Mongo to a healthy state in under 60 seconds, and the stub's smoke script (`npm run smoke` in `scripts/control-plane-stub/`) reproduces a full `health_check` + `execute { query: SELECT 1 }` + `execute { list_tables }` round-trip against the relay over the docker-network WebSocket. The relay's `package.json` and source tree contain zero references to `aws-sdk`, `stripe`, `@clerk/*`, `@sentry/*`, `@langfuse/*`, `@svix/*`, `@slack/*`, `composio-*`, or `@mastra/*`; the 50 original acceptance checks (AC-001..AC-050) continue to pass on the new layout.
++    </open_source_local_runtime>
+   </success_criteria>
+ </project_specification>
+
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && python3 -c "import xml.etree.ElementTree as ET; t = ET.parse('project_specs.xml'); print('OK, root =', t.getroot().tag, 'children =', [c.tag for c in t.getroot()])"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import xml.etree.ElementTree as ET; t = ET.parse('project_specs.xml'); print('OK, root =', t.getroot().tag, 'children =', [c.tag for c in t.getroot()])
+                                            ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/xml/etree/ElementTree.py", line 1214, in parse
+    tree.parse(source, parser)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/xml/etree/ElementTree.py", line 577, in parse
+    self._root = parser._parse_whole(source)
+                 ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 43, column 245
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && rg -n "AC-0(5[0-9]|6[0-9])|open-source-local-runtime|open_source_local_runtime" project_specs.xml | head -30
+159:    <open-source-local-runtime>
+166:      - The 50 original acceptance checks (AC-001 through AC-050) still pass: the hardened container still runs as UID 10001, the policy engine / masking engine / audit logger / Postgres / Mongo drivers are unchanged, the WebSocket transport still speaks JSON-RPC 2.0 with the documented `execute` / `list_resources` / `describe_resource` / `health_check` methods, and graceful shutdown still works. This context adds the open-source docker-compose plumbing on top of the existing single-image distribution; it does not rewrite the relay.
+167:    </open-source-local-runtime>
+318:    <acceptance_check id="AC-050" context="lifecycle" category="functional" depends_on="AC-001">
+321:    <acceptance_check id="AC-051" context="open-source-local-runtime" category="foundation" depends_on="">
+324:    <acceptance_check id="AC-052" context="open-source-local-runtime" category="foundation" depends_on="AC-051">
+327:    <acceptance_check id="AC-053" context="open-source-local-runtime" category="functional" depends_on="AC-051,AC-052">
+328:      <description>After `docker compose up -d` from AC-051, the stub's startup script sends a JSON-RPC 2.0 `health_check` request to the relay over the open WebSocket. The relay answers with `{ jsonrpc: '2.0', id, result: [{ resourceId: 'order-pg', type: 'postgres', healthy: true, latencyMs: <n> }, { resourceId: 'order-mongo', type: 'mongodb', healthy: true, latencyMs: <n> }] }` (one entry per initialized driver). The stub prints the JSON to its log as `[stub] health_check result=...` and exits 0. A failure of either driver (e.g. the Postgres container is stopped) yields `healthy: false` for that entry while the other driver still reports `healthy: true`; the stub still exits 0 and prints the partial result.</description>
+330:    <acceptance_check id="AC-054" context="open-source-local-runtime" category="functional" depends_on="AC-051,AC-052">
+331:      <description>After `docker compose up -d` from AC-051, the stub sends a JSON-RPC 2.0 `execute` request to the relay with `params: { resourceId: 'order-pg', operation: 'query', params: { sql: 'SELECT 1 AS one' } }`. The relay executes the query against the local `relay-postgres` container (the `orders` table was created by `scripts/control-plane-stub/initdb/01-orders.sql` on first start) and returns `{ jsonrpc: '2.0', id, result: { rows: [{ one: 1 }], rowCount: 1, fields: [{ name: 'one', type: 'int4' }], executionTimeMs: <n>, masked: false, maskedFieldCount: 0 } }`. The stub prints the result, then sends a second `execute` with `operation: 'list_tables'` and asserts the response `result.rows` contains an `orders` row. The stub script exits 0; both queries hit the local Postgres on the docker network, not an external service.</description>
+333:    <acceptance_check id="AC-055" context="open-source-local-runtime" category="foundation" depends_on="AC-051">
+336:    <acceptance_check id="AC-056" context="open-source-local-runtime" category="foundation" depends_on="AC-051,AC-052">
+337:      <description>`scripts/control-plane-stub/server.mjs` is committed: it imports `ws` and Node stdlib only, opens a `WebSocketServer` on `0.0.0.0:3000`, on `connection` validates the `?token=&tenantId=` URL query against the expected env-var pair, on `message` JSON-parses the payload and routes by `type` (logging `resource_update` with `relayId` + `resources.length`, logging `heartbeat` with `relayId` at debug), and exposes a one-shot `npm run smoke` script that opens its own outbound WebSocket to the relay, sends `health_check` and the two `execute` round-trips from AC-053 / AC-054, asserts the responses, and exits 0 on success / non-zero on mismatch. The stub has zero runtime dependency on any vendor SDK and is built into a 50-line image by `scripts/control-plane-stub/Dockerfile`.</description>
+339:    <acceptance_check id="AC-057" context="open-source-local-runtime" category="security" depends_on="AC-001">
+340:      <description>The relay's `package.json` contains no `aws-sdk`, `@aws-sdk/*`, `stripe`, `@stripe/*`, `@clerk/*`, `@langfuse/*`, `@sentry/*`, `@svix/*`, `@slack/*`, `composio-*`, or `@mastra/*` dependency. `rg -in "aws-sdk|@aws-sdk|^\"stripe\"|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra" package.json` returns 0 matches. The same regex over the source tree (excluding `node_modules`, `package-lock.json`, `.harness*`, `docs/`, `CHANGELOG.md`, `harness-progress/`, `feature_list.json`) returns 0 matches: no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra API is referenced anywhere in the relay's runtime code. `package-lock.json` likewise has no transitive dependency on any of those packages (the regex applied to `package-lock.json` returns 0 matches). The relay's `.env.example` from AC-055 contains no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entry.</description>
+342:    <acceptance_check id="AC-058" context="open-source-local-runtime" category="functional" depends_on="AC-051,AC-052,AC-055">
+343:      <description>Regression: the 50 original acceptance checks (AC-001 through AC-050) still pass against the new open-source layout. Concretely: `npm install` then `npm run build` exits 0 and produces `dist/index.js`; `npx tsc --noEmit` exits 0; `docker build . --platform linux/amd64` succeeds and produces an image that starts as UID 10001 (per AC-002's invariants). The `relay-config.docker.yaml` referenced by `docker-compose.yml` is a thin wrapper around the existing `relay-config.example.yaml` (same controlPlane + resources shape, just with the docker-network hostnames); `loadConfig()` parses it without code changes. PII masking, the audit logger, the policy engine, the Postgres / Mongo drivers, the WebSocket transport, the JSON-RPC dispatch, and graceful shutdown all behave identically to the original 50-check contract — the open-source context adds the docker-compose plumbing on top, it does not modify the relay's runtime behavior.</description>
+450:    <open_source_local_runtime>
+451:      Acceptance Checks AC-051 through AC-058 all pass against the running docker-compose stack with no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars configured. `docker compose up -d` from a clean clone with an unchanged `.env.example` brings the relay + the local control-plane stub + the bundled Postgres + the bundled Mongo to a healthy state in under 60 seconds, and the stub's smoke script (`npm run smoke` in `scripts/control-plane-stub/`) reproduces a full `health_check` + `execute { query: SELECT 1 }` + `execute { list_tables }` round-trip against the relay over the docker-network WebSocket. The relay's `package.json` and source tree contain zero references to `aws-sdk`, `stripe`, `@clerk/*`, `@sentry/*`, `@langfuse/*`, `@svix/*`, `@slack/*`, `composio-*`, or `@mastra/*`; the 50 original acceptance checks (AC-001..AC-050) continue to pass on the new layout.
+452:    </open_source_local_runtime>
+[0m
+[0m→ [0mRead project_specs.xml[90m [offset=42, limit=5][0m
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && git show HEAD:project_specs.xml | python3 -c "import sys, xml.etree.ElementTree as ET; t = ET.parse(sys.stdin); print('OK')" 2>&1
+fatal: path 'relay/project_specs.xml' exists, but not 'project_specs.xml'
+hint: Did you mean 'HEAD:relay/project_specs.xml' aka 'HEAD:./project_specs.xml'?
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys, xml.etree.ElementTree as ET; t = ET.parse(sys.stdin); print('OK')
+                                                 ~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.14/xml/etree/ElementTree.py", line 1214, in parse
+    tree.parse(source, parser)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/xml/etree/ElementTree.py", line 577, in parse
+    self._root = parser._parse_whole(source)
+                 ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && python3 -c "
+with open('project_specs.xml') as f:
+    lines = f.readlines()
+line = lines[42]  # 0-indexed
+print('len =', len(line))
+print('col 245 =', repr(line[240:260]))
+"
+len = 772
+col 245 = 'antId=<TENANT_ID>`; '
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai && git show HEAD:relay/project_specs.xml | python3 -c "import sys, xml.etree.ElementTree as ET; t = ET.parse(sys.stdin); print('OK')" 2>&1
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys, xml.etree.ElementTree as ET; t = ET.parse(sys.stdin); print('OK')
+                                                 ~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.14/xml/etree/ElementTree.py", line 1214, in parse
+    tree.parse(source, parser)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/xml/etree/ElementTree.py", line 577, in parse
+    self._root = parser._parse_whole(source)
+                 ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 43, column 245
+[0m
+Good — the original file is also not strictly well-formed XML (it uses literal `<host>` in text); the harness parses with regex, not an XML parser. So the file is valid for our purposes. Now let me run `reconcile.mjs --check` to validate the new ACs before committing.
+[0m$ [0mnode /home/vinicius/.config/opencode/skills/harness-generator/reconcile.mjs --check /home/vinicius/projects/causeflow-ai/relay 2>&1
+reconcile: unmapped acceptance checks: AC-051, AC-052, AC-053, AC-054, AC-055, AC-056, AC-057, AC-058
+[0m
+Spec validates cleanly (only 8 new ACs unmapped, no dependency or cycle errors). Now committing the spec, then running `reconcile.mjs` to map the new ACs into `feature_list.json`, then committing that.
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai && git add relay/project_specs.xml && git status --short && git -c user.email=planner@causeflow.local -c user.name="Planner Agent" commit -m "chore(harness): add open-source-local-runtime ACs to relay project_specs
+
+Appends a new open-source-local-runtime feature area to the relay's
+project_specs.xml and 8 new Acceptance Checks (AC-051 through AC-058) that
+verify the relay subproject can run end-to-end via 'docker compose up' with
+zero paid/external SaaS credentials configured.
+
+Context mirrors the sibling core (AC-039..AC-053) and web (AC-044..AC-053)
+subprojects, scoped to the relay's actual surface area:
+
+  AC-051 foundation: docker compose up -d brings up relay-control-plane-stub,
+    relay-postgres, relay-mongo, and relay in under 60s with a clean shell
+    env (no AWS_*, STRIPE_*, CLERK_*, LANGFUSE_*, SENTRY_*, SVIX_*, SLACK_*,
+    COMPOSIO_*, MASTRA_*, SQS_*, DYNAMODB_*, STS_*, KMS_*)
+  AC-052 foundation: docker-compose.yml + scripts/control-plane-stub/ commit
+    the local control-plane stub (node:22-alpine + ws, no vendor SDKs)
+  AC-053 functional: stub -> relay health_check round-trip via docker network
+  AC-054 functional: stub -> relay execute { query, list_tables } round-trip
+  AC-055 foundation: .env.example ships with only the relay's own env vars
+  AC-056 foundation: scripts/control-plane-stub/server.mjs + smoke script
+  AC-057 security: package.json + source tree contain zero vendor-SDK refs
+  AC-058 functional: regression - the 50 original ACs still pass
+
+Existing content (mode=existing-codebase, AC-001..AC-050, core_features,
+technology_stack, integrations) is preserved unchanged per the
+append-only spec rule." 2>&1 | tail -20
+M  relay/project_specs.xml
+?? .harness/
+?? .pi/
+?? core/.harness/
+?? relay/.harness/
+?? web/.harness-technology-inventory.json
+?? web/.harness/
+[main fb442f3] chore(harness): add open-source-local-runtime ACs to relay project_specs
+ 1 file changed, 36 insertions(+)
+[0m
+[0m$ [0mnode /home/vinicius/.config/opencode/skills/harness-generator/reconcile.mjs /home/vinicius/projects/causeflow-ai/relay 2>&1
+{"acceptanceChecks":58,"addedWorkItems":8,"addedIds":["AC-051","AC-052","AC-053","AC-054","AC-055","AC-056","AC-057","AC-058"],"filledDependsOn":[]}
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai/relay && rg -n "\"id\":" feature_list.json | tail -10 && echo --- && tail -25 feature_list.json
+1105:    "id": "WI-AC-049",
+1128:    "id": "WI-AC-050",
+1151:    "id": "WI-AC-051",
+1169:    "id": "WI-AC-052",
+1189:    "id": "WI-AC-053",
+1210:    "id": "WI-AC-054",
+1231:    "id": "WI-AC-055",
+1251:    "id": "WI-AC-056",
+1272:    "id": "WI-AC-057",
+1292:    "id": "WI-AC-058",
+---
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-058",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "description": "Regression: the 50 original acceptance checks (AC-001 through AC-050) still pass against the new open-source layout. Concretely: `npm install` then `npm run build` exits 0 and produces `dist/index.js`; `npx tsc --noEmit` exits 0; `docker build . --platform linux/amd64` succeeds and produces an image that starts as UID 10001 (per AC-002's invariants). The `relay-config.docker.yaml` referenced by `docker-compose.yml` is a thin wrapper around the existing `relay-config.example.yaml` (same controlPlane + resources shape, just with the docker-network hostnames); `loadConfig()` parses it without code changes. PII masking, the audit logger, the policy engine, the Postgres / Mongo drivers, the WebSocket transport, the JSON-RPC dispatch, and graceful shutdown all behave identically to the original 50-check contract — the open-source context adds the docker-compose plumbing on top, it does not modify the relay's runtime behavior.",
+    "steps": [
+      "Verify AC-058: Regression: the 50 original acceptance checks (AC-001 through AC-050) still pass against the new open-source layout. Concretely: `npm install` then `npm run build` exits 0 and produces `dist/index.js`; `npx tsc --noEmit` exits 0; `docker build . --platform linux/amd64` succeeds and produces an image that starts as UID 10001 (per AC-002's invariants). The `relay-config.docker.yaml` referenced by `docker-compose.yml` is a thin wrapper around the existing `relay-config.example.yaml` (same controlPlane + resources shape, just with the docker-network hostnames); `loadConfig()` parses it without code changes. PII masking, the audit logger, the policy engine, the Postgres / Mongo drivers, the WebSocket transport, the JSON-RPC dispatch, and graceful shutdown all behave identically to the original 50-check contract — the open-source context adds the docker-compose plumbing on top, it does not modify the relay's runtime behavior."
+    ],
+    "acceptance_checks": [
+      "AC-058"
+    ],
+    "depends_on": [
+      "AC-051",
+      "AC-052",
+      "AC-055"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  }
+]
+[0m
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai && git add relay/feature_list.json && git -c user.email=planner@causeflow.local -c user.name="Planner Agent" commit -m "chore(harness): reconcile relay feature_list.json with open-source-local-runtime
+
+Ran reconcile.mjs from the harness-generator skill to map the 8 new
+AC-051..AC-058 Acceptance Checks into feature_list.json as Work Items
+WI-AC-051..WI-AC-058. All 8 are tagged verify_first:false since they
+are appended after the existing-codebase baseline; the generator
+will build them in full (compose plumbing, control-plane stub, .env
+example, regression check) while the mapped baseline stays a
+verify-first audit.
+
+Reconcile summary:
+  acceptanceChecks: 58
+  addedWorkItems:   8 (AC-051..AC-058)
+  filledDependsOn:  [] (no transitive deps needed)" 2>&1 | tail -10
+[main ba7fe5f] chore(harness): reconcile relay feature_list.json with open-source-local-runtime
+ 1 file changed, 163 insertions(+)
+[0m
+Reconcile added 8 new Work Items (WI-AC-051…WI-AC-058) all `verify_first:false` (append-only). Committing the reconcile result.
+[0m$ [0mcd /home/vinicius/projects/causeflow-ai && git log -3 --oneline && echo --- && touch '/home/vinicius/projects/causeflow-ai/relay/.harness/plan.done' && ls -la '/home/vinicius/projects/causeflow-ai/relay/.harness/plan.done'
+ba7fe5f chore(harness): reconcile relay feature_list.json with open-source-local-runtime
+fb442f3 chore(harness): add open-source-local-runtime ACs to relay project_specs
+7711a9e merge(harness): resolve WI-AC-039 journal conflict — append-only, newest defect authoritative
+---
+-rw-rw-r-- 1 vinicius vinicius 0 Jul  7 20:54 /home/vinicius/projects/causeflow-ai/relay/.harness/plan.done
+[0m
+Done.
+
+**Summary**
+
+- **Spec change** — appended a new `open-source-local-runtime` feature area to `relay/project_specs.xml` and 8 new Acceptance Checks (`AC-051`…`AC-058`). The relay has no AWS/Stripe/Clerk dependencies in `package.json` or source, so the work is the docker-compose plumbing missing today: a bundled control-plane stub (`scripts/control-plane-stub/server.mjs`, `node:22-alpine` + `ws` only), local `relay-postgres` / `relay-mongo` containers, a reduced `.env.example`, and a smoke round-trip (`health_check` + `execute {query, list_tables}`) over the docker network — plus a regression check that the original 50 ACs still pass. Commit `fb442f3`.
+- **Reconcile** — `reconcile.mjs` from the installed harness-generator skill (not searched elsewhere) added `WI-AC-051`…`WI-AC-058` to `relay/feature_list.json`, all `verify_first:false` per the append-only rule. Commit `ba7fe5f`.
+- **Done** — `/home/vinicius/projects/causeflow-ai/relay/.harness/plan.done` touched.

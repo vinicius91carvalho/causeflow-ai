@@ -243,3 +243,18 @@ Evidence: /tmp/ac002-evidence/WI-AC-002-3-qa.log
 - WorkItem: WI-AC-002
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-002 — Integrated Verification (2026-07-07)
+
+Independently re-ran every AC-002 invariant at real external boundaries on integrated `main` (commit ab95b1e). Zero code diff.
+
+1. `docker build . --platform linux/amd64` → exit 0 (image `causeflow-relay:qa-002`).
+2. Multi-arch buildx: `docker buildx build . --platform linux/amd64,linux/arm64 --load` → exit 0 (manifest list built for both platforms; CACHED).
+3. `docker inspect causeflow-relay:qa-002` → `User=relay`, `Cmd=["node","dist/index.js"]`, `ExposedPorts={"8080/tcp":{}}` only — no ports other than the informational 8080.
+4. `docker run --rm <image> id` → `uid=10001(relay) gid=10001(relay)`; `whoami` → `relay`. `docker run --rm <image> node -e "require('fs').readFileSync('/etc/passwd','utf8'); console.log('read ok')"` → `read ok` (process runs as relay/UID 10001, /etc/passwd readable).
+5. Read-only rootfs: `docker run --rm --read-only <image>` write probe → `write blocked: EROFS`; with `--tmpfs /tmp:size=64m` → `tmpfs write ok`. Root filesystem is read-only by default under the documented `--read-only` production flag; the app writes only to /tmp.
+6. End-to-end via `docker compose up -d` (4 services: relay-control-plane-stub, relay-postgres, relay-mongo, relay) → relay container (pid 1, UID 10001) logs `"Starting CauseFlow Relay..."`, `"Config loaded"` (resources=2), `"Driver initialized"` (order-pg, order-mongo), then `"Connected to control plane"` (url=ws://relay-control-plane-stub:3000/v1/relay/connect). Stub logged `[stub] relay connected`, `[stub] resource_update from relayId=<uuid> resources=2`, and ran a smoke health_check + execute round-trip (query SELECT 1, list_tables) successfully. Connection to the configured control plane confirmed at the real WS boundary.
+
+Evidence: /tmp/ac002-evidence/WI-AC-002-iv.log
+
+**Integrated verdict: integration=true, implementation=true, qa=true, no defects.** All AC-002 invariants pass on integrated main.

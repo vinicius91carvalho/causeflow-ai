@@ -1,0 +1,51 @@
+[0m
+> build · minimax/minimax-m3
+[0m
+[0m$ [0mgit commit --no-edit && git rev-parse HEAD && git status
+On branch main
+Your branch is ahead of 'origin/main' by 77 commits.
+  (use "git push" to publish your local commits)
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.harness/
+	.pi/
+	core/.harness/
+	relay/.harness/
+	web/.harness-technology-inventory.json
+	web/.harness/
+
+nothing added to commit but untracked files present (use "git add" to track)
+[0m
+[0m$ [0mgit status && echo "---" && ls -la .git/MERGE_HEAD 2>&1; echo "---"; git log --oneline -3
+On branch main
+Your branch is ahead of 'origin/main' by 77 commits.
+  (use "git push" to publish your local commits)
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.harness/
+	.pi/
+	core/.harness/
+	relay/.harness/
+	web/.harness-technology-inventory.json
+	web/.harness/
+
+nothing added to commit but untracked files present (use "git add" to track)
+---
+ls: cannot access '.git/MERGE_HEAD': No such file or directory
+---
+8c8b518 merge(dashboard): resolve WI-AC-037 conflict — qa=true, no overriding defect
+11c023f qa(open-source-local-runtime): WI-AC-039 integration defect
+a9ba7b1 qa(WI-AC-039): integrated verification — integration=false (OSS runtime not on main tip 7711a9e)
+[0m
+[0m$ [0mgit rev-parse HEAD; echo "---"; cat .git/MERGE_HEAD 2>&1; echo "---"; git log -1 --format="%H %s"
+8c8b51838abe200f0f7a36bd23c8e0b1497a10fc
+---
+cat: .git/MERGE_HEAD: No such file or directory
+---
+8c8b51838abe200f0f7a36bd23c8e0b1497a10fc merge(dashboard): resolve WI-AC-037 conflict — qa=true, no overriding defect
+[0m
+- **Commit hash:** `8c8b51838abe200f0f7a36bd23c8e0b1497a10fc`
+- **Message:** `merge(dashboard): resolve WI-AC-037 conflict — qa=true, no overriding defect`
+- **Merge state:** concluded — `MERGE_HEAD` absent, no in-progress merge in `git status`.
