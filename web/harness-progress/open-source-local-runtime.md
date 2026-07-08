@@ -98,3 +98,34 @@
 - WorkItem: WI-AC-044
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T13:05:00Z — Integrated Verification passed
+
+- WorkItem: WI-AC-044
+- AcceptanceChecks: AC-044
+- Outcome: integration=true, implementation=true, qa=true
+- Evidence: `.artifacts/ac044-integ/verification.log` (gitignored, local)
+- Independent re-run on latest main (commit 4b9f1b7) from a clean shell env
+  (`env -i PATH=$PATH HOME=$HOME USER=$USER`; no CLERK_*/STRIPE_*/AWS_*/
+  SENTRY_*/LOOPS_*/CORE_API_URL/SST_* vars). `CORE_CONTEXT` pointed at a
+  clean `git worktree` of the core's committed HEAD
+  (`/tmp/core-clean-ac044/core`, 4e89aba) because the sibling core working
+  tree still carries unresolved merge conflict markers in `src/app.ts` /
+  `src/bootstrap.ts` (active sibling work, untouched). Bundled
+  `docker-compose.yml` is unchanged.
+- Step 1: `docker compose up -d --build` brings up all 7 required services —
+  causeflow-postgres, redis, hindsight, causeflow-api, causeflow-worker,
+  causeflow-website (host 3000), causeflow-dashboard (host 3001); 6/7 healthy
+  (worker has no healthcheck by design) per `docker compose ps`.
+- Step 2: `curl http://localhost:3000/` -> 200 and
+  `curl http://localhost:3001/auth/sign-in` -> 200. Timed re-run with cached
+  images (`down` then `up -d`): both 200 at 15s — well within the 90s AC
+  window. Sign-in HTML renders the local form ("Sign in to CauseFlow",
+  `<form>` + `<input>`), no `accounts.dev`/`clerk.com` references.
+- Step 3: `docker logs causeflow-dashboard 2>&1 | grep -cE
+  'clerk\.com|stripe\.com|amazonaws\.com|sentry\.io|sst\.'` -> 0 on the
+  fresh boot. Dashboard container env holds only `CORE_API_URL`,
+  `JWT_SECRET`, empty `NEXT_PUBLIC_*` analytics, and empty
+  `NEXT_PUBLIC_SENTRY_DSN`; no CLERK_/STRIPE_/AWS_/LOOPS_/SST_ vars.
+- NextAction: orchestrator records verdict; dependent WIs AC-045..AC-053 can
+  proceed against this stack.
