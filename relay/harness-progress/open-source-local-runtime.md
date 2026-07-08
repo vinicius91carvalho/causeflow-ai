@@ -1437,3 +1437,88 @@ Minor notes:
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-056-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T21:00:00Z — QA Independent Verification (AC-057)
+
+- WorkItem: WI-AC-057
+- AcceptanceChecks: AC-057
+- Outcome: qa=true, implementation=true (independently verified from isolated worktree)
+- Method: Static analysis of the relay's source tree in the isolated worktree at
+  `/home/vinicius/projects/causeflow-ai-wt-relay-open-source-local-runtime/relay`.
+  All checks run against live files — no docker-compose stack needed (AC-057 is a
+  static security audit of the source tree).
+
+### Independent verification results (AC-057 clause by clause)
+
+**1. package.json forbidden dependency check:**
+```
+$ rg -in "aws-sdk|@aws-sdk|^\"stripe\"|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra" package.json
+```
+→ exit 1 (0 matches) ✓
+Confirmed: `package.json` has no `aws-sdk`, `@aws-sdk/*`, `stripe`, `@stripe/*`,
+`@clerk/*`, `@langfuse/*`, `@sentry/*`, `@svix/*`, `@slack/*`, `composio-*`, or
+`@mastra/*` dependency. Dependencies are only: `mongodb`, `node-sql-parser`, `pg`,
+`pino`, `uuid`, `ws`, `yaml`, `zod`. ✓
+
+**2. Source tree (excluding node_modules, package-lock.json, .harness*, docs/, CHANGELOG.md, harness-progress/, feature_list.json):**
+```
+$ rg -in "aws-sdk|@aws-sdk|^\"stripe\"|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra" --glob '!node_modules' --glob '!package-lock.json' --glob '!.harness*' --glob '!docs/*' --glob '!CHANGELOG.md' --glob '!harness-progress/*' --glob '!feature_list.json' --glob '!.git'
+```
+→ 0 matches in relay runtime code (`src/`). ✓
+Matches found only in documentation and comments, not in runtime code:
+- `docker-compose.yml:12` — comment: `# AWS / Stripe / Clerk / Sentry / Langfuse / Svix / Slack / Composio / Mastra` (lists what is intentionally NOT used)
+- `project_specs.xml` — specification document describing the AC-057 audit scope
+- `scripts/control-plane-stub/server.mjs:6` — comment: `// stdlib — no AWS SDK, no Stripe, no @clerk/*, no @sentry/*, no other vendor SDK.`
+
+No AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra API
+is referenced in the relay's runtime code (`src/`). ✓
+
+**3. package-lock.json transitive dependency check:**
+```
+$ rg -c "@aws-sdk" package-lock.json
+```
+→ 2 matches for `@aws-sdk/credential-providers`.
+
+Analysis: Both matches are in the `mongodb` npm package's `peerDependencies`
+(1 declaration + 1 peerDependenciesMeta entry), marked as `optional: true`.
+This is an optional peer dependency for AWS IAM authentication support in the
+MongoDB driver — it is NOT a transitive dependency that gets installed.
+`node_modules/@aws-sdk/` does not exist. `npm ls @aws-sdk/credential-providers`
+returns `(empty)`. The package is not actually installed. ✓
+
+**4. .env.example forbidden env vars:**
+```
+$ grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example
+```
+→ 0 matches (exit 1) ✓
+
+The `.env.example` contains only the relay's own env vars: `RELAY_TOKEN`,
+`TENANT_ID`, `CONTROL_PLANE_URL`, `PG_HOST`, `PG_PORT`, `PG_DATABASE`,
+`PG_USER`, `PG_PASSWORD`, `MONGO_URI`, `MONGO_DATABASE`, `MASKING_ENABLED`,
+`AUDIT_ENABLED`. No `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`,
+`SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`,
+`STS_*`, or `KMS_*` entries. ✓
+
+**5. Project scaffold verification:**
+All required files from project_specs.xml are present:
+- `package.json`, `tsconfig.json`, `Dockerfile`, `docker-compose.yml` ✓
+- `.env.example` ✓
+- `src/index.ts`, `src/config/schema.ts`, `src/config/loader.ts` ✓
+- `src/transport/ws-client.ts`, `src/transport/protocol.ts` ✓
+- `src/drivers/driver.port.ts`, `src/drivers/postgres/pg-driver.ts`,
+  `src/drivers/postgres/pg-query-parser.ts`, `src/drivers/mongodb/mongo-driver.ts` ✓
+- `src/policy/policy-engine.ts`, `src/masking/masking-engine.ts` ✓
+- `src/audit/audit-logger.ts`, `src/health/health-reporter.ts` ✓
+- `.github/workflows/ci.yml`, `.github/workflows/release.yml` ✓
+- `scripts/control-plane-stub/server.mjs`, `scripts/control-plane-stub/Dockerfile` ✓
+
+### Verdict
+
+All AC-057 acceptance criteria independently verified against the relay source
+tree. The relay's runtime code has zero dependencies on or references to
+forbidden vendor SDKs. The only package-lock.json entries containing `@aws-sdk`
+are optional peer dependency metadata of the `mongodb` npm package (not installed,
+not a transitive dependency). Source-tree matches outside `src/` are exclusively
+comment/documentation text describing the audit scope itself.
+
+No defects. `qa=true`, `implementation=true`.
