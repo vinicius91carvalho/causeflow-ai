@@ -1,16 +1,20 @@
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
 import type { AppEnv } from '../../../shared/infra/http/hono-types.js';
+import { requireRole } from '../../../shared/infra/http/middleware/rbac.middleware.js';
 import type { ListAuditEntriesUseCase } from '../application/list-audit-entries.usecase.js';
 import type { VerifyHashChainUseCase } from '../application/verify-hash-chain.usecase.js';
 import type { ExportAuditUseCase } from '../application/export-audit.usecase.js';
 import type { CreateAuditEntryUseCase } from '../application/create-audit-entry.usecase.js';
+import type { DeleteAuditEntryUseCase } from '../application/delete-audit-entry.usecase.js';
+import { auditEntryId } from '../../../shared/domain/value-objects.js';
 
 export interface AuditUseCases {
     listAuditEntries: ListAuditEntriesUseCase;
     verifyHashChain: VerifyHashChainUseCase;
     exportAudit: ExportAuditUseCase;
     createAuditEntry?: CreateAuditEntryUseCase;
+    deleteAuditEntry?: DeleteAuditEntryUseCase;
 }
 
 export function createAuditRoutes(useCases: AuditUseCases) {
@@ -54,6 +58,28 @@ export function createAuditRoutes(useCases: AuditUseCases) {
             }
         });
     });
+    // DELETE /:id — admin-only (RBAC). Purges one audit entry and advances the
+    // hash chain with a new `audit.entry.deleted` entry whose previousHash is
+    // the prior tip. Viewers/members get 403 via requireRole('admin').
+    if (useCases.deleteAuditEntry) {
+        app.delete('/:id', requireRole('admin'), async (c) => {
+            const tenantId = c.get('tenantId');
+            const userId = c.get('userId');
+            const userEmail = c.get('userEmail');
+            const entryId = auditEntryId(c.req.param('id'));
+            const result = await useCases.deleteAuditEntry!.execute({
+                tenantId,
+                entryId,
+                ...(userId ? { actorUserId: userId } : {}),
+                actorEmail: userEmail,
+            });
+            return c.json({
+                entryId,
+                deleted: result.deleted,
+                newEntry: result.newEntry,
+            });
+        });
+    }
     // POST /v1/audit/terms-acceptance — record terms acceptance as audit entry
     if (useCases.createAuditEntry) {
         app.post('/terms-acceptance', async (c) => {
