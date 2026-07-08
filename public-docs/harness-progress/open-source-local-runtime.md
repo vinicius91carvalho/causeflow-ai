@@ -410,3 +410,56 @@ ms-playwright cache):
 ### verdict
 
 implementation=true; integration=pending; qa=pending; defects=none
+
+## 2026-07-08T03:10:00Z — QA (WI-AC-028)
+
+- WorkItem: WI-AC-028
+- AcceptanceChecks: AC-028
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: qa=true (independent black-box re-verification on freshly built stack)
+- NextAction: Integrated Verification
+
+### Independent re-test (blank env, fresh build, PORT=5179)
+
+Removed any prior `causeflow-docs:qa028` image and rebuilt from a blank
+env (`env -i HOME=$HOME PATH=$PATH docker build . -t causeflow-docs:qa028`,
+exit 0). Ran as `causeflow-docs-qa028` on `5179:3000`.
+
+Static checks:
+- `grep -E '"(claude|chatgpt)"' docs.json` → **0 matches** (exit 1).
+- `docs.json` `contextual.options` = `["copy","view"]` only (no
+  `claude`/`chatgpt`); broader `grep -niE 'claude|chatgpt|anthropic|openai'
+  docs.json` → 0 matches.
+
+Runtime checks:
+- `curl -s -o /dev/null -w '%{http_code}' http://localhost:5179/` → **200**.
+- `docker logs causeflow-docs-qa028 2>&1 | grep -Ei
+  'anthropic\.com|claude\.ai|openai\.com|chatgpt\.com'` → **0 matches**
+  (boot log: `Serving docs at http://localhost:3000`).
+- `docker inspect causeflow-docs:qa028` Env = `PATH`, `NODE_VERSION`,
+  `YARN_VERSION`, `PORT=3000` only — no `MINTLIFY_*`, no AI-provider creds.
+  Entrypoint/Cmd = `docker-entrypoint.sh` / `node serve.js` (no SaaS host).
+
+Playwright network logging (chromium headless, real browser):
+- Loaded `/`, `/getting-started/quickstart`, `/relay/overview`,
+  `/api-reference/introduction`. On each page clicked the per-page
+  contextual trigger (`More actions` button, aria-label "More actions")
+  to open the contextual popover, enumerated the popover menu items, then
+  clicked each menu item (`Copy page` / `Copy page as Markdown for LLMs`
+  / `View as Markdown` / `View this page as plain text`) and the direct
+  `Copy page` button.
+- `ctx.on('request')` recorded every outbound URL across 4 pages and all
+  menu-item invocations (2970 total requests).
+- Popover menu items offered on every page: **only** `Copy page` (copy)
+  and `View as Markdown` (view) — **no Claude, no ChatGPT, no "Ask AI"
+  item** exists in the DOM.
+- Hosts contacted: `localhost:5179`, `d4tuoctqmanu0.cloudfront.net`,
+  `d3gk2c5xim1je2.cloudfront.net` (Mintlify bundled static-asset CDN
+  baked into the export — not an AI provider).
+- **Outbound requests to `anthropic.com`, `claude.ai`, `openai.com`,
+  `chatgpt.com`: 0** (AI_PROVIDER_REQUESTS: []).
+
+### verdict
+
+qa=true; implementation=true; defects=none
