@@ -191,3 +191,11 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-041-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T22:00:00.000Z — Implementation Verified
+
+- WorkItem: WI-AC-042
+- AcceptanceChecks: AC-042
+- Outcome: implementation=true
+- Verification: `MaskingEngine` with user-defined pattern `{ name: 'session_id', regex: 'sess_[a-f0-9]{16}', replacement: 'sess_***' }` masks `sess_0123456789abcdef` to `sess_***` with `maskedFieldCount: 1`. Root cause: default patterns ran before user-defined patterns, and the BR phone default pattern matched digits within the session_id string, corrupting the match. Fixed by reordering: user-defined patterns now run before defaults so they match against the original string. AC-040 regression (email, CPF, plain) and AC-041 regression (nested object masking) confirmed to still pass. `npx tsc --noEmit` clean. `npm run build` exits 0.
+- NextAction: none (AC-042 fully verified)

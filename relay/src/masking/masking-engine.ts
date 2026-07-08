@@ -26,12 +26,12 @@ export class MaskingEngine {
   constructor(config: MaskingConfig) {
     this.enabled = config.enabled;
     this.patterns = [
-      ...DEFAULT_PATTERNS,
       ...config.patterns.map((p) => ({
         name: p.name,
         regex: new RegExp(p.regex, 'g'),
         replacement: p.replacement,
       })),
+      ...DEFAULT_PATTERNS,
     ];
   }
 
