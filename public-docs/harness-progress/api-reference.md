@@ -361,3 +361,15 @@ already satisfies the AC). Evidence saved to
 - WorkItem: WI-AC-014
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:01:29.765Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-014
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+	public-docs/logs/mintdev-5174.log
+Please commit your changes or stash them before you merge.
+Aborting
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
