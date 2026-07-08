@@ -73,3 +73,26 @@ No defects. qa=true, implementation=true for WI-AC-017.
 - WorkItem: WI-AC-017
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T00:10:00.000Z — Integrated Verification (qa-agent, latest main)
+
+- WorkItem: WI-AC-017
+- Branch: main (HEAD 2c0d425 Merge branch 'gen/web-website')
+- Server: live `next dev` (Next.js 15.5.12, webpack) on PORT=5175
+
+### Re-verification on integrated main
+
+- Step 1 ✓ — All 6 per-context i18n files present and valid JSON:
+  - marketing/infrastructure/i18n/{en,pt-br}.json
+  - legal/infrastructure/i18n/{en,pt-br}.json
+  - shell/infrastructure/i18n/{en,pt-br}.json
+- Step 2 ✓ — `apps/website/src/lib/i18n/compose.ts` imports all 6 files and deep-merges via `deepMerge` from `@causeflow/shared/domain/utils/deep-merge` into `websiteMessages = { en: deepMerge(marketingEn, legalEn, shellEn), 'pt-br': deepMerge(marketingPtBr, legalPtBr, shellPtBr) }`.
+- Step 3 ✓ — Sentinel `home.hero.cta` rendered on homepage via `useTranslations('home.hero')` (`tHero('cta')` in `home-page.tsx`):
+  - EN `GET http://localhost:5175/` → HTTP 200; HTML contains `data-testid="ac-017-sentinel" ...>CauseFlow Early Access (AC-017 sentinel)` — reads `en.json`.
+  - PT-BR `GET http://localhost:5175/pt-br/` → 308 → `/pt-br` HTTP 200; HTML contains `data-testid="ac-017-sentinel" ...>CauseFlow Acesso Antecipado (sentinela AC-017)` — reads `pt-br.json`.
+
+### Smoke
+
+- Dev server boots clean on port 5175; `GET /` → 200, `GET /pt-br/` → 308→200; no unhandled errors on the request path.
+
+No defects. integration=true, implementation=true, qa=true for WI-AC-017.
