@@ -189,3 +189,10 @@ Real WebSocket boundary test against the running docker-compose stack (relay + c
   4. MongoDB `limit=100` → accepted, `rowCount=0`
   5. MongoDB `limit=5000` → `-32600` `Row limit 5000 exceeds maximum 1000`
 - Result: implementation=true (zero-diff: only feature_list.json flags + journal fix)
+
+## 2026-07-08T17:53:40.541Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-038
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
