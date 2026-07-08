@@ -9,6 +9,7 @@ function toDomain(raw: Record<string, any>) {
         type: raw['type'],
         incidentId: raw['incidentId'],
         costUsd: raw['costUsd'],
+        agentBreakdown: raw['agentBreakdown'],
         createdAt: raw['createdAt'],
     };
 }
@@ -20,6 +21,7 @@ export class DynamoUsageRecordRepository {
             type: record.type,
             incidentId: record.incidentId,
             costUsd: record.costUsd,
+            ...(record.agentBreakdown && { agentBreakdown: record.agentBreakdown }),
         }).go();
         return toDomain(result.data);
     }

@@ -154,6 +154,7 @@ import { PurchaseQuotaPackUseCase } from './modules/billing/application/purchase
 import { UpdateBillingSettingsUseCase } from './modules/billing/application/update-billing-settings.usecase.js';
 import { GetUsageUseCase } from './modules/billing/application/get-usage.usecase.js';
 import { ReserveInvestigationUseCase } from './modules/billing/application/reserve-investigation.usecase.js';
+import { RecordUsageUseCase } from './modules/billing/application/record-usage.usecase.js';
 import { ListPlansUseCase } from './modules/billing/application/list-plans.usecase.js';
 import { UpgradeSubscriptionUseCase } from './modules/billing/application/upgrade-subscription.usecase.js';
 import { CancelSubscriptionUseCase } from './modules/billing/application/cancel-subscription.usecase.js';
@@ -861,6 +862,37 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       event: 'investigation_completed',
       data: event.payload,
     });
+  });
+
+  // === EventBus Wiring: Usage Record on Investigation Completion (AC-012) ===
+  // After a successful investigation completes, persist a UsageRecordEntity
+  // carrying the investigation ID, per-agent token counts and per-agent cost.
+  const recordUsage = new RecordUsageUseCase(
+    billingAccountRepo,
+    usageRecordRepo,
+    eventBus,
+    stripeMeterServiceEarly,
+    tenantRepo,
+  );
+  eventBus.subscribe('investigation.completed', async (event) => {
+    const incId = (event.payload['incidentId'] as string) ?? undefined;
+    const totalCostUsd =
+      (event.payload['totalCostUsd'] as number | undefined) ??
+      (event.payload['costUsd'] as number | undefined);
+    const agentBreakdown = event.payload['agentBreakdown'] as
+      | Array<{ agentRole: string; inputTokens: number; outputTokens: number; costUsd: number }>
+      | undefined;
+    try {
+      await recordUsage.execute({
+        tenantId: tenantId(event.tenantId),
+        type: 'investigation',
+        ...(incId && { incidentId: incidentId(incId) }),
+        ...(totalCostUsd !== undefined && { costUsd: totalCostUsd }),
+        ...(agentBreakdown && { agentBreakdown }),
+      });
+    } catch (err) {
+      logger.error({ err, incidentId: incId, tenantId: event.tenantId }, 'Failed to record usage on investigation completion');
+    }
   });
 
   eventBus.subscribe('notification.approval_responded', async (event) => {

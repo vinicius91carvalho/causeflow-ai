@@ -25,3 +25,6 @@ infra/cdk/cdk.context.json
 .env.qa
 .qa-token
 qa-mint-token.mjs
+
+# Verify-first boundary local artefacts (per-AC env files contain local endpoints/IPs)
+.env.ac0*

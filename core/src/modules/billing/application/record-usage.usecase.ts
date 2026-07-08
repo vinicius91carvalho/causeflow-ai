@@ -3,7 +3,7 @@ import { usageRecordId } from '../../../shared/domain/value-objects.js';
 import type { UsageType } from '../../../shared/domain/types.js';
 import type { IBillingAccountRepository } from '../domain/billing-account.repository.js';
 import type { IUsageRecordRepository } from '../domain/usage-record.repository.js';
-import type { UsageRecord } from '../domain/usage-record.entity.js';
+import type { UsageRecord, AgentUsageBreakdown } from '../domain/usage-record.entity.js';
 import type { IEventBus } from '../../../shared/domain/events.js';
 import type { IncidentId, TenantId } from '../../../shared/domain/value-objects.js';
 import type { IMeterEventService } from './ports/meter-event.port.js';
@@ -14,6 +14,7 @@ export interface RecordUsageInput {
     type: UsageType;
     incidentId?: IncidentId;
     costUsd?: number;
+    agentBreakdown?: AgentUsageBreakdown[];
 }
 
 export class RecordUsageUseCase {
@@ -45,6 +46,7 @@ export class RecordUsageUseCase {
             type: input.type,
             incidentId: input.incidentId,
             costUsd: input.costUsd,
+            ...(input.agentBreakdown && { agentBreakdown: input.agentBreakdown }),
             createdAt: new Date().toISOString(),
         };
         const saved = await this.usageRecordRepo.create(record);

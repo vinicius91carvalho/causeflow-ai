@@ -111,3 +111,319 @@ Doc-drift note unchanged: literal `/api/v1/billing/checkout-session` is not moun
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/billing/WI-AC-011-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-012 — Verify-first (billing)
+
+**Result: implementation=true**
+
+Boundary exercised against a real running app on the assigned PORT=5181 (real HTTP `fetch`es, no mocking of the verification path). Stack already up from foundation: `core-ministack` :4566 (healthy), `core-redis-1` (172.18.0.4:6379). Local untracked `.env.ac012` with `PORT=5181`, `NODE_ENV=development`, `DYNAMODB_ENDPOINT=http://localhost:4566`, `DYNAMODB_TABLE_NAME=causeflow-local`, `REDIS_URL=redis://172.18.0.4:6379`, `ANTHROPIC_API_KEY=stub-boundary-ac012` (non-empty ONLY to satisfy the in-process pipeline fallback gate — every LLM/agent call is served by the deterministic stubs, no real Anthropic call is made), `CLERK_JWT_KEY=<2048-bit RSA SPKI PEM>` (reused from WI-AC-007/011 at `/tmp/ac011-clerk-{priv,pub}.pem`, networkless Clerk RS256 verification).
+
+### Verification approach (no paid LLM)
+
+A real investigation needs an LLM. To exercise the full write path at a real HTTP boundary without an Anthropic key, the boundary script (`ac012-boundary.ts`, run via `tsx --env-file=.env.ac012`) boots the app exactly like the e2e harness does: `bootstrap({ llmClient: stubLLM, agentRunner: stubAgent })` with the existing `tests/e2e/stubs/{deterministic-llm-client,deterministic-agent-runner}.ts`, then `createApp(ctx)` + `serve(...)` on PORT. The in-process pipeline fallback (active when SQS is unconfigured and not prod) runs the real `InvestigateIncidentUseCase` end-to-end with the stubs, emitting a genuine `investigation.completed` event carrying real per-agent `usage`/`costUsd` data (from `SubAgentResult`) — which the new subscriber persists as a `UsageRecordEntity`. Hindsight is unconfigured; its (caught, non-critical) failures do not block the investigation.
+
+### Acceptance boundary (AC-012)
+
+> After a successful investigation completes, a UsageRecordEntity is written with the investigation ID, the per-agent token counts and the per-agent cost. GET /api/v1/billing/usage returns a paginated list of usage records scoped to the calling tenant only.
+
+Real HTTP exercised (`ac012-boundary.ts`, real `fetch`es on PORT=5181, RS256 Clerk JWT verified networklessly via `@clerk/backend`):
+
+- `POST /v1/tenants` (admin JWT) → **201**, `tenantId = org_ac012_<ts>` (= JWT `o.id`, cryptographically verified). Provisions tenant A.
+- `POST /v1/incidents/chat` `{severity:"critical", suggestedAgents:[log_analyst,metric_analyst,infra_inspector]}` → **201**, `incidentId = <uuid>`, `status = triaging` (manual incident, severity set → skips triage). The `incident.status_changed(to:triaging)` event triggers the in-process fallback which dispatches a real (stub-backed) investigation.
+- Poll `GET /v1/incidents/:id` → reaches `status = awaiting_approval` (investigation completed + remediation proposed) within ~0.5s.
+- `GET /v1/billing/usage` (auth, tenant A) → **200**, `records[0] = {tenantId, recordId, type:"investigation", incidentId:<uuid>, costUsd:0, agentBreakdown:[{agentRole:"log_analyst",inputTokens:500,outputTokens:200,costUsd:0},{agentRole:"metric_analyst",...},{agentRole:"infra_inspector",...}], createdAt}` — confirms a **UsageRecordEntity** was written on investigation completion with the **investigation ID**, **per-agent token counts** (inputTokens/outputTokens) and **per-agent cost** (costUsd).
+- Tenant scoping: tenant B (`POST /v1/tenants` → 201) calls `GET /v1/billing/usage` → **200**, `records = []` (zero records — the `listByTenant(tenantId)` query is PK-scoped to the calling tenant; tenant B cannot see tenant A's records). IDOR protection holds: tenantId comes ONLY from the verified JWT.
+- Pagination shape: the usage response exposes `{account, records, daily, cursor}` — the `records` + `cursor` pair is the paginated list.
+
+All 18 boundary assertions passed (18/18).
+
+### Path note (doc drift, out of scope)
+
+The spec AC text says `GET /api/v1/billing/usage`. The implementation mounts all module routes at `/v1/*` with **no `/api` prefix** (global doc drift, same as WI-AC-007/011). Per the contradictions clause ("implementation is authoritative") and the WI-AC-007 precedent, the real boundary exercised is `GET /v1/billing/usage`; the literal `/api/v1/billing/usage` returns 404. The functional AC-012 behaviour (paginated, tenant-scoped usage records) is fully met. The existing `GET /v1/billing/usage` route already supported `limit`/`cursor`/`type` pagination and tenant scoping; no read-path change was needed.
+
+### Root-cause fixes (smallest diff, 6 files)
+
+The existing code failed AC-012: `RecordUsageUseCase` existed but was **never invoked** on investigation completion (no subscriber), and the `UsageRecord` entity carried no per-agent data. Fixed with no refactor:
+
+1. **No usage record written on investigation completion** — added an `investigation.completed` EventBus subscriber in `src/bootstrap.ts` that calls `RecordUsageUseCase` with the incident ID, total cost and per-agent breakdown extracted from the event payload. Failures are caught and logged (non-critical — never blocks the investigation).
+2. **Per-agent token counts / cost not in the event payload** — `investigate-incident.usecase.ts` now adds an `agentBreakdown: [{agentRole, inputTokens, outputTokens, costUsd}]` (built from `successfulResults`) to the `investigation.completed` payload at both orchestrator publish sites (wave-based default path + `executeOrchestrator`).
+3. **`UsageRecord` entity had no per-agent fields** — added `agentBreakdown?: AgentUsageBreakdown[]` to the domain entity (`usage-record.entity.ts`, new `AgentUsageBreakdown` interface), the ElectroDB entity (`UsageRecordEntity.ts`, `type: 'any'`), the Dynamo repository (`dynamo-usage-record.repository.ts`, create + toDomain), and the `RecordUsageUseCase` input.
+
+No refactor/restructure of working code. The read path (`GetUsageUseCase` / `GET /v1/billing/usage`) was already correct — no change. Local untracked setup (gitignored): `.env.ac012`; tracked verification artefact: `ac012-boundary.ts` (matches the WI-AC-011 precedent of committing the boundary script).
+
+### Regression checks
+
+- `pnpm typecheck` → clean.
+- `pnpm lint-invariants` → 10 passed, 0 failed (I1–I11).
+- `pnpm test:run` → 162 files / 1057 tests pass.
+
+## 2026-07-08T05:01:00.000Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- AcceptanceChecks: AC-012
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5181)
+- NextAction: Integrated Verification
+
+## 2026-07-08 — QA independent verification (WI-AC-012)
+
+**Result: qa=true, implementation=true**
+
+Independently re-ran the AC-012 boundary against a freshly booted app (`npx tsx --env-file=.env.ac012 ac012-boundary.ts`, which bootstraps the app with `DeterministicLLMClient` + `DeterministicAgentRunner` stubs so a real investigation runs end-to-end through the in-process pipeline fallback, no paid Anthropic calls). PORT=5181, existing stack: core-ministack :4566 (healthy), core-redis-1 (172.18.0.4:6379). `/health` → 200. Clerk JWT verified networklessly via `CLERK_JWT_KEY` (SPKI from /tmp/ac011-clerk-pub.pem, RS256 signed with /tmp/ac011-clerk-priv.pem).
+
+Real HTTP exercised (real `fetch`es on PORT=5181, full in-process pipeline: incident.created → triage → investigation → investigation.completed → RecordUsageUseCase):
+
+- `POST /v1/tenants` (admin JWT) → 201, `tenantId = org_ac012_<ts>` (= JWT `o.id`).
+- Provisioned a `BillingAccountEntity` for tenant A (setup only, so reserveInvestigation succeeds).
+- `POST /v1/incidents/chat` `{title, description, severity:"critical", suggestedAgents:[log_analyst, metric_analyst, infra_inspector]}` → 201, `incidentId` returned → in-process fallback dispatched a real stub-backed investigation.
+- Poll `GET /v1/incidents/:id` → reached terminal `status=awaiting_approval` (investigation completed).
+- `GET /v1/billing/usage` (tenant A) → 200, `records` non-empty (1), the record for the incident carries `type=investigation`, `incidentId=<id>`, `costUsd` (number), `agentBreakdown` non-empty (3 agents: log_analyst, metric_analyst, infra_inspector) with each agent's `agentRole`/`inputTokens`/`outputTokens`/`costUsd` (all numbers). This confirms a UsageRecordEntity is written on investigation completion with the investigation ID, per-agent token counts and per-agent cost (AC-012).
+- Tenant scoping: tenant B (`POST /v1/tenants` → 201; `GET /v1/billing/usage`) → 200 with `records.length === 0` — tenant B sees zero of tenant A's usage records (scoped to the calling tenant only).
+- Pagination shape present (response exposes `records` + `cursor`).
+
+All 18/18 boundary assertions passed; `AC-012: ALL ASSERTIONS PASSED`.
+
+Note: `agentBreakdown[].costUsd = 0` in this run because the `DeterministicAgentRunner` stub returns `costUsd: 0`; the wiring genuinely propagates each agent's computed `costUsd` from the runner into the persisted `UsageRecordEntity.agentBreakdown` (`investigate-incident.usecase.ts:1122-1127` → `bootstrap.ts:876-890` `RecordUsageUseCase` → `DynamoUsageRecordRepository`). With the real Anthropic runner the cost is non-zero. Non-critical Hindsight reflect/retain warnings logged (HINDSIGHT_API_URL empty) — best-effort, do not block the investigation or the usage record write, consistent with the spec's failure-behaviour for memory.
+
+Doc-drift note (unchanged from WI-AC-007/AC-011): literal `/api/v1/billing/usage` is not mounted (no global `/api` prefix; route is `/v1/billing/usage`). Per the contradictions clause (implementation authoritative), the functional AC-012 behaviour is fully met.
+
+## 2026-07-08T04:25:00.000Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- AcceptanceChecks: AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T05:07:24.749Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T05:23:11.845Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+	core/.env.example
+	core/.env.localstack
+	core/.gitignore
+	core/INVARIANTS.md
+	core/docker-compose.yml
+	core/infra/localstack/init/01-create-resources.sh
+	core/infra/scripts/check-invariants.ts
+	core/packages/widget/vite.config.ts
+	core/src/app.ts
+	core/src/bootstrap.ts
+	core/src/modules/audit/infra/audit.routes.ts
+	core/src/modules/audit/infra/dynamo-audit.repository.ts
+	core/src/modules/auth/infra/auth.routes.ts
+	core/src/modules/billing/application/handle-webhook.usecase.ts
+	core/src/modules/billing/infra/stripe-client.ts
+	core/src/modules/billing/infra/stripe-plan-catalog.service.ts
+	core/src/shared/config/index.ts
+	core/src/shared/domain/types.ts
+	core/src/shared/infra/health/checks/anthropic-check.ts
+	core/src/shared/infra/http/middleware/auth.middleware.ts
+	core/src/shared/infra/http/middleware/tenant.middleware.ts
+	core/tests/src/app.test.ts
+	core/tests/unit/modules/audit/dynamo-audit.repository.test.ts
+	public-docs/.gitignore
+	public-docs/.mintignore
+	public-docs/README.md
+	public-docs/docs.json
+	public-docs/snippets/auth-header.mdx
+	public-docs/snippets/rate-limit-note.mdx
+	relay/.gitignore
+	relay/package-lock.json
+	relay/src/config/schema.ts
+	relay/src/drivers/postgres/pg-query-parser.ts
+	relay/src/index.ts
+	web/apps/dashboard/package.json
+	web/apps/dashboard/src/app/[locale]/accept-invitation/page.tsx
+	web/apps/dashboard/src/app/[locale]/auth/sign-in/[[...sign-in]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/auth/sign-up/[[...sign-up]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/beta-waitlist/page.tsx
+	web/apps/dashboard/src/app/[locale]/create-organization/[[...create-organization]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/[id]/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/new/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/intelligence/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/relay/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/settings/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/team/page.tsx
+	web/apps/dashboard/src/app/[locale]/onboarding/business-profile/page.tsx
+	web/apps/dashboard/src/app/[locale]/page.tsx
+	web/apps/dashboard/src/app/[locale]/waitlist/[[...waitlist]]/page.tsx
+	web/apps/dashboard/src/app/api/investigation/[id]/chat/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/detail/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/relay-token/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/tool-calls/[toolCallId]/route.ts
+	web/apps/dashboard/src/contexts/identity/api/complete-profile-handler.test.ts
+	web/apps/dashboard/src/contexts/identity/api/complete-profile-handler.ts
+	web/apps/dashboard/src/contexts/identity/presentation/pages/beta-waitlist-page.tsx
+	web/apps/dashboard/src/contexts/settings/presentation/pages/settings-page.tsx
+	web/apps/dashboard/src/contexts/team/presentation/pages/team-page.tsx
+	web/apps/website/src/contexts/marketing/infrastructure/i18n/en.json
+	web/apps/website/src/contexts/marketing/infrastructure/i18n/pt-br.json
+	web/apps/website/src/contexts/marketing/presentation/pages/home-page.tsx
+	web/pnpm-lock.yaml
+	web/vitest.config.ts
+Please commit your changes or stash them before you merge.
+error: The following untracked working tree files would be overwritten by merge:
+	.harness/bootstrap.host
+	.harness/bootstrap.log
+	.harness/bootstrap.pid
+	.harness/conclude-merge.log
+	.harness/journal-conflict-resolve.log
+	.harness/projects.json
+	.pi/settings.json
+	.turbo/cache/040f6817376e2598-meta.json
+	.turbo/cache/040f6817376e2598.tar.zst
+	.turbo/cache/0aaf10ddfb42531f-meta.json
+	.turbo/cache/0aaf10ddfb42531f.tar.zst
+	.turbo/cache/599716d50635a10a-meta.json
+	.turbo/cache/599716d50635a10a.tar.zst
+	.turbo/cache/a24a607d82d1451c-meta.json
+	.turbo/cache/a24a607d82d1451c.tar.zst
+	.turbo/cache/a613f0db8d08696b-meta.json
+	.turbo/cache/a613f0db8d08696b.tar.zst
+	.turbo/cache/afd2111fb699d535-meta.json
+	.turbo/cache/afd2111fb699d535.tar.zst
+	.turbo/cache/c34fb7eaabe6966e-meta.json
+	.turbo/cache/c34fb7eaabe6966e.tar.zst
+	.turbo/cache/dfb2fce1822ff665-meta.json
+	.turbo/cache/dfb2fce1822ff665.tar.zst
+	core/.harness-technology-inventory.json
+	core/.harness/bootstrap.host
+	core/.harness/planner-feature.pid
+	core/ac011-boundary.mjs
+	core/harness-progress/billing.md
+	core/harness-progress/foundation.md
+	core/harness-progress/open-source-local-runtime.md
+	core/init.sh
+	core/project_specs.xml
+	core/src/modules/audit/application/delete-audit-entry.usecase.ts
+	core/tests/unit/modules/audit/delete-audit-entry.test.ts
+	public-docs/.dockerignore
+	public-docs/.harness-technology-inventory.json
+	public-docs/Dockerfile
+	public-docs/docker-compose.yml
+	public-docs/feature_list.json
+	public-docs/harness-progress/WI-AC-006-integration.md
+	public-docs/harness-progress/content-structure.md
+	public-docs/harness-progress/foundation.md
+	public-docs/harness-progress/open-source-local-runtime.md
+	public-docs/init.sh
+	public-docs/project_specs.xml
+	relay/.env.example
+	relay/.harness-technology-inventory.json
+	relay/.harness/bootstrap.host
+	relay/.harness/bootstrap.log
+	relay/.harness/bootstrap.pid
+	relay/.harness/plan.done
+	relay/.harness/plan.host
+	relay/.harness/plan.log
+	relay/.harness/plan.pid
+	relay/docker-compose.yml
+	relay/feature_list.json
+	relay/harness-progress/foundation.md
+	relay/harness-progress/open-source-local-runtime.md
+	relay/harness-progress/transport.md
+	relay/init.sh
+	relay/project_specs.xml
+	relay/relay-config.docker.yaml
+	relay/scripts/control-plane-stub/Dockerfile
+	relay/scripts/control-plane-stub/initdb/01-orders.sql
+	relay/scripts/control-plane-stub/package.json
+	relay/scripts/control-plane-stub/server.mjs
+	web/.harness-technology-inventory.json
+	web/.harness/bootstrap.host
+	web/.harness/bootstrap.pid
+	web/.harness/plan.done
+	web/.harness/plan.host
+	web/.harness/plan.pid
+	web/apps/dashboard/src/contexts/identity/presentation/components/accept-invitation-client.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/accept-invitation-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/create-organization-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/sign-in-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/sign-up-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/waitlist-page.tsx
+	web/apps/dashboard/src/contexts/integrations/presentation/pages/relay-page.tsx
+	web/apps/dashboard/src/contexts/investigation/api/investigation-chat-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-detail-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-relay-token-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-tool-calls-handler.ts
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/analyses-page.tsx
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/analysis-detail-page.tsx
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/new-analysis-page.tsx
+	web/apps/dashboard/src/contexts/onboarding/presentation/pages/business-profile-route-page.tsx
+	web/apps/dashboard/src/contexts/shared/presentation/pages/intelligence-route-page.tsx
+	web/apps/dashboard/src/contexts/shared/presentation/pages/root-page.tsx
+	web/feature_list.json
+	web/harness-prog
+Aborting
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T10:51:20.383Z — Explicit Resume
+
+- WorkItem: WI-AC-012
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Retrying after two now-fixed root causes: a shared rate-limit exhaustion hit all 4 concurrent subprojects earlier, and main briefly had corrupted history from an unrelated incident, now recovered with scaffolding restored. Retry for a fresh attempt.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T10:52:00.000Z — Verify-first retry (WI-AC-012)
+
+**Result: implementation=true**
+
+Re-ran the AC-012 boundary after the orchestrator's now-fixed root causes (shared rate-limit exhaustion + recovered main history). Main is clean at `70ad848` (qa(harness): integrate WI-AC-009); the AC-012 implementation commit `057c3f0` (fix(billing): record UsageRecord on investigation completion) is intact on `gen/core-billing` and the working tree is clean (zero-diff checkpoint — no code changes).
+
+Stack already up from foundation: `core-ministack-1` :4566 (healthy), `core-redis-1` (172.18.0.4:6379, healthy). Reused the gitignored local setup (`.env.ac012`, RSA keypair at `/tmp/ac011-clerk-{priv,pub}.pem`). PORT=5181 free; `/health` → 200 `{dynamodb:ok,redis:ok,sqs:ok,anthropic:ok}`.
+
+Boundary (`npx tsx --env-file=.env.ac012 ac012-boundary.ts`, real `fetch`es on PORT=5181, app bootstrapped with `DeterministicLLMClient` + `DeterministicAgentRunner` stubs so a real investigation runs end-to-end through the in-process pipeline fallback — no paid Anthropic calls; Clerk JWT verified networklessly via `CLERK_JWT_KEY`):
+
+- `POST /v1/tenants` (admin JWT) → 201, `tenantId = org_ac012_<ts>` (= JWT `o.id`).
+- `POST /v1/incident/chat` `{severity:"critical", suggestedAgents:[log_analyst,metric_analyst,infra_inspector]}` → 201, incident dispatched a real stub-backed investigation.
+- Poll `GET /v1/incidents/:id` → reached terminal `status=awaiting_approval` within ~0.5s (investigation completed).
+- `GET /v1/billing/usage` (tenant A) → 200, `records[0] = {type:"investigation", incidentId:<uuid>, costUsd:0, agentBreakdown:[{agentRole:"log_analyst",inputTokens:500,outputTokens:200,costUsd:0},{agentRole:"metric_analyst",...},{agentRole:"infra_inspector",...}]}` — confirms a **UsageRecordEntity** is written on investigation completion with the **investigation ID**, **per-agent token counts** and **per-agent cost**.
+- Tenant scoping: tenant B (`POST /v1/tenants` → 201; `GET /v1/billing/usage`) → 200, `records.length === 0` — tenant B sees zero of tenant A's records (scoped to the calling tenant only; tenantId comes only from the verified JWT).
+- Pagination shape present (`records` + `cursor`).
+
+All 18/18 boundary assertions passed; `AC-012: ALL ASSERTIONS PASSED`. Non-critical Hindsight retain warnings logged (HINDSIGHT_API_URL empty) — best-effort, do not block the investigation or the usage record write, consistent with the spec's memory failure-behaviour.
+
+Doc-drift note unchanged: literal `/api/v1/billing/usage` is not mounted (no global `/api` prefix; route is `/v1/billing/usage`). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-012 behaviour is fully met.
+
+- NextAction: Integrated Verification
+
+## 2026-07-08T10:58:00.000Z — QA independent verification (WI-AC-012, fresh attempt)
+
+**Result: qa=true, implementation=true**
+
+Independently re-ran the AC-012 boundary against a freshly booted app (`npx tsx --env-file=.env.ac012 ac012-boundary.ts`, which bootstraps the app with `DeterministicLLMClient` + `DeterministicAgentRunner` stubs so a real investigation runs end-to-end through the in-process pipeline fallback — no paid Anthropic calls). PORT=5181, existing stack: core-ministack-1 :4566 (healthy), core-redis-1 (172.18.0.4:6379, healthy). `/health` → 200 `{dynamodb:ok,redis:ok,sqs:ok,anthropic:ok}`. Clerk JWT verified networklessly via `CLERK_JWT_KEY` (RS256 signed with /tmp/ac011-clerk-priv.pem).
+
+Real HTTP exercised (real `fetch`es on PORT=5181, full in-process pipeline: incident.created → triage → investigation → investigation.completed → RecordUsageUseCase):
+
+- `POST /v1/tenants` (admin JWT) → 201, `tenantId = org_ac012_<ts>` (= JWT `o.id`).
+- Provisioned a `BillingAccountEntity` for tenant A (setup only).
+- `POST /v1/incidents/chat` `{severity:"critical", suggestedAgents:[log_analyst,metric_analyst,infra_inspector]}` → 201, dispatched a real stub-backed investigation.
+- Poll `GET /v1/incidents/:id` → reached terminal `status=awaiting_approval` within ~0.5s (investigation completed).
+- `GET /v1/billing/usage` (tenant A) → 200, `records[0] = {type:"investigation", incidentId:<uuid>, costUsd:0, agentBreakdown:[{agentRole:"log_analyst",inputTokens:500,outputTokens:200,costUsd:0},{agentRole:"metric_analyst",...},{agentRole:"infra_inspector",...}]}` — confirms a **UsageRecordEntity** is written on investigation completion with the **investigation ID**, **per-agent token counts** and **per-agent cost**.
+- Tenant scoping: tenant B (`POST /v1/tenants` → 201; `GET /v1/billing/usage`) → 200, `records.length === 0` — tenant B sees zero of tenant A's records (scoped to the calling tenant only; tenantId comes only from the verified JWT).
+- Pagination shape present (`records` + `cursor`).
+
+All 18/18 boundary assertions passed; `AC-012: ALL ASSERTIONS PASSED`. Non-critical Hindsight retain warnings logged (HINDSIGHT_API_URL empty) — best-effort, do not block the investigation or the usage record write, consistent with the spec's memory failure-behaviour.
+
+Doc-drift note unchanged: literal `/api/v1/billing/usage` is not mounted (no global `/api` prefix; route is `/v1/billing/usage`). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-012 behaviour is fully met.
+
+- NextAction: Integrated Verification
+
+## 2026-07-08T10:58:45.320Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
