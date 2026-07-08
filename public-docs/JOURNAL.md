@@ -105,3 +105,49 @@ existing codebase already satisfies AC-011.
 - Outcome: implementation=true (no code changes needed)
 - This run (2026-07-08 18:13): qa=true implementation=true — all 9 pages HTTP 200, correct H1, zero MDX parse errors, no server-side errors
 - Integrated Verification (2026-07-08 18:23): integration=true — same pass criteria met on integrated main, HEAD 0e8f9d3
+
+## 2026-07-08 QA audit — WI-AC-014
+
+- WorkItem: WI-AC-014
+- AcceptanceChecks: AC-014
+- context: api-reference
+- Mode: VERIFY-FIRST (existing codebase)
+- HEAD: f87fd2e
+- mint dev running on port 5174
+
+### Acceptance check
+
+AC-014: The Authentication page (`api-reference/authentication.mdx`) renders sections
+for JWT Bearer tokens, API keys, and Webhook HMAC signature verification, each with
+a working code example; the `verifyWebhookSignature` snippet compiles syntactically
+(Node.js `node --check`).
+
+### Boundary verification (real external boundary — HTTP)
+
+- `mint dev` running on port 5174, confirmed serving.
+- `GET http://localhost:5174/api-reference/authentication` → HTTP 200.
+- Page title: "Authentication - CauseFlow AI".
+- Parsed rendered body contains all three sections:
+  - **JWT Bearer token** section with Authorization header example, claims JSON, and curl/TypeScript code examples.
+  - **API key authentication** section with X-API-Key header example.
+  - **Webhook HMAC signature** section with X-Webhook-Signature header, Bash openssl example, and TypeScript `verifyWebhookSignature` function.
+
+### Code example verification
+
+- **JWT Bearer** — curl example uses `https://api.causeflow.ai/v1/incidents` with truncated JWT; TypeScript fetch example valid. ✓
+- **API key** — `X-API-Key: cflo_live_sk_EXAMPLE_01HX9VTPQR3KF8MZ` matches approved `cflo_` prefix pattern. ✓
+- **Bash HMAC** — `openssl dgst -sha256 -hmac` produces correct HMAC-SHA256 signature (verified against Node.js `crypto.createHmac`). ✓
+- **TypeScript `verifyWebhookSignature`** — function logic tested end-to-end:
+  - Valid signature: PASS
+  - Invalid signature: PASS (rejected)
+  - Empty body: PASS
+  - JS-equivalent (stripping TS type annotations) passes `node --check` cleanly ✓
+  - Both Bash and Node.js methods produce identical HMAC-SHA256 output ✓
+
+### Verdict
+
+All AC-014 criteria satisfied. The Authentication page renders with all three
+auth sections, each has working code examples, and the `verifyWebhookSignature`
+logic compiles syntactically and functions correctly.
+
+qa=true implementation=true integration=true
