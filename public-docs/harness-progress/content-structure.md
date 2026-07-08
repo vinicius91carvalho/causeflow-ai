@@ -399,3 +399,12 @@ length exceeds 160. (Depends on AC-004, which already holds on main.)
 implementation=true. Zero tracked content files changed (zero-diff
 checkpoint). No refactor, no restructuring. AC-005 holds at the real
 external HTTP boundary.
+
+## 2026-07-08T04:41:31.889Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-005
+- DefectReport: QA failed
+- RepairPlan: AC-005 QA failure is a false positive caused by a measurement artifact, not a real content violation. The only `.mdx` the QA awk flagged is `index.mdx`, whose `description` YAML scalar is 159 characters (compliant with the ≤160 limit), but the value is wrapped in double quotes (`"…"`), so the harness's awk measured the raw line value *including* the quote delimiters as 161 characters, tripping the >160 threshold. No other `.mdx` in the repo exceeds 160 by either counting method.; Shorten the `index.mdx` `description` by at least 2 characters so it passes even under the quote-inclusive awk (defensive, makes the check robust regardless of QA tooling) — e.g. drop the trailing clause or tighten wording to land at ≤158 raw chars.; Alternatively (or additionally) correct the QA harness's AC-005 awk to strip leading/trailing YAML quotes (`gsub(/^["']|["']$/,"",val)`) before `length(val)`, so it measures the scalar value and matches the spec intent. Prefer doing both: the content trim guarantees a green run on the current harness, and the awk fix prevents recurrence on other quoted descriptions.; Re-run the AC-005 QA adapter against `index.mdx` and a full repo sweep to confirm zero `description` fields exceed 160 by the scalar-value count; capture fresh evidence in the harness-runs evidence path.; No other files need changes — audit confirmed all 133 `.mdx` descriptions are ≤160 by scalar value and only `index.mdx` is flagged by the quote-inclusive count.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/content-structure/WI-AC-005-1-qa.log
+- NextAction: Coding Attempt 2
