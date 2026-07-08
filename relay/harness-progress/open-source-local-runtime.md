@@ -211,3 +211,58 @@ env. No defects. `integration=true`, `implementation=true`, `qa=true`.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-051-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T01:10:00Z — Implementation (AC-052)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-052
+- AcceptanceChecks: AC-052
+- Outcome: implementation=true (black-box verified on running stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-052 verifies the docker-compose + control-plane-stub structure that
+AC-051 already introduced. No source/config changes were required: the
+artifacts from AC-051 already satisfy every AC-052 clause. This entry
+records the AC-052-specific black-box verification.
+
+Verified artifacts (all pre-existing from AC-051):
+- `docker-compose.yml` at repo root defines exactly four services
+  (`relay-control-plane-stub`, `relay-postgres`, `relay-mongo`, `relay`).
+  No `image: ministack`, `image: localstack`, or `image: langfuse`; no
+  AWS/Stripe/Clerk/Sentry/Langfuse/Svix/Slack/Composio/Mastra env-var
+  assignments (the only matches for those vendor names are in descriptive
+  comments).
+- `scripts/control-plane-stub/Dockerfile` is `node:22-alpine` + `ws`,
+  with a one-line `COPY server.mjs ./` and `CMD ["node", "server.mjs"]`
+  (plus the `COPY package.json` + `npm install --omit=dev` needed to make
+  the `ws` dependency available).
+- `scripts/control-plane-stub/server.mjs` imports only `ws`
+  (`WebSocketServer`) and `node:crypto` (stdlib) — zero vendor SDKs.
+
+### Black-box verification (clean env, no AWS_*/STRIPE_*/CLERK_*/... set)
+
+`env -i PATH=$PATH docker compose up -d --build` → all four services Up;
+relay connected in ~1s. Stub log:
+`[stub] listening on 0.0.0.0:3000 ...`,
+`[stub] relay connected`,
+`[stub] resource_update from relayId=f9c582f6-... resources=2` (n=2 >= 1).
+
+Token/tenant validation:
+- Correct `?token=harness-smoke-token&tenantId=harness-tenant` → handshake
+  accepted, relay stays connected.
+- Wrong `?token=WRONG&tenantId=also-wrong` → stub closes the socket with
+  code `4001 invalid token/tenant` and logs
+  `[stub] rejecting handshake token=WRONG tenantId=also-wrong`.
+
+Forbidden-hostname grep over `docker compose logs relay`
+(`amazonaws|stripe|clerk|langfuse|sentry|svix|slack|composio|mastra|sqs|dynamodb|\.sts\.|kms|api\.aws`)
+→ 0 matches. Only outbound URL resolved by the relay:
+`ws://relay-control-plane-stub:3000/v1/relay/connect`.
+
+Relay container env scan for
+`^(AWS_|STRIPE_|CLERK_|LANGFUSE_|SENTRY_|SVIX_|SLACK_|COMPOSIO_|MASTRA_|SQS_|DYNAMODB_|STS_|KMS_)`
+→ 0 matches.
+
+`feature_list.json` WI-AC-052 set to `implementation: true`.
