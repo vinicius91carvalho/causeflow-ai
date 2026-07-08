@@ -118,15 +118,7 @@ wss.on('connection', (ws, req) => {
     return;
   }
 
-  // First connection with valid credentials is the relay; subsequent are test clients.
-  if (!relayWs) {
-    relayWs = ws;
-    log('relay connected');
-    // Forward JSON-RPC responses from the relay to the originating test client.
-    relayWs.on('message', forwardResponseToClient);
-  } else {
-    log('test client connected');
-  }
+  log('client connected');
 
   let smokeStarted = false;
 
@@ -134,6 +126,10 @@ wss.on('connection', (ws, req) => {
     let msg;
     try { msg = JSON.parse(raw.toString()); } catch { return; }
     if (msg.type === 'resource_update') {
+      // This connection is the relay — track it for RPC forwarding.
+      relayWs = ws;
+      // Forward JSON-RPC responses from the relay to the originating test client.
+      relayWs.on('message', forwardResponseToClient);
       const n = Array.isArray(msg.resources) ? msg.resources.length : 0;
       log(`resource_update from relayId=${msg.relayId} resources=${n}`);
       if (RUN_SMOKE && !smokeStarted) {
@@ -143,17 +139,21 @@ wss.on('connection', (ws, req) => {
     } else if (msg.type === 'heartbeat') {
       log(`heartbeat from relayId=${msg.relayId} (debug)`);
     } else if (msg.jsonrpc === '2.0' && msg.id && msg.method) {
-      // Forward JSON-RPC request to the relay connection.
-      if (relayWs && relayWs.readyState === relayWs.OPEN) {
-        const requestId = msg.id;
-        pendingRpc.set(String(requestId), { ws, id: requestId });
-        relayWs.send(JSON.stringify(msg));
-      } else {
+      if (!relayWs) {
         ws.send(JSON.stringify({
           jsonrpc: '2.0', id: msg.id,
           error: { code: -32000, message: 'Relay not connected' },
         }));
+        return;
       }
+      if (relayWs === ws) {
+        log('ignoring RPC from relay');
+        return;
+      }
+      // Forward JSON-RPC request to the relay connection.
+      const requestId = msg.id;
+      pendingRpc.set(String(requestId), { ws, id: requestId });
+      relayWs.send(JSON.stringify(msg));
     }
   });
 
@@ -163,6 +163,10 @@ wss.on('connection', (ws, req) => {
       relayWs = null;
     } else {
       log('client disconnected');
+    }
+    // Clean up any pending RPCs from this client
+    for (const [id, pending] of pendingRpc) {
+      if (pending.ws === ws) pendingRpc.delete(id);
     }
   });
   ws.on('error', (err) => log(`socket error: ${err.message}`));

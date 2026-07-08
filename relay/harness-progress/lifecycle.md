@@ -144,3 +144,24 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/lifecycle/WI-AC-047-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T22:00:00.000Z — AC-048 Passed
+
+- WorkItem: WI-AC-048
+- Outcome: PASSED
+- Implementation: true (no production code changes needed)
+- AcceptanceChecks: AC-048
+- Evidence: End-to-end black-box test-ac048.mjs against full docker-compose stack
+  (relay + control-plane-stub + postgres + mongo).
+  1. Baseline valid execute (SELECT 1) succeeded
+  2. Execute against non-existent table triggered -32603 error response:
+     {"code":-32603,"message":"relation \"nonexistent_table_12345\" does not exist"}
+  3. Error logged in relay logs with "Request handler error" and requestId
+  4. Post-error valid request succeeded — relay still processing, WS not closed
+  5. Relay container still running after error (process not crashed)
+- Notes: The try/catch in onMessage callback (src/index.ts lines 142-158) already
+  correctly implements AC-048. The only changes were to scripts/control-plane-stub/server.mjs
+  (fix stub relay identification from first-connection-wins to resource_update-based
+  handshake) and test-ac048.mjs (new test file). No relay product code changes.
+- Defects: []
+- NextAction: next Ready Work Item
