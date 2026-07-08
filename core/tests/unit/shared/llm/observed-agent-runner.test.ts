@@ -1,8 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ObservedAgentRunner } from '../../../../src/shared/infra/llm/observed-agent-runner.js';
 import type { AgentRunner, AgentRunResult } from '../../../../src/shared/application/ports/agent-runner.port.js';
 import type { Tracer, Span } from '../../../../src/shared/application/ports/tracer.port.js';
 import type { MetricRecorder } from '../../../../src/shared/application/ports/metric-recorder.port.js';
+
+// Mock currentTraceId to simulate OTel active span
+const mockCurrentTraceId = vi.fn((): string | undefined => 'abcdef1234567890abcdef1234567890');
+vi.mock('../../../../src/shared/infra/observability/propagation.js', () => ({
+  currentTraceId: () => mockCurrentTraceId(),
+}));
+
+// Import after mocks
+import { ObservedAgentRunner } from '../../../../src/shared/infra/llm/observed-agent-runner.js';
 
 function createMockSpan(): Span {
   return { setAttribute: vi.fn(), setInput: vi.fn(), setOutput: vi.fn(), setUsage: vi.fn(), setStatus: vi.fn(), end: vi.fn() };
@@ -39,6 +47,9 @@ describe('ObservedAgentRunner', () => {
     mockTracer = createMockTracer(mockSpan);
     mockMetrics = createMockMetrics();
     runner = new ObservedAgentRunner(mockInner, mockTracer, mockMetrics);
+
+    // Default: currentTraceId returns a mock OTel trace ID
+    mockCurrentTraceId.mockReturnValue('abcdef1234567890abcdef1234567890');
   });
 
   it('should delegate to inner runner and return result', async () => {
@@ -102,5 +113,92 @@ describe('ObservedAgentRunner', () => {
     expect(mockSpan.setStatus).toHaveBeenCalledWith('error', 'Runner failed');
     expect(mockMetrics.increment).toHaveBeenCalledWith('agent.errors', 1, expect.any(Object));
     expect(mockSpan.end).toHaveBeenCalled();
+  });
+
+  describe('OTel-Langfuse bridge', () => {
+    it('should set otelTraceId attribute on span when OTel span is active', async () => {
+      mockCurrentTraceId.mockReturnValue('abcdef1234567890abcdef1234567890');
+
+      await runner.run({
+        systemPrompt: 'test',
+        userPrompt: 'investigate',
+        tools: [],
+        toolHandler: async () => '',
+      });
+
+      expect(mockSpan.setAttribute).toHaveBeenCalledWith('otelTraceId', 'abcdef1234567890abcdef1234567890');
+    });
+
+    it('should not set otelTraceId attribute when no OTel span is active', async () => {
+      mockCurrentTraceId.mockReturnValue(undefined);
+
+      await runner.run({
+        systemPrompt: 'test',
+        userPrompt: 'investigate',
+        tools: [],
+        toolHandler: async () => '',
+      });
+
+      const calls = vi.mocked(mockSpan.setAttribute).mock.calls
+        .filter(([key]) => key === 'otelTraceId');
+      expect(calls).toHaveLength(0);
+    });
+
+    it('should pass per-call traceContext to tracer.startSpan', async () => {
+      await runner.run({
+        systemPrompt: 'test',
+        userPrompt: 'investigate',
+        tools: [],
+        toolHandler: async () => '',
+        traceContext: { sessionId: 'inc-123', userId: 'tenant-x' },
+      });
+
+      expect(mockTracer.startSpan).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Object),
+        { sessionId: 'inc-123', userId: 'tenant-x' },
+      );
+    });
+
+    it('should merge per-call traceContext with construction-time traceContext', async () => {
+      const runnerWithCtx = new ObservedAgentRunner(
+        mockInner, mockTracer, mockMetrics,
+        { sessionId: 'base-session', userId: 'base-user' },
+      );
+
+      await runnerWithCtx.run({
+        systemPrompt: 'test',
+        userPrompt: 'investigate',
+        tools: [],
+        toolHandler: async () => '',
+        traceContext: { userId: 'override-user' },
+      });
+
+      expect(mockTracer.startSpan).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Object),
+        { sessionId: 'base-session', userId: 'override-user' },
+      );
+    });
+
+    it('should use construction-time traceContext when no per-call traceContext provided', async () => {
+      const runnerWithCtx = new ObservedAgentRunner(
+        mockInner, mockTracer, mockMetrics,
+        { sessionId: 'base-session', userId: 'base-user' },
+      );
+
+      await runnerWithCtx.run({
+        systemPrompt: 'test',
+        userPrompt: 'investigate',
+        tools: [],
+        toolHandler: async () => '',
+      });
+
+      expect(mockTracer.startSpan).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Object),
+        { sessionId: 'base-session', userId: 'base-user' },
+      );
+    });
   });
 });

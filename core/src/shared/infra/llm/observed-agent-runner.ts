@@ -1,6 +1,7 @@
 import type { AgentRunner, AgentRunConfig, AgentRunResult } from '../../application/ports/agent-runner.port.js';
 import type { Tracer, TraceContext } from '../../application/ports/tracer.port.js';
 import type { MetricRecorder } from '../../application/ports/metric-recorder.port.js';
+import { currentTraceId } from '../observability/propagation.js';
 export class ObservedAgentRunner implements AgentRunner {
     inner;
     tracer;
@@ -13,13 +14,24 @@ export class ObservedAgentRunner implements AgentRunner {
         this.traceContext = traceContext;
     }
     async run(agentConfig: AgentRunConfig): Promise<AgentRunResult> {
+        // Merge per-call traceContext with construction-time traceContext
+        const mergedContext = agentConfig.traceContext
+            ? { ...this.traceContext, ...agentConfig.traceContext }
+            : this.traceContext;
+
         const span = this.tracer.startSpan('agent.run', {
             model: agentConfig.model,
             maxTurns: agentConfig.maxTurns,
             toolCount: agentConfig.tools.length,
             minToolCalls: agentConfig.minToolCalls,
             hasStaticPrompt: !!agentConfig.staticSystemPrompt,
-        }, this.traceContext);
+        }, mergedContext);
+
+        // OTel-Langfuse bridge: set the OTel trace ID as a Langfuse span attribute
+        const otelTraceId = currentTraceId();
+        if (otelTraceId) {
+            span.setAttribute('otelTraceId', otelTraceId);
+        }
         span.setInput({
             systemPrompt: agentConfig.staticSystemPrompt
                 ? `[static] ${agentConfig.staticSystemPrompt.slice(0, 200)}...\n[dynamic] ${agentConfig.systemPrompt}`

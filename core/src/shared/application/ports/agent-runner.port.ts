@@ -42,6 +42,15 @@ export interface AgentRunConfig {
      * in `shared/infra/llm/tool-call-tracker.ts` satisfies this shape.
      */
     toolCallTracker?: ToolCallTrackerPort;
+
+    /**
+     * Optional per-run trace context for observability (OTel-Langfuse correlation).
+     * Merged with any construction-time traceContext on ObservedAgentRunner.
+     */
+    traceContext?: {
+      sessionId?: string;
+      userId?: string;
+    };
 }
 
 /** Structural contract of a per-run tool-call tracker. */

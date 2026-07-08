@@ -9,6 +9,7 @@ export type AppVariables = {
     widgetAgentId?: string;
     widgetAgentName?: string;
     widgetSessionId?: string;
+    otelTraceId?: string;
 };
 export type AppEnv = {
     Variables: AppVariables;

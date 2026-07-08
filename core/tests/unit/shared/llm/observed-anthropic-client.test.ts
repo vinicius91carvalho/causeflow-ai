@@ -1,8 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ObservedAnthropicClient } from '../../../../src/shared/infra/llm/observed-anthropic-client.js';
 import type { LLMClient, CompletionResult } from '../../../../src/shared/application/ports/llm-client.port.js';
 import type { Tracer, Span } from '../../../../src/shared/application/ports/tracer.port.js';
 import type { MetricRecorder } from '../../../../src/shared/application/ports/metric-recorder.port.js';
+
+// Mock currentTraceId to simulate OTel active span
+const mockCurrentTraceId = vi.fn((): string | undefined => 'abcdef1234567890abcdef1234567890');
+vi.mock('../../../../src/shared/infra/observability/propagation.js', () => ({
+  currentTraceId: () => mockCurrentTraceId(),
+}));
+
+import { ObservedAnthropicClient } from '../../../../src/shared/infra/llm/observed-anthropic-client.js';
 
 function createMockSpan(): Span {
   return {
@@ -52,6 +59,7 @@ describe('ObservedAnthropicClient', () => {
     mockTracer = createMockTracer(mockSpan);
     mockMetrics = createMockMetrics();
     client = new ObservedAnthropicClient(mockInner, mockTracer, mockMetrics);
+    mockCurrentTraceId.mockReturnValue('abcdef1234567890abcdef1234567890');
   });
 
   it('should delegate to inner client and return result', async () => {
@@ -108,5 +116,33 @@ describe('ObservedAnthropicClient', () => {
     expect(mockSpan.setStatus).toHaveBeenCalledWith('error', 'API error');
     expect(mockMetrics.increment).toHaveBeenCalledWith('llm.errors', 1, expect.any(Object));
     expect(mockSpan.end).toHaveBeenCalled();
+  });
+
+  describe('OTel-Langfuse bridge', () => {
+    it('should set otelTraceId attribute on span when OTel span is active', async () => {
+      mockCurrentTraceId.mockReturnValue('abcdef1234567890abcdef1234567890');
+
+      await client.complete({
+        systemPrompt: 'test',
+        userPrompt: 'hello',
+        maxTokens: 100,
+      });
+
+      expect(mockSpan.setAttribute).toHaveBeenCalledWith('otelTraceId', 'abcdef1234567890abcdef1234567890');
+    });
+
+    it('should not set otelTraceId attribute when no OTel span is active', async () => {
+      mockCurrentTraceId.mockReturnValue(undefined);
+
+      await client.complete({
+        systemPrompt: 'test',
+        userPrompt: 'hello',
+        maxTokens: 100,
+      });
+
+      const calls = vi.mocked(mockSpan.setAttribute).mock.calls
+        .filter(([key]) => key === 'otelTraceId');
+      expect(calls).toHaveLength(0);
+    });
   });
 });

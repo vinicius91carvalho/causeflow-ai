@@ -10,6 +10,7 @@ import { tenantMiddleware } from './shared/infra/http/middleware/tenant.middlewa
 import { rateLimitMiddleware } from './shared/infra/http/middleware/rate-limit.middleware.js';
 import { auditMiddleware } from './shared/infra/http/middleware/audit.middleware.js';
 import { requestLoggerMiddleware } from './shared/infra/http/middleware/request-logger.middleware.js';
+import { otelLangfuseBridge } from './shared/infra/http/middleware/otel-langfuse-bridge.middleware.js';
 import { createTenantRoutes } from './modules/tenant/infra/tenant.routes.js';
 import { createAuditRoutes } from './modules/audit/infra/audit.routes.js';
 import { createWebhookRoutes } from './modules/ingestion/infra/webhook.routes.js';
@@ -52,6 +53,7 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
         maxAge: 600,
     }));
     app.use('*', requestId());
+    app.use('*', otelLangfuseBridge());
     app.use('*', authMiddleware);
     app.use('*', tenantMiddleware);
     app.use('*', rateLimitMiddleware);

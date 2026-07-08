@@ -926,12 +926,12 @@
       "AC-002"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
+    "implementation": true,
+    "qa": true,
     "integration": false,
     "retries": 2,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "qa-passed"
   },
   {
     "id": "WI-AC-037",

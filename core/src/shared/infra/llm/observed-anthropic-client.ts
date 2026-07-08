@@ -1,6 +1,7 @@
 import type { LLMClient, CompletionParams, CompletionResult } from '../../application/ports/llm-client.port.js';
 import type { Tracer, TraceContext } from '../../application/ports/tracer.port.js';
 import type { MetricRecorder } from '../../application/ports/metric-recorder.port.js';
+import { currentTraceId } from '../observability/propagation.js';
 export class ObservedAnthropicClient {
     inner;
     tracer;
@@ -17,6 +18,12 @@ export class ObservedAnthropicClient {
             maxTokens: params.maxTokens,
             hasSchema: params.responseSchema ? 'true' : 'false',
         }, this.traceContext, 'generation');
+        // OTel-Langfuse bridge: set the OTel trace ID as a Langfuse span attribute
+        const otelTraceId = currentTraceId();
+        if (otelTraceId) {
+            span.setAttribute('otelTraceId', otelTraceId);
+        }
+
         span.setInput({
             systemPrompt: params.systemPrompt,
             userPrompt: params.userPrompt,
