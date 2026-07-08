@@ -678,3 +678,31 @@ Core smoke: `node dist/index.js` boots, logs `Starting CauseFlow Relay...`, and 
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-011-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-007 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-007 condition at real external boundaries (parsed the workflow YAML, then ran each step's exact command locally against Docker Engine 29.6.1 + Node 24 host; the workflow pins `actions/setup-node@v4 node-version: '22'` for CI). No code changes — the existing `.github/workflows/ci.yml` already satisfies every invariant.
+
+Structural verification (parsed `.github/workflows/ci.yml`):
+- Trigger: `on: { pull_request: { branches: [main] } }` → fired on PRs to `main`. ✓
+- `actions/checkout@v4` with `fetch-depth: 0`. ✓
+- `actions/setup-node@v4` with `node-version: '22'` (+ `cache: 'npm'`). ✓
+- `npm ci`. ✓
+- `Validate commit messages` step: `run: npx commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose` with `BASE_SHA: ${{ github.event.pull_request.base.sha }}` and `HEAD_SHA: ${{ github.event.pull_request.head.sha }}` env. ✓
+- `Build TypeScript` step: `npm run build`. ✓
+- `Docker build smoke test` step: `docker build . --platform linux/amd64`. ✓
+- Runner: `ubuntu-latest`. ✓
+
+Each step's command exits 0 on a passing PR (exercised at the real boundary):
+1. `npm ci` → **exit 0** (420 packages, audited 616; package-lock.json is the source of truth).
+2. `npx commitlint --from <BASE> --to <HEAD> --verbose` on a clean conventional-commit range (`c123be2..fa4ffcc`, a single `chore(harness): checkpoint WI-AC-006` commit) → **exit 0**, `✔ found 0 problems, 0 warnings`. (commitlint correctly rejects non-conventional commits like `verify(harness):`/`qa(...)`, which is the intended PR-gate behavior; a PR whose commits are all Conventional Commits passes.) ✓
+3. `npm run build` (`tsc`) → **exit 0**; produces `dist/index.js`. ✓
+4. `docker build . --platform linux/amd64` → **exit 0** (image `causeflow-relay:ac007` built, manifest list for linux/amd64). ✓
+
+`commitlint.config.js` extends `['@commitlint/config-conventional']`, so `npx commitlint` accepts `fix:`/`feat:`/`chore:` and rejects non-Conventional-Commit PR commits (AC-010 contract). The CI commitlint step only validates the PR's own commits (`$BASE_SHA..$HEAD_SHA`), so a passing PR (all Conventional Commits) exits 0.
+
+Repo scaffold matches `project_specs.xml` affected_surfaces: `.github/workflows/ci.yml` + `commitlint.config.js`.
+
+Verdict: implementation=true, zero code diff. All AC-007 conditions pass (correct trigger, setup-node v4 + Node 22, `npm ci`, `npx commitlint --from $BASE_SHA --to $HEAD_SHA --verbose`, `npm run build`, `docker build . --platform linux/amd64`; each step exits 0 on a passing PR).
