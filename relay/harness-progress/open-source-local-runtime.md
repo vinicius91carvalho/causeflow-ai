@@ -1335,6 +1335,100 @@ No defects. `qa=true`, `implementation=true`.
 All AC-056 acceptance criteria pass at real external boundaries against the
 latest main. No defects found.
 
+## 2026-07-08T20:55:00Z — Implementation (AC-057)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-057
+- AcceptanceChecks: AC-057
+- Outcome: implementation=true (all vendor-SDK checks pass on running stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-057 is the security audit that verifies the relay has zero direct or
+transitive runtime dependencies on forbidden vendor SDKs (AWS, Stripe, Clerk,
+Sentry, Langfuse, Svix, Slack, Composio, Mastra) and zero forbidden env vars.
+The relay's codebase was already clean — no code changes were needed. The
+implementation phase independently verified every clause at real boundaries.
+
+### Verification results (clause by clause)
+
+**1. `package.json` has no forbidden dependency:**
+```
+$ rg -in "aws-sdk|@aws-sdk|^\"stripe\"|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra" package.json
+```
+→ 0 matches ✓
+
+**2. Source tree (`src/` relay runtime code) has zero vendor SDK references:**
+```
+$ rg -in "aws-sdk|@aws-sdk|^\"stripe\"|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra" src/
+```
+→ 0 matches ✓
+
+No AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra API
+is imported or referenced anywhere in the relay's TypeScript runtime code.
+
+**3. Source tree (full repo, excluding `node_modules`/`package-lock.json`/etc.):**
+The broad regex matches only documentation and comment text — not runtime code:
+- `project_specs.xml` — specification document describing what the relay does NOT use
+- `docker-compose.yml:12` — comment: `# AWS / Stripe / Clerk / Sentry / Langfuse / Svix / Slack / Composio / Mastra`
+- `scripts/control-plane-stub/server.mjs:6` — comment: `// stdlib — no AWS SDK, no Stripe...`
+
+These are not API references. The relay's runtime code (`src/`) is clean ✓
+
+**4. `package-lock.json` — transitive dependency check:**
+The regex matches `@aws-sdk/credential-providers` in the `peerDependencies`
+and `peerDependenciesMeta` declarations of the `mongodb` npm package entry.
+This is an **optional peer dependency** (not a transitive dependency):
+- The package is NOT installed (`node_modules/@aws-sdk/` does not exist)
+- It is marked `optional: true` in `peerDependenciesMeta`
+- It is a declaration of what mongodb CAN integrate with for AWS IAM auth,
+  not a package the relay pulls in
+- The AC's primary condition — "no transitive dependency" — is satisfied ✓
+
+The regex is a heuristic; these are optional peer dependency metadata records,
+not actual transitive dependencies.
+
+**5. `.env.example` forbidden env vars:**
+```
+$ grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example
+```
+→ 0 matches ✓
+
+The `.env.example` contains only the relay's own env vars: `RELAY_TOKEN`,
+`TENANT_ID`, `CONTROL_PLANE_URL`, `PG_HOST`, `PG_PORT`, `PG_DATABASE`,
+`PG_USER`, `PG_PASSWORD`, `MONGO_URI`, `MONGO_DATABASE`, `MASKING_ENABLED`,
+`AUDIT_ENABLED`. No forbidden vendor env vars.
+
+**6. Black-box stack verification (stack was already Up from AC-056):**
+- `docker compose ps` — all 4 services Up ✓
+- Relay log: `Connected to control plane` at
+  `ws://relay-control-plane-stub:3000/v1/relay/connect` ✓
+- Stub log: `resource_update from relayId=... resources=2` ✓
+- Heartbeats flowing every 30s ✓
+- Vendor hostname grep on relay logs → 0 matches ✓
+- `npm run smoke` (from `scripts/control-plane-stub/`) exits 0 with all
+  three round-trips passing (`health_check` both drivers healthy,
+  `execute SELECT 1` returns `{rows:[{one:1}],rowCount:1,...masked:false}`,
+  `execute list_tables` returns `orders` table) ✓
+
+### Verdict
+
+All AC-057 acceptance criteria verified against the running docker-compose
+stack at real external boundaries. The relay's `package.json` has zero
+forbidden dependencies, `src/` runtime code has zero vendor SDK API
+references, `.env.example` has no forbidden env vars, and the relay boots
+and functions with zero outbound traffic to any vendor.
+
+Minor notes:
+- The `mongodb` npm driver declares `@aws-sdk/credential-providers` as an
+  optional peer dependency in its package metadata. This is a declaration,
+  not an installed transitive dependency — it is standard npm behavior for
+  the mongodb driver's AWS IAM auth integration and does not affect relay
+  runtime in any way.
+- Source-tree matches outside `src/` are exclusively comment/documentation
+  text referencing the same AC-057 audit scope.
+
 ## 2026-07-08T20:52:54.829Z — Integrated Verification passed
 
 - Attempt: 1/3
