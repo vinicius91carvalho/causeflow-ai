@@ -705,7 +705,7 @@
     "verify_first": false,
     "implementation": true,
     "qa": true,
-    "integration": false,
+    "integration": true,
     "retries": 0,
     "verify_notes": "VERIFY-FIRST (AC-033). No source changes required: the `docker-compose.yml` shipped in WI-AC-026 already satisfies every clause. Black-box verification on assigned port 5179 (host 3000 occupied by relay-control-plane-stub; ran the built `causeflow-docs:local` image as `causeflow-docs-ac033` with `-p 5179:3000 -e PORT=3000`; canonical compose stays `3000:3000`). Clauses: (1) `docker compose config --services` returns only `causeflow-docs`, ports `3000:3000`; (2) `grep -Eni 'aws|stripe|clerk|sentry|langfuse|svix|slack|composio|mintlify|amazonaws|anthropic|openai|chatgpt|claude' docker-compose.yml` -> 0 matches (no SaaS endpoints); (3) `docker compose config` exits 0; (4) resolved compose config has no `depends_on`/`links`/`external_links`/`healthcheck` -> service depends on no other service; (5) portable: runtime `Env` is just `PORT=3000` (+ base-image PATH/NODE_VERSION/YARN_VERSION), build context is local, no external networks, no healthcheck dependency -> the service is self-contained, requires no additional env vars, and starts in parallel with other subprojects' services when the monorepo root compose (owned by core/web contexts WI-AC-039/WI-AC-044) includes `public-docs`. Live: `GET http://localhost:5179/` -> 200, body has `CauseFlow AI` (x4) and `Quickstart` (x3); boot log `Serving docs at http://localhost:3000`; `docker logs | grep -cE` forbidden-host pattern (mintlify.com|...|composio.dev) -> 0."
   }
