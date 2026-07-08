@@ -286,3 +286,44 @@ fatal: Unable to write index.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/protocol/WI-AC-018-3-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T21:45Z — Verify-first: AC-019 passes at real WebSocket boundary
+
+- WorkItem: WI-AC-019
+- Attempt: 1/3
+- AcceptanceChecks: AC-019
+- Role: coding-agent (verify-first mode)
+- Boundary: real `ws.WebSocketServer` stub on `0.0.0.0:3000` (running docker-compose relay-control-plane-stub) + real compiled relay `node dist/index.js` inside the running docker-compose `relay` container. Both resources (order-pg postgres, order-mongo mongodb) initialized and connected.
+- Flow: Connect to control-plane stub as test client with `token=harness-smoke-token&tenantId=harness-tenant` -> send JSON-RPC 2.0 `health_check` request (no params) -> stub forwards to relay -> relay dispatches to `healthReporter.checkAll()` -> relay responds with `createResponse(request.id, statuses)` -> stub forwards response back to test client.
+- Captured response:
+  ```json
+  {
+    "jsonrpc": "2.0",
+    "id": "ed139e2f-5867-4645-be7f-4ce615ea1cf8",
+    "result": [
+      { "resourceId": "order-pg", "type": "postgres", "healthy": true, "latencyMs": 26 },
+      { "resourceId": "order-mongo", "type": "mongodb", "healthy": true, "latencyMs": 9 }
+    ]
+  }
+  ```
+- Verdict: jsonrpc='2.0'; id echoed; no error key; result is array of 2; every entry shaped exactly `{resourceId,type,healthy,latencyMs}` with non-negative latencyMs; order-pg healthy=true; order-mongo healthy=true. Error-handling code path verified in source (`HealthReporter.checkAll()` catch block logs at warn with `{ err, resourceId }`, sets healthy: false, includes latencyMs, continues to other drivers). All 15 checks green.
+- Outcome: implementation=true (zero-diff checkpoint — no code changes). No defects.
+
+## 2026-07-08T22:00Z — Verify-first re-verification: AC-019 still passes at real WS boundary
+
+- WorkItem: WI-AC-019
+- Attempt: 1/3 (re-verification)
+- Boundary: Running docker-compose stack all 4 services Up. Probe at `ws://127.0.0.1:3000/v1/relay/connect`.
+- Captured response:
+  ```json
+  {"jsonrpc":"2.0","id":"5b0069fe...","result":[{"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":7},{"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":2}]}
+  ```
+- Verdict: All 16 checks green. Both resources present and healthy. Error path verified in source (`HealthReporter.checkAll()` catch block).
+- Outcome: implementation=true (zero-diff checkpoint). feature_list.json updated.
+
+## 2026-07-08T21:29:17.875Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
