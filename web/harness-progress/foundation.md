@@ -466,3 +466,25 @@ No defects observed.
 - WorkItem: WI-AC-036
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-036 — Integrated Verification (foundation, auth)
+
+**Result: integration=true, implementation=true, qa=true** (integrated main HEAD bfc6048; zero source diff)
+
+### Boundary exercised
+
+AC-036 is structural (legacy Auth.js v5 + Cognito reference package + single type re-export). Verified every AC clause against integrated main via filesystem + grep + Vitest at the package/auth and dashboard role-guard boundaries (real external boundary = Vitest importing `@causeflow/auth` types and running the RBAC test on the integrated main tree).
+
+### Independent AC-036 evidence (integrated main)
+
+- **Step 1 — `packages/auth/package.json` + `packages/auth/src/infrastructure/auth-config.ts` exist:** both present. `package.json` pins `next-auth@5.0.0-beta.30`, `@auth/core@^0.39.0`, `@aws-sdk/client-cognito-identity-provider@^3.800.0`. `auth-config.ts` retains the full Auth.js v5 `createAuthConfig()` wiring (Cognito OIDC + Google + GitHub + Credentials). ✓
+- **Step 2 — only dashboard import of `@causeflow/auth` is the `UserRole` type re-export in `role-guard.test.ts`:** `grep -rn "@causeflow/auth" apps/dashboard/src` returns exactly one line — `apps/dashboard/src/contexts/identity/domain/rbac/__tests__/role-guard.test.ts:6:import type { UserRole } from '@causeflow/auth/types';`. No runtime import of `@causeflow/auth` (`.`, `/server`, `/config`, `/provider`, `/guard`, `/use-session`) from dashboard src. The `./types` export maps to `src/domain/types.ts` (`export type UserRole = 'admin' | 'member'`). ✓
+- **Step 3 — `@aws-sdk/client-cognito-identity-provider` in `serverExternalPackages`:** `apps/dashboard/next.config.mjs:32` → `serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider']`. Keeps the AWS SDK (node:crypto) server-side only. ✓
+- **Dev credentials provider auto-enables in development only; production build strips it:** `auth-config.ts` gates the `Credentials` dev mock behind `if (process.env.ENABLE_DEV_CREDENTIALS === 'true')` with an explicit `// NEVER set ENABLE_DEV_CREDENTIALS=true in a real production deployment` comment. Production builds leave the env unset, so Next.js dead-code-eliminates the branch (no dev mock in the production bundle). ✓
+
+### Core smoke (real external boundary)
+
+- `pnpm vitest run --project auth` → 1 file / 15 tests passed (`src/__tests__/auth-utils.test.ts`, 136ms). ✓
+- `pnpm vitest run --project dashboard apps/dashboard/src/contexts/identity/domain/rbac/__tests__/role-guard.test.ts` → 1 file / 15 tests passed (3ms). The `@causeflow/auth/types` re-export resolves and the consuming RBAC test compiles + passes on integrated main. ✓
+
+No defects within the AC-036 boundary at the integrated boundary. integration=true set for WI-AC-036.
