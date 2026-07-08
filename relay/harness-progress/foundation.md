@@ -768,3 +768,32 @@ No defects. No code changes. integration=true.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-007-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-008 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-008 invariant at real external boundaries (YAML parse of `.github/workflows/release.yml` + the workflow's actual commands run locally). No code changes — the existing workflow already satisfies every clause. AC-008 is a static workflow file (no HTTP/browser boundary); the real boundary is the parsed workflow structure plus the exact commands the workflow invokes.
+
+Structural verification (parsed `.github/workflows/release.yml`, 23/23 assertions PASS):
+- Trigger `on: push: branches: [main]`. ✓
+- `release` job: `actions/checkout@v4` with `fetch-depth: 0` (+ `token: GITHUB_TOKEN`). ✓
+- `actions/setup-node@v4` with `node-version: '22'` (+ `cache: 'npm'`). ✓
+- `npm ci` step. ✓
+- `npx semantic-release` step with `env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}`. ✓
+- `release` job `outputs.released` + `outputs.version` derived from `steps.semantic.outputs.*` (git-describe-tags before/after compares the tag; sets `released=true` + `version` when a new tag is produced). ✓
+- `docker` job: `needs: release` (YAML string shorthand for `[release]`) and `if: needs.release.outputs.released == 'true'`. ✓
+- `docker/setup-qemu-action@v3` (QEMU). ✓
+- `docker/setup-buildx-action@v3` (Docker Buildx). ✓
+- `docker/login-action@v3` with `username: ${{ secrets.DOCKERHUB_USERNAME }}` + `password: ${{ secrets.DOCKERHUB_TOKEN }}`. ✓
+- `docker/build-push-action@v6` with `platforms: linux/amd64,linux/arm64`, `push: true`. ✓
+- Image tags: `causeflowai/relay:${{ needs.release.outputs.version }}` (X.Y.Z), `causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }}` (X.Y), `causeflowai/relay:${{ env.MAJOR }}` (X), `causeflowai/relay:latest` — MAJOR/MINOR derived from `RELEASE_VERSION` via `cut -d. -f1` / `-f1-2`. ✓
+
+Real command boundaries (each invoked exactly as the workflow does):
+1. `npm ci` → exit 0 (420 packages). ✓
+2. `GITHUB_TOKEN=... npx semantic-release --dry-run --no-ci` → exit 0; loads every plugin from `release.config.js` (commit-analyzer → release-notes-generator → changelog → npm → git → github), honors `branches: ['main']`, correctly reports "won't be published" off main. Confirms the workflow's `npx semantic-release` step runs against the real command boundary with `GITHUB_TOKEN`. ✓
+3. `docker buildx version` → `github.com/docker/buildx v0.35.0` (multi-arch buildx available for `linux/amd64,linux/arm64`). ✓
+
+Repo scaffold matches `project_specs.xml` affected_surfaces for AC-008: `.github/workflows/release.yml` (release + docker jobs), `Dockerfile`, `release.config.js`.
+
+Verdict: implementation=true, zero code diff. All AC-008 conditions pass (correct trigger, release job with checkout v4 fetch-depth 0 + Node 22 + npm ci + npx semantic-release with GITHUB_TOKEN + released/version outputs; docker job with needs: release + if released==true + QEMU + Buildx + DockerHub login + build-push-action@v6 pushing tags X.Y.Z/X.Y/X/latest for linux/amd64,linux/arm64).
