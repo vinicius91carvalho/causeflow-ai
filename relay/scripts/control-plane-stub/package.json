@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "smoke": "SMOKE=1 node server.mjs"
+    "smoke": "node smoke.mjs"
   },
   "dependencies": {
     "ws": "^8.18.0"
