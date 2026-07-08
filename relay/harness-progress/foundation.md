@@ -359,3 +359,10 @@ Independent re-test at the real `node dist/index.js` process boundary (clean `di
   - `node dist/index.js`: logs `Starting CauseFlow Relay...` then `level:60` fatal `Failed to start relay` carrying the `ZodError` (path `controlPlane/token`) → **exit 1**. ✓
 
 Verdict: qa=true, implementation=true, zero code diff. Both AC-004 conditions pass.
+
+## 2026-07-08T02:27:17.196Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-004
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
