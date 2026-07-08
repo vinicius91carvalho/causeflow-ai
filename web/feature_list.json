@@ -1142,8 +1142,8 @@
     ],
     "verify_first": false,
     "implementation": true,
-    "qa": false,
-    "integration": false,
+    "qa": true,
+    "integration": true,
     "retries": 1
   },
   {
