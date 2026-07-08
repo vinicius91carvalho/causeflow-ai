@@ -474,3 +474,21 @@ Verified the SQS + KMS boundary against the running `core-ministack-1` (endpoint
 - `kms list-aliases` → alias `alias/causeflow-token-encryption` present. ✓
 
 Defect found + root-cause fix (smallest diff): the init script `infra/localstack/init/01-create-resources.sh` created a `causeflow-progress` (+dlq) queue instead of the `causeflow-triage` (+dlq) queue required by AC-006 and referenced by `.env.dev` (`SQS_TRIAGE_QUEUE_URL`). The `progress` queue was unused in dev (`.env.dev` sets no `SQS_PROGRESS_QUEUE_URL`, so the progress consumer was already disabled). Renamed the queue block progress→triage in the init script and re-ran it against the live ministack (deleted the two progress queues first). No application code changed.
+
+## 2026-07-08T03:10:00.000Z — Isolated QA re-audit (AC-006)
+
+- Attempt: isolated QA (qa-agent) on worktree core-foundation
+- WorkItem: WI-AC-006
+- AcceptanceChecks: AC-006
+- Outcome: passed; qa=true, implementation=true, defects=[]
+
+Independently re-verified the SQS + KMS boundary against running `core-ministack-1` (host-mapped :4566). Host has no `aws` binary, so the AC's literal commands were exercised via `docker exec -e AWS_ACCESS_KEY_ID=test -e AWS_SECRET_ACCESS_KEY=test -e AWS_DEFAULT_REGION=us-east-1 core-ministack-1 aws --endpoint-url http://localhost:4566 ...` — the identical ministack service the AC targets (dummy creds are standard for LocalStack/ministack; `awslocal` gives the same result).
+
+- `aws --endpoint-url http://localhost:4566 sqs list-queues` → 8 QueueUrls:
+  causeflow-alerts, causeflow-alerts-dlq, causeflow-triage, causeflow-triage-dlq,
+  causeflow-investigation, causeflow-investigation-dlq, causeflow-remediation,
+  causeflow-remediation-dlq. ✓ (alerts/triage/investigation/remediation + 4 matching DLQs; count=8)
+- `aws --endpoint-url http://localhost:4566 kms list-aliases` → one alias whose name is
+  `alias/causeflow-token-encryption` (ends with `alias/causeflow-token-encryption`). ✓
+
+No code changes.
