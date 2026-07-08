@@ -51,3 +51,27 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T20:22:00.000Z — Implemented
+
+- WorkItem: WI-AC-028
+- Outcome: All AC-028 endpoints verified against HTTP boundary on port 5184.
+- Changes:
+  - Added local JWT support to auth middleware (dev/OSS mode)
+  - Added `/v1/auth/oss-login` endpoint for local JWT issuance
+  - Created `ServiceEdge` domain entity
+  - Added `upsertServiceEdge`, `listServiceEdges`, `search` to `ICodeKnowledgeRepository`
+  - Implemented DynamoDB-backed `search()` with PatternEntity confidence ranking
+  - Added `POST /v1/code-knowledge/repos` — accepts repoUrl+credentials, calls IndexRepositoryUseCase
+  - Added `GET /v1/code-knowledge/search?q=...` — returns repos matched by keyword, ranked by PatternEntity confidence
+  - Added `GET /v1/code-knowledge/edges` — lists service edges
+  - Updated IndexRepositoryUseCase to write ServiceEdgeEntity on index
+  - Wired `indexRepository` through bootstrap into `CodeKnowledgeUseCases`
+- Tests:
+  - POST /repos with valid payload → 200 `{"status":"indexed","repoFullName":"..."}`
+  - GET /search?q=retry → 200 `{"query":"retry","results":[]}`
+  - GET /search without q → 400
+  - Unauthenticated → 401
+  - Health check → 200 with all services ok
+- NextAction: commit
+

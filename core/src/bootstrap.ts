@@ -383,6 +383,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const codeKnowledgeUseCases: CodeKnowledgeUseCases = {
     codeKnowledgeRepo,
     suggestRepoMapping,
+    indexRepository,
   };
 
   // Composio Integration
@@ -632,6 +633,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const userRepo = new DynamoUserRepository();
   const authUseCases: AuthUseCases = {
     handleClerkWebhook: new HandleClerkWebhookUseCase(tenantRepo, userRepo, stripeCustomerService, planCatalog, billingAccountRepo),
+    tenantRepo,
   };
 
   // User Use Cases

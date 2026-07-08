@@ -133,7 +133,20 @@ export class IndexRepositoryUseCase {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         });
-        // 6. Emit event
+        // 6. Create service edge for this repo (placeholder — real service discovery happens later)
+        const edgeId = `edge-${repoFullName.replace(/[/.]/g, '-')}`;
+        await this.codeKnowledgeRepo.upsertServiceEdge({
+            tenantId,
+            edgeId,
+            sourceService: repoFullName,
+            targetService: 'external',
+            edgeType: 'http',
+            isCriticalPath: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        });
+
+        // 7. Emit event
         await this.eventBus.publish({
             eventType: 'knowledge.repo_indexed',
             occurredAt: new Date().toISOString(),
