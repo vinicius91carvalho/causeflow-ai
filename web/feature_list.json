@@ -450,10 +450,10 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": true,
-    "qa": true,
+    "implementation": false,
+    "qa": false,
     "integration": false,
-    "retries": 2,
+    "retries": 3,
     "attempts": 0,
     "status": "verify-first"
   },
