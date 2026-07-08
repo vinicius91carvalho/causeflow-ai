@@ -311,3 +311,19 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-045-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T19:26:15Z — Implemented
+
+- WorkItem: WI-AC-046
+- AcceptanceChecks: AC-046
+- Outcome: implementation=true
+- Evidence:
+  1. `grep -r '@clerk/nextjs/server' apps/dashboard/src --include='*.ts' --include='*.tsx' | grep -v '.test.' | grep -v '.next'` → zero matches. ✓
+  2. `grep -r 'clerkMiddleware' apps/dashboard/src --include='*.ts' --include='*.tsx' | grep -v '.test.' | grep -v '.next'` → only comments, no imports. ✓
+  3. Dev server: `GET /auth/sign-in` → 200 (local form "Sign in to CauseFlow"); `GET /auth/sign-up` → 200 (local form "Create your CauseFlow account"). ✓
+  4. `GET /dashboard` without `__session` cookie → 307 to `/auth/sign-in?redirect_url=%2Fdashboard` (AC-019 preserved). ✓
+  5. `pnpm --filter dashboard build` exits 0. ✓
+  6. `pnpm vitest run --project dashboard` → 165 test files passed, 1080 tests passed. ✓
+- Changes: middleware.ts verifies __session JWT (payload decode in Edge Runtime); withAuth rewritten to read cookie + call Core whoami; get-backend-token reads cookie; session-auth.ts (jose-based JWT verification); auth-context.tsx (client auth provider); all 20+ Clerk-importing files updated; @clerk/* deps removed from package.json/next.config.mjs; clerk-appearance.ts/clerk-overrides.css deleted; topbar rewritten without Clerk components; test files updated.
+- Defects: []
+- NextAction: orchestrator records verdict
