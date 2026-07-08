@@ -224,3 +224,12 @@ fatal: Unable to write index.
   database values returned as `relay` (from the docker-compose PG_DATABASE/MONGO_DATABASE env var).
 - Outcome: integration=true, implementation=true, qa=true, defects=none.
 - Evidence: probe script at `scripts/qa/ac017-probe.mjs` produced the captured response above.
+
+## 2026-07-08T21:15:08.949Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-017
+- AcceptanceChecks: AC-017
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/protocol/WI-AC-017-1-integration_qa.log
+- NextAction: next Ready Work Item
