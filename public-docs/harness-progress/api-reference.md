@@ -263,3 +263,10 @@ Please commit your changes or stash them before you merge.
 Aborting
 Merge with strategy ort failed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T14:07:27.899Z — Explicit Resume
+
+- WorkItem: WI-AC-014
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Root cause fixed: pi's model was requesting near-uncapped max_tokens against a zero-balance OpenRouter account, causing every call to 402. Switched to a free, explicitly-capped model (qwen/qwen3-coder:free, maxTokens:8192) and restarted. Fresh retry.
+- NextAction: Coding Attempt 1
