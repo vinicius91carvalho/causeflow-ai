@@ -37,14 +37,19 @@
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
 
-## 2026-07-08T18:07:00.000Z — Verified
+## 2026-07-08T21:12:00.000Z — QA Verified (WI-AC-036)
 
 - WorkItem: WI-AC-036
-- Outcome: implementation=true (zero-diff)
+- Phase: qa
+- Outcome: implementation=true qa=true
 - Verification:
   - API booted on PORT=5187, health endpoint returns 200
-  - 48/48 observability unit tests pass (otel, sentry, outbound, worker-runner, propagation, noop-tracer, observability-factory)
-  - OTel infrastructure: `instrumentedCall` spans wired across 6+ integration points (clerk, composio, anthropic, db, sqs, redis) with correlation IDs via `instrumentedCall` outbound.ts; OpenTelemetry SDK initialized with AWS X-Ray id generator and propagator
-  - Sentry infrastructure: `initSentry()` called in main.ts, `captureException()` with scope tags and PII scrubbing in sentry.ts; no-op when SENTRY_DSN is not set
-  - Root cause confirmed as user-directed (pi provider config issue — resolved by user before this attempt)
-- NextAction: none (completed)
+  - 386/386 unit tests pass including all observability tests (otel, sentry, outbound, propagation, worker-runner, noop-tracer, observability-factory)
+  - x-request-id header verified on every API response (unique UUID per request)
+  - POST /v1/admin/fire-test-errors returns 500 with `{"error":"TestErrorFired","traceId":"<uuid>"}` — traceId matches x-request-id header, confirming correlation id flow works end-to-end
+  - Auth middleware properly rejects unauthenticated requests (401)
+  - CORS exposes X-Request-Id header for Langfuse searchability
+  - OTel infrastructure: HTTP auto-instrumentation via NodeSDK (guarded in OSS runtime), `instrumentedCall` spans at 6+ integration points (clerk, composio, anthropic, db, sqs, redis), trace context propagated via SQS MessageAttributes
+  - Sentry infrastructure: `initSentry()` in main.ts, `captureException()` with scope tags (requestId, tenantId, userId, method, path) and PII scrubbing in error-handler.ts; no-op when SENTRY_DSN unset
+  - Langfuse bridge: LangfuseTracer creates traces/observations when configured; OTLP export path exists for OTel-to-Langfuse
+  - No defects found — code correctly implements OTEL span generation with correlation ID and Sentry error capture
