@@ -291,3 +291,12 @@ No refactor/restructure of working code. Baseline `lint-invariants` stays at exi
 - Clause 2 (violation): added a cross-module value import of a use case from another module's `application/` to `src/modules/audit/infra/clerk-user-email-resolver.ts` (`import { GetTenantUseCase } from '@modules/tenant/application/get-tenant.usecase.js'`); re-ran `pnpm lint-invariants` → **exit 1**, `9 passed, 1 failed`, specific message: `FAIL I11 — No cross-module direct function calls (no value imports from another module's application/)` → `src/modules/audit/infra/clerk-user-email-resolver.ts — module 'audit' value-imports from module 'tenant' application/ ("@modules/tenant/application/get-tenant.usecase.js")`. Probe reverted; `git diff --stat` empty; baseline re-verified green (exit 0).
 - Core smoke: dev server listening on assigned PORT=5174; `curl http://localhost:5174/health` → HTTP 200 (body lists `checks:{dynamodb,redis,sqs,anthropic}`; redis `degraded` because its container is down — out of AC-004 scope, the AC boundary is the lint command).
 - No defects within the AC-004 boundary. integration=true for WI-AC-004.
+
+## 2026-07-08T00:20:23.892Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-004
+- AcceptanceChecks: AC-004
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-004-1-integration_qa.log
+- NextAction: next Ready Work Item
