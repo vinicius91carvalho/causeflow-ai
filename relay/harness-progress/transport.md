@@ -185,3 +185,17 @@ AC-014 contract checks (all pass):
 - `close()` sets `this.intentionalClose = true` first, clears any pending `reconnectTimer`, then closes the socket — so an intentional close does not schedule a reconnect.
 
 No root-cause fix required: the existing code already satisfies AC-014 at the real boundary.
+
+## WI-AC-014 — QA audit (independent)
+
+**Result: qa=true, implementation=true**
+
+Independent audit on isolated worktree. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Drove the real `WsClient` (`dist/transport/ws-client.js`) against a real `ws.WebSocketServer` on `127.0.0.1:5173` (`/v1/relay/connect`) and a dead port (`127.0.0.1:5999`) for the backoff sequence. No mocks of the relay.
+
+Evidence:
+- **Test A (non-intentional close → reconnect via setTimeout):** probe force-closed conn #1 (code 4000) at ~700ms. Pino logs: `Disconnected from control plane` then `Scheduling reconnect delayMs=1000`. Server saw conn #2 land ~1003ms after the close (close ts=1783482199316, reconnect-open ts=1783482200319, delta=1003ms) → the next `connect()` was invoked from the 1000ms `setTimeout` timer. `testA_opened=true`.
+- **Test B (doubling from 1000 → cap 30000):** pointed a `WsClient` at dead port 5999 (ECONNREFUSED → `error` → `close` → `scheduleReconnect`). Captured `delayMs` sequence from pino logs over ~92s: `[1000, 2000, 4000, 8000, 16000, 30000, 30000, 30000]`. Confirms starting at 1000ms, doubling (1000→2000→4000→8000→16000), the clamp at `maxReconnectDelay = 30000` (16000*2=32000 → 30000), and the cap staying at 30000 on subsequent retries. `firstIs1000=true`, `doubles=true`, `reaches30000=true`, `staysAt30000=true`.
+- **Test C (intentional close → no reconnect):** `client.close()` sets `intentionalClose=true` first, then closes the socket. After a 2600ms wait, `connect()` call count was unchanged (`callsBefore=1, callsAfter=1`) and the server saw no second connection → `intentionalNoReconnect=true`.
+- Source checks (`src/transport/ws-client.ts`): `private reconnectDelay = 1000;` (starts at 1000ms); `private readonly maxReconnectDelay = 30000;`; `scheduleReconnect()` sets `reconnectTimer = setTimeout(() => { this.connect(); }, this.reconnectDelay)` then `this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.maxReconnectDelay)`; the `close` handler calls `scheduleReconnect()` only `if (!this.intentionalClose)`; `close()` sets `this.intentionalClose = true` first, clears any pending `reconnectTimer`, then closes the socket.
+
+No defects found. AC-014 satisfied at the real boundary.
