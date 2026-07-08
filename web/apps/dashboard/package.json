@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --hostname localhost -p 3001",
+    "dev": "PORT=${PORT:-3000} && next dev --hostname localhost -p $((PORT + 1))",
     "build": "next build",
     "start": "next start -p 3001",
     "lint": "biome lint ./src",
