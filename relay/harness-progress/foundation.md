@@ -892,3 +892,23 @@ Scaffold check: `project_specs.xml` affected_surfaces for AC-008 = `.github/work
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-008-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-009 — Verify-first (foundation)
+
+**Result: implementation=true** (zero code diff)
+
+Exercised `release.config.js` at the real `npx semantic-release --dry-run --no-ci --ci=false` boundary (semantic-release 24.2.9) — the same loader the release workflow invokes. No mocks; the real semantic-release config loader + plugin resolver.
+
+- Config loads cleanly as ESM (`export default`) — semantic-release reports `Running semantic-release version 24.2.9` then lists every plugin it resolved.
+- Plugin chain, in order, verified against semantic-release's own `Loaded plugin` output + a direct ESM import of the config file:
+  1. `@semantic-release/commit-analyzer` → `analyzeCommits` ✓
+  2. `@semantic-release/release-notes-generator` → `generateNotes` ✓
+  3. `@semantic-release/changelog` → `verifyConditions` + `prepare` (writes CHANGELOG.md) ✓
+  4. `@semantic-release/npm` → `verifyConditions` + `prepare` + `publish` + `addChannel`, configured with `{ npmPublish: false }` (only bumps `package.json` version, no publish) ✓
+  5. `@semantic-release/git` → `verifyConditions` + `prepare`, configured with `assets: ['package.json', 'CHANGELOG.md']` and `message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}'` (first line is exactly `chore(release): ${nextRelease.version} [skip ci]`) ✓
+  6. `@semantic-release/github` → `verifyConditions` + `publish` + `addChannel` + `success` + `fail` (creates the GitHub Release) ✓
+- `branches: ['main']` verified at the boundary: semantic-release reported `This test run was triggered on the branch gen/relay-foundation, while semantic-release is configured to only publish from main, therefore a new version won’t be published.` — proving the branch filter restricts releases to `main`.
+
+Scaffold check: `project_specs.xml` affected_surfaces for AC-009 = `release.config.js` (semantic-release plugins) — present and unchanged on main.
+
+Verdict: implementation=true, zero code diff. All AC-009 conditions pass at the real semantic-release boundary.
