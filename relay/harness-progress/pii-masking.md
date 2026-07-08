@@ -149,3 +149,12 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-040-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T20:03:00.000Z — QA Verified
+
+- WorkItem: WI-AC-041
+- AcceptanceChecks: AC-041
+- Outcome: qa=true, implementation=true
+- Verification: Independent QA agent tested `MaskingEngine.mask({ user: { email: "a@b.co", notes: "hello" } })` against compiled `dist/masking/masking-engine.js`. Full result: `{"masked":{"user":{"email":"***@***.***","notes":"hello"}},"maskedFieldCount":1}`. Email `a@b.co` matched by default email pattern -> `***@***.***`. `notes: hello` left untouched. `maskedFieldCount: 1` (only email matched). Arrays nested inside objects (tested with `["alice@example.com", "bob@test.org", "plain"]`) are properly walked, both emails masked, `maskedFieldCount: 2`. `npx tsc --noEmit` passes. No code changes needed.
+- Evidence: `scripts/qa/ac041-test.mjs` - standalone executable test
+- NextAction: none (AC-041 passes QA)
