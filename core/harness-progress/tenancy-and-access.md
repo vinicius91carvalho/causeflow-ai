@@ -360,3 +360,10 @@ Local QA artefacts (gitignored): `/tmp/ac009-qa.env`, `/tmp/ac009-qa-priv.pem`, 
 - Outcome: integration could not complete
 - Defects: merge conflict could not be resolved
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T16:10:22.678Z — Explicit Resume
+
+- WorkItem: WI-AC-009
+- Outcome: user authorized a new Attempt cycle
+- Guidance: A real merge conflict during integration, not a rate limit -- the MERGE agent gets a fresh independent attempt at resolving it. Retry.
+- NextAction: Coding Attempt 1
