@@ -105,3 +105,76 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-037-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T00:40:00Z — Verify-First (WI-AC-032)
+
+- Role: coding-agent (VERIFY-FIRST). AcceptanceChecks: AC-032. Context: dashboard. Port: 5175. Attempt: 1/3.
+- AC: Sentry wired at 3 runtime boundaries (server/edge/client) with identical PII scrubbing; onRequestError forwards Next.js errors; global-error.tsx captures via useEffect; SDK no-ops when NEXT_PUBLIC_SENTRY_DSN is blank.
+- Static (Step 1) — all 5 files exist and reference identical PII scrubbing:
+  - `apps/dashboard/instrumentation.ts` — `register()` imports `./sentry.server.config` (nodejs runtime) + `./sentry.edge.config` (edge runtime); `export const onRequestError = Sentry.captureRequestError`. ✓
+  - `apps/dashboard/sentry.server.config.ts` + `sentry.edge.config.ts` — identical `Sentry.init({ dsn: process.env.NEXT_PUBLIC_SENTRY_DSN, enabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN, beforeSend })`. ✓
+  - `apps/dashboard/instrumentation-client.ts` — client `Sentry.init` with the same `enabled: !!DSN` gate + same `beforeSend` scrubbing (+ replayIntegration maskAllText/blockAllMedia). ✓
+  - All three `beforeSend` hooks delete: `authorization`, `cookie`, `x-api-key`, `x-clerk-auth-token`, `x-session-token` headers; `request.data`; `request.cookies`; `user.ip_address`; `user.email`. (Inline-duplicated, not a shared helper — AC text says "identical PII scrubbing"; bar = boundary pass, not idiomatic.) ✓
+  - `src/app/global-error.tsx` — `'use client'`, `useEffect(() => { Sentry.captureException(error); }, [error])`. ✓
+  - `next.config.mjs` wraps `withSentryConfig` (org/project/source-map upload at build time). ✓
+- Runtime (Step 2) — blank DSN, no outbound to *.sentry.io (real boundary):
+  - Booted `next dev --hostname localhost -p 5175` with `NEXT_PUBLIC_SENTRY_DSN=""` + real Clerk test publishable key, under `strace -f -e trace=%network`. Server booted (Next.js 15.5.12 ready → instrumentation.ts `register()` ran the server Sentry.init at boot with blank DSN).
+  - strace log grep for Sentry ingest IP `34.160.81.0` (o4511214153170944.ingest.us.sentry.io) → 0 matches; grep for `sentry` → 0 matches. No outbound to Sentry at init. ✓
+  - Focused SDK boundary probe (tsx, @sentry/nextjs 10.48.0, identical init options + identical beforeSend): with `NEXT_PUBLIC_SENTRY_DSN=""` and `enabled:false`, `Sentry.captureException` + `flush(5000)` → local HTTP listener received **0** requests. ✓
+- Runtime (Step 3) — non-empty DSN, synthetic error reaches configured ingest (real HTTP boundary):
+  - Same probe with DSN `http://<key>@127.0.0.1:5180/2` → `captureException(new Error('AC-032 synthetic'))` → listener received **1** `POST /api/2/envelope/?sentry_client=sentry.javascript.nextjs%2F10.48.0` containing the synthetic exception envelope. Wiring forwards errors to the configured Sentry ingest. ✓
+  - PII scrubbing at the boundary: injected tainted values into the event in `beforeSend` (`Bearer SECRET-JWT`, `session=LEAKED-COOKIE`, `SECRET-API-KEY`, `CLERK-JWT-TOKEN`, `SESSION-TOKEN`, `SENSITIVE-BODY`, `pii@example.com`, `1.2.3.4`); the envelope that reached the listener contained **0** of these (`piiLeaks: []`). Scrubbing is effective end-to-end. ✓
+  - Final hop "lands in hosted project causeflow-dashboard under org causeflow-ai" is CI-gated (requires SENTRY_AUTH_TOKEN, CI-only per spec; local runtime expects blank DSN → no-op). Locally verified the SDK POSTs the envelope to the configured ingest host; the real DSN host is o4511214153170944.ingest.us.sentry.io (causeflow-dashboard project ID 4511214189805568). No defect — the wiring is live; project-side confirmation is an out-of-band CI check.
+- Dashboard full-app boot blocked by Clerk publishable-key validation in `clerkMiddleware` on every request (separate integration, AC-031/identity, out of scope for this AC). The Sentry-specific boundary was exercised directly via the actual `@sentry/nextjs` SDK + the dashboard's exact init options, plus the boot-time instrumentation hook strace.
+- No code changes (zero-diff checkpoint). Temp probe `apps/dashboard/sentry-ac-test.mts` created, run, and deleted.
+- Outcome: PASS — implementation=true.
+
+## 2026-07-08T00:40:30Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-032
+- Outcome: AC passes at real boundary (zero diff)
+- NextAction: Integrated Verification
+
+## 2026-07-08T00:46:26.580Z — Resumed
+
+- WorkItem: WI-AC-032
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-08T00:55:00Z — Isolated QA (WI-AC-032)
+
+- Role: qa-agent. WorkItem: WI-AC-032. AcceptanceChecks: AC-032. Context: dashboard. Attempt: 1/3.
+- Independently verified AC-032 against the real @sentry/nextjs SDK and the REAL source of the three Sentry config modules.
+- Step 1 (file existence + identical scrubbing): extracted the actual `beforeSend(event)` function body from each of `sentry.server.config.ts`, `sentry.edge.config.ts`, `instrumentation-client.ts` via balanced-brace parsing, ran each against a tainted event (auth/cookie/x-api-key/x-clerk-auth-token/x-session-token headers, request.data, request.cookies, user.ip_address, user.email). All three returned an event with `request.headers={}`, `request.data` deleted, `request.cookies` deleted, `user.ip_address`/`user.email` deleted — zero PII leaks in all three. `instrumentation.ts` exports `onRequestError = Sentry.captureRequestError` and `register()` imports server config (nodejs runtime) + edge config (edge runtime). `src/app/global-error.tsx` is `'use client'` and calls `Sentry.captureException(error)` in a `useEffect`. `next.config.mjs` wraps `withSentryConfig` (org=causeflow-ai, project=causeflow-dashboard).
+- Step 2 (blank DSN → no network): real @sentry/nextjs init with `NEXT_PUBLIC_SENTRY_DSN=""` + `enabled:false`, `captureException` + `flush(4000)` → local HTTP sink received 0 envelopes. SDK no-ops at init. ✓
+- Step 3 (DSN set → envelope arrives + PII scrubbed end-to-end): real SDK init with DSN `http://<key>@127.0.0.1:<port>/2`, injected tainted PII in beforeSend then ran the real config's beforeSend, `captureException` → sink received 1 envelope; parsed event JSON: `request.headers={}`, `request.data` absent, `request.cookies` absent, `user={}` (no ip/email). End-to-end scrubbing verified. Final hop to hosted project causeflow-dashboard is CI-gated (SENTRY_AUTH_TOKEN); locally the envelope is POSTed to the configured ingest host (project ID 4511214189805568). No defect.
+- Note: the three `beforeSend` hooks are inline-duplicated (not a shared helper). AC-032's binding description requires "identical PII scrubbing" — satisfied and verified against real source for all three. No functional defect.
+- Probe artifacts created and removed (zero-diff). Working tree clean.
+- Outcome: PASS — qa=true, implementation=true.
+
+===HARNESS-VERDICT-BEGIN===
+{"id":"WI-AC-032","qa":true,"implementation":true,"defects":[]}
+===HARNESS-VERDICT-END===
+
+## 2026-07-08T00:55:57.516Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-032
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T01:27:03.019Z — Resumed
+
+- WorkItem: WI-AC-032
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-08T01:27:03.041Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-032
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
