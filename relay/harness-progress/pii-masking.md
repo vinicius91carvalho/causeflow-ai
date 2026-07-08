@@ -215,3 +215,10 @@
   7. Regression: AC-041 (nested object masking) still passes
 - `npx tsc --noEmit` clean. `npm run build` exits 0.
 - NextAction: none (AC-042 fully QA verified)
+
+## 2026-07-08T18:17:07.825Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-042
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
