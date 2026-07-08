@@ -692,3 +692,39 @@ Rebuilt from a blank env (`env -i HOME=$HOME PATH=$PATH docker build .
 ### verdict
 
 implementation=true; integration=pending; qa=pending; defects=none
+
+## 2026-07-08T01:50:00Z — QA (WI-AC-030)
+
+- WorkItem: WI-AC-030
+- AcceptanceChecks: AC-030
+- context: open-source-local-runtime
+- Outcome: qa=true; implementation=true; defects=none
+
+### Independent verification
+
+- `.env.example` absent (`find . -name '.env*'` → none) — explicitly permitted
+  by AC-030's first clause ("either absent or contains only optional
+  `MINTLIFY_*` overrides").
+- Runtime-stage required env vars minimal: `Dockerfile` has only
+  `ENV PORT=3000`; `docker-compose.yml` sets only `PORT: "3000"`. No
+  `ARG`/other `ENV` in the runtime stage.
+- Forbidden-var scan across `Dockerfile`, `docker-compose.yml`, `docs.json`
+  (`CLERK_|STRIPE_|AWS_|SENTRY_|LANGFUSE_|SVIX_|SLACK_|COMPOSIO_|
+  MINTLIFY_(AUTH|DEPLOY|DEPLOYMENT_ID)`) → zero matches. The only
+  `MINTLIFY` token in the Dockerfile is a comment affirming "no
+  `MINTLIFY_*` env vars" — not a var reference.
+- Literal AC grep
+  `grep -E 'CLERK_|STRIPE_|AWS_|SENTRY_|LANGFUSE_|SVIX_|SLACK_|COMPOSIO_|MINTLIFY_(AUTH|DEPLOY)' .env.example Dockerfile docker-compose.yml`
+  → zero matching lines on stdout (`.env.example` absent; AC permits absence).
+- Black-box: rebuilt image clean (`env -i ... docker build . -t
+  causeflow-docs:ac030qa`, exit 0). `docker inspect` runtime `Env` =
+  `PATH`, `NODE_VERSION`, `YARN_VERSION`, `PORT=3000` only — no
+  forbidden vars, no account credentials. Entrypoint/cmd =
+  `node serve.js` (talks to no external SaaS host). Running container on
+  5179 returns HTTP 200 with "CauseFlow AI" (×4) and "Quickstart" (×3);
+  `docker logs` forbidden-host grep count = 0
+  (log: `Serving docs at http://localhost:3000`).
+
+### verdict
+
+implementation=true; qa=true; defects=none
