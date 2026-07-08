@@ -630,3 +630,10 @@ the real boundary is `/v1/api-keys` and `/v1/whoami`.
 - WorkItem: WI-AC-009
 - Outcome: implementation=true, qa=true (all 3 AC-009 sub-behaviours pass at real HTTP on PORT=5182)
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:27:11.102Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-009
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
