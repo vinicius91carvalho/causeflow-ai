@@ -379,3 +379,15 @@ AC-015 contract satisfied at the real boundary on integrated main. No defects fo
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-015-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T06:25Z — QA audit passed (isolated, WI-AC-016)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Outcome: isolated QA passed (qa=true, implementation=true)
+- Boundary: real `ws.WebSocketServer` + real `WsClient` (tsx, src/transport/ws-client.ts). No mocks of the relay.
+- Evidence: `scripts/qa/ac016-test.mts` — server pushes invalid JSON (string), valid JSON with wrong jsonrpc, valid JSON missing method, a well-formed JSON-RPC 2.0 request (string), and a well-formed request sent as a Buffer. Asserts exactly the well-formed requests are forwarded to `opts.onMessage`; invalid JSON logged at pino warn (level 40) with the SyntaxError attached and dropped; wrong-jsonrpc / missing-method dropped silently.
+- Result: FORWARDED_COUNT=3 (ids 3,4,5), all with jsonrpc==='2.0' and a string method; one warn line `Invalid message from control plane` with `err.type=SyntaxError` for the bad-JSON case. `npx tsc --noEmit` → 0.
+- Source: `src/transport/ws-client.ts` message handler — `JSON.parse(typeof data === 'string' ? data : data.toString())`; guard `if (parsed.jsonrpc === '2.0' && parsed.method)` then `onMessage`; `catch (err) { logger.warn({ err }, 'Invalid message from control plane') }`.
+- NextAction: Integrated Verification
