@@ -96,3 +96,12 @@
   - `vitest run --project dashboard` → 163 files / 1073 tests pass. ✓
   - Runtime boundary: booted `next dev --hostname localhost -p 5173` with `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, `AWS_REGION`, `AWS_REGION_OVERRIDE`, `DYNAMODB_TABLE_NAME`, `KMS_KEY_ARN` all `env -u` unset; confirmed via `/proc/$PID/environ` that the server process holds NO AWS env vars; `GET /api/health` → `200 {"status":"ok","version":"0.1.0",...}`. Proves the dashboard runtime boots and serves without AWS credentials — the SDK is only touched on the 403 fallback path. ✓
 - Outcome: PASS — integration=true, implementation=true, qa=true.
+
+## 2026-07-08T00:06:06.811Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-037
+- AcceptanceChecks: AC-037
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-037-1-integration_qa.log
+- NextAction: next Ready Work Item
