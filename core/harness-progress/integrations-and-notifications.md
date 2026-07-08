@@ -104,3 +104,10 @@ Use /login to log into a provider via OAuth or API key. See:
   - GET /oauth/callback missing params returns 400 ✅
   - GET /oauth/callback tampered state returns 400 ✅
 - Change: added missing `signingSecret` to test mock to fix TS compilation
+
+## 2026-07-08T21:39:51.943Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-030
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
