@@ -1107,3 +1107,70 @@ Postgres, and the stub exits 0. No defects.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-054-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T20:45:00Z — Implementation (AC-056)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-056
+- AcceptanceChecks: AC-056
+- Outcome: implementation=true (black-box verified on running docker-compose stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-056 requires a one-shot `npm run smoke` script that opens its own outbound
+WebSocket to the relay, sends `health_check` and the two `execute` round-trips
+from AC-053 / AC-054, asserts the responses, and exits 0 on success / non-zero
+on mismatch. The stub must have zero vendor SDK dependencies and be built into
+a 50-line image.
+
+**Changes:**
+
+- `scripts/control-plane-stub/smoke.mjs` (new): standalone one-shot smoke test
+  script that connects to the stub as a client, sends `health_check`,
+  `execute({SELECT 1})`, and `execute({list_tables})` via JSON-RPC 2.0 over
+  WebSocket (forwarded by the stub to the relay and back), asserts response
+  shapes, and exits 0/1. Imports `ws` + Node `node:crypto` only — zero vendor
+  SDKs. Retries up to 10 times with 2s delay if the relay is not yet connected.
+- `scripts/control-plane-stub/package.json`: changed `"smoke"` script from
+  `"SMOKE=1 node server.mjs"` to `"node smoke.mjs"` so `npm run smoke` runs the
+  standalone client script instead of the inline server smoke.
+- `scripts/control-plane-stub/server.mjs`: removed the `SMOKE=1` inline smoke
+  mode (`RUN_SMOKE`, `runSmoke`, `sendRpc`, `waitForResponse` helpers, and the
+  `smokeStarted` flag) — the server is now purely a relay-facing WebSocket
+  server that validates tokens, logs `resource_update`/`heartbeat`, and forwards
+  JSON-RPC requests between external clients and the relay.
+
+### Black-box verification (SMOKE=1 no longer used, standalone smoke passes)
+
+```
+$ cd scripts/control-plane-stub && npm run smoke
+[smoke] connecting to ws://localhost:3000/v1/relay/connect?token=...&tenantId=...
+[smoke] connected
+[smoke] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":0},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":1}
+]
+[smoke] execute(SELECT 1) result={...rows:[{one:1}]...rowCount:1...masked:false...}
+[smoke] execute(list_tables) result={...rows:[{table_name:"orders"}]...}
+[smoke] exiting with code 0
+```
+
+All three round-trips pass against the running docker-compose stack. The stub
+server logs show the smoke client connected, forwarded requests, and
+disconnected. Relay audit logs confirm successful execution against
+`relay-postgres` (`result:"success"`, `rowCount:1`, `executionTimeMs:<1-6>`).
+
+Vendor SDK check: `grep -rE 'aws-sdk|@aws-sdk|stripe|@clerk|@sentry|@langfuse|@svix|@slack|composio|@mastra' scripts/control-plane-stub/smoke.mjs`
+→ 0 matches. The script imports only `ws` and `node:crypto`.
+
+### Regression (AC-058 invariants)
+
+- `npm run build` — not needed (no TypeScript in the stub).
+- `docker compose build relay-control-plane-stub` — succeeds.
+- Stub still listens on 0.0.0.0:3000, validates token/tenant, logs
+  resource_update and heartbeat at debug, and forwards JSON-RPC requests.
+- Existing AC-053/054 behavior preserved (smoke uses exact same assertion
+  logic, just from a separate client script instead of inline).
+
+`feature_list.json` WI-AC-056 set to `implementation: true`.
