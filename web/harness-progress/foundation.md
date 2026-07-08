@@ -316,3 +316,46 @@ All AC-008 clauses pass at structural, compile, and HTTP boundaries. No defects.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-008-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-033 — Verify-first (foundation, ops)
+
+**Result: implementation=true** (zero-diff checkpoint; no source changes)
+
+### Boundary exercised
+
+SST CLI is not installed in this environment and AWS deploy is out of scope for a verify-first checkpoint, so the real external boundary available is the TypeScript compiler parsing both `sst.config.ts` files (they use SST globals `$config`/`$app`/`aws`/`sst`/`$interpolate` with no `.sst/platform/config.d.ts` present locally, so type-checking is not possible, but `ts.transpileModule` syntax parsing is). Both files parse cleanly:
+
+- `OK parse: apps/website/sst.config.ts`
+- `OK parse: apps/dashboard/sst.config.ts`
+
+### AC-033 evidence
+
+**Step 1 — `us-east-1` provider for the WAF WebACL (both configs):**
+- Website (`apps/website/sst.config.ts`): `new aws.Provider('us-east-1', { region: 'us-east-1' })` (L18); `new aws.wafv2.WebAcl('CauseFlowWaf', { scope: 'CLOUDFRONT', ... }, { provider: usEast1 })` (L20–L128). ✓
+- Dashboard (`apps/dashboard/sst.config.ts`): `new aws.Provider('us-east-1', { region: 'us-east-1' })` (L34); `new aws.wafv2.WebAcl('CauseFlowDashboardWaf', { scope: 'CLOUDFRONT', ... }, { provider: usEast1 })` (L36–L143). ✓
+
+**Step 2 — both configs use `sst.aws.Nextjs`:**
+- Website: `new sst.aws.Nextjs('CauseFlowWebsite', { path: '.', domain: ..., transform: { cdn: (args) => { args.webAclId = waf.arn; ... } } })` (L131). ✓
+- Dashboard: `const dashboard = new sst.aws.Nextjs('CauseFlowDashboard', { path: '.', domain: ..., transform: { cdn: (args) => { args.webAclId = waf.arn; ... } } })` (L149). ✓
+
+`sst.aws.Nextjs` is the SST v3 OpenNext construct — it provisions S3 origin + CloudFront distribution + Lambda@Edge compute (SSG/SSR), Route 53 records, and the ACM certificate from the `domain` block. The WAF ARN is wired to the distribution via `transform.cdn.webAclId`.
+
+**Step 3 — dashboard provisions CloudWatch alarms (production only); website does not:**
+- Website: `grep -cE "MetricAlarm" apps/website/sst.config.ts` → `0`. ✓ (no alarms)
+- Dashboard: `if ($app.stage === 'production') { ... }` (L201) gating two alarms:
+  - `new aws.cloudwatch.MetricAlarm('DashboardLambdaErrors', { namespace: 'AWS/Lambda', metricName: 'Errors', ... })` (L207) — Lambda error rate.
+  - `new aws.cloudwatch.MetricAlarm('DashboardCloudFront5xxErrors', { namespace: 'AWS/CloudFront', metricName: '5xxErrorRate', ... })` (L226) — 5xx rate.
+  Both alarm on an SNS topic, production stage only. ✓
+
+**Domains (from the `domain` block of each `sst.aws.Nextjs`):**
+- Website: production → `causeflow.ai` (with `redirects: ['www.causeflow.ai', 'causeflow.io', 'www.causeflow.io']`); staging → `staging.causeflow.ai` (`${$app.stage}.causeflow.ai`). ✓
+- Dashboard: production → `dashboard.causeflow.ai`; staging → `dashboard-staging.causeflow.ai` (`dashboard-${$app.stage}.causeflow.ai`). ✓
+
+**Hosted zone `Z01593322DGY9I94W9S7C`:** stated as a fact in the AC. `sst.aws.Nextjs`'s `domain` config looks up the causeflow.ai hosted zone by domain name automatically; the zone ID is not (and need not be) hardcoded in either config.
+
+### Notes
+
+- No SST CLI / AWS credentials in this verify-first environment, so a live `sst deploy --dry-run` boundary was not available. The TS syntax-parse boundary plus structural grep of every AC clause is the strongest boundary reachable without external AWS access. Both configs parse as valid TS and structurally satisfy every clause of AC-033.
+- `git status --short` → clean (zero-diff checkpoint; only `feature_list.json` + this journal updated).
+
+No defects found within the AC-033 boundary. implementation=true set for WI-AC-033.
