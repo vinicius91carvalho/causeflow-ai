@@ -1,0 +1,9 @@
+services:
+  causeflow-docs:
+    build: .
+    image: causeflow-docs:local
+    container_name: causeflow-docs
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
