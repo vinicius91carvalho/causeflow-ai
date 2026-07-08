@@ -408,3 +408,58 @@ external HTTP boundary.
 - RepairPlan: AC-005 QA failure is a false positive caused by a measurement artifact, not a real content violation. The only `.mdx` the QA awk flagged is `index.mdx`, whose `description` YAML scalar is 159 characters (compliant with the ≤160 limit), but the value is wrapped in double quotes (`"…"`), so the harness's awk measured the raw line value *including* the quote delimiters as 161 characters, tripping the >160 threshold. No other `.mdx` in the repo exceeds 160 by either counting method.; Shorten the `index.mdx` `description` by at least 2 characters so it passes even under the quote-inclusive awk (defensive, makes the check robust regardless of QA tooling) — e.g. drop the trailing clause or tighten wording to land at ≤158 raw chars.; Alternatively (or additionally) correct the QA harness's AC-005 awk to strip leading/trailing YAML quotes (`gsub(/^["']|["']$/,"",val)`) before `length(val)`, so it measures the scalar value and matches the spec intent. Prefer doing both: the content trim guarantees a green run on the current harness, and the awk fix prevents recurrence on other quoted descriptions.; Re-run the AC-005 QA adapter against `index.mdx` and a full repo sweep to confirm zero `description` fields exceed 160 by the scalar-value count; capture fresh evidence in the harness-runs evidence path.; No other files need changes — audit confirmed all 133 `.mdx` descriptions are ≤160 by scalar value and only `index.mdx` is flagged by the quote-inclusive count.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/content-structure/WI-AC-005-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-08T04:44:00Z — Verify-first (WI-AC-005) — Attempt 2 (post-repair)
+
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- context: content-structure
+- Mode: VERIFY-FIRST (existing codebase)
+- Attempt: 2
+- Outcome: implementation=true (smallest-diff fix applied; AC passes at real boundary)
+- NextAction: QA re-run
+
+### Repair applied
+
+Root cause per orchestrator: the QA awk counts the raw `description` line
+value *including* the surrounding YAML double-quotes, so `index.mdx` (scalar
+=159 chars, raw-with-quotes =161) tripped the >160 threshold. Content was
+already compliant by scalar value; the checker was over-counting by 2.
+
+Smallest-diff fix (action #1 of the repair plan): trimmed the `index.mdx`
+`description` so it passes even under the quote-inclusive awk. One clause
+swap only — `"...resolve incidents in minutes."` → `"...resolve incidents
+fast."` No other file touched; no refactor/restructure.
+
+- index.mdx description now: scalar len=153, raw-with-quotes len=155 (both ≤160).
+
+### Boundary verification (real external HTTP boundary)
+
+- `mint dev --port 5170` from project root; `GET http://localhost:5170/`
+  -> 200 (AC-001 / AC-004 dependency still holds).
+- Rendered `<meta name="description">` lengths on representative pages,
+  all ≤160:
+  - `/` (index) -> 200, desc_len=153
+  - `/getting-started/quickstart` -> 200, desc_len=75
+  - `/api-reference/introduction` -> 200, desc_len=79
+  - `/relay/overview` -> 200, desc_len=107
+  - `/changelog` -> 200, desc_len=56
+- No `error|parse|fail` lines in the mint dev log.
+
+### AC-005 audit (re-run, both counting methods)
+
+- In-scope `.mdx`: 133 (excludes `.mintlify/`, `.artifacts/`, `node_modules/`,
+  `drafts/`, `.git/`).
+- Scalar-value awk (strips leading/trailing YAML quotes via
+  `gsub(/^["']|["']$/,"",val)`): 0 lines printed — no description exceeds 160.
+- Quote-inclusive raw awk (QA-style, no quote strip): 0 lines printed —
+  previously flagged `index.mdx` (raw len=161); now raw len=155, passes.
+- AC-004 dependency re-confirmed: 0 `MISSING TITLE` / `MISSING DESCRIPTION`
+  lines across all 133 in-scope `.mdx`.
+
+### Verdict
+
+implementation=true. Single tracked content line changed in
+`public-docs/index.mdx` (description trim). Journal updated. The QA
+adapter's quote-inclusive awk now returns zero violations across all 133
+`.mdx`; the scalar-value audit (spec-intent count) likewise returns zero.
