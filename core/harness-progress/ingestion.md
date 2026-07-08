@@ -89,3 +89,44 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/ingestion/WI-AC-014-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T18:23:00.000Z — QA Agent: AC-016 re-verified
+
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- QA: true
+- implementation: true
+- Test: Independent black-box HTTP against API on PORT=5183 with ministack+redis.
+  Seeded billing account (investigationsLimit=-1), API key and Sentry integration
+  row in DynamoDB. Authenticated with API key for admin endpoints.
+- Verdict: AC-016 passes all 4 conditions:
+  1. POST Grafana-shaped payload to /v1/webhooks/tenant-1/grafana with valid HMAC
+     → 202 Accepted; incident persisted with sourceProvider=grafana,
+     severity=critical (from state=alerting), title=High CPU Usage,
+     description from message field, sourceAlertId=rule-001.
+  2. POST CloudWatch-shaped payload to /v1/webhooks/tenant-1/cloudwatch with
+     valid HMAC → 202 Accepted; incident persisted with sourceProvider=cloudwatch,
+     severity=critical (from NewStateValue=ALARM), title=RDS-ConnectionSpikes,
+     description from NewStateReason, sourceAlertId=RDS-ConnectionSpikes.
+  3. POST Sentry-shaped payload to /v1/webhooks/tenant-1/sentry with valid
+     Sentry-Hook-Signature → 202 Accepted; incident persisted with
+     sourceProvider=sentry, severity=high (from level=error), title=TypeError,
+     description from culprit, sourceAlertId=issue-789.
+  4. POST /v1/admin/incidents with manual payload and API key auth → 201 Created;
+     incident persisted with sourceProvider=manual, status=triaging.
+- Observations:
+  - Route is /v1/webhooks/:tenantId/:provider (not /api/v1/webhooks/:provider as
+    AC shorthand suggests) — mounted at /v1/webhooks, requires tenantId path param.
+  - Sentry webhook requires a pre-configured per-tenant Sentry integration row
+    (client secret encrypted via KMS). API key alone cannot configure it because
+    the sentry integration endpoint requires 'admin' role; integration row must
+    be provisioned directly in DynamoDB for independent QA.
+- Working tree: clean (no tracked files changed)
+- NextAction: none
+
+## 2026-07-08T18:28:34.238Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
