@@ -719,11 +719,11 @@
     ],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 1,
-    "attempts": 0,
-    "status": "verify-first"
+    "attempts": 1,
+    "status": "qa-passed"
   },
   {
     "id": "WI-AC-029",
