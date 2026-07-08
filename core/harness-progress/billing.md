@@ -555,6 +555,38 @@ Regression: `pnpm typecheck` clean; `pnpm lint-invariants` 10/10 pass (I1–I11)
 
 Doc-drift note unchanged (literal `/api/v1/billing/webhook` not mounted — no global `/api` prefix; route is `/v1/billing/webhook`). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-013 behaviour is fully met.
 
+## 2026-07-08T12:10:00.000Z — Integrated Verification (WI-AC-013)
+
+**Result: integration=true, implementation=true, qa=true**
+
+Re-ran the AC-013 boundary against latest main (HEAD=`c59fc20` Merge branch 'gen/core-billing'; worktree clean). Reused the tracked `ac013-boundary.ts` (in-process app boot with deterministic LLM/agent stubs — no paid Anthropic calls; AC-013 does not run an investigation) on the assigned PORT=5181 against the existing stack (core-ministack-1 :4566 healthy, core-redis-1 172.18.0.4:6379 healthy, stripe-mock :12111). RSA keypair reused at `/tmp/ac011-clerk-{priv,pub}.pem`; env injected in-script before `config`/`bootstrap` import. `/health` → 200.
+
+Real HTTP exercised (real `fetch`es on PORT=5181, Clerk RS256 JWT verified networklessly via `@clerk/backend` against `CLERK_JWT_KEY`, Stripe webhook HMAC genuinely verified by `stripe.webhooks.constructEvent`):
+
+- `POST /v1/tenants` (admin JWT) → **201**, `tenantId = org_ac013_<ts>` (= JWT `o.id`, cryptographically verified).
+- Setup: `BillingAccountEntity` provisioned at starter (15 inv / 500 events) via `DynamoBillingAccountRepository.create`.
+- Pre-delete: `GET /v1/billing/subscription` → **200** `plan=starter, investigationsLimit=15`; `GET /v1/billing/usage` → **200** `account.investigationsLimit=15`.
+- `POST /v1/billing/webhook` with **mutated body** (event type string flipped after signing → HMAC mismatch) → **400** — `constructEvent` genuinely verifies signatures, not passing them through.
+- `POST /v1/billing/webhook` (`customer.subscription.deleted`, valid HMAC sig) → **200** `{received:true}` — signature verified.
+- Post-delete: `GET /v1/billing/subscription` → **200** `plan="free", status="canceled", investigationsLimit=0, eventsLimit=0` — tenant plan dropped to free.
+- `GET /v1/billing/usage` (post-delete) → **200** `account.investigationsLimit=0, eventsLimit=0` — BillingAccount quotas dropped to the free plan.
+- `POST /v1/incidents/chat` (gated endpoint, admin JWT) → **402** `{error:"QUOTA_EXCEEDED", message:"Investigation limit reached"}` — gated endpoint returns 402 after the plan drops to free (`reserveInvestigation` `used < limit` check fails with `limit=0`).
+
+All 15/15 boundary assertions passed; `AC-013: ALL ASSERTIONS PASSED`.
+
+Regression: `pnpm typecheck` clean; `pnpm lint-invariants` 10/10 pass (I1–I11); `pnpm test:run` 162 files / 1057 tests pass.
+
+Doc-drift note unchanged (literal `/api/v1/billing/webhook` not mounted — no global `/api` prefix; route is `/v1/billing/webhook`). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-013 behaviour is fully met.
+
+## 2026-07-08T12:11:00.000Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-013
+- AcceptanceChecks: AC-013
+- Outcome: passed on integrated main
+- Evidence: `ac013-boundary.ts` run log (PORT=5181), 15/15 assertions passed
+- NextAction: next Ready Work Item
+
 ## 2026-07-08T11:45:43.282Z — Checkpoint ready
 
 - Attempt: 1/3
