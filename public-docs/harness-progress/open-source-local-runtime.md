@@ -1004,3 +1004,11 @@ qa=true; implementation=true; defects=none
 - WorkItem: WI-AC-031
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T05:09:10.600Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-031
+- Defects: Integrated Verification failed
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-031-2-integration_qa.log
+- NextAction: Repair Plan
