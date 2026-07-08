@@ -735,3 +735,10 @@ changes required. AC-005 holds at the real (source-tree) boundary: every
 both the scalar-value (spec-intent) and quote-inclusive (stricter) counts.
 Repair plan was a user-directed retry after supervisor restart; the existing
 code already satisfies the AC.
+
+## 2026-07-08T11:39:46.976Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-005
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
