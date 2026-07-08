@@ -83,3 +83,22 @@ Doc-drift note (unchanged from verify phase): literal `/api/v1/billing/checkout-
 - WorkItem: WI-AC-011
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08 — Integrated Verification (WI-AC-011)
+
+**Result: integration=true, implementation=true, qa=true**
+
+Re-ran the AC-011 boundary against latest main (HEAD=`3feaa47` Merge branch 'gen/core-billing'; worktree clean). No billing source changed between isolated QA (`54e3285`) and main — only audit-module additions (WI-AC-008: `delete-audit-entry.usecase.ts`, `audit.routes.ts` DELETE, `bootstrap.ts` wiring, `types.ts` `audit.entry.deleted`) landed; billing wiring in `bootstrap.ts` is untouched and the `config.stripe` host/port/protocol + fallback-catalog + create-if-missing fixes from the verify phase are all present on main.
+
+Reconstructed the gitignored local setup (`.env.ac011`, RSA keypair at `/tmp/ac011-clerk-{priv,pub}.pem`) from the journal; booted `tsx --env-file=.env.ac011 src/main.ts` on PORT=5183 against the existing stack (core-ministack :4566 healthy, core-redis-1, stripe-mock :12111). `/health` → 200 `{dynamodb:ok,redis:ok,sqs:ok,anthropic:ok}`.
+
+Boundary (`node ac011-boundary.mjs`, real `fetch`es on PORT=5183, RS256 Clerk JWT verified networklessly, Stripe webhook HMAC genuinely verified by `constructEvent`) — all 8/8 assertions passed:
+- `POST /v1/tenants` (admin JWT) → 201, `tenantId = org_ac011_<ts>` (= JWT `o.id`).
+- `POST /v1/billing/checkout` `{planKey:"starter"}` → 200 `{url:"https://checkout.stripe.com/pay/c/cs_test_…"}` — Stripe checkout URL (session created against stripe-mock).
+- `POST /v1/billing/webhook` (`checkout.session.completed`, valid sig) → 200 `{received:true}` — signature verified.
+- `GET /v1/billing/usage` (auth) → 200, `account={tenantId, investigationsLimit:15, eventsLimit:500, …}` — webhook created a BillingAccountEntity.
+- Negative: bad signature (`t=1,v1=deadbeef`) → 400 — signature verification genuine.
+
+Regression: `pnpm typecheck` clean; `pnpm lint-invariants` 10/10 pass (I1–I11); `pnpm test:run` 162 files / 1057 tests pass.
+
+Doc-drift note unchanged: literal `/api/v1/billing/checkout-session` is not mounted (no global `/api` prefix; route is `/v1/billing/checkout` taking a `planKey` resolved to a Stripe Price ID via the plan catalog — the spec's security note says "never trust client-supplied price IDs"). Per the contradictions clause and WI-AC-007 precedent, the functional AC-011 behaviour is fully met.
