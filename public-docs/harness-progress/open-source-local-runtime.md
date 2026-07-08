@@ -1431,3 +1431,79 @@ qa=true; implementation=true; defects=none
 - WorkItem: WI-AC-031
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T13:05:00Z — Integrated Verification (WI-AC-031, on shared main)
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Role: qa-agent (Integrated Verification on latest main, HEAD 623830e)
+- Method: clean `env -i HOME PATH USER docker build` (exit 0) of the
+  canonical multi-stage `Dockerfile`; runtime container `causeflow-docs-qa-031`
+  on assigned PORT=5179 (host 5179 -> container 3000 via local uncommitted
+  `docker run -p 5179:3000`; canonical `docker-compose.yml` stays `3000:3000`,
+  override removed before commit). Real HTTP (curl) + source-tree greps.
+  Blank env (no MINTLIFY_*/CLERK_*/STRIPE_*/AWS_*/etc).
+
+### AC-001..AC-025 regression matrix (all PASS)
+- AC-001: `GET /` -> 200; body has "CauseFlow AI" x4, "Quickstart" x3.
+- AC-002: `mint broken-links` -> exit 0, "success no broken links found".
+- AC-003: docs.json valid JSON; 4 nav tabs (Documentation, API reference,
+  Relay, Changelog); all 125 nav page paths resolve to real .mdx; `docker
+  compose config` exits 0; redirect `/quickstart` -> `/getting-started/quickstart`.
+- AC-004/005: all 133 MDX have `title`+`description`; all descriptions <=160 chars.
+- AC-006: all four tab landing pages 200 (`/`, `/api-reference/introduction`,
+  `/relay/overview`, `/changelog`); rendered Changelog H1 == frontmatter title
+  "Changelog".
+- AC-007: `GET /quickstart` -> 200 via docs.json#redirects internal rewrite,
+  lands on Quickstart page (Quickstart x4).
+- AC-008..AC-011: full navigation sweep — all 125 declared page paths -> 200,
+  zero non-200.
+- AC-012: API introduction renders base URL `https://api.causeflow.ai` (x4)
+  and `v1` (x6); H1 "API introduction".
+- AC-013: 20 endpoint pages sampled across every API group (incidents, triage,
+  investigation, remediation, memory, skills, triggers, integrations,
+  knowledge, graph, billing, notifications, audit, webhooks, GitHub, tenants,
+  API keys, analytics, relay, widget) — rendered H1 == frontmatter title,
+  0 mismatches.
+- AC-014: Authentication page covers Bearer/JWT (x5), X-API-Key/API key (x7),
+  X-Webhook-Signature/HMAC/sha256 (x8); `verifyWebhookSignature` block
+  `node --check vws.ts` -> exit 0 (Node 24 type-strips .ts).
+- AC-015: errors-and-pagination renders all status codes
+  400/401/403/404/409/429/500/503 plus items/cursor/count pagination fields.
+- AC-016: `grep -rEn 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx'`
+  -> 0 matches.
+- AC-017: real tenant/API-key placeholder grep (excluding EXAMPLE) -> 0 matches.
+- AC-018: outbound-events catalog lists exactly 20 distinct dot-namespaced
+  events (tenant.created .. knowledge.pattern_extracted); introduction says
+  "20 real-time events" (x1), "21 real-time events" -> 0 matches. 20==20.
+- AC-019: /relay/overview serves the Mermaid component
+  (`_jsx(Mermaid, {chart:"%%{init...%% flowchart TD ..."})` in the serialized
+  React tree, never as visible `<pre>/<code>` or body text (0 raw blocks));
+  mermaid library bundled in `/_next/static/chunks/247f8594...js` so a browser
+  renders the diagram to SVG. Not raw code.
+- AC-020: relay/configuration.mdx documents controlPlane (x3), resources (x4),
+  allowedOperations (x5), maxRowsPerQuery (x4), `${VAR_NAME}` substitution (x1).
+- AC-021: relay/overview "What the Relay is not" names proxy, tunnel, and
+  replication agent (all three present).
+- AC-022: `grep -rEn 'severity[: ].*(emergency|urgent|notice|debug|warn)'`
+  -> 0 matches.
+- AC-023: `grep -rEn '"status": *"(dismissed|failed)"'` -> 0 matches.
+- AC-024: AWS/internal/SQS/KMS/LangFuse/Hindsight/ECS grep -> 0 matches.
+- AC-025: RBAC roles restricted to `admin`/`member` (or "Any authenticated
+  user"); `roles/viewer` in cloud-providers.mdx is GCP IAM, not CauseFlow
+  RBAC; chat-history `role: string` is a TS chat-message type, not RBAC.
+- MDX count = 133.
+
+### Boundary
+- `docker compose config` valid; boot log: `Serving docs at http://localhost:3000`.
+- `docker logs causeflow-docs-qa-031 | grep -cE` forbidden-host pattern
+  (mintlify.com|mintlify.app|clerk.com|stripe.com|amazonaws.com|
+  anthropic.com|claude.ai|openai.com|chatgpt.com|sentry.io|langfuse.io|
+  svix.com|slack.com|composio.dev) -> 0 matches.
+- Uncommitted QA artifacts (override file, runtime container) removed before
+  commit; canonical `docker-compose.yml` (`3000:3000`) and working tree clean.
+
+### verdict
+
+integration=true; implementation=true; qa=true; defects=none
