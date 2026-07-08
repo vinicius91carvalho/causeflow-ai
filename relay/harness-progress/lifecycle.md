@@ -44,3 +44,12 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T19:34:00.000Z — AC-047 Passed
+
+- WorkItem: WI-AC-047
+- Outcome: PASSED
+- Implementation: true (no code changes needed)
+- Evidence: SIGTERM sent to running relay container via docker compose kill -s SIGTERM relay; container exited with code 0; logs contain "Shutting down..." message; second SIGTERM has no effect (process already gone)
+- Test: test-ac047.mjs — black-box SIGTERM test against docker-compose stack
+- NextAction: None (AC-047 verified)
