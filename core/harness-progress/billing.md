@@ -460,3 +460,12 @@ Doc-drift note unchanged (literal `/api/v1/billing/usage` not mounted — no glo
 - Outcome: passed on integrated main
 - Evidence: `ac012-boundary.ts` run log (PORT=5181)
 - NextAction: next Ready Work Item
+
+## 2026-07-08T11:14:20.784Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- AcceptanceChecks: AC-012
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/billing/WI-AC-012-1-integration_qa.log
+- NextAction: next Ready Work Item
