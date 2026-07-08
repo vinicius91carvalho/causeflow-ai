@@ -147,3 +147,58 @@ stack from a clean shell env. No defects observed. `qa=true`,
 - WorkItem: WI-AC-051
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T00:30:00Z — Integrated Verification (AC-051)
+
+- WorkItem: WI-AC-051
+- AcceptanceChecks: AC-051
+- Outcome: integration=true, implementation=true, qa=true
+- Method: `docker compose down -v --remove-orphans`, then
+  `env -i PATH=$PATH docker compose up -d --build` from repo root (no `.env`,
+  no `AWS_*`/`STRIPE_*`/`CLERK_*`/`LANGFUSE_*`/`SENTRY_*`/`SVIX_*`/`SLACK_*`/
+  `COMPOSIO_*`/`MASTRA_*`/`SQS_*`/`DYNAMODB_*`/`STS_*`/`KMS_*` in parent shell).
+
+### Integrated verification results
+
+- Service count: exactly 4 — `relay-control-plane-stub`, `relay-postgres`,
+  `relay-mongo`, `relay` (`docker compose ps --services | wc -l` = 4).
+- All four `Up` within ~17s (well under 60s budget); postgres + mongo healthy.
+- Port mapping: stub `0.0.0.0:3000->3000`, postgres `5432->5432`,
+  mongo `27017->27017`, relay `8080/tcp` with `null` host binding
+  (`docker inspect relay --format '{{json .NetworkSettings.Ports}}'` →
+  `{"8080/tcp":null}`) → no inbound port mapping.
+- Relay boot log contains `"msg":"Connected to control plane"` with
+  `url=ws://relay-control-plane-stub:3000/v1/relay/connect`.
+- Stub log contains
+  `[stub] resource_update from relayId=44d5cc8a-... resources=2` (n=2 >= 1).
+- Forbidden-hostname grep over `docker compose logs relay` for
+  `amazonaws.com|stripe.com|clerk.|langfuse|sentry.io|svix.com|slack.com|composio|mastra`
+  → 0 matches; broader sweep (`amazonaws|stripe|clerk|langfuse|sentry|svix|
+  slack|composio|mastra|sqs|dynamodb|sts|kms|api.aws`) → 0 matches.
+- Only outbound URL in relay log:
+  `ws://relay-control-plane-stub:3000/v1/relay/connect` (sole match of
+  `(wss?|https?)://[^ "]+` over relay logs).
+- Relay container env scan for
+  `^(AWS_|STRIPE_|CLERK_|LANGFUSE_|SENTRY_|SVIX_|SLACK_|COMPOSIO_|MASTRA_|SQS_|DYNAMODB_|STS_|KMS_)`
+  → 0 matches.
+- Hardened-image invariant: relay runs as `uid=10001(relay) gid=10001(relay)`.
+
+### Core smoke (real external boundaries)
+
+Ran the stub `SMOKE=1` round-trip over the open WebSocket (JSON-RPC 2.0 over
+the docker-network socket, hitting the bundled Postgres + Mongo):
+- `health_check` → both drivers `healthy:true`
+  (`order-pg` postgres + `order-mongo` mongodb).
+- `execute { SELECT 1 AS one }` against `order-pg` →
+  `rows:[{one:1}] rowCount:1 masked:false maskedFieldCount:0`.
+- `execute { list_tables }` against `order-pg` → returns the `orders` table.
+
+Confirms the relay's drivers, policy engine, masking, audit logger, WS
+transport, and JSON-RPC dispatch all behave identically to the original
+50-check contract on the open-source layout, against real Postgres + Mongo
+boundaries (no mocks).
+
+### Verdict
+
+All AC-051 acceptance criteria verified on integrated main from a clean shell
+env. No defects. `integration=true`, `implementation=true`, `qa=true`.
