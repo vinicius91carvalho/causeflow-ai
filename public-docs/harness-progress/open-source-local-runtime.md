@@ -752,3 +752,12 @@ implementation=true; qa=true; defects=none
   existing `causeflow-docs` on 5179 returns HTTP 200 likewise.
   `docker logs` forbidden-host grep count = 0 for both.
 - Verdict: integration=true; implementation=true; qa=true; defects=none.
+
+## 2026-07-08T03:33:45.987Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-030
+- AcceptanceChecks: AC-030
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-030-1-integration_qa.log
+- NextAction: next Ready Work Item
