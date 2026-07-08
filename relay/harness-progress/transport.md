@@ -630,3 +630,34 @@ AC-016 contract satisfied at the real boundary. No defects found.
 - WorkItem: WI-AC-016
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T12:15Z — Integrated Verification (qa-agent on latest main)
+
+**Result: integration=true, implementation=true, qa=true**
+
+Integrated verification on latest main (`4376b43`) at a real WebSocket boundary. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Ran a real `ws.WebSocketServer` on `127.0.0.1:5173` (`/v1/relay/connect`) and the real compiled `WsClient` (`dist/transport/ws-client.js`) with `token=tok`, `tenantId=tenant-1`. No mocks of the relay.
+
+Evidence (probe, removed after run): server pushed 9 inbound server→relay payloads and recorded `opts.onMessage` forwards:
+1. `{not json` (invalid JSON, string) → dropped; pino warn (level 40) `Invalid message from control plane` with `err.type=SyntaxError`.
+2. `{"jsonrpc":"1.0",...}` (wrong jsonrpc) → dropped silently.
+3. `{"jsonrpc":"2.0","id":"3",...}` (missing method) → dropped silently.
+4. `{"jsonrpc":"2.0","id":"4","method":"",...}` (empty method) → dropped silently.
+5. `{"jsonrpc":"2.0","id":"1","method":"execute",...}` (string) → forwarded.
+6. `{"jsonrpc":"2.0","id":"5","method":"health_check",...}` (string) → forwarded.
+7. `[1,2,3]` (JSON array) → dropped silently.
+8. `42` (JSON number) → dropped silently.
+9. Buffer of `{"jsonrpc":"2.0","id":"6","method":"list_resources",...}` → forwarded.
+
+Verdict: `onMessageCalls=[id 1, id 5, id 6]`, exactly 3 forwards, all with `jsonrpc==='2.0'` and a string `method`; the single unparseable payload emitted one warn line with the SyntaxError attached. `DEFECTS=[]`, probe exit 0.
+
+Source (`src/transport/ws-client.ts` message handler): `JSON.parse(typeof data === 'string' ? data : data.toString())`; guard `if (parsed.jsonrpc === '2.0' && parsed.method)` then `this.opts.onMessage(parsed as RpcRequest)`; `catch (err) { logger.warn({ err }, 'Invalid message from control plane') }`. Handles string and buffer payloads; parse failures logged at warn with the error and dropped; wrong-jsonrpc / missing-method / empty-method / non-object dropped silently; only well-formed JSON-RPC 2.0 requests forwarded.
+
+AC-016 contract satisfied at the real boundary on integrated main. No defects found.
+
+## 2026-07-08T12:15Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Outcome: passed on integrated main
+- NextAction: next Ready Work Item
