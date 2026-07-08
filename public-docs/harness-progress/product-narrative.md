@@ -79,3 +79,29 @@ PASSES against the existing committed code (HEAD `70ad848`).
 implementation=true. Zero defects. Zero tracked files changed (zero-diff
 checkpoint). No refactor, no code changes — the existing codebase already
 satisfies AC-008.
+
+## 2026-07-08 QA — WI-AC-008 (independent re-audit)
+
+- Role: qa-agent (independent re-audit at real HTTP boundary)
+- Scope: the seven Getting-started pages — quickstart, key-concepts,
+  how-it-works, ai-transparency, skills, memory-and-chat, triggers.
+- Boundary: `mint dev --port 5188` (mint CLI v4.2.666, node v24.16.0) run
+  from project root; confirmed `GET http://localhost:5188/` → 200 with body
+  containing `CauseFlow AI` (x4) and all four tab labels.
+- Reachability from Documentation tab: home HTML contains sidebar links to
+  all seven `/getting-started/<page>` paths (2 each).
+- Per-page render via real HTTP:
+  | page           | HTTP | H1 (rendered)    | bytes  | parse/compile markers |
+  | -------------- | ---- | ---------------- | ------ | --------------------- |
+  | quickstart     | 200  | Quickstart       | 214500 | 0 / 0                 |
+  | key-concepts   | 200  | Key concepts     | 232496 | 0 / 0                 |
+  | how-it-works   | 200  | How it works      | 221497 | 0 / 0                 |
+  | ai-transparency| 200  | AI transparency   | 231911 | 0 / 0                 |
+  | skills         | 200  | Skills            | 283128 | 0 / 0                 |
+  | memory-and-chat| 200  | Memory and chat   | 238870 | 0 / 0                 |
+  | triggers       | 200  | Triggers          | 266504 | 0 / 0                 |
+- Each rendered H1 matches the page's `title` frontmatter; each page body
+  contains its expected prose; `mint dev` log has no error/parse/fail
+  markers (`grep -iE 'error|parse|fail|warn'` empty).
+- Verdict: AC-008 PASSES. qa=true. Zero tracked files changed (zero-diff
+  checkpoint). HEAD `f094a31`.
