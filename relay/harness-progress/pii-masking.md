@@ -222,3 +222,30 @@
 - WorkItem: WI-AC-042
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T22:45:00.000Z — Integrated Verification Pass
+
+- WorkItem: WI-AC-042
+- AcceptanceChecks: AC-042
+- Outcome: integration=true, implementation=true, qa=true
+- Verification: 
+
+All 7 tests in `scripts/qa/ac042-test.mjs` pass against the compiled `dist/masking/masking-engine.js` on integrated main (commit d46aa53). Boundary exercised at real external boundary: real compiled JavaScript (no mocks of the masking engine), real Node.js 22 process. Specific assertions:
+
+1. **Test 1 (raw string):** `engine.mask('sess_0123456789abcdef')` returns `{ masked: 'sess_***', maskedFieldCount: 1 }`. The user-defined `session_id` pattern (`/sess_[a-f0-9]{16}/g`) matches the 16-hex-digit suffix and replaces it with `sess_***`.
+
+2. **Test 2 (row object):** Row with `session_id: 'sess_0123456789abcdef'`, `email: 'user@example.com'`, `name: 'Alice'` returns session_id `sess_***`, email `***@***.***`, name `Alice`, `maskedFieldCount: 2` (both session_id and email matched). User-defined and default patterns work together.
+
+3. **Test 3 (non-match):** `sess_short` left untouched, `maskedFieldCount: 0`.
+
+4. **Test 4 (no default interference):** User-defined patterns run before defaults so the phone_br default pattern does not corrupt the session_id.
+
+5. **Test 5 (multiple user-defined):** Two user-defined patterns (`session_id` + `api_key`) both match within the same string, `maskedFieldCount: 1` (one string, multiple pattern matches).
+
+6. **Regression AC-040:** Default email/CPF patterns still mask correctly.
+
+7. **Regression AC-041:** Nested object masking still works.
+
+- `npx tsc --noEmit` clean. `npm run build` exits 0.
+- No code changes needed — AC-042 behavior was already implemented.
+- NextAction: none (WI-AC-042 fully verified)
