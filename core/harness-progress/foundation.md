@@ -438,3 +438,17 @@ Note: host has no `aws` binary, so the AC's literal host command was exercised v
 - WorkItem: WI-AC-005
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-07 — Integrated Verification re-audit (AC-005)
+
+- Attempt: Integrated Verification on latest main (c3b8037)
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- Outcome: passed; integration=true, implementation=true, defects=[]
+
+Verified the DynamoDB boundary against the running `core-ministack-1` (endpoint http://localhost:4566, reachable from host). Host has no `aws` CLI, so the AC's literal command was exercised both via `docker exec ... awslocal` and via the host-side AWS SDK v3 (`@aws-sdk/client-dynamodb`) pointed at http://localhost:4566 — identical boundary.
+
+- list-tables → includes `causeflow-local`. ✓
+- describe-table --table-name causeflow-local → 3 GlobalSecondaryIndexes: gsi1, gsi2, gsi3 (all ACTIVE); TableStatus ACTIVE. ✓
+- describe-continuous-backups --table-name causeflow-local → PointInTimeRecoveryDescription.PointInTimeRecoveryStatus = ENABLED. ✓ (In real DynamoDB PITR lives on `describe-continuous-backups`; the AC's `describe-table` wording is descriptive — both calls confirm the required state.)
+- No code changes; AC boundary already satisfied and merged.
