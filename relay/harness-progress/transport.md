@@ -199,3 +199,10 @@ Evidence:
 - Source checks (`src/transport/ws-client.ts`): `private reconnectDelay = 1000;` (starts at 1000ms); `private readonly maxReconnectDelay = 30000;`; `scheduleReconnect()` sets `reconnectTimer = setTimeout(() => { this.connect(); }, this.reconnectDelay)` then `this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.maxReconnectDelay)`; the `close` handler calls `scheduleReconnect()` only `if (!this.intentionalClose)`; `close()` sets `this.intentionalClose = true` first, clears any pending `reconnectTimer`, then closes the socket.
 
 No defects found. AC-014 satisfied at the real boundary.
+
+## 2026-07-08T03:46:39.214Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-014
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
