@@ -126,3 +126,30 @@ satisfies AC-008.
 - WorkItem: WI-AC-008
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08 Integrated Verification — WI-AC-008
+
+- Role: qa-agent, Integrated Verification on latest main (shared branch).
+- Boundary: `mint dev --port 5188` (mint CLI v4.2.666, node v24.16.0) from
+  project root; `GET http://localhost:5188/` → 200, body contains
+  `CauseFlow AI` (x4) and all four tab labels (Documentation, API reference,
+  Relay, Changelog).
+- Reachability from the Documentation tab: home HTML sidebar contains links
+  to all seven `/getting-started/<page>` paths (2 each).
+- Per-page render at the real HTTP boundary:
+  | page           | HTTP | rendered H1       | bytes  | parse markers |
+  | -------------- | ---- | ----------------- | ------ | ------------- |
+  | quickstart     | 200  | Quickstart        | 214500 | 0             |
+  | key-concepts   | 200  | Key concepts      | 232496 | 0             |
+  | how-it-works   | 200  | How it works      | 221497 | 0             |
+  | ai-transparency| 200  | AI transparency   | 231911 | 0             |
+  | skills         | 200  | Skills             | 283128 | 0             |
+  | memory-and-chat| 200  | Memory and chat    | 238870 | 0             |
+  | triggers       | 200  | Triggers           | 266504 | 0             |
+- Each rendered H1 matches the page's `title` frontmatter exactly. No
+  `SyntaxError`/`Could not compile`/`Unexpected`/`MDX parse|compile error`/
+  `Module not found` markers in any rendered body. The `mint dev` log has no
+  error/parse/fail/warn/syntax/exception markers.
+- Verdict: AC-008 PASSES at the real external boundary. integration=true,
+  implementation=true, qa=true. Zero defects. Zero-diff checkpoint (only this
+  journal updated).
