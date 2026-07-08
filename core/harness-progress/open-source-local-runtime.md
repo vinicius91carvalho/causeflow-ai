@@ -613,3 +613,50 @@ No source modified; journal-only update.
 - Defects: expected `docker compose up -d` to start causeflow-postgres, redis, hindsight, causeflow-api, causeflow-worker (AC-039); observed `docker compose config --services` on main tip bad72f3 lists only the old AWS stack (ministack, langfuse, postgres, customer-*, billing-*, order-*, marketplace-*, notification-service, causeflow-relay, redis, hindsight) and `grep -c 'causeflow-postgres|causeflow-api|causeflow-worker' docker-compose.yml` = 0 with required-service check causeflow-postgres:ABSENT, causeflow-api:ABSENT, causeflow-worker:ABSENT (only hindsight,redis present); no docker-compose.aws.yml backup exists; evidence main's docker-compose.yml unchanged since foundation commit 2a7eaa8; expected curl http://localhost:3099/health from MAIN's stack to return {postgres,redis,anthropic,queues}; observed the only :3099 HTTP 200 ({"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}) is served by an orphan container from the gen worktree — docker inspect core-causeflow-api-1 label com.docker.compose.project.config_files=/home/vinicius/projects/causeflow-ai-wt-core-open-source-local-runtime/core/docker-compose.yml; main's compose defines no causeflow-api/worker/postgres services so AC-039 boot path is unsatisfiable on integrated main; expected src/shared/config/index.ts to expose CAUSEFLOW_RUNTIME/isOss()/config.postgres and src/main.ts to skip ensureTable()/seedDevTenants() in OSS mode; observed `grep -c 'CAUSEFLOW_RUNTIME|isOss|config.postgres' src/shared/config/index.ts` = 0, `grep -rl CAUSEFLOW_RUNTIME src/` = none, and main.ts still calls ensureTable() (line 26) and seedDevTenants() (line 43) unconditionally → DynamoDB/AWS contact at boot; evidence source grep on main tip bad72f3; expected PostgresHealthCheck/OssAnthropicHealthCheck/QueuesHealthCheck and an OSS bootstrap branch and /health flat {postgres,redis,anthropic,queues}; observed `ls src/shared/infra/health/checks/` = only anthropic-check.ts, dynamodb-check.ts, redis-check.ts, sqs-check.ts, `grep -c 'isOss|CAUSEFLOW_RUNTIME|PostgresHealthCheck|OssAnthropic|QueuesHealthCheck' src/bootstrap.ts` = 0, and src/app.ts /health returns AWS shape {dynamodb,redis,sqs,anthropic} (comment line 80); expected .env.example reduced to HINDSIGHT_* + optional ANTHROPIC_API_KEY only; observed `grep -icE 'AWS_|STRIPE|CLERK|SENTRY|LANGFUSE|SVIX|SLACK|COMPOSIO|MASTRA' .env.example` = 29 forbidden matches; evidence .env.example unchanged from foundation; expected src/workers/investigation-worker.ts OSS standby mode (no outbound calls at boot); observed `grep -c 'standby|isOss|CAUSEFLOW_RUNTIME' src/workers/investigation-worker.ts` = 0 — worker has no OSS gating; evidence main tip bad72f3; main's compose also starts ministack (an AWS endpoint) which itself violates the no-AWS-endpoint-at-startup guarantee
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-039-1-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-08T01:24:30.012Z — Resumed
+
+- WorkItem: WI-AC-039
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-08T01:24:30.032Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-039
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T01:55:32.794Z — Resumed
+
+- WorkItem: WI-AC-039
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-08T01:55:32.817Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-039
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+### Conflict-resolution note (2026-07-08, append-only merge)
+
+Resolved the journal conflict in `harness-progress/open-source-local-runtime.md`
+append-only: both HEAD (main) and `gen/core-open-source-local-runtime` journal
+entries are preserved verbatim, with the HEAD block (newer Integrated
+Verification re-check `2026-07-08T02:30:00Z`, Attempt 2/3,
+integration=false, plus the `2026-07-08T01:24:29.303Z` Integrated
+Verification defect) preceding the gen branch's `Resumed` /
+`Checkpoint ready` entries. The gen branch's isolated-QA-passed true flags
+are preserved append-only; the newer HEAD Defect Reports (`integration=false`)
+override those older true flags per the Work Item rule ("a newer Defect
+Report overrides older true flags"). No source files were modified; this is a
+journal-only conflict resolution. AC-039 remains unsatisfied on integrated
+main (the OSS runtime described in earlier journal entries was never merged
+into `src/`, `docker-compose.yml`, or `.env.example`), so WI-AC-039 stays
+`implementation:false, qa:false, integration:false,
+status:integration-failed` pending the actual OSS runtime being merged into
+main.
