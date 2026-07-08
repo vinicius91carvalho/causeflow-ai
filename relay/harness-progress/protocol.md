@@ -61,3 +61,10 @@ AC-017 contract satisfied at the real boundary on integrated main. No defects fo
   ```
 - Verdict: jsonrpc='2.0'; id echoed; result is array of 2; every entry shaped exactly `{resourceId,type,name,database,readOnly:true}`; no `error` key; readOnly===true for all; types `postgres`|`mongodb`; derived from policy engine resource list (`listResources()` → `config.resources`). All checks green.
 - Outcome: qa=true, implementation=true, defects=none. Zero code changes (independent audit of already-integrated main).
+
+## 2026-07-08T11:30:26.518Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-017
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
