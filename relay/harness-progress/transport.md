@@ -206,3 +206,26 @@ No defects found. AC-014 satisfied at the real boundary.
 - WorkItem: WI-AC-014
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T04:35Z — Integrated Verification (qa-agent on latest main)
+
+**Result: integration=true, implementation=true, qa=true**
+
+Integrated verification on latest main (`895503b`) at a real WebSocket boundary. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Drove the real `WsClient` (`dist/transport/ws-client.js`) against a real `ws.WebSocketServer` on `127.0.0.1:5173/5174` at `/v1/relay/connect` and a dead port `127.0.0.1:5999` (ECONNREFUSED → error → close → scheduleReconnect). No mocks of the relay.
+
+Evidence (`/tmp/ac014-verdict.json`):
+- **Test A (non-intentional close → reconnect via setTimeout):** probe force-closed conn #1 (code 4000). The `close` handler emitted `Disconnected from control plane` then `scheduleReconnect` logged `Scheduling reconnect delayMs=1000`. Server saw conn #2 land ~1005ms after the force-close → the next `connect()` was invoked from the 1000ms `setTimeout` timer. `reconnectLanded=true`, `reconnectDeltaMs=1005`, `reconnectAround1000=true`, `tokenOk=true`, `tenantOk=true`.
+- **Test B (doubling from 1000 → cap 30000):** pointed a `WsClient` at dead port 5999 (ECONNREFUSED → `error` → `close` → `scheduleReconnect`). Intercepted `globalThis.setTimeout` to record reconnect-timer delays over ~70s: `[1000, 2000, 4000, 8000, 16000, 30000, 30000]`. Confirms starting at 1000ms, doubling (1000→2000→4000→8000→16000), the clamp at `maxReconnectDelay = 30000` (16000*2=32000 → 30000), and the cap staying at 30000 on subsequent retries. `firstIs1000=true`, `doubles=true`, `reaches30000=true`, `staysAt30000=true`.
+- **Test C (intentional close → no reconnect):** `client.close()` sets `intentionalClose=true` first, then closes the socket. After a 2800ms wait (well past the would-be 1000ms reconnect timer), `connCount === 1` and the server saw no second connection → `intentionalNoReconnect=true`.
+- Source checks (`src/transport/ws-client.ts`): `private reconnectDelay = 1000;` (starts at 1000ms); `private readonly maxReconnectDelay = 30000;`; `scheduleReconnect()` sets `reconnectTimer = setTimeout(() => { this.connect(); }, this.reconnectDelay)` then `this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.maxReconnectDelay)`; the `close` handler calls `scheduleReconnect()` only `if (!this.intentionalClose)`; `close()` sets `this.intentionalClose = true` first, clears any pending `reconnectTimer`, then closes the socket.
+
+AC-014 contract satisfied at the real boundary on integrated main. No defects found.
+
+## 2026-07-08T04:35Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-014
+- AcceptanceChecks: AC-014
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-014-1-integration_qa.log
+- NextAction: next Ready Work Item
