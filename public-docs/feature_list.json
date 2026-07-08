@@ -72,7 +72,7 @@
     "steps": [
       "Step 1: walk every `.mdx` under the project root minus the excluded directories.",
       "Step 2: confirm each file's frontmatter block contains `title:` and `description:` keys.",
-      "Step 3: a scripted `find … head -5 … grep` reports zero `MISSING TITLE: …` lines; the audit passes only if every file is compliant."
+      "Step 3: a scripted `find \u2026 head -5 \u2026 grep` reports zero `MISSING TITLE: \u2026` lines; the audit passes only if every file is compliant."
     ],
     "acceptance_checks": [
       "AC-004"
@@ -105,8 +105,9 @@
     "verify_first": true,
     "implementation": true,
     "qa": true,
-    "integration": false,
-    "retries": 0
+    "integration": true,
+    "retries": 0,
+    "verify_notes": "Integrated Verification passed on main. 133 MDX files audited; zero descriptions exceed 160 chars (max=153). HTTP boundary confirmed on PORT=5170."
   },
   {
     "id": "WI-AC-006",
@@ -134,7 +135,7 @@
     "id": "WI-AC-007",
     "context": "content-structure",
     "category": "functional",
-    "description": "Audit: the `docs.json` redirect `{\"source\": \"/quickstart\", \"destination\": \"/getting-started/quickstart\"}` resolves at runtime — `GET /quickstart` returns 200 and lands on the Quickstart page.",
+    "description": "Audit: the `docs.json` redirect `{\"source\": \"/quickstart\", \"destination\": \"/getting-started/quickstart\"}` resolves at runtime \u2014 `GET /quickstart` returns 200 and lands on the Quickstart page.",
     "steps": [
       "Step 1: start `mint dev`.",
       "Step 2: `GET /quickstart` and confirm HTTP 200.",
@@ -244,7 +245,7 @@
     "id": "WI-AC-012",
     "context": "api-reference",
     "category": "functional",
-    "description": "Audit: the API reference introduction page renders with H1 'API introduction', a code block showing exactly `https://api.causeflow.ai`, and the version note 'v1' — `mint dev` does not log a parse error for `api-reference/introduction.mdx`.",
+    "description": "Audit: the API reference introduction page renders with H1 'API introduction', a code block showing exactly `https://api.causeflow.ai`, and the version note 'v1' \u2014 `mint dev` does not log a parse error for `api-reference/introduction.mdx`.",
     "steps": [
       "Step 1: load `api-reference/introduction.mdx` in `mint dev`.",
       "Step 2: confirm H1 is 'API introduction'.",
@@ -332,7 +333,7 @@
     "id": "WI-AC-016",
     "context": "api-reference",
     "category": "style",
-    "description": "Audit: every API example URL across the api-reference pages uses the host `https://api.causeflow.ai` only — `grep -rE 'api\\.causeflow\\.(io|dev|local|prod)' --include='*.mdx'` returns no matches.",
+    "description": "Audit: every API example URL across the api-reference pages uses the host `https://api.causeflow.ai` only \u2014 `grep -rE 'api\\.causeflow\\.(io|dev|local|prod)' --include='*.mdx'` returns no matches.",
     "steps": [
       "Step 1: run `grep -rE 'api\\.causeflow\\.(io|dev|local|prod)' --include='*.mdx'` over the project root.",
       "Step 2: confirm zero matches.",
@@ -354,11 +355,11 @@
     "id": "WI-AC-017",
     "context": "api-reference",
     "category": "style",
-    "description": "Audit: every tenant-ID placeholder matches `ten_EXAMPLE_…`, every API-key placeholder matches `cflo_live_sk_EXAMPLE_…`, and no real-looking UUIDs or full JWTs appear in any example.",
+    "description": "Audit: every tenant-ID placeholder matches `ten_EXAMPLE_\u2026`, every API-key placeholder matches `cflo_live_sk_EXAMPLE_\u2026`, and no real-looking UUIDs or full JWTs appear in any example.",
     "steps": [
       "Step 1: run `grep -rE '(ten_[a-zA-Z0-9]{16,})|(cflo_live_sk_[a-zA-Z0-9]{16,})' --include='*.mdx' | grep -v EXAMPLE`.",
-      "Step 2: confirm zero matches (only `ten_EXAMPLE_…` and `cflo_live_sk_EXAMPLE_…` should remain after the `EXAMPLE` filter).",
-      "Step 3: confirm no full JWTs (e.g. `eyJ…longbody…`) appear in any example; the audit passes only if all placeholders follow the approved shape."
+      "Step 2: confirm zero matches (only `ten_EXAMPLE_\u2026` and `cflo_live_sk_EXAMPLE_\u2026` should remain after the `EXAMPLE` filter).",
+      "Step 3: confirm no full JWTs (e.g. `eyJ\u2026longbody\u2026`) appear in any example; the audit passes only if all placeholders follow the approved shape."
     ],
     "acceptance_checks": [
       "AC-017"
@@ -420,11 +421,11 @@
     "id": "WI-AC-020",
     "context": "relay-documentation",
     "category": "functional",
-    "description": "Audit: the Relay Configuration page documents `controlPlane`, `resources`, `allowedOperations`, `maxRowsPerQuery`, and the `${VAR_NAME}` env-var substitution — `grep` for each key returns at least one match in `relay/configuration.mdx`.",
+    "description": "Audit: the Relay Configuration page documents `controlPlane`, `resources`, `allowedOperations`, `maxRowsPerQuery`, and the `${VAR_NAME}` env-var substitution \u2014 `grep` for each key returns at least one match in `relay/configuration.mdx`.",
     "steps": [
-      "Step 1: `grep -E 'controlPlane' relay/configuration.mdx` returns ≥ 1 match.",
-      "Step 2: `grep -E 'resources|allowedOperations|maxRowsPerQuery' relay/configuration.mdx` returns ≥ 1 match each.",
-      "Step 3: `grep -E '\\$\\{[A-Z_]+\\}' relay/configuration.mdx` returns ≥ 1 match (the `${VAR_NAME}` substitution pattern); the audit passes only if all five required keys/patterns are documented."
+      "Step 1: `grep -E 'controlPlane' relay/configuration.mdx` returns \u2265 1 match.",
+      "Step 2: `grep -E 'resources|allowedOperations|maxRowsPerQuery' relay/configuration.mdx` returns \u2265 1 match each.",
+      "Step 3: `grep -E '\\$\\{[A-Z_]+\\}' relay/configuration.mdx` returns \u2265 1 match (the `${VAR_NAME}` substitution pattern); the audit passes only if all five required keys/patterns are documented."
     ],
     "acceptance_checks": [
       "AC-020"
@@ -442,7 +443,7 @@
     "id": "WI-AC-021",
     "context": "relay-documentation",
     "category": "style",
-    "description": "Audit: the Relay Overview's 'What the Relay is not' section names proxy, tunnel, and replication-agent anti-patterns — `grep -E 'Not a (proxy|tunnel)|replication agent' relay/overview.mdx` returns all three matches.",
+    "description": "Audit: the Relay Overview's 'What the Relay is not' section names proxy, tunnel, and replication-agent anti-patterns \u2014 `grep -E 'Not a (proxy|tunnel)|replication agent' relay/overview.mdx` returns all three matches.",
     "steps": [
       "Step 1: load `relay/overview.mdx` and locate the 'What the Relay is not' section.",
       "Step 2: `grep -E 'Not a (proxy|tunnel)|replication agent' relay/overview.mdx` returns three matches.",
@@ -464,7 +465,7 @@
     "id": "WI-AC-022",
     "context": "invariants-and-validation",
     "category": "style",
-    "description": "Audit: severity tokens across every `.mdx` are restricted to `critical | high | medium | low | info` — `grep -rEn 'severity[: ].*(emergency|urgent|notice|debug|warn)' --include='*.mdx'` returns no matches.",
+    "description": "Audit: severity tokens across every `.mdx` are restricted to `critical | high | medium | low | info` \u2014 `grep -rEn 'severity[: ].*(emergency|urgent|notice|debug|warn)' --include='*.mdx'` returns no matches.",
     "steps": [
       "Step 1: run `grep -rEn 'severity[: ].*(emergency|urgent|notice|debug|warn)' --include='*.mdx'` over the project root.",
       "Step 2: confirm zero matches.",
@@ -570,9 +571,9 @@
     "id": "WI-AC-027",
     "context": "open-source-local-runtime",
     "category": "foundation",
-    "description": "The project ships a multi-stage `Dockerfile` at the project root. The `builder` stage installs Node.js and the `mint` CLI (Mintlify's open-source CLI) and produces a built site (static export or a runnable dev server bundle). The `runtime` stage copies the built site into a minimal image — `nginx:alpine` for the static variant, or `node:22-alpine` for the dev-server variant. The runtime image contains no `.env`, no `MINTLIFY_*` env vars, and no Mintlify account credentials. `docker build . -t causeflow-docs:test` exits 0; for the nginx variant the resulting image is under 200 MB (no `node_modules` carried into the runtime stage). `docker inspect causeflow-docs:test` shows the runtime image has no entrypoint that talks to `mintlify.com` or any other external SaaS host.",
+    "description": "The project ships a multi-stage `Dockerfile` at the project root. The `builder` stage installs Node.js and the `mint` CLI (Mintlify's open-source CLI) and produces a built site (static export or a runnable dev server bundle). The `runtime` stage copies the built site into a minimal image \u2014 `nginx:alpine` for the static variant, or `node:22-alpine` for the dev-server variant. The runtime image contains no `.env`, no `MINTLIFY_*` env vars, and no Mintlify account credentials. `docker build . -t causeflow-docs:test` exits 0; for the nginx variant the resulting image is under 200 MB (no `node_modules` carried into the runtime stage). `docker inspect causeflow-docs:test` shows the runtime image has no entrypoint that talks to `mintlify.com` or any other external SaaS host.",
     "steps": [
-      "Verify AC-027: The project ships a multi-stage `Dockerfile` at the project root. The `builder` stage installs Node.js and the `mint` CLI (Mintlify's open-source CLI) and produces a built site (static export or a runnable dev server bundle). The `runtime` stage copies the built site into a minimal image — `nginx:alpine` for the static variant, or `node:22-alpine` for the dev-server variant. The runtime image contains no `.env`, no `MINTLIFY_*` env vars, and no Mintlify account credentials. `docker build . -t causeflow-docs:test` exits 0; for the nginx variant the resulting image is under 200 MB (no `node_modules` carried into the runtime stage). `docker inspect causeflow-docs:test` shows the runtime image has no entrypoint that talks to `mintlify.com` or any other external SaaS host."
+      "Verify AC-027: The project ships a multi-stage `Dockerfile` at the project root. The `builder` stage installs Node.js and the `mint` CLI (Mintlify's open-source CLI) and produces a built site (static export or a runnable dev server bundle). The `runtime` stage copies the built site into a minimal image \u2014 `nginx:alpine` for the static variant, or `node:22-alpine` for the dev-server variant. The runtime image contains no `.env`, no `MINTLIFY_*` env vars, and no Mintlify account credentials. `docker build . -t causeflow-docs:test` exits 0; for the nginx variant the resulting image is under 200 MB (no `node_modules` carried into the runtime stage). `docker inspect causeflow-docs:test` shows the runtime image has no entrypoint that talks to `mintlify.com` or any other external SaaS host."
     ],
     "acceptance_checks": [
       "AC-027"
@@ -590,9 +591,9 @@
     "id": "WI-AC-028",
     "context": "open-source-local-runtime",
     "category": "foundation",
-    "description": "`docs.json#contextual.options` no longer contains `claude` or `chatgpt`. After a reader invokes the contextual menu on any page (for example via Playwright clicking the per-page \"contextual\" trigger), no outbound request is made to `anthropic.com`, `claude.ai`, `openai.com`, or `chatgpt.com` (verifiable via Playwright network logging). The contextual menu only offers local actions (`copy` and `view`) — the AI-provider delegate that the Mintlify contextual feature wired to those SaaS endpoints is fully removed from the runtime path. `grep -E '\"(claude|chatgpt)\"' docs.json` returns zero matches.",
+    "description": "`docs.json#contextual.options` no longer contains `claude` or `chatgpt`. After a reader invokes the contextual menu on any page (for example via Playwright clicking the per-page \"contextual\" trigger), no outbound request is made to `anthropic.com`, `claude.ai`, `openai.com`, or `chatgpt.com` (verifiable via Playwright network logging). The contextual menu only offers local actions (`copy` and `view`) \u2014 the AI-provider delegate that the Mintlify contextual feature wired to those SaaS endpoints is fully removed from the runtime path. `grep -E '\"(claude|chatgpt)\"' docs.json` returns zero matches.",
     "steps": [
-      "Verify AC-028: `docs.json#contextual.options` no longer contains `claude` or `chatgpt`. After a reader invokes the contextual menu on any page (for example via Playwright clicking the per-page \"contextual\" trigger), no outbound request is made to `anthropic.com`, `claude.ai`, `openai.com`, or `chatgpt.com` (verifiable via Playwright network logging). The contextual menu only offers local actions (`copy` and `view`) — the AI-provider delegate that the Mintlify contextual feature wired to those SaaS endpoints is fully removed from the runtime path. `grep -E '\"(claude|chatgpt)\"' docs.json` returns zero matches."
+      "Verify AC-028: `docs.json#contextual.options` no longer contains `claude` or `chatgpt`. After a reader invokes the contextual menu on any page (for example via Playwright clicking the per-page \"contextual\" trigger), no outbound request is made to `anthropic.com`, `claude.ai`, `openai.com`, or `chatgpt.com` (verifiable via Playwright network logging). The contextual menu only offers local actions (`copy` and `view`) \u2014 the AI-provider delegate that the Mintlify contextual feature wired to those SaaS endpoints is fully removed from the runtime path. `grep -E '\"(claude|chatgpt)\"' docs.json` returns zero matches."
     ],
     "acceptance_checks": [
       "AC-028"
@@ -671,9 +672,9 @@
     "id": "WI-AC-032",
     "context": "open-source-local-runtime",
     "category": "foundation",
-    "description": "The built site, when served by the runtime image, renders the same 133 MDX pages, the same four navigation tabs, the same redirect (`/quickstart` → `/getting-started/quickstart`), and the same Mintlify components (Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, ParamField, Tabs, Mermaid) without MDX parse errors. Every endpoint page listed under the API reference tab (incidents, triage, investigation, remediation, memory, skills, triggers, integrations, knowledge, graph, billing, notifications, audit, webhooks, GitHub, tenants, API keys, analytics, health, widget, relay) renders its H1 matching the `title` frontmatter. The Dockerfile's runtime stage is reproducible: rebuilding from a clean Docker cache produces a functionally identical image that passes AC-031.",
+    "description": "The built site, when served by the runtime image, renders the same 133 MDX pages, the same four navigation tabs, the same redirect (`/quickstart` \u2192 `/getting-started/quickstart`), and the same Mintlify components (Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, ParamField, Tabs, Mermaid) without MDX parse errors. Every endpoint page listed under the API reference tab (incidents, triage, investigation, remediation, memory, skills, triggers, integrations, knowledge, graph, billing, notifications, audit, webhooks, GitHub, tenants, API keys, analytics, health, widget, relay) renders its H1 matching the `title` frontmatter. The Dockerfile's runtime stage is reproducible: rebuilding from a clean Docker cache produces a functionally identical image that passes AC-031.",
     "steps": [
-      "Verify AC-032: The built site, when served by the runtime image, renders the same 133 MDX pages, the same four navigation tabs, the same redirect (`/quickstart` → `/getting-started/quickstart`), and the same Mintlify components (Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, ParamField, Tabs, Mermaid) without MDX parse errors. Every endpoint page listed under the API reference tab (incidents, triage, investigation, remediation, memory, skills, triggers, integrations, knowledge, graph, billing, notifications, audit, webhooks, GitHub, tenants, API keys, analytics, health, widget, relay) renders its H1 matching the `title` frontmatter. The Dockerfile's runtime stage is reproducible: rebuilding from a clean Docker cache produces a functionally identical image that passes AC-031."
+      "Verify AC-032: The built site, when served by the runtime image, renders the same 133 MDX pages, the same four navigation tabs, the same redirect (`/quickstart` \u2192 `/getting-started/quickstart`), and the same Mintlify components (Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, ParamField, Tabs, Mermaid) without MDX parse errors. Every endpoint page listed under the API reference tab (incidents, triage, investigation, remediation, memory, skills, triggers, integrations, knowledge, graph, billing, notifications, audit, webhooks, GitHub, tenants, API keys, analytics, health, widget, relay) renders its H1 matching the `title` frontmatter. The Dockerfile's runtime stage is reproducible: rebuilding from a clean Docker cache produces a functionally identical image that passes AC-031."
     ],
     "acceptance_checks": [
       "AC-032"
