@@ -101,3 +101,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: coding agent failed three times
 - Defects: 
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T22:21:00.527Z — Explicit Resume
+
+- WorkItem: WI-AC-023
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Transient agent failure with an empty defect list; retry so the blocked invariants-and-validation context can be re-run.
+- NextAction: Coding Attempt 1
