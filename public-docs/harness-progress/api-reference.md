@@ -387,3 +387,25 @@ Merge with strategy ort failed.
 - WorkItem: WI-AC-014
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:24:00.867Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-014
+- Defects: **Verification Summary — WI-AC-014 (AC-014)**
+
+I verified the Authentication page at `api-reference/authentication.mdx` against all AC-014 criteria:
+
+| Check | Result |
+|-------|--------|
+| Page serves HTTP 200 via `mint dev` | ✅ |
+| **JWT Bearer token** section with code examples | ✅ |
+| **API key authentication** section with code example | ✅ |
+| **Webhook HMAC signature** section with code examples | ✅ |
+| Bash HMAC example produces correct signature (cross-verified with Node.js) | ✅ |
+| `verifyWebhookSignature` function logic end-to-end (valid, invalid, empty body) | ✅ |
+| JS-equivalent of `verifyWebhookSignature` passes `node --check` | ✅ |
+
+**Defects found: 0** — All acceptance criteria satisfied. The page renders all three authentication sections with working code examples, and the HMAC signature verification logic is syntactically valid and functionally correct.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-014-1-integration_qa.log
+- NextAction: Repair Plan
