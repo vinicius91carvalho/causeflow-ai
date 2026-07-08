@@ -811,3 +811,16 @@ Merge with strategy ort failed.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/testing_and_observability/WI-AC-042-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08 — VERIFY-FIRST isolated QA (WI-AC-040)
+
+- Verifier: coding-agent (verify-first) on integrated main
+- WorkItem: WI-AC-040 / AC-040 (context=testing_and_observability, category=testing)
+- Boundary: static code audit of playwright.config.ts
+- Step 1: 4 viewport projects declared — chromium-mobile (375×812), chromium-tablet (768×1024), chromium-desktop (1280×800), chromium-wide (1440×900). All use `devices['Desktop Chrome']` (chromium only). ✓
+- Step 2: `workers: 3`, `fullyParallel: true`, `trace: 'off'`, `screenshot: 'off'`, `video: 'off'`. ✓
+- Step 3: `webServer` block starts `pnpm exec next start -H 127.0.0.1` (cwd: ./apps/website) against `baseURL` (default `http://127.0.0.1:3000`) with `reuseExistingServer: true` (non-CI). Also starts dashboard on port 3001. ✓
+- Installed version: `@playwright/test@1.58.2` (^1.58.2 in package.json, installed 1.58.2). ✓
+- Single config for both apps: testDir=./tests covers website tests (audit.spec.ts, visual-functional.spec.ts, theme-switcher.spec.ts) and dashboard tests (tests/dashboard/, tests/e2e/dashboard/). ✓
+- Working tree: clean (fb9b72b). Zero-diff checkpoint — no code changes needed.
+- Verdict: implementation=true
