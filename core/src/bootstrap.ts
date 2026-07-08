@@ -1191,7 +1191,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     remediationUseCases,
     notificationUseCases,
     analyticsUseCases,
-    adminDeps: { incidentRepo, ingestAlert: webhookUseCases.ingestAlert },
+    adminDeps: { incidentRepo, ingestAlert: webhookUseCases.ingestAlert, createManualIncident },
     apiKeyUseCases,
     codeKnowledgeUseCases,
     relayGateway: overrides?.relayGateway,

@@ -8,10 +8,12 @@ import { ValidationError, TestErrorFiredError } from '../../../shared/domain/err
 import type { AppEnv } from '../../../shared/infra/http/hono-types.js';
 import type { IIncidentRepository } from '../domain/incident.repository.js';
 import type { IngestAlertUseCase } from '../application/ingest-alert.usecase.js';
+import type { CreateManualIncidentUseCase } from '../application/create-manual-incident.usecase.js';
 
 export interface AdminDeps {
     incidentRepo: IIncidentRepository;
     ingestAlert: IngestAlertUseCase;
+    createManualIncident: CreateManualIncidentUseCase;
 }
 
 const redriveSchema = z.object({
@@ -43,6 +45,39 @@ export function createAdminRoutes(deps: AdminDeps): Hono<AppEnv, import("hono/ty
         // The global error handler catches TestErrorFiredError and returns:
         //   HTTP 500 { error: 'TestErrorFired', traceId }
         throw new TestErrorFiredError('fire-test-errors', traceId);
+    });
+
+    // POST /incidents — create a manual incident (no role check, API key auth provides tenant context)
+    const manualIncidentSchema = z.object({
+        title: z.string().min(5),
+        description: z.string().min(10),
+        severity: z.enum(['critical', 'high', 'medium', 'low', 'info']).optional(),
+        suggestedAgents: z.array(z.string()).optional(),
+    });
+    app.post('/incidents', zValidator('json', manualIncidentSchema), async (c) => {
+        const tenantId = c.get('tenantId');
+        const body = c.req.valid('json');
+        const userId = c.get('userId') ?? 'system';
+        const userEmail = c.get('userEmail') ?? '';
+        const incident = await deps.createManualIncident.execute({
+            tenantId,
+            title: body.title,
+            description: body.description,
+            severity: body.severity,
+            suggestedAgents: body.suggestedAgents,
+            createdBy: userEmail || 'admin-api',
+            actorUserId: userId,
+            actorEmail: userEmail,
+            sourceProvider: 'manual',
+        });
+        return c.json({
+            incidentId: incident.incidentId,
+            status: incident.status,
+            sourceProvider: incident.sourceProvider,
+            message: incident.status === 'triaging'
+                ? 'Manual incident created and queued for investigation'
+                : 'Manual incident created and queued for triage',
+        }, 201);
     });
 
     app.get('/costs', requireRole('admin'), async (c) => {
