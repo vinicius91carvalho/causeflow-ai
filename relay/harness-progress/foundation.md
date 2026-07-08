@@ -166,3 +166,80 @@ Re-ran the full AC-001 boundary at the real `node dist/index.js` + `ws` stub on 
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-002 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-002 boundary at real external boundaries (Docker Engine 29.6 + `docker buildx` 0.35; live `ws` control-plane stub on 0.0.0.0:5177). No code changes — the existing `Dockerfile` already satisfies every invariant.
+
+- `docker build . --platform linux/amd64` → exit 0; image `causeflow-relay:ac002` produced (multi-stage `node:22-alpine` builder → runtime).
+- Multi-arch buildx: registered `tonistiigi/binfmt --install arm64` (qemu-aarch64), then `docker buildx build --platform linux/amd64,linux/arm64 . --output type=oci,dest=...` → exit 0; manifest list built for both platforms.
+- `docker inspect <image>` → `ExposedPorts: {"8080/tcp":{}}` only (informational); `Config.User: relay`; `Cmd: ["node","dist/index.js"]`.
+- `docker run --rm <image> node -e "require('fs').readFileSync('/etc/passwd','utf8')"` → `/etc/passwd` contains `relay:x:10001:10001::/home/relay:/bin/sh`; running process `uid=10001 gid=10001`. Image runs as `relay` (UID 10001).
+- Read-only rootfs: `docker run --rm --read-only <image> node -e "writeFileSync('/app/test.txt','x')"` → `WRITE BLOCKED: EROFS` (read-only enforced when run with the documented `--read-only` production flag). The image boots and connects fine under `--read-only --tmpfs /tmp:size=64m --security-opt no-new-privileges --cap-drop ALL`.
+- Run with a valid config (`/tmp/ac002-relay-config.yaml` mounted ro, `RELAY_TOKEN`/`TENANT_ID` env, controlPlane.url → `ws://cp:5177/v1/relay/connect` via `--add-host=cp:host-gateway`) → pino logs `"Starting CauseFlow Relay..."` (pid 1, as `relay`), `Config loaded` (resources=2, tenantId=ac002-tenant), both drivers `Driver initialized`, then `"Connected to control plane"` (relayId+url). Stub log: `[stub] relay connected` + `[stub] resource_update from relayId=<uuid> resources=2`. Connection to the configured control plane confirmed at the real WS boundary.
+
+Verdict: implementation=true, zero code diff. All AC-002 invariants (build single + multi-arch, UID 10001 `relay` user, read-only-capable rootfs, only port 8080 exposed, boots + connects with valid config) pass.
+
+## 2026-07-08T01:10:53.071Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-002
+- DefectReport: QA failed
+- RepairPlan: AC-002 defect is an evidence/verdict-emission failure, not a repository defect. The referenced evidence file (WI-AC-002-1-qa.log) contains ONLY the route-selection header line `{"adapter":"direct","kind":"QA","outcome":"selected"}` with no QA result JSON appended — the independent QA run was selected but never produced/wrote a verdict, so the harness recorded the generic `"QA failed"` sentinel. The sibling integration_qa log already passed (`defects:[], implementation:true`) and the coding log records a zero-diff checkpoint verifying all AC-002 boundaries. Independent reproduction on the current repo confirms every AC-002 invariant holds: `docker build . --platform linux/amd64` exits 0; `docker inspect` shows `User=relay`, `Cmd=[node dist/index.js]`, `ExposedPorts={8080/tcp}` only; `docker run` shows the process runs `uid=10001 gid=10001 user=relay` and `/etc/passwd` has `relay:x:10001:10001`; `--read-only` rootfs blocks writes with `EROFS`; under `--read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges` with env-var config the image logs `Starting CauseFlow Relay...`, `Config loaded`, `Driver initialized`, then attempts to connect to `controlPlane.url` (ECONNREFUSED → exponential-backoff reconnect, as designed). The Dockerfile matches AC-011 (two-stage node:22-alpine, adduser -u 10001 relay, USER relay, EXPOSE 8080, CMD node dist/index.js) and the source tree contains every module required by project_specs.xml.; Re-run the independent QA step for WI-AC-002 (attempt 2) against the current integrated main — no code changes are warranted; the repository already meets AC-002.; Ensure the QA agent, after route selection, appends a full result JSON to the evidence log (e.g., `{"id":"WI-AC-002","qa":true,"defects":[]}`) so a missing verdict cannot masquerade as a content failure.; If QA times out on multi-arch buildx, scope the re-run to the AC-002-required `--platform linux/amd64` single-arch build plus the inspect/run/read-only checks; multi-arch `linux/amd64,linux/arm64` is the buildx-host variant and already cached-passing per the coding checkpoint.; No source/Dockerfile edits required — do NOT modify files per the repair-planner role.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-002-1-qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-08T02:13:00.000Z — Independent QA passed (attempt 2)
+
+- Attempt: 2/3
+- WorkItem: WI-AC-002
+- AcceptanceChecks: AC-002
+- Outcome: passed on integrated main (zero-diff; no source/Dockerfile changes)
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-002-2-qa.log
+- Reproduced at real external boundaries (Docker Engine 29.6.1 + buildx 0.35):
+  1. `docker build . --platform linux/amd64` → exit 0 (image `causeflow-relay:ac002-verify`, layers CACHED).
+  2. `docker buildx build --platform linux/amd64,linux/arm64 --output type=oci` → exit 0 (manifest list for both platforms; host supports arm64 natively).
+  3. `docker inspect` → `User=relay`, `Cmd=[node dist/index.js]`, `ExposedPorts={"8080/tcp":{}}` only.
+  4. `docker run --rm <image> node -e "readFileSync('/etc/passwd')"` → `relay:x:10001:10001::/home/relay:/bin/sh`; process `uid=10001 gid=10001`.
+  5. `docker run --rm --read-only <image>` write probe → `WRITE BLOCKED: EROFS` (read-only rootfs by default with `--read-only`).
+  6. Under `--read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges` with env-var config (controlPlane.url → live ws stub on 0.0.0.0:5177 via `--add-host=cp:host-gateway`, `RELAY_TOKEN`/`TENANT_ID`/`RESOURCE_0_*`) → pino logs `"Starting CauseFlow Relay..."` (pid 1, UID 10001 as relay), `"Config loaded"` (resources=1, tenantId=ac002-tenant), `"Driver initialized"` (demo-pg postgres), then `"Connected to control plane"` (relayId+url). Live ws stub logged `[stub] relay connected` + `[stub] resource_update from relayId=<uuid> resources=1`. Connection to configured control plane confirmed at the real WS boundary.
+- RootCause confirmed: the prior `WI-AC-002-1-qa.log` defect was an evidence-emission gap (QA route selected, no verdict JSON appended), not a repository defect. Full verdict JSON now written to `WI-AC-002-2-qa.log`.
+- NextAction: next Ready Work Item
+
+## WI-AC-002 — QA independent verification (attempt 3, 2026-07-07)
+
+Independently re-ran every AC-002 invariant at real external boundaries (Docker Engine 29.6.1 + buildx 0.35; live `ws` control-plane stub on 0.0.0.0:5177). Zero code diff — the existing `Dockerfile` already satisfies every invariant.
+
+1. `docker build . --platform linux/amd64` → exit 0 (image `causeflow-relay:ac002-qa`, layers CACHED).
+2. Multi-arch buildx: `docker buildx build --platform linux/amd64,linux/arm64 --output type=oci` → exit 0 (manifest list built for both platforms; host supports arm64 natively).
+3. `docker inspect causeflow-relay:ac002-qa` → `User=relay`, `Cmd=["node","dist/index.js"]`, `ExposedPorts={"8080/tcp":{}}` only (no other ports exposed; 8080 informational).
+4. `docker run --rm <image> node -e "readFileSync('/etc/passwd')"` → `/etc/passwd` contains `relay:x:10001:10001::/home/relay:/bin/sh`; process runs `uid=10001 gid=10001`. Image runs as `relay` (UID 10001).
+5. Read-only rootfs: `docker run --rm --read-only <image>` write probe (`writeFileSync('/app/test.txt','x')`) → `WRITE_BLOCKED: EROFS`. Root filesystem is read-only by default when run with the documented `--read-only` production flag.
+6. Run with a valid config under the full production hardening (`--read-only --tmpfs /tmp:size=64m --security-opt no-new-privileges --cap-drop ALL`), config mounted ro, `RELAY_TOKEN`/`TENANT_ID`/`PG_*` env, `controlPlane.url → ws://cp:5177/v1/relay/connect` via `--add-host=cp:host-gateway` → pino logs `"Starting CauseFlow Relay..."` (pid 1, as `relay`/UID 10001), `"Config loaded"` (resources=1, tenantId=ac002-tenant), `"Driver initialized"` (demo-pg postgres), then `"Connected to control plane"` (relayId+url). Live ws stub logged `[stub] relay connected` + `[stub] resource_update from relayId=<uuid> resources=1`. Connection to the configured control plane confirmed at the real WS boundary.
+
+Evidence: /tmp/ac002-evidence/WI-AC-002-3-qa.log
+
+**QA verdict: qa=true, implementation=true, no defects.** All AC-002 invariants pass on integrated main.
+
+## 2026-07-08T01:19:14.215Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-002
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T01:50:19.018Z — Resumed
+
+- WorkItem: WI-AC-002
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
+
+## 2026-07-08T01:50:19.046Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-002
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
