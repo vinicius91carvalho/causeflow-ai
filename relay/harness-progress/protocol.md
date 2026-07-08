@@ -179,3 +179,14 @@ fatal: Unable to write index.
   ```
 - Verdict: jsonrpc='2.0'; id echoed; result is array of 2; each entry shaped `{resourceId,type,name,database,readOnly:true}`; types `postgres`|`mongodb`; readOnly===true for all; derived from policy engine resource list. All checks green.
 - Outcome: implementation=true (zero-diff checkpoint — no code changes). No defects.
+
+## 2026-07-08T18:10Z — QA independent re-audit (WI-AC-017)
+
+- Role: qa-agent. Independent re-test at the real WebSocket boundary in isolated worktree.
+- Method: Custom probe script (`node .harness/test-list-resources.mjs`) that starts a `ws.WebSocketServer` on `127.0.0.1:5189`, spawns the real compiled relay via `node dist/index.js` with env-var fallback config (2 resources: test-pg postgres, test-mongo mongodb, database: test), waits for `resource_update`, sends JSON-RPC 2.0 `list_resources` with no params, and validates response shape.
+- Captured response:
+  ```json
+  {"jsonrpc":"2.0","id":"720fce1e-7464-4ed7-a8b5-655ce7286669","result":[{"resourceId":"test-pg","type":"postgres","name":"Test PostgreSQL","database":"test","readOnly":true},{"resourceId":"test-mongo","type":"mongodb","name":"Test MongoDB","database":"test","readOnly":true}]}
+  ```
+- All checks green: jsonrpc='2.0', id echoed, result is array of 2, each entry has exactly `{resourceId,type,name,database,readOnly:true}`, readOnly===true for all, types `postgres`|`mongodb`, resourceId/type/name/database values match configured resources.
+- Outcome: qa=true, implementation=true, defects=none. No code changes (independent audit of already-working implementation).
