@@ -302,11 +302,11 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 1,
-    "verify_notes": "QA pass: mint dev on port 3002 (3000 in use) — GET /api-reference/authentication returns 200; rendered page contains all three sections (JWT Bearer token with h2, curl + TypeScript examples; API key authentication with X-API-Key header example; Webhook HMAC signature with h2, bash + TypeScript examples including verifyWebhookSignature function); verifyWebhookSignature function passes node --check; bash HMAC example passes bash -n and produces valid sha256= output; TypeScript fetch example passes node --check; all code examples syntactically valid."
+    "verify_notes": "VERIFY-FIRST PASS: mint dev on port 5174 — GET /api-reference/authentication returns 200; rendered Playwright-captured body contains all three sections (JWT Bearer token with h2, curl + TypeScript examples; API key authentication with X-API-Key header example; Webhook HMAC signature with h2, bash + TypeScript examples including verifyWebhookSignature function); verifyWebhookSignature function passes node --check; Bash HMAC example produces correct HMAC (cross-verified with Node.js crypto.createHmac); verifyWebhookSignature logic end-to-end (valid, invalid, empty body) all PASS. Zero defects. Feature_list.json status corrected from stale false to true."
   },
   {
     "id": "WI-AC-015",

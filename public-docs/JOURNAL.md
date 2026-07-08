@@ -151,3 +151,29 @@ auth sections, each has working code examples, and the `verifyWebhookSignature`
 logic compiles syntactically and functions correctly.
 
 qa=true implementation=true integration=true
+
+## 2026-07-08 — VERIFY-FIRST (coding-agent)
+
+- Run by: coding-agent (VERIFY-FIRST mode)
+- HEAD: 95d2020
+- mint dev running on port 5174
+- Black-box verification with Playwright (chromium headless)
+- AC-014: The Authentication page renders sections for JWT Bearer tokens, API keys, and Webhook HMAC signature verification, each with a working code example; the `verifyWebhookSignature` snippet passes `node --check`.
+
+### Results
+
+| Check | Result |
+|-------|--------|
+| `GET /api-reference/authentication` → HTTP 200 | ✅ |
+| JWT Bearer token section with curl + TypeScript examples | ✅ |
+| API key authentication section with X-API-Key header example | ✅ |
+| Webhook HMAC signature section with Bash + TypeScript examples | ✅ |
+| `verifyWebhookSignature` passes `node --check` | ✅ |
+| `verifyWebhookSignature` end-to-end (valid, invalid, empty body) | ✅ |
+| Bash HMAC example cross-verified with Node.js (identical output) | ✅ |
+
+### Verdict
+
+All AC-014 criteria pass at the real HTTP boundary. The page renders all three authentication sections with working code examples, and the HMAC signature verification logic is syntactically valid and functionally correct. Zero defects. `feature_list.json` corrected from stale `implementation=false` to `implementation=true`.
+
+implementation=true qa=true integration=true
