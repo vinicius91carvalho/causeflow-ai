@@ -411,3 +411,24 @@ Probe: a small ESM script importing `./dist/config/loader.js`, invoking `loadCon
 Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.ts` (env-var fallback when no YAML file present) + `src/config/schema.ts` (shared `relayConfigSchema` Zod parse).
 
 Verdict: implementation=true, zero code diff. All AC-005 conditions pass on integrated main.
+
+## WI-AC-005 — QA independent verification (2026-07-07)
+
+Re-ran AC-005 independently as qa-agent at the real `node` boundary (clean `dist` from `npm run build`, exit 0).
+
+Probe script (`scripts/test-ac005.mjs`, deleted after run) imported `dist/config/loader.js` + `dist/config/schema.js` and exercised every AC-005 invariant with `RELAY_CONFIG_PATH` pointing at a non-existent path and `/app/relay-config.yaml` absent → `existsSync` false → env-var fallback branch. 19 assertions, all pass:
+
+- Default `CONTROL_PLANE_URL` = `ws://localhost:3000/v1/relay/connect` when unset. ✓
+- `RELAY_TOKEN` / `TENANT_ID` read into `controlPlane.token` / `controlPlane.tenantId`. ✓
+- Walk over `RESOURCE_0_*` / `RESOURCE_1_*` stops at the first missing `RESOURCE_N_ID` (2 resources when 0+1 present; 1 resource when `RESOURCE_2_ID` is set but `RESOURCE_1_ID` is missing — walk does not skip gaps). ✓
+- Each `RESOURCE_N_CONNECTION` is `JSON.parse`d into the resource `connection` record (host string, port number preserved). ✓
+- `RESOURCE_N_MAX_ROWS` honored; missing → default 1000. ✓
+- Fallback config round-trips through the same `relayConfigSchema.parse` as the YAML path (re-parse deep-equal). ✓
+- Zod-default `allowedOperations` (all 4) applied in the fallback path. ✓
+- No resources (no `RESOURCE_0_ID`) → `relayConfigSchema` rejects with `too_small` min 1 array error (fails fast, does not silently start). ✓
+- Malformed `RESOURCE_0_CONNECTION` JSON → `JSON.parse` throws (no silent fallback). ✓
+- Missing `RELAY_TOKEN` → defaults to `''` (schema accepts string). ✓
+
+Real-process boundary: `env -u RELAY_CONFIG_PATH CONTROL_PLANE_URL=ws://127.0.0.1:9/... RELAY_TOKEN=rt TENANT_ID=ti RESOURCE_0_ID=r0 RESOURCE_0_TYPE=postgres RESOURCE_0_CONNECTION='{"host":"h","port":5432,"database":"d","user":"u","password":"p"}' node dist/index.js` → pino `Starting CauseFlow Relay...`, `Config loaded` (`resources:1, tenantId:ti`), `Driver initialized` (id=r0, type=postgres), then WS ECONNREFUSED + reconnect backoff 1s→2s→4s. Confirms the env-fallback config boots the real entry point (no YAML present, default `/app/relay-config.yaml` absent).
+
+**QA verdict: qa=true, implementation=true, no defects.**
