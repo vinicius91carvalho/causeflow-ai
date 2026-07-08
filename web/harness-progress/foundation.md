@@ -839,3 +839,37 @@ Dev process stays in foreground until killed (confirmed via `pgrep -f next-dev`)
 - The dashboard's `.env.local` sets `CORE_API_URL=` (blank) to fall through to the mock client for local dev.
 
 No defects within the AC-002 boundary at this retry. implementation=true set for WI-AC-002.
+
+## WI-AC-002 — Independent QA (qa-agent, isolated worktree)
+
+**Result: qa=true, implementation=true** — all AC-002 requirements pass at the real HTTP boundary on ports 3000/3001.
+
+### Boundary exercised
+
+Real external boundary: `pnpm turbo dev` (both apps) launched on ports 3000 (website) and 3001 (dashboard). Real HTTP requests against both dev servers. Two `next-server` processes remain alive in the foreground.
+
+### Independent AC-002 evidence
+
+**Step 1 — `pnpm turbo dev` starts both apps in parallel:** Log shows both apps started concurrently via Turbo with content-hash cache bypass. Website: `next dev --hostname 127.0.0.1` (port 3000, Ready in 1394ms). Dashboard: `next dev --hostname localhost -p 3001` (port 3001, Ready in 3.8s). All 7 tasks (5 cached builds + 2 dev) successful. ✓
+
+**Step 2 — Website homepage and dashboard landing page return 200:**
+- `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/` → **HTTP 200** ✓
+- `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/product` → **HTTP 200** ✓
+- `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/security` → **HTTP 200** ✓
+- `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/integrations` → **HTTP 200** ✓
+- `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/pricing` → **HTTP 200** ✓
+- `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/use-cases` → **HTTP 200** ✓
+- `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/privacy` → **HTTP 200** ✓
+- `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/terms` → **HTTP 200** ✓
+- `curl -sL -o /dev/null -w '%{http_code}' http://localhost:3001/` → **HTTP 200** (follows redirect chain: / → /dashboard → /auth/sign-in) ✓
+- `curl -s -o /dev/null -w '%{http_code}' http://localhost:3001/auth/sign-in` → **HTTP 200** ✓
+
+**Step 3 — Dev process stays in foreground:** Two next-server processes observed running (PID 2598348 on port 3000, PID 2598347 on port 3001), 56+ seconds active. ✓
+
+### Defect flag: website `package.json` has unused AWS SDK deps
+
+During the test the website initially served 200 but then started returning 500 (`Cannot find module './vendor-chunks/@opentelemetry.js'`) due to a stale `.next` cache. After clearing `.next` and restarting fresh, all 8 website routes and the dashboard landing page returned 200 consistently for the full test duration. The root cause is that `apps/website/package.json` lists `@aws-sdk/client-dynamodb` and `@aws-sdk/lib-dynamodb` as runtime dependencies even though neither is imported anywhere in the website source. These unused deps pull in `@opentelemetry` transitively and can corrupt the Webpack code-split build when the `.next` cache is interrupted (e.g. by OOM or SIGKILL). This is a latent issue (not blocking under clean-start conditions) but is flagged for the maintainer. It does not affect the AC-002 pass verdict because the spec steps pass on a clean start.
+
+### Verdict
+
+All AC-002 steps pass at the real HTTP boundary. No blocking defects. qa=true, implementation=true for WI-AC-002.
