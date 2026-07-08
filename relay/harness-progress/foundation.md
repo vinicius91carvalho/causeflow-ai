@@ -432,3 +432,10 @@ Probe script (`scripts/test-ac005.mjs`, deleted after run) imported `dist/config
 Real-process boundary: `env -u RELAY_CONFIG_PATH CONTROL_PLANE_URL=ws://127.0.0.1:9/... RELAY_TOKEN=rt TENANT_ID=ti RESOURCE_0_ID=r0 RESOURCE_0_TYPE=postgres RESOURCE_0_CONNECTION='{"host":"h","port":5432,"database":"d","user":"u","password":"p"}' node dist/index.js` → pino `Starting CauseFlow Relay...`, `Config loaded` (`resources:1, tenantId:ti`), `Driver initialized` (id=r0, type=postgres), then WS ECONNREFUSED + reconnect backoff 1s→2s→4s. Confirms the env-fallback config boots the real entry point (no YAML present, default `/app/relay-config.yaml` absent).
 
 **QA verdict: qa=true, implementation=true, no defects.**
+
+## 2026-07-08T02:41:42.089Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-005
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
