@@ -571,3 +571,12 @@ Ran AC-010 at the real `npx commitlint` boundary on integrated `main` (HEAD 5cd2
 - `npx commitlint` rejects (exit 1, `type-empty`/`subject-empty`): `updated stuff`, `random commit message`, `fixed bug`, `Fix something` — non-Conventional-Commit messages do not pass. ✓
 
 **Verify-first verdict: implementation=true (zero-diff checkpoint).** AC-010 satisfied on existing main; no edits to `commitlint.config.js` or any tracked source required.
+
+## 2026-07-08T QA — WI-AC-010 independent verdict
+
+- Role: qa-agent. Isolated worktree at the repo root.
+- Re-ran AC-010 at the real `npx commitlint` boundary (deps installed: `@commitlint/cli@19.8.1`, `@commitlint/config-conventional@19.8.1`).
+- `commitlint.config.js` content: `export default { extends: ['@commitlint/config-conventional'] };`. `npx commitlint --print-config` resolves the extends chain (parserPreset `conventional-changelog-conventionalcommits`, `breakingHeaderPattern` recognizes `!` suffix, `noteKeywords` include `BREAKING CHANGE`).
+- Accepts (exit 0): `fix: handle ws reconnect`, `feat: add redis driver`, `feat!: change config schema` (with and without `BREAKING CHANGE:` footer), `feat: change config schema` + `BREAKING CHANGE: schema redesigned` footer.
+- Rejects (exit 1): `updated stuff` (`type-empty`/`subject-empty`), `fix handle ws reconnect` (no colon → type-empty), `foobar: something` (`type-enum` violation), empty stdin (input required → exit 1).
+- Verdict: qa=true, implementation=true. No defects. Zero-diff (no tracked source changes).
