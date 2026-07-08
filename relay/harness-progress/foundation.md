@@ -515,3 +515,10 @@ Real-process end-to-end (live `ws` stub on 127.0.0.1:5199; config with `token: $
 Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.ts` (`interpolateEnv` replaces `\${(\w+)}` with `process.env[varName] ?? ''`; `interpolateObject` recurses through string/array/object) + `src/config/schema.ts`.
 
 **QA verdict: qa=true, implementation=true, no defects.** All AC-006 conditions pass (string interpolation at any nesting depth; empty-string substitution for unset vars with no throw; interpolated token reaches the real WS wire).
+
+## 2026-07-08T02:59:34.884Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
