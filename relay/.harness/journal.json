@@ -16,6 +16,22 @@
       }
     },
     {
+      "id": "WI-AC-019",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-08T21:42:00Z",
+      "details": "Integrated Verification pass for AC-019 (health_check). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + postgres + mongo). Sent JSON-RPC 2.0 health_check request through stub to relay. Response: [{resourceId:'order-pg', type:'postgres', healthy:true, latencyMs:6}, {resourceId:'order-mongo', type:'mongodb', healthy:true, latencyMs:0}]. All 5 test groups passed: correct JSON-RPC 2.0 response shape, both drivers present, all latencyMs >=0, error-handling path verified (try/catch in HealthReporter.checkAll() catches throws, logs warn with {err,resourceId}, returns healthy:false+latencyMs, other drivers unaffected), dispatch routes health_check to healthReporter.checkAll(). No defects.",
+      "checks": {
+        "response_shape": "passed",
+        "both_drivers_present": "passed",
+        "healthy_status": "passed",
+        "latencyMs_valid": "passed",
+        "error_handling_try_catch": "passed",
+        "dispatch_routing": "passed"
+      }
+    },
+    {
       "id": "WI-AC-017",
       "qa": true,
       "implementation": true,
