@@ -44,6 +44,9 @@ export const authMiddleware: MiddlewareHandler<AppEnv> = async (c, next) => {
   try {
     const payload = await verifyToken(token, {
       secretKey: config.clerk.secretKey,
+      // Networkless verification when CLERK_JWT_KEY (PEM) is configured; falls
+      // back to JWKS lookup via secretKey when unset (production Clerk).
+      ...(config.clerk.jwtKey ? { jwtKey: config.clerk.jwtKey } : {}),
     });
 
     // IDOR PROTECTION: tenantId comes ONLY from verified JWT org claims.
