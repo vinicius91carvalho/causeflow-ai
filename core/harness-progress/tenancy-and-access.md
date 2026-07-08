@@ -367,3 +367,11 @@ Local QA artefacts (gitignored): `/tmp/ac009-qa.env`, `/tmp/ac009-qa-priv.pem`, 
 - Outcome: user authorized a new Attempt cycle
 - Guidance: A real merge conflict during integration, not a rate limit -- the MERGE agent gets a fresh independent attempt at resolving it. Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T16:13:42.006Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- Outcome: coding agent failed three times
+- Defects: 429: {"message":"Provider returned error","code":429,"metadata":{"raw":"qwen/qwen3-coder:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Venice","is_byok":false,"retry_after_seconds":26,"retry_after_seconds_raw":25.917,"headers":{"Retry-After":"26"}}}
+- NextAction: User reviews evidence and explicitly resumes with guidance
