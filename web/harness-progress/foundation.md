@@ -554,3 +554,10 @@ Real external boundary: website dev server (`next dev --hostname 127.0.0.1 --por
 The generator's verify-first fix (declaring `LOOPS_API_KEY` in `.env.example`) correctly realizes the AC-038 described state: Loops.so is declared as a planned integration in docs + `.env.example`, the only runtime reference is the CSP `connect-src` allow-list, and there is no `/api/notify` route and no consumer. All three steps pass at the real HTTP + filesystem boundary. No defects.
 
 qa=true, implementation=true for WI-AC-038.
+
+## 2026-07-08T02:29:57.976Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-038
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
