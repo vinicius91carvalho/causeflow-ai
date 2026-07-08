@@ -42,3 +42,10 @@ Re-ran the full AC-001 boundary independently as qa-agent in the isolated worktr
 - Documented env-var fallback (`CONTROL_PLANE_URL` + `RESOURCE_0_*` + `RELAY_TOKEN`/`TENANT_ID`) also boots, connects, and authenticates (tenantId=envtenant, token=envtoken).
 
 **QA verdict: qa=true, implementation=true, no defects.**
+
+## 2026-07-08T00:04:21.168Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-001
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
