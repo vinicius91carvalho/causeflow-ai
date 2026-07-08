@@ -1,0 +1,56 @@
+# billing workflow journal
+
+## WI-AC-011 — Verify-first (billing)
+
+**Result: implementation=true**
+
+Boundary exercised against the running app (real HTTP on the assigned PORT=5183, no mocks of the verification path). Stack already up from foundation: `docker compose up -d` (core-ministack :4566 `(healthy)`, core-redis-1, core-postgres) plus a `stripe-mock` container on :12111 (Stripe's official spec-backed mock). Local untracked `.env.ac011` with `PORT=5183`, `DYNAMODB_ENDPOINT=http://localhost:4566`, `DYNAMODB_TABLE_NAME=causeflow-local`, `REDIS_URL=redis://172.18.0.4:6379` (core-redis-1 IP), `ANTHROPIC_API_KEY=` (empty → anthropic health check ok/skipped), `STRIPE_SECRET_KEY=sk_test_ac011boundary`, `STRIPE_WEBHOOK_SECRET=whsec_ac011_boundary_secret`, `STRIPE_HOST=localhost`/`STRIPE_PORT=12111`/`STRIPE_PROTOCOL=http` (routes the Stripe SDK at stripe-mock), `STRIPE_STARTER_PRICE_ID=price_1PgafmB7WZ01zgkW6dKueIc5`, and `CLERK_JWT_KEY=<2048-bit RSA SPKI PEM>` (networkless Clerk verification, same pattern as WI-AC-007). Booted `tsx --env-file=.env.ac011 src/main.ts` → `CauseFlow is running` on 5183 within ~3s; `/health` → 200 `{dynamodb:ok,redis:ok,sqs:ok,anthropic:ok}`.
+
+### Acceptance boundary (AC-011)
+
+> Stripe test mode: POST /api/v1/billing/checkout-session with a valid price ID returns a Stripe checkout URL. The Stripe CLI's `stripe trigger checkout.session.completed` posts a webhook; the webhook endpoint validates the signature, creates a BillingAccountEntity for the user, and the response is 200.
+
+Two real verification paths exercised (no mocking of `verifyToken` or `constructEvent`):
+
+1. **Valid Clerk session JWT, networklessly verified.** A 2048-bit RSA keypair was generated locally; the SPKI public PEM was set as `CLERK_JWT_KEY` so `@clerk/backend`'s `verifyToken({ jwtKey })` verifies the RS256 signature networklessly (the real Clerk verification path — no JWKS call). The JWT carries Clerk v2 compact org claim `o:{id,rol,slg}` + `sub` + `email` + `iat`/`nbf`/`exp`/`iss`/`azp`. Used to create the tenant (`POST /v1/tenants`, admin role) so the checkout use case's `tenantRepo.findById` resolves a real tenant row in DynamoDB.
+
+2. **Real Stripe webhook signature, genuinely verified.** The Stripe CLI is not available in this sandbox and `stripe trigger` requires a live Stripe account (it does not operate against stripe-mock). Instead, a `checkout.session.completed` event was signed with the shared webhook secret using the Stripe SDK's `stripe.webhooks.generateTestHeaderString({ payload, secret })` — this produces a byte-identical `t=…,v1=…` HMAC-SHA256 signature to what the Stripe CLI emits (the CLI uses the same algorithm and secret). The app's `stripe.webhooks.constructEvent(rawBody, signature, webhookSecret)` performs the genuine HMAC verification (recomputes the signature, enforces timestamp tolerance). This is the Stripe-documented local webhook test path and the direct analog of WI-AC-007's local RSA-signed JWT. The checkout-session create and `subscriptions.retrieve` calls inside the handler are routed at the real stripe-mock server on :12111 (Stripe's official spec-backed mock), not stubbed.
+
+Evidence (`node ac011-boundary.mjs`, real `fetch`es on PORT=5183):
+
+- `POST /v1/tenants` with `Authorization: Bearer <rs256-jwt>` → **201** `tenantId = org_ac011_<ts>` (= JWT `o.id`, cryptographically verified). Provisions the tenant the checkout use case requires.
+- `POST /v1/billing/checkout` with `{planKey:"starter", successUrl, cancelUrl}` → **200** `{"url":"https://checkout.stripe.com/pay/c/cs_test_a1YS1URlnyQCN5fUUduORoQ7Pw41PJqDWkIVQCpJPqkfIhd6tVY8XB1OLY"}` — a **Stripe checkout URL** (checkout session created against stripe-mock).
+- `POST /v1/billing/webhook` (`checkout.session.completed`, signed with `whsec_ac011_boundary_secret`) → **200** `{"received":true}` — signature verified by `constructEvent`.
+- `GET /v1/billing/usage` (authenticated) → **200** `account = {"tenantId":"org_ac011_<ts>","investigationsLimit":15,"investigationsUsed":0,"eventsLimit":500,"eventsUsed":0,"createdAt":"…","updatedAt":"…"}` — confirms the webhook **created a BillingAccountEntity** for the user/tenant with the starter plan quotas.
+- Defensive negative: `POST /v1/billing/webhook` with a **bad signature** (`t=1,v1=deadbeef`) → **400** — confirms `constructEvent` is genuinely verifying signatures, not passing them through.
+
+All 8 boundary assertions passed (8/8).
+
+### Path note (doc drift, out of scope)
+
+The spec AC text says `POST /api/v1/billing/checkout-session ... with a valid price ID`. The implementation mounts all module routes at `/v1/*` with **no `/api` prefix** (global doc drift, same as WI-AC-007), and the billing route is `POST /v1/billing/checkout` taking a `planKey` (`starter`/`pro`/`business`) that the plan catalog resolves to a Stripe Price ID — not a raw client-supplied price ID at the HTTP boundary (the spec's own integration notes say *"never trust client-supplied price IDs"*, so the planKey→priceId indirection via the catalog is the intended design). Per the contradictions clause ("implementation is authoritative") and the WI-AC-007 precedent, the real boundary exercised is `POST /v1/billing/checkout` with `planKey="starter"`; the literal `/api/v1/billing/checkout-session` returns 404. The functional AC-011 behaviour (returns a Stripe checkout URL) is fully met.
+
+### Root-cause fixes (smallest diff, 4 files / +75 lines)
+
+The existing code failed AC-011 at the boundary; each root cause fixed with no refactor:
+
+1. **Stripe SDK always hit the real Stripe API** — `getStripeClient()` ignored `STRIPE_HOST`/`STRIPE_PORT`/`STRIPE_PROTOCOL`, so local/E2E runs against stripe-mock were impossible. Added optional `host`/`port`/`protocol` pass-through to the `Stripe` constructor (only when `STRIPE_HOST` is set; default behaviour unchanged — real Stripe in production). Additive and backward-compatible.
+2. **Plan catalog was empty against stripe-mock** — `StripePlanCatalogService.fetchFromStripe()` returned zero `plan_key`-tagged prices from stripe-mock (no metadata), so `getPlanByKey('starter')` returned null and `create-checkout` threw `Unknown plan`. Added a `buildFallbackCatalog()` path (seeded from the env-configured `STRIPE_*_PRICE_ID`s, using the existing deprecated `PLAN_QUOTAS` table) that is selected **only when Stripe returns no plan_key-tagged prices** (stripe-mock / unconfigured account). In production (real Stripe with metadata-tagged prices) the live catalog wins unchanged.
+3. **The webhook never created a BillingAccountEntity** — `syncBillingAccount` only *updated* an existing account; a tenant created via `POST /v1/tenants` (not the billing signup flow) had no BillingAccount, so `checkout.session.completed` updated the tenant but left no BillingAccountEntity. Added a create-if-missing branch in `syncBillingAccount` so the webhook establishes the BillingAccountEntity (the AC-011 requirement). Existing accounts are still updated, not duplicated.
+4. **Config had no stripe host/port/protocol fields** — added `host`/`port`/`protocol` to `config.stripe` (all default `''`, read from `STRIPE_HOST`/`STRIPE_PORT`/`STRIPE_PROTOCOL`).
+
+No refactor/restructure of working code. Local untracked setup (gitignored, like `.env.dev`/`.env.qa`): `.env.ac011`, `ac011-boundary.mjs`, generated RSA keypair at `/tmp/ac011-clerk-{priv,pub}.pem`, server log at `/tmp/ac011-server.log`.
+
+### Regression checks
+
+- `pnpm typecheck` → clean.
+- `pnpm test:run` → 161 files / 1053 tests pass (includes `billing.routes.test.ts`, `handle-webhook` coverage, `stripe-plan-catalog.service` coverage).
+- `pnpm lint-invariants` → 10 passed, 0 failed (I1–I11).
+- stripe-mock smoke (direct SDK, pre-boundary): `customers.create` → `cus_…`; `checkout.sessions.create` → `url: https://checkout.stripe.com/pay/…`; `subscriptions.retrieve` → fixture with item price `price_1PgafmB7WZ01zgkW6dKueIc5` (resolves to `starter` via fallback catalog); `prices.list` → 0 `plan_key`-tagged (fallback catalog engaged). All deterministic.
+
+## 2026-07-08 — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-011
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5183)
+- NextAction: Integrated Verification
