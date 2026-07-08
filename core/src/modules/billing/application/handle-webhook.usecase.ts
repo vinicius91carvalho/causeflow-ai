@@ -303,11 +303,16 @@ export class HandleWebhookUseCase {
       return;
     }
     await this.safeUpdate(tid, {
+      plan: 'free',
       subscriptionStatus: 'canceled',
       cancelAtPeriodEnd: false,
       stripeSubscriptionId: undefined,
       updatedAt: new Date().toISOString(),
     });
+
+    // Drop the tenant's BillingAccount quotas to the free plan (0 investigations /
+    // 0 events) so gated endpoints return 402 after the subscription is deleted.
+    await this.syncBillingAccount(tid, 'free');
   }
 
   async handlePaymentFailed(invoice: StripeInvoice): Promise<void> {
@@ -341,8 +346,21 @@ export class HandleWebhookUseCase {
   private async syncBillingAccount(tid: string, plan: TenantPlan): Promise<void> {
     if (!this.billingAccountRepo) return;
     try {
-      const planDef = await this.planCatalog.getPlanByKey(plan);
-      if (!planDef) return;
+      // The free plan is the post-cancellation tier (0 investigations / 0 events).
+      // Resolve it directly so the drop-to-free behaviour does not depend on a
+      // "free" Price existing in the Stripe account (production accounts
+      // typically have no free price). Paid plans resolve via the catalog.
+      let investigationsLimit: number | undefined;
+      let eventsLimit: number | undefined;
+      if (plan === 'free') {
+        investigationsLimit = 0;
+        eventsLimit = 0;
+      } else {
+        const planDef = await this.planCatalog.getPlanByKey(plan);
+        if (!planDef) return;
+        investigationsLimit = planDef.investigationsLimit;
+        eventsLimit = planDef.eventsLimit;
+      }
 
       const now = new Date().toISOString();
       const account = await this.billingAccountRepo.findByTenantId(tenantId(tid));
@@ -352,9 +370,9 @@ export class HandleWebhookUseCase {
         // establishes the BillingAccountEntity for the user.
         await this.billingAccountRepo.create({
           tenantId: tenantId(tid),
-          investigationsLimit: planDef.investigationsLimit,
+          investigationsLimit: investigationsLimit!,
           investigationsUsed: 0,
-          eventsLimit: planDef.eventsLimit,
+          eventsLimit: eventsLimit!,
           eventsUsed: 0,
           createdAt: now,
           updatedAt: now,
@@ -362,8 +380,8 @@ export class HandleWebhookUseCase {
         return;
       }
       await this.billingAccountRepo.update(tenantId(tid), {
-        investigationsLimit: planDef.investigationsLimit,
-        eventsLimit: planDef.eventsLimit,
+        investigationsLimit: investigationsLimit!,
+        eventsLimit: eventsLimit!,
         updatedAt: now,
       });
     } catch (err) {
