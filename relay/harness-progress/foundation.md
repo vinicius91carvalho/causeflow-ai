@@ -759,3 +759,12 @@ Boundary evidence (each step exits 0 on a passing PR):
 4. `docker build . --platform linux/amd64` → exit 0 (linux/amd64 manifest list built).
 
 No defects. No code changes. integration=true.
+
+## 2026-07-08T04:16:45.101Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-007
+- AcceptanceChecks: AC-007
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-007-1-integration_qa.log
+- NextAction: next Ready Work Item
