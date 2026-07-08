@@ -551,3 +551,42 @@ stack from a clean shell env. No defects. `qa=true`, `implementation=true`.
 - WorkItem: WI-AC-055
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T03:00:00Z — Integrated Verification (AC-055)
+
+- WorkItem: WI-AC-055
+- AcceptanceChecks: AC-055
+- Outcome: integration=true, implementation=true, qa=true
+- Method: Integrated Verification on latest `main`. Tore down any prior stack,
+  then ran `env -i PATH=$PATH HOME=$HOME docker compose --env-file .env.example
+  up -d` from a clean shell (no vendor env vars present), and verified the live
+  external docker-compose boundary end-to-end.
+
+### Integration results (AC-055 clause by clause on integrated main)
+
+- `.env.example` present at repo root; contains only relay env vars with the
+  required defaults (RELAY_TOKEN=harness-smoke-token, TENANT_ID=harness-tenant,
+  CONTROL_PLANE_URL=ws://relay-control-plane-stub:3000/v1/relay/connect,
+  PG_HOST=relay-postgres, PG_PORT=5432, PG_DATABASE=relay, PG_USER=relay,
+  PG_PASSWORD=relay, MONGO_URI=mongodb://relay-mongo:27017,
+  MONGO_DATABASE=relay, MASKING_ENABLED=true, AUDIT_ENABLED=true).
+- `grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example`
+  → 0.
+- `env -i ... docker compose --env-file .env.example up -d` → all four services
+  Up:
+  - relay-control-plane-stub (Up)
+  - relay-postgres (Up, healthy)
+  - relay-mongo (Up, healthy)
+  - relay (Up)
+- Core smoke behavior at external boundaries:
+  - relay boot log: `"Starting CauseFlow Relay..."` then
+    `"msg":"Connected to control plane"` url=ws://relay-control-plane-stub:3000/v1/relay/connect.
+  - stub log: `[stub] resource_update from relayId=<uuid> resources=2`.
+  - Relay connects over the docker network to the local stub only; no vendor
+    hostnames resolved anywhere.
+
+### Verdict
+
+All AC-055 acceptance criteria pass at the real docker-compose boundary on
+integrated main. No defects. `integration=true`, `implementation=true`,
+`qa=true`. feature_list.json WI-AC-055 `integration` set to `true`.
