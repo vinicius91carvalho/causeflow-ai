@@ -90,5 +90,26 @@
         "non_error_throw_fallback": "passed"
       }
     }
+  },
+    {
+      "id": "WI-AC-021",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-08T22:15:00Z",
+      "details": "Integrated Verification pass for AC-021 (protocol: execute response shape with masking). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + postgres + mongo). Sent JSON-RPC 2.0 execute request with { resourceId:'order-pg', operation:'query', params:{ sql:'SELECT id, status FROM orders' } }. Response result shape: { rows:Array(5), rowCount:5, fields:[{name:'id',type:'int4'},{name:'status',type:'text'}], executionTimeMs:1, masked:false, maskedFieldCount:0 }. All 10 shape checks passed: jsonrpc 2.0, id echoed, rows array, rowCount number, fields array with correct entries, executionTimeMs >= 0, masked boolean equals (maskedFieldCount > 0). Additional test with PII data (CPF) confirms masking works: CPF masked to '***.***.***-**', masked=true, maskedFieldCount=1, non-PII plain text unchanged. No code changes needed.",
+      "checks": {
+        "response_shape": "passed",
+        "rows_array": "passed",
+        "rowCount_integer": "passed",
+        "fields_array": "passed",
+        "executionTimeMs_positive": "passed",
+        "masked_boolean": "passed",
+        "maskedFieldCount_integer": "passed",
+        "masked_equals_condition": "passed",
+        "masking_with_pii": "passed",
+        "non_pii_unchanged": "passed"
+      }
+    }
   ]
 }
