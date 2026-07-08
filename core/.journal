@@ -1,0 +1,52 @@
+# QA Journal - WI-AC-030 (integrations-and-notifications: Slack OAuth + Events)
+
+## Test Date
+2026-07-08
+
+## Environment
+- API running on PORT=5185 against ministack (DynamoDB, SQS, KMS at localhost:4566)
+- Env: AWS mode (CAUSEFLOW_RUNTIME=aws), test JWT auth with JWT_SECRET
+- SLACK_SIGNING_SECRET=test-signing-secret
+
+## Test Results
+
+### POST /api/v1/integrations/slack/install
+- With valid admin JWT → 200, returns {"authUrl": "...", "state": "..."}
+- Auth URL contains correct OAuth params (client_id, scope, redirect_uri, state)
+- State HMAC-signed correctly (CSRF protection)
+- State persisted to DynamoDB SlackOAuthStateEntity (verified: tenantId, state, ttl, createdAt stored)
+- ✅ PASS
+
+### POST /api/v1/integrations/slack/install (no auth)
+- Without Authorization header → 401, {"error":"UNAUTHORIZED","message":"Missing or invalid Authorization header"}
+- ✅ PASS
+
+### POST /api/v1/integrations/slack/events (url_verification)
+- {"type":"url_verification","challenge":"test123xyz"} → 200, {"challenge":"test123xyz"}
+- ✅ PASS
+
+### POST /api/v1/integrations/slack/events (valid signature)
+- Body signed with HMAC-SHA256 using SLACK_SIGNING_SECRET + timestamp + raw body
+- Valid X-Slack-Signature + X-Slack-Request-Timestamp headers → 200, {"ok":true}
+- ✅ PASS
+
+### POST /api/v1/integrations/slack/events (tampered body)
+- Wrong X-Slack-Signature → 401, {"error":"Invalid signature"}
+- ✅ PASS
+
+### POST /api/v1/integrations/slack/events (missing headers)
+- No X-Slack-Signature or X-Slack-Request-Timestamp → 401, {"error":"Missing signature headers"}
+- ✅ PASS
+
+### GET /api/v1/integrations/slack/config (not installed)
+- With admin JWT → 200, {"connected":false}
+- ✅ PASS
+
+## Observations
+1. The /install endpoint correctly generates a state token, persists it to SlackOAuthStateEntity in DynamoDB, and returns the Slack OAuth authorize URL.
+2. The /events endpoint correctly verifies Slack signing secret using HMAC-SHA256, rejects tampered bodies (401), and acknowledges valid events (200).
+3. The events endpoint does not currently forward received events to trigger a chat reply - it acknowledges and logs only.
+4. The OAuth completion / callback requires a real Slack app for end-to-end testing (not possible in this isolated test).
+
+## Verdict
+qa=true implementation=true
