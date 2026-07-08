@@ -122,3 +122,10 @@ Independently re-ran the full AC-001 boundary as qa-agent in the isolated worktr
 - Env-var fallback (`CONTROL_PLANE_URL` + `RESOURCE_0_*` JSON `{"port":5432}` + `RELAY_TOKEN=envtoken`/`TENANT_ID=envtenant`, no YAML) → boots, `Config loaded` (tenantId=envtenant, resources=1), `Driver initialized`, connects as `token=envtoken&tenantId=envtenant`, stub receives `resource_update` with 1 resource.
 
 Verdict: qa=true, implementation=true, no defects. All AC-001 boundaries pass.
+
+## 2026-07-08T00:20:04.422Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-001
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
