@@ -91,6 +91,7 @@ import { AnthropicHealthCheck } from './shared/infra/health/checks/anthropic-che
 import { CircuitBreaker } from './shared/infra/llm/circuit-breaker.js';
 import { getRedisClient } from './shared/infra/cache/redis-client.js';
 import { DynamoApiKeyRepository } from './modules/tenant/infra/dynamo-api-key.repository.js';
+import { configureAuthApiKeyRepo } from './shared/infra/http/middleware/auth.middleware.js';
 import { CreateApiKeyUseCase } from './modules/tenant/application/create-api-key.usecase.js';
 import { ListApiKeysUseCase } from './modules/tenant/application/list-api-keys.usecase.js';
 import { RevokeApiKeyUseCase } from './modules/tenant/application/revoke-api-key.usecase.js';
@@ -934,6 +935,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // API Key Use Cases
   const apiKeyRepo = new DynamoApiKeyRepository();
+  // Wire the API-key resolver into the auth middleware so `cflo_…` Bearer
+  // tokens resolve to their tenant + creator identity on every request.
+  configureAuthApiKeyRepo(apiKeyRepo);
   const apiKeyUseCases: ApiKeyUseCases = {
     createApiKey: new CreateApiKeyUseCase(apiKeyRepo, eventBus),
     listApiKeys: new ListApiKeysUseCase(apiKeyRepo),

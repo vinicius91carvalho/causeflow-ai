@@ -16,17 +16,25 @@ export interface ApiKeyUseCases {
 
 const createApiKeySchema = z.object({
     name: z.string().min(1).max(100),
+    scopes: z.array(z.string()).optional(),
 });
 export function createApiKeyRoutes(useCases: ApiKeyUseCases): Hono<AppEnv, import("hono/types").BlankSchema, "/"> {
     const app = new Hono<AppEnv>();
     app.post('/', requireRole('admin'), zValidator('json', createApiKeySchema), async (c) => {
         const tenantId = c.get('tenantId');
-        const { name } = c.req.valid('json');
-        const result = await useCases.createApiKey.execute({ tenantId, name });
+        const { name, scopes } = c.req.valid('json');
+        const result = await useCases.createApiKey.execute({
+            tenantId,
+            name,
+            scopes,
+            createdBy: c.get('userId'),
+            createdByEmail: c.get('userEmail'),
+        });
         return c.json({
             keyId: result.apiKey.keyId,
             name: result.apiKey.name,
             prefix: result.apiKey.prefix,
+            scopes: result.apiKey.scopes ?? [],
             plaintext: result.plaintext,
             createdAt: result.apiKey.createdAt,
         }, 201);

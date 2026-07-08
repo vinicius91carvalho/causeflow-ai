@@ -1,9 +1,19 @@
 import type { MiddlewareHandler } from 'hono';
 import { verifyToken } from '@clerk/backend';
+import { createHash } from 'node:crypto';
 import { config } from '../../../config/index.js';
 import { UnauthorizedError } from '../../../domain/errors.js';
 import { tenantId } from '../../../domain/value-objects.js';
+import type { IApiKeyRepository } from '../../../../modules/tenant/domain/api-key.repository.js';
 import type { AppEnv } from '../hono-types.js';
+
+// API-key resolver injected by the composition root (src/bootstrap.ts). When
+// configured, a Bearer token shaped `cflo_...` is resolved to its tenant (and
+// creator identity) instead of being treated as a Clerk JWT.
+let apiKeyRepo: IApiKeyRepository | null = null;
+export function configureAuthApiKeyRepo(repo: IApiKeyRepository | null): void {
+    apiKeyRepo = repo;
+}
 
 const PUBLIC_PATHS = [
   '/health',
@@ -40,6 +50,27 @@ export const authMiddleware: MiddlewareHandler<AppEnv> = async (c, next) => {
   }
 
   const token = authHeader.slice(7);
+
+  // Programmatic API key (cflo_ prefix) — resolves tenant + creator identity
+  // via the API key repository. Falls through to Clerk JWT verification when
+  // the token is not an API key.
+  if (token.startsWith('cflo_') && apiKeyRepo) {
+    try {
+      const keyHash = createHash('sha256').update(token).digest('hex');
+      const apiKey = await apiKeyRepo.findByHash(keyHash);
+      if (!apiKey || apiKey.status !== 'active') {
+        throw new UnauthorizedError('Invalid or revoked API key');
+      }
+      c.set('userId', apiKey.createdBy ?? `apikey:${apiKey.keyId}`);
+      c.set('userEmail', apiKey.createdByEmail ?? '');
+      c.set('userRoles', ['apikey']);
+      c.set('tenantId', tenantId(apiKey.tenantId));
+      return next();
+    } catch (err) {
+      if (err instanceof UnauthorizedError) throw err;
+      throw new UnauthorizedError('Invalid or expired token');
+    }
+  }
 
   try {
     const payload = await verifyToken(token, {

@@ -276,3 +276,35 @@ Local QA artefacts (gitignored, like `.env.dev`): `/tmp/ac008-intq.env`, `/tmp/a
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-008-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T04:46:00Z — Verify-First boundary pass (WI-AC-009, this worktree)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- AcceptanceChecks: AC-009
+- Outcome: implementation=true (AC-009 passes at the real HTTP boundary on PORT=5182)
+
+Verified AC-009 against a FRESH server booted from HEAD with `node --env-file=/tmp/ac008-intq.env --import tsx/esm src/main.ts` (PORT=5182). `GET /health` → 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`. Real `fetch` HTTP, real `@clerk/backend` networkless RS256 verification (RSA-2048 keypair at `/tmp/ac008-intq-priv.pem`; public SPKI in `CLERK_JWT_KEY`), real DynamoDB at ministack :4566 — no mocks. Boundary script (gitignored scratch): minted a Clerk JWT (org:admin) for a fresh `org_ac009_<ts>`, then exercised the three AC sub-behaviours. **4/4 passed:**
+
+1. `POST /v1/api-keys` with `{name, scopes:["incidents:read"]}` → **201** `{keyId, name, prefix:"cflo_…", scopes:["incidents:read"], plaintext:"cflo_<64hex>", createdAt}` — plaintext key returned on creation.
+2. `GET /v1/auth/me` AND `GET /v1/whoami` with `Authorization: Bearer cflo_…` → **200** resolving user + tenant (`{user:{id,email}, tenantId, role:"apikey", roles:["apikey"]}`). The API key resolves the creator identity (userId/email stored on the key) and the tenant.
+3. Per-tenant key quota: created keys until cap hit — the 6th active key → **429** `{error:"QUOTA_EXCEEDED", message:"API key quota exceeded for tenant (limit=5)", details:{limit:5,active:5}}`.
+
+Path note (doc drift, same as WI-AC-007/008, not a defect): spec AC wording says `/api/v1/...`; implementation mounts routes at `/v1/*` with no `/api` prefix (global). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/api-keys` and `/v1/whoami`. `/v1/auth/me` is the pre-existing whoami-equivalent; a dedicated `/v1/whoami` route was added so the literal AC path resolves.
+
+Root causes fixed (smallest possible diff, no refactor):
+- `src/shared/infra/http/middleware/auth.middleware.ts` — only verified Clerk JWTs, so `cflo_…` Bearer tokens 401'd. Added an API-key branch: when the token starts with `cflo_` and a repo is configured, resolve the key by SHA-256 hash, require `status==='active'`, and set `tenantId` + creator identity (`userId`/`userEmail` from the key) + `roles:['apikey']`. Wired via a `configureAuthApiKeyRepo(repo)` setter called from `src/bootstrap.ts` so the existing `authMiddleware` export (and the two integration tests that import it directly) keep their signature and default behaviour.
+- `src/app.ts` — added `GET /v1/whoami` returning `{user:{id,email}, tenantId, role, roles}` from the middleware context (works for both Clerk JWTs and API keys).
+- `src/modules/tenant/application/create-api-key.usecase.ts` — no quota existed. Added per-tenant active-key quota (`MAX_API_KEYS_PER_TENANT`, default 5, env-overridable) enforced before key creation; throws new `QuotaExceededError` (429). Also now persists the creator's `userId`/`userEmail` and `scopes` so whoami resolves a real principal.
+- Supporting schema/DTO plumbing (all additive, backward-compatible): `ApiKeyEntity` + `api-key.entity.ts` + `dynamo-api-key.repository.ts` carry optional `scopes`/`createdBy`/`createdByEmail`; `api-key.routes.ts` accepts an optional `scopes` array and passes the creator context from the request.
+
+Regression: `pnpm typecheck` clean; `pnpm lint-invariants` I1–I11 pass (10/10); `pnpm test:run` → 162 files / 1057 tests pass (incl. tenant + auth unit suites). Per-tenant existing `create-api-key.test.ts` still passes because the quota count uses `(await listByTenant) ?? []`.
+
+Local QA artefacts (gitignored): boundary script + `/tmp/ac009-server.log`; fresh server left running on 5182 (pid 428319).
+
+## 2026-07-08T04:46:30Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5182, fresh server, 4/4; 9-file minimal diff)
+- NextAction: Integrated Verification
