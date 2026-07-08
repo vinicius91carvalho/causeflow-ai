@@ -7,6 +7,15 @@ vi.mock('@/lib/api/with-auth', () => ({
   withAuth: (handler: (req: NextRequest) => Promise<NextResponse>) => handler,
 }));
 
+// AC-042: handlers now call auth() for structured logging + Sentry capture.
+vi.mock('@clerk/nextjs/server', () => ({
+  auth: () => Promise.resolve({ userId: undefined, orgId: undefined }),
+}));
+vi.mock('@/lib/logger', () => ({
+  logger: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn() },
+}));
+vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }));
+
 const mockGetSlackConfig = vi.fn();
 const mockUpdateSlackConfig = vi.fn();
 const mockDeleteSlackOAuth = vi.fn();
@@ -31,6 +40,7 @@ import {
 function makeRequest(method: string, body?: unknown): NextRequest {
   return {
     method,
+    url: 'http://localhost:3001/api/integrations/slack/config',
     json: () => Promise.resolve(body),
   } as unknown as NextRequest;
 }

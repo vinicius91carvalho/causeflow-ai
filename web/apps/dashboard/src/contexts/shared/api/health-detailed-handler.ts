@@ -1,6 +1,8 @@
+import * as Sentry from '@sentry/nextjs';
 import { NextResponse } from 'next/server';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 /**
  * GET /api/health/detailed
@@ -27,8 +29,18 @@ export const GET = withAuth(
         },
       });
     } catch (error) {
-      console.error('[health-detailed] Failed to fetch from backend:', error);
-      // Return a degraded status instead of failing entirely
+      // AC-042: log the upstream failure with a structured payload and
+      // forward to Sentry, then return a degraded 200 so the UI keeps
+      // rendering. This is a graceful-degradation branch (status 200),
+      // not a non-recoverable 500 — the same redaction applies via the
+      // logger's REDACT_PATHS.
+      dashLogger.error(
+        { err: error, method: 'GET', path: '/api/health/detailed' },
+        'Failed to fetch detailed health from backend',
+      );
+      Sentry.captureException(error, {
+        extra: { method: 'GET', path: '/api/health/detailed' },
+      });
       return NextResponse.json(
         {
           status: 'degraded' as const,

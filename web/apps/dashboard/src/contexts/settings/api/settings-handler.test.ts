@@ -27,6 +27,13 @@ vi.mock('@/lib/api/get-api-client', () => ({
   }),
 }));
 
+// AC-042: capture dashLogger.error + Sentry.captureException on 5xx paths
+const dashLoggerMock = { error: vi.fn(), info: vi.fn(), warn: vi.fn() };
+vi.mock('@/lib/logger', () => ({ logger: dashLoggerMock }));
+
+const sentryMock = { captureException: vi.fn() };
+vi.mock('@sentry/nextjs', () => ({ default: sentryMock, ...sentryMock }));
+
 // ctx shape is mutated per-test so we can exercise admin vs member.
 type Role = 'admin' | 'member';
 let currentRole: Role = 'admin';
@@ -50,6 +57,8 @@ beforeEach(() => {
   updateTenant.mockReset();
   getUserProfile.mockReset();
   getTenant.mockReset();
+  dashLoggerMock.error.mockClear();
+  sentryMock.captureException.mockClear();
   currentRole = 'admin';
 });
 
@@ -225,9 +234,10 @@ describe('PATCH /api/settings — routing rule', () => {
     expect(body.settings.locale).toBe('pt-br');
   });
 
-  it('case C.err — both: if updateUserSettings rejects, return 502 and surface error', async () => {
+  it('case C.err — both: if updateUserSettings rejects, return 502 and surface error (AC-042: logs + captures)', async () => {
+    const boom = new Error('user settings boom');
     currentRole = 'admin';
-    updateUserSettings.mockRejectedValueOnce(new Error('user settings boom'));
+    updateUserSettings.mockRejectedValueOnce(boom);
     updateTenant.mockResolvedValueOnce({ id: 'tenant_test', name: 'Acme', plan: 'free' });
 
     const { PATCH } = await importHandler();
@@ -236,6 +246,26 @@ describe('PATCH /api/settings — routing rule', () => {
     expect(res.status).toBe(502);
     const body = (await res.json()) as { error: string };
     expect(body.error).toBe('user settings boom');
+
+    // AC-042: non-recoverable 502 must log structured payload + forward to Sentry
+    expect(dashLoggerMock.error).toHaveBeenCalledTimes(1);
+    const payload = dashLoggerMock.error.mock.calls[0][0];
+    expect(payload).toMatchObject({
+      method: 'PATCH',
+      path: '/api/settings',
+      userId: 'user_test',
+      tenantId: 'tenant_test',
+      err: boom,
+    });
+    expect(typeof payload.duration).toBe('number');
+    expect(sentryMock.captureException).toHaveBeenCalledTimes(1);
+    expect(sentryMock.captureException.mock.calls[0][0]).toBe(boom);
+    expect(sentryMock.captureException.mock.calls[0][1].extra).toMatchObject({
+      method: 'PATCH',
+      path: '/api/settings',
+      userId: 'user_test',
+      tenantId: 'tenant_test',
+    });
   });
 
   it('case C.err.2 — both: if updateTenant rejects, return 502 and surface error', async () => {

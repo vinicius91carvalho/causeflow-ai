@@ -1,13 +1,16 @@
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { submitFeedbackSchema } from '@/contexts/investigation/infrastructure/api-schema';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 /**
  * GET /api/incidents/[id]/feedback
  * List feedback for a specific incident.
  */
-export const GET = withAuth(async (_request: NextRequest, _ctx, params) => {
+export const GET = withAuth(async (request: NextRequest, ctx, params) => {
+  const start = Date.now();
   const id = params?.id;
   if (!id) {
     return NextResponse.json({ error: 'Incident ID is required' }, { status: 400 });
@@ -18,7 +21,16 @@ export const GET = withAuth(async (_request: NextRequest, _ctx, params) => {
     const result = await client.listFeedback(id);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Failed to list feedback:', error);
+    const logPath = new URL(request.url).pathname;
+    const logPayload = {
+      method: request.method,
+      path: logPath,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
+      duration: Date.now() - start,
+    };
+    dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+    Sentry.captureException(error, { extra: logPayload });
     return NextResponse.json({ error: 'Failed to load feedback' }, { status: 500 });
   }
 });
@@ -27,7 +39,8 @@ export const GET = withAuth(async (_request: NextRequest, _ctx, params) => {
  * POST /api/incidents/[id]/feedback
  * Submit feedback for a specific incident.
  */
-export const POST = withAuth(async (request: NextRequest, _ctx, params) => {
+export const POST = withAuth(async (request: NextRequest, ctx, params) => {
+  const start = Date.now();
   const id = params?.id;
   if (!id) {
     return NextResponse.json({ error: 'Incident ID is required' }, { status: 400 });
@@ -53,7 +66,16 @@ export const POST = withAuth(async (request: NextRequest, _ctx, params) => {
     const item = await client.submitFeedback(parsed.data);
     return NextResponse.json(item, { status: 201 });
   } catch (error) {
-    console.error('Failed to submit feedback:', error);
+    const logPath = new URL(request.url).pathname;
+    const logPayload = {
+      method: request.method,
+      path: logPath,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
+      duration: Date.now() - start,
+    };
+    dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+    Sentry.captureException(error, { extra: logPayload });
     const status =
       error && typeof error === 'object' && 'status' in error
         ? (error as { status: number }).status

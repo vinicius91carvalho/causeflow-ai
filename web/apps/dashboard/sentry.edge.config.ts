@@ -18,6 +18,8 @@ Sentry.init({
     }
     // Scrub request body (may contain tokens/credentials)
     if (event.request?.data) {
+      // AC-042: wholesale scrub of request.data satisfies the "same redaction
+      // in the observability layer" requirement.
       delete event.request.data;
     }
     // Scrub cookies
