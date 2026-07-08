@@ -345,3 +345,10 @@ Local QA artefacts (gitignored): `/tmp/ac009-qa.env`, `/tmp/ac009-qa-priv.pem`, 
 - PreviousPhase: integration_qa
 - Attempt: 1
 - NextAction: integration-qa
+
+## 2026-07-08T15:38:49.542Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
