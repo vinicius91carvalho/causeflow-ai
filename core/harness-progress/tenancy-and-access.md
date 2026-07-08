@@ -267,3 +267,12 @@ Regression: `pnpm test:run tests/unit/modules/audit` → 9 files / 69 tests pass
 Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/api/v1/audit/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/audit/...`. Role note: codebase maps `org:admin`→`admin`, all other org roles→`member` (no literal `viewer` role string); member is the non-admin viewer-equivalent and is correctly blocked at 403 by `requireRole('admin')`. Functional AC-008 behaviour fully met.
 
 Local QA artefacts (gitignored, like `.env.dev`): `/tmp/ac008-intq.env`, `/tmp/ac008-intq-boundary.mjs`, `/tmp/ac008-intq-priv.pem`, `/tmp/ac008-intq-pub.pem`, `/tmp/ac008-intq-server.log`. Fresh server left running on 5182 (pid 183224).
+
+## 2026-07-08T04:28:16.355Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-008
+- AcceptanceChecks: AC-008
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-008-2-integration_qa.log
+- NextAction: next Ready Work Item
