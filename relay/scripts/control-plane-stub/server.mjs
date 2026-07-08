@@ -109,9 +109,8 @@ async function runSmoke(ws, relayId) {
       }
     }
 
-    // Execute SELECT 1 (AC-054) — log-only, does not affect exit code.
-    // When Postgres is running this succeeds; when Postgres is stopped (for
-    // AC-053's partial-health scenario) it fails gracefully.
+    // Execute SELECT 1 (AC-054) — assert response shape: rows has { one: 1 },
+    // rowCount=1, fields includes name:'one' type:'int4', masked=false.
     const execId = sendRpc(ws, 'execute', {
       resourceId: 'order-pg',
       operation: 'query',
@@ -119,8 +118,42 @@ async function runSmoke(ws, relayId) {
     });
     const exec = await waitForResponse(ws, execId);
     log(`execute(SELECT 1) result=${JSON.stringify(exec.result ?? exec.error)}`);
+    if (exec.error) {
+      log(`smoke error: execute(SELECT 1) returned error - ${JSON.stringify(exec.error)}`);
+      exitCode = 1;
+    } else if (!exec.result) {
+      log(`smoke error: execute(SELECT 1) returned no result`);
+      exitCode = 1;
+    } else {
+      const r = exec.result;
+      if (!Array.isArray(r.rows) || r.rows.length !== 1 || r.rows[0].one !== 1) {
+        log(`smoke error: execute(SELECT 1) rows mismatch - ${JSON.stringify(r.rows)}`);
+        exitCode = 1;
+      }
+      if (r.rowCount !== 1) {
+        log(`smoke error: execute(SELECT 1) rowCount=${r.rowCount} expected 1`);
+        exitCode = 1;
+      }
+      const hasOneField = Array.isArray(r.fields) && r.fields.some(f => f.name === 'one' && f.type === 'int4');
+      if (!hasOneField) {
+        log(`smoke error: execute(SELECT 1) fields missing int4 'one' - ${JSON.stringify(r.fields)}`);
+        exitCode = 1;
+      }
+      if (typeof r.executionTimeMs !== 'number') {
+        log(`smoke error: execute(SELECT 1) executionTimeMs not a number - ${r.executionTimeMs}`);
+        exitCode = 1;
+      }
+      if (r.masked !== false) {
+        log(`smoke error: execute(SELECT 1) masked=${r.masked} expected false`);
+        exitCode = 1;
+      }
+      if (r.maskedFieldCount !== 0) {
+        log(`smoke error: execute(SELECT 1) maskedFieldCount=${r.maskedFieldCount} expected 0`);
+        exitCode = 1;
+      }
+    }
 
-    // Execute list_tables (AC-054) — log-only, does not affect exit code.
+    // Execute list_tables (AC-054) — assert result.rows contains an 'orders' row.
     const listId = sendRpc(ws, 'execute', {
       resourceId: 'order-pg',
       operation: 'list_tables',
@@ -128,6 +161,22 @@ async function runSmoke(ws, relayId) {
     });
     const list = await waitForResponse(ws, listId);
     log(`execute(list_tables) result=${JSON.stringify(list.result ?? list.error)}`);
+    if (list.error) {
+      log(`smoke error: execute(list_tables) returned error - ${JSON.stringify(list.error)}`);
+      exitCode = 1;
+    } else if (!list.result || !Array.isArray(list.result.rows)) {
+      log(`smoke error: execute(list_tables) rows not an array`);
+      exitCode = 1;
+    } else {
+      const hasOrders = list.result.rows.some(row =>
+        (row.table_name && row.table_name === 'orders') ||
+        (row.name && row.name === 'orders')
+      );
+      if (!hasOrders) {
+        log(`smoke error: execute(list_tables) rows do not contain 'orders' - ${JSON.stringify(list.result.rows)}`);
+        exitCode = 1;
+      }
+    }
   } catch (err) {
     log(`smoke fatal: ${err.message}`);
     exitCode = 1;

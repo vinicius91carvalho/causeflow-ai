@@ -900,3 +900,58 @@ exit 0. feature_list.json WI-AC-053 set to `integration: true`.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-053-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T20:36:00Z — Implementation (AC-054)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-054
+- AcceptanceChecks: AC-054
+- Outcome: implementation=true (black-box verified on running docker-compose stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-054 requires that after `docker compose up -d`, the stub sends two execute
+requests against `order-pg` and asserts the response shapes:
+1. `execute({ operation: 'query', params: { sql: 'SELECT 1 AS one' } })`
+   must return `{ rows: [{ one: 1 }], rowCount: 1, fields: [{ name: 'one',
+   type: 'int4' }], executionTimeMs: <n>, masked: false, maskedFieldCount: 0 }`.
+2. `execute({ operation: 'list_tables' })` must return `result.rows` containing
+   an `orders` row.
+
+The stub exits 0; both queries hit the local Postgres on the docker network.
+
+**Changes:**
+- `scripts/control-plane-stub/server.mjs`: upgraded the two execute operations
+  from log-only (per AC-053) to full assertions. The SELECT 1 assertion checks
+  rows, rowCount, fields (name + type), executionTimeMs, masked, and
+  maskedFieldCount. The list_tables assertion checks that result.rows contains
+  a row whose `table_name` (or `name`) equals `'orders'`. Both assertions set
+  exitCode=1 on mismatch.
+- `src/drivers/postgres/pg-driver.ts`: added an OID-to-PostgreSQL-type-name
+  mapping (`oidToType` + `OID_MAP`) so `SELECT 1 AS one` returns
+  `type: 'int4'` instead of the raw OID number `23` that the `pg` library
+  returns in `dataTypeID`. The `list_tables` and `describe_table` operations
+  already returned hardcoded type strings; only the `query` operation's field
+  mapping used `.toString()` on the raw OID.
+
+No changes to the Dockerfile, docker-compose.yml, config, monitoring, or any
+other source.
+
+### Black-box verification (SMOKE=1 on running stack)
+
+```
+[stub] execute(SELECT 1) result={"rows":[{"one":1}],"rowCount":1,"fields":[{"name":"one","type":"int4"}],"executionTimeMs":1,"masked":false,"maskedFieldCount":0}
+[stub] execute(list_tables) result={"rows":[{"table_name":"orders","table_type":"BASE TABLE"}],"rowCount":1,"fields":[{"name":"table_name","type":"text"},{"name":"table_type","type":"text"}],"executionTimeMs":1,"masked":false,"maskedFieldCount":0}
+[stub] smoke exiting with code 0
+```
+
+Both execute round-trips produce the exact JSON-RPC 2.0 responses specified by
+AC-054. The stub verifies the shapes and exits 0. The relay executes both
+queries against the local `relay-postgres` container over the docker network.
+
+The relay's audit log confirms both operations hit real Postgres:
+```
+{"resource":"order-pg","operation":"query","result":"success","rowCount":1,"executionTimeMs":1}
+{"resource":"order-pg","operation":"list_tables","result":"success","rowCount":1,"executionTimeMs":0}
+```
