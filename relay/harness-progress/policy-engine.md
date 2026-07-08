@@ -196,3 +196,23 @@ Real WebSocket boundary test against the running docker-compose stack (relay + c
 - WorkItem: WI-AC-038
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08 — Integrated Verification (qa-agent)
+
+- WorkItem: WI-AC-038
+- Context: policy-engine
+- AcceptanceChecks: AC-038
+- Outcome: PASSED
+- Evidence: Real WebSocket boundary test against running docker-compose stack
+  (relay + control-plane-stub + real Postgres + real Mongo) confirmed all 5
+  assertions of AC-038:
+  1. Postgres `limit=5000` with `maxRowsPerQuery=1000` → JSON-RPC `-32600`
+     error with message `Policy denied: Row limit 5000 exceeds maximum 1000`.
+  2. Postgres `limit=100` → policy accepts, driver clamps to `min(100,1000)=100`,
+     returns result with `rowCount: 1`.
+  3. Postgres no limit → falls back to `maxRowsPerQuery=1000`, policy accepts,
+     returns result with `rowCount: 1`.
+  4. MongoDB `limit=100` → policy accepts (no -32600), returns empty result.
+  5. MongoDB `limit=5000` → JSON-RPC `-32600` with same row-limit message.
+  All 5 tests PASS. Zero-diff: feature_list.json already has correct flags.
+- Result: implementation=true, integration=true
