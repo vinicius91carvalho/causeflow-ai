@@ -122,6 +122,49 @@ committed. No refactor, no restructuring.
 integration=true. AC-004 holds on integrated main at the real external
 boundary; no defects observed. implementation=true, qa=true.
 
+## 2026-07-08T03:45:00Z — Verify-first (WI-AC-006)
+
+- WorkItem: WI-AC-006
+- AcceptanceChecks: AC-006
+- context: content-structure
+- Mode: VERIFY-FIRST (existing codebase)
+- Attempt: 1
+- Outcome: implementation=true (zero-diff checkpoint; AC passes at real boundary)
+- NextAction: Integrated Verification
+
+### Acceptance check
+
+AC-006: All four navigation tabs declared in `docs.json` (Documentation, API
+reference, Relay, Changelog) render in the local Mintlify dev server; clicking
+the Changelog tab reaches a page whose H1 matches the title in
+`changelog/index.mdx`.
+
+### Audit result
+
+- `docs.json` `navigation.tabs` declares exactly four tabs: Documentation,
+  API reference, Relay, Changelog (lines 44, 106, 298, 323).
+- Changelog tab group points at `changelog/index`; file exists with frontmatter
+  `title: "Changelog"`.
+- Dev server running on assigned PORT=5170 (`mint dev --port 5170`, PWD =
+  public-docs).
+- No defects found in existing committed code; no changes required.
+
+### Boundary verification (real external boundary)
+
+- `GET http://localhost:5170/` → 200; rendered HTML contains all four tab
+  labels (Documentation, API reference, Relay, Changelog).
+- Representative page per tab all return 200:
+  - `/` (Documentation) → 200, H1 "CauseFlow AI Documentation"
+  - `/api-reference/introduction` (API reference) → 200, H1 "API introduction"
+  - `/relay/overview` (Relay) → 200, H1 "Relay overview"
+  - `/changelog` (Changelog) → 200, H1 "Changelog"
+- Changelog page H1 (`Changelog`) matches `changelog/index.mdx` frontmatter
+  `title` (`"Changelog"`) exactly.
+
+### Verdict
+
+implementation=true. Zero tracked files changed (zero-diff checkpoint).
+
 ## 2026-07-08T03:37:19.754Z — Integrated Verification passed
 
 - Attempt: 1/3
