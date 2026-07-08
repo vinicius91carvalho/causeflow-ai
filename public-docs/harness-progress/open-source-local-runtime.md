@@ -844,3 +844,48 @@ AC-004 holds across all 133 MDX (they previously had none).
 ### verdict
 
 implementation=true; integration=pending; qa=pending; defects=none
+
+## 2026-07-08T05:30:00Z — Independent QA (WI-AC-031)
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Method: clean `docker build --no-cache -t causeflow-docs:qa031` (exit 0);
+  fresh container `causeflow-docs-qa` on assigned port 5179 (5179->3000);
+  real HTTP (curl) + real browser (Playwright + /usr/bin/chromium) for UI.
+
+### Passes
+- AC-001: `GET /` -> 200, body has "CauseFlow AI" (x4) and "Quickstart" (x3).
+- AC-007: `GET /quickstart` -> 200 (docs.json#redirects internal rewrite),
+  lands on Quickstart page (Quickstart x4). `/changelog` -> 200.
+- AC-006: all four nav-tab landing pages 200 (Documentation `/`, API reference
+  `/api-reference/introduction`, Relay `/relay/overview`, Changelog `/changelog`);
+  Changelog H1 "Changelog" matches `changelog/index.mdx` title.
+- Full nav sweep: all 125 pages declared in docs.json -> 200.
+- AC-019: Relay overview Mermaid renders as SVG in a real browser —
+  `<svg class="flowchart">` inside `<div class="mermaid">`, id
+  `mermaid-_r_0_-...`, 8 rects; zero raw `<pre>/<code>flowchart TD` blocks.
+- AC-014: Authentication page (browser innerText) contains JWT Bearer,
+  X-API-Key, X-Webhook-Signature (HMAC), sha256.
+- AC-018 catalog: outbound-events table lists exactly 20 distinct
+  dot-namespaced events.
+- Invariants AC-022/023/024/025, AC-016, AC-017: all grep zero matches.
+- AC-004/AC-005: all 133 MDX have title+description <=160 chars.
+- AC-002: `mint broken-links` -> exit 0, zero broken links.
+- MDX count = 133.
+
+### Defect (FAILS AC-031)
+- AC-018 introduction-alignment clause violated. AC-031 requires all of
+  AC-001..AC-025 to pass; AC-018 mandates: "the introduction page's 21-event
+  count is stale and the introduction must align to 20."
+  `api-reference/introduction.mdx` line 74 still reads
+  `CauseFlow publishes 21 real-time events across seven domains` while line 88
+  (the Outbound-events Card) says `All 20 EventBus events`. The headline
+  count was never aligned to 20, so AC-018 fails and AC-031's regression gate
+  fails with it.
+  Evidence: `grep -n '21 real-time events' api-reference/introduction.mdx`
+  -> `74:CauseFlow publishes 21 real-time events across seven domains`.
+
+### verdict
+
+implementation=false; qa=false; defects=AC-018 introduction count stale (21, must be 20)
