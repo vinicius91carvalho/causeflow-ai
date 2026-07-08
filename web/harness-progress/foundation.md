@@ -583,3 +583,19 @@ fatal: Unable to write index.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Retrying again after a supervisor restart (previous supervisor process was hung, unresponsive to stop signal, force-killed and restarted cleanly). Retry for a fresh attempt.
 - NextAction: Coding Attempt 1
+
+
+## 2026-07-08T10:57:35.000Z — Verify-first (Attempt 2, post-supervisor-restart)
+
+- Attempt: 2/3
+- WorkItem: WI-AC-038
+- AcceptanceChecks: AC-038
+- Outcome: passed (zero-diff checkpoint; re-verified at real HTTP boundary on port 5172)
+- Boundary: website dev server (`next dev --hostname 127.0.0.1 --port 5172`) responding to real HTTP requests
+- Evidence:
+  - Step 1 — `apps/website/src/app` has no `/api` subdir; HTTP boundary: `GET /api/notify` -> 404, `POST /api/notify` -> 404, `GET /api` -> 404 (Next.js `_not-found`; no route registered). OK
+  - Step 2 — `apps/website/next.config.mjs:77` lists `https://app.loops.so` in CSP `connect-src`; HTTP boundary: live `Content-Security-Policy` header on `GET /en` contains `connect-src 'self' https://www.google-analytics.com https://app.loops.so https://*.clarity.ms ...`. OK
+  - Step 3 — `LOOPS_API_KEY=` declared in `apps/website/.env.example:30` (planned integration, no runtime consumer); `grep -rni 'from.*loops|require.*loops' apps/website/src/` -> no matches (no loops module imports; only textual mention in privacy-page.tsx data-processor disclosure). OK
+- Root cause / fix: none required this attempt. The single prior defect (missing `LOOPS_API_KEY` in `.env.example`) was already fixed and committed in earlier attempts (commit 7bca94b + follow-ups). Working tree is clean; the stale `index.lock` that blocked the previous integration is gone.
+- Diff: zero (tracked files unchanged) — valid verify-first checkpoint.
+- NextAction: set implementation=true; commit journal; next Ready Work Item
