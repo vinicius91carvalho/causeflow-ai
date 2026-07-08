@@ -299,3 +299,26 @@ All 7 tests in `scripts/qa/ac042-test.mjs` pass against the compiled `dist/maski
 - WorkItem: WI-AC-043
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T23:45:00.000Z — Integrated Verification Pass
+
+- WorkItem: WI-AC-043
+- AcceptanceChecks: AC-043
+- Outcome: integration=true, implementation=true, qa=true
+- Verification: Verified on latest main (commit eb710d4). All 9 tests in `scripts/qa/ac043-test.mjs` pass against compiled `dist/masking/masking-engine.js`. Boundary exercised at real external boundary: real compiled JavaScript (no mocks of the masking engine), real Node.js 22 process. Specific assertions:
+  1. Disabled engine returns original string with email/CPF unchanged, `maskedFieldCount: 0`
+  2. Disabled engine returns original array unchanged, `maskedFieldCount: 0`
+  3. Disabled engine returns original nested object unchanged, `maskedFieldCount: 0`
+  4. Disabled engine returns credit card number unchanged, `maskedFieldCount: 0`
+  5. Disabled engine returns Bearer token unchanged, `maskedFieldCount: 0`
+  6. Disabled engine returns BR phone unchanged, `maskedFieldCount: 0`
+  7. Disabled engine ignores user-defined patterns, `maskedFieldCount: 0`
+  8. null and numbers pass through unchanged, `maskedFieldCount: 0`
+  9. Regression: enabled engine still masks correctly, `maskedFieldCount: 1`
+- Config schema verification: `masking.enabled: false` accepted by Zod schema, defaults to `true` when omitted. Env-var fallback `MASKING_ENABLED=false` correctly disables masking.
+- Regression AC-040 (default patterns): PASS
+- Regression AC-041 (nested object): PASS
+- Regression AC-042 (user-defined patterns): PASS
+- `npx tsc --noEmit` clean. `npm run build` exits 0. Docker compose stack (`relay`, `relay-postgres`, `relay-mongo`, `relay-control-plane-stub`) all healthy.
+- No code changes needed — AC-043 behavior was already correctly implemented.
+- NextAction: none (WI-AC-043 fully verified)
