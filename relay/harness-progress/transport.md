@@ -580,3 +580,22 @@ Merge with strategy ort failed.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Retrying again after a supervisor restart (previous supervisor process was hung, unresponsive to stop signal, force-killed and restarted cleanly). Retry for a fresh attempt.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T12:10Z — Verify-first retry (supervisor restart)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+WorkItem: WI-AC-016 — fresh verify-first retry after supervisor restart. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Ran the real compiled `WsClient` against a real `ws.WebSocketServer` boundary (`scripts/qa/ac016-test.mts`, tsx). No mocks of the relay.
+
+Evidence (stdout):
+- `Connected to control plane` (level 30) on open.
+- Invalid JSON string `not-json{` → pino warn (level 40) `Invalid message from control plane` with `err.type=SyntaxError` + parse-error message; dropped (not forwarded).
+- Buffer payload `{"jsonrpc":"2.0","method":"health_check","id":"5"}` → forwarded (buffer path via `data.toString()`).
+- `{jsonrpc:'1.0',...}` (wrong jsonrpc) → dropped silently.
+- `{jsonrpc:'2.0',id:'2'}` (missing method) → dropped silently.
+- Well-formed `execute` id=3 and `list_resources` id=4 → forwarded.
+- `FORWARDED_COUNT=3`; ids `3,4,5`; all forwarded have `jsonrpc==='2.0'` and string `method`. `AC016_RESULT=PASS`, exit 0.
+
+Source (`src/transport/ws-client.ts` message handler): `JSON.parse(typeof data === 'string' ? data : data.toString())`; guard `if (parsed.jsonrpc === '2.0' && parsed.method)` then `this.opts.onMessage(parsed as RpcRequest)`; `catch (err) { logger.warn({ err }, 'Invalid message from control plane') }`.
+
+AC-016 contract satisfied at the real boundary. No root-cause fix required; existing code already passes. No code changes (zero-diff checkpoint).
