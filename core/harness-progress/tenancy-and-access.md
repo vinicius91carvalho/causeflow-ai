@@ -58,3 +58,10 @@ Independently reproduced the AC-007 boundary against a fresh server process on t
 Path note (doc drift, not a defect): spec AC wording says `/api/v1/auth/login`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/auth/login`; literal `/api/v1/auth/login` → 404 (positive) / 401 (no-auth). Functional AC-007 behaviour is fully met.
 
 Local QA artefacts (gitignored, like `.env.dev`): `.env.qa`, `.qa-token`, `.qa-clerk-pubkey.pem`, `qa-mint-token.mjs`, `.qa-server.log`. Server process left running on 5181 for the duration of the tenancy-and-access context.
+
+## 2026-07-08T03:17:03.834Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-007
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
