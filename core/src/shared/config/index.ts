@@ -167,6 +167,11 @@ export const config = {
     proEvtPriceId: env('STRIPE_PRO_EVT_PRICE_ID', ''),
     businessInvPriceId: env('STRIPE_BUSINESS_INV_PRICE_ID', ''),
     businessEvtPriceId: env('STRIPE_BUSINESS_EVT_PRICE_ID', ''),
+    // Optional override to point the Stripe SDK at stripe-mock (local/E2E) or a
+    // proxy. When STRIPE_HOST is unset, the SDK uses the real Stripe API.
+    host: env('STRIPE_HOST', ''),
+    port: env('STRIPE_PORT', ''),
+    protocol: env('STRIPE_PROTOCOL', ''),
   },
 
   composio: {
