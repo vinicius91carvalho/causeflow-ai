@@ -312,3 +312,234 @@ existing codebase already satisfies AC-009.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/product-narrative/WI-AC-009-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08 Verify-first — WI-AC-010
+
+- WorkItem: WI-AC-010
+- AcceptanceChecks: AC-010
+- context: product-narrative
+- Mode: VERIFY-FIRST (existing codebase)
+- Attempt: 1
+- Outcome: implementation=true (black-box verified at real HTTP boundary)
+- NextAction: Integrated Verification
+
+### Acceptance check
+
+AC-010: Each of the nine Integrations pages (Overview, Monitoring, GitHub,
+Communication, Project management, Databases, Custom webhooks, Cloud
+providers, HubSpot) is reachable from the documentation tab and renders
+without MDX parse errors.
+
+### Pre-flight (spec scaffold verification)
+
+- `project_specs.xml` present at repo root.
+- All nine Integrations `.mdx` files exist under `integrations/` with
+  `title` + `description` frontmatter (each description ≤160 chars):
+  overview, monitoring, github, communication, project-management,
+  databases, custom-webhooks, cloud-providers, hubspot.
+- `docs.json` Documentation tab "Integrations" group lists exactly these
+  nine pages.
+
+### Boundary verification (real external boundary — HTTP)
+
+- `mint dev --no-open --port 5188` running from project root (mint CLI
+  v4.2.666, node v24.16.0), confirmed listening on `*:5188`. AC-001
+  dependency holds: `GET http://localhost:5188/` → 200, body contains
+  "CauseFlow AI" (x4) and all four tab labels (Documentation, API
+  reference, Relay, Changelog).
+- Reachability from the Documentation tab: home HTML sidebar contains a
+  `href="/integrations/<page>"` link for each of the nine pages (overview
+  appears twice — index + entry; the other eight once each).
+
+Per-page render at the real HTTP boundary:
+
+| page                | HTTP | rendered H1                  | bytes  | parse markers |
+| ------------------- | ---- | ---------------------------- | ------ | ------------- |
+| overview            | 200  | Integrations overview        | 241469 | 0 |
+| monitoring          | 200  | Monitoring integrations      | 433884 | 0 |
+| github              | 200  | GitHub                       | 245455 | 0 |
+| communication       | 200  | Communication integrations   | 278187 | 0 |
+| project-management  | 200  | Project management integrations | 338924 | 0 |
+| databases           | 200  | Database integrations        | 223046 | 0 |
+| custom-webhooks     | 200  | Custom webhooks              | 420629 | 0 |
+| cloud-providers     | 200  | Cloud providers              | 378372 | 0 |
+| hubspot             | 200  | HubSpot                      | 234955 | 0 |
+
+- Each rendered H1 matches the page's `title` frontmatter exactly.
+- No `SyntaxError`/`Could not compile`/`Unexpected`/`MDX parse|compile
+  error`/`Module not found`/`is not defined` markers in any rendered body.
+- `mint dev` log has no error/parse/fail/warn/syntax/exception markers.
+- Each page body contains its distinguishing prose from the `.mdx` source
+  (e.g. "Datadog" on monitoring, "draft pull request" on github, "Jira" on
+  project-management, "cross-account" on cloud-providers, "customer
+  support bridge" on hubspot) — all present.
+
+### Verdict
+
+All nine Integrations pages are reachable from the Documentation tab and
+render without MDX parse errors at the real external HTTP boundary.
+AC-010 PASSES against the existing committed code (HEAD `91fc904`).
+
+implementation=true. Zero defects. Zero tracked content files changed —
+zero-diff checkpoint (only this journal updated). No refactor, no code
+changes; the existing codebase already satisfies AC-010.
+
+## 2026-07-08T12:57:33.312Z — Resumed
+
+- WorkItem: WI-AC-010
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-08T12:59:18.902Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-010
+- Outcome: QA agent failed three times
+- Defects: 402: {"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 8246. To increase, visit https://openrouter.ai/settings/credits and add more credits","code":402,"metadata":{"provider_name":null,"previous_errors":[{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 11781. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 9702. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 9163. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 8867. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 8754. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 8246. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 8246. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 8246. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 8246. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 8246. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 8246. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 8246. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 7996. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5497. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 12095. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 11781. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 11781. To increase, visit https://openrouter.ai/setting... [truncated 2024 chars]
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T13:05:07.765Z — Explicit Resume
+
+- WorkItem: WI-AC-010
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Transient merge-lock contention from a period of unusually high concurrent load (~80min ago), not a data problem -- system is calmer now. Fresh retry.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T13:05:09.887Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-010
+- Outcome: coding agent failed three times
+- Defects: 402: {"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits","code":402,"metadata":{"provider_name":null,"previous_errors":[{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5536. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5536. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4559. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4305. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4167. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4113. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3757. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 2583. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5683. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5536. To increase, visit https://openrouter.ai/settings/cr... [truncated 2020 chars]
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T14:24:54.872Z — Explicit Resume
+
+- WorkItem: WI-AC-010
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Root cause fixed: pi's model was requesting near-uncapped max_tokens against a zero-balance OpenRouter account, causing every call to 402. Switched to a free, explicitly-capped model (qwen/qwen3-coder:free, maxTokens:8192) and restarted. Fresh retry.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T14:25:42.665Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-010
+- Outcome: coding agent failed three times
+- Defects: 429: {"message":"Rate limit exceeded: limit_rpm/qwen/qwen3-coder-480b-a35b-07-25/a9bbd882-011f-4606-8f60-85f3cb642586. High demand for qwen/qwen3-coder:free on OpenRouter - limited to 8 requests per minute. Please retry shortly.","code":429,"metadata":{"headers":{"X-RateLimit-Limit":"8","X-RateLimit-Remaining":"0","X-RateLimit-Reset":"1783520760000"},"provider_name":null}}
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T16:37:33.163Z — Explicit Resume
+
+- WorkItem: WI-AC-010
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Confirmed via the log-detail fix: this block was pure OpenRouter 429 rate-limit exhaustion on qwen3-coder:free (8 req/min), not a real coding/QA defect -- the Work Item was never actually attempted. Also fixed the root cause (orchestrator now backs off before retrying after a 429 instead of instantly re-exhausting the same limit). Retry.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T16:37:34.655Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-010
+- Outcome: coding agent failed three times
+- Defects: Error: Model "nvidia-nim/deepseek-ai/deepseek-v4-pro" not found. Use --list-models to see available models.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T16:43:36.780Z — Explicit Resume
+
+- WorkItem: WI-AC-010
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Confirmed pure OpenRouter 429 rate-limit exhaustion again, not a real defect. Root-caused the persistent contention: openrouter/qwen/qwen3-coder:free's 8 req/min limit is shared across the whole account and further saturated by external OpenRouter demand -- even with backoff+jitter, 4 concurrent subprojects kept exhausting it. Switched the pi adapter to NVIDIA NIM's deepseek-v4-pro (separate unshared quota pool, 40 req/min, verified reachable). Retry.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T16:43:38.265Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-010
+- Outcome: coding agent failed three times
+- Defects: Error: Model "nvidia-nim/deepseek-ai/deepseek-v4-pro" not found. Use --list-models to see available models.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T21:03:31.823Z — Explicit Resume
+
+- WorkItem: WI-AC-010
+- Outcome: user authorized a new Attempt cycle
+- Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08 Verify-first — WI-AC-010 (retry after config fix)
+
+- WorkItem: WI-AC-010
+- AcceptanceChecks: AC-010
+- context: product-narrative
+- Mode: VERIFY-FIRST (existing codebase)
+- Attempt: 2
+- Outcome: implementation=true (black-box verified at real HTTP boundary)
+- NextAction: Integrated Verification
+
+### Acceptance check
+
+AC-010: Each of the nine Integrations pages (Overview, Monitoring, GitHub,
+Communication, Project management, Databases, Custom webhooks, Cloud
+providers, HubSpot) is reachable from the documentation tab and renders
+without MDX parse errors.
+
+### Pre-flight (spec scaffold verification)
+
+- `project_specs.xml` present at repo root.
+- All nine Integrations `.mdx` files exist under `integrations/` with
+  `title` + `description` frontmatter (each description ≤160 chars):
+  overview, monitoring, github, communication, project-management,
+  databases, custom-webhooks, cloud-providers, hubspot.
+- `docs.json` Documentation tab "Integrations" group lists exactly these
+  nine pages.
+
+### Boundary verification (real external boundary — HTTP)
+
+- `mint dev --no-open --port 5188` running from project root (mint CLI
+  v4.2.666, node v24.16.0), confirmed listening on `*:5188`. AC-001
+  dependency holds: `GET http://localhost:5188/` → 200, body contains
+  "CauseFlow AI" and all four tab labels (Documentation, API
+  reference, Relay, Changelog).
+- Reachability from the Documentation tab: home HTML sidebar contains a
+  `href="/integrations/<page>"` link for each of the nine pages (overview
+  appears twice — index + entry; the other eight once each).
+
+Per-page render at the real HTTP boundary:
+
+| page                | HTTP | rendered H1                  | bytes  | parse markers |
+| ------------------- | ---- | ---------------------------- | ------ | ------------- |
+| overview            | 200  | Integrations overview        | 242563 | 0 |
+| monitoring          | 200  | Monitoring integrations      | 434441 | 0 |
+| github              | 200  | GitHub                       | 246012 | 0 |
+| communication       | 200  | Communication integrations   | 278921 | 0 |
+| project-management  | 200  | Project management integrations | 339481 | 0 |
+| databases           | 200  | Database integrations        | 223801 | 0 |
+| custom-webhooks     | 200  | Custom webhooks              | 430380 | 0 |
+| cloud-providers     | 200  | Cloud providers              | 378878 | 0 |
+| hubspot             | 200  | HubSpot                      | 235512 | 0 |
+
+- Each rendered H1 matches the page's `title` frontmatter exactly.
+- No `SyntaxError`/`Could not compile`/`Unexpected`/`MDX parse|compile
+  error`/`Module not found`/`is not defined` markers in any rendered body.
+- `mint dev` log has no error/parse/fail/warn/syntax/exception markers.
+- Each page body contains its distinguishing prose from the `.mdx` source
+  (e.g. "Datadog" on monitoring, "draft pull request" on github, "Jira" on
+  project-management, "AWS" on cloud-providers, "customer" on hubspot) —
+  all present.
+
+### Verdict
+
+All nine Integrations pages are reachable from the Documentation tab and
+render without MDX parse errors at the real external HTTP boundary.
+AC-010 PASSES against the existing committed code.
+
+implementation=true. Zero defects. Zero tracked content files changed —
+zero-diff checkpoint (only this journal updated). No refactor, no code
+changes; the existing codebase already satisfies AC-010.
+
+## 2026-07-08T21:07:32.640Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-010
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
