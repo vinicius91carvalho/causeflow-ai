@@ -1,16 +1,19 @@
 import { AnalyticsProvider } from '@causeflow/analytics';
 import { defaultThemeId } from '@causeflow/ui/themes';
 import type { Metadata, Viewport } from 'next';
-import { cookies } from 'next/headers';
 import { Plus_Jakarta_Sans } from 'next/font/google';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
-import { AuthProvider, type ClientAuthState } from '@/contexts/shared/presentation/components/auth-context';
+import {
+  AuthProvider,
+  type ClientAuthState,
+} from '@/contexts/shared/presentation/components/auth-context';
 import { ClerkThemeProvider } from '@/contexts/shared/presentation/components/clerk-theme-provider';
 import { ThemeProviderWithPersistence } from '@/contexts/shared/presentation/components/theme-provider-with-persistence';
 import { routing } from '@/i18n/routing';
-import { verifySessionCookie, SESSION_COOKIE } from '@/lib/auth/session-auth';
+import { SESSION_COOKIE, verifySessionCookie } from '@/lib/auth/session-auth';
 import './globals.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -129,9 +132,7 @@ async function getServerAuthState(): Promise<ClientAuthState | null> {
     if (!claims) return null;
 
     const email = (claims.email as string) ?? '';
-    const isStaff = ['@causeflow.ai', '@simuser.ai'].some((d) =>
-      email.toLowerCase().endsWith(d),
-    );
+    const isStaff = ['@causeflow.ai', '@simuser.ai'].some((d) => email.toLowerCase().endsWith(d));
 
     return {
       userId: (claims.sub as string) ?? (claims.userId as string) ?? null,

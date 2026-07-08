@@ -2,11 +2,11 @@
 
 import { SITE } from '@causeflow/shared/constants';
 import { cn } from '@causeflow/ui/lib';
-import { useAuth } from '@/contexts/shared/presentation/components/auth-context';
 import { Check, Loader2, LogOut, Mail, Shield, Sparkles, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/shared/presentation/components/auth-context';
 import { CauseFlowLoader } from '@/contexts/shared/presentation/components/causeflow-loader';
 
 // ---------------------------------------------------------------------------

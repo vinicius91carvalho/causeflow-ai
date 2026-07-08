@@ -1,13 +1,13 @@
 'use client';
 
 import { Button } from '@causeflow/ui/primitives';
-import { useAuth } from '@/contexts/shared/presentation/components/auth-context';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { PERMISSION } from '@/contexts/identity/domain/rbac/permissions';
 import { usePermission } from '@/contexts/identity/domain/rbac/role-guard';
 import type { User, UserRole } from '@/contexts/identity/domain/types';
 import { formatDate } from '@/contexts/shared/lib/format-date';
+import { useAuth } from '@/contexts/shared/presentation/components/auth-context';
 import { ChangeRoleDialog } from './change-role-dialog';
 import { RemoveMemberDialog } from './remove-member-dialog';
 import { RoleBadge } from './role-badge';

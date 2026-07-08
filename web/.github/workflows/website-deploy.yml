@@ -55,126 +55,28 @@ jobs:
           NEXT_PUBLIC_CLARITY_ID: ${{ vars.NEXT_PUBLIC_CLARITY_ID }}
           APP_VERSION: ${{ github.sha }}
 
-  deploy-staging:
-    name: Deploy to Staging
+  # -------------------------------------------------------------------------
+  # Deploy: OSS build — SST is removed (AC-050). The website now ships as a
+  # Docker image. Run `docker compose build causeflow-website` from the
+  # monorepo root, then publish and deploy the image on your host of choice.
+  # See apps/website/Dockerfile and the docker-compose.yml at the repo root.
+  # -------------------------------------------------------------------------
+  deploy:
+    name: Docker Build Available
     needs: build
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.stage == 'staging')
+    if: (github.event_name == 'push') || (github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: staging
-    permissions:
-      id-token: write
-      contents: read
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: us-east-2
-
-      - name: Install SST
-        run: curl -fsSL https://sst.dev/install | VERSION=3.19.0 bash
-
-      - name: Build website
-        run: pnpm turbo build --filter=@causeflow/website... --force
-        env:
-          NEXT_PUBLIC_GA4_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA4_MEASUREMENT_ID }}
-          NEXT_PUBLIC_CLARITY_ID: ${{ vars.NEXT_PUBLIC_CLARITY_ID }}
-          LOOPS_API_KEY: ${{ secrets.LOOPS_API_KEY }}
-          APP_VERSION: ${{ github.sha }}
-
-      - name: Deploy to staging
-        working-directory: apps/website
-        run: sst deploy --stage staging
-        env:
-          NEXT_PUBLIC_GA4_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA4_MEASUREMENT_ID }}
-          NEXT_PUBLIC_CLARITY_ID: ${{ vars.NEXT_PUBLIC_CLARITY_ID }}
-          LOOPS_API_KEY: ${{ secrets.LOOPS_API_KEY }}
-          APP_VERSION: ${{ github.sha }}
-
-      - name: Invalidate CloudFront cache
-        env:
-          DISTRIBUTION_ID: E60WKB26T2V0B
-        run: aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
-
-      - name: Deployment summary
-        env:
-          COMMIT_SHA: ${{ github.sha }}
+      - name: SST deploy removed
         run: |
-          echo "### Website Staging Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "## Website Deploy (OSS Build)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** https://staging.causeflow.ai" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit:** $COMMIT_SHA" >> $GITHUB_STEP_SUMMARY
-
-  deploy-production:
-    name: Deploy to Production
-    needs: [build, deploy-staging]
-    if: always() && needs.build.result == 'success' && github.event_name == 'workflow_dispatch' && github.event.inputs.stage == 'production'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: production
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: us-east-2
-
-      - name: Install SST
-        run: curl -fsSL https://sst.dev/install | VERSION=3.19.0 bash
-
-      - name: Build website
-        run: pnpm turbo build --filter=@causeflow/website... --force
-        env:
-          NEXT_PUBLIC_GA4_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA4_MEASUREMENT_ID }}
-          NEXT_PUBLIC_CLARITY_ID: ${{ vars.NEXT_PUBLIC_CLARITY_ID }}
-          LOOPS_API_KEY: ${{ secrets.LOOPS_API_KEY }}
-          APP_VERSION: ${{ github.sha }}
-
-      - name: Deploy to production
-        working-directory: apps/website
-        run: sst deploy --stage production
-        env:
-          NEXT_PUBLIC_GA4_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA4_MEASUREMENT_ID }}
-          NEXT_PUBLIC_CLARITY_ID: ${{ vars.NEXT_PUBLIC_CLARITY_ID }}
-          LOOPS_API_KEY: ${{ secrets.LOOPS_API_KEY }}
-          APP_VERSION: ${{ github.sha }}
-
-      - name: Invalidate CloudFront cache
-        env:
-          DISTRIBUTION_ID: E3M06B4JI810P1
-        run: aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*"
-
-      - name: Deployment summary
-        env:
-          COMMIT_SHA: ${{ github.sha }}
-        run: |
-          echo "### Website Production Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "SST-based deployment has been removed (AC-050)." >> $GITHUB_STEP_SUMMARY
+          echo "Build and deploy the Docker image instead:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** https://causeflow.ai" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit:** $COMMIT_SHA" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo 'docker compose build causeflow-website' >> $GITHUB_STEP_SUMMARY
+          echo 'docker compose up -d causeflow-website' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See apps/website/Dockerfile for the multi-stage build." >> $GITHUB_STEP_SUMMARY

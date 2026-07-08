@@ -4,11 +4,11 @@ import { cn } from '@causeflow/ui/lib';
 import { useTheme } from '@causeflow/ui/themes/provider';
 import { GraduationCap, LogOut, Menu, Monitor, Moon, Sun } from 'lucide-react';
 import Image from 'next/image';
-import { useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useUser } from '@/contexts/shared/presentation/components/auth-context';
+import { useCallback } from 'react';
 import type { Locale } from '@/contexts/settings/domain/types';
 import { getNextTheme } from '@/contexts/shared/lib/theme-cycle';
+import { useUser } from '@/contexts/shared/presentation/components/auth-context';
 import { LanguageSwitcher } from '@/contexts/shared/presentation/components/layout/language-switcher';
 import { Link } from '@/i18n/navigation';
 
@@ -27,13 +27,14 @@ const iconBtnClass = cn(
 );
 
 function UserAvatar({ name, email }: { name: string | null; email: string | null }) {
-  const initials = (name ?? email ?? 'U')
-    .split(' ')
-    .map((s) => s.charAt(0))
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase() || 'U';
+  const initials =
+    (name ?? email ?? 'U')
+      .split(' ')
+      .map((s) => s.charAt(0))
+      .filter(Boolean)
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || 'U';
 
   return (
     <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/20 text-xs font-semibold text-primary">

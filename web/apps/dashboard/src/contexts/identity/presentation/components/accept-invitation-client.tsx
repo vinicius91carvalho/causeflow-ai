@@ -19,7 +19,8 @@ export default function AcceptInvitationClient() {
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-    const name = `${formData.get('firstName') as string} ${formData.get('lastName') as string}`.trim();
+    const name =
+      `${formData.get('firstName') as string} ${formData.get('lastName') as string}`.trim();
     const legalAccepted = formData.get('legalAccepted') === 'on';
 
     if (!legalAccepted) {

@@ -1,8 +1,8 @@
-import { ProfileTab } from '@/contexts/settings/presentation/components/profile-tab';
 import { ApiKeysTab } from '@/contexts/settings/presentation/components/api-keys-tab';
 import { BusinessProfileCardWrapper } from '@/contexts/settings/presentation/components/business-profile-card-wrapper';
 import { FireTestErrorsCard } from '@/contexts/settings/presentation/components/fire-test-errors-card';
 import { SlackNotificationSection } from '@/contexts/settings/presentation/components/notifications-tab';
+import { ProfileTab } from '@/contexts/settings/presentation/components/profile-tab';
 import { isStaging } from '@/lib/env/is-staging';
 
 export const dynamic = 'force-dynamic';

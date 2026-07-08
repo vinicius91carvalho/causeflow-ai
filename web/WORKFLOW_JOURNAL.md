@@ -40,6 +40,65 @@
 
 ---
 
+## WI-AC-050 — SST removed; Dockerfiles; CI workflows updated for open-source-local-runtime
+
+**State:** `implementation=true`
+
+**Summary:**
+- Verified `apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` are already deleted (no `sst.config.*` files exist anywhere in the repo).
+- Verified `withSentryConfig(...)` is already removed from `apps/dashboard/next.config.mjs` — export is plain `withNextIntl(nextConfig)` with no Sentry wrapper. `optimizePackageImports`, `headers()`, `redirects()`, `images.remotePatterns`, and `webpack` config are preserved unchanged.
+- Both Dockerfiles (`apps/website/Dockerfile`, `apps/dashboard/Dockerfile`) already exist with the multi-stage relay pattern: `builder` stage runs `pnpm install --frozen-lockfile` + `pnpm build`, `runtime` stage runs `pnpm start`.
+- Both `.github/workflows/*-deploy.yml` files already have the `sst deploy` step replaced with a Docker-build comment. Added the missing `lint` step to the dashboard workflow (`pnpm turbo lint --filter=@causeflow/dashboard...`) so both workflows keep the full `check-types` / `lint` / `test` / `build` pipeline (AC-050 spec requirement).
+- `docker-compose.yml` already references both Dockerfiles (`apps/website/Dockerfile` and `apps/dashboard/Dockerfile`).
+- Build (`pnpm turbo build`) exits 0 for all 7 workspace members.
+- Dev servers on assigned port 5193 (website) and 5194 (dashboard) both return 200.
+
+---
+
+## QA Verification (WI-AC-050)
+
+**Run by:** qa-agent on 2026-07-08
+
+**Verdict:** `implementation=true, qa=true`
+
+**Checks performed (all PASS):**
+
+1. **sst.config.ts deletion** — PASS
+   - `apps/website/sst.config.ts` — file does not exist
+   - `apps/dashboard/sst.config.ts` — file does not exist
+
+2. **withSentryConfig removal** — PASS
+   - `apps/dashboard/next.config.mjs` — no Sentry import, no `withSentryConfig` wrapper
+   - Export is plain `withNextIntl(nextConfig)`
+   - `optimizePackageImports`, `headers()`, `redirects()`, `images.remotePatterns` preserved
+
+3. **GitHub Actions workflows** — PASS
+   - Both workflows retain `check-types` + `lint` + `test` + `build` steps
+   - No `sst deploy` step in either workflow
+   - Both have a Docker-build comment pointing operators to `docker compose build`
+
+4. **Multi-stage Dockerfiles** — PASS
+   - `apps/website/Dockerfile` — builder stage (pnpm install --frozen-lockfile + pnpm build) + runtime stage (next start)
+   - `apps/dashboard/Dockerfile` — same multi-stage pattern
+
+5. **docker-compose.yml references** — PASS
+   - `causeflow-website` builds from `apps/website/Dockerfile` (context: `.`, dockerfile: `apps/website/Dockerfile`)
+   - `causeflow-dashboard` builds from `apps/dashboard/Dockerfile` (context: `.`, dockerfile: `apps/dashboard/Dockerfile`)
+
+6. **Build verification** — PASS
+   - `pnpm install --frozen-lockfile` exits 0
+   - `pnpm turbo build --filter=@causeflow/website` exits 0
+   - `pnpm turbo build --filter=@causeflow/dashboard` exits 0
+
+7. **Runtime HTTP verification** — PASS
+   - Website (port 5193): `/` returns 200; `/product`, `/pricing`, `/security`, `/integrations`, `/use-cases`, `/privacy`, `/terms` all return 200
+   - Dashboard (port 5194): `/auth/sign-in` returns 200; `/api/health` returns 200 (public); unauthenticated `/dashboard` returns 307 to `/auth/sign-in`
+
+**Pre-existing issues (outside AC-050 scope):**
+- `/from-opsgenie` route returns 404 — the page file does not exist. This is a pre-existing issue in the codebase not related to AC-050.
+
+---
+
 ## WI-AC-046 — Local JWT auth replaces Clerk
 
 **State:** `implementation=true`

@@ -402,3 +402,25 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-049-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T21:10:00Z — Implemented (AC-050)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-050
+- AcceptanceChecks: AC-050
+- Outcome: implementation=true
+- Evidence:
+  1. SST config files do not exist. ✓
+  2. `grep -E 'sst|withSentryConfig' apps/dashboard/next.config.mjs` -> zero matches. ✓
+  3. `grep -n 'sst deploy' .github/workflows/*.yml` -> zero matches; both workflows keep check-types/lint/test/build. ✓
+  4. Multi-stage Dockerfiles exist for both apps. ✓
+  5. docker-compose.yml references those Dockerfiles. ✓
+- Changes: updated both GH workflows (dropped SST deploy, added Docker build comments); cleaned sst.config.ts references from tsconfig files, CLAUDE.md, and site.ts.
+- NextAction: orchestrator records verdict
+
+## 2026-07-08T20:21:48.560Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-050
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
