@@ -579,3 +579,18 @@ prefix (global, affects every AC). Per the contradictions clause
 - WorkItem: WI-AC-009
 - Outcome: qa=true, implementation=true (all 3 AC-009 sub-behaviours pass at real HTTP on PORT=5182)
 - NextAction: none (QA complete)
+
+## 2026-07-08T18:22:43.893Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-009
+- DefectReport: All AC-009 sub-behaviours verified against the real HTTP API on PORT=5182:
+
+1. **POST /v1/api-keys** with `{name, scopes}` → **201** + plaintext API key (`cflo_` prefix)
+2. **GET /v1/whoami** with `Authorization: Bearer <key>` → **200** resolving user + tenant from the API key's stored creator identity
+3. **Per-tenant quota exceeded** → **429** `QUOTA_EXCEEDED` with `{limit:5, active:5}`
+
+No defects found. Journal committed, verdict emitted.
+- RepairPlan: QA defect report for WI-AC-009 is clean — all three sub-behaviours passed (POST /v1/api-keys returns 201 + `cflo_` plaintext key, GET /v1/whoami with Bearer token resolves user+tenant, quota-exceeded returns 429 QUOTA_EXCEEDED). Repository verification confirms every required structure exists: ApiKey entity (domain), IApiKeyRepository port, CreateApiKeyUseCase (with MAX_API_KEYS_PER_TENANT=5 quota), ListApiKeysUseCase, RevokeApiKeyUseCase, DynamoApiKeyRepository (ElectroDB-backed with findByHash), ApiKeyEntity (GSI byTenant), api-key.routes.ts (POST/GET/DELETE mounted at /v1/api-keys), auth.middleware.ts (cflo_ token resolution + configureAuthApiKeyRepo wiring), whoami inline handler in app.ts at GET /v1/whoami, QuotaExceededError → 429 QUOTA_EXCEEDED in error-handler.ts, and 4 unit test files. No missing scaffold artifacts found.; Update feature_list.json WI-AC-009: set `qa=true`, `status="done"` (or `"integrated"`) to reflect the completed QA pass.; If integration tests exist for AC-009, verify they also pass, then set `integration=true`.; Verify that the `attempts` counter in feature_list.json reflects the actual QA run (currently `attempts: 0`, but one QA log exists at WI-AC-009-2-qa.log — increment to 1 or 2).
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-009-2-qa.log
+- NextAction: Coding Attempt 3
