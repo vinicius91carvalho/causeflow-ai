@@ -370,3 +370,10 @@ The existing code failed AC-005 at the boundary in two independent ways; each fi
 - PreviousPhase: qa
 - Attempt: 1
 - NextAction: qa
+
+## 2026-07-08T01:31:51.168Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-005
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
