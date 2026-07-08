@@ -602,3 +602,10 @@ implementation=true; defects=none
   4. README.md documents `docker compose up -d` as the canonical run path; the prior "deployed automatically via the Mintlify GitHub integration" sentence is absent (grep EXIT=1).
   5. No `.github` directory; no GitHub Actions workflow runs `mint deploy`/`mintlify deploy`.
 - Verdict: qa=true; implementation=true; defects=none.
+
+## 2026-07-08T03:05:19.414Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-029
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
