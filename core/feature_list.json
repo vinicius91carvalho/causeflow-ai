@@ -406,10 +406,10 @@
       "AC-002"
     ],
     "verify_first": true,
-    "implementation": true,
+    "implementation": false,
     "qa": false,
     "integration": false,
-    "retries": 1,
+    "retries": 2,
     "attempts": 0,
     "status": "verify-first"
   },

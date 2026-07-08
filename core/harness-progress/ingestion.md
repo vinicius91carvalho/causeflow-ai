@@ -224,3 +224,27 @@
     which was already verified in a previous integration pass, is correct.
 - Working tree: clean (no tracked files changed)
 - NextAction: none
+
+## 2026-07-08T19:23:11.456Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-016
+- DefectReport: All done. The verdict has been emitted above. Here's a summary of the independent QA verification:
+
+## WI-AC-016 Independent Verification — PASS
+
+**All 4 conditions of AC-016 pass:**
+
+| Condition | Route | Status | Source Provider | Key Fields Verified |
+|-----------|-------|--------|----------------|---------------------|
+| **Grafana webhook** | `POST /v1/webhooks/{tenant}/grafana` | **202 ✅** | `grafana` | `severity=critical` (from `state=alerting`), `title` from payload, `description` from `message`, `sourceAlertId` from `ruleId` |
+| **CloudWatch webhook** | `POST /v1/webhooks/{tenant}/cloudwatch` | **202 ✅** | `cloudwatch` | `severity=critical` (from `NewStateValue=ALARM`), `title` from `AlarmName`, `description` from `NewStateReason`, `sourceAlertId` from `AlarmName` |
+| **Sentry webhook** | `POST /v1/webhooks/{tenant}/sentry` | **202 ✅** | `sentry` | `severity=high` (from `level=error`), `title` from `data.issue.title`, `description` from `culprit`, `sourceAlertId` from `issue.id` |
+| **Admin manual incident** | `POST /v1/admin/incidents` | **201 ✅** | `manual` | `status=triaging` (severity provided), `sourceAlertId` prefixed `manual-` |
+
+**Test setup:** Local API (PORT=5183) with ministack (DynamoDB+KMS on :4566), Redis, existing dev tenant with unlimited billing account, existing Sentry integration (KMS-encrypted), and a provisioned `cflo_` API key for admin auth.
+
+No defects found. Implementation is correct across all four parser-specific code paths.
+- RepairPlan: WI-AC-016 PASS — all 4 ingestion webhook paths (Grafana, CloudWatch, Sentry, admin manual) verified against live API at PORT=5183. Parser-specific fields (severity mapping, title/description extraction, sourceAlertId) land correctly in IncidentEntity. Manual incident creates source=manual with triaging status. No defects found.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/ingestion/WI-AC-016-2-qa.log
+- NextAction: Coding Attempt 3
