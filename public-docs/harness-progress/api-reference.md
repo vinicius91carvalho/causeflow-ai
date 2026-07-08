@@ -448,3 +448,10 @@ I verified the Authentication page at `api-reference/authentication.mdx` against
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-014-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T23:56:59.539Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
