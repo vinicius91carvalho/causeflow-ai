@@ -815,3 +815,39 @@ at the application layer. qa=true, implementation=true.
 - WorkItem: WI-AC-010
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T19:05:00Z — Integrated Verification on main (WI-AC-010, context=tenancy-and-access)
+
+**Result: integration=true, implementation=true, qa=true. Zero defects.**
+
+Verified AC-010 at the real HTTP boundary against a FRESH server booted from main HEAD `f07e1b9` on the assigned PORT=5182. `GET /health` → 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`. Real `fetch` HTTP, real `@clerk/backend` networkless RS256 verification (RSA-2048 keypair at `/tmp/ac010-intq-priv.pem` matching `CLERK_JWT_KEY` SPKI in env), real DynamoDB at ministack :4566, real Redis — no mocks. Boundary script: `ac010-boundary.mjs`.
+
+Two tenants seeded via ElectroDB entities with billing accounts (unlimited quota) and one incident owned by Tenant A:
+
+**11/11 passed:**
+
+1. Tenant A POST /v1/auth/login → 200 with correct user/tenant/role ✅
+2. Tenant B POST /v1/auth/login → 200 with correct user/tenant/role ✅
+3. GET /v1/incidents without auth → 401 (auth boundary) ✅
+4. **Tenant A GET /v1/incidents/:id → 200** (owns incident, tenantId matches) ✅
+5. **Tenant B GET /v1/incidents/:id → 404** (cross-tenant invisible) ✅
+6. Tenant B (viewer) GET /v1/incidents/:id → 404 (cross-tenant invisible) ✅
+7. Tenant A GET non-existent incident → 404 ✅
+8. Tenant B GET non-existent incident → 404 ✅
+9. JWT without org claim on protected route → 403 (no tenant context) ✅
+10. Tenant B incident list does NOT include Tenant A's incident ✅
+11. Tenant A incident list includes their own incident ✅
+
+**Tenant isolation is enforced at the application layer:**
+`GetIncidentUseCase.execute(tenantId, incidentId)` calls `DynamoIncidentRepository.findById(tenantId, incidentId)`, which queries ElectroDB with BOTH `tenantId` and `incidentId` as composite keys. Cross-tenant PK construction is impossible because the tenant ID is never read from URL/params — it comes exclusively from the JWT-verified request context set by `authMiddleware` + `tenantMiddleware`.
+
+Path note (doc drift, same as WI-AC-007/008/009): spec AC wording says `/api/v1/incident/...`; implementation mounts routes at `/v1/incidents/:id` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/incidents/:id`. Functional AC-010 behaviour fully met on integrated main.
+
+feature_list.json updated: integration=true, status="integrated".
+
+## 2026-07-08T19:05:00Z — Integrated Verification passed
+- Attempt: 1/3
+- WorkItem: WI-AC-010
+- AcceptanceChecks: AC-010
+- Outcome: passed on integrated main
+- NextAction: next Ready Work Item

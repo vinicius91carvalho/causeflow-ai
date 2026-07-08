@@ -84,7 +84,7 @@
     "context": "foundation",
     "category": "foundation",
     "title": "Run `pnpm lint-invariants` (which calls `infra/scripts/check-invariants.ts`);...",
-    "description": "Run `pnpm lint-invariants` (which calls `infra/scripts/check-invariants.ts`); the command exits 0. Manually introducing a cross-module direct function call (e.g. importing a use case from another module's `application/`) and re-running `pnpm lint-invariants` makes the command exit non-zero with a specific I1–I11 violation message.",
+    "description": "Run `pnpm lint-invariants` (which calls `infra/scripts/check-invariants.ts`); the command exits 0. Manually introducing a cross-module direct function call (e.g. importing a use case from another module's `application/`) and re-running `pnpm lint-invariants` makes the command exit non-zero with a specific I1\u2013I11 violation message.",
     "steps": [
       "Step 1: Read the Acceptance Check AC-004 in project_specs.xml to understand the boundary it must satisfy.",
       "Step 2: Exercise the boundary described in AC-004 (curl, CLI, dashboard click, or scripted call) against the running app and observe the response.",
@@ -252,10 +252,10 @@
     "verify_first": true,
     "implementation": true,
     "qa": true,
-    "integration": false,
+    "integration": true,
     "retries": 0,
-    "attempts": 0,
-    "status": "verify-first"
+    "attempts": 1,
+    "status": "integrated"
   },
   {
     "id": "WI-AC-011",
@@ -1008,9 +1008,9 @@
     "id": "WI-AC-040",
     "context": "open-source-local-runtime",
     "category": "foundation",
-    "description": "Postgres is the only persistence layer. `psql` against the `causeflow-postgres` service lists 31 tables in the `causeflow` schema (one per existing entity). A `POST /api/v1/incidents` with an authenticated request writes a row that becomes visible in `SELECT * FROM causeflow.incidents WHERE tenant_id = $1`. The single-table ElectroDB code is removed (or kept behind a feature flag, off by default) — no `DynamoDBClient`, no `DocumentClient` instantiation at boot.",
+    "description": "Postgres is the only persistence layer. `psql` against the `causeflow-postgres` service lists 31 tables in the `causeflow` schema (one per existing entity). A `POST /api/v1/incidents` with an authenticated request writes a row that becomes visible in `SELECT * FROM causeflow.incidents WHERE tenant_id = $1`. The single-table ElectroDB code is removed (or kept behind a feature flag, off by default) \u2014 no `DynamoDBClient`, no `DocumentClient` instantiation at boot.",
     "steps": [
-      "Verify AC-040: Postgres is the only persistence layer. `psql` against the `causeflow-postgres` service lists 31 tables in the `causeflow` schema (one per existing entity). A `POST /api/v1/incidents` with an authenticated request writes a row that becomes visible in `SELECT * FROM causeflow.incidents WHERE tenant_id = $1`. The single-table ElectroDB code is removed (or kept behind a feature flag, off by default) — no `DynamoDBClient`, no `DocumentClient` instantiation at boot."
+      "Verify AC-040: Postgres is the only persistence layer. `psql` against the `causeflow-postgres` service lists 31 tables in the `causeflow` schema (one per existing entity). A `POST /api/v1/incidents` with an authenticated request writes a row that becomes visible in `SELECT * FROM causeflow.incidents WHERE tenant_id = $1`. The single-table ElectroDB code is removed (or kept behind a feature flag, off by default) \u2014 no `DynamoDBClient`, no `DocumentClient` instantiation at boot."
     ],
     "acceptance_checks": [
       "AC-040"
@@ -1028,9 +1028,9 @@
     "id": "WI-AC-041",
     "context": "open-source-local-runtime",
     "category": "foundation",
-    "description": "BullMQ on Redis replaces SQS. The boot log lists 4 BullMQ queues (`causeflow-alerts`, `causeflow-triage`, `causeflow-investigation`, `causeflow-remediation`) with their worker counts. `GET /admin/queues` (a new local-only admin endpoint) returns each queue's name, depth, completed/failed counts, and the last 5 jobs. A `POST /api/v1/incidents` enqueues a triage job, the worker picks it up within 2 seconds, the job moves to `completed`, and the incident row updates to status=triaged — without any SQS endpoint being called.",
+    "description": "BullMQ on Redis replaces SQS. The boot log lists 4 BullMQ queues (`causeflow-alerts`, `causeflow-triage`, `causeflow-investigation`, `causeflow-remediation`) with their worker counts. `GET /admin/queues` (a new local-only admin endpoint) returns each queue's name, depth, completed/failed counts, and the last 5 jobs. A `POST /api/v1/incidents` enqueues a triage job, the worker picks it up within 2 seconds, the job moves to `completed`, and the incident row updates to status=triaged \u2014 without any SQS endpoint being called.",
     "steps": [
-      "Verify AC-041: BullMQ on Redis replaces SQS. The boot log lists 4 BullMQ queues (`causeflow-alerts`, `causeflow-triage`, `causeflow-investigation`, `causeflow-remediation`) with their worker counts. `GET /admin/queues` (a new local-only admin endpoint) returns each queue's name, depth, completed/failed counts, and the last 5 jobs. A `POST /api/v1/incidents` enqueues a triage job, the worker picks it up within 2 seconds, the job moves to `completed`, and the incident row updates to status=triaged — without any SQS endpoint being called."
+      "Verify AC-041: BullMQ on Redis replaces SQS. The boot log lists 4 BullMQ queues (`causeflow-alerts`, `causeflow-triage`, `causeflow-investigation`, `causeflow-remediation`) with their worker counts. `GET /admin/queues` (a new local-only admin endpoint) returns each queue's name, depth, completed/failed counts, and the last 5 jobs. A `POST /api/v1/incidents` enqueues a triage job, the worker picks it up within 2 seconds, the job moves to `completed`, and the incident row updates to status=triaged \u2014 without any SQS endpoint being called."
     ],
     "acceptance_checks": [
       "AC-041"
@@ -1110,9 +1110,9 @@
     "id": "WI-AC-045",
     "context": "open-source-local-runtime",
     "category": "foundation",
-    "description": "The investigation worker runs as a `causeflow-worker` docker-compose service (same image as the API, different entrypoint). `docker compose ps` shows both `causeflow-api` and `causeflow-worker` healthy. An investigation enqueued in AC-041 is picked up by the worker (verifiable by tailing the worker container logs and confirming a `investigation:start` log line). No ECS task definition, no `EcsClient`, no AWS credentials are loaded — the `ecs/` directory is removed (or kept behind a feature flag, off by default).",
+    "description": "The investigation worker runs as a `causeflow-worker` docker-compose service (same image as the API, different entrypoint). `docker compose ps` shows both `causeflow-api` and `causeflow-worker` healthy. An investigation enqueued in AC-041 is picked up by the worker (verifiable by tailing the worker container logs and confirming a `investigation:start` log line). No ECS task definition, no `EcsClient`, no AWS credentials are loaded \u2014 the `ecs/` directory is removed (or kept behind a feature flag, off by default).",
     "steps": [
-      "Verify AC-045: The investigation worker runs as a `causeflow-worker` docker-compose service (same image as the API, different entrypoint). `docker compose ps` shows both `causeflow-api` and `causeflow-worker` healthy. An investigation enqueued in AC-041 is picked up by the worker (verifiable by tailing the worker container logs and confirming a `investigation:start` log line). No ECS task definition, no `EcsClient`, no AWS credentials are loaded — the `ecs/` directory is removed (or kept behind a feature flag, off by default)."
+      "Verify AC-045: The investigation worker runs as a `causeflow-worker` docker-compose service (same image as the API, different entrypoint). `docker compose ps` shows both `causeflow-api` and `causeflow-worker` healthy. An investigation enqueued in AC-041 is picked up by the worker (verifiable by tailing the worker container logs and confirming a `investigation:start` log line). No ECS task definition, no `EcsClient`, no AWS credentials are loaded \u2014 the `ecs/` directory is removed (or kept behind a feature flag, off by default)."
     ],
     "acceptance_checks": [
       "AC-045"
@@ -1216,9 +1216,9 @@
     "id": "WI-AC-050",
     "context": "open-source-local-runtime",
     "category": "foundation",
-    "description": "`pnpm test:run` and `pnpm test:integration` pass with no AWS, Stripe or Clerk env vars set. The integration test stack runs against the same `causeflow-postgres` + `redis` + `hindsight` services (no ministack, no stripe-mock). `pnpm test:e2e` runs the full alert → triage → investigation → remediation flow end-to-end on the local-only stack. The total `aws-sdk-client-mock` dev dep is no longer used and can be removed; no test imports `@aws-sdk/*`, `stripe`, or `@clerk/backend`.",
+    "description": "`pnpm test:run` and `pnpm test:integration` pass with no AWS, Stripe or Clerk env vars set. The integration test stack runs against the same `causeflow-postgres` + `redis` + `hindsight` services (no ministack, no stripe-mock). `pnpm test:e2e` runs the full alert \u2192 triage \u2192 investigation \u2192 remediation flow end-to-end on the local-only stack. The total `aws-sdk-client-mock` dev dep is no longer used and can be removed; no test imports `@aws-sdk/*`, `stripe`, or `@clerk/backend`.",
     "steps": [
-      "Verify AC-050: `pnpm test:run` and `pnpm test:integration` pass with no AWS, Stripe or Clerk env vars set. The integration test stack runs against the same `causeflow-postgres` + `redis` + `hindsight` services (no ministack, no stripe-mock). `pnpm test:e2e` runs the full alert → triage → investigation → remediation flow end-to-end on the local-only stack. The total `aws-sdk-client-mock` dev dep is no longer used and can be removed; no test imports `@aws-sdk/*`, `stripe`, or `@clerk/backend`."
+      "Verify AC-050: `pnpm test:run` and `pnpm test:integration` pass with no AWS, Stripe or Clerk env vars set. The integration test stack runs against the same `causeflow-postgres` + `redis` + `hindsight` services (no ministack, no stripe-mock). `pnpm test:e2e` runs the full alert \u2192 triage \u2192 investigation \u2192 remediation flow end-to-end on the local-only stack. The total `aws-sdk-client-mock` dev dep is no longer used and can be removed; no test imports `@aws-sdk/*`, `stripe`, or `@clerk/backend`."
     ],
     "acceptance_checks": [
       "AC-050"
