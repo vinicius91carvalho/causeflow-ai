@@ -552,3 +552,12 @@ Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.
 - Outcome: passed on integrated main
 - Evidence: /tmp/ac006 (loadConfig probes + stub.log + relay.log)
 - NextAction: next Ready Work Item
+
+## 2026-07-08T03:12:26.296Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- AcceptanceChecks: AC-006
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-006-1-integration_qa.log
+- NextAction: next Ready Work Item
