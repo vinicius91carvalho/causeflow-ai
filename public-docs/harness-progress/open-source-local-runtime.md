@@ -1298,3 +1298,69 @@ Merge with strategy ort failed.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Retrying again after a supervisor restart (previous supervisor process was hung, unresponsive to stop signal, force-killed and restarted cleanly). Retry for a fresh attempt.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T11:05:00Z — Implementation (WI-AC-031) — Attempt 4
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Attempt: 4/3 (resumed per user guidance after supervisor restart)
+- Outcome: implementation=true (regression verified on docker-compose stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+No source changes. AC-031 is a regression gate; the implementation shipped
+across AC-026..AC-033 (multi-stage `Dockerfile`, `docker-compose.yml`,
+`serve-docs.js`, `docs.json#contextual` reduced to `["copy","view"]`,
+README canonicalising `docker compose up`) already satisfies all 25 original
+acceptance checks. Working tree is clean after the run.
+
+### Black-box regression (docker-compose stack on assigned port 5179)
+
+Brought the stack up with a local, uncommitted `docker-compose.override.yml`
+that remaps the host port to 5179 (host port 3000 is occupied by an unrelated
+`relay-control-plane-stub` container in this shared env). The canonical
+`docker-compose.yml` stays `3000:3000`. Override removed before commit; the
+runtime container itself still listens on `PORT=3000` internally.
+
+`env -i HOME=$HOME PATH=$PATH USER=$USER docker compose up -d --build` →
+`causeflow-docs:local` Up, `0.0.0.0:5179->3000`. Boot log:
+`Serving docs at http://localhost:3000`.
+
+Regression matrix (AC-001..AC-025):
+
+- AC-001 `GET /` → 200; "CauseFlow AI" ×4, "Quickstart" ×3.
+- AC-002 `mint broken-links` → exit 0, "success no broken links found".
+- AC-003 `docs.json` valid; `docker compose config` exits 0.
+- AC-004/005 all 133 `.mdx` have `title`+`description` ≤160 chars.
+- AC-006 four tab labels (Documentation, API reference, Relay, Changelog)
+  render in nav; Changelog index H1 == "Changelog".
+- AC-007 `GET /quickstart` → 200 (redirect rewrite), lands on Quickstart H1.
+- AC-008..011 all 125 `docs.json` navigation pages return 200.
+- AC-012 introduction: `https://api.causeflow.ai` + `v1` present.
+- AC-013 every API reference endpoint page returns 200.
+- AC-014 authentication: Bearer ×5, X-API-Key/API key ×8, HMAC/
+  X-Webhook-Signature ×7.
+- AC-015 errors/pagination: 400/401/403/404/409/429/500/503 + cursor/items/count.
+- AC-016 no `api.causeflow.(io|dev|local|prod)` matches.
+- AC-017 no non-EXAMPLE tenant/API-key placeholders.
+- AC-018 outbound-events catalog: exactly 20 dot-namespaced events
+  (`tenant.created`..`knowledge.pattern_extracted`).
+- AC-019 relay overview renders `_jsx(Mermaid, {chart:"flowchart TD…"})`
+  component (not raw code); 8 Relay tab pages 200.
+- AC-020 configuration.mdx documents controlPlane/resources/allowedOperations/
+  maxRowsPerQuery/`${VAR_NAME}` substitution.
+- AC-021 "Not a proxy / Not a tunnel / Not a replication agent" all present.
+- AC-022 no `severity … (emergency|urgent|notice|debug|warn)` matches.
+- AC-023 no `"status": "(dismissed|failed)"` matches.
+- AC-024 no AWS ARN / `.internal` / SQS / KMS / LangFuse / Hindsight / ECS
+  matches.
+- AC-025 RBAC roles restricted to `admin`/`member`
+  (`roles/viewer` in cloud-providers.mdx is GCP IAM, not CauseFlow RBAC).
+
+Forbidden-host boot-log grep (mintlify.com|…|composio.dev) → 0 matches.
+
+### verdict
+
+implementation=true; integration=pending; qa=pending; defects=none
