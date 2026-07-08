@@ -1529,3 +1529,52 @@ No defects. `qa=true`, `implementation=true`.
 - WorkItem: WI-AC-057
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:00:00Z — Integrated Verification (WI-AC-057)
+
+- WorkItem: WI-AC-057
+- AcceptanceChecks: AC-057
+- Outcome: integration=true, implementation=true, qa=true
+- Method: Integrated verification on main branch — static analysis of source tree, package.json, package-lock.json, .env.example at real boundaries.
+
+### Verification results (AC-057 clause by clause)
+
+**1. package.json forbidden dependency check:**
+```
+$ rg -in "aws-sdk|@aws-sdk|^\"stripe\"|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra" package.json
+```
+→ exit 1 (0 matches) ✓
+Dependencies are only: `mongodb`, `node-sql-parser`, `pg`, `pino`, `uuid`, `ws`, `yaml`, `zod`. No forbidden packages. ✓
+
+**2. Source tree forbidden reference check:**
+```
+$ rg -in "aws-sdk|@aws-sdk|^\042stripe\042|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra" --glob '!node_modules/**' --glob '!package-lock.json' --glob '!.harness*' --glob '!docs/**' --glob '!CHANGELOG.md' --glob '!harness-progress/**' --glob '!feature_list.json' -g '!.git/**'
+```
+→ exit 0 (no matches in source tree) ✓
+No forbidden vendor SDK API is referenced in the relay's runtime code. The only comment mentioning vendor names is `scripts/control-plane-stub/server.mjs:6` which says "no AWS SDK, no Stripe..." — an affirmative statement that those packages are not used. ✓
+
+**3. package-lock.json transitive dependency check:**
+```
+$ rg -c "@aws-sdk" package-lock.json
+```
+→ 2 matches for `@aws-sdk/credential-providers`. Analysis:
+- Both are in `mongodb` v6.21.0's `peerDependencies` + `peerDependenciesMeta`, marked `optional: true`
+- Zero entries in lockfile `packages` section (the actually installed packages)
+- `node_modules/@aws-sdk/` does not exist
+- `npm ls @aws-sdk/credential-providers` returns `(empty)`
+- This is standard npm optional peer dependency metadata for the mongodb driver's AWS IAM auth integration — not an installed transitive dependency
+- No actual transitive dependency on any forbidden package ✓
+
+**4. .env.example forbidden env var check:**
+```
+$ grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example
+```
+→ 0 matches (exit 1) ✓
+Only relay's own env vars present: `RELAY_TOKEN`, `TENANT_ID`, `CONTROL_PLANE_URL`, `PG_HOST`, `PG_PORT`, `PG_DATABASE`, `PG_USER`, `PG_PASSWORD`, `MONGO_URI`, `MONGO_DATABASE`, `MASKING_ENABLED`, `AUDIT_ENABLED`. ✓
+
+**5. Project scaffold (dependency AC-001):**
+All required files from project_specs.xml present. `npm run build` and `npx tsc --noEmit` both exit 0. ✓
+
+### Verdict
+
+All AC-057 acceptance criteria verified on integrated main. No defects.
