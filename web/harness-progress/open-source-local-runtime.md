@@ -302,3 +302,12 @@ Use /login to log into a provider via OAuth or API key. See:
 - Non-defect note: The AC-045 description documents the CORE_API_URL default as `http://core-api:3099`, but the implementation uses `http://causeflow-api:5171` — this matches the actual docker-compose service name `causeflow-api` (not `core-api`) and container port `5171` (not host port `3099`). Per the project spec's contradictions clause: implementation is authoritative when documentation drifts. The .env.example, docker-compose.yml, and Core's docker-compose.yml are internally consistent.
 - Defects: []
 - NextAction: orchestrator records verdict
+
+## 2026-07-08T19:08:47.106Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-045
+- AcceptanceChecks: AC-045
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-045-2-integration_qa.log
+- NextAction: next Ready Work Item
