@@ -245,3 +245,25 @@ Use /login to log into a provider via OAuth or API key. See:
 **Verdict:** integration=true, implementation=true, qa=true. No defects.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-045-1-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-08T18:49:08.436Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-045
+- DefectReport: All AC-045 verification checks pass. Here is the final summary:
+
+**WI-AC-045 — `.env.example` reduced for open-source local runtime**
+
+| Check | Result |
+|---|---|
+| Step 1: No `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LOOPS_*` in app `.env.example` files | ✅ PASS |
+| Step 2: `apps/website/.env.example` has only `NEXT_PUBLIC_GA4_MEASUREMENT_ID` + `NEXT_PUBLIC_CLARITY_ID`; `apps/dashboard/.env.example` has `CORE_API_URL`, `JWT_SECRET`, plus the two optional `NEXT_PUBLIC_*` keys | ✅ PASS |
+| Step 3: `JWT_SECRET` is shared between Core API and Dashboard in `docker-compose.yml` (both use `JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}`) | ✅ PASS |
+| `LOOPS_API_KEY` removed from `apps/website/.env.example` | ✅ PASS |
+
+**Implementation note (non-defect):** The AC-045 description documents the CORE_API_URL default as `http://core-api:3099`, but the implementation (both `.env.example` and `docker-compose.yml`) uses `http://causeflow-api:5171` — this is the real service name and port from the docker-compose network and is internally consistent. Per the spec's own statement, implementation is authoritative when documentation drifts.
+
+**Verdict:** integration=true, implementation=true, qa=true. No defects.
+- RepairPlan: QA report is accurate — all AC-045 checks pass. The two app-level `.env.example` files contain only the allowed vars (website: `NEXT_PUBLIC_GA4_MEASUREMENT_ID` + `NEXT_PUBLIC_CLARITY_ID`; dashboard: `CORE_API_URL` + `JWT_SECRET` + the two optional `NEXT_PUBLIC_*` analytics keys). No `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, or `LOOPS_*` vars appear in either file. `JWT_SECRET` is shared between `causeflow-api` (line 98) and `causeflow-dashboard` (line 171) in `docker-compose.yml`, both defaulting to `oss-dev-jwt-secret-change-me`. `LOOPS_API_KEY` is absent from `apps/website/.env.example`. The noted `CORE_API_URL` drift (`core-api:3099` in AC-045 docs vs `causeflow-api:5171` in implementation) is correctly classified as a non-defect: the project's own spec states implementation is authoritative when documentation drifts, and the `open-source-local-runtime` section uses `causeflow-api` consistently across the compose file, Docker env, and dashboard `.env.example`. **One minor observation (non-defect):** the root-level `web/.env.example` still contains `LOOPS_API_KEY=`, referencing a SaaS integration that has no runtime consumer in the OSS build. AC-045's scope is limited to the two app-level `.env.example` files only, so this is not a defect under AC-045, but it is a stale artifact that could confuse OSS users.; No repair actions needed for AC-045 — all checks pass.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-045-1-integration_qa.log
+- NextAction: Coding Attempt 2
