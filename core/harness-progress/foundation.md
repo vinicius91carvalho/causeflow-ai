@@ -281,3 +281,13 @@ No refactor/restructure of working code. Baseline `lint-invariants` stays at exi
 - WorkItem: WI-AC-004
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T00:20Z — Integrated Verification (latest main)
+
+- Result: integration=true, implementation=true, qa=true
+- Main HEAD: b0c653c (Merge branch 'gen/core-foundation').
+- Boundary exercised: real CLI `pnpm lint-invariants` → `infra/scripts/check-invariants.ts`.
+- Clause 1 (baseline): `pnpm lint-invariants` → **exit 0** (`10 passed, 0 failed`; I1–I4 PASS, I5 SKIP, I6–I11 PASS).
+- Clause 2 (violation): added a cross-module value import of a use case from another module's `application/` to `src/modules/audit/infra/clerk-user-email-resolver.ts` (`import { GetTenantUseCase } from '@modules/tenant/application/get-tenant.usecase.js'`); re-ran `pnpm lint-invariants` → **exit 1**, `9 passed, 1 failed`, specific message: `FAIL I11 — No cross-module direct function calls (no value imports from another module's application/)` → `src/modules/audit/infra/clerk-user-email-resolver.ts — module 'audit' value-imports from module 'tenant' application/ ("@modules/tenant/application/get-tenant.usecase.js")`. Probe reverted; `git diff --stat` empty; baseline re-verified green (exit 0).
+- Core smoke: dev server listening on assigned PORT=5174; `curl http://localhost:5174/health` → HTTP 200 (body lists `checks:{dynamodb,redis,sqs,anthropic}`; redis `degraded` because its container is down — out of AC-004 scope, the AC boundary is the lint command).
+- No defects within the AC-004 boundary. integration=true for WI-AC-004.
