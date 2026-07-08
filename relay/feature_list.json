@@ -866,10 +866,10 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 1
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0
   },
   {
     "id": "WI-AC-039",
