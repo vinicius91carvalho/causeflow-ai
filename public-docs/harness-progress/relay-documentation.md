@@ -108,3 +108,17 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/relay-documentation/WI-AC-019-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T22:30:00.000Z — Verify-first audit
+
+- WorkItem: WI-AC-020
+- Outcome: source grep passed for `controlPlane`, `resources`, `allowedOperations`, `maxRowsPerQuery`, and `${VAR_NAME}` in `relay/configuration.mdx`
+- Note: live HTTP/browser boundary was not reachable in this sandbox because the Mintlify port range is already occupied and local socket access is blocked
+- NextAction: implementation=true
+
+## 2026-07-08T22:27:26.580Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-020
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
