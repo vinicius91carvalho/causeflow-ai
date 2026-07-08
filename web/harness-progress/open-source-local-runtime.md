@@ -424,3 +424,12 @@ Use /login to log into a provider via OAuth or API key. See:
 - WorkItem: WI-AC-050
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T20:23:56.282Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-050
+- AcceptanceChecks: AC-050
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-050-1-integration_qa.log
+- NextAction: next Ready Work Item
