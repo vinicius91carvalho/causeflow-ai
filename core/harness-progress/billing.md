@@ -427,3 +427,36 @@ Doc-drift note unchanged: literal `/api/v1/billing/usage` is not mounted (no glo
 - WorkItem: WI-AC-012
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T11:13:00.000Z — Integrated Verification (WI-AC-012)
+
+**Result: integration=true, implementation=true, qa=true**
+
+Re-ran the AC-012 boundary against latest main (HEAD=`5367ca5` merge(harness): resolve WI-AC-012; working tree clean). Reconstructed the gitignored local setup (`.env.ac012`, RSA keypair reused at `/tmp/ac011-clerk-{priv,pub}.pem`) from the journal. Booted the app via `npx tsx --env-file=.env.ac012 ac012-boundary.ts` (which bootstraps with `DeterministicLLMClient` + `DeterministicAgentRunner` stubs so a real investigation runs end-to-end through the in-process pipeline fallback — no paid Anthropic calls) on the assigned PORT=5181 against the existing stack (core-ministack-1 :4566 healthy, core-redis-1 172.18.0.4:6379 healthy). `/health` → 200 `{dynamodb:ok,redis:ok,sqs:ok,anthropic:ok}`.
+
+Key setup detail (re-derived from journal): the `.env.ac012` must NOT set any `SQS_*_QUEUE_URL` vars, so `config.sqs.alertQueueUrl && investigationQueueUrl && remediationQueueUrl` is falsy and `bootstrap.ts` enables the **in-process pipeline fallback** (`[STARTUP] SQS not configured — enabling in-process pipeline fallback`). Setting the SQS URLs routes the investigation through the SQS consumer → `dispatchInvestigation` → ECS/Fargate, which fails on ministack (`UnrecognizedClientException` — ministack has no ECS). With SQS unset, `incident.created → triage → incident.status_changed(triaging) → dispatchInvestigation.execute` (the use case, in-process) runs the stub-backed investigation to `investigation.completed → RecordUsageUseCase`.
+
+Real HTTP exercised (real `fetch`es on PORT=5181, Clerk JWT RS256 verified networklessly via `@clerk/backend` against `CLERK_JWT_KEY`):
+
+- `POST /v1/tenants` (admin JWT) → **201**, `tenantId = org_ac012_<ts>` (= JWT `o.id`).
+- Provisioned a `BillingAccountEntity` for tenant A (setup only, so `reserveInvestigation` succeeds).
+- `POST /v1/incident/chat` `{severity:"critical", suggestedAgents:[log_analyst,metric_analyst,infra_inspector]}` → **201**, incident dispatched a real stub-backed investigation.
+- Poll `GET /v1/incidents/:id` → reached terminal `status=awaiting_approval` within ~0.5s (investigation completed).
+- `GET /v1/billing/usage` (tenant A) → **200**, `records[0] = {type:"investigation", incidentId:<uuid>, costUsd:0, agentBreakdown:[{agentRole:"log_analyst",inputTokens:500,outputTokens:200,costUsd:0},{agentRole:"metric_analyst",...},{agentRole:"infra_inspector",...}]}` — confirms a **UsageRecordEntity** is written on investigation completion with the **investigation ID**, **per-agent token counts** and **per-agent cost**.
+- Tenant scoping: tenant B (`POST /v1/tenants` → 201; `GET /v1/billing/usage`) → **200**, `records.length === 0` — tenant B sees zero of tenant A's records (scoped to the calling tenant only; `tenantId` comes only from the verified JWT).
+- Pagination shape present (`records` + `cursor`).
+
+All 18/18 boundary assertions passed; `AC-012: ALL ASSERTIONS PASSED`. Non-critical Hindsight retain warnings logged (`HINDSIGHT_API_URL` empty) — best-effort, do not block the investigation or the usage record write, consistent with the spec's memory failure-behaviour.
+
+Regression: `pnpm typecheck` clean; `pnpm lint-invariants` 10/10 pass (I1–I11); `pnpm test:run` 162 files / 1057 tests pass.
+
+Doc-drift note unchanged (literal `/api/v1/billing/usage` not mounted — no global `/api` prefix; route is `/v1/billing/usage`). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-012 behaviour is fully met.
+
+## 2026-07-08T11:13:30.000Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- AcceptanceChecks: AC-012
+- Outcome: passed on integrated main
+- Evidence: `ac012-boundary.ts` run log (PORT=5181)
+- NextAction: next Ready Work Item
