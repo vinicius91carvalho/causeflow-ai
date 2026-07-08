@@ -139,3 +139,11 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/relay-documentation/WI-AC-020-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T22:31:44.123Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: coding agent declined the Work Item
+- Defects: `grep -E 'Not a (proxy|tunnel)|replication agent' relay/overview.mdx` returns all three matches, so the source text satisfies AC-021. I could not complete the requested real HTTP/browser boundary check in this sandbox: localhost socket access is blocked from shell, and the browser MCP calls were unavailable. No files were changed and no commit was made.
+- NextAction: User reviews evidence and explicitly resumes with guidance
