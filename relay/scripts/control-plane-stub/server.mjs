@@ -14,6 +14,10 @@
 //   - when SMOKE=1, after the first resource_update it runs a one-shot
 //     health_check + execute { SELECT 1 AS one } + execute { list_tables }
 //     round-trip against the relay over the open socket and prints the results.
+//   - Any client that connects with token/tenant and sends a JSON-RPC request
+//     has that request forwarded to the relay; the relay's response is sent
+//     back to that client. This lets external test tools drive the relay
+//     through the stub.
 import { WebSocketServer } from 'ws';
 import { randomUUID } from 'node:crypto';
 
@@ -23,7 +27,6 @@ const EXPECTED_TENANT = process.env.TENANT_ID ?? 'harness-tenant';
 const RUN_SMOKE = (process.env.SMOKE ?? '0') === '1';
 
 function log(msg, extra) {
-  // Plain stdout so `docker compose logs relay-control-plane-stub` is greppable.
   if (extra) console.log(`[stub] ${msg}`, extra);
   else console.log(`[stub] ${msg}`);
 }
@@ -31,6 +34,22 @@ function log(msg, extra) {
 log(`listening on 0.0.0.0:${PORT} expect token=${EXPECTED_TOKEN} tenant=${EXPECTED_TENANT} smoke=${RUN_SMOKE}`);
 
 const wss = new WebSocketServer({ port: PORT, path: '/v1/relay/connect' });
+
+// Track the relay WebSocket and pending RPC request routing.
+let relayWs = null;
+const pendingRpc = new Map();
+
+async function forwardResponseToClient(raw) {
+  let msg;
+  try { msg = JSON.parse(raw.toString()); } catch { return; }
+  if (msg.jsonrpc === '2.0' && msg.id !== undefined) {
+    const pending = pendingRpc.get(String(msg.id));
+    if (pending && pending.ws.readyState === pending.ws.OPEN) {
+      pending.ws.send(JSON.stringify(msg));
+      pendingRpc.delete(String(msg.id));
+    }
+  }
+}
 
 function sendRpc(ws, method, params) {
   const id = randomUUID();
@@ -98,7 +117,16 @@ wss.on('connection', (ws, req) => {
     ws.close(4001, 'invalid token/tenant');
     return;
   }
-  log('relay connected');
+
+  // First connection with valid credentials is the relay; subsequent are test clients.
+  if (!relayWs) {
+    relayWs = ws;
+    log('relay connected');
+    // Forward JSON-RPC responses from the relay to the originating test client.
+    relayWs.on('message', forwardResponseToClient);
+  } else {
+    log('test client connected');
+  }
 
   let smokeStarted = false;
 
@@ -114,13 +142,29 @@ wss.on('connection', (ws, req) => {
       }
     } else if (msg.type === 'heartbeat') {
       log(`heartbeat from relayId=${msg.relayId} (debug)`);
-    } else if (msg.jsonrpc === '2.0' && msg.method) {
-      // The relay only sends relay-initiated messages; JSON-RPC requests come
-      // from the stub. If a stray JSON-RPC request arrives, ignore it.
+    } else if (msg.jsonrpc === '2.0' && msg.id && msg.method) {
+      // Forward JSON-RPC request to the relay connection.
+      if (relayWs && relayWs.readyState === relayWs.OPEN) {
+        const requestId = msg.id;
+        pendingRpc.set(String(requestId), { ws, id: requestId });
+        relayWs.send(JSON.stringify(msg));
+      } else {
+        ws.send(JSON.stringify({
+          jsonrpc: '2.0', id: msg.id,
+          error: { code: -32000, message: 'Relay not connected' },
+        }));
+      }
     }
   });
 
-  ws.on('close', () => log('relay disconnected'));
+  ws.on('close', () => {
+    if (ws === relayWs) {
+      log('relay disconnected');
+      relayWs = null;
+    } else {
+      log('client disconnected');
+    }
+  });
   ws.on('error', (err) => log(`socket error: ${err.message}`));
 });
 

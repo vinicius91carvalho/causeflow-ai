@@ -99,3 +99,22 @@
   3. `execute` with no limit → falls back to `maxRowsPerQuery=1000`, policy accepts, driver clamps to `min(1000, 1000)=1000`.
 - Result: implementation=true (zero-diff: no code changes needed)
 - NextAction: next Ready Work Item
+
+## 2026-07-08T18:37:00.000Z — Independent QA Verification (qa-agent)
+
+- WorkItem: WI-AC-038
+- AcceptanceChecks: AC-038
+- Outcome: PASSED
+- Evidence: Real WebSocket boundary test against live docker-compose stack
+  (relay + control-plane-stub + real Postgres + real Mongo on relay_default network)
+  confirmed:
+  1. `execute` with `params.params.limit = 5000` against resource with
+     `maxRowsPerQuery: 1000` → JSON-RPC `-32600` error with message
+     `Policy denied: Row limit 5000 exceeds maximum 1000`.
+  2. `execute` with `params.params.limit = 100` → policy accepts,
+     driver clamps to `min(100, 1000) = 100`, returns result with
+     `rowCount: 1`.
+  3. `execute` with no limit → falls back to `maxRowsPerQuery = 1000`,
+     policy accepts, driver clamps to `min(1000, 1000) = 1000`,
+     returns result with `rowCount: 1`.
+- Result: qa=true, implementation=true
