@@ -44,3 +44,17 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T18:35:00.000Z — Verified
+
+- WorkItem: WI-AC-044
+- Outcome: AC-044 PASS — verified at real boundary (docker-compose stack + control-plane stub smoke mode)
+- Evidence:
+  - Relay started with relayId=ab666b8e-7dbe-4616-bead-14e0a715d069 (logged via relay-ws on connect)
+  - Stub in SMOKE=1 mode sent `execute {SELECT 1 AS one}` (query) and `execute {list_tables}` (list_tables)
+  - Relay audit logs show two `result: "success"` entries at level 30 (pino info) with all required fields:
+    - `{ timestamp, relayId: "ab666b8e-...", requestId, resource: "order-pg", operation: "query"|"list_tables", result: "success", rowCount: 1, maskedFieldCount: 0, executionTimeMs: 2|13 }`
+  - relayId is identical across all log entries (process-lifetime UUID)
+  - AuditLogger constructed inside onMessage callback, carries same relayId + per-request requestId
+- Result: implementation=true — zero code changes needed (code was already correct)
+- NextAction: (none — WI complete)
