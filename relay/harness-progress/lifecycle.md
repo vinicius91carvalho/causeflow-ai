@@ -53,3 +53,13 @@
 - Evidence: SIGTERM sent to running relay container via docker compose kill -s SIGTERM relay; container exited with code 0; logs contain "Shutting down..." message; second SIGTERM has no effect (process already gone)
 - Test: test-ac047.mjs — black-box SIGTERM test against docker-compose stack
 - NextAction: None (AC-047 verified)
+
+## 2026-07-08T20:28:00.000Z — QA Agent: AC-047 Verified
+
+- WorkItem: WI-AC-047
+- Outcome: PASSED
+- QA: true
+- Implementation: true (no defects found)
+- Evidence: Two independent test runs of test-ac047.mjs against the docker-compose stack (relay + control-plane-stub + postgres + mongo). Both runs produced exit code 0 with "Shutting down..." in relay logs, and second SIGTERM had no effect. Control plane stub logs confirm "relay disconnected" with no reconnect (intentionalClose = true prevented backoff). Source code confirms WsClient.close() sets intentionalClose, stops heartbeat, clears reconnect timer, closes WS; then driver.close() is awaited for each driver with errors caught; then process.exit(0).
+- Defects: []
+- NextAction: None
