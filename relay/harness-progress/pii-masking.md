@@ -65,6 +65,18 @@
   and reports maskedFieldCount.
 - NextAction: none (AC-040 passes QA)
 
+## 2026-07-08T20:00:00.000Z — Implementation Verified (Re-Verification)
+
+- WorkItem: WI-AC-040
+- Attempt: 1/3 (re-verification)
+- Outcome: implementation=true, qa=true (zero-diff checkpoint)
+- Verification: Re-executed `node scripts/qa/ac040-test.mjs` against compiled `dist/masking/masking-engine.js`.
+  Input `['john@example.com', '123.456.789-00', 'plain']` →
+  output `['***@***.***', '***.***.***-**', 'plain']`, `maskedFieldCount: 2`.
+  Email local part + domain stripped, CPF dotted pattern masked, plain string untouched.
+  `npx tsc --noEmit` passes. `dist/` in sync with `src/`.
+- NextAction: none (AC-040 passes, no code changes required)
+
 ## 2026-07-08T17:56:35.597Z — QA defect and Repair Plan
 
 - Attempt: 1/3
