@@ -420,3 +420,10 @@ All 18/18 boundary assertions passed; `AC-012: ALL ASSERTIONS PASSED`. Non-criti
 Doc-drift note unchanged: literal `/api/v1/billing/usage` is not mounted (no global `/api` prefix; route is `/v1/billing/usage`). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-012 behaviour is fully met.
 
 - NextAction: Integrated Verification
+
+## 2026-07-08T10:58:45.320Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
