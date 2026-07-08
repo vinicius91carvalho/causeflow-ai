@@ -75,3 +75,22 @@
   - Health check → 200 with all services ok
 - NextAction: commit
 
+## 2026-07-08T20:28:00.000Z — QA Verdict
+
+- WorkItem: WI-AC-028
+- Phase: QA
+- Attempt: 1
+- Outcome: FAIL — multiple defects found in HTTP boundary testing against port 5184
+- Defects:
+  1. POST /v1/code-knowledge/repos returns `{"status":"indexed"}` but does not persist any data — no RepoNodeEntity, ServiceEdgeEntity, or PackageDependencyEntity are written because `codeRepoFactory(tenantId)` always returns `undefined` in bootstrap.ts
+  2. GET /v1/code-knowledge/search?q=retry returns empty results because no repos/patterns are ever indexed
+  3. The `IndexRepositoryUseCase` is structurally sound but pre-emptively short-circuits at "No code repository available for tenant" due to missing ICodeRepository wiring
+- Evidence:
+  - `POST /v1/code-knowledge/repos` → `{"status":"indexed","repoFullName":"org/my-service"}`
+  - `GET /v1/code-knowledge/repos` → `[]`
+  - `GET /v1/code-knowledge/search?q=retry` → `{"query":"retry","results":[]}`
+  - DynamoDB scan: zero RepoNodeEntity, ServiceEdgeEntity, PackageDependencyEntity, or PatternEntity across all tenants
+  - Server log: `WARN "No code repository available for tenant"`
+- qa: false
+- implementation: false
+- NextAction: User reviews defects before next attempt
