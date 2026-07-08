@@ -239,6 +239,51 @@ AC-014 contract satisfied at the real boundary on integrated main. No defects fo
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-014-1-integration_qa.log
 - NextAction: next Ready Work Item
 
+## WI-AC-016 — Verify-first (transport)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+WorkItem: WI-AC-016 — verify AC-016 (`message` event JSON parsing + JSON-RPC 2.0 forwarding) against the existing code at a real WebSocket boundary.
+
+Boundary: real `ws.WebSocketServer` on `127.0.0.1:5173` (`/v1/relay/connect`) + the real compiled `WsClient` (`dist/transport/ws-client.js`, built via `npx tsc --noEmit` → 0, `npm run build` → 0). No mocks of the relay. Pino logs captured from stdout (fd 1); verdict printed to stderr (fd 2).
+
+Source checks (`src/transport/ws-client.ts` `message` handler):
+```
+this.ws.on('message', (data) => {
+  try {
+    const parsed = JSON.parse(typeof data === 'string' ? data : data.toString());
+    if (parsed.jsonrpc === '2.0' && parsed.method) {
+      this.opts.onMessage(parsed as RpcRequest);
+    }
+  } catch (err) {
+    logger.warn({ err }, 'Invalid message from control plane');
+  }
+});
+```
+
+Probe verdict (`/tmp/ac016-verdict.json` + `/tmp/ac016-stdout.log`):
+- `tokenOk=true`, `tenantOk=true`, `relayOpen=true` (relay connected to probe server).
+- Sent 9 inbound messages from the server to the relay:
+  1. `{ not valid json` (invalid JSON, string) → dropped, warn.
+  2. `{"jsonrpc":` (invalid JSON, buffer) → dropped, warn.
+  3. `{"jsonrpc":"1.0","method":"foo"}` (jsonrpc !== '2.0') → dropped, no warn.
+  4. `{"jsonrpc":"2.0","id":"x"}` (no method) → dropped, no warn.
+  5. `{"jsonrpc":"2.0","id":"1","method":"list_resources","params":{}}` (string) → forwarded.
+  6. `{"jsonrpc":"2.0","id":"2","method":"health_check","params":{}}` (buffer) → forwarded.
+  7. `{"jsonrpc":"2.0","id":"3","method":"execute","params":{"resourceId":"r"}}` (string) → forwarded.
+  8. `42` (valid JSON, non-object → jsonrpc undefined) → dropped, no warn.
+  9. `{}` (empty object → no method) → dropped, no warn.
+- `forwardedCount=3`, `exactlyThreeForwarded=true`; forwarded ids `1,2,3`; `forwardedAllJsonrpc2=true`; `forwardedAllHaveMethod=true`.
+- Parse-failure warn lines (level 40) in stdout log: exactly 2 — both `msg="Invalid message from control plane"` with `err.type="SyntaxError"` and the parse-error message attached (cases 1 & 2). `warnCount=2`.
+
+AC-016 contract checks (all pass):
+- On `message`, `WsClient` JSON-parses the payload handling both string and buffer (`typeof data === 'string' ? data : data.toString()` → `JSON.parse`).
+- Messages that fail to parse are logged at warn (`logger.warn({ err }, 'Invalid message from control plane')`, pino level 40) with the parse error (`err` = SyntaxError) and dropped (catch does not call `onMessage`).
+- Messages where `parsed.jsonrpc !== '2.0'` (cases 3, 8) or `parsed.method` is missing (cases 4, 9) are dropped (the `if` guard fails; `onMessage` not called).
+- Only well-formed JSON-RPC 2.0 requests (jsonrpc === '2.0' AND method present) are forwarded to `opts.onMessage` — exactly the 3 valid requests, in order, with their full parsed object.
+
+No root-cause fix required: the existing code already satisfies AC-016 at the real boundary.
+
 ## WI-AC-015 — Verify-first (transport)
 
 **Result: implementation=true (zero-diff checkpoint — no code changes)**
