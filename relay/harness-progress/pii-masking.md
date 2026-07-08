@@ -165,3 +165,20 @@
 - WorkItem: WI-AC-041
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:00:00.000Z — Integrated Verification Pass
+
+- WorkItem: WI-AC-041
+- AcceptanceChecks: AC-041
+- Attempt: 1/3
+- Outcome: integration=true, implementation=true, qa=true
+- Verification: All tests pass on integrated main (commit ba5f09b).
+  Test 1: `MaskingEngine.mask({ user: { email: 'a@b.co', notes: 'hello' } })`
+  returns `{ masked: { user: { email: '***@***.***', notes: 'hello' } }, maskedFieldCount: 1 }`.
+  Email `a@b.co` matched by default email pattern -> `***@***.***`.
+  `notes: 'hello'` left untouched. `maskedFieldCount: 1` (only email matched).
+  Test 2: Array nested inside object: `['alice@example.com', 'bob@test.org', 'plain']`
+  both emails masked -> `['***@***.***', '***@***.***', 'plain']`, `maskedFieldCount: 2`.
+  Test 3: Deeply nested with mixed types works correctly.
+  AC-040 regression also passes. `npx tsc --noEmit` clean.
+- NextAction: none (WI-AC-041 fully verified)
