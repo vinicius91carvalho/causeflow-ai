@@ -385,3 +385,12 @@ The existing code failed AC-005 at the boundary in two independent ways; each fi
 - Defects: Integrated Verification failed
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-005-1-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-08T02:07:51.440Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-005
+- DefectReport: Integrated Verification failed
+- RepairPlan: AC-005's DynamoDB boundary is genuinely satisfied (causeflow-local exists, 3 GSIs, PITR ENABLED) and the fix is merged to main (cd5d57e). The Integrated Verification failure is operational, not a content defect: the direct-host integration verifier runs the AC's literal `aws --endpoint-url http://localhost:4566 ...` on the host, but the host has no `aws` CLI installed. The isolated QA bypassed this via `docker exec core-ministack-1 aws ...`; the integration step did not, so it failed before evaluating the AC. A secondary risk is the AC's wording that `describe-table` shows PointInTimeRecoveryDescription — in real DynamoDB that field is only on `describe-continuous-backups`.; Do NOT change application or init-script code — the AC boundary is already satisfied and merged to main.; Make the Integrated Verification exercise the same real boundary the isolated QA used: run the AWS calls inside the ministack container, e.g. `docker exec -e AWS_ACCESS_KEY_ID=test -e AWS_SECRET_ACCESS_KEY=test -e AWS_DEFAULT_REGION=us-east-1 core-ministack-1 aws --endpoint-url http://localhost:4566 dynamodb list-tables` (and describe-table / describe-continuous-backups). This hits the identical :4566 service mapped to the host.; Alternatively install the `aws` CLI on the host (or provide a thin `aws` shim that proxies to the ministack container) so the AC's literal host command resolves.; For the PITR check, verify against `describe-continuous-backups` (where `PointInTimeRecoveryDescription.PointInTimeRecoveryStatus` actually lives), not `describe-table` — the AC's `describe-table` wording is descriptive; real DynamoDB never returns PITR from describe-table.; Re-run Integrated Verification for WI-AC-005 with the above invocation path; expect integration=true.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-005-1-integration_qa.log
+- NextAction: Coding Attempt 2
