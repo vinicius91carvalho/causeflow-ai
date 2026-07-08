@@ -302,7 +302,7 @@
     ],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 0,
     "verify_notes": "QA pass: mint dev on port 3002 (3000 in use) — GET /api-reference/authentication returns 200; rendered page contains all three sections (JWT Bearer token with h2, curl + TypeScript examples; API key authentication with X-API-Key header example; Webhook HMAC signature with h2, bash + TypeScript examples including verifyWebhookSignature function); verifyWebhookSignature function passes node --check; bash HMAC example passes bash -n and produces valid sha256= output; TypeScript fetch example passes node --check; all code examples syntactically valid."
