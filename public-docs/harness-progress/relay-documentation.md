@@ -59,3 +59,20 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T18:00:00.000Z — Implementation Verified
+
+- WorkItem: WI-AC-019
+- Outcome: verification passed, implementation=true
+- Evidence: All 8 relay pages (overview, architecture, quickstart, configuration, pii-masking, policy-engine, deployment, troubleshooting) served HTTP 200 from mint dev at port 5179 with correct page-specific titles and zero MDX parse errors. The Overview page Mermaid `flowchart TD` block is compiled into a Mintlify Mermaid React component (not raw code). The chart data is passed as a prop to `<Mermaid chart="...">` — the correct rendering path for Mintlify-hosted Mermaid diagrams.
+- Details:
+  - relay/overview: HTTP 200, title "Relay overview - CauseFlow AI", Mermaid rendered via component
+  - relay/architecture: HTTP 200, title "Architecture - CauseFlow AI"
+  - relay/quickstart: HTTP 200, title "Quickstart - CauseFlow AI"
+  - relay/configuration: HTTP 200, title "Configuration reference - CauseFlow AI"
+  - relay/pii-masking: HTTP 200, title "PII masking - CauseFlow AI"
+  - relay/policy-engine: HTTP 200, title "Policy engine - CauseFlow AI"
+  - relay/deployment: HTTP 200, title "Deployment - CauseFlow AI"
+  - relay/troubleshooting: HTTP 200, title "Troubleshooting - CauseFlow AI"
+- Defects: None. Zero-diff checkpoint — no code changes needed.
+- NextAction: None (complete)
