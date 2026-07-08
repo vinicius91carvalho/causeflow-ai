@@ -816,3 +816,12 @@ and the tags block emits `causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }}` f
 Evidence: `bash -c 'RELEASE_VERSION=1.2.3; MAJOR=$(cut -d. -f1<<<1.2.3); MINOR=$(cut -d. -f1-2<<<1.2.3); echo "${MAJOR}.${MINOR}"'` → `1.1.2`. AC-008 requires the image tags to be `X.Y.Z`, `X.Y`, `X`, and `latest`; the `X.Y` tag is rendered as `MAJOR.MAJOR.MINOR` (e.g. `1.1.2`) instead of `X.Y` (e.g. `1.2`). The fix would be to use `causeflowai/relay:${{ env.MINOR }}` for the `X.Y` tag (or rename the variable holding `major.minor` and reference it directly).
 
 **QA verdict: qa=false, implementation=false.** Defect: incorrect `X.Y` Docker tag computation in `.github/workflows/release.yml`.
+
+## 2026-07-08T04:23:34.952Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-008
+- DefectReport: expected the X.Y Docker image tag to be X.Y (e.g. causeflowai/relay:1.2 for release 1.2.3); observed the workflow emits causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }} where MAJOR=1 and MINOR=1.2 (cut -d. -f1-2), yielding 1.1.2; evidence .github/workflows/release.yml Extract version components step + tags block, simulated `RELEASE_VERSION=1.2.3` -> MAJOR=1, MINOR=1.2, tag=1.1.2
+- RepairPlan: AC-008 release workflow is structurally correct (trigger, checkout fetch-depth:0, Node 22, npm ci, semantic-release, released/version outputs, docker job needs+if, QEMU, buildx, DockerHub login, build-push-action@v6, multi-arch). However the X.Y Docker tag is computed incorrectly: the `Extract version components` step sets MINOR=`cut -d. -f1-2` (already X.Y), then the tags block emits `${{ env.MAJOR }}.${{ env.MINOR }}`, concatenating major with the full major.minor string. Simulated RELEASE_VERSION=1.2.3 -> MAJOR=1, MINOR=1.2, tag=causeflowai/relay:1.1.2 instead of causeflowai/relay:1.2.; In .github/workflows/release.yml `Build and push multi-arch image` step, change the X.Y tag line from `causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }}` to `causeflowai/relay:${{ env.MINOR }}` (MINOR already holds X.Y via cut -d. -f1-2). Alternatively rename MINOR to MINOR_FULL or set MINOR=`cut -d. -f2` and keep `${{ env.MAJOR }}.${{ env.MINOR }}`; the simplest fix is to drop the redundant `${{ env.MAJOR }}.` prefix. No other steps or files need changes.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-008-1-qa.log
+- NextAction: Coding Attempt 2
