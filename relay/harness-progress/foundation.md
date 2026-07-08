@@ -267,3 +267,39 @@ Evidence: /tmp/ac002-evidence/WI-AC-002-iv.log
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-002-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-003 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-003 condition against the existing repository. No code changes — all invariants already hold.
+
+- `npx tsc --noEmit` → **exit 0** (after `npm install` to materialize `typescript`; deps were gitignored, no tracked change).
+- `tsconfig.json` compiles under `strict: true`, `module: NodeNext`, `moduleResolution: NodeNext`, `target: ES2022`, `esModuleInterop: true`, `skipLibCheck: true` (all set).
+- `package.json` declares `"type": "module"` (line 5).
+- Every internal relative import uses the explicit `.js` extension on the relative path (e.g. `from './transport/protocol.js'`). Grep for relative imports WITHOUT `.js` → none; all 20 relative imports across `src/` end in `.js`.
+
+Verdict: implementation=true, zero code diff. All AC-003 boundaries pass.
+
+## 2026-07-08T03:15:00.000Z — QA pass (independent) WI-AC-003
+
+- WorkItem: WI-AC-003 (foundation)
+- AcceptanceChecks: AC-003
+- Outcome: passed (independent QA)
+
+Exercised AC-003 independently on the integrated worktree:
+
+- `npx tsc --noEmit` → **exit 0**.
+- `tsconfig.json` → `strict: true`, `module: NodeNext`, `moduleResolution: NodeNext` (plus `target: ES2022`, `esModuleInterop: true`, `skipLibCheck: true`, declarations/source maps on).
+- `package.json` → `"type": "module"` declared.
+- Internal relative imports (20 across `src/`) → every one uses the explicit `.js` extension; grep for relative imports without `.js` → none.
+- Repo scaffold (src/config, src/drivers/{postgres,mongodb}, src/policy, src/masking, src/audit, src/health, src/transport, src/index.ts) matches project_specs.xml affected_surfaces.
+
+Verdict: qa=true, implementation=true, no defects.
+
+## 2026-07-08T02:16:28.846Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
