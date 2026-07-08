@@ -41,7 +41,7 @@
       "implementation": true,
       "integration": true,
       "timestamp": "2026-07-08T21:32:00Z",
-      "details": "Independent QA verification pass for AC-018 (describe_resource). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + postgres + mongo). All 3 test cases pass: (1) unknown resourceId 'nonexistent' returns error code -32602 with message 'Unknown resource: nonexistent', (2) valid order-pg returns {tables:[{table_name,table_type}], type:'postgres', database:'relay'}, (3) valid order-mongo returns {tables:[], type:'mongodb', database:'relay'}. No defects.",
+      "details": "Integrated Verification pass for AC-018 (describe_resource). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + postgres + mongo). All 3 test cases pass: (1) unknown resourceId 'nonexistent' returns error code -32602 with message 'Unknown resource: nonexistent', (2) valid order-pg returns {tables:[{table_name,table_type}], type:'postgres', database:'relay'}, (3) valid order-mongo returns {tables:[], type:'mongodb', database:'relay'}. No defects.",
       "checks": {
         "unknown_resource_error_code": "passed",
         "unknown_resource_error_message": "passed",
