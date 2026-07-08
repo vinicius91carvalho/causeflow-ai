@@ -1797,3 +1797,62 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T17:15:00Z — Implementation (WI-AC-032)
+
+- WorkItem: WI-AC-032
+- AcceptanceChecks: AC-032
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: implementation=true (black-box verified on running stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+WI-AC-032 is a verification-only work item (no source code changes needed):
+validate that the runtime image serves all 133 MDX pages correctly, the four
+navigation tabs render, the `/quickstart` redirect resolves, all API reference
+endpoint pages render their H1 matching the frontmatter title, and the
+Dockerfile runtime stage is reproducible from a clean cache.
+
+All artifacts were already in place from WI-AC-026/WI-AC-027/WI-AC-031.
+No files modified.
+
+### Black-box verification (env=assigned port 5181, rebuilt on 5184)
+
+**Primary run** (existing image `causeflow-docs:local` on port 5181):
+- `GET /` → 200, `CauseFlow AI` (4 matches), `Quickstart` card (3 matches)
+- `GET /quickstart` → 200, redirect lands on Quickstart page (H1="Quickstart")
+- 126 navigation pages from docs.json (all four tabs) → 100% 200
+- 82 API reference endpoint pages → 100% H1 matches frontmatter `title`
+- No MDX parse errors; Mintlify components render (Card, CardGroup, Mermaid SVG)
+- Container logs: "Serving docs at http://localhost:3000" only — zero matches
+  for forbidden SaaS hosts (mintlify.com, clerk.com, etc.)
+
+**Reproducibility run** (clean rebuild with `docker build --no-cache` on
+port 5184, image `causeflow-docs:rebuilt`):
+- `docker build --no-cache -t causeflow-docs:rebuilt .` → exit 0 (352 MB)
+- `GET /` → 200, same `CauseFlow AI` (4 matches), `Quickstart` card (3 matches)
+- `GET /quickstart` → 200, redirect resolves
+- Sampled API endpoint pages → all 200 with correct H1s
+- Logs: "Serving docs at http://localhost:3000" only — zero SaaS host matches
+- Original image created: 2026-07-08T08:03:06-03:00
+- Rebuilt image created: 2026-07-08T17:14:39-03:00
+- Functionally identical behavior verified
+
+### Regression (AC-031 checks pass on both images)
+
+- Homepage 200 with site name and Quickstart card: PASS
+- Redirect `/quickstart` → `/getting-started/quickstart`: PASS
+- Navigation tabs (Documentation, API reference, Relay, Changelog): PASS
+- API endpoint H1 matches: PASS (82 endpoints, 0 failures)
+- Mermaid diagram renders: PASS (SVG present on relay/overview)
+- Authentication page covers JWT, API key, HMAC: PASS
+- Outbound events catalog (20 events): PASS
+- SaaS-host forbidden pattern check: PASS (0 matches)
+- `docs.json` contextual limited to `["copy", "view"]`: PASS
+- Image reproducibile from clean cache: PASS
+
+### verdict
+
+implementation=true; defects=none; No files changed (verification-only work item).
