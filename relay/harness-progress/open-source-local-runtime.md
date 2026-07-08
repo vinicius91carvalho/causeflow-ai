@@ -95,3 +95,48 @@ invariant from AC-002 preserved). Relay container env contains no
   contract on the new open-source layout.
 
 `feature_list.json` WI-AC-051 set to `implementation: true`.
+
+## 2026-07-07T23:58:00Z — QA Independent Verification (AC-051)
+
+- WorkItem: WI-AC-051
+- AcceptanceChecks: AC-051
+- Outcome: qa=true, implementation=true (independently re-verified from clean env)
+- Method: tore down existing stack (`docker compose down -v`), removed stale
+  `causeflow-relay` container, then ran `env -i PATH=/usr/bin:/bin
+  docker compose up -d --build` (no `.env`, no `AWS_*`/`STRIPE_*`/`CLERK_*`/
+  `LANGFUSE_*`/`SENTRY_*`/`SVIX_*`/`SLACK_*`/`COMPOSIO_*`/`MASTRA_*`/`SQS_*`/
+  `DYNAMODB_*`/`STS_*`/`KMS_*` in the parent shell — verified empty before up).
+
+### Independent verification results
+
+- Service count: exactly 4 — `relay-control-plane-stub`, `relay-postgres`,
+  `relay-mongo`, `relay` (`docker compose ps --services | wc -l` = 4).
+- All four `Up` within ~9s (well under the 60s budget).
+- Port mapping: stub `0.0.0.0:3000->3000`, postgres `5432->5432`,
+  mongo `27017->27017`, relay `8080/tcp` with `null` host binding
+  (`docker inspect relay --format '{{json .NetworkSettings.Ports}}'` →
+  `{"8080/tcp":null}`) → no inbound port mapping. Confirmed.
+- Relay boot log contains `"msg":"Connected to control plane"` with
+  `url=ws://relay-control-plane-stub:3000/v1/relay/connect`.
+- Stub log contains
+  `[stub] resource_update from relayId=75206162-... resources=2` (n=2 >= 1).
+- Forbidden-hostname grep over `docker compose logs relay` for
+  `amazonaws.com|stripe.com|clerk.|langfuse|sentry.io|svix.com|slack.com|composio|mastra`
+  → 0 matches. Broader sweep (`amazonaws|\.stripe\.|clerk|langfuse|sentry|svix|
+  slack|composio|mastra|sqs|dynamodb|\.sts\.|kms\.|api\.aws`) → 0 matches.
+- Only outbound URL in relay log: `ws://relay-control-plane-stub:3000/v1/relay/connect`
+  (`grep -oiE '(wss?|https?)://[^ "]+'` over relay logs → that single URL).
+- Relay container env scan for `^(AWS_|STRIPE_|CLERK_|LANGFUSE_|SENTRY_|SVIX_|
+  SLACK_|COMPOSIO_|MASTRA_|SQS_|DYNAMODB_|STS_|KMS_)` → none.
+- Regression: relay runs as `uid=10001(relay) gid=10001(relay)` (hardened-image
+  invariant preserved). `.env.example` forbidden-var grep → 0.
+- Source-tree SDK scan (`package.json`, `src/`, `scripts/`): no
+  `aws-sdk`/`@aws-sdk`/`stripe`/`@clerk`/`@langfuse`/`@sentry`/`@svix`/
+  `@slack`/`composio`/`@mastra` dependency (the lone match was a doc comment
+  in `scripts/control-plane-stub/server.mjs` describing what it does NOT import).
+
+### Verdict
+
+All AC-051 acceptance criteria independently re-verified on a freshly built
+stack from a clean shell env. No defects observed. `qa=true`,
+`implementation=true`.
