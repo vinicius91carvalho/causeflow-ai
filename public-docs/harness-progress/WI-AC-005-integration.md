@@ -29,3 +29,29 @@
 implementation=true. qa=true. Zero defects. AC-005 holds on integrated
 main at the source-tree boundary: every `description` field in `.mdx`
 frontmatter is at most 160 characters. Zero files changed.
+
+## 2026-07-08 VERIFY-FIRST Re-verification — WI-AC-005
+
+- Role: coding-agent (verify-first mode, real external boundary)
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- context: content-structure
+- Boundary: `mint dev --port 5170` HTTP boundary (AC-001 dependency
+  confirmed via `curl http://localhost:5170/` = 200) + source-tree
+  frontmatter audit.
+
+### Results
+
+- Dev server on port 5170: `curl http://localhost:5170/` returns HTTP 200;
+  `<title>CauseFlow AI Documentation - CauseFlow AI</title>` renders;
+  description meta tag matches frontmatter (153 chars).
+- MDX files scanned: 133.
+- Descriptions exceeding 160 chars: **0** under both Python YAML parser
+  and awk methods.
+- Longest description: `./index.mdx` = 153 chars.
+
+### Verdict
+
+implementation=true. AC-005 holds on the existing codebase at both the
+HTTP boundary (dev server on port 5170) and the source-tree boundary.
+Zero code changes needed.
