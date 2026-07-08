@@ -361,3 +361,49 @@
   three Sentry beforeSend hooks were already PASS from attempt 2 and are
   untouched here.
 - Outcome: PASS — implementation=true for AC-042.
+
+## 2026-07-08 — Independent QA re-verify (WI-AC-042, attempt 3)
+- Role: qa-agent. AcceptanceChecks: AC-042. Port: 5175. Boundary: real HTTP
+  + real pino/Sentry SDK via Vitest.
+- Scaffold check: all required artifacts present —
+  apps/dashboard/src/lib/logger.ts (pino 10.3.1, ^10.3.1 in package.json,
+  installed 10.3.1), src/lib/api/with-auth.ts, instrumentation.ts,
+  instrumentation-client.ts, sentry.server.config.ts, sentry.edge.config.ts.
+- logger.ts: exports `logger` (pino, structured JSON, redact: REDACT_PATHS).
+  Redaction covers auth headers (req.headers.authorization, cookie,
+  x-api-key, x-clerk-auth-token, x-session-token), Clerk session tokens
+  (cookie/__session via body.token/accessToken/refreshToken), and Stripe
+  secrets (stripeSecretKey, stripeToken, stripePaymentMethodId,
+  stripePublishableKey, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
+  STRIPE_PUBLISHABLE_KEY, CLERK_SECRET_KEY) at top-level, body.*, body.*.*,
+  and req.headers.* nesting. REDACT_PATHS_FOR_TESTS exported for tests.
+- withAuth catch: dashLogger.error({err, method, path, userId, tenantId,
+  duration}) then rethrow → Next.js onRequestError=Sentry.captureRequestError
+  forwards to Sentry. ✓
+- Handler audit: every handler returning status:500 inside a catch
+  (non-recoverable) imports `logger as dashLogger` + `@sentry/nextjs` and
+  calls dashLogger.error({method,path,userId,tenantId,duration,err}) +
+  Sentry.captureException(err, {extra:logPayload}). The 15 handlers whose
+  catch lacks log/Sentry all handle recoverable/control-flow errors only
+  (400 invalid body, 404 not-found, 200 connection-test, SSE stream
+  lifecycle/abort, auth→redirect, empty-fallback). No non-recoverable 5xx
+  swallow remains.
+- Sentry beforeSend: all three configs (instrumentation-client.ts,
+  sentry.server.config.ts, sentry.edge.config.ts) delete
+  event.request.headers.{authorization,cookie,x-api-key,x-clerk-auth-token,
+  x-session-token}, event.request.data (wholesale), event.request.cookies,
+  event.user.ip_address, event.user.email. Same redaction in observability
+  layer. ✓
+- Real-boundary tests: `pnpm exec vitest run --project dashboard -t
+  "logger redaction"` → 2 passed; `-t "non-recoverable error"` → 1 passed
+  (checkout-handler-ac042.test.ts: real pino capturing dest + real handler
+  catch + Sentry mock; asserts {method,path,userId,tenantId,duration},
+  Sentry.captureException called with extra, no sk_live_/whsec_/clerk JWT
+  in raw log).
+- Real HTTP: `pnpm exec next dev -p 5175` boots, loads .env.local, compiles
+  instrumentation/middleware/api routes. curl /api/health → 500
+  "Publishable key not valid" from edge clerkMiddleware (dummy
+  pk_test_dummy_ac042_verify key) — test-env Clerk-credential gate, not an
+  AC-042 defect; AC-042 contract verified at real handler+pino+Sentry
+  boundary via Vitest.
+- Verdict: qa=true, implementation=true, no defects.
