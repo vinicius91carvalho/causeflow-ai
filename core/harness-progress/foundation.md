@@ -452,3 +452,12 @@ Verified the DynamoDB boundary against the running `core-ministack-1` (endpoint 
 - describe-table --table-name causeflow-local → 3 GlobalSecondaryIndexes: gsi1, gsi2, gsi3 (all ACTIVE); TableStatus ACTIVE. ✓
 - describe-continuous-backups --table-name causeflow-local → PointInTimeRecoveryDescription.PointInTimeRecoveryStatus = ENABLED. ✓ (In real DynamoDB PITR lives on `describe-continuous-backups`; the AC's `describe-table` wording is descriptive — both calls confirm the required state.)
 - No code changes; AC boundary already satisfied and merged.
+
+## 2026-07-08T02:22:04.529Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-005-2-integration_qa.log
+- NextAction: next Ready Work Item
