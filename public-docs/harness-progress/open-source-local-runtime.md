@@ -95,3 +95,10 @@ image rebuilt from scratch (multi-stage: `mint export --telemetry false` →
 ### verdict
 
 qa=true; implementation=true; defects=none
+
+## 2026-07-08T01:13:07.421Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-026
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
