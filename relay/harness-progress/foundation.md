@@ -29,3 +29,16 @@ No other code touched. `tsc --noEmit` still exits 0; the parser behavior (valida
 ### Out of scope
 
 Driver internals, SQL/AST parser semantics, policy/masking/audit, and the docker-compose plumbing are later work items (AC-002+, AC-022+, AC-039). AC-001's boundary is build + boot + config-load + WS connect/reconnect, all of which now pass.
+
+## WI-AC-001 — QA independent verification (2026-07-07)
+
+Re-ran the full AC-001 boundary independently as qa-agent in the isolated worktree.
+
+- `npm install` → exit 0.
+- `npm run build` (`tsc`) → exit 0; produced `dist/index.js` plus every module under `src/` (audit, config/loader, config/schema, drivers/driver.port, drivers/postgres/pg-driver, drivers/postgres/pg-query-parser, drivers/mongodb/mongo-driver, health/health-reporter, masking/masking-engine, policy/policy-engine, transport/protocol, transport/ws-client).
+- Missing config (no `RELAY_CONFIG_PATH`, absent `/app/relay-config.yaml`, no env vars) → pino `Starting CauseFlow Relay...` (info) then `level:60` fatal `Failed to start relay` (Zod `too_small` on `resources`), exit 1.
+- Valid `relay-config.yaml` with unreachable `controlPlane.url` (`ws://127.0.0.1:9`) → starts pino, logs `Starting CauseFlow Relay...`, `Config loaded`, `Driver initialized`, then `WS error` (ECONNREFUSED) and `Scheduling reconnect` with backoff 1s→2s→4s, staying alive.
+- Valid config pointed at a real `ws` stub server → relay logs `Connected to control plane` with `relayId`+`url`; stub records `/v1/relay/connect?token=test-token&tenantId=test-tenant` and receives messages on open.
+- Documented env-var fallback (`CONTROL_PLANE_URL` + `RESOURCE_0_*` + `RELAY_TOKEN`/`TENANT_ID`) also boots, connects, and authenticates (tenantId=envtenant, token=envtoken).
+
+**QA verdict: qa=true, implementation=true, no defects.**
