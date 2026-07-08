@@ -111,7 +111,6 @@ describe('POST /api/billing/checkout — non-recoverable error (AC-042)', () => 
     });
     mockCreateCheckout.mockRejectedValueOnce(stripeyError);
 
-    // biome-ignore lint/suspicious/noExplicitAny: withAuth mock returns 1-arg fn
     const res = await (POST as any)(checkoutRequest());
     expect(res.status).toBe(500);
 

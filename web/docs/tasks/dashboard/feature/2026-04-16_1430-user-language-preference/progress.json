@@ -29,9 +29,7 @@
       "file": "sprints/03-settings-handler-routing.md",
       "title": "Settings-handler routing fix",
       "status": "completed",
-      "depends_on": [
-        2
-      ],
+      "depends_on": [2],
       "batch": 2,
       "model": "sonnet",
       "branch": "main",
@@ -43,9 +41,7 @@
       "file": "sprints/04-header-language-selector.md",
       "title": "Header language selector UI",
       "status": "completed",
-      "depends_on": [
-        3
-      ],
+      "depends_on": [3],
       "batch": 3,
       "model": "sonnet",
       "branch": "main",
@@ -56,9 +52,7 @@
       "file": "sprints/05-server-sync-and-e2e.md",
       "title": "Server-source-of-truth sync + Playwright E2E",
       "status": "completed",
-      "depends_on": [
-        4
-      ],
+      "depends_on": [4],
       "batch": 4,
       "model": "sonnet",
       "branch": "main",

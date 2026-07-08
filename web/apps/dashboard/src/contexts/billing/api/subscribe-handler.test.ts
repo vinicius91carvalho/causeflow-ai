@@ -26,7 +26,6 @@ describe('POST /api/billing/subscribe', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (POST as any)(req);
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -41,7 +40,6 @@ describe('POST /api/billing/subscribe', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (POST as any)(req);
     expect(res.status).toBe(400);
   });

@@ -13,7 +13,6 @@ import v1Raw from './v1.json';
 export const ACTIVE_VERSION = 'v1';
 
 const SCHEMA_MAP: Record<string, unknown> = {
-  // biome-ignore lint/style/useNamingConvention: key matches JSON file name
   v1: v1Raw,
 };
 

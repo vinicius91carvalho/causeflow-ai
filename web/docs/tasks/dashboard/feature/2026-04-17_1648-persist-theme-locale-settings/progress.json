@@ -24,9 +24,7 @@
       "repo_path": "/root/projects/causeflow/web/",
       "status": "completed",
       "completion_notes": "2026-04-17 17:49: files merged from worktree agent-a5a55bb2 to main. biome PASS, dashboard+ui check-types PASS, 21/21 unit tests PASS, dev server public routes 200/307 with anti-FOUC script wired. Authenticated browser smoke + commit/push/staging deferred to user via /ship-test-ensure.",
-      "depends_on": [
-        "01-core-api"
-      ],
+      "depends_on": ["01-core-api"],
       "parallel_group": null,
       "estimated_minutes": 55
     },
@@ -38,9 +36,7 @@
       "repo_path": "/root/projects/causeflow/web/",
       "status": "completed",
       "skipped_reason": "Marked done by user 2026-04-28: staging Playwright + DynamoDB verification belongs to /ship-test-ensure, not /plan-build-test. Sprint 02 is code_complete_local_verified; staging E2E will run on next ship.",
-      "depends_on": [
-        "02-dashboard-wiring"
-      ],
+      "depends_on": ["02-dashboard-wiring"],
       "parallel_group": null,
       "estimated_minutes": 40
     }

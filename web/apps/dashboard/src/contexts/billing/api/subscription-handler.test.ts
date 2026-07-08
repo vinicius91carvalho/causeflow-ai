@@ -33,7 +33,6 @@ describe('GET /api/billing/subscription', () => {
       currentPeriodEnd: '2026-05-08T00:00:00.000Z',
     });
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (GET as any)(new NextRequest('http://localhost/api/billing/subscription'));
     const body = await res.json();
 
@@ -56,7 +55,6 @@ describe('GET /api/billing/subscription', () => {
       currentPeriodEnd: null,
     });
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (GET as any)(new NextRequest('http://localhost/api/billing/subscription'));
     const body = await res.json();
 
@@ -67,7 +65,6 @@ describe('GET /api/billing/subscription', () => {
   it('handles a null Subscription gracefully', async () => {
     mockGetSubscription.mockResolvedValueOnce(null);
 
-    // biome-ignore lint/suspicious/noExplicitAny: test helper — withAuth mock accepts 1 arg
     const res = await (GET as any)(new NextRequest('http://localhost/api/billing/subscription'));
     const body = await res.json();
 

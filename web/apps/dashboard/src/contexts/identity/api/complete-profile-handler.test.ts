@@ -64,7 +64,6 @@ describe('POST /api/onboarding/complete-profile', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // biome-ignore lint/suspicious/noExplicitAny: route called without RouteContext in tests
     const res = await (POST as any)(req);
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -79,7 +78,6 @@ describe('POST /api/onboarding/complete-profile', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // biome-ignore lint/suspicious/noExplicitAny: route called without RouteContext in tests
     const res = await (POST as any)(req);
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -99,7 +97,6 @@ describe('POST /api/onboarding/complete-profile', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // biome-ignore lint/suspicious/noExplicitAny: route called without RouteContext in tests
     const res = await (POST as any)(req);
     expect(res.status).toBe(200);
     const body = await res.json();

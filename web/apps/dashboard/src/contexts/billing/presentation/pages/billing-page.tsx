@@ -61,7 +61,7 @@ export default async function BillingRoute({ params }: Props) {
       'Your subscription will end on {date}. You can reactivate anytime.',
     statusPastDueMessage: t('statusPastDueMessage'),
     popular: t('popular'),
-    overageNote: rawBilling.overageNote ?? '+${amount}/extra investigation',
+    overageNote: rawBilling.overageNote ?? `+${amount}/extra investigation`,
     checkoutError: t('checkoutError'),
     portalError: t('portalError'),
     purchaseError: t('purchaseError'),

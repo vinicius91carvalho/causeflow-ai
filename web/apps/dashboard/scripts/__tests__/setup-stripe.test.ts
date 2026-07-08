@@ -96,7 +96,6 @@ describe('setupStripeProducts', () => {
     const results = await setupStripeProducts(mockStripe);
 
     // Product create should only be called for the 2 non-existing plans
-    // biome-ignore lint/suspicious/noExplicitAny: test mock assertion
     expect(mockStripe.products.create as any).toHaveBeenCalledTimes(2);
 
     // The starter result should use the existing product ID
@@ -140,7 +139,6 @@ describe('setupStripeProducts', () => {
 
     await setupStripeProducts(mockStripe);
 
-    // biome-ignore lint/suspicious/noExplicitAny: test mock assertion
     const createCalls = (mockStripe.products.create as any).mock.calls;
     expect(createCalls).toHaveLength(3);
 

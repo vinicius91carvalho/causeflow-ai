@@ -121,7 +121,6 @@ export function ConnectionModal({
   const hasGuide = MVP_INTEGRATION_TYPES.has(fieldType);
 
   // Reset state when modal opens/type changes
-  // biome-ignore lint/correctness/useExhaustiveDependencies: type is a prop that changes the form fields; reset is needed on both isOpen and type changes
   useEffect(() => {
     if (isOpen) {
       // Set default values for select fields
