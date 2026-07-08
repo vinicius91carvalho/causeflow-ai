@@ -232,3 +232,18 @@ Real WebSocket boundary test against the running docker-compose stack (relay + c
 - WorkItem: WI-AC-039
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08 — Integrated Verification (qa-agent)
+
+- WorkItem: WI-AC-039
+- Context: policy-engine
+- AcceptanceChecks: AC-039
+- Outcome: PASSED
+- Evidence: Real WebSocket boundary test (ws://127.0.0.1:5192) confirmed:
+  1. Execute request with `resourceId='unknown-resource'` → JSON-RPC `-32600` error
+     with message `Policy denied: Unknown resource: unknown-resource`.
+  2. Audit entry logged with `result: 'denied'` and
+     `policyChecks.reason: 'Unknown resource: unknown-resource'`.
+  Fixed an `await cleanup()` race in the test script that caused intermittent
+  audit-capture failure (missing `await` before reading stdout chunks).
+- Result: implementation=true, integration=true (zero-diff: no relay code changes)

@@ -158,7 +158,7 @@ audit:
 
   if (!connected || !relayConn) {
     log('Relay never connected — marking test as FAIL');
-    cleanup(configPath, relayProc);
+    await cleanup(configPath, relayProc);
     log('VERDICT={"test_unknown_resource":false}');
     process.exit(1);
   }
@@ -184,7 +184,7 @@ audit:
 
   // Validate audit log from captured stdout.
   // Kill the relay first so all pending writes are flushed.
-  cleanup(configPath, relayProc);
+  await cleanup(configPath, relayProc);
 
   const fullStderr = Buffer.concat(chunks).toString('utf-8');
   log('Captured stderr length:', fullStderr.length);
@@ -222,6 +222,14 @@ async function cleanup(configPath: string, relayProc: ChildProcess) {
       });
     });
   } catch { /* ignore */ }
+  // Wait for stdout pipe to flush all buffered data
+  if (relayProc.stdout && !relayProc.stdout.readableEnded) {
+    await new Promise<void>((resolve) => {
+      const timer = setTimeout(resolve, 2000);
+      relayProc.stdout!.on('end', () => { clearTimeout(timer); resolve(); });
+      relayProc.stdout!.resume();
+    });
+  }
   try { fs.unlinkSync(configPath); } catch { /* ignore */ }
 }
 
