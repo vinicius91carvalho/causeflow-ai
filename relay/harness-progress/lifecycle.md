@@ -80,3 +80,11 @@
 - QA: true
 - Evidence: Independent black-box test-ac047.mjs run against full docker-compose stack (relay + control-plane-stub + postgres + mongo). SIGTERM sent to running relay container → container exited with code 0, "Shutting down..." logged, WsClient.close() set intentionalClose (no reconnect — verified via stub "relay disconnected" with no follow-up reconnect), driver.close() awaited for each initialized driver (errors caught), process.exit(0) completed. Second SIGTERM after process exit had no effect. Stack restarted cleanly after test and relay resumed normal heartbeat operation with the stub.
 - Defects: []
+
+## 2026-07-08T19:34:15.811Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-047
+- Defects: Integrated Verification failed
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/lifecycle/WI-AC-047-1-integration_qa.log
+- NextAction: Repair Plan
