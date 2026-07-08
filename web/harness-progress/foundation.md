@@ -534,3 +534,23 @@ No further defects within the AC-038 boundary. implementation=true set for WI-AC
 - Outcome: passed (one-line root-cause fix to apps/website/.env.example; verified at HTTP boundary on port 5172)
 - Evidence: /tmp/website-5172.log (dev server), /tmp/head.txt (CSP header), curl 404 responses for /api/notify
 - NextAction: set implementation=true; commit; next Ready Work Item
+
+## WI-AC-038 — Independent QA pass (qa-agent, isolated worktree, PORT=5172)
+
+**Result: qa=true, implementation=true** — all three AC-038 steps pass at the real HTTP boundary; no source diff required (verifying the generator's one-line `.env.example` fix).
+
+### Boundary exercised
+
+Real external boundary: website dev server (`next dev --hostname 127.0.0.1 --port 5172`) responding to real HTTP requests (route table + response headers), plus filesystem grep for the env.example declaration and the absence of any loops module import.
+
+### Independent AC-038 evidence
+
+- **Step 1 — `apps/website/src/app` has no `/api` subdirectory:** filesystem — `apps/website/src/app/` contains only `[locale]/`, `robots.ts`, `sitemap.test.ts`, `sitemap.ts`, `staging-auth/`; no `api/` dir (`find apps/website/src/app -maxdepth 3 -type d -name api` → none; `find apps/website -path '*api/notify*'` → none). HTTP boundary: `GET /api/notify` → **404**, `POST /api/notify` → **404**, `GET /api` → **404** (all served by Next.js `_not-found`; no route registered). ✓
+- **Step 2 — `apps/website/next.config.mjs` lists `https://app.loops.so` in CSP `connect-src`:** source `next.config.mjs:77`. HTTP boundary: `curl -sI /en` (real 200 response) → `Content-Security-Policy` `connect-src 'self' https://www.google-analytics.com https://app.loops.so https://*.clarity.ms http://127.0.0.1:3001 ws://127.0.0.1:* ws://localhost:*`. `LOOPS_CSP=PRESENT`. ✓
+- **Step 3 — `LOOPS_API_KEY` listed in `apps/website/.env.example`; no code in `apps/website/src/` imports a loops-related module:** `.env.example:30` → `LOOPS_API_KEY=` (under a 3-line comment noting it is a planned integration with no runtime consumer). `grep -rn "loops\|LOOPS" apps/website/src` → no module imports; the only textual hit is `privacy-page.tsx:126` ("Loops for email communications" in a data-processor disclosure sentence) — not an import. The sole runtime Loops reference in the codebase is the CSP allow-list entry. ✓
+
+### Verdict
+
+The generator's verify-first fix (declaring `LOOPS_API_KEY` in `.env.example`) correctly realizes the AC-038 described state: Loops.so is declared as a planned integration in docs + `.env.example`, the only runtime reference is the CSP `connect-src` allow-list, and there is no `/api/notify` route and no consumer. All three steps pass at the real HTTP + filesystem boundary. No defects.
+
+qa=true, implementation=true for WI-AC-038.
