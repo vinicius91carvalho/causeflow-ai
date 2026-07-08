@@ -229,3 +229,12 @@ AC-014 contract satisfied at the real boundary on integrated main. No defects fo
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-014-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T04:00:11.263Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-014
+- AcceptanceChecks: AC-014
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-014-1-integration_qa.log
+- NextAction: next Ready Work Item
