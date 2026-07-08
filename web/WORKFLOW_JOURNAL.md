@@ -55,6 +55,50 @@
 
 ---
 
+## QA Verification (WI-AC-050)
+
+**Run by:** qa-agent on 2026-07-08
+
+**Verdict:** `implementation=true, qa=true`
+
+**Checks performed (all PASS):**
+
+1. **sst.config.ts deletion** — PASS
+   - `apps/website/sst.config.ts` — file does not exist
+   - `apps/dashboard/sst.config.ts` — file does not exist
+
+2. **withSentryConfig removal** — PASS
+   - `apps/dashboard/next.config.mjs` — no Sentry import, no `withSentryConfig` wrapper
+   - Export is plain `withNextIntl(nextConfig)`
+   - `optimizePackageImports`, `headers()`, `redirects()`, `images.remotePatterns` preserved
+
+3. **GitHub Actions workflows** — PASS
+   - Both workflows retain `check-types` + `lint` + `test` + `build` steps
+   - No `sst deploy` step in either workflow
+   - Both have a Docker-build comment pointing operators to `docker compose build`
+
+4. **Multi-stage Dockerfiles** — PASS
+   - `apps/website/Dockerfile` — builder stage (pnpm install --frozen-lockfile + pnpm build) + runtime stage (next start)
+   - `apps/dashboard/Dockerfile` — same multi-stage pattern
+
+5. **docker-compose.yml references** — PASS
+   - `causeflow-website` builds from `apps/website/Dockerfile` (context: `.`, dockerfile: `apps/website/Dockerfile`)
+   - `causeflow-dashboard` builds from `apps/dashboard/Dockerfile` (context: `.`, dockerfile: `apps/dashboard/Dockerfile`)
+
+6. **Build verification** — PASS
+   - `pnpm install --frozen-lockfile` exits 0
+   - `pnpm turbo build --filter=@causeflow/website` exits 0
+   - `pnpm turbo build --filter=@causeflow/dashboard` exits 0
+
+7. **Runtime HTTP verification** — PASS
+   - Website (port 5193): `/` returns 200; `/product`, `/pricing`, `/security`, `/integrations`, `/use-cases`, `/privacy`, `/terms` all return 200
+   - Dashboard (port 5194): `/auth/sign-in` returns 200; `/api/health` returns 200 (public); unauthenticated `/dashboard` returns 307 to `/auth/sign-in`
+
+**Pre-existing issues (outside AC-050 scope):**
+- `/from-opsgenie` route returns 404 — the page file does not exist. This is a pre-existing issue in the codebase not related to AC-050.
+
+---
+
 ## WI-AC-046 — Local JWT auth replaces Clerk
 
 **State:** `implementation=true`
