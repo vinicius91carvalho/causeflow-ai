@@ -58,9 +58,10 @@ async function main() {
     token: config.controlPlane.token,
     tenantId: config.controlPlane.tenantId,
     onConnect: () => {
-      // Send resource list on connect
+      // Send resource list on connect — only resources with initialized drivers
+      const connectedResources = config.resources.filter((r) => drivers.has(r.id));
       wsClient.sendResourceUpdate(
-        config.resources.map((r) => ({
+        connectedResources.map((r) => ({
           resourceId: r.id,
           type: r.type,
           name: r.name,
@@ -75,13 +76,16 @@ async function main() {
       try {
         switch (request.method) {
           case 'list_resources': {
-            const resources = policyEngine.listResources().map((r) => ({
-              resourceId: r.id,
-              type: r.type,
-              name: r.name,
-              database: String(r.connection['database'] ?? ''),
-              readOnly: true,
-            }));
+            const resources = policyEngine
+              .listResources()
+              .filter((r) => drivers.has(r.id))
+              .map((r) => ({
+                resourceId: r.id,
+                type: r.type,
+                name: r.name,
+                database: String(r.connection['database'] ?? ''),
+                readOnly: true,
+              }));
             wsClient.send(createResponse(request.id, resources));
             break;
           }
