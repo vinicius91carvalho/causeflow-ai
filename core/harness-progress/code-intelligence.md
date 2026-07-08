@@ -168,3 +168,12 @@ Verified AC-028 at the real HTTP boundary on PORT=5184 using the running `pnpm d
 - implementation: true
 - qa: true
 - Defects: none
+
+## 2026-07-08T20:58:44.350Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-028
+- AcceptanceChecks: AC-028
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/code-intelligence/WI-AC-028-2-integration_qa.log
+- NextAction: next Ready Work Item
