@@ -757,3 +757,10 @@ may have crashed in this repository earlier:
 remove the file manually to continue.
 fatal: Unable to write index.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T13:05:07.861Z — Explicit Resume
+
+- WorkItem: WI-AC-005
+- Outcome: user authorized a new Attempt cycle
+- Guidance: This .git/index.lock collision was self-inflicted by overlapping/parallel git tool calls within the MERGE/INTEGRATION_QA agent itself, not a real conflict -- the orchestrator prompt now explicitly warns against running git commands in parallel (synced fix). Fresh retry.
+- NextAction: Coding Attempt 1
