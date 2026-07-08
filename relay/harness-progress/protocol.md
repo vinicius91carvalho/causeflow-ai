@@ -197,3 +197,30 @@ fatal: Unable to write index.
 - WorkItem: WI-AC-017
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:22Z — Integrated Verification pass (WI-AC-017)
+
+- Role: qa-agent. Integrated Verification at real WebSocket boundary via running docker-compose stack.
+- Boundary: `docker compose` stack running with relay + control-plane-stub + postgres + mongo all Up.
+  Control-plane stub exposed on `127.0.0.1:3000`. Relay connected with relayId=`166959a4-7b5a-4d96-86d7-1e3c5df94ba5`, 2 resources (order-pg, order-mongo).
+- Method: Connected to stub as test client with `token=harness-smoke-token&tenantId=harness-tenant`.
+  Sent JSON-RPC 2.0 `list_resources` request with `params: {}` (no real params).
+  Stub forwarded request to relay; relay responded via stub back to test client.
+- Captured response:
+  ```json
+  {
+    "jsonrpc": "2.0",
+    "id": "e6140583-b7c8-4dae-a4e1-e2777833102e",
+    "result": [
+      { "resourceId": "order-pg", "type": "postgres", "name": "Order Service PostgreSQL", "database": "relay", "readOnly": true },
+      { "resourceId": "order-mongo", "type": "mongodb", "name": "Order Service MongoDB", "database": "relay", "readOnly": true }
+    ]
+  }
+  ```
+- Verdict: All 17 checks green. jsonrpc='2.0'; id echoed; no error key; result is array of 2;
+  each entry has exactly `{resourceId,type,name,database,readOnly:true}`; readOnly===true for all;
+  types `postgres`|`mongodb`; both order-pg and order-mongo present;
+  response shape matches `createResponse(id, resources)` producing `{ jsonrpc: '2.0', id, result: [...] }`.
+  database values returned as `relay` (from the docker-compose PG_DATABASE/MONGO_DATABASE env var).
+- Outcome: integration=true, implementation=true, qa=true, defects=none.
+- Evidence: probe script at `scripts/qa/ac017-probe.mjs` produced the captured response above.

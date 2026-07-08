@@ -14,6 +14,26 @@
         "loadConfig_parses_docker_config": "passed",
         "no_vendor_dependencies": "passed"
       }
+    },
+    {
+      "id": "WI-AC-017",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-08T21:22:00Z",
+      "details": "Integrated Verification pass for AC-017 (list_resources). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + postgres + mongo). Sent JSON-RPC 2.0 list_resources request (no params) to relay through the stub. Response: { jsonrpc:'2.0', id, result: [{ resourceId:'order-pg', type:'postgres', name:'Order Service PostgreSQL', database:'relay', readOnly:true }, { resourceId:'order-mongo', type:'mongodb', name:'Order Service MongoDB', database:'relay', readOnly:true }] }. All 17 shape/contract checks passed: jsonrpc=2.0, id echoed, no error key, result is array of 2, every entry has exactly {resourceId,type,name,database,readOnly:true}, readOnly===true for all, types postgres|mongodb, both expected resources present, response shape matches createResponse(id,result). No defects.",
+      "checks": {
+        "jsonrpc_version": "passed",
+        "id_echoed": "passed",
+        "no_error_key": "passed",
+        "result_is_array": "passed",
+        "resource_count": "passed",
+        "per_resource_keys": "passed",
+        "readOnly_is_true": "passed",
+        "types_valid": "passed",
+        "both_resources_present": "passed",
+        "response_shape": "passed"
+      }
     }
   ]
 }
