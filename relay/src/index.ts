@@ -26,18 +26,18 @@ async function main() {
       if (resource.type === 'postgres') {
         const conn = resource.connection;
         drivers.set(resource.id, new PgDriver({
-          host: conn['host'] ?? 'localhost',
+          host: String(conn['host'] ?? 'localhost'),
           port: Number(conn['port'] ?? 5432),
-          database: conn['database'] ?? '',
-          user: conn['user'] ?? '',
-          password: conn['password'] ?? '',
+          database: String(conn['database'] ?? ''),
+          user: String(conn['user'] ?? ''),
+          password: String(conn['password'] ?? ''),
           maxRows: resource.maxRowsPerQuery,
         }));
       } else if (resource.type === 'mongodb') {
         const conn = resource.connection;
         drivers.set(resource.id, new MongoDriver({
-          uri: conn['uri'] ?? '',
-          database: conn['database'] ?? '',
+          uri: String(conn['uri'] ?? ''),
+          database: String(conn['database'] ?? ''),
           maxRows: resource.maxRowsPerQuery,
         }));
       }
@@ -64,7 +64,7 @@ async function main() {
           resourceId: r.id,
           type: r.type,
           name: r.name,
-          database: r.connection['database'] ?? '',
+          database: String(r.connection['database'] ?? ''),
           readOnly: true,
         })),
       );
@@ -79,7 +79,7 @@ async function main() {
               resourceId: r.id,
               type: r.type,
               name: r.name,
-              database: r.connection['database'] ?? '',
+              database: String(r.connection['database'] ?? ''),
               readOnly: true,
             }));
             wsClient.send(createResponse(request.id, resources));
@@ -98,7 +98,7 @@ async function main() {
             wsClient.send(createResponse(request.id, {
               tables: result.rows,
               type: resource?.type ?? driver.type,
-              database: resource?.connection['database'] ?? '',
+              database: String(resource?.connection['database'] ?? ''),
             }));
             break;
           }

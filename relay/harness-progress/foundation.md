@@ -88,3 +88,23 @@ Verdict: implementation=false, qa=false, integration=false.
 - RepairPlan: AC-001 fails on exactly one boundary: the committed documented example `relay-config.example.yaml` does not boot because its `port: 5432` is a YAML number while `src/config/schema.ts` constrains `connection` to `z.record(z.string())`, so `loadConfig()` throws a ZodError at `resources[0].connection.port` and the process exits 1. All other AC-001 boundaries (build, missing-config fatal, valid-yaml-with-string-port + bad URL reconnect, ws stub connect, env-var fallback) pass.; In `src/config/schema.ts`, widen `connection` to accept both string and number values, e.g. `connection: z.record(z.union([z.string(), z.number()]))`, so the documented example loads as-is (preferred — keeps the example ergonomic and matches `pg-driver.ts` which already types `port: number`).; In `src/drivers/postgres/pg-driver.ts`, coerce connection values to the expected runtime types when constructing `PgDriverConfig` (e.g. `port: Number(connection.port)`, host/user/password/database as String(...)) so a string OR number `port` both work and `tsc --noEmit` stays green under the widened schema.; Verify `relay-config.docker.yaml` (if present) and any other committed YAML examples also load under the widened schema; quote or interpolate `port` consistently if needed.; Optional belt-and-suspenders: add a unit/integration assertion that `RELAY_CONFIG_PATH=./relay-config.example.yaml node dist/index.js` boots far enough to log 'Starting CauseFlow Relay...' and 'Config loaded' before any connect attempt, guarding the documented example against regression.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-1-integration_qa.log
 - NextAction: Coding Attempt 2
+
+## WI-AC-001 — Verify-first repair (2026-07-07)
+
+Applied the orchestrator's Repair Plan (smallest diff). Root cause confirmed at the boundary: `RELAY_CONFIG_PATH=./relay-config.example.yaml node dist/index.js` → `NODE_EXIT=1` with `level:60` ZodError at `resources/0/connection/port` (`Expected string, received number`) because the documented example declares `port: 5432` as a YAML number while `src/config/schema.ts` typed `connection` as `z.record(z.string())`.
+
+Fix (two files, minimal):
+- `src/config/schema.ts`: widened `connection` to `z.record(z.union([z.string(), z.number()]))` so the documented example loads as-is.
+- `src/index.ts`: coerced connection values at the driver-construction site — `String(...)` for host/database/user/password/uri, `Number(...)` for port — so a string OR number `port` both work and `tsc --noEmit` stays green under the widened schema. (PgDriverConfig already types `port: number`; no change needed in `pg-driver.ts`.)
+
+Re-verified every AC-001 boundary at the real `node dist/index.js` + `ws` stub on :5176 boundary:
+- `npm install` → exit 0.
+- `npm run build` (`tsc`) → exit 0; `dist/index.js` + all 13 modules under `src/` produced.
+- `npx tsc --noEmit` → exit 0.
+- Missing config (no `RELAY_CONFIG_PATH`, no env vars) → pino `Starting CauseFlow Relay...` then `level:60` fatal `Failed to start relay` (Zod `too_small` on `resources`), **NODE_EXIT=1**.
+- Documented example `relay-config.example.yaml` (unquoted numeric `port: 5432`) → starts pino, logs `Starting CauseFlow Relay...`, `Config loaded` (resources=2, tenantId=test-tenant), initializes both drivers, then attempts to connect to `controlPlane.url`. No ZodError on `connection.port`.
+- Bad URL (`ws://127.0.0.1:59999/...`) + valid yaml → `WS error` (ECONNREFUSED) + `Scheduling reconnect` backoff 1s→2s→4s→8s, stays alive.
+- Real `ws` stub on :5176 → `Connected to control plane`; stub records `?token=test-token&tenantId=test-tenant`, `Authorization: Bearer test-token`, `X-Tenant-Id: test-tenant`, receives `resource_update` on open, and the relay answers the stub's `health_check` JSON-RPC round-trip.
+- Env-var fallback (`CONTROL_PLANE_URL` + `RESOURCE_0_*` with JSON `{"port":5432}` + `RELAY_TOKEN=envtoken`/`TENANT_ID=envtenant`) → boots, `Config loaded` (tenantId=envtenant), attempts to connect.
+
+No other committed YAML examples exist (only `relay-config.example.yaml`; no `relay-config.docker.yaml` present). Verdict: implementation=true, all AC-001 boundaries pass.
