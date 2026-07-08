@@ -550,3 +550,32 @@ files changed — zero-diff checkpoint.
 - WorkItem: WI-AC-009
 - Outcome: implementation=true (boundary passed at real HTTP on PORT=5182, 12/12; zero-diff)
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:21:00Z — Independent QA (WI-AC-009, this worktree)
+
+**Result: qa=true, implementation=true. Zero defects.**
+
+Independently reproduced the AC-009 boundary against the running server on the
+assigned PORT=5182. Stack healthy: `core-ministack-1` (:4566, dynamodb
+available), `core-redis-1`. Real `fetch` HTTP, real `@clerk/backend` networkless
+RS256 verification, real DynamoDB at ministack :4566 — no mocks.
+
+**All 3 AC-009 sub-behaviours verified via real HTTP:**
+
+1. **POST /v1/api-keys** with `{name:"qa-ac009-final-key", scopes:["incidents:read","audit:read"]}` → **201** with `keyId`, `name`, `prefix` ("cflo_0aa"), `scopes`, `plaintext` ("cflo_<64hex>"), `createdAt` — plaintext API key returned on creation.
+2. **GET /v1/whoami** with `Authorization: Bearer cflo_0aa...` → **200** `{"user":{"id":"user_test_admin_001","email":"admin@causeflow.ai"},"tenantId":"tenant-billing-corp","role":"apikey","roles":["apikey"]}` — resolves the user (id + email from the key's creator) and tenant (the key's issuing tenant).
+3. **Per-tenant quota enforcement**: Created 5 more keys (total 6 active, default limit=5). 6th POST → **429** `{"error":"QUOTA_EXCEEDED","message":"API key quota exceeded for tenant (limit=5)","details":{"limit":5,"active":5}}`.
+
+No-auth guard verified: `GET /v1/whoami` without Bearer → **401**.
+
+Path note (doc drift, not a defect, same as WI-AC-007/008): spec AC wording
+says `/api/v1/...`; implementation mounts all routes at `/v1/*` with no `/api`
+prefix (global, affects every AC). Per the contradictions clause
+(implementation authoritative), the real boundary is `/v1/api-keys` and
+`/v1/whoami`. Functional AC-009 behaviour fully met.
+
+## 2026-07-08T18:21:30Z — Checkpoint ready
+- Attempt: 2/3
+- WorkItem: WI-AC-009
+- Outcome: qa=true, implementation=true (all 3 AC-009 sub-behaviours pass at real HTTP on PORT=5182)
+- NextAction: none (QA complete)
