@@ -49,3 +49,25 @@ Re-ran the full AC-001 boundary independently as qa-agent in the isolated worktr
 - WorkItem: WI-AC-001
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-001 — Integrated Verification (2026-07-07)
+
+Ran AC-001 at the real `node dist/index.js` + `ws` stub boundary on integrated main.
+
+- `npm install` → exit 0.
+- `npm run build` (`tsc`) → exit 0; `dist/index.js` + every module under `src/` produced.
+- Missing config (no `RELAY_CONFIG_PATH`, no `/app/relay-config.yaml`, no env vars) → pino `Starting CauseFlow Relay...` then `level:60` fatal `Failed to start relay` (Zod `too_small` on `resources`), exit 1.
+- Valid `relay-config.yaml` (string `port: "5432"`) with unreachable `controlPlane.url` (`ws://127.0.0.1:9`) → starts logger, `Config loaded`, `Driver initialized`, `WS error` (ECONNREFUSED), `Scheduling reconnect` backoff 1s→2s→4s, stays alive.
+- Valid yaml + real `ws` stub on :5176 → `Connected to control plane`; stub records `/v1/relay/connect?token=test-token&tenantId=test-tenant` and receives `resource_update` on open.
+- Env-var fallback (`CONTROL_PLANE_URL` + `RESOURCE_0_*` + `RELAY_TOKEN`/`TENANT_ID`) → connects with `token=envtoken&tenantId=envtenant`, sends `resource_update`.
+
+### DEFECT (integration=false)
+
+The committed `relay-config.example.yaml` (the documented valid config) declares `port: 5432` as a YAML number, but `src/config/schema.ts` types `connection` as `z.record(z.string())`. Loading the documented example → fatal ZodError `resources[0].connection.port: Expected string, received number` → `level:60 Failed to start relay` → exit 1. AC-001 requires that with a valid `relay-config.yaml` the process starts; the canonical documented example fails to boot without manually quoting the port.
+
+Evidence:
+- `RELAY_CONFIG_PATH=./relay-config.example.yaml node dist/index.js` → `NODE_EXIT=1`, log contains `"level":60` and `"msg":"Failed to start relay"` with ZodError path `resources/0/connection/port` `Expected string, received number`.
+- `grep -n 'port:' relay-config.example.yaml` → `port: 5432` (unquoted number).
+- `src/config/schema.ts` → `connection: z.record(z.string())`.
+
+Verdict: implementation=false, qa=false, integration=false.
