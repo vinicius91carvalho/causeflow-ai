@@ -1375,3 +1375,11 @@ not in a certifiable state, even though the AC-039 boundary itself passes.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-039-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T16:43:38.778Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-040
+- Outcome: coding agent failed three times
+- Defects: Error: Model "nvidia-nim/deepseek-ai/deepseek-v4-pro" not found. Use --list-models to see available models.
+- NextAction: User reviews evidence and explicitly resumes with guidance
