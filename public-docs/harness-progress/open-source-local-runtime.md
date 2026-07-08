@@ -889,3 +889,12 @@ implementation=true; integration=pending; qa=pending; defects=none
 ### verdict
 
 implementation=false; qa=false; defects=AC-018 introduction count stale (21, must be 20)
+
+## 2026-07-08T04:06:37.953Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-031
+- DefectReport: expected AC-018 (within AC-031's AC-001..AC-025 regression scope) introduction page count aligned to 20 events per 'the introduction page's 21-event count is stale and the introduction must align to 20'; observed api-reference/introduction.mdx line 74 still reads 'CauseFlow publishes 21 real-time events across seven domains' (line 88 Card says 'All 20 EventBus events'), headline never aligned; evidence grep -n '21 real-time events' api-reference/introduction.mdx -> 74:CauseFlow publishes 21 real-time events across seven domains
+- RepairPlan: AC-031 regression defect confirmed. AC-018 (in-scope of AC-031's AC-001..AC-025 regression) is failing: api-reference/introduction.mdx line 74 still states 'CauseFlow publishes 21 real-time events across seven domains', while the outbound-events catalog (api-reference/webhooks/outbound-events.mdx) and the Card on line 88 of the same introduction page both correctly report 20 events. The stale '21' headline was never aligned, exactly the contradiction AC-018 was written to eliminate.; Edit api-reference/introduction.mdx line 74: change 'CauseFlow publishes 21 real-time events across seven domains' to 'CauseFlow publishes 20 real-time events across seven domains' (and adjust surrounding prose if grammar demands).; Do not touch api-reference/webhooks/outbound-events.mdx — its 20-row catalog is already correct.; Leave the Card at line 88 unchanged — 'All 20 EventBus events' is already correct.; Confirm no other file carries the stale '21 real-time events' / '21 events' count (grep already shows introduction.mdx line 74 is the sole occurrence).
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-031-1-qa.log
+- NextAction: Coding Attempt 2
