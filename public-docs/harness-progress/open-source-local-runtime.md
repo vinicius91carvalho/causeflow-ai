@@ -591,3 +591,14 @@ implementation=true; defects=none
 - WorkItem: WI-AC-029
 - Outcome: implementation complete, black-box verified on port 5179
 - NextAction: QA / Integrated Verification
+
+## 2026-07-08T03:25:00.000Z — QA verification (WI-AC-029)
+
+- Verifier: qa-agent (isolated worktree)
+- Checks:
+  1. Literal AC grep `grep -rE 'mintlify\.com|mintlify\.app|mintlify deploy|mintlify auth' --include='*.{json,mdx,yml,yaml,sh,Dockerfile,ts,js,mjs,md}'` → EXIT=1 (no matches; GNU grep treats the brace glob literally).
+  2. Expanded-include grep matches are all non-hosting-SaaS references: `docs.json` `$schema` URL (content/schema reference), Mintlify skill docs under `.agents/`/`.claude/`, `skills-lock.json` skill pin, and `feature_list.json`/`harness-progress` journal files quoting the AC text itself. No `mintlify deploy`/`mintlify auth` invocation or account token anywhere.
+  3. Dockerfile uses `mint export` only; no `mint deploy`/`mintlify deploy`; no Mintlify account token. The only `deploy token` string occurrences are comments/README text affirming its absence.
+  4. README.md documents `docker compose up -d` as the canonical run path; the prior "deployed automatically via the Mintlify GitHub integration" sentence is absent (grep EXIT=1).
+  5. No `.github` directory; no GitHub Actions workflow runs `mint deploy`/`mintlify deploy`.
+- Verdict: qa=true; implementation=true; defects=none.
