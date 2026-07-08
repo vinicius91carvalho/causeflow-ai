@@ -476,3 +476,43 @@ port-conflict failure (transient, external to the relay repo — the relay
 itself needed no change).
 
 `feature_list.json` WI-AC-055 set to `implementation: true`.
+
+## 2026-07-08T02:35:00Z — QA Independent Verification (AC-055)
+
+- WorkItem: WI-AC-055
+- AcceptanceChecks: AC-055
+- Outcome: qa=true, implementation=true (independently re-verified on running stack)
+- Method: tore down existing stack (`docker compose down`), then
+  `env -i PATH=$PATH HOME=$HOME docker compose --env-file .env.example up -d`
+  from a clean shell (no `AWS_*`/`STRIPE_*`/`CLERK_*`/`LANGFUSE_*`/`SENTRY_*`/
+  `SVIX_*`/`SLACK_*`/`COMPOSIO_*`/`MASTRA_*`/`SQS_*`/`DYNAMODB_*`/`STS_*`/
+  `KMS_*` in parent env).
+
+### Independent verification results (AC-055 clause by clause)
+
+- `.env.example` exists at relay repo root and contains only the relay's own
+  env vars with the required defaults:
+  - `RELAY_TOKEN=harness-smoke-token`
+  - `TENANT_ID=harness-tenant`
+  - `CONTROL_PLANE_URL=ws://relay-control-plane-stub:3000/v1/relay/connect`
+  - `PG_HOST=relay-postgres`, `PG_PORT=5432`, `PG_DATABASE=relay`,
+    `PG_USER=relay`, `PG_PASSWORD=relay`
+  - `MONGO_URI=mongodb://relay-mongo:27017`, `MONGO_DATABASE=relay`
+  - `MASKING_ENABLED=true`, `AUDIT_ENABLED=true`
+- `grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example`
+  → 0.
+- `env -i PATH=$PATH HOME=$HOME docker compose --env-file .env.example up -d`
+  → all four services Up within ~14s (well under 60s budget):
+  - `relay-control-plane-stub (running, Up 14 seconds)`
+  - `relay-postgres (running, Up 14 seconds (healthy))`
+  - `relay-mongo (running, Up 14 seconds (healthy))`
+  - `relay (running, Up 11 seconds)`
+- Relay boot log contains `"msg":"Connected to control plane"` with
+  `url=ws://relay-control-plane-stub:3000/v1/relay/connect`.
+- Stub log contains
+  `[stub] resource_update from relayId=569eb7a9-... resources=2` (n=2 >= 1).
+
+### Verdict
+
+All AC-055 acceptance criteria independently re-verified on a freshly brought-up
+stack from a clean shell env. No defects. `qa=true`, `implementation=true`.
