@@ -329,3 +329,20 @@ Verdict: integration=true, implementation=true, qa=true, no defects.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-003-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-004 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-004 condition at the real `node dist/index.js` process boundary (clean `dist` from `npm run build`). No code changes — the existing `src/config/schema.ts` + `src/config/loader.ts` + `src/index.ts` already satisfy every invariant. AC-004 depends on AC-001 (verified passing).
+
+Repo scaffold matches project_specs.xml affected_surfaces: `src/config/loader.ts` (YAML parse + `${VAR}` interpolation + Zod `.parse()`) and `src/config/schema.ts` (`controlPlane.url: z.string()` free-form, `controlPlane.token: z.string()` required, `controlPlane.tenantId: z.string()` required).
+
+- `controlPlane.url = 'not-a-url'` + valid `resources[0]` (`/tmp/ac004/not-a-url.yaml`, postgres resource, string `port`):
+  - `loadConfig()` loads it — Zod accepts `'not-a-url'` as-is (free-form `z.string()`). Direct probe: `not-a-url ACCEPTED as free-form string; controlPlane.url = "not-a-url"`.
+  - `node dist/index.js` → pino logs `Starting CauseFlow Relay...` + `Config loaded` (resources=1, tenantId=test-tenant), initializes the `main-pg` driver, then `WsClient.connect()` throws `TypeError: Invalid URL` (`code: ERR_INVALID_URL`, `input: not-a-url`) at `new URL(...)`. Caught by `main().catch()` → `level:60` fatal `Failed to start relay` → **NODE_EXIT=1**. The relay never silently starts with an invalid control-plane URL. ✓ (AC clause (a): Zod accepts the URL string as-is.)
+- Missing `controlPlane.token` (`/tmp/ac004/missing-token.yaml`, valid `resources[0]`, `controlPlane.url` set, no `token` key):
+  - `loadConfig()` throws `ZodError` with a clear error pointing at the missing field: `path: ["controlPlane","token"]`, `message: "Required"`, `expected: "string"`, `received: "undefined"`.
+  - `node dist/index.js` → pino logs `Starting CauseFlow Relay...` then `level:60` fatal `Failed to start relay` carrying the `ZodError` (path `controlPlane/token`) → **NODE_EXIT=1**. ✓
+
+Verdict: implementation=true, zero code diff. Both AC-004 conditions pass.
