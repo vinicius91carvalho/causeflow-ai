@@ -824,3 +824,45 @@ Merge with strategy ort failed.
 - Single config for both apps: testDir=./tests covers website tests (audit.spec.ts, visual-functional.spec.ts, theme-switcher.spec.ts) and dashboard tests (tests/dashboard/, tests/e2e/dashboard/). ✓
 - Working tree: clean (fb9b72b). Zero-diff checkpoint — no code changes needed.
 - Verdict: implementation=true
+
+## 2026-07-08 — Independent QA (WI-AC-040)
+
+- Role: qa-agent. AcceptanceChecks: AC-040. Port: 3000. Boundary: real Playwright
+  browser (chromium) + real config parse via `--list` + static config validation.
+- Step 1 (4 viewports, chromium only):
+  `playwright.config.ts` declares 8 projects. 4 viewport projects:
+  chromium-mobile (375×812), chromium-tablet (768×1024),
+  chromium-desktop (1280×800), chromium-wide (1440×900). All use
+  `devices['Desktop Chrome']` — chromium only, no firefox/webkit/Safari/iOS. ✓
+  Plus 4 dashboard projects (dashboard-setup, dashboard-authed,
+  e2e-dashboard-authed, dashboard-review). ✓
+- Step 2 (workers, fullyParallel, trace/video/screenshot):
+  `workers: 3`, `fullyParallel: true`, `trace: 'off'`, `screenshot: 'off'`,
+  `video: 'off'` confirmed via config file grep. ✓
+- Step 3 (webServer on port 3000):
+  webServer block defines `pnpm exec next start -H 127.0.0.1` (cwd: ./apps/website)
+  with `url: baseURL` (default `http://127.0.0.1:3000`). `reuseExistingServer: !process.env.CI`.
+  Also starts dashboard on port 3001. ✓
+- Playwright version: `@playwright/test@^1.58.2` in package.json;
+  `pnpm exec playwright --version` → Version 1.58.2. ✓
+- Single config at project root for both apps: testDir=./tests covers
+  `tests/audit.spec.ts`, `tests/visual-functional.spec.ts`,
+  `tests/theme-switcher.spec.ts` (website), `tests/dashboard/`,
+  `tests/e2e/{dashboard,review,website,tools}/` (dashboard). ✓
+- Config parse validation:
+  `pnpm exec playwright test --list --project=chromium-mobile --project=chromium-tablet
+  --project=chromium-desktop --project=chromium-wide` → 164 tests listed
+  across all 4 viewport projects, exit 0. Config parses correctly. ✓
+- Real browser validation:
+  Inline Playwright spec targeting `chromium-desktop` project with
+  `SKIP_WEB_SERVER=1` confirmed: (a) chromium browser launches,
+  (b) `browserName` is `chromium`, (c) headless mode works
+  (`page.goto('about:blank')` → title is `''`),
+  (d) viewport can be set programmatically (1280×800). All passed. ✓
+- Config static validation (24 sub-checks): all passed — version, workers,
+  fullyParallel, trace/video/screenshot off, all 4 viewport sizes,
+  chromium-only, webServer on port 3000, reuseExistingServer, single config,
+  8 projects, dashboard webserver on port 3001, testDir. ✓
+- No defects found. AC-040 passes at all boundaries (static config audit,
+  config parse, real browser launch).
+- Verdict: qa=true, implementation=true.
