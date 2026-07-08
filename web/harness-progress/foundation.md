@@ -986,3 +986,11 @@ All AC-003 steps pass at the real `tsc` + `turbo` boundary. No defects within th
 - WorkItem: WI-AC-004
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T19:26:41.776Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-004
+- Defects: Step 1 FAILS: pnpm exec biome check . exits with code 1 instead of 0 against the clean main tree. Found 1 error (suppressions/unused in tests/e2e/review/pd-auth-setup.ts:110:3 — unused suppression comment) and 80 warnings (noNonNullAssertion, noArrayIndexKey, useExhaustiveDependencies, noExplicitAny). Expected: exit 0 with zero errors. Evidence: on main before any changes, `pnpm exec biome check .` exited 1 with 'Found 1 error. Found 80 warnings.' and the check summary banner 'Some errors were emitted while running checks.']; Step 3: Confirmed no ESLint/Prettier configs exist in repo. PASSES.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-004-1-integration_qa.log
+- NextAction: Repair Plan
