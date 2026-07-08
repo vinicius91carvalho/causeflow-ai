@@ -1950,3 +1950,28 @@ implementation=true; integration=pending; qa=pending; defects=none
 ### Notes
 - 8 of 133 MDX files are not standalone pages: 2 snippets (imported), 5 investigation/ dir pages (unlisted), 1 dashboard/topology.mdx (unlisted). These are not in docs.json navigation and Mintlify does not render unlisted pages — expected behavior.
 - Rebuilt image has slightly different chunk hashes (normal for mint export) but serves functionally identical content.
+
+## 2026-07-08T20:36:07.420Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-032
+- DefectReport: All testing is complete. Here is a summary of what was verified:
+
+**WI-AC-032 — All checks PASS**
+
+| Check | Result |
+|-------|--------|
+| All 125 navigable MDX pages render (HTTP 200) | ✅ |
+| Four navigation tabs (Documentation, API ref, Relay, Changelog) | ✅ |
+| Redirect `/quickstart` → `/getting-started/quickstart` | ✅ (internal rewrite, HTTP 200) |
+| 84 API reference endpoint pages — H1 matches frontmatter `title` | ✅ (84/84 exact match) |
+| Mintlify components (Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, Tabs, Mermaid) | ✅ (all verified on rendered pages) |
+| No MDX parse errors | ✅ (all pages render cleanly) |
+| Contextual AI removed (no claude/chatgpt) | ✅ (options: `["copy", "view"]`) |
+| No outbound SaaS calls from container | ✅ (zero matches in logs) |
+| Dockerfile reproducibility (clean rebuild) | ✅ (rebuilt image passes all AC-031 checks, serves identical site) |
+
+**Note:** 8 of 133 MDX files are not standalone pages (2 snippets imported by other pages, 5 under `investigation/` not in navigation, 1 `dashboard/topology.mdx` not in navigation). This is expected — Mintlify does not export unlisted pages as standalone endpoints. The site functions identically to the Mintlify dev server output.
+- RepairPlan: WI-AC-032 QA Defect Report shows 9/9 checks PASS with zero defects. Repository structure is complete against project_specs.xml: multi-stage Dockerfile, docker-compose.yml (service on container port 3000), docs.json with contextual.options reduced to ['copy','view'], serve-docs.js with redirect support, 133 MDX pages, check-invariants.sh PostToolUse hook wired, INVARIANTS.md, no .env.example, no SaaS env vars in runtime artifacts, README documents docker compose up as canonical path. The only SaaS reference is the JSON Schema URL in docs.json ($schema) — a build-time schema pointer, not a runtime dependency.; No repair actions required — all acceptance checks pass.; Optional improvement: add harness artifact directories (harness-progress/, logs/, plans/, tasks/, docs/) to .gitignore to prevent accidental tracking of transient session files.; Optional improvement: ensure the known 21→20 event-count contradiction (recorded in .harness-technology-inventory.json) is resolved — the QA report already confirms outbound-events.mdx lists exactly 20 events, so only api-reference/introduction.mdx needs its stale count aligned if not yet done.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-032-2-qa.log
+- NextAction: Coding Attempt 3

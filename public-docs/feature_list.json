@@ -683,10 +683,10 @@
       "AC-027"
     ],
     "verify_first": false,
-    "implementation": true,
+    "implementation": false,
     "qa": false,
     "integration": false,
-    "retries": 1
+    "retries": 2
   },
   {
     "id": "WI-AC-033",
