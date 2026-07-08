@@ -267,3 +267,16 @@ Evidence: /tmp/ac002-evidence/WI-AC-002-iv.log
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-002-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-003 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-003 condition against the existing repository. No code changes — all invariants already hold.
+
+- `npx tsc --noEmit` → **exit 0** (after `npm install` to materialize `typescript`; deps were gitignored, no tracked change).
+- `tsconfig.json` compiles under `strict: true`, `module: NodeNext`, `moduleResolution: NodeNext`, `target: ES2022`, `esModuleInterop: true`, `skipLibCheck: true` (all set).
+- `package.json` declares `"type": "module"` (line 5).
+- Every internal relative import uses the explicit `.js` extension on the relative path (e.g. `from './transport/protocol.js'`). Grep for relative imports WITHOUT `.js` → none; all 20 relative imports across `src/` end in `.js`.
+
+Verdict: implementation=true, zero code diff. All AC-003 boundaries pass.
