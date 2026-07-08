@@ -327,3 +327,12 @@ fatal: Unable to write index.
 - WorkItem: WI-AC-019
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:32:44.288Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- AcceptanceChecks: AC-019
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/protocol/WI-AC-019-1-integration_qa.log
+- NextAction: next Ready Work Item
