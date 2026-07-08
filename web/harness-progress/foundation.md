@@ -235,3 +235,39 @@ implementation=false for WI-AC-008. Website fully conforms; barrels + optimizePa
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Confirmed: this is genuine spec-code drift, not a spec contradiction -- proceed past verify-first into a real build/generator pass for WI-AC-008. Convert the 4 dashboard API routes and 15 dashboard pages you identified into thin re-exports backed by the missing context presentation/pages/*-page.tsx and api/*-handler.ts files, matching the pattern the other 76 routes and 10 pages already follow. This is authorized implementation work, not forbidden restructuring.
 - NextAction: Coding Attempt 1
+
+## WI-AC-008 — Independent QA pass (qa-agent, attempt 2)
+
+**Result: qa=true, implementation=true** — generator pass converted the 15 dashboard pages + 4 API routes to thin re-exports; all AC-008 clauses now hold.
+
+### Boundary exercised
+
+Real external boundary: filesystem (route/page file content) + HTTP (website dev server on port 5172) + compile boundary (tsc --noEmit for both apps).
+
+### Evidence by AC clause
+
+**1. Every page is a thin re-export delegating to `presentation/pages/<name>-page.tsx` — PASS.**
+- Website: all 13 `apps/website/src/app/**/page.tsx` are single re-export statements (1–4 lines; 4-line ones are Biome-wrapped single `export { ... } from '@/contexts/.../presentation/pages/...-page'`). Every target file exists.
+- Dashboard: all 25 `apps/dashboard/src/app/**/page.tsx` are pure re-exports (1–5 lines; multi-line ones are Biome-wrapped single `export { ... } from` plus an optional `export const dynamic = 'force-dynamic'` directive). Zero inline JSX/return/await/function logic (`grep -rEl "function |=>|return |await |<.*[A-Z]" --include=page.tsx` → empty). Every target `contexts/<name>/presentation/pages/<name>-page.tsx` exists (25/25 resolved).
+- HTTP boundary: website pages `/ /product /security /integrations /pricing /use-cases /privacy /terms /about` all return 200 on port 5172; home renders a real `<title>`. No errors in dev log.
+
+**2. Every dashboard API route is a thin re-export delegating to `api/<name>-handler.ts` — PASS.**
+- All 80 `apps/dashboard/src/app/api/**/route.ts` are re-exports (1–6 lines; the 3 multi-line ones are Biome-wrapped single statements or carry only a directive + comment, e.g. `notifications/stream` = `export { GET } from '.../notifications-stream-handler'` + `export const dynamic/runtime`). Zero inline `withAuth`/`fetch(`/`NextResponse`/`await` logic (`grep -rEl "withAuth|fetch\(|NextResponse|await |=>|function " --include=route.ts` → empty). Every target `contexts/<name>/api/<name>-handler.ts` exists (80/80 resolved).
+- The 4 previously-failing `investigation/[id]/{chat,detail,relay-token,tool-calls}` routes are now 1-line re-exports to `@/contexts/investigation/api/investigation-*-handler`.
+
+**3. No context `index.ts` barrel files — PASS.** `find apps/{website,dashboard}/src/contexts -name "index.ts"` → none; no `index.tsx` either. Cross-context imports use direct deep paths.
+
+**4. `optimizePackageImports` in both `next.config.mjs` — PASS.**
+- Dashboard: `@clerk/nextjs`, `@clerk/themes`, `lucide-react` + all 5 internal `@causeflow/*` packages it depends on (ui, shared, analytics, forms, auth) — matches its 5 `@causeflow/*` runtime deps.
+- Website: `lucide-react` + all 4 internal `@causeflow/*` packages it depends on (ui, shared, analytics, forms). Clerk omitted because the website has no `@clerk/*` runtime dependency (correct — cannot optimize a package you do not import).
+
+### Compile boundary
+
+- `tsc --noEmit` (website) → clean exit.
+- `tsc --noEmit --project tsconfig.build.json` (dashboard) → exit 0. All re-exports resolve to real context page/handler modules at compile time.
+
+### Verdict
+
+All AC-008 clauses pass at the structural, HTTP, and compile boundaries. The generator pass created the missing context `presentation/pages/*-page.tsx` and `api/*-handler.ts` files and converted the 19 previously-inline route files to re-exports. No defects.
+
+qa=true, implementation=true for WI-AC-008.
