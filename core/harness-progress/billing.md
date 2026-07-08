@@ -76,3 +76,10 @@ Test-data isolation fix: the boundary script previously used a fixed slug `ac011
 Regression: `pnpm typecheck` clean; `pnpm lint-invariants` 10/10 pass (I1–I11); `pnpm test:run` 161 files / 1053 tests pass.
 
 Doc-drift note (unchanged from verify phase): literal `/api/v1/billing/checkout-session` is not mounted (no global `/api` prefix; route is `/v1/billing/checkout` taking a `planKey` resolved to a Stripe Price ID via the plan catalog — the spec's own security note says "never trust client-supplied price IDs"). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-011 behaviour (returns a Stripe checkout URL; signature-verified webhook creates a BillingAccountEntity, 200) is fully met.
+
+## 2026-07-08T04:22:46.380Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-011
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
