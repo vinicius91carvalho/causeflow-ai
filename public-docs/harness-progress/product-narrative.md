@@ -233,3 +233,35 @@ against the existing committed code (HEAD `9df1f24`).
 implementation=true. Zero defects. Zero tracked files changed (zero-diff
 checkpoint — only this journal updated). No refactor, no code changes; the
 existing codebase already satisfies AC-009.
+
+## 2026-07-08 QA — WI-AC-009 (independent re-audit)
+
+- Role: qa-agent (independent re-audit at real HTTP boundary)
+- Scope: the seven Dashboard pages — overview, incidents, analyses,
+  remediations, audit-trail, team-management, settings.
+- Boundary: `mint dev --no-open --port 5188` (mint CLI v4.2.666, node
+  v24.16.0) from project root; `GET http://localhost:5188/` → 200, body
+  contains `CauseFlow AI` (x4) and all four tab labels (Documentation, API
+  reference, Relay, Changelog).
+- Reachability from the Documentation tab: home HTML sidebar contains exactly
+  one `href="/dashboard/<page>"` link for each of the seven pages
+  (overview, incidents, analyses, remediations, audit-trail,
+  team-management, settings). topology.mdx is present on disk but not listed
+  in `docs.json` navigation — outside AC-009 scope.
+- Per-page render at the real HTTP boundary:
+  | page             | HTTP | rendered H1        | bytes  | parse markers |
+  | ---------------- | ---- | ------------------ | ------ | ------------- |
+  | overview         | 200  | Dashboard overview | 229130 | 0             |
+  | incidents        | 200  | Incidents          | 237100 | 0             |
+  | analyses         | 200  | Analyses           | 222275 | 0             |
+  | remediations     | 200  | Remediations       | 228441 | 0             |
+  | audit-trail      | 200  | Audit trail        | 223853 | 0             |
+  | team-management  | 200  | Team management    | 216592 | 0             |
+  | settings         | 200  | Settings           | 226144 | 0             |
+- Each rendered H1 matches the page's `title` frontmatter exactly. No
+  `SyntaxError`/`Could not compile`/`Unexpected`/`MDX parse|compile error`/
+  `Module not found`/`is not defined` markers in any rendered body. The
+  `mint dev` log has no error/parse/fail/warn/syntax/exception markers. Each
+  page body contains its distinguishing prose from the `.mdx` source.
+- Verdict: AC-009 PASSES. qa=true. Zero defects. Zero-diff checkpoint (only
+  this journal updated). HEAD `03c6b60`.
