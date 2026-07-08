@@ -851,3 +851,12 @@ feature_list.json updated: integration=true, status="integrated".
 - AcceptanceChecks: AC-010
 - Outcome: passed on integrated main
 - NextAction: next Ready Work Item
+
+## 2026-07-08T19:07:05.692Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-010
+- AcceptanceChecks: AC-010
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-010-1-integration_qa.log
+- NextAction: next Ready Work Item
