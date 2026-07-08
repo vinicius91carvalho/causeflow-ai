@@ -238,3 +238,63 @@ AC-014 contract satisfied at the real boundary on integrated main. No defects fo
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-014-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-015 — Verify-first (transport)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+WorkItem: WI-AC-015 — verify AC-015 (connect URL/headers + open/error/close logging) against the existing code at a real WebSocket boundary.
+
+Boundary: real `ws.WebSocketServer` on `127.0.0.1:5173/v1/relay/connect` + a dead port `127.0.0.1:5999` (ECONNREFUSED → error → close). Drove the real compiled `WsClient` (`dist/transport/ws-client.js`, built via `npx tsc --noEmit` → 0, `npm run build` → 0). No mocks of the relay.
+
+Source checks (`src/transport/ws-client.ts`):
+- `connect()` parses `new URL(this.opts.url)`, calls `url.searchParams.set('token', …)` and `url.searchParams.set('tenantId', …)`, then `new WebSocket(url.toString(), { headers: { Authorization: 'Bearer <token>', 'X-Tenant-Id': <tenantId> } })`.
+- `open` handler: `logger.info({ relayId: this.relayId, url: this.opts.url }, 'Connected to control plane')`.
+- `error` handler: `logger.error({ err }, 'WS error')`.
+- `close` handler: `logger.info('Disconnected from control plane')`, then `scheduleReconnect()` only `if (!this.intentionalClose)`.
+
+Probe verdict (`/tmp/ac015-verdict.json`):
+- URL query carries `token=ac015-token` ✓ and `tenantId=ac015-tenant` ✓ (server-side `req.url` = `/v1/relay/connect?token=ac015-token&tenantId=ac015-tenant`).
+- Headers: `Authorization: Bearer ac015-token` ✓, `X-Tenant-Id: ac015-tenant` ✓.
+- `open` log `Connected to control plane` (info, level 30) emitted with `relayId` + `url` ✓.
+- `error` log emitted at level 50 on the dead-port ECONNREFUSED ✓.
+- `close` log `Disconnected from control plane` (info, level 30) emitted ✓.
+- Non-intentional close → `Scheduling reconnect` invoked (delayMs 1000 then 2000) ✓.
+- Intentional close (`client.close()` after a successful open) → `Disconnected from control plane` with NO subsequent `Scheduling reconnect` ✓ (the next log lines were the dead-port client's, not a reconnect) — `intentionalClose` suppresses reconnect.
+
+AC-015 contract satisfied at the real boundary on integrated main. No defects found. No code changes.
+
+## WI-AC-015 — QA audit (independent)
+
+**Result: qa=true, implementation=true**
+
+Independent audit on isolated worktree. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Drove the real compiled `WsClient` (`dist/transport/ws-client.js`) against a real `ws.WebSocketServer` on `127.0.0.1:5173` (`/v1/relay/connect`) plus a dead port `127.0.0.1:5999` (ECONNREFUSED). No mocks of the relay.
+
+Evidence (`/tmp/ac015-qa-verdict.json` + error-path probe):
+- **connect() URL query:** server-side `req.url` = `/v1/relay/connect?token=ac015-qa-token&tenantId=ac015-qa-tenant` → `urlHasToken=true`, `urlHasTenantId=true`. The query is built via `new URL(this.opts.url)` + `url.searchParams.set('token', …)` / `set('tenantId', …)` then `new WebSocket(url.toString(), …)`.
+- **headers:** `Authorization: Bearer ac015-qa-token` ✓, `X-Tenant-Id: ac015-qa-tenant` ✓ (read from the inbound HTTP upgrade request).
+- **open log (info):** `Connected to control plane` emitted at level 30 with `relayId` (UUID) and `url` attached (`openLogHasRelayId=true`, `openLogHasUrl=true`).
+- **error log (error):** dead-port client emitted `WS error` at level 50 with `err` (`{code:'ECONNREFUSED', ...}`) attached — `errorLogEmitted=true`, `errorLogLevel=50`.
+- **close log (info):** `Disconnected from control plane` emitted at level 30 on both intentional and non-intentional closes — `closeLogEmitted=true`, `closeLogLevel=30`.
+- **non-intentional close → scheduleReconnect:** server force-closed connB (code 4000); `close` handler logged `Disconnected from control plane` then `Scheduling reconnect delayMs=1000`; a new connection landed ~1s later (`connCountAfterCloseB=2` → `connCountAfterReconnectWindowB=3`, `nonIntentionalReconnect=true`).
+- **intentional close → no reconnect:** `clientA.close()` (sets `intentionalClose=true` first) at 1200ms; `connCountBeforeB=1` at 1900ms (no reconnect from A) → `intentionalNoReconnect=true`.
+
+Source checks (`src/transport/ws-client.ts`): `connect()` builds the URL via `new URL(...)` + `searchParams.set('token'/'tenantId')` and passes `{ headers: { Authorization: 'Bearer <token>', 'X-Tenant-Id': <tenantId> } }` to `new WebSocket`; `open` → `logger.info({ relayId, url }, 'Connected to control plane')`; `error` → `logger.error({ err }, 'WS error')`; `close` → `logger.info('Disconnected from control plane')` then `scheduleReconnect()` only `if (!this.intentionalClose)`.
+
+AC-015 contract satisfied at the real boundary. No defects found.
+
+## 2026-07-08T05:10Z — QA audit passed (isolated)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- Outcome: isolated QA passed (qa=true, implementation=true)
+- Evidence: /tmp/ac015-qa-verdict.json + dead-port error-path probe
+- NextAction: Integrated Verification
+
+## 2026-07-08T04:09:50.816Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
