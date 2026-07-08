@@ -1928,3 +1928,25 @@ check-description-length.py exists, validates all descriptions <= 160.
 ### verdict
 
 implementation=true; integration=pending; qa=pending; defects=none
+
+## AC-032 QA Verification (2026-07-08)
+
+**QA Agent verdict: PASS**
+
+### Test Results
+
+| Check | Status | Details |
+|-------|--------|---------|
+| All 125 navigable MDX pages render | PASS | HTTP 200 on every page in docs.json navigation |
+| Four navigation tabs (Documentation, API reference, Relay, Changelog) | PASS | All tabs return HTTP 200 |
+| Redirect /quickstart → /getting-started/quickstart | PASS | Internal rewrite, HTTP 200, Quickstart content served |
+| API reference H1 matches title frontmatter (84 pages) | PASS | All 84 endpoint pages H1 exactly matches `title` field |
+| Mintlify components render (Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, Tabs, Mermaid) | PASS | All verified on appropriate pages |
+| No contextual AI SaaS (claude/chatgpt) | PASS | docs.json contextual.options = ["copy", "view"] |
+| No outbound SaaS calls from container | PASS | Docker logs show zero outbound calls to external SaaS |
+| Dockerfile reproducibility (clean rebuild) | PASS | Rebuilt image serves identical site (all pages 200, redirects work, no SaaS) |
+| contextual AI removed (claude/chatgpt) | PASS | grep returns no matches for claude/chatgpt in docs.json |
+
+### Notes
+- 8 of 133 MDX files are not standalone pages: 2 snippets (imported), 5 investigation/ dir pages (unlisted), 1 dashboard/topology.mdx (unlisted). These are not in docs.json navigation and Mintlify does not render unlisted pages — expected behavior.
+- Rebuilt image has slightly different chunk hashes (normal for mint export) but serves functionally identical content.
