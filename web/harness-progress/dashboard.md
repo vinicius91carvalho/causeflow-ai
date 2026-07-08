@@ -105,3 +105,33 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-037-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T00:40:00Z — Verify-First (WI-AC-032)
+
+- Role: coding-agent (VERIFY-FIRST). AcceptanceChecks: AC-032. Context: dashboard. Port: 5175. Attempt: 1/3.
+- AC: Sentry wired at 3 runtime boundaries (server/edge/client) with identical PII scrubbing; onRequestError forwards Next.js errors; global-error.tsx captures via useEffect; SDK no-ops when NEXT_PUBLIC_SENTRY_DSN is blank.
+- Static (Step 1) — all 5 files exist and reference identical PII scrubbing:
+  - `apps/dashboard/instrumentation.ts` — `register()` imports `./sentry.server.config` (nodejs runtime) + `./sentry.edge.config` (edge runtime); `export const onRequestError = Sentry.captureRequestError`. ✓
+  - `apps/dashboard/sentry.server.config.ts` + `sentry.edge.config.ts` — identical `Sentry.init({ dsn: process.env.NEXT_PUBLIC_SENTRY_DSN, enabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN, beforeSend })`. ✓
+  - `apps/dashboard/instrumentation-client.ts` — client `Sentry.init` with the same `enabled: !!DSN` gate + same `beforeSend` scrubbing (+ replayIntegration maskAllText/blockAllMedia). ✓
+  - All three `beforeSend` hooks delete: `authorization`, `cookie`, `x-api-key`, `x-clerk-auth-token`, `x-session-token` headers; `request.data`; `request.cookies`; `user.ip_address`; `user.email`. (Inline-duplicated, not a shared helper — AC text says "identical PII scrubbing"; bar = boundary pass, not idiomatic.) ✓
+  - `src/app/global-error.tsx` — `'use client'`, `useEffect(() => { Sentry.captureException(error); }, [error])`. ✓
+  - `next.config.mjs` wraps `withSentryConfig` (org/project/source-map upload at build time). ✓
+- Runtime (Step 2) — blank DSN, no outbound to *.sentry.io (real boundary):
+  - Booted `next dev --hostname localhost -p 5175` with `NEXT_PUBLIC_SENTRY_DSN=""` + real Clerk test publishable key, under `strace -f -e trace=%network`. Server booted (Next.js 15.5.12 ready → instrumentation.ts `register()` ran the server Sentry.init at boot with blank DSN).
+  - strace log grep for Sentry ingest IP `34.160.81.0` (o4511214153170944.ingest.us.sentry.io) → 0 matches; grep for `sentry` → 0 matches. No outbound to Sentry at init. ✓
+  - Focused SDK boundary probe (tsx, @sentry/nextjs 10.48.0, identical init options + identical beforeSend): with `NEXT_PUBLIC_SENTRY_DSN=""` and `enabled:false`, `Sentry.captureException` + `flush(5000)` → local HTTP listener received **0** requests. ✓
+- Runtime (Step 3) — non-empty DSN, synthetic error reaches configured ingest (real HTTP boundary):
+  - Same probe with DSN `http://<key>@127.0.0.1:5180/2` → `captureException(new Error('AC-032 synthetic'))` → listener received **1** `POST /api/2/envelope/?sentry_client=sentry.javascript.nextjs%2F10.48.0` containing the synthetic exception envelope. Wiring forwards errors to the configured Sentry ingest. ✓
+  - PII scrubbing at the boundary: injected tainted values into the event in `beforeSend` (`Bearer SECRET-JWT`, `session=LEAKED-COOKIE`, `SECRET-API-KEY`, `CLERK-JWT-TOKEN`, `SESSION-TOKEN`, `SENSITIVE-BODY`, `pii@example.com`, `1.2.3.4`); the envelope that reached the listener contained **0** of these (`piiLeaks: []`). Scrubbing is effective end-to-end. ✓
+  - Final hop "lands in hosted project causeflow-dashboard under org causeflow-ai" is CI-gated (requires SENTRY_AUTH_TOKEN, CI-only per spec; local runtime expects blank DSN → no-op). Locally verified the SDK POSTs the envelope to the configured ingest host; the real DSN host is o4511214153170944.ingest.us.sentry.io (causeflow-dashboard project ID 4511214189805568). No defect — the wiring is live; project-side confirmation is an out-of-band CI check.
+- Dashboard full-app boot blocked by Clerk publishable-key validation in `clerkMiddleware` on every request (separate integration, AC-031/identity, out of scope for this AC). The Sentry-specific boundary was exercised directly via the actual `@sentry/nextjs` SDK + the dashboard's exact init options, plus the boot-time instrumentation hook strace.
+- No code changes (zero-diff checkpoint). Temp probe `apps/dashboard/sentry-ac-test.mts` created, run, and deleted.
+- Outcome: PASS — implementation=true.
+
+## 2026-07-08T00:40:30Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-032
+- Outcome: AC passes at real boundary (zero diff)
+- NextAction: Integrated Verification
