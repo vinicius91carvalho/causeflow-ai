@@ -469,3 +469,62 @@ Doc-drift note unchanged (literal `/api/v1/billing/usage` not mounted — no glo
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/billing/WI-AC-012-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-013 — Verify-first (billing)
+
+**Result: implementation=true**
+
+Boundary exercised against a real running app on the assigned PORT=5181 (real HTTP `fetch`es, no mocking of the verification path). The app was booted in-process via the `ac012-boundary.ts` pattern: `ac013-boundary.ts` calls `bootstrap({ llmClient: DeterministicLLMClient, agentRunner: DeterministicAgentRunner })` + `createApp(ctx)` + `serve(...)` on PORT (no paid Anthropic calls — AC-013 does not run an investigation; the stubs only satisfy the composition root). Stack already up from foundation: `core-ministack-1` :4566 (healthy), `core-redis-1` (172.18.0.4:6379, healthy), `stripe-mock` :12111. Local untracked `.env.ac013` (gitignored via `.env.ac0*`) is not used by the in-process run — env is injected in-script before `config`/`bootstrap` import: `DYNAMODB_ENDPOINT=http://localhost:4566`, `DYNAMODB_TABLE_NAME=causeflow-local`, `REDIS_URL=redis://172.18.0.4:6379`, `STRIPE_WEBHOOK_SECRET=whsec_ac013_boundary_secret`, `STRIPE_HOST=localhost`/`12111`/`http` (routes the Stripe SDK at stripe-mock), `CLERK_JWT_KEY=<2048-bit RSA SPKI PEM>` (networkless Clerk RS256 verification, reused from WI-AC-007/011 at `/tmp/ac011-clerk-{priv,pub}.pem`). `/health` → 200.
+
+### Acceptance boundary (AC-013)
+
+> Stripe webhook with an invalid signature (mutated body) returns 400; valid signature returns 200. After `customer.subscription.deleted` arrives, the tenant's plan drops to "free" and gated endpoints return 402.
+
+Two real verification paths exercised (no mocking of `constructEvent` or `verifyToken`):
+
+1. **Real Stripe webhook signature, genuinely verified.** A `customer.subscription.deleted` event was signed with the shared webhook secret using the Stripe SDK's `stripe.webhooks.generateTestHeaderString({ payload, secret })` — byte-identical `t=…,v1=…` HMAC-SHA256 to what the Stripe CLI emits. The app's `stripe.webhooks.constructEvent(rawBody, signature, webhookSecret)` performs the genuine HMAC verification (recomputes the signature, enforces timestamp tolerance). Invalid-signature case: the body was mutated *after* signing (event type string flipped) so the HMAC no longer matches the payload → `constructEvent` throws → `ValidationError` → 400.
+
+2. **Valid Clerk session JWT, networklessly verified.** RS256-signed with the local 2048-bit RSA key; `@clerk/backend` `verifyToken({ jwtKey })` verifies the signature networklessly (the real Clerk verification path — no JWKS call). Used to create the tenant (`POST /v1/tenants`, admin role) so `tenantId` = JWT `o.id` and is cryptographically bound to the caller.
+
+Evidence (`npx tsx ac013-boundary.ts`, real `fetch`es on PORT=5181):
+
+- `POST /v1/tenants` (admin JWT) → **201**, `tenantId = org_ac013_<ts>` (= JWT `o.id`, cryptographically verified).
+- Setup: `BillingAccountEntity` provisioned at the starter plan (15 investigations / 500 events) directly via `DynamoBillingAccountRepository.create` (establishes the pre-deletion quota — proves the drop).
+- `GET /v1/billing/subscription` (pre-delete) → **200**, `plan=starter`, `investigationsLimit=15`.
+- `GET /v1/billing/usage` (pre-delete) → **200**, `account.investigationsLimit=15`.
+- `POST /v1/billing/webhook` with **mutated body** (event type string flipped after signing → HMAC mismatch) → **400** — confirms `constructEvent` genuinely verifies signatures, not passing them through.
+- `POST /v1/billing/webhook` (`customer.subscription.deleted`, valid HMAC sig) → **200** `{received:true}` — signature verified.
+- `GET /v1/billing/subscription` (post-delete) → **200**, `plan="free"`, `status="canceled"`, `investigationsLimit=0` — tenant plan dropped to free.
+- `GET /v1/billing/usage` (post-delete) → **200**, `account.investigationsLimit=0`, `eventsLimit=0` — BillingAccount quotas dropped to the free plan.
+- `POST /v1/incidents/chat` (gated endpoint, admin JWT) → **402** `{error:"QUOTA_EXCEEDED"}` — gated endpoint returns 402 after the plan drops to free (the `reserveInvestigation` atomic counter check `used < limit` fails with `limit=0`).
+
+All 15 boundary assertions passed (15/15); `AC-013: ALL ASSERTIONS PASSED`.
+
+### Path note (doc drift, out of scope)
+
+The spec AC text says `POST /api/v1/billing/webhook`. The implementation mounts all module routes at `/v1/*` with **no `/api` prefix** (global doc drift, same as WI-AC-007/011/012). Per the contradictions clause ("implementation is authoritative") and the WI-AC-007 precedent, the real boundary exercised is `POST /v1/billing/webhook`; the literal `/api/v1/billing/webhook` returns 404. The functional AC-013 behaviour (invalid signature → 400; valid signature → 200; subscription.deleted → plan drops to free; gated endpoints → 402) is fully met.
+
+### Root-cause fixes (smallest diff, 4 files)
+
+The existing code failed AC-013 at the boundary; the root cause fixed with no refactor:
+
+1. **`customer.subscription.deleted` never dropped the plan to "free"** — `handleSubscriptionDeleted` only set `subscriptionStatus='canceled'` and cleared `stripeSubscriptionId`; it left `plan` at the prior tier (`starter`) and never reset the `BillingAccount` quotas, so gated endpoints kept returning 200. Added `plan: 'free'` to the tenant update and a `syncBillingAccount(tid, 'free')` call so the `BillingAccount` quotas drop to 0/0 (free plan). The gated endpoint (`POST /v1/incidents/chat` → `reserveInvestigation`) then fails the `used < limit` check with `limit=0` and returns 402.
+2. **`'free'` was not a valid `TenantPlan`** — added `'free'` to the `TenantPlan` union and to the `TenantEntity` ElectroDB `plan` enum (so `tenantRepo.update({ plan: 'free' })` is accepted). `free` is NOT added to any client-facing zod enum (signup/checkout/tenant-create still only offer `starter|pro|business|enterprise`), so it is only ever set by the subscription-deleted webhook.
+3. **`PLAN_CREDITS`/`PLAN_QUOTAS` (fallback catalog) had no `free` entry** — `Record<TenantPlan, …>` requires all union members, so added `free: { investigations: 0, events: 0, priceUsd: 0 }` (and `PLAN_CREDITS.free = 0`). This also makes the fallback catalog include a free plan for the subscription info path.
+4. **`syncBillingAccount` depended on the catalog for the free plan** — production Stripe accounts typically have no "free" Price, so `getPlanByKey('free')` would return `null` and the quota drop would be skipped. Added a `plan === 'free'` special-case in `syncBillingAccount` that uses quotas `0/0` directly (bypassing the catalog), so the drop-to-free behaviour does not depend on a free Price existing in Stripe. Paid plans resolve via the catalog unchanged.
+
+No refactor/restructure of working code. The read path (`GetSubscriptionUseCase` / `GET /v1/billing/usage`) was already correct (it reads `tenant.plan` and `BillingAccount` quotas) — no change. The invalid-signature → 400 path (ValidationError → errorHandler) was already correct — no change. Local untracked setup (gitignored): `.env.ac013`; tracked verification artefact: `ac013-boundary.ts` (matches the WI-AC-011/012 precedent of committing the boundary script). Generated RSA keypair reused at `/tmp/ac011-clerk-{priv,pub}.pem`.
+
+### Regression checks
+
+- `pnpm typecheck` → clean.
+- `pnpm lint-invariants` → 10 passed, 0 failed (I1–I11).
+- `pnpm test:run` → 162 files / 1057 tests pass.
+
+## 2026-07-08T11:36:00.000Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-013
+- AcceptanceChecks: AC-013
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5181)
+- NextAction: Integrated Verification

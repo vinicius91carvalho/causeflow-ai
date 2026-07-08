@@ -8,7 +8,7 @@ export const TenantEntity = new Entity({
         name: { type: 'string', required: true },
         slug: { type: 'string', required: true },
         ownerEmail: { type: 'string', required: true },
-        plan: { type: ['starter', 'pro', 'business', 'enterprise'], required: true, default: 'starter' },
+        plan: { type: ['free', 'starter', 'pro', 'business', 'enterprise'], required: true, default: 'starter' },
         status: { type: ['active', 'suspended', 'trial', 'cancelled'], required: true, default: 'active' },
         // Billing / Stripe
         renewDate: { type: 'string' },

@@ -49,6 +49,7 @@ export type { UsageType, OveragePolicy };
 
 /** @deprecated Fallback only — use IPlanCatalogService. Remove after migration validated in production. */
 export const PLAN_CREDITS: Record<TenantPlan, number> = {
+    free: 0,
     starter: 15,
     pro: 60,
     business: 200,
@@ -56,6 +57,7 @@ export const PLAN_CREDITS: Record<TenantPlan, number> = {
 };
 /** @deprecated Fallback only — use IPlanCatalogService. Remove after migration validated in production. */
 export const PLAN_QUOTAS: Record<TenantPlan, PlanQuota> = {
+    free: { investigations: 0, events: 0, priceUsd: 0 },
     starter: { investigations: 15, events: 500, priceUsd: 99 },
     pro: { investigations: 60, events: 3000, priceUsd: 349 },
     business: { investigations: 200, events: 10000, priceUsd: 899 },

@@ -1,5 +1,5 @@
 export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'info';
-export type TenantPlan = 'starter' | 'pro' | 'business' | 'enterprise';
+export type TenantPlan = 'free' | 'starter' | 'pro' | 'business' | 'enterprise';
 export type TenantStatus = 'active' | 'suspended' | 'trial' | 'cancelled';
 export type IncidentStatus = 'open' | 'triaging' | 'investigating' | 'awaiting_approval' | 'remediating' | 'resolved' | 'closed' | 'aborted' | 'failed' | 'inconclusive';
 export type IntegrationProvider = 'datadog' | 'grafana' | 'newrelic' | 'cloudwatch' | 'prometheus' | 'pagerduty' | 'opsgenie' | 'slack' | 'teams' | 'aws' | 'azure' | 'gcp' | 'jira' | 'linear' | 'hubspot' | 'confluence';
