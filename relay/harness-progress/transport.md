@@ -238,3 +238,28 @@ AC-014 contract satisfied at the real boundary on integrated main. No defects fo
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-014-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-015 — Verify-first (transport)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+WorkItem: WI-AC-015 — verify AC-015 (connect URL/headers + open/error/close logging) against the existing code at a real WebSocket boundary.
+
+Boundary: real `ws.WebSocketServer` on `127.0.0.1:5173/v1/relay/connect` + a dead port `127.0.0.1:5999` (ECONNREFUSED → error → close). Drove the real compiled `WsClient` (`dist/transport/ws-client.js`, built via `npx tsc --noEmit` → 0, `npm run build` → 0). No mocks of the relay.
+
+Source checks (`src/transport/ws-client.ts`):
+- `connect()` parses `new URL(this.opts.url)`, calls `url.searchParams.set('token', …)` and `url.searchParams.set('tenantId', …)`, then `new WebSocket(url.toString(), { headers: { Authorization: 'Bearer <token>', 'X-Tenant-Id': <tenantId> } })`.
+- `open` handler: `logger.info({ relayId: this.relayId, url: this.opts.url }, 'Connected to control plane')`.
+- `error` handler: `logger.error({ err }, 'WS error')`.
+- `close` handler: `logger.info('Disconnected from control plane')`, then `scheduleReconnect()` only `if (!this.intentionalClose)`.
+
+Probe verdict (`/tmp/ac015-verdict.json`):
+- URL query carries `token=ac015-token` ✓ and `tenantId=ac015-tenant` ✓ (server-side `req.url` = `/v1/relay/connect?token=ac015-token&tenantId=ac015-tenant`).
+- Headers: `Authorization: Bearer ac015-token` ✓, `X-Tenant-Id: ac015-tenant` ✓.
+- `open` log `Connected to control plane` (info, level 30) emitted with `relayId` + `url` ✓.
+- `error` log emitted at level 50 on the dead-port ECONNREFUSED ✓.
+- `close` log `Disconnected from control plane` (info, level 30) emitted ✓.
+- Non-intentional close → `Scheduling reconnect` invoked (delayMs 1000 then 2000) ✓.
+- Intentional close (`client.close()` after a successful open) → `Disconnected from control plane` with NO subsequent `Scheduling reconnect` ✓ (the next log lines were the dead-port client's, not a reconnect) — `intentionalClose` suppresses reconnect.
+
+AC-015 contract satisfied at the real boundary on integrated main. No defects found. No code changes.
