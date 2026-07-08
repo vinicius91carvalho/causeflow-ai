@@ -21,7 +21,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { randomUUID } from 'node:crypto';
 
-const PORT = 5196;
+const PORT = 5195;
 const TOKEN = 'ac045-token';
 const TENANT = 'ac045-tenant';
 
