@@ -197,3 +197,11 @@ Langfuse and Sentry end-to-end verification require runtime keys
 - WorkItem: WI-AC-036
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:30:56.520Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-036
+- Defects: OTel-Langfuse correlation ID bridge missing: OpenTelemetry spans and Langfuse traces do not share the same correlation ID. OTel uses its own traceId (32-char hex from X-Ray generator), while Langfuse uses incident/investigation ID as sessionId. The currentTraceId() function in propagation.ts is never called in production code. The ObservedAgentRunner in bootstrap.ts is created without traceContext. A remediation approval action generates an OTel HTTP span via auto-instrumentation but creates no corresponding Langfuse trace, so the same correlation id is not searchable in both systems.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/observability-and-ops/WI-AC-036-2-integration_qa.log
+- NextAction: Repair Plan
