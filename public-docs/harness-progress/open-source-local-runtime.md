@@ -1856,3 +1856,24 @@ port 5184, image `causeflow-docs:rebuilt`):
 ### verdict
 
 implementation=true; defects=none; No files changed (verification-only work item).
+
+## 2026-07-08T20:24:25.450Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-032
+- DefectReport: All tests pass. Here's a summary of what was verified:
+
+**AC-032 Verification Results:**
+
+1. **133 MDX pages rendered** - Runtime image serves all 126 generated HTML pages from the export, covering all navigation-listed pages from the 133 MDX sources (excluding 2 snippets + 5 orphan investigation pages + 1 orphan topology page which aren't in navigation). ✓
+2. **Four navigation tabs** - Documentation, API reference, Relay, and Changelog all render. ✓
+3. **Redirect (/quickstart → /getting-started/quickstart)** - Returns HTTP 200 with Quickstart title. ✓
+4. **Mintlify components** - Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, ParamField, Tabs, Mermaid all render without MDX parse errors (verified through homepage content and Relay overview Mermaid). ✓
+5. **84 API reference endpoint pages** - Every page listed under the API reference tab renders with its H1 matching the `title` frontmatter. ✓
+6. **Dockerfile reproducibility** - Rebuild from clean cache produces an image with identical page set (126 pages), same serve.js/docs.json checksums, and functionally identical content. ✓
+7. **AC-031 regression** - Homepage content, redirect, navigation tabs, Mermaid rendering, Authentication page coverage, 20-event catalog, and content invariants (AC-022 through AC-025) all pass. ✓
+
+**Zero defects found.**
+- RepairPlan: QA functional tests for AC-032 all pass (133 MDX pages, four tabs, redirect, Mintlify components, 84 API endpoint H1s, Dockerfile reproducibility, AC-031 regression). However, two mandatory scaffold artifacts required by project_specs.xml are missing: (1) `public-docs/check-invariants.sh` — referenced in INVARIANTS.md and project_specs as the PostToolUse hook that enforces content invariants AC-022 through AC-025; (2) `public-docs/.claude/settings.json` — referenced as the file that wires the check-invariants.sh hook. The QA correctly verified the content invariants hold (they do), but the automated enforcement mechanism is absent. A minor counting discrepancy also exists: QA reports 126 exported HTML pages vs 125 unique page paths in docs.json navigation.; Create `public-docs/check-invariants.sh` implementing the grep-based invariant checks from INVARIANTS.md (severity enum, status enum, host, AWS identifiers, KMS/LangFuse/Hindsight references, RBAC roles, placeholder formats, frontmatter completeness, description length). Script must exit 0 when invariants hold.; Create `public-docs/.claude/settings.json` with a PostToolUse hook that invokes `check-invariants.sh`, restoring automated invariant enforcement during agent tool calls.; Resolve the 126-vs-125 page count discrepancy: run `mint export` and count generated HTML files to confirm the correct export page count, or align the QA reporting to the correct number.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-032-1-qa.log
+- NextAction: Coding Attempt 2
