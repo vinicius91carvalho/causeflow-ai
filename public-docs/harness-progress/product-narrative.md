@@ -162,3 +162,74 @@ satisfies AC-008.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/product-narrative/WI-AC-008-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08 Verify-first — WI-AC-009
+
+- WorkItem: WI-AC-009
+- AcceptanceChecks: AC-009
+- context: product-narrative
+- Mode: VERIFY-FIRST (existing codebase)
+- Attempt: 1
+- Outcome: implementation=true (black-box verified at real HTTP boundary)
+- NextAction: next Ready Work Item
+
+### Acceptance check
+
+AC-009: Each of the seven Dashboard pages (Overview, Incidents, Analyses,
+Remediations, Audit trail, Team management, Settings) is reachable from the
+documentation tab and renders without MDX parse errors.
+
+### Pre-flight (spec scaffold verification)
+
+- `project_specs.xml` present at repo root.
+- All seven Dashboard `.mdx` files exist under `dashboard/` with `title` +
+  `description` frontmatter (each description ≤160 chars): overview, incidents,
+  analyses, remediations, audit-trail, team-management, settings.
+- `docs.json` navigation declares the Documentation tab's "Dashboard" group
+  listing exactly these seven pages.
+
+### Boundary verification (real external boundary — HTTP)
+
+- `mint dev --port 5188` running from project root (mint CLI v4.2.666,
+  node v24.16.0), confirmed listening; `GET http://localhost:5188/` → 200,
+  body contains "CauseFlow AI" (x4) and all four tab labels.
+
+Reachability from the Documentation tab (home HTML sidebar):
+
+| page             | sidebar link |
+| ---------------- | ------------ |
+| overview         | /dashboard/overview |
+| incidents        | /dashboard/incidents |
+| analyses         | /dashboard/analyses |
+| remediations     | /dashboard/remediations |
+| audit-trail      | /dashboard/audit-trail |
+| team-management  | /dashboard/team-management |
+| settings         | /dashboard/settings |
+
+Render + parse-error check (curl each URL):
+
+| page             | HTTP | rendered H1        | bytes  | parse markers |
+| ---------------- | ---- | ------------------ | ------ | ------------- |
+| overview         | 200  | Dashboard overview | 229130 | 0 |
+| incidents        | 200  | Incidents          | 237100 | 0 |
+| analyses         | 200  | Analyses           | 222275 | 0 |
+| remediations     | 200  | Remediations       | 228441 | 0 |
+| audit-trail      | 200  | Audit trail        | 223853 | 0 |
+| team-management  | 200  | Team management    | 216592 | 0 |
+| settings         | 200  | Settings           | 226144 | 0 |
+
+- Each rendered H1 matches the page's `title` frontmatter.
+- No `SyntaxError`/`Could not compile`/`Unexpected`/`MDX parse`/`Module not
+  found` markers in any rendered body.
+- `mint dev` log has no error/parse/fail/syntax/exception/warn markers.
+- Each page body contains its distinguishing prose from the `.mdx` source.
+
+### Verdict
+
+All seven Dashboard pages are reachable from the Documentation tab and render
+without MDX parse errors at the real external HTTP boundary. AC-009 PASSES
+against the existing committed code (HEAD `9df1f24`).
+
+implementation=true. Zero defects. Zero tracked files changed (zero-diff
+checkpoint — only this journal updated). No refactor, no code changes; the
+existing codebase already satisfies AC-009.
