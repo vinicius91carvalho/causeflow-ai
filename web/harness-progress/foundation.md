@@ -979,3 +979,10 @@ All AC-003 steps pass at the real `tsc` + `turbo` boundary. No defects within th
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-003-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T19:24:04.249Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-004
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
