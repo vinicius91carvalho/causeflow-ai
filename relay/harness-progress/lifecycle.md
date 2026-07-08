@@ -135,3 +135,12 @@
   7. Second SIGTERM after process exit has no effect (process already gone)
   8. Stack restarted cleanly after test
 - Defects: []
+
+## 2026-07-08T19:42:19.634Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-047
+- AcceptanceChecks: AC-047
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/lifecycle/WI-AC-047-2-integration_qa.log
+- NextAction: next Ready Work Item
