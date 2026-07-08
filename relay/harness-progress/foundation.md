@@ -1109,3 +1109,10 @@ error: The following untracked working tree files would be overwritten by merge:
 Aborting
 Merge with strategy ort failed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T11:38:20.550Z — Explicit Resume
+
+- WorkItem: WI-AC-009
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Retrying after all root causes fixed this session (main corruption, stuck state lock, conflict-marker corruption) -- system confirmed stable and clean now. Fresh retry.
+- NextAction: Coding Attempt 1
