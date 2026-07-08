@@ -7152,3 +7152,18 @@
 - WorkItem: WI-AC-003
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T03:40:00.000Z — Integrated Verification (WI-AC-003)
+
+- agent: qa-agent
+- work_item: WI-AC-003
+- acceptance_check: AC-003
+- context: foundation
+- branch: main @ 4ad3e43
+- checks (re-run against integrated main at real external boundaries):
+  1. docs.json valid JSON — `python3 -c "import json; json.load(open('docs.json'))"` → VALID.
+  2. Mintlify schema fetched live — `curl -sSL https://mintlify.com/docs.json` → HTTP 200 (161883 bytes); saved /tmp/mintlify-schema.json.
+  3. Schema validation — `jsonschema.validate(instance=docs.json, schema=mintlify-schema)` → SCHEMA VALID (no ValidationError).
+  4. Navigation page resolution — script walked all 4 tabs (Documentation, API reference, Relay, Changelog); every `tab` declares its `groups`; 125 page entries; each `<entry>.mdx` resolves under project root → missing=0; root `index.mdx` and `changelog/index.mdx` present.
+- evidence: 133 `.mdx` files present (matches spec claim); no source changes required (zero-diff checkpoint); AC-003 is a pure docs.json audit, so no runtime/port dependency.
+- verdict: integration=true; implementation=true; qa=true; defects=none
