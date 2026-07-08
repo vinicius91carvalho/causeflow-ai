@@ -358,3 +358,24 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-046-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T20:05:00Z — QA Verified (AC-049)
+
+- WorkItem: WI-AC-049
+- AcceptanceChecks: AC-049
+- Outcome: qa=true, implementation=true
+- Evidence: Independent file + build verification in this worktree (HEAD d9fb7a3).
+- Independent verification of all 3 AC-049 steps:
+  1. `grep -E '@aws-sdk' apps/dashboard/package.json package.json` -> zero matches (both clean). `tenant-provisioning-fallback.ts` does not exist. `setup-stripe.ts` and `delete-user.ts` do not exist under scripts/. ✓
+  2. `grep -E 'serverExternalPackages' apps/dashboard/next.config.mjs` -> zero matches. ✓
+  3. `pnpm --filter dashboard build` exits 0. `add-credits.ts` is the only script file (Core API fetch only, no AWS/Stripe imports). ✓
+- No dead imports: `grep -r 'tenant-provisioning-fallback\|delete-user\|setup-stripe'` across dashboard src/scripts/ returns zero matches.
+- Environmental note (non-defect): `packages/auth/package.json` retains `@aws-sdk/client-cognito-identity-provider` per AC-036 (legacy reference). Lockfile retains AWS SDK entries from that package. AC-049 only removes AWS SDK from dashboard and root package.json.
+- Defects: []
+
+## 2026-07-08T20:05:25.146Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-049
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
