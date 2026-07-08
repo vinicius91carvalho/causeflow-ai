@@ -663,7 +663,7 @@
     "verify_first": false,
     "implementation": true,
     "qa": true,
-    "integration": false,
+    "integration": true,
     "retries": 0,
     "verify_notes": "REGRESSION PASS on docker-compose stack (PORT=5179, clean rebuild). Fixed two defects: (1) export serve.js ignored docs.json#redirects and Mintlify <dir>/index/index.html layout -> /quickstart (redirect) and /changelog (tab landing) 404'd; added repo-root serve-docs.js (pure Node, PORT only) wired via Dockerfile runtime stage (COPY docs.json + serve-docs.js as serve.js) so redirects resolve as 200 internal rewrites and directory-index pages serve. (2) AC-024 AWS-ARN invariant violated across 8 MDX (19 lines incl. real 12-digit account id 409171461008) -> replaced all arn:aws: literals with compliant placeholder tokens per INVARIANTS.md. Added frontmatter to 2 orphaned snippets so AC-004 holds. Verified: / ->200 CauseFlow AI+Quickstart; /quickstart ->200 lands Quickstart; /changelog ->200; 4 tabs render; Relay Mermaid via Mermaid component (no raw <pre>); Auth JWT/API-key/HMAC; 20 events; all 82 API ref pages + 125 nav pages 200; mint broken-links exit 0; AC-022/23/24/25, AC-016/17 grep zero; AC-004/005 frontmatter ok; 133 MDX. forbidden-host log grep=0."
   },
