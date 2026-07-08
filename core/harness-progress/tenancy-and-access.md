@@ -446,3 +446,41 @@ Zero-diff checkpoint — no tracked files changed. Local untracked artefacts
 - Outcome: implementation=true (boundary passed at real HTTP on PORT=5182,
   25/25; zero-diff)
 - NextAction: Integrated Verification
+
+## 2026-07-08 — Independent QA (WI-AC-009, this worktree)
+
+**Result: qa=true, implementation=true. Zero defects.**
+
+Independently reproduced the AC-009 boundary against a FRESH server process on
+the assigned PORT=5182. Killed any stale server, booted a fresh
+`pnpm dev` with `--env-file=.env.dev` from HEAD. Stack healthy: `core-ministack-1`
+(:4566, dynamodb available, `causeflow-local` table present), `core-redis-1`.
+Generated a fresh 2048-bit RSA keypair, set SPKI public PEM as `CLERK_JWT_KEY`
+in `.env.dev`, saved private key at `/tmp/ac009-qa-priv.pem`. Real `fetch` HTTP,
+real `@clerk/backend` networkless RS256 verification (no `verifyToken` mock),
+real DynamoDB at ministack :4566 — no mocks. Boundary script:
+`/tmp/ac009-qa-boundary.mjs`.
+
+**12/12 passed:**
+
+1. Admin auth (2/2): GET /v1/whoami with admin JWT → 200, user.id matches,
+   tenantId matches, role=admin. GET /v1/whoami without auth → 401.
+2. Create API key (2/2): POST /v1/api-keys with name+scopes → 201 with keyId,
+   name, prefix (cflo_), plaintext (cflo_<64hex>), scopes, createdAt.
+   POST /v1/api-keys without name → 400 (Zod validation).
+3. Whoami with API key (2/2): GET /v1/whoami with `Authorization: Bearer
+   <cflo_key>` → 200 resolves user.id, user.email, tenantId. Bogus API key → 401.
+4. Quota enforcement (5/5): Created 5 keys to fill per-tenant quota; the 6th
+   POST → 429 `QUOTA_EXCEEDED` with `{limit:5, active:5}`.
+5. List API keys (1/1): GET /v1/api-keys → 200 with 5 items, no keyHash leak.
+
+Path note (doc drift, not a defect, same as WI-AC-007/008): spec AC wording
+says `/api/v1/...`; implementation mounts all routes at `/v1/*` with no `/api`
+prefix (global, affects every AC). Per the contradictions clause
+(implementation authoritative), the real boundary is `/v1/api-keys` and
+`/v1/whoami`. Functional AC-009 behaviour fully met.
+
+Local QA artefacts (gitignored): `/tmp/ac009-qa-boundary.mjs`,
+`/tmp/ac009-qa-priv.pem`, `/tmp/ac009-qa-jwt.txt`, `/tmp/ac009-qa-server.log`.
+Server left running on 5182.
+
