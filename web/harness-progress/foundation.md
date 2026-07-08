@@ -873,3 +873,10 @@ During the test the website initially served 200 but then started returning 500 
 ### Verdict
 
 All AC-002 steps pass at the real HTTP boundary. No blocking defects. qa=true, implementation=true for WI-AC-002.
+
+## 2026-07-08T18:12:22.876Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-002
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
