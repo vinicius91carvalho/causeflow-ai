@@ -495,3 +495,23 @@ Boundary 3 — real-process end-to-end (`node dist/index.js` + real `ws` stub on
 Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.ts` (`interpolateEnv` replaces `\${(\w+)}` with `process.env[varName] ?? ''`; `interpolateObject` recurses through string/array/object) and `src/config/schema.ts`.
 
 Verdict: implementation=true, zero code diff. All AC-006 conditions pass (string interpolation at any nesting depth; empty-string substitution for unset vars with no throw; interpolated token reaches the real WS wire).
+
+## WI-AC-006 — QA independent verification (2026-07-07)
+
+Independently re-ran every AC-006 condition as qa-agent in the isolated worktree (clean `dist` from `npm run build`, exit 0; `npx tsc --noEmit` exit 0). No code changes.
+
+Probe (`/tmp/ac006-qa/probe.mjs`, 17 assertions, all pass) importing `dist/config/loader.js`:
+- Canonical example: YAML `token: ${RELAY_TOKEN}` resolves to `process.env.RELAY_TOKEN` value (`secret-token-xyz`). ✓
+- Top-level string depth: `controlPlane.url` / `tenantId` interpolated. ✓
+- Object-nesting depth: `resources[0].connection.host` / `password` interpolated (deeply nested string values); non-interpolated `connection.database` preserved verbatim. ✓
+- Array-nesting depth: `resources[0].allowedOperations[0]` (`query`) + `[1]` (`list_tables`) interpolated. ✓
+- `resource.id` / `resource.name` interpolated. ✓
+- Unset vars (`${UNSET_TOKEN}`, `${UNSET_URL}`, `${UNSET_TENANT}`, `${UNSET_ID}`, `${UNSET_NAME}`, `${UNSET_HOST}`, `${UNSET_PW}`) on free-form string fields → `loadConfig()` does NOT throw; each resolves to `''` (empty string). Matches the documented "substitutes an empty string for unset variables (no exception thrown for missing vars)" behavior. ✓
+
+Real-process end-to-end (live `ws` stub on 127.0.0.1:5199; config with `token: ${RELAY_TOKEN}` / `tenantId: ${TENANT_ID}` / `id: ${RESOURCE_ID}` / `connection: { host: ${PG_HOST}, password: ${PG_PASSWORD} }`, env `RELAY_TOKEN=rt-wire-interp TENANT_ID=ti-wire-interp RESOURCE_ID=main-pg PG_HOST=127.0.0.1 PG_PASSWORD=pw-wire`):
+- Relay boots: pino `Starting CauseFlow Relay...`, `Config loaded` (resources=1, tenantId=ti-wire-interp), `Driver initialized` (main-pg), `Connected to control plane`.
+- Interpolated token reaches the wire: stub recorded `url=/v1/relay/connect?token=rt-wire-interp&tenantId=ti-wire-interp`, `Authorization: Bearer rt-wire-interp`, `X-Tenant-Id: ti-wire-interp`, and received a `resource_update` message on open. ✓
+
+Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.ts` (`interpolateEnv` replaces `\${(\w+)}` with `process.env[varName] ?? ''`; `interpolateObject` recurses through string/array/object) + `src/config/schema.ts`.
+
+**QA verdict: qa=true, implementation=true, no defects.** All AC-006 conditions pass (string interpolation at any nesting depth; empty-string substitution for unset vars with no throw; interpolated token reaches the real WS wire).
