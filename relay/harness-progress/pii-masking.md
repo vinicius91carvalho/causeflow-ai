@@ -52,3 +52,15 @@
 - Outcome: implementation=true (zero-diff checkpoint)
 - Verification: `MaskingEngine.mask(['john@example.com', '123.456.789-00', 'plain'])` returns `{ masked: ['***@***.***', '***.***.***-**', 'plain'], maskedFieldCount: 2 }` as verified against compiled `dist/masking/masking-engine.js`. No code changes needed — the masking engine correctly applies default CPF and email patterns, leaves plain strings untouched, and reports the correct maskedFieldCount. The previous failures were infrastructure (OpenRouter credits, rate limits, model config), not code defects.
 - NextAction: none (AC-040 passes)
+
+## 2026-07-08T19:00:00.000Z — QA Verified
+
+- WorkItem: WI-AC-040
+- Outcome: qa=true, implementation=true
+- Verification: Independent QA test executed `node scripts/qa/ac040-test.mjs` against the built `dist/masking/masking-engine.js`.
+  Input `['john@example.com', '123.456.789-00', 'plain']` produces output
+  `['***@***.***', '***.***.***-**', 'plain']` with `maskedFieldCount: 2`.
+  All three values match exactly: email local+domain stripped, CPF dotted pattern masked,
+  plain string left untouched. The masking engine correctly applies default patterns
+  and reports maskedFieldCount.
+- NextAction: none (AC-040 passes QA)
