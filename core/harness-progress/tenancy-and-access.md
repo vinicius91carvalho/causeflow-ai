@@ -484,3 +484,31 @@ Local QA artefacts (gitignored): `/tmp/ac009-qa-boundary.mjs`,
 `/tmp/ac009-qa-priv.pem`, `/tmp/ac009-qa-jwt.txt`, `/tmp/ac009-qa-server.log`.
 Server left running on 5182.
 
+
+## 2026-07-08T18:10:36.985Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- DefectReport: All 12 independent QA boundary assertions passed against the real HTTP API (no mocks, real `@clerk/backend` networkless RS256 verification, real DynamoDB at ministack :4566). Here is the summary:
+
+**AC-009 Verification Results:**
+
+| Assertion | Result |
+|-----------|--------|
+| GET /v1/whoami with admin JWT → 200 (user+tenant+role) | ✅ Pass |
+| GET /v1/whoami without auth → 401 | ✅ Pass |
+| POST /v1/api-keys with name+scopes → 201 + plaintext key | ✅ Pass |
+| POST /v1/api-keys without name → 400 | ✅ Pass |
+| GET /v1/whoami with API key → 200 resolves user+tenant | ✅ Pass |
+| GET /v1/whoami with bogus API key → 401 | ✅ Pass |
+| Create keys 2-5/5 → 201 each | ✅ Pass |
+| 6th active key → 429 QUOTA_EXCEEDED (limit=5, active=5) | ✅ Pass |
+| GET /v1/api-keys → 200 with 5 items, no keyHash leak | ✅ Pass |
+
+**No defects found.** Implementation is correct for all three AC-009 sub-behaviors:
+1. API key creation returns plaintext key
+2. Whoami resolves the key's user and tenant
+3. Per-tenant quota enforcement returns 429
+- RepairPlan: AC-009 (POST /api/v1/api-keys → plaintext key, GET /v1/whoami resolves via Bearer key, per-tenant quota enforcement → 429) passed all 12 QA boundary assertions against the real HTTP API with real DynamoDB and real @clerk/backend verification. No defects found. The repository contains every required scaffold artifact: domain entity, repository port, use case with quota enforcement (MAX_API_KEYS_PER_TENANT=5, QuotaExceededError), DynamoDB repository, ElectroDB entity (ApiKeyEntity with PK=keyHash + GSI byTenant), routes (create 201, list without keyHash leak, delete), auth middleware with cflo_ token resolution via findByHash, whoami route reading from middleware context, bootstrap wiring via configureAuthApiKeyRepo + EventBus audit subscriptions, and 4 unit test files.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-009-1-qa.log
+- NextAction: Coding Attempt 2
