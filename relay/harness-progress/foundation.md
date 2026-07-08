@@ -706,3 +706,26 @@ Each step's command exits 0 on a passing PR (exercised at the real boundary):
 Repo scaffold matches `project_specs.xml` affected_surfaces: `.github/workflows/ci.yml` + `commitlint.config.js`.
 
 Verdict: implementation=true, zero code diff. All AC-007 conditions pass (correct trigger, setup-node v4 + Node 22, `npm ci`, `npx commitlint --from $BASE_SHA --to $HEAD_SHA --verbose`, `npm run build`, `docker build . --platform linux/amd64`; each step exits 0 on a passing PR).
+
+## 2026-07-08 — QA WI-AC-007 (independent, isolated worktree)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-007 / AC-007 (context=foundation)
+- Outcome: passed (qa=true, implementation=true)
+
+Independent re-verification of `.github/workflows/ci.yml` against AC-007. Parsed the workflow YAML and re-ran every step's exact command locally (Node 22-pinned workflow; host Docker Engine 29.6.1).
+
+Invariants confirmed:
+- Trigger `on: pull_request: branches: [main]`. ✓
+- `actions/setup-node@v4` with `node-version: '22'`. ✓
+- `npm ci`. ✓
+- `npx commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose` with `BASE_SHA=${{ github.event.pull_request.base.sha }}`, `HEAD_SHA=${{ github.event.pull_request.head.sha }}`. ✓
+- `npm run build`. ✓
+- `docker build . --platform linux/amd64`. ✓
+
+Boundary evidence (each step's command exits 0 on a passing PR):
+1. `npm run build` (`tsc`) → exit 0.
+2. `npx commitlint --from 32259a8~1 --to HEAD --verbose` over clean conventional commits → exit 0, `✔ found 0 problems, 0 warnings`.
+3. `docker build . --platform linux/amd64` → exit 0 (linux/amd64 manifest list built).
+
+`commitlint.config.js` extends `@commitlint/config-conventional` (AC-010 contract), so a PR whose commits are all Conventional Commits passes the gate. No defects. No code changes.
