@@ -54,3 +54,25 @@ No refactor/restructure of working code. Local untracked setup (gitignored, like
 - WorkItem: WI-AC-011
 - Outcome: implementation=true (boundary passed at real HTTP on PORT=5183)
 - NextAction: Integrated Verification
+
+## 2026-07-08 — QA independent verification (WI-AC-011)
+
+**Result: qa=true, implementation=true**
+
+Independently re-ran the AC-011 boundary against a freshly booted app (`tsx --env-file=.env.ac011 src/main.ts` on PORT=5183) with the existing stack (core-ministack :4566, core-redis-1, stripe-mock :12111). `/health` → 200 `{dynamodb:ok,redis:ok,sqs:ok,anthropic:ok}`.
+
+Real HTTP exercised (`node ac011-boundary.mjs`, real `fetch`es, RS256-signed Clerk JWT verified networklessly via `@clerk/backend`, Stripe webhook signature generated with `stripe.webhooks.generateTestHeaderString` and genuinely verified by `stripe.webhooks.constructEvent`):
+
+- `POST /v1/tenants` (admin JWT) → **201**, `tenantId = org_ac011_<ts>` (= JWT `o.id`).
+- `POST /v1/billing/checkout` `{planKey:"starter"}` → **200** `{"url":"https://checkout.stripe.com/pay/c/cs_test_…"}` — Stripe checkout URL (session created against stripe-mock).
+- `POST /v1/billing/webhook` (`checkout.session.completed`, valid HMAC sig) → **200** `{"received":true}` — signature verified.
+- `GET /v1/billing/usage` (auth) → **200**, `account = {tenantId, investigationsLimit:15, eventsLimit:500, …}` — confirms the webhook **created a BillingAccountEntity** for the user/tenant with starter plan quotas.
+- Negative: `POST /v1/billing/webhook` with bad signature (`t=1,v1=deadbeef`) → **400** — confirms signature verification is genuine.
+
+All 8 boundary assertions passed (8/8).
+
+Test-data isolation fix: the boundary script previously used a fixed slug `ac011-boundary`, which collided (409 TenantSlugConflictError) on re-runs against a DB with leftover data — cascading into checkout 404 and webhook 500 (ConditionalCheckFailedException because the tenant never got created). Made the slug unique per run (`ac011-boundary-<ts>`). This was a test-harness isolation issue, not an implementation defect — the implementation correctly enforces slug uniqueness (409) and the webhook correctly retries (rethrows ConditionalCheckFailedException) until the tenant exists.
+
+Regression: `pnpm typecheck` clean; `pnpm lint-invariants` 10/10 pass (I1–I11); `pnpm test:run` 161 files / 1053 tests pass.
+
+Doc-drift note (unchanged from verify phase): literal `/api/v1/billing/checkout-session` is not mounted (no global `/api` prefix; route is `/v1/billing/checkout` taking a `planKey` resolved to a Stripe Price ID via the plan catalog — the spec's own security note says "never trust client-supplied price IDs"). Per the contradictions clause (implementation authoritative) and WI-AC-007 precedent, the functional AC-011 behaviour (returns a Stripe checkout URL; signature-verified webhook creates a BillingAccountEntity, 200) is fully met.
