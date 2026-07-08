@@ -346,3 +346,16 @@ Repo scaffold matches project_specs.xml affected_surfaces: `src/config/loader.ts
   - `node dist/index.js` → pino logs `Starting CauseFlow Relay...` then `level:60` fatal `Failed to start relay` carrying the `ZodError` (path `controlPlane/token`) → **NODE_EXIT=1**. ✓
 
 Verdict: implementation=true, zero code diff. Both AC-004 conditions pass.
+
+## WI-AC-004 — QA independent verification (foundation)
+
+Independent re-test at the real `node dist/index.js` process boundary (clean `dist` from `npm run build`, build exit 0). No code changes.
+
+- Case A — `controlPlane.url = 'not-a-url'` + valid `resources[0]` (`/tmp/ac004-qa/not-a-url.yaml`):
+  - Direct `loadConfig()` probe: `not-a-url` ACCEPTED as free-form `z.string()`; `cfg.controlPlane.url === "not-a-url"`, resources.length=1. (AC clause (a) satisfied.)
+  - `node dist/index.js` (RELAY_CONFIG_PATH set): logs `Starting CauseFlow Relay...` + `Config loaded` + `Driver initialized main-pg`, then `WsClient.connect()` → `new URL('not-a-url')` throws `TypeError: Invalid URL` (`code: ERR_INVALID_URL`, `input: not-a-url`). Caught by `main().catch()` → `level:60` fatal `Failed to start relay` → **exit 1**. Relay never silently starts with an invalid control-plane URL. ✓
+- Case B — missing `controlPlane.token` (`/tmp/ac004-qa/missing-token.yaml`):
+  - `loadConfig()` throws `ZodError`: `issues=[{code:"invalid_type",expected:"string",received:"undefined",path:["controlPlane","token"],message:"Required"}]` — clear error pointing at the missing field. ✓
+  - `node dist/index.js`: logs `Starting CauseFlow Relay...` then `level:60` fatal `Failed to start relay` carrying the `ZodError` (path `controlPlane/token`) → **exit 1**. ✓
+
+Verdict: qa=true, implementation=true, zero code diff. Both AC-004 conditions pass.
