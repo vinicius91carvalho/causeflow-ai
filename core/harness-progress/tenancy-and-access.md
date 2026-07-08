@@ -308,3 +308,26 @@ Local QA artefacts (gitignored): boundary script + `/tmp/ac009-server.log`; fres
 - WorkItem: WI-AC-009
 - Outcome: implementation=true (boundary passed at real HTTP on PORT=5182, fresh server, 4/4; 9-file minimal diff)
 - NextAction: Integrated Verification
+
+## 2026-07-08T04:51:00Z — Independent QA (WI-AC-009, this worktree)
+
+**Result: qa=true, implementation=true. Zero defects.**
+
+Independently reproduced the AC-009 boundary against a FRESH server process on the assigned PORT=5182 (killed the prior verify-first server pid 428319, booted `node --env-file=/tmp/ac009-qa.env --import tsx/esm src/main.ts` from HEAD `747e6c7`). Generated my own 2048-bit RSA keypair (`/tmp/ac009-qa-priv.pem`); SPKI public PEM set as `CLERK_JWT_KEY` so `@clerk/backend` `verifyToken({ jwtKey })` does real networkless RS256 verification — no `verifyToken` mock. Real `fetch` HTTP, real DynamoDB at ministack :4566, real Redis — no mocks. Boundary script: `/tmp/ac009-qa-boundary.mjs`. Minted a Clerk v2 session JWT (org:admin) for a fresh tenant `org_qa_ac009_<ts>`. **17/17 passed:**
+
+1. `POST /v1/api-keys` with `{name:"qa-ac009-key-1", scopes:["incidents:read","audit:read"]}` → **201** `{keyId, name, prefix:"cflo_…", scopes:["incidents:read","audit:read"], plaintext:"cflo_<64hex>", createdAt}` — plaintext API key returned on creation; name + scopes echoed.
+2. `GET /v1/whoami` with `Authorization: Bearer cflo_…` → **200** `{user:{id, email}, tenantId, role:"apikey", roles:["apikey"]}` — resolves the user (id + email from the key's creator) and the tenant (the key's issuing tenant). Bogus `cflo_…` key → **401**.
+3. Per-tenant key quota: created keys until the cap (default `MAX_API_KEYS_PER_TENANT=5`); the 6th active key → **429** `{error:"QUOTA_EXCEEDED", message:"API key quota exceeded for tenant (limit=5)", details:{limit:5, active:5}}`.
+4. Cross-tenant guard: the API key always resolves to its issuing tenant regardless of caller — tenant spoofing impossible.
+
+Regression: `pnpm test:run tests/unit/modules/tenant` → 10 files / 31 tests pass (incl. `api-key.routes.test.ts` 4/4, `create-api-key.test.ts` 1/1).
+
+Path note (doc drift, not a defect, same as WI-AC-007/008): spec AC wording says `/api/v1/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/api-keys` and `/v1/whoami`. Functional AC-009 behaviour fully met.
+
+Local QA artefacts (gitignored): `/tmp/ac009-qa.env`, `/tmp/ac009-qa-priv.pem`, `/tmp/ac009-qa-pub.pem`, `/tmp/ac009-qa-boundary.mjs`, `/tmp/ac009-qa-server.log`. Fresh server left running on 5182 (pid 491130).
+
+## 2026-07-08T04:51:30Z — Checkpoint ready
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- Outcome: isolated QA passed (qa=true, implementation=true)
+- NextAction: Integrated Verification
