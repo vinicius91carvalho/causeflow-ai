@@ -470,3 +470,46 @@ qa=true; implementation=true; defects=none
 - WorkItem: WI-AC-028
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T03:05:00.000Z — Integrated Verification (WI-AC-028, main)
+
+- work_item: WI-AC-028
+- context: open-source-local-runtime
+- branch: main (HEAD 7bab088)
+- runtime: `causeflow-docs:local` image built from project-root Dockerfile,
+  run as `causeflow-docs` container published to host port 5179 (PORT=5179)
+  because host :3000 was already bound by the relay-control-plane-stub.
+  Container boot log: `Serving docs at http://localhost:3000`;
+  `curl http://localhost:5179/` → 200, body contains "CauseFlow AI" and
+  "Quickstart".
+
+### AC-028 mapped checks
+- `grep -E '"(claude|chatgpt)"' docs.json` → exit 1, **zero matches**.
+- `docs.json#contextual.options` = `["copy","view"]` only — confirmed.
+- `docker logs causeflow-docs 2>&1 | grep -E 'anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|mintlify\.com|mintlify\.app'`
+  → **zero matches** (env: only `PORT=3000`).
+
+### Real external-boundary check (Playwright network logging)
+- chromium headless, executablePath pinned to the cached chromium-1228 build.
+- Single-page test on `/`: invoked every contextual trigger (`Copy`/`View`
+  buttons and aria/data-testid contextual selectors) → 2 clicks, 113 total
+  requests, **0 forbidden** requests to `anthropic.com|claude.ai|openai.com|chatgpt.com`.
+- Multi-page test on `/`, `/getting-started/quickstart`, `/relay/overview`,
+  `/api-reference/authentication`: per page clicked every button/anchor whose
+  label matched `copy|view|contextual` (11 total clicks), enumerated DOM
+  for any element labelled `Claude`/`ChatGPT` → **0 rendered AI menu items**.
+  Outbound requests to the four forbidden hosts across all pages: **0**.
+
+### Note on residual bundle bytes
+- `docker exec causeflow-docs grep -rl ...` finds the Mintlify-exported
+  Next.js chunks still carry dead `case "chatgpt"/"claude": window.open(...)`
+  and `isAllowedAdminMcpRedirectUri` allow-list bytes. These bytes are NOT in
+  the runtime path: `docs.json#contextual.options` offers only `copy`/`view`,
+  so no menu item dispatches to those case branches, and Playwright network
+  logging on invoked contextual menus shows zero outbound calls to the four
+  SaaS hosts. The AI-provider delegate is fully removed from the runtime
+  path (the executed code path when a reader invokes the contextual menu),
+  satisfying AC-028.
+
+### verdict
+integration=true; implementation=true; qa=true; defects=none
