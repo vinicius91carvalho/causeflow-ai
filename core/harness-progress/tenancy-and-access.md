@@ -705,3 +705,59 @@ prefix (global, affects every AC). Per the contradictions clause
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-009-3-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T18:42:49Z — Verify-first boundary pass (WI-AC-010, this worktree)
+
+**Result: implementation=true. Zero-diff checkpoint — no code changes.**
+
+Exercised AC-010 against the EXISTING code in this worktree at a real HTTP
+boundary on the assigned PORT=5182. Booted a fresh server from HEAD
+`016aaaa` with a fresh RSA-2048 keypair (`/tmp/ac010-key.pem`) matching
+`CLERK_JWT_KEY` in `.env.dev`. Real `fetch` HTTP, real `@clerk/backend`
+networkless RS256 verification, real DynamoDB at ministack :4566, real Redis
+— no mocks. Boundary script: `npx tsx _ac010_test.ts` (deleted after run).
+
+Stack healthy: `core-ministack-1` (:4566, dynamodb `causeflow-local` table
+present with PITR + 3 GSIs), `core-redis-1`.
+
+**13/13 passed:**
+
+1. Seed billing account for Tenant A (DynamoDB PutItem) ✅
+2. Seed billing account for Tenant B ✅
+3. Tenant A: GET /v1/whoami → 200 with tenantId match ✅
+4. Tenant B: GET /v1/whoami → 200 with tenantId match ✅
+5. Tenant A: POST /v1/incidents/chat → 201 (creates incident, returns ID) ✅
+6. Tenant A: GET /v1/incidents/{id} → 200 (sees own incident with matching
+   tenantId and title) ✅
+7. Tenant B: GET /v1/incidents/{id} → 404 NOT_FOUND (Tenant A incident
+   is invisible to Tenant B) ✅
+8. Tenant B: GET /v1/incidents/{id} → 404 (again, proving PK construction
+   across tenants yields 404 not 403 or 200) ✅
+9. Tenant B: POST /v1/incidents/chat → 201 (own incident) ✅
+10. Tenant B: GET /v1/incidents/{ownId} → 200 (sees own incident) ✅
+11. Tenant A: GET /v1/incidents/{tenantBId} → 404 (mutual isolation) ✅
+12. Tenant A: GET /v1/incidents/nonexistent → 404 ✅
+13. Tenant B: GET /v1/incidents/nonexistent → 404 ✅
+
+**Tenant isolation is enforced at the application layer:**
+`GetIncidentUseCase.execute(tenantId, incidentId)` calls
+`DynamoIncidentRepository.findById(tenantId, incidentId)`, which queries
+ElectroDB with BOTH `tenantId` and `incidentId` as the composite primary key.
+Tenant B's request with Tenant A's incident ID always queries Tenant B's
+DynamoDB partition — the incident does not exist there, so `null` is returned
+and `IncidentNotFoundError` (404) is thrown. Cross-tenant PK construction is
+impossible because the tenant ID is never extractable from the incident ID
+alone; it must come from the JWT-verified request context.
+
+Regression checks: `pnpm typecheck` clean; `pnpm test:run` 162 files / 1057
+tests pass; `pnpm lint-invariants` I1–I11 pass (10/10).
+
+Path note (doc drift, same as WI-AC-007/008/009): spec AC wording says
+`/api/v1/incident/...`; implementation mounts routes at `/v1/incidents/...`
+with no `/api` prefix and a plural `incidents` (global). Per the
+contradictions clause (implementation authoritative), the real boundary is
+`/v1/incidents/:id`. Functional AC-010 behaviour fully met.
+
+Zero-diff checkpoint — no tracked files changed. Local untracked artefacts
+(gitignored): `/tmp/ac010-key.pem`, `/tmp/ac010-pub.pem`, server PID.
+Server left running on 5182.
