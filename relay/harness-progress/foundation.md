@@ -883,3 +883,12 @@ The previously-reported X.Y tag defect (`${{ env.MAJOR }}.${{ env.MINOR }}` rend
 Scaffold check: `project_specs.xml` affected_surfaces for AC-008 = `.github/workflows/release.yml` (release + docker jobs), `Dockerfile`, `release.config.js` — all present on main.
 
 **Integrated verdict: integration=true, implementation=true, qa=true, no defects.** All AC-008 conditions pass on integrated main.
+
+## 2026-07-08T05:10:48.955Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-008
+- AcceptanceChecks: AC-008
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-008-2-integration_qa.log
+- NextAction: next Ready Work Item
