@@ -3,7 +3,7 @@ set -euo pipefail
 
 REGION="us-east-1"
 ENDPOINT="http://localhost:4566"
-TABLE_NAME="causeflow"
+TABLE_NAME="causeflow-local"
 
 echo "==> Creating DynamoDB table: $TABLE_NAME"
 awslocal dynamodb create-table \
@@ -41,6 +41,13 @@ awslocal dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   --region "$REGION" \
   2>/dev/null || echo "Table $TABLE_NAME already exists"
+
+echo "==> Enabling Point-in-Time Recovery on $TABLE_NAME"
+awslocal dynamodb update-continuous-backups \
+  --table-name "$TABLE_NAME" \
+  --point-in-time-recovery-specification PointInTimeRecoveryEnabled=true \
+  --region "$REGION" \
+  2>/dev/null || echo "PITR already configured on $TABLE_NAME"
 
 echo "==> Creating SQS queues"
 
@@ -94,7 +101,7 @@ awslocal kms create-alias \
   --region "$REGION" 2>/dev/null || true
 
 echo "==> LocalStack init complete!"
-echo "  DynamoDB table: $TABLE_NAME (3 GSIs)"
+echo "  DynamoDB table: $TABLE_NAME (3 GSIs, PITR enabled)"
 echo "  SQS queues: alerts, investigation, remediation, progress (+ 4 DLQs)"
 echo "  Secrets: jwt-secret, anthropic-api-key"
 echo "  KMS: alias/causeflow-token-encryption"

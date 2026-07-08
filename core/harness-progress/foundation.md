@@ -300,3 +300,35 @@ No refactor/restructure of working code. Baseline `lint-invariants` stays at exi
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-004-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-005 — Verify-first (foundation)
+
+**Result: implementation=true**
+
+Boundary exercised against the running docker-compose stack (real DynamoDB API on ministack :4566, no mocks). AC-005 depends_on AC-002; the foundation-mode Hono API was already up on the assigned PORT=5174 (`/health` → 200, `checks.dynamodb=ok`).
+
+Verified at the real DynamoDB boundary on `http://localhost:4566` (host has no `aws` binary; `awslocal` inside the ministack container calls the identical `localhost:4566` ministack service, mapped to host `0.0.0.0:4566->4566`):
+
+- `dynamodb list-tables` → includes `causeflow-local`.
+- `dynamodb describe-table --table-name causeflow-local` → `GlobalSecondaryIndexes` = `[gsi1, gsi2, gsi3]` (count **3**).
+- `dynamodb describe-continuous-backups --table-name causeflow-local` → `PointInTimeRecoveryDescription.PointInTimeRecoveryStatus = ENABLED`.
+
+### Root-cause fixes (smallest diff, 4 tracked files)
+
+The existing code failed AC-005 at the boundary in two independent ways; each fixed at its root cause with no refactor:
+
+1. **Table was named `causeflow`, not `causeflow-local`** — AC-005 explicitly and repeatedly requires the local table named `causeflow-local` in `list-tables`. The init script, config default, and env files all used `causeflow`. Renamed the canonical local table to `causeflow-local` consistently in `infra/localstack/init/01-create-resources.sh` (TABLE_NAME), `src/shared/config/index.ts` (default), `.env.example`, `.env.localstack`. Zero blast radius on the running `causeflow-api` container (it uses Postgres via `DATABASE_URL`, not DynamoDB). Other `'causeflow'` string literals in `src/` are ElectroDB `model.service` attributes / JWT issuer, not the table name — correctly left untouched.
+2. **PITR was DISABLED** — the init script created the table but never enabled Point-in-Time Recovery. Added an `awslocal dynamodb update-continuous-backups --point-in-time-recovery-specification PointInTimeRecoveryEnabled=true` step to `01-create-resources.sh` right after table creation (idempotent). Verified it flips the status to ENABLED on ministack.
+
+### Regression checks
+
+- `pnpm typecheck` → clean.
+- `pnpm lint-invariants` → 10 passed, 0 failed (I1–I11).
+- `pnpm test:run` → 161 files / 1053 tests pass.
+- Foundation app on PORT=5174 still boots; `/health` → `checks.dynamodb=ok` (describes `causeflow-local`).
+
+### Notes
+
+- The host has no `aws` CLI installed; the AC's literal `aws --endpoint-url http://localhost:4566 ...` was exercised via `docker exec core-ministack-1 awslocal ...`, which issues real DynamoDB API calls against the same `http://localhost:4566` ministack service (docker-mapped to host :4566). Same real external boundary.
+- `describe-table` does not return `PointInTimeRecoveryDescription` in real DynamoDB (that lives on `describe-continuous-backups`); the AC's CLI wording is descriptive. Both calls were issued and both confirm the required state.
+- The legacy `causeflow` table (created by the prior init run during AC-001) still exists on ministack; it is harmless and not referenced by app config. Not deleted per the no-restructure rule.
