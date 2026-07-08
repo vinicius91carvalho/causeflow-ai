@@ -211,3 +211,10 @@ worktree at the real external HTTP boundary. No code changes required.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/content-structure/WI-AC-004-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T04:03:09.641Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
