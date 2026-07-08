@@ -233,3 +233,24 @@ fatal: Unable to write index.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/protocol/WI-AC-017-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T21:17:54.543Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-018
+- DefectReport: All tests pass. Here is the summary:
+
+**WI-AC-018 — `describe_resource` — Independent Verification Result: PASS**
+
+**Tests performed (real WebSocket boundary against running docker-compose stack):**
+
+1. **Unknown resourceId (`unknown-resource`):** Returns JSON-RPC error with `code: -32602` and `message: "Unknown resource: unknown-resource"`. No `result` key, `id` echoed, `jsonrpc: '2.0'`. ✅
+
+2. **Valid resourceId `order-pg`:** Returns `{ tables: [{ table_name: "orders", table_type: "BASE TABLE" }], type: "postgres", database: "relay" }`. No error key, correct shape. ✅
+
+3. **Valid resourceId `order-mongo`:** Returns `{ tables: [], type: "mongodb", database: "relay" }`. No error key, correct shape. ✅
+
+**0 defects found.** The implementation is correct and complete — no code changes were needed.
+- RepairPlan: WI-AC-018 `describe_resource` is fully implemented and passes all three test cases: unknown resourceId returns JSON-RPC error -32602 with proper message, valid Postgres resource `order-pg` returns `{ tables, type, database }`, and valid Mongo resource `order-mongo` returns `{ tables, type, database }`. Repository scaffold is complete: all files from project_specs.xml exist (src/transport/protocol.ts with createErrorResponse, src/index.ts with describe_resource handler, drivers, config, docker-compose, CI/release workflows, control-plane stub). No missing artifacts.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/protocol/WI-AC-018-1-qa.log
+- NextAction: Coding Attempt 2
