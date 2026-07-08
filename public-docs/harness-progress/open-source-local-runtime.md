@@ -1012,3 +1012,422 @@ qa=true; implementation=true; defects=none
 - Defects: Integrated Verification failed
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-031-2-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-08T05:11:38.468Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-031
+- DefectReport: Integrated Verification failed
+- RepairPlan: WI-AC-031 Integrated Verification 'failed' is a harness-execution defect, not a content regression. The evidence log (WI-AC-031-2-integration_qa.log, 166 bytes) contains only the route header with outcome:failed and NO JSON verdict body, unlike every passing integration_qa log which carries a full {integration:true,defects:[]} body. Independent re-verification of the integrated main (branch gen/public-docs-open-source-local-runtime, HEAD bd59891, post-merge 498440d) against the running causeflow-docs:qa031 container on PORT=5179 and the source tree shows every AC-031 clause passes: AC-001 home 200 with CauseFlow AI+Quickstart; AC-002 mint broken-links exit 0 zero broken links; AC-007 /quickstart 200 lands on Quickstart (redirect resolves); AC-006 all four nav tabs 200 with matching Changelog H1; full nav sweep 125/125 pages 200; AC-018 intro line 74 says 20 real-time events with zero stale 21 matches; AC-019 Relay Mermaid renders as SVG; AC-014 Auth covers JWT/API-key/HMAC; AC-022/023/024/025/016/017 invariant greps all zero matches; 133 MDX all frontmatter-complete; container boot log has zero forbidden-host references. The prior AC-018 repair (21->20) is committed and present on disk. No scaffold artifacts are missing.; Do not modify any source files — the integrated main already satisfies AC-031 (verified independently on PORT=5179 and against the source tree).; Re-run the INTEGRATION_QA step (attempt 3) for WI-AC-031 against the current integrated main (HEAD bd59891) without code changes; expect integration=true, defects=[].; If the re-run again fails with an empty body, inspect the harness INTEGRATION_QA adapter/runtime (timeout, container teardown, subagent crash) rather than the docs repo — the empty 166-byte log vs the standard 258-byte passed log points to a harness-layer fault.; Ensure the causeflow-docs:qa031 container (or a clean equivalent) is up on the assigned port and that mint broken-links can reach the source tree before re-invoking.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-031-2-integration_qa.log
+- NextAction: Coding Attempt 3
+
+## 2026-07-08T06:30:00Z — Coding Attempt 3 (WI-AC-031, attempt 3)
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Attempt: 3/3
+- HEAD: 1fa1e2a (gen/public-docs-open-source-local-runtime); no source files modified per repair plan
+- Runtime: causeflow-docs-qa container (image causeflow-docs:qa031) up on PORT=5179 (5179->3000); boot log "Serving docs at http://localhost:3000"
+
+### Black-box regression (curl + headless chromium CDP against PORT=5179)
+- AC-001: `GET /` -> 200; body has "CauseFlow AI" x4, "Quickstart" x3.
+- AC-007: `GET /quickstart` -> 200 (docs.json#redirects resolves), lands on Quickstart.
+- AC-006: all four nav-tab landings 200 — /, /api-reference/introduction, /relay/overview, /changelog.
+- Full nav sweep: all 125 docs.json-declared page paths -> 200 (0 non-200).
+- AC-018: `api-reference/introduction.mdx:74` says "20 real-time events"; `grep '21 real-time events'` -> 0 matches; outbound-events catalog table lists exactly 20 distinct dot-namespaced events (rows 26-45).
+- AC-019: headless chromium renders /relay/overview Mermaid as `svg#mermaid-_r_0_... class="flowchart"`; raw `flowchart TD` body text = 0; no `<pre>flowchart` raw code block.
+- AC-014: /api-reference/authentication covers Bearer, X-API-Key, X-Webhook-Signature, HMAC, sha256.
+- AC-022/023/024/025/016/017: all invariant greps exit 1 (zero matches) across 133 MDX.
+- AC-002: `mint broken-links` -> exit 0, "no broken links found".
+- Boundary: `docker logs causeflow-docs-qa | grep -E 'mintlify.com|...|composio.dev'` -> 0 matches.
+- Scaffold: Dockerfile, docker-compose.yml, docs.json, serve-docs.js, README.md, INVARIANTS.md, .mintignore, init.sh, CLAUDE.md all present.
+- Integrated main (integrationDir /home/vinicius/projects/causeflow-ai/public-docs) carries the 20-events fix at introduction.mdx:74.
+
+### verdict
+
+implementation=true; integration=pending (re-run INTEGRATION_QA expected integration=true, defects=[]); qa=pending; defects=none. No source changes — the prior INTEGRATION_QA 'failed' was a harness-layer empty-verdict defect, not a content regression.
+
+## 2026-07-08T06:50:00Z — Independent QA (WI-AC-031, isolated worktree)
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Role: qa-agent (independent test in isolated worktree)
+- Method: clean `docker build --no-cache -t causeflow-docs:qaindep` (exit 0)
+  from worktree HEAD 422423b; fresh container `causeflow-docs-qaindep` on
+  assigned PORT=5179 (5179->3000); real HTTP (curl) + real browser
+  (Playwright chromium-1228 from ms-playwright cache, headless,
+  waitUntil networkidle). Blank env (no MINTLIFY_*/CLERK_*/etc).
+
+### Full AC-001..AC-025 regression (all PASS)
+- AC-001: `GET /` -> 200; body has "CauseFlow AI" x4, "Quickstart" x3.
+- AC-002: `mint broken-links` -> exit 0, "no broken links found".
+- AC-003: docs.json valid JSON; 4 tabs (Documentation, API reference, Relay,
+  Changelog); all 125 nav page paths resolve to real .mdx.
+- AC-004/005: all 133 MDX have title+description; all descriptions <=160 chars.
+- AC-006: all four nav-tab landing pages 200 (/, /api-reference/introduction,
+  /relay/overview, /changelog); Changelog rendered H1 "Changelog" matches
+  changelog/index.mdx frontmatter title.
+- AC-007: `GET /quickstart` -> 200 via docs.json#redirects internal rewrite,
+  lands on Quickstart page (Quickstart x4).
+- AC-008..AC-011: full navigation sweep — all 125 declared page paths -> 200,
+  zero non-200.
+- AC-012: API introduction renders base URL `https://api.causeflow.ai` (x4)
+  and v1 (x6); H1 "API introduction".
+- AC-013: all 82 API-reference endpoint pages render H1 matching the title
+  frontmatter (0 mismatches).
+- AC-014: Authentication page covers Bearer/JWT, X-API-Key,
+  X-Webhook-Signature (HMAC/sha256); verifyWebhookSignature code block
+  `node --check` OK.
+- AC-015: errors-and-pagination page renders all status codes
+  400/401/403/404/409/429/500/503 and items/cursor/count pagination fields.
+- AC-016: `grep api\.causeflow\.(io|dev|local|prod)` -> 0 matches.
+- AC-017: real tenant/API-key placeholder grep -> 0 matches (only EXAMPLE shapes).
+- AC-018: outbound-events catalog table lists exactly 20 distinct
+  dot-namespaced events; introduction line 74 says "20 real-time events";
+  "21 real-time events" -> 0 matches. 20==20, no off-by-one.
+- AC-019 (real browser): /relay/overview renders Mermaid as SVG —
+  div.mermaid > svg.flowchart (8 rects); zero raw `<pre>/<code>flowchart TD`
+  blocks.
+- AC-020: relay/configuration.mdx documents controlPlane, resources,
+  allowedOperations, maxRowsPerQuery, and `${VAR_NAME}` env-var substitution.
+- AC-021: relay/overview "What the Relay is not" names proxy, tunnel, and
+  replication agent (all three matches).
+- AC-022/023/024/025: all invariant greps exit 1 (zero matches) — severity
+  enum, status enum, AWS-identifier exclusion, RBAC role enum (admin/member
+  only on Required role lines) hold across all 133 MDX.
+- MDX count = 133.
+
+### Boundary
+- `docker compose config` valid; boot log: `Serving docs at http://localhost:3000`.
+- `docker logs causeflow-docs-qaindep | grep -cE` forbidden-host pattern
+  (mintlify.com|...|composio.dev) -> 0 matches.
+
+### verdict
+
+qa=true; implementation=true; defects=none
+
+## 2026-07-08T05:26:10.850Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-031
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T05:26:10.998Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-031
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+	core/.env.example
+	core/.env.localstack
+	core/.gitignore
+	core/INVARIANTS.md
+	core/docker-compose.yml
+	core/infra/localstack/init/01-create-resources.sh
+	core/infra/scripts/check-invariants.ts
+	core/packages/widget/vite.config.ts
+	core/src/app.ts
+	core/src/bootstrap.ts
+	core/src/modules/audit/infra/audit.routes.ts
+	core/src/modules/audit/infra/dynamo-audit.repository.ts
+	core/src/modules/auth/infra/auth.routes.ts
+	core/src/modules/billing/application/handle-webhook.usecase.ts
+	core/src/modules/billing/infra/stripe-client.ts
+	core/src/modules/billing/infra/stripe-plan-catalog.service.ts
+	core/src/shared/config/index.ts
+	core/src/shared/domain/types.ts
+	core/src/shared/infra/health/checks/anthropic-check.ts
+	core/src/shared/infra/http/middleware/auth.middleware.ts
+	core/src/shared/infra/http/middleware/tenant.middleware.ts
+	core/tests/src/app.test.ts
+	core/tests/unit/modules/audit/dynamo-audit.repository.test.ts
+	public-docs/.gitignore
+	public-docs/.mintignore
+	public-docs/README.md
+	public-docs/api-reference/graph/auto-discovery.mdx
+	public-docs/api-reference/introduction.mdx
+	public-docs/api-reference/remediation/get-detail.mdx
+	public-docs/api-reference/tenants/create-tenant.mdx
+	public-docs/api-reference/tenants/get-tenant.mdx
+	public-docs/api-reference/tenants/update-tenant.mdx
+	public-docs/api-reference/webhooks/payload-formats.mdx
+	public-docs/docs.json
+	public-docs/integrations/cloud-providers.mdx
+	public-docs/relay/deployment.mdx
+	public-docs/snippets/auth-header.mdx
+	public-docs/snippets/rate-limit-note.mdx
+	relay/.gitignore
+	relay/package-lock.json
+	relay/src/config/schema.ts
+	relay/src/drivers/postgres/pg-query-parser.ts
+	relay/src/index.ts
+	web/apps/dashboard/package.json
+	web/apps/dashboard/src/app/[locale]/accept-invitation/page.tsx
+	web/apps/dashboard/src/app/[locale]/auth/sign-in/[[...sign-in]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/auth/sign-up/[[...sign-up]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/beta-waitlist/page.tsx
+	web/apps/dashboard/src/app/[locale]/create-organization/[[...create-organization]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/[id]/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/new/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/intelligence/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/relay/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/settings/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/team/page.tsx
+	web/apps/dashboard/src/app/[locale]/onboarding/business-profile/page.tsx
+	web/apps/dashboard/src/app/[locale]/page.tsx
+	web/apps/dashboard/src/app/[locale]/waitlist/[[...waitlist]]/page.tsx
+	web/apps/dashboard/src/app/api/investigation/[id]/chat/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/detail/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/relay-token/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/tool-calls/[toolCallId]/route.ts
+	web/apps/dashboard/src/contexts/identity/api/complete-profile-handler.test.ts
+	web/apps/dashboard/src/contexts/identity/api/complete-profile-handler.ts
+	web/apps/dashboard/src/contexts/identity/presentation/pages/beta-waitlist-page.tsx
+	web/apps/dashboard/src/contexts/settings/presentation/pages/settings-page.tsx
+	web/apps/dashboard/src/contexts/team/presentation/pages/team-page.tsx
+	web/apps/website/src/contexts/marketing/infrastructure/i18n/en.json
+	web/apps/website/src/contexts/marketing/infrastructure/i18n/pt-br.json
+	web/apps/website/src/contexts/marketing/presentation/pages/home-page.tsx
+	web/pnpm-lock.yaml
+	web/vitest.config.ts
+Please commit your changes or stash them before you merge.
+error: The following untracked working tree files would be overwritten by merge:
+	.harness/bootstrap.host
+	.harness/bootstrap.log
+	.harness/bootstrap.pid
+	.harness/conclude-merge.log
+	.harness/journal-conflict-resolve.log
+	.harness/projects.json
+	.pi/settings.json
+	.turbo/cache/040f6817376e2598-meta.json
+	.turbo/cache/040f6817376e2598.tar.zst
+	.turbo/cache/0aaf10ddfb42531f-meta.json
+	.turbo/cache/0aaf10ddfb42531f.tar.zst
+	.turbo/cache/599716d50635a10a-meta.json
+	.turbo/cache/599716d50635a10a.tar.zst
+	.turbo/cache/a24a607d82d1451c-meta.json
+	.turbo/cache/a24a607d82d1451c.tar.zst
+	.turbo/cache/a613f0db8d08696b-meta.json
+	.turbo/cache/a613f0db8d08696b.tar.zst
+	.turbo/cache/afd2111fb699d535-meta.json
+	.turbo/cache/afd2111fb699d535.tar.zst
+	.turbo/cache/c34fb7eaabe6966e-meta.json
+	.turbo/cache/c34fb7eaabe6966e.tar.zst
+	.turbo/cache/dfb2fce1822ff665-meta.json
+	.turbo/cache/dfb2fce1822ff665.tar.zst
+	core/.harness-technology-inventory.json
+	core/.harness/bootstrap.host
+	core/.harness/planner-feature.pid
+	core/ac011-boundary.mjs
+	core/harness-progress/billing.md
+	core/harness-progress/foundation.md
+	core/harness-progress/open-source-local-runtime.md
+	core/init.sh
+	core/project_specs.xml
+	core/src/modules/audit/application/delete-audit-entry.usecase.ts
+	core/tests/unit/modules/audit/delete-audit-entry.test.ts
+	public-docs/.dockerignore
+	public-docs/.harness-technology-inventory.json
+	public-docs/Dockerfile
+	public-docs/docker-compose.yml
+	public-docs/feature_list.json
+	public-docs/harness-progress/WI-AC-006-integration.md
+	public-docs/harness-progress/content-structure.md
+	public-docs/harness-progress/foundation.md
+	public-docs/harness-progress/open-source-local-runtime.md
+	public-docs/init.sh
+	public-docs/project_specs.xml
+	public-docs/serve-docs.js
+	relay/.env.example
+	relay/.harness-technology-inventory.json
+	relay/.harness/bootstrap.host
+	relay/.harness/bootstrap.log
+	relay/.harness/bootstrap.pid
+	relay/.harness/plan.done
+	relay/.harness/plan.host
+	relay/.harness/plan.log
+	relay/.harness/plan.pid
+	relay/docker-compose.yml
+	relay/feature_list.json
+	relay/harness-progress/foundation.md
+	relay/harness-progress/open-source-local-runtime.md
+	relay/harness-progress/transport.md
+	relay/init.sh
+	relay/project_specs.xml
+	relay/relay-config.docker.yaml
+	relay/scripts/control-plane-stub/Dockerfile
+	relay/scripts/control-plane-stub/initdb/01-orders.sql
+	relay/scripts/control-plane-stub/package.json
+	relay/scripts/control-plane-stub/server.mjs
+	web/.harness-technology-inventory.json
+	web/.harness/bootstrap.host
+	web/.harness/bootstrap.pid
+	web/.harness/plan.done
+	web/.harness/plan.host
+	web/.harness/plan.pid
+	web/apps/dashboard/src/contexts/identity/presentation/components/accept-invitation-client.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/accept-invitation-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/create-organization-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/sign-in-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/sign-up-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/waitlist-page.tsx
+	web/apps/dashboard/src/contexts/integrations/presentation/pages/relay-page.tsx
+	web/apps/dashboard/src/contexts/investigation/api/investigation-chat-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-detail-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-relay-token-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-tool-calls-handler.ts
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/analyses-page.tsx
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/analysis-detail-page.tsx
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/new-analysis-page.tsx
+	web/apps/dashboard/src/contexts/onboarding/presentation/pages/business-profile-route-page.tsx
+	web/apps/dashboard/src/contexts/shared/presentation/pages/intelligence-route-page.tsx
+	web/apps/dashboard/src/contexts/shared/presentation/pages/root-page.tsx
+	web/feature_
+Aborting
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T10:51:21.001Z — Explicit Resume
+
+- WorkItem: WI-AC-031
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Retrying again after a supervisor restart (previous supervisor process was hung, unresponsive to stop signal, force-killed and restarted cleanly). Retry for a fresh attempt.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T11:05:00Z — Implementation (WI-AC-031) — Attempt 4
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Attempt: 4/3 (resumed per user guidance after supervisor restart)
+- Outcome: implementation=true (regression verified on docker-compose stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+No source changes. AC-031 is a regression gate; the implementation shipped
+across AC-026..AC-033 (multi-stage `Dockerfile`, `docker-compose.yml`,
+`serve-docs.js`, `docs.json#contextual` reduced to `["copy","view"]`,
+README canonicalising `docker compose up`) already satisfies all 25 original
+acceptance checks. Working tree is clean after the run.
+
+### Black-box regression (docker-compose stack on assigned port 5179)
+
+Brought the stack up with a local, uncommitted `docker-compose.override.yml`
+that remaps the host port to 5179 (host port 3000 is occupied by an unrelated
+`relay-control-plane-stub` container in this shared env). The canonical
+`docker-compose.yml` stays `3000:3000`. Override removed before commit; the
+runtime container itself still listens on `PORT=3000` internally.
+
+`env -i HOME=$HOME PATH=$PATH USER=$USER docker compose up -d --build` →
+`causeflow-docs:local` Up, `0.0.0.0:5179->3000`. Boot log:
+`Serving docs at http://localhost:3000`.
+
+Regression matrix (AC-001..AC-025):
+
+- AC-001 `GET /` → 200; "CauseFlow AI" ×4, "Quickstart" ×3.
+- AC-002 `mint broken-links` → exit 0, "success no broken links found".
+- AC-003 `docs.json` valid; `docker compose config` exits 0.
+- AC-004/005 all 133 `.mdx` have `title`+`description` ≤160 chars.
+- AC-006 four tab labels (Documentation, API reference, Relay, Changelog)
+  render in nav; Changelog index H1 == "Changelog".
+- AC-007 `GET /quickstart` → 200 (redirect rewrite), lands on Quickstart H1.
+- AC-008..011 all 125 `docs.json` navigation pages return 200.
+- AC-012 introduction: `https://api.causeflow.ai` + `v1` present.
+- AC-013 every API reference endpoint page returns 200.
+- AC-014 authentication: Bearer ×5, X-API-Key/API key ×8, HMAC/
+  X-Webhook-Signature ×7.
+- AC-015 errors/pagination: 400/401/403/404/409/429/500/503 + cursor/items/count.
+- AC-016 no `api.causeflow.(io|dev|local|prod)` matches.
+- AC-017 no non-EXAMPLE tenant/API-key placeholders.
+- AC-018 outbound-events catalog: exactly 20 dot-namespaced events
+  (`tenant.created`..`knowledge.pattern_extracted`).
+- AC-019 relay overview renders `_jsx(Mermaid, {chart:"flowchart TD…"})`
+  component (not raw code); 8 Relay tab pages 200.
+- AC-020 configuration.mdx documents controlPlane/resources/allowedOperations/
+  maxRowsPerQuery/`${VAR_NAME}` substitution.
+- AC-021 "Not a proxy / Not a tunnel / Not a replication agent" all present.
+- AC-022 no `severity … (emergency|urgent|notice|debug|warn)` matches.
+- AC-023 no `"status": "(dismissed|failed)"` matches.
+- AC-024 no AWS ARN / `.internal` / SQS / KMS / LangFuse / Hindsight / ECS
+  matches.
+- AC-025 RBAC roles restricted to `admin`/`member`
+  (`roles/viewer` in cloud-providers.mdx is GCP IAM, not CauseFlow RBAC).
+
+Forbidden-host boot-log grep (mintlify.com|…|composio.dev) → 0 matches.
+
+### verdict
+
+implementation=true; integration=pending; qa=pending; defects=none
+
+## 2026-07-08T12:20:00Z — Independent QA (WI-AC-031, isolated worktree, attempt 5)
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Role: qa-agent (independent test in isolated worktree, branch gen/public-docs-open-source-local-runtime, HEAD ebf4581)
+- Method: clean `env -i ... docker build --no-cache -t causeflow-docs:qai` (exit 0);
+  fresh container `causeflow-docs-qai` on assigned PORT=5179 (5179->3000);
+  real HTTP (curl) + real browser (Playwright + chromium-1228, headless,
+  networkidle). Blank env (no MINTLIFY_*/CLERK_*/etc).
+
+### Full AC-001..AC-025 regression (all PASS)
+- AC-001: `GET /` -> 200; body has "CauseFlow AI" x4, "Quickstart" x3.
+- AC-002: `mint broken-links` -> exit 0, "success no broken links found".
+- AC-003: docs.json valid JSON; 4 nav tabs; all 125 nav page paths resolve to real .mdx.
+- AC-004/005: all 133 MDX have title+description; all descriptions <=160 chars.
+- AC-006: all four nav-tab landing pages 200 (/, /api-reference/introduction,
+  /relay/overview, /changelog); Changelog rendered H1 "Changelog" matches
+  changelog/index.mdx frontmatter title.
+- AC-007: `GET /quickstart` -> 200 via docs.json#redirects internal rewrite,
+  lands on Quickstart page (Quickstart x4).
+- AC-008..AC-011: full navigation sweep — all 125 declared page paths -> 200,
+  zero non-200.
+- AC-012: API introduction renders base URL `https://api.causeflow.ai` (x3)
+  and v1 (x5); H1 "API introduction".
+- AC-013: all 84 API-reference endpoint pages render H1 matching the title
+  frontmatter (0 mismatches).
+- AC-014: Authentication page covers Bearer/JWT, X-API-Key,
+  X-Webhook-Signature (HMAC/sha256); verifyWebhookSignature code block
+  `node --check` OK (TS type-stripping accepted by Node 24).
+- AC-015: errors-and-pagination page renders all status codes
+  400/401/403/404/409/429/500/503 and items/cursor/count pagination fields.
+- AC-016: `grep api\.causeflow\.(io|dev|local|prod)` -> 0 matches.
+- AC-017: real tenant/API-key placeholder grep -> 0 matches (only EXAMPLE shapes).
+- AC-018: outbound-events catalog table lists exactly 20 distinct
+  dot-namespaced events (tenant.created..knowledge.pattern_extracted);
+  introduction line 74 says "20 real-time events"; "21 real-time events" -> 0
+  matches. 20==20, no off-by-one.
+- AC-019 (real browser): /relay/overview renders Mermaid as SVG —
+  svg.flowchart count=1, id `mermaid-_r_0_-...`, 8 rects; zero raw
+  `<pre>/<code>flowchart TD` blocks; body text has no raw `flowchart TD`.
+- AC-020: relay/configuration.mdx documents controlPlane, resources,
+  allowedOperations, maxRowsPerQuery, and `${VAR_NAME}` env-var substitution.
+- AC-021: relay/overview "What the Relay is not" names proxy, tunnel, and
+  replication agent (all three matches).
+- AC-022/023/024/025/016/017: all invariant greps exit 1 (zero matches) —
+  severity enum, status enum, AWS-identifier exclusion, RBAC role enum
+  (admin/member only on Required-role lines; `roles/viewer` in
+  cloud-providers.mdx is GCP IAM, not CauseFlow RBAC) hold across all 133 MDX.
+- MDX count = 133.
+
+### Boundary
+- `docker compose config` valid; boot log: `Serving docs at http://localhost:3000`.
+- `docker logs causeflow-docs-qai | grep -cE` forbidden-host pattern
+  (mintlify.com|...|composio.dev) -> 0 matches.
+
+### verdict
+
+qa=true; implementation=true; defects=none
+
+## 2026-07-08T11:12:04.422Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-031
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
