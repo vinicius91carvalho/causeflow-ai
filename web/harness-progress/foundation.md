@@ -674,3 +674,12 @@ All AC-038 steps pass at the real HTTP + filesystem boundary on integrated main.
 - Outcome: passed on integrated main
 - Evidence: /tmp/website-5172.log (dev server), node http boundary probe (CSP header + 404s)
 - NextAction: next Ready Work Item
+
+## 2026-07-08T12:23:41.811Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-038
+- AcceptanceChecks: AC-038
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-038-1-integration_qa.log
+- NextAction: next Ready Work Item
