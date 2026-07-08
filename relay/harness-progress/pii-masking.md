@@ -64,3 +64,24 @@
   plain string left untouched. The masking engine correctly applies default patterns
   and reports maskedFieldCount.
 - NextAction: none (AC-040 passes QA)
+
+## 2026-07-08T17:56:35.597Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-040
+- DefectReport: **QA Summary for WI-AC-040**
+
+- **Test:** `MaskingEngine.mask(['john@example.com', '123.456.789-00', 'plain'])` with default patterns
+- **Result:** `{ masked: ['***@***.***', '***.***.***-**', 'plain'], maskedFieldCount: 2 }` — **PASS**
+- **Evidence:** Node.js ESM test against compiled `dist/masking/masking-engine.js` at commit `8e0275b`
+- **Verification details:**
+  - Email `john@example.com` → `***@***.***` (local part + domain stripped)
+  - CPF `123.456.789-00` → `***.***.***-**` (dotted pattern masked)
+  - Plain `plain` → `plain` (left untouched)
+  - `maskedFieldCount: 2` (only email and CPF matched)
+- **Defects:** None
+- **Journal updated:** `harness-progress/pii-masking.md` with QA Verified entry
+- **Commit:** `8e0275b` — `chore(qa): verify WI-AC-040 - MaskingEngine default patterns pass`
+- RepairPlan: WI-AC-040 QA PASS — no defects found. `MaskingEngine.mask(['john@example.com', '123.456.789-00', 'plain'])` returns `{ masked: ['***@***.***', '***.***.***-**', 'plain'], maskedFieldCount: 2 }` exactly matching AC-040. Test executed against compiled `dist/masking/masking-engine.js` at commit 8e0275b. All required source modules (src/masking/masking-engine.ts, src/config/schema.ts, src/policy/policy-engine.ts, src/audit/audit-logger.ts, src/transport/ws-client.ts, src/transport/protocol.ts, src/drivers/driver.port.ts, src/drivers/postgres/pg-driver.ts, src/drivers/postgres/pg-query-parser.ts, src/drivers/mongodb/mongo-driver.ts, src/health/health-reporter.ts, src/index.ts) are present and match the project_specs.xml scaffold.; Mark WI-AC-040 as QA Verified in progress tracker. No code changes required.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-040-1-qa.log
+- NextAction: Coding Attempt 2
