@@ -32,3 +32,16 @@ Vitest 4.0.18 (the version pinned in the spec's tech stack and lockfile) removed
 - Evidence: `/home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/testing_and_observability/WI-AC-039-1-coding.log`.
 
 implementation=true set for WI-AC-039.
+
+### QA verdict (independent qa-agent run, 2026-07-07)
+
+Re-ran the real boundary `pnpm vitest run` from a clean process state. Confirmed independently:
+
+- `vitest.config.ts` `projects:` array = exactly 7 entries (shared, forms, analytics, auth, ui, website, dashboard). ✓
+- `pool: 'forks'` present; `poolOptions: { forks: { maxForks: 3 } }` present (vitest 4 emits one DEPRECATED line, ignored at runtime; `maxWorkers: 3` enforces the cap). AC text satisfied. ✓
+- Only the `dashboard` project sets `testTimeout: 15000`; the other 6 projects set no `testTimeout`. ✓
+- `pnpm vitest run` → exit 0; `Test Files 242 passed (242)`, `Tests 1510 passed (1510)`, Duration ~11s. Default reporter prefixes every test-file line with its project name (✓ shared / forms / auth / ui / website / dashboard) — per-project pass/fail grouping emitted. ✓
+- `analytics` project has 0 test files but is recognized (`pnpm vitest run --project analytics` → exit 0 via `passWithNoTests: true`); all 7 projects run. ✓
+- `apps/dashboard/package.json` `devDependencies` lists `"vitest": "^4.0.18"`. ✓
+
+qa=true; implementation=true. No defects.
