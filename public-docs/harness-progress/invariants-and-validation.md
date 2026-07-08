@@ -93,3 +93,11 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/invariants-and-validation/WI-AC-022-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T20:11:27.278Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: coding agent failed three times
+- Defects: 
+- NextAction: User reviews evidence and explicitly resumes with guidance
