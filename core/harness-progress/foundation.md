@@ -525,3 +525,12 @@ LocalStack/ministack; `awslocal` yields identical results).
 Smoke: `curl http://localhost:3099/health` → 200
 `{"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}` — queues ok.
 No code changes.
+
+## 2026-07-08T02:39:41.271Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- AcceptanceChecks: AC-006
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-006-1-integration_qa.log
+- NextAction: next Ready Work Item
