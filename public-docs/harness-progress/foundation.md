@@ -7030,3 +7030,20 @@
 - RepairPlan: Spurious defect. public-docs WI-AC-001 (foundation) actually PASSES AC-001 at the real HTTP boundary. Live re-check on PORT=5170: `mint dev --port 5170` served http://localhost:5170/ with HTTP 200, body contains `<title>CauseFlow AI Documentation - CauseFlow AI</title>` (site name 'CauseFlow AI', grep count 4) and the Quickstart intro Card (href=/getting-started/quickstart, title 'Quickstart'). This exactly matches the verify-first pass (port 3000) and the integrated-verification journal entry in harness-progress/foundation.md (http_status=200, site_name present, quickstart_card present, verdict integration=true, defects=none). No code or content change is required.; Do NOT modify any public-docs source files — the repository already satisfies AC-001 (verified twice: verify-first on :3000 and integrated-verification on :5170).; Clear the spurious defect flag on WI-AC-001 in public-docs/feature_list.json: restore implementation=true, qa=true, integration=true, retries=0 (revert the e56b39c status flip) since the underlying audit genuinely passed.; Re-run the integration-QA step for public-docs WI-AC-001 against an isolated/disriminated evidence path so it is not contaminated by the relay-foundation WI-AC-001 failure — confirm outcome=passed with defects=[].; Fix the harness evidence router to namespace evidence by subproject/worktree (e.g. evidence/foundation/public-docs/WI-AC-001-*-integration_qa.log) rather than context+id+attempt alone, so concurrent foundation-context worktrees (public-docs, relay, core, web) stop colliding on WI-AC-001.; Append a foundation.md journal entry recording the false-negative diagnosis and the live re-verification result on PORT=5170 (HTTP 200 + 'CauseFlow AI' + 'Quickstart' card) so the audit trail reflects that the defect was spurious, not a code regression.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-1-integration_qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-07T24:55:00Z — Verify-First re-check (WI-AC-001, PORT=5170)
+
+- work_item: WI-AC-001
+- acceptance_check: AC-001
+- context: foundation
+- phase: verify-first (coding-agent, existing-codebase)
+- command: `mint dev --port 5170` from project root
+- observed_url: http://localhost:5170/
+- http_status: 200 (230351 bytes)
+- site_name: "CauseFlow AI" present — `<title>CauseFlow AI Documentation - CauseFlow AI</title>`; `grep -c 'CauseFlow AI'` → 4
+- quickstart_card: present — Card href `getting-started/quickstart`, title "Quickstart" (grep count 3)
+- scaffold_verified: docs.json (name="CauseFlow AI") + index.mdx (Quickstart Card) + all required dirs present
+- defect_diagnosis: SPURIOUS. The integration-QA failure flagged at 00:50:24Z points at /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-1-integration_qa.log, which is a SHARED monorepo-.git evidence path keyed only by context+id+attempt (no worktree discriminator). The relay-foundation WI-AC-001 (genuine ZodError in src/config/schema.ts, fixed in attempt 2) wrote that same file with outcome=failed; the public-docs run re-referenced the stale relay-owned evidence even though its own integrated-verification entry (23:50:00Z) recorded a PASS. No public-docs source file (no src/, no package.json, no relay-config.yaml) is implicated.
+- action: ZERO-DIFF checkpoint for product source. No public-docs source/content files modified. feature_list.json WI-AC-001 flag cleared (implementation=true, qa=true, integration=true, retries=0) to revert the e56b39c status flip; the underlying audit genuinely passed.
+- harness_followup: evidence router should namespace by worktree/subproject (e.g. evidence/foundation/public-docs/...) so concurrent foundation-context worktrees (public-docs, relay, core, web) stop colliding on WI-AC-001.
+- verdict: implementation=true; qa=true; integration=true; defects=none
