@@ -90,3 +90,34 @@ committed. No refactor, no restructuring.
 - WorkItem: WI-AC-004
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T03:40:00Z — Integrated Verification (WI-AC-004)
+
+- Role: qa-agent (Integrated Verification on integrated main)
+- Branch: main (HEAD df88b9c — Merge branch 'gen/public-docs-content-structure')
+- Work tree: clean (only an unrelated untracked file outside this repo)
+- Boundary: real external — `mint dev` on PORT=5170 from project root.
+
+### AC-004 on integrated main
+
+- Scripted check (find + head -5 + grep, per spec) over 133 in-scope `.mdx`
+  (excluding `.mintlify/`, `.artifacts/`, `node_modules/`, `drafts/`):
+  `MISSING TITLE` / `MISSING DESCRIPTION` defect lines = 0.
+- Full frontmatter extraction asserting both `title:` and `description:` keys
+  with non-empty values across all 133 files: 0 defects.
+- Previously-defective snippet files confirmed fixed on main:
+  `snippets/auth-header.mdx` and `snippets/rate-limit-note.mdx` both carry
+  valid `title` + `description` frontmatter.
+
+### Core smoke at the running boundary
+
+- `GET http://localhost:5170/` → 200; body contains `CauseFlow AI` (x4) and
+  `Quickstart` (x3). AC-001 dependency holds.
+- `GET /getting-started/quickstart` → 200; H1 "Quickstart" renders.
+- `GET /quickstart` → 307 redirect (resolves to the Quickstart page);
+  AC-007 redirect dependency holds.
+
+### Verdict
+
+integration=true. AC-004 holds on integrated main at the real external
+boundary; no defects observed. implementation=true, qa=true.
