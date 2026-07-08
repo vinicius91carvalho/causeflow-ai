@@ -161,6 +161,19 @@
     },
     {
       "includes": [
+        "apps/dashboard/src/contexts/identity/presentation/components/accept-invitation-client.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off",
+            "noArrayIndexKey": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
         "apps/dashboard/src/lib/api/core-api-client.ts",
         "apps/dashboard/src/lib/api/http-api-client.ts"
       ],
