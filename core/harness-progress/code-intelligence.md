@@ -150,3 +150,21 @@ Verified AC-028 at the real HTTP boundary on PORT=5184 using the running `pnpm d
 - WorkItem: WI-AC-028
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T20:57:30.000Z — Integrated Verification PASS
+
+- WorkItem: WI-AC-028
+- Phase: Verification
+- AcceptanceCheck: AC-028
+- Outcome: integration=true
+- Evidence:
+  1. POST /v1/code-knowledge/repos with repoUrl + credentials → 200 `{"status":"indexed","repoFullName":"acme/order-service"}`
+  2. GET /v1/code-knowledge/repos → 200 returns RepoNodeEntity (tenantId, repoFullName, language, fileCount, config)
+  3. GET /v1/code-knowledge/edges → 200 returns ServiceEdgeEntity (edgeId, sourceService, targetService, edgeType)
+  4. GET /v1/code-knowledge/repos/acme/order-service/deps → 200 returns 5 PackageDependencyEntities (express, lodash, retry-axios, typescript, vitest)
+  5. GET /v1/code-knowledge/search?q=retry → 200 returns matching repos with confidence:0.85 and matchedPatterns containing "retry-with-backoff" PatternEntity
+  6. Edge cases: empty query → 400, no auth → 401
+- integration: true
+- implementation: true
+- qa: true
+- Defects: none
