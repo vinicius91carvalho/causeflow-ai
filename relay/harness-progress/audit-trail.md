@@ -101,3 +101,21 @@
   - relayId matches the WsClient connect log's relayId (same process-lifetime UUID)
   - Each entry has a unique requestId (per-request UUID)
 - Result: implementation=true — no code changes needed
+
+## 2026-07-08T18:41:00.000Z — QA Independent Verification
+
+- WorkItem: WI-AC-044
+- Role: qa-agent (independent verification)
+- Outcome: PASS
+- Test: Real docker-compose stack (relay + control-plane-stub + postgres + mongo), stub in SMOKE=1 mode sent `execute {SELECT 1 AS one}` and `execute {list_tables}` over real WebSocket. Relay audit logs collected and verified via `docker compose logs relay`.
+- Evidence:
+  - Relay started with relayId=94c1c343-9ec5-40a4-970d-62369c6c4e8f (logged via relay-ws on connect)
+  - Two success audit entries found at level=30 (pino info):
+    - { timestamp: "2026-07-08T18:40:22.801Z", relayId: "94c1c343-9ec5-40a4-970d-62369c6c4e8f", requestId: "6562bd1d-498d-46b1-a000-081d9f904939", resource: "order-pg", operation: "query", result: "success", rowCount: 1, maskedFieldCount: 0, executionTimeMs: 2 }
+    - { timestamp: "2026-07-08T18:40:22.809Z", relayId: "94c1c343-9ec5-40a4-970d-62369c6c4e8f", requestId: "6c4a212d-0348-45c7-8005-f3ecd07504a3", resource: "order-pg", operation: "list_tables", result: "success", rowCount: 1, maskedFieldCount: 0, executionTimeMs: 3 }
+  - relayId matches WS connect log relayId (94c1c343-9ec5-40a4-970d-62369c6c4e8f) — same process-lifetime UUID
+  - Each entry has a unique per-request requestId
+  - AuditLogger created inside onMessage callback per src/index.ts:73
+  - All 9 required AC-044 fields present: timestamp, relayId, requestId, resource, operation, result:'success', rowCount, maskedFieldCount, executionTimeMs
+- Result: implementation=true, qa=true — no defects found
+- NextAction: (none — WI complete)
