@@ -180,3 +180,22 @@
 - Test files updated: Clerk mocks replaced with session-auth mocks; topbar tests rewritten for new implementation.
 - Build succeeds; dev server serves sign-in (200), sign-up (200); unauthenticated `/dashboard` redirects to `/auth/sign-in` (307).
 - All 165 dashboard test files pass (1080 tests).
+
+---
+
+## WI-AC-051 Re-Verification (2026-07-08)
+
+**State:** `implementation=true` (re-verified)
+
+**Summary:**
+- All AC-051 acceptance checks re-verified against the current implementation.
+- `grep -E 'composio\.dev|composioTriggerId' apps/dashboard/next.config.mjs apps/dashboard/src/contexts/integrations/domain/types.ts apps/dashboard/.env.example` returns zero matches.
+- `IntegrationType` union has all 15 required identifiers (slack, github, jira, cloudwatch, hubspot, trello, postgresql, linear, sentry, mongodb, datadog, pagerduty, grafana, confluence, webhooks) plus Notion and Shortcut.
+- No `COMPOSIO_API_KEY` env var referenced anywhere in source files or example files.
+- `/dashboard/integrations` page renders HTTP 200 (92KB HTML) with all 15 integration types referenced in the rendered output.
+- No composio references found in the rendered HTML.
+- `pnpm turbo build` exits 0 (cached).
+- `pnpm turbo test` — 163 test files, 1071 tests, all passed.
+- `pnpm exec biome check` — clean.
+- Dev server on port 5193 serves sign-in (200); integrations page accessible with valid session cookie.
+- No code changes needed — all AC-051 modifications were already implemented and committed.
