@@ -404,3 +404,12 @@ No SST CLI / AWS creds in this verify env, so the strongest real boundary is TS 
 - **Hosted zone `Z01593322DGY9I94W9S7C`:** stated AC fact; `sst.aws.Nextjs` `domain` looks up the causeflow.ai zone by name (not hardcoded — expected). ✓
 
 No defects within the AC-033 boundary at the integrated boundary. integration=true set for WI-AC-033.
+
+## 2026-07-08T01:27:19.563Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-033
+- AcceptanceChecks: AC-033
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-033-1-integration_qa.log
+- NextAction: next Ready Work Item
