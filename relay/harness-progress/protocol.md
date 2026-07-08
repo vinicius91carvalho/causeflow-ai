@@ -270,3 +270,10 @@ fatal: Unable to write index.
 - RepairPlan: WI-AC-018 `describe_resource` passes all acceptance criteria. Unknown resourceId returns JSON-RPC error code -32602 with message 'Unknown resource: <id>' via createErrorResponse. Valid resourceId (order-pg, order-mongo) triggers driver.execute({ operation: 'list_tables', params: {} }) and returns { tables, type, database }. QA verified all three test cases against the running docker-compose WebSocket boundary with 0 defects. Repository scaffold is complete — all files required by project_specs.xml exist (src/index.ts, src/transport/protocol.ts, src/drivers/*, src/config/*, src/policy/*, src/masking/*, src/audit/*, src/health/*, ws-client.ts, docker-compose.yml, control-plane-stub, CI/release workflows).
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/protocol/WI-AC-018-2-qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-08T21:22:49.505Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-018
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
