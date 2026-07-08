@@ -175,3 +175,10 @@
   - Top-level error log has `{ err, requestId }` before response is sent
 - Test: `scripts/qa/ac045-test.mts` (adapted to port 5195)
 - Result: implementation=true, qa=true, no defects found
+
+## 2026-07-08T18:54:34.655Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-045
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
