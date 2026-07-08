@@ -340,3 +340,79 @@ stack from a clean shell env. No defects. `qa=true`, `implementation=true`.
 - WorkItem: WI-AC-052
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T02:10:00Z — Integrated Verification (AC-052)
+
+- WorkItem: WI-AC-052
+- AcceptanceChecks: AC-052
+- Outcome: integration=true, implementation=true, qa=true
+- Method: `docker compose down -v --remove-orphans`, then
+  `env -i PATH=/usr/bin:/bin HOME=$HOME docker compose --env-file .env.example
+  up -d --build` from repo root (no `AWS_*`/`STRIPE_*`/`CLERK_*`/`LANGFUSE_*`/
+  `SENTRY_*`/`SVIX_*`/`SLACK_*`/`COMPOSIO_*`/`MASTRA_*`/`SQS_*`/`DYNAMODB_*`/
+  `STS_*`/`KMS_*` in parent env). A sibling `causeflow-docs` container was
+  temporarily stopped to free host port 3000 (external to this repo), then the
+  stub was `--force-recreate`d to pick up the `0.0.0.0:3000->3000` binding.
+
+### Integrated verification results (AC-052 clause by clause)
+
+- `docker-compose.yml` exists at relay repo root; defines exactly 4 services
+  (`relay-control-plane-stub`, `relay-postgres`, `relay-mongo`, `relay`).
+- No `image: ministack`, `image: localstack`, or `image: langfuse` assignment
+  in any non-comment line (the only match is a descriptive comment asserting
+  their absence). Stub image is `causeflow-relay-control-plane-stub:local`
+  built from `./scripts/control-plane-stub`; postgres is `postgres:16-alpine`;
+  mongo is `mongo:7`; relay is `causeflow-relay:local` built from repo root.
+- No AWS/Stripe/Clerk/Sentry/Langfuse/Svix/Slack/Composio/Mastra env-var
+  assignments in non-comment lines of `docker-compose.yml`;
+  `.env.example` forbidden-var grep → 0;
+  `relay-config.docker.yaml` forbidden-var grep → 0;
+  relay container env vendor scan → 0;
+  stub container env vendor scan → 0.
+- `relay-control-plane-stub` is a `node:22-alpine` + `ws` service built from
+  `scripts/control-plane-stub/Dockerfile`; stub `package.json` has only
+  `{ "ws": "^8.18.0" }` as a dependency.
+- `scripts/control-plane-stub/Dockerfile` is `FROM node:22-alpine`, `WORKDIR
+  /app`, `COPY package.json ./`, `RUN npm install --omit=dev`, `COPY server.mjs
+  ./`, `EXPOSE 3000`, `CMD ["node", "server.mjs"]` — the one-line
+  `COPY server.mjs .` + `CMD ["node", "server.mjs"]` contract holds (the
+  `package.json` copy + `npm install --omit=dev` are the minimum needed to
+  make the `ws` dependency available in the image).
+- Stub listens on `0.0.0.0:3000` (stub log: `[stub] listening on 0.0.0.0:3000
+  expect token=harness-smoke-token tenant=harness-tenant smoke=false`; compose
+  maps `0.0.0.0:3000->3000/tcp`).
+- Stub accepts the relay's WebSocket handshake on `/v1/relay/connect`
+  (`WebSocketServer({ port: PORT, path: '/v1/relay/connect' })`); relay
+  connected after its reconnect backoff settled a transient DNS hiccup
+  (incidental to the stub recreate, not a relay defect) and logged
+  `Connected to control plane` with
+  `url=ws://relay-control-plane-stub:3000/v1/relay/connect`.
+- Stub validates `?token=&tenantId=` query against `RELAY_TOKEN`/`TENANT_ID`
+  (the same env vars the relay uses via `.env.example`):
+  - Correct `?token=harness-smoke-token&tenantId=harness-tenant` → handshake
+    accepted, relay stays connected, stub logs `[stub] relay connected`.
+  - Wrong `?token=WRONG&tenantId=also-wrong` → stub closes socket with code
+    `4001 invalid token/tenant` and logs
+    `[stub] rejecting handshake token=WRONG tenantId=also-wrong`.
+- On `resource_update` the stub logs the exact required format:
+  `[stub] resource_update from relayId=93037829-6824-4026-a4e7-f9d4f15c9493
+  resources=2` (n=2 >= 1).
+- Stub source `scripts/control-plane-stub/server.mjs` imports only `ws`
+  (`WebSocketServer`) and `node:crypto` (`randomUUID`, Node stdlib) — zero
+  vendor SDK imports (the only vendor-name matches in the file are in doc
+  comments describing what it does NOT import).
+
+### Vendor outbound sweep
+
+- `docker compose logs relay` grep for
+  `amazonaws|stripe|clerk|langfuse|sentry|svix|slack|composio|mastra|sqs|
+  dynamodb|\.sts\.|kms|api\.aws` → 0 matches.
+- Only outbound URL in relay logs: `ws://relay-control-plane-stub:3000/
+  v1/relay/connect` (sole match of `(wss?|https?)://[^ "]+` over relay logs).
+
+### Verdict
+
+All AC-052 acceptance criteria verified on integrated main from a clean shell
+env at real external boundaries (live docker-network WebSocket, live token
+rejection, live Postgres/Mongo healthchecks). No defects. `integration=true`,
+`implementation=true`, `qa=true`.
