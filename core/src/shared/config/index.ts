@@ -23,7 +23,7 @@ export const config = {
     region: env('AWS_REGION', 'sa-east-1'),
     dynamoEndpoint: process.env['DYNAMODB_ENDPOINT'],
     sqsEndpoint: process.env['SQS_ENDPOINT'],
-    tableName: env('DYNAMODB_TABLE_NAME', 'causeflow'),
+    tableName: env('DYNAMODB_TABLE_NAME', 'causeflow-local'),
   },
 
   redis: {

@@ -120,8 +120,8 @@
       "AC-002"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
+    "implementation": true,
+    "qa": true,
     "integration": false,
     "retries": 0,
     "attempts": 0,
