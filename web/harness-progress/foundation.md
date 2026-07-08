@@ -803,3 +803,39 @@ Dev process stays in foreground until killed (confirmed: 4 `next dev` processes 
 - `harness-progress/foundation.md` — this journal entry.
 
 No defects remain within the corrected AC-002 boundary. implementation=true set for WI-AC-002.
+
+---
+
+## WI-AC-002 — Verify-first (foundation, retry after orchestrator API-config fix)
+
+**Result: implementation=true** (zero-diff checkpoint; no source changes)
+
+### Boundary exercised
+
+Real external boundary: `PORT=3000 pnpm turbo dev` (both apps) started on 3000/3001, dev process alive in background, HTTP requests against real dev servers. Previous failures were all OpenRouter credit/rate-limit issues (not code defects); the orchestrator fixed the LLM adapter config and retried.
+
+### AC-002 evidence
+
+**Step 1:** `PORT=3000 pnpm turbo dev` started both apps in parallel via Turbo.
+- Website: `next dev --hostname 127.0.0.1` → port 3000 ✓
+- Dashboard: `next dev --hostname localhost -p 3001` → port 3001 ✓
+
+**Step 2:**
+- `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` → **HTTP 200** (website homepage) ✓
+- `curl -sL -o /dev/null -w '%{http_code}' http://localhost:3001/` → **HTTP 200** (follows redirect: `/` → `/dashboard` → `/auth/sign-in` → sign-in page) ✓
+- Additional website routes all 200: `/product`, `/security`, `/integrations`, `/pricing`, `/use-cases`, `/privacy`, `/terms` ✓
+- Dashboard `/auth/sign-in` → 200 directly ✓
+
+**Step 3:** Dev log contains 2 "Ready" messages:
+- `@causeflow/website:dev:  ✓ Ready in 1378ms`
+- `@causeflow/dashboard:dev:  ✓ Ready in 2.6s`
+
+Dev process stays in foreground until killed (confirmed via `pgrep -f next-dev`). ✓
+
+### Notes
+
+- The `-L` (follow redirects) flag in the dashboard curl was already added to the AC spec by commit 2daa50f (the previous verify-first pass). No spec amendment needed this time.
+- A `.env.local` file was created from `.env.example` for both apps (gitignored; tracked files unchanged). The website's `.env.local` set `NEXT_PUBLIC_DASHBOARD_URL=http://localhost:3001` because the `.env.example` sets it to empty string which, combined with the `??` operator in `next.config.mjs`, causes the redirect destination to be empty. This is a known OSS-config gotcha; `.env.local` is not tracked.
+- The dashboard's `.env.local` sets `CORE_API_URL=` (blank) to fall through to the mock client for local dev.
+
+No defects within the AC-002 boundary at this retry. implementation=true set for WI-AC-002.
