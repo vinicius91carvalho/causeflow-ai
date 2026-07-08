@@ -431,3 +431,10 @@ Verified the AC-005 DynamoDB boundary against the running `core-ministack-1` (en
 - `curl http://localhost:5174/health` → HTTP 200, `checks.dynamodb=ok`.
 
 Note: host has no `aws` binary, so the AC's literal host command was exercised via `docker exec` into the ministack container against the identical host-mapped :4566 service. This is an environment tooling constraint, not an implementation defect — the init script (`infra/localstack/init/01-create-resources.sh`) creates the table with 3 GSIs and enables PITR, and the table is present and correctly configured.
+
+## 2026-07-08T02:12:55.720Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-005
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
