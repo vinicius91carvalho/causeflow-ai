@@ -325,3 +325,12 @@ AC-015 contract satisfied at the real boundary on integrated main. No defects fo
 - AcceptanceChecks: AC-015
 - Outcome: passed on integrated main
 - NextAction: next Ready Work Item
+
+## 2026-07-08T04:13:42.061Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-015-1-integration_qa.log
+- NextAction: next Ready Work Item
