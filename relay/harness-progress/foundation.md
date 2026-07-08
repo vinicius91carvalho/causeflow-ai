@@ -468,3 +468,57 @@ Real-process boundary (no YAML present, `RELAY_CONFIG_PATH` unset, `/app/relay-c
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-005-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-006 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-006 condition at real external boundaries (clean `dist` from `npm run build`, build exit 0; `npx tsc --noEmit` exit 0). No code changes — the existing `src/config/loader.ts` `interpolateObject`/`interpolateEnv` already satisfies every invariant.
+
+Boundary 1 — `loadConfig()` unit-level probe against `dist/config/loader.js` (set-variable case, 12 assertions, all pass):
+- YAML `token: ${RELAY_TOKEN}` resolves to `process.env.RELAY_TOKEN` value (`secret-token-xyz`). ✓ (AC canonical example)
+- String interpolation at top depth: `controlPlane.url`, `controlPlane.tenantId`, `audit.level`. ✓
+- Object-nesting depth: `resources[0].connection.host/port/password` interpolated (deeply nested string values). ✓
+- Array-nesting depth: `resources[0].allowedOperations[0..1]` interpolated (`query`, `list_tables`). ✓
+- Other interpolated string fields: `resources[0].id`, `resources[0].name`. ✓
+
+Boundary 2 — unset-variable probe (8 assertions, all pass):
+- YAML referencing unset env vars (`${UNSET_TOKEN}`, `${UNSET_URL}`, `${UNSET_TENANT}`, `${UNSET_ID}`, `${UNSET_NAME}`, `${UNSET_HOST}`, `${UNSET_PW}`) on free-form string fields → `loadConfig()` does NOT throw; each resolves to `''` (empty string). ✓
+- Matches the documented "substitutes an empty string for unset variables (no exception thrown for missing vars)" behavior. ✓
+
+Boundary 3 — real-process end-to-end (`node dist/index.js` + real `ws` stub on 127.0.0.1:5199):
+- YAML config with `token: ${RELAY_TOKEN}` / `tenantId: ${TENANT_ID}` / `id: ${RESOURCE_ID}` / `connection: { host: ${PG_HOST}, password: ${PG_PASSWORD} }` pointed at the stub.
+- Relay boots with env `RELAY_TOKEN=rt-interp-wire TENANT_ID=ti-interp-wire RESOURCE_ID=main-pg PG_HOST=127.0.0.1 PG_PASSWORD=pw-wire` → pino logs `Starting CauseFlow Relay...`, `Config loaded` (resources=1, tenantId=ti-interp-wire), `Driver initialized` (main-pg), then `Connected to control plane`.
+- The interpolated token reached the wire: stub recorded `url=/v1/relay/connect?token=rt-interp-wire&tenantId=ti-interp-wire` and received a `resource_update` message on open. ✓
+- Also confirmed the relay connects to the assigned harness boundary on PORT 5177 (held by the harness orchestrator WS server) with the same interpolated config.
+
+Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.ts` (`interpolateEnv` replaces `\${(\w+)}` with `process.env[varName] ?? ''`; `interpolateObject` recurses through string/array/object) and `src/config/schema.ts`.
+
+Verdict: implementation=true, zero code diff. All AC-006 conditions pass (string interpolation at any nesting depth; empty-string substitution for unset vars with no throw; interpolated token reaches the real WS wire).
+
+## WI-AC-006 — QA independent verification (2026-07-07)
+
+Independently re-ran every AC-006 condition as qa-agent in the isolated worktree (clean `dist` from `npm run build`, exit 0; `npx tsc --noEmit` exit 0). No code changes.
+
+Probe (`/tmp/ac006-qa/probe.mjs`, 17 assertions, all pass) importing `dist/config/loader.js`:
+- Canonical example: YAML `token: ${RELAY_TOKEN}` resolves to `process.env.RELAY_TOKEN` value (`secret-token-xyz`). ✓
+- Top-level string depth: `controlPlane.url` / `tenantId` interpolated. ✓
+- Object-nesting depth: `resources[0].connection.host` / `password` interpolated (deeply nested string values); non-interpolated `connection.database` preserved verbatim. ✓
+- Array-nesting depth: `resources[0].allowedOperations[0]` (`query`) + `[1]` (`list_tables`) interpolated. ✓
+- `resource.id` / `resource.name` interpolated. ✓
+- Unset vars (`${UNSET_TOKEN}`, `${UNSET_URL}`, `${UNSET_TENANT}`, `${UNSET_ID}`, `${UNSET_NAME}`, `${UNSET_HOST}`, `${UNSET_PW}`) on free-form string fields → `loadConfig()` does NOT throw; each resolves to `''` (empty string). Matches the documented "substitutes an empty string for unset variables (no exception thrown for missing vars)" behavior. ✓
+
+Real-process end-to-end (live `ws` stub on 127.0.0.1:5199; config with `token: ${RELAY_TOKEN}` / `tenantId: ${TENANT_ID}` / `id: ${RESOURCE_ID}` / `connection: { host: ${PG_HOST}, password: ${PG_PASSWORD} }`, env `RELAY_TOKEN=rt-wire-interp TENANT_ID=ti-wire-interp RESOURCE_ID=main-pg PG_HOST=127.0.0.1 PG_PASSWORD=pw-wire`):
+- Relay boots: pino `Starting CauseFlow Relay...`, `Config loaded` (resources=1, tenantId=ti-wire-interp), `Driver initialized` (main-pg), `Connected to control plane`.
+- Interpolated token reaches the wire: stub recorded `url=/v1/relay/connect?token=rt-wire-interp&tenantId=ti-wire-interp`, `Authorization: Bearer rt-wire-interp`, `X-Tenant-Id: ti-wire-interp`, and received a `resource_update` message on open. ✓
+
+Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.ts` (`interpolateEnv` replaces `\${(\w+)}` with `process.env[varName] ?? ''`; `interpolateObject` recurses through string/array/object) + `src/config/schema.ts`.
+
+**QA verdict: qa=true, implementation=true, no defects.** All AC-006 conditions pass (string interpolation at any nesting depth; empty-string substitution for unset vars with no throw; interpolated token reaches the real WS wire).
+
+## 2026-07-08T02:59:34.884Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
