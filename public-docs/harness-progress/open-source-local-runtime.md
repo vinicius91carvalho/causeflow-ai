@@ -349,3 +349,64 @@ integration=true; implementation=true; qa=true; defects=none
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-027-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T03:05:00Z — Implementation (WI-AC-028)
+
+- WorkItem: WI-AC-028
+- AcceptanceChecks: AC-028
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: implementation=true (black-box verified on running stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-028 removes the AI-provider delegate from the Mintlify contextual menu.
+Edited a single line in `docs.json`:
+
+- `contextual.options`: `["copy","view","claude","chatgpt"]` →
+  `["copy","view"]`.
+
+The Claude and ChatGPT menu options are gone; the only remaining contextual
+actions are the local `copy` and `view`. No runtime code, Dockerfile, or
+compose change required — the contextual menu is driven entirely by
+`docs.json`, and the runtime image never resolves an AI-provider host.
+
+### Black-box verification (rebuilt stack on PORT=5179)
+
+Rebuilt the image from a blank env
+(`env -i HOME=$HOME PATH=$PATH docker build . -t causeflow-docs:ac028`,
+exit 0) and ran it as `cf-ac028` on `5179:3000`.
+
+Static checks:
+- `grep -E '"(claude|chatgpt)"' docs.json` → **0 matches** (exit 1).
+- `contextual.options` = `["copy","view"]` only.
+- `docs.json` is valid JSON (`python3 -c "import json;json.load(...)"`).
+
+Runtime checks:
+- `curl -s -o /dev/null -w '%{http_code}' http://localhost:5179/` → **200**;
+  body contains `CauseFlow AI` (4) and `Quickstart` (3).
+- `docker logs cf-ac028 2>&1 | grep -cE` forbidden-host pattern
+  (incl. `anthropic\.com|claude\.ai|openai\.com|chatgpt\.com`) → **0**.
+
+Playwright network logging (chromium headless, executable from the shared
+ms-playwright cache):
+- Loaded `/`, `/getting-started/quickstart`, `/relay/overview`,
+  `/api-reference/introduction`; on each page enumerated the contextual
+  triggers and clicked every `Copy page` button plus any
+  `Ask AI`/`Claude`/`ChatGPT`/`contextual`-labelled trigger.
+- `page.on('request'/'response')` recorded every outbound host.
+- Hosts seen: `localhost`, `d4tuoctqmanu0.cloudfront.net`,
+  `d3gk2c5xim1je2.cloudfront.net` (Mintlify's bundled static asset CDN
+  served from the exported site — not an AI provider).
+- **Forbidden-host requests: 0** across all pages and after invoking the
+  contextual menu (`FORBIDDEN_COUNT 0`).
+- Rendered HTML contains **0 `claude`/`chatgpt` mentions** — the AI-provider
+  menu items are fully removed from the runtime path, not merely hidden.
+- The contextual menu's only candidates are `Copy page` buttons (local
+  `copy`/`view` actions); no `Ask AI`, `Claude`, or `ChatGPT` trigger exists
+  in the DOM.
+
+### verdict
+
+implementation=true; integration=pending; qa=pending; defects=none
