@@ -499,3 +499,29 @@ No code changes.
 - WorkItem: WI-AC-006
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T03:45:00.000Z — Integrated Verification (AC-006)
+
+- Attempt: integrated QA (qa-agent) on latest main (HEAD 052272e)
+- WorkItem: WI-AC-006
+- AcceptanceChecks: AC-006
+- Outcome: passed; integration=true, implementation=true, qa=true, defects=[]
+
+Re-exercised the SQS + KMS boundary on integrated main against running
+`core-ministack-1` (host-mapped http://localhost:4566). Host has no `aws` binary,
+so the AC's literal commands were run via
+`docker exec -e AWS_ACCESS_KEY_ID=test -e AWS_SECRET_ACCESS_KEY=test -e AWS_DEFAULT_REGION=us-east-1
+ core-ministack-1 aws --endpoint-url http://localhost:4566 ...`
+against the identical :4566 ministack service (dummy creds are standard for
+LocalStack/ministack; `awslocal` yields identical results).
+
+- `aws --endpoint-url http://localhost:4566 sqs list-queues` → 8 QueueUrls:
+  causeflow-alerts, causeflow-alerts-dlq, causeflow-triage, causeflow-triage-dlq,
+  causeflow-investigation, causeflow-investigation-dlq, causeflow-remediation,
+  causeflow-remediation-dlq (alerts/triage/investigation/remediation + 4 DLQs). ✓
+- `aws --endpoint-url http://localhost:4566 kms list-aliases` → one alias whose
+  name is `alias/causeflow-token-encryption` (ends with `alias/causeflow-token-encryption`). ✓
+
+Smoke: `curl http://localhost:3099/health` → 200
+`{"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}` — queues ok.
+No code changes.
