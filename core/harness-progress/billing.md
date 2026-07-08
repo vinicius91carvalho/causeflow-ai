@@ -594,3 +594,12 @@ Doc-drift note unchanged (literal `/api/v1/billing/webhook` not mounted — no g
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
 
+
+## 2026-07-08T12:11:16.827Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-013
+- AcceptanceChecks: AC-013
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/billing/WI-AC-013-1-integration_qa.log
+- NextAction: next Ready Work Item
