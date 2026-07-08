@@ -12,3 +12,28 @@
 - Both apps build successfully after the change.
 
 **Previous blocks:** All prior blocks were caused by the pi adapter's credential configuration (nvidia-nim provider key not recognized), not by code defects. With the correct native provider keys in `auth.json`, the implementation completes cleanly.
+
+---
+
+## QA Verification (WI-AC-045)
+
+**Run by:** qa-agent on 2026-07-08
+
+**Verdict:** `implementation=true, qa=true`
+
+**Checks performed:**
+
+1. **apps/website/.env.example** — PASS
+   - Contains exactly `NEXT_PUBLIC_GA4_MEASUREMENT_ID` and `NEXT_PUBLIC_CLARITY_ID` (both blank = optional no-op)
+   - No `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LOOPS_*`, or SST vars
+   - `LOOPS_API_KEY` is absent (removed per AC)
+
+2. **apps/dashboard/.env.example** — PASS
+   - Contains `CORE_API_URL`, `JWT_SECRET`, `NEXT_PUBLIC_GA4_MEASUREMENT_ID`, `NEXT_PUBLIC_CLARITY_ID`
+   - `CORE_API_URL=http://causeflow-api:5171` matches docker-compose.yml internal network URL
+   - `JWT_SECRET=oss-dev-jwt-secret-change-me` matches docker-compose.yml default for both `causeflow-api` and `causeflow-dashboard`
+   - No `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LOOPS_*`, or SST vars
+
+3. **Git tracking** — PASS — Both files tracked and committed as part of WI-AC-045
+
+**Observation (non-blocking):** The project_specs.xml AC-045 description states CORE_API_URL default should be `http://core-api:3099`. The actual docker-compose.yml service is named `causeflow-api` (not `core-api`) and listens on port `5171` internally (port `3099` is the external host binding). The .env.example correctly uses `http://causeflow-api:5171`. This is a spec-text inaccuracy, not a functional defect — the implementation is internally consistent and correct.
