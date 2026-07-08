@@ -75,3 +75,10 @@ AC-017 contract satisfied at the real boundary on integrated main. No defects fo
 - PreviousPhase: qa
 - Attempt: 1
 - NextAction: qa
+
+## 2026-07-08T12:16:37.560Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-017
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
