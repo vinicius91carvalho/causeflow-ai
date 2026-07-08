@@ -292,3 +292,10 @@ All 7 tests in `scripts/qa/ac042-test.mjs` pass against the compiled `dist/maski
 - `npx tsc --noEmit` clean. `npm run build` exits 0.
 - No code changes needed.
 - NextAction: none (AC-043 fully verified)
+
+## 2026-07-08T18:29:09.638Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-043
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
