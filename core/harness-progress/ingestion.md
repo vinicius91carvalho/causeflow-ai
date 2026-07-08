@@ -365,3 +365,12 @@ No defects found. Implementation is correct across all four parser-specific code
 - pnpm lint-invariants: all 11/11 pass
 - Working tree: clean (no tracked files changed)
 - NextAction: none
+
+## 2026-07-08T20:09:05.652Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/ingestion/WI-AC-016-3-integration_qa.log
+- NextAction: next Ready Work Item
