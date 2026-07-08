@@ -657,9 +657,42 @@ the real boundary is `/v1/api-keys` and `/v1/whoami`.
 - Outcome: implementation=true, qa=true (all 3 AC-009 sub-behaviours pass at real HTTP on PORT=5182)
 - NextAction: Integrated Verification
 
-## 2026-07-08T18:27:11.102Z — Checkpoint ready
+## 2026-07-08T18:36:40Z — Integrated Verification (WI-AC-009, latest main)
 
+**Result: integration=true, implementation=true, qa=true. Zero defects.**
+
+Verified AC-009 at the real HTTP boundary against latest main (HEAD `17707a8`)
+on the assigned PORT=5182. `GET /health` → 200 `{dynamodb:ok, redis:ok, sqs:ok,
+anthropic:ok}`. Real `fetch` HTTP, real `@clerk/backend` networkless RS256
+verification (RSA-2048 keypair at `/tmp/ac011-clerk-jwt-key.pem` matches
+`CLERK_JWT_KEY` SPKI in `.env.dev`), real DynamoDB at ministack :4566, real
+Redis — no mocks. Boundary script: `ac009-boundary.ts`.
+
+All 3 AC-009 sub-behaviours verified:
+1. **POST /v1/api-keys** with `{name, scopes}` → **201** with `keyId`, `name`,
+   `prefix` (`cflo_…`), `scopes`, `plaintext` (`cflo_<64hex>`), `createdAt`
+   — plaintext API key returned on creation.
+2. **GET /v1/whoami** with `Authorization: Bearer <key>` → **200**
+   `{user:{id,email}, tenantId, role:"apikey", roles:["apikey"]}` — resolves
+   the user (creator identity) and tenant (issuing tenant).
+3. **Per-tenant quota enforcement**: 5 active keys (default limit). 6th POST
+   → **429** `{error:"QUOTA_EXCEEDED", message:"API key quota exceeded for
+   tenant (limit=5)", details:{limit:5, active:5}}`.
+
+Core smoke: `GET /health` → 200 with all checks ok; `GET /dashboard` → 200
+Alpine.js SPA shell.
+
+Path note (doc drift, not a defect, same as WI-AC-007/008): spec AC wording
+says `/api/v1/...`; implementation mounts all routes at `/v1/*` with no `/api`
+prefix (global, affects every AC). Per the contradictions clause
+(implementation authoritative), the real boundary is `/v1/api-keys` and
+`/v1/whoami`. Functional AC-009 behaviour fully met on integrated main.
+
+12/12 boundary assertions + 2/2 smoke assertions passed. integration=true.
+
+## 2026-07-08T18:36:40Z — Integrated Verification passed
 - Attempt: 3/3
 - WorkItem: WI-AC-009
-- Outcome: isolated QA passed
-- NextAction: Integrated Verification
+- AcceptanceChecks: AC-009
+- Outcome: passed on integrated main
+- NextAction: next Ready Work Item
