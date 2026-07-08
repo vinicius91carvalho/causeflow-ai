@@ -561,3 +561,13 @@ Repo scaffold matches `project_specs.xml` affected_surfaces: `src/config/loader.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-006-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-010 — Verify-First on existing main (2026-07-08)
+
+Ran AC-010 at the real `npx commitlint` boundary on integrated `main` (HEAD 5cd23c8). Zero-diff checkpoint — no code changes.
+
+- `commitlint.config.js` is tracked and `export default { extends: ['@commitlint/config-conventional'] };`. ✓
+- `npx commitlint` accepts (exit 0): `fix: handle ws reconnect`, `feat: add redis driver`, `feat!: change config schema` (`!` suffix), and `feat: change config schema` + `BREAKING CHANGE:` footer (major-triggering forms parse as conventional). ✓
+- `npx commitlint` rejects (exit 1, `type-empty`/`subject-empty`): `updated stuff`, `random commit message`, `fixed bug`, `Fix something` — non-Conventional-Commit messages do not pass. ✓
+
+**Verify-first verdict: implementation=true (zero-diff checkpoint).** AC-010 satisfied on existing main; no edits to `commitlint.config.js` or any tracked source required.
