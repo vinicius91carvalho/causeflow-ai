@@ -669,3 +669,12 @@ Ran the AC-011 mapped checks against latest main (`ef8700c`) at the real Docker 
 Core smoke: `node dist/index.js` boots, logs `Starting CauseFlow Relay...`, and exits non-zero on missing config (Zod error on empty resources) — consistent with AC-001 runtime behavior and no regression from integration.
 
 **Verdict: integration=true, implementation=true, no defects.** Zero code diff; journal-only commit.
+
+## 2026-07-08T04:03:19.854Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-011
+- AcceptanceChecks: AC-011
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-011-1-integration_qa.log
+- NextAction: next Ready Work Item
