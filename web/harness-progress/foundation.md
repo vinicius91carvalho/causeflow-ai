@@ -271,3 +271,10 @@ Real external boundary: filesystem (route/page file content) + HTTP (website dev
 All AC-008 clauses pass at the structural, HTTP, and compile boundaries. The generator pass created the missing context `presentation/pages/*-page.tsx` and `api/*-handler.ts` files and converted the 19 previously-inline route files to re-exports. No defects.
 
 qa=true, implementation=true for WI-AC-008.
+
+## 2026-07-08T00:28:39.700Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-008
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
