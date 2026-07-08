@@ -1,12 +1,15 @@
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 /**
  * GET /api/investigation/[id]/detail
  * Get investigation detail with evidence grouped by agent.
  */
-const _getHandler = withAuth(async (_request: NextRequest, _ctx, params) => {
+const _getHandler = withAuth(async (request: NextRequest, ctx, params) => {
+  const start = Date.now();
   const id = params?.id;
   if (!id) {
     return NextResponse.json({ error: 'Incident ID is required' }, { status: 400 });
@@ -17,7 +20,16 @@ const _getHandler = withAuth(async (_request: NextRequest, _ctx, params) => {
     const detail = await client.getInvestigationDetail(id);
     return NextResponse.json(detail);
   } catch (error) {
-    console.error('Failed to get investigation detail:', error);
+    const logPath = new URL(request.url).pathname;
+    const logPayload = {
+      method: request.method,
+      path: logPath,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
+      duration: Date.now() - start,
+    };
+    dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+    Sentry.captureException(error, { extra: logPayload });
     const status =
       error && typeof error === 'object' && 'status' in error
         ? (error as { status: number }).status

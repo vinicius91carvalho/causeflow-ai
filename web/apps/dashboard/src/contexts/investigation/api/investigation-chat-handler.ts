@@ -1,6 +1,8 @@
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getBackendToken } from '@/lib/api/get-backend-token';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 const CORE_API_URL = process.env.CORE_API_URL ?? '';
 
@@ -31,7 +33,8 @@ export const GET = withAuth(async (_request: NextRequest, _ctx, params) => {
  * POST /api/investigation/[id]/chat
  * Send a follow-up message about a completed investigation.
  */
-export const POST = withAuth(async (request: NextRequest, _ctx, params) => {
+export const POST = withAuth(async (request: NextRequest, ctx, params) => {
+  const start = Date.now();
   const id = params?.id;
   if (!id) {
     return NextResponse.json({ error: 'Incident ID is required' }, { status: 400 });
@@ -60,7 +63,16 @@ export const POST = withAuth(async (request: NextRequest, _ctx, params) => {
     const data = await res.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Failed to chat with investigation:', error);
+    const logPath = new URL(request.url).pathname;
+    const logPayload = {
+      method: request.method,
+      path: logPath,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
+      duration: Date.now() - start,
+    };
+    dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+    Sentry.captureException(error, { extra: logPayload });
     return NextResponse.json({ error: 'Failed to process message' }, { status: 500 });
   }
 });

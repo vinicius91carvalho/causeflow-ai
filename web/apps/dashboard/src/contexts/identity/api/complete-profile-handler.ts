@@ -1,5 +1,6 @@
 import { generateSlug, randomSlugSuffix } from '@causeflow/shared/domain/utils/slug';
 import { auth, clerkClient } from '@clerk/nextjs/server';
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { teamSizeValues } from '@/contexts/identity/domain/types';
@@ -7,6 +8,7 @@ import { provisionTenantDirect } from '@/contexts/identity/infrastructure/tenant
 import { getApiClient } from '@/lib/api/get-api-client';
 import { CoreApiError } from '@/lib/api/http-api-client';
 import { parseBody } from '@/lib/api/parse-body';
+import { logger as dashLogger } from '@/lib/logger';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
 export type { TeamSize } from '@/contexts/identity/domain/types';
@@ -140,10 +142,26 @@ export async function POST(request: NextRequest) {
           });
           resolvedTenantId = orgId;
         } catch (fallbackErr) {
-          console.error(
-            '[complete-profile] Tenant provisioning fallback failed:',
-            fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr),
+          // AC-042: non-recoverable fallback failure — log structured
+          // payload + forward to Sentry (no-ops when DSN is unset).
+          dashLogger.error(
+            {
+              err: fallbackErr,
+              method: request.method,
+              path: new URL(request.url).pathname,
+              userId,
+              tenantId: orgId ?? '',
+            },
+            '[complete-profile] Tenant provisioning fallback failed',
           );
+          Sentry.captureException(fallbackErr, {
+            extra: {
+              method: request.method,
+              path: new URL(request.url).pathname,
+              userId,
+              tenantId: orgId ?? '',
+            },
+          });
         }
       } else if (isConflict) {
         // Slug collision — retry once with a random suffix

@@ -1,9 +1,11 @@
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { Remediation } from '@/contexts/investigation/domain/types';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { parseBody } from '@/lib/api/parse-body';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 const remediationActionSchema = z.object({
   action: z.enum(['approve', 'reject', 'execute']),
@@ -14,7 +16,8 @@ const remediationActionSchema = z.object({
  * GET /api/remediations/[id]
  * Get a single remediation by ID.
  */
-const _getHandler = withAuth(async (_request: NextRequest, _ctx, params) => {
+const _getHandler = withAuth(async (request: NextRequest, ctx, params) => {
+  const start = Date.now();
   const id = params?.id;
 
   if (!id) {
@@ -26,7 +29,16 @@ const _getHandler = withAuth(async (_request: NextRequest, _ctx, params) => {
     const remediation = await client.getRemediation(id);
     return NextResponse.json({ remediation });
   } catch (error) {
-    console.error('Failed to get remediation:', error);
+    const logPath = new URL(request.url).pathname;
+    const logPayload = {
+      method: request.method,
+      path: logPath,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
+      duration: Date.now() - start,
+    };
+    dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+    Sentry.captureException(error, { extra: logPayload });
     const message = error instanceof Error ? error.message : 'Unknown error';
     if (message.includes('404') || message.includes('not found')) {
       return NextResponse.json({ error: 'Remediation not found' }, { status: 404 });
@@ -51,7 +63,8 @@ export async function GET(
  *   - action: 'approve' | 'reject' | 'execute'
  *   - reason: string (optional, used for 'reject')
  */
-const _postHandler = withAuth(async (request: NextRequest, _ctx, params) => {
+const _postHandler = withAuth(async (request: NextRequest, ctx, params) => {
+  const start = Date.now();
   const id = params?.id;
 
   if (!id) {
@@ -77,7 +90,16 @@ const _postHandler = withAuth(async (request: NextRequest, _ctx, params) => {
 
     return NextResponse.json({ remediation });
   } catch (error) {
-    console.error(`Failed to ${action} remediation:`, error);
+    const logPath = new URL(request.url).pathname;
+    const logPayload = {
+      method: request.method,
+      path: logPath,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
+      duration: Date.now() - start,
+    };
+    dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+    Sentry.captureException(error, { extra: logPayload });
     const message = error instanceof Error ? error.message : 'Unknown error';
     if (message.includes('404') || message.includes('not found')) {
       return NextResponse.json({ error: 'Remediation not found' }, { status: 404 });

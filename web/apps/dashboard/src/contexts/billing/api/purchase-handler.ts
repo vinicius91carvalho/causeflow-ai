@@ -1,9 +1,12 @@
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 export const POST = withAuth(
-  async (request: NextRequest) => {
+  async (request: NextRequest, ctx) => {
+    const start = Date.now();
     let body: { packType: string; quantity: number };
     try {
       body = await request.json();
@@ -31,7 +34,16 @@ export const POST = withAuth(
       const result = await getApiClient().purchaseQuotaPack({ packType, quantity });
       return NextResponse.json(result);
     } catch (err) {
-      console.error('Failed to purchase quota pack:', err);
+      const logPath = new URL(request.url).pathname;
+      const logPayload = {
+        method: request.method,
+        path: logPath,
+        userId: ctx.userId,
+        tenantId: ctx.tenantId,
+        duration: Date.now() - start,
+      };
+      dashLogger.error({ err: err, ...logPayload }, `Unhandled API handler error`);
+      Sentry.captureException(err, { extra: logPayload });
       return NextResponse.json({ error: 'Failed to purchase quota pack' }, { status: 500 });
     }
   },

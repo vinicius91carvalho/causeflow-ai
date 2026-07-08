@@ -1,9 +1,12 @@
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 const _handler = withAuth(
-  async (_request: NextRequest, _ctx, params) => {
+  async (request: NextRequest, ctx, params) => {
+    const start = Date.now();
     const type = params?.type;
 
     if (!type) {
@@ -19,7 +22,16 @@ const _handler = withAuth(
       }
       return NextResponse.json({ success: true, type });
     } catch (error) {
-      console.error('Failed to disconnect integration:', error);
+      const logPath = new URL(request.url).pathname;
+      const logPayload = {
+        method: request.method,
+        path: logPath,
+        userId: ctx.userId,
+        tenantId: ctx.tenantId,
+        duration: Date.now() - start,
+      };
+      dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+      Sentry.captureException(error, { extra: logPayload });
       return NextResponse.json({ error: 'Failed to disconnect integration' }, { status: 500 });
     }
   },

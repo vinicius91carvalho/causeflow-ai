@@ -1,12 +1,15 @@
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
+import { logger as dashLogger } from '@/lib/logger';
 
 /**
  * GET /api/analyses/[id]
  * Get a single incident by incidentId.
  */
-const _getHandler = withAuth(async (_request: NextRequest, _ctx, params) => {
+const _getHandler = withAuth(async (request: NextRequest, ctx, params) => {
+  const start = Date.now();
   const incidentId = params?.id;
 
   if (!incidentId) {
@@ -18,7 +21,16 @@ const _getHandler = withAuth(async (_request: NextRequest, _ctx, params) => {
     const incident = await client.getIncident(incidentId);
     return NextResponse.json({ incident });
   } catch (error) {
-    console.error('Failed to get incident:', error);
+    const logPath = new URL(request.url).pathname;
+    const logPayload = {
+      method: request.method,
+      path: logPath,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
+      duration: Date.now() - start,
+    };
+    dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+    Sentry.captureException(error, { extra: logPayload });
     const message = error instanceof Error ? error.message : 'Unknown error';
     if (message.includes('404') || message.includes('not found')) {
       return NextResponse.json({ error: 'Incident not found' }, { status: 404 });

@@ -1,5 +1,28 @@
+import { auth } from '@clerk/nextjs/server';
+import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getApiClient } from '@/lib/api/get-api-client';
+import { logger as dashLogger } from '@/lib/logger';
+
+/**
+ * AC-042: log a non-recoverable handler error with the structured payload
+ * (method, path, userId, tenantId, duration) via pino and forward to Sentry.
+ * These handlers are not wrapped in `withAuth`, so userId/tenantId are
+ * resolved from the Clerk session via `auth()`.
+ */
+async function logHandlerError(request: NextRequest, error: unknown, startMs: number) {
+  const { userId, orgId } = await auth();
+  const logPath = new URL(request.url).pathname;
+  const logPayload = {
+    method: request.method,
+    path: logPath,
+    userId: userId ?? 'anonymous',
+    tenantId: orgId ?? 'anonymous',
+    duration: Date.now() - startMs,
+  };
+  dashLogger.error({ err: error, ...logPayload }, `Unhandled API handler error`);
+  Sentry.captureException(error, { extra: logPayload });
+}
 
 /**
  * GET /api/integrations/sentry
@@ -8,11 +31,13 @@ import { getApiClient } from '@/lib/api/get-api-client';
  * GET /v1/integrations/sentry. Never returns the Client Secret. The tenantId
  * is derived server-side from the Clerk JWT `org_id` claim by Core (W4).
  */
-export async function handleGetSentryIntegration(_req: NextRequest): Promise<NextResponse> {
+export async function handleGetSentryIntegration(req: NextRequest): Promise<NextResponse> {
+  const start = Date.now();
   try {
     const status = await getApiClient().getSentryIntegrationStatus();
     return NextResponse.json(status);
   } catch (err) {
+    await logHandlerError(req, err, start);
     const message = err instanceof Error ? err.message : 'Failed to fetch Sentry status';
     return NextResponse.json({ error: message }, { status: 500 });
   }
@@ -31,6 +56,7 @@ export async function handleGetSentryIntegration(_req: NextRequest): Promise<Nex
  * - Validation rejects empty / non-string Client Secret values.
  */
 export async function handleSaveSentryIntegration(req: NextRequest): Promise<NextResponse> {
+  const start = Date.now();
   let body: unknown;
   try {
     body = await req.json();
@@ -57,6 +83,7 @@ export async function handleSaveSentryIntegration(req: NextRequest): Promise<Nex
     return NextResponse.json(result);
   } catch (err) {
     // Important: never include `body` or any part of clientSecret in error output.
+    await logHandlerError(req, err, start);
     const message = err instanceof Error ? err.message : 'Failed to save Sentry Client Secret';
     return NextResponse.json({ error: message }, { status: 500 });
   }

@@ -19,6 +19,8 @@ Sentry.init({
       delete event.request.headers['x-session-token'];
     }
     if (event.request?.data) {
+      // AC-042: wholesale scrub of request.data satisfies the "same redaction
+      // in the observability layer" requirement.
       delete event.request.data;
     }
     if (event.request?.cookies) {
