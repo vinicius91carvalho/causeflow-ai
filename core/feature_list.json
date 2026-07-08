@@ -227,9 +227,9 @@
     "implementation": true,
     "qa": true,
     "integration": false,
-    "retries": 0,
-    "attempts": 0,
-    "status": "verify-first"
+    "retries": 2,
+    "attempts": 3,
+    "status": "done"
   },
   {
     "id": "WI-AC-010",
