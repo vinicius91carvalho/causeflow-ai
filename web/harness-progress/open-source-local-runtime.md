@@ -224,3 +224,24 @@ Use /login to log into a provider via OAuth or API key. See:
 - WorkItem: WI-AC-045
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:47:50.364Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-045
+- Defects: All AC-045 verification checks pass. Here is the final summary:
+
+**WI-AC-045 — `.env.example` reduced for open-source local runtime**
+
+| Check | Result |
+|---|---|
+| Step 1: No `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LOOPS_*` in app `.env.example` files | ✅ PASS |
+| Step 2: `apps/website/.env.example` has only `NEXT_PUBLIC_GA4_MEASUREMENT_ID` + `NEXT_PUBLIC_CLARITY_ID`; `apps/dashboard/.env.example` has `CORE_API_URL`, `JWT_SECRET`, plus the two optional `NEXT_PUBLIC_*` keys | ✅ PASS |
+| Step 3: `JWT_SECRET` is shared between Core API and Dashboard in `docker-compose.yml` (both use `JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}`) | ✅ PASS |
+| `LOOPS_API_KEY` removed from `apps/website/.env.example` | ✅ PASS |
+
+**Implementation note (non-defect):** The AC-045 description documents the CORE_API_URL default as `http://core-api:3099`, but the implementation (both `.env.example` and `docker-compose.yml`) uses `http://causeflow-api:5171` — this is the real service name and port from the docker-compose network and is internally consistent. Per the spec's own statement, implementation is authoritative when documentation drifts.
+
+**Verdict:** integration=true, implementation=true, qa=true. No defects.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-045-1-integration_qa.log
+- NextAction: Repair Plan
