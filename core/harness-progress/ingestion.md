@@ -161,3 +161,30 @@
   - Sentry parser reads `data.issue.title` for the title field; payloads must
     place the title inside the nested `data.issue` object, not at the top level.
 - Working tree: clean (no tracked files changed beyond this journal)
+
+## 2026-07-08T19:01:10.233Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Defects: Integrated Verification complete for **WI-AC-016** (ingestion webhooks).
+
+**Summary of tests (19/19 passed):**
+
+| Condition | Route | Status | Source Provider |
+|-----------|-------|--------|----------------|
+| Grafana webhook | `POST /v1/webhooks/:tenantId/grafana` | 202 ✅ | `grafana` |
+| CloudWatch webhook | `POST /v1/webhooks/:tenantId/cloudwatch` | 202 ✅ | `cloudwatch` |
+| Sentry webhook | `POST /v1/webhooks/:tenantId/sentry` | 202 ✅ | `sentry` |
+| Admin manual incident | `POST /v1/admin/incidents` | 201 ✅ | `manual` |
+
+**Key observations:**
+- Route paths are `/v1/webhooks/:tenantId/:provider` (not `/api/v1/webhooks/:provider` as AC shorthand suggests) and `/v1/admin/incidents`
+- Sentry parser reads `data.issue.title` for the title field; payloads must nest the title inside `data.issue`
+- KMS_ENDPOINT must be set for Sentry integration decryption to reach ministack KMS
+- Global webhook secret from `WEBHOOK_SECRET` env var is used for Grafana/CloudWatch HMAC (header `X-Webhook-Signature: sha256=...`)
+- Sentry uses `Sentry-Hook-Signature` with per-tenant encrypted client secret
+- API key auth (`Authorization: Bearer cflo_...`) is used for admin/manual incident creation
+
+**Verdict published, journal updated, commit `5255bf4`.**
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/ingestion/WI-AC-016-1-integration_qa.log
+- NextAction: Repair Plan
