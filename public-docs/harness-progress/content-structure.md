@@ -83,3 +83,10 @@ committed. No refactor, no restructuring.
   (`snippets/auth-header.mdx`, `snippets/rate-limit-note.mdx`) — both now
   carry valid `title` + `description` frontmatter.
 - Verdict: qa=true. AC-004 holds on the integrated worktree.
+
+## 2026-07-08T03:35:42.248Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-004
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
