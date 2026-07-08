@@ -691,3 +691,10 @@ error: The following untracked working tree files would be overwritten by merge:
 Aborting
 Merge with strategy ort failed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T11:33:39.813Z — Explicit Resume
+
+- WorkItem: WI-AC-005
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Retrying again after a supervisor restart (previous supervisor process was hung, unresponsive to stop signal, force-killed and restarted cleanly). Retry for a fresh attempt.
+- NextAction: Coding Attempt 1
