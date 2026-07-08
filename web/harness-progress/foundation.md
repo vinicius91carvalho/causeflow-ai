@@ -228,3 +228,10 @@ implementation=false for WI-AC-008. Website fully conforms; barrels + optimizePa
 - Outcome: coding agent declined the Work Item
 - Defects: AC-008 partially fails. Website fully conforms (all 13 pages are thin re-exports; HTTP-verified on port 5172 → 200). No index.ts barrel files in either app. Both next.config.mjs configure optimizePackageImports for lucide-react + all internal @causeflow/* packages (dashboard also Clerk; website has no Clerk dep). 76/80 dashboard API routes and 10/25 dashboard pages are pure thin re-exports. FAILURES: 4 dashboard API routes (investigation/[id]/{chat,detail,relay-token,tool-calls}/route.ts) contain inline handler logic; 15 dashboard pages contain inline JSX/redirect/wrapper logic (auth/sign-in, auth/sign-up, create-organization, waitlist, dashboard/team, dashboard/settings, accept-invitation, dashboard/analyses{,/[id],/new}, page.tsx root redirect, dashboard/intelligence, dashboard/relay, onboarding/business-profile, beta-waitlist). Fix requires creating missing context presentation/pages/*-page.tsx and api/*-handler.ts files and converting 19 route files to re-exports = restructuring/rewriting working code, forbidden in verify-first mode. Spec is not contradictory (unlike AC-001), so not amended; code drifts from spec — route to generator/build pass. Zero source/config changes; only harness-progress/foundation.md committed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T00:00:16.369Z — Explicit Resume
+
+- WorkItem: WI-AC-008
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Confirmed: this is genuine spec-code drift, not a spec contradiction -- proceed past verify-first into a real build/generator pass for WI-AC-008. Convert the 4 dashboard API routes and 15 dashboard pages you identified into thin re-exports backed by the missing context presentation/pages/*-page.tsx and api/*-handler.ts files, matching the pattern the other 76 routes and 10 pages already follow. This is authorized implementation work, not forbidden restructuring.
+- NextAction: Coding Attempt 1
