@@ -289,3 +289,21 @@
 - WorkItem: WI-AC-050
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T23:00:00.000Z — Integrated Verification Passed
+
+- WorkItem: WI-AC-050
+- Outcome: PASSED
+- Integration: true
+- Implementation: true
+- QA: true
+- AcceptanceChecks: AC-050
+- Evidence: All three workflows verified at real boundaries on latest main:
+  1. `npm install` exits 0 (node_modules present, no errors)
+  2. `npm run build` (tsc) exits 0 and produces clean `dist/` tree mirroring `src/` exactly — 13 `.ts` source files → 13 `.js` compiled files, 1:1 mapping
+  3. `npm run dev` (tsx watch src/index.ts) starts the relay with "Starting CauseFlow Relay...", watches `src/` for changes (confirmed via `[tsx] change in ./src/index.ts Rerunning...` log line after `touch src/index.ts`), and restarts the process on every save
+  4. `npm start` (node dist/index.js) runs compiled output — "Starting CauseFlow Relay..." logged referencing `dist/` paths in stack trace
+  5. `npx tsc --noEmit` exits 0 (strict mode, clean types)
+- No production code changes needed
+- Feature list updated: WI-AC-050 integration=true
+- Defects: []
