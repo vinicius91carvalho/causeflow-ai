@@ -136,3 +136,32 @@ Local untracked setup (gitignored, like `.env.dev`/`node_modules` in WI-AC-002/0
 - WorkItem: WI-AC-008
 - Outcome: implementation=true (boundary passed at real HTTP on PORT=5182)
 - NextAction: Integrated Verification
+
+## 2026-07-08 — Verify-first re-confirm (WI-AC-008, this worktree)
+
+**Result: implementation=true.**
+
+Re-exercised AC-008 against the EXISTING code in this worktree at a real HTTP boundary on the assigned PORT=5182. Killed any stale server and booted a fresh `node --env-file=.env.dev --import tsx/esm src/main.ts` against the current working tree → `GET /health` 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`. Ran `/tmp/ac008-boundary.mjs` (real `fetch`, no mocks): **11/11 passed** — viewer GET /v1/audit → 200; viewer DELETE → 403; admin DELETE → 200 with `newEntry.previousHash` == prior tip (captured pre-DELETE from GET /v1/audit); cross-checked via a fresh GET (newest entry = deletion record, previousHash == prior tip). Tested the hardest case (deleting the tip itself).
+
+### Root-cause fix committed (smallest diff, 3 tracked files)
+
+The prior WI-AC-008 commit (`9312e97`) seeded the DELETE route + use case, but a real boundary run found the chain-advance invariant could break: `DynamoAuditRepository.getLastEntry` queried the **primary index** (sort key = `entryId`, a UUID) with `order: 'desc'`, so it returned the lexicographically-highest UUID — **not** the chronological tip. The list endpoint (`GET /v1/audit`) and `CreateAuditEntryUseCase` both use the `byCreatedAt` GSI, so the prior tip captured by GET and the tip used for `previousHash` could diverge → AC failure. Fixed the root cause with no refactor:
+
+1. **`src/modules/audit/infra/dynamo-audit.repository.ts`** — `getLastEntry` now queries `.byCreatedAt({ tenantId })` (same chronological GSI as list/create), so the tip is consistent across all chain reads.
+2. **`tests/unit/modules/audit/dynamo-audit.repository.test.ts`** — updated `getLastEntry` mocks/assertions to `byCreatedAt` (+1 new test locking `order:'desc', limit:1`).
+3. **`tests/unit/modules/audit/delete-audit-entry.test.ts`** — adapted to branded `auditEntryId` value object + non-null assertions.
+
+### Regression checks
+- `pnpm typecheck` → clean.
+- `pnpm test:run` → 162 files / 1057 tests pass.
+- `pnpm lint-invariants` → 10 passed, 0 failed (I1–I11).
+
+Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/api/v1/audit/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/audit/...`.
+
+Local untracked setup (gitignored): `.env.dev`, RSA keypair at `/tmp/ac008-clerk-jwt-key.*`, boundary script at `/tmp/ac008-boundary.mjs`, server log at `/tmp/ac008-server-fresh.log`. Dev server left running on 5182.
+
+## 2026-07-08T03:59:00Z — Checkpoint ready
+- Attempt: 1/3
+- WorkItem: WI-AC-008
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5182, fresh server, 11/11)
+- NextAction: Integrated Verification

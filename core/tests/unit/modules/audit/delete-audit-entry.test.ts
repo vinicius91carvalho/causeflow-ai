@@ -3,7 +3,7 @@ import { CreateAuditEntryUseCase } from '../../../../src/modules/audit/applicati
 import { DeleteAuditEntryUseCase } from '../../../../src/modules/audit/application/delete-audit-entry.usecase.js';
 import type { IAuditRepository } from '../../../../src/modules/audit/domain/audit.repository.js';
 import type { AuditEntry } from '../../../../src/modules/audit/domain/audit.entity.js';
-import { tenantId } from '../../../../src/shared/domain/value-objects.js';
+import { tenantId, auditEntryId } from '../../../../src/shared/domain/value-objects.js';
 
 const T1 = tenantId('tenant-1');
 const GENESIS = '0'.repeat(64);
@@ -11,7 +11,7 @@ const GENESIS = '0'.repeat(64);
 function makeEntry(overrides: Partial<AuditEntry> = {}): AuditEntry {
   return {
     tenantId: T1,
-    entryId: 'e1',
+    entryId: auditEntryId('e1'),
     action: 'incident.created',
     actorType: 'user',
     actorEmail: 'user@example.com',
@@ -57,17 +57,17 @@ describe('DeleteAuditEntryUseCase — AC-008 chain advance', () => {
 
     const result = await deleteUc.execute({
       tenantId: T1,
-      entryId: 'e1',
+      entryId: 'e1' as never,
       actorEmail: 'admin@causeflow.ai',
     });
 
     expect(result.deleted).toBe(1);
     expect(creates).toHaveLength(1);
-    expect(creates[0].action).toBe('audit.entry.deleted');
-    expect(creates[0].resourceId).toBe('e1');
-    expect(creates[0].previousHash).toBe('tip-hash-123');
+    expect(creates[0]!.action).toBe('audit.entry.deleted');
+    expect(creates[0]!.resourceId).toBe('e1');
+    expect(creates[0]!.previousHash).toBe('tip-hash-123');
     expect(deletes).toEqual([['e1']]);
-    expect(result.newEntry.entryHash).toBe(creates[0].entryHash);
+    expect(result.newEntry.entryHash).toBe(creates[0]!.entryHash);
   });
 
   it('uses genesis hash when the chain is empty (no prior tip)', async () => {
@@ -76,27 +76,27 @@ describe('DeleteAuditEntryUseCase — AC-008 chain advance', () => {
 
     const result = await deleteUc.execute({
       tenantId: T1,
-      entryId: 'e1',
+      entryId: 'e1' as never,
       actorEmail: 'admin@causeflow.ai',
     });
 
-    expect(creates[0].previousHash).toBe(GENESIS);
+    expect(creates[0]!.previousHash).toBe(GENESIS);
     expect(result.deleted).toBe(1);
     expect(deletes).toEqual([['e1']]);
   });
 
   it('previousHash matches prior tip even when the deleted entry IS the tip', async () => {
-    const tip = makeEntry({ entryId: 'tip-id', entryHash: 'tip-hash-xyz' });
+    const tip = makeEntry({ entryId: auditEntryId('tip-id'), entryHash: 'tip-hash-xyz' });
     const { repo, deletes, creates } = makeRepo(tip);
     const deleteUc = new DeleteAuditEntryUseCase(repo, new CreateAuditEntryUseCase(repo));
 
     const result = await deleteUc.execute({
       tenantId: T1,
-      entryId: 'tip-id',
+      entryId: 'tip-id' as never,
       actorEmail: 'admin@causeflow.ai',
     });
 
-    expect(creates[0].previousHash).toBe('tip-hash-xyz');
+    expect(creates[0]!.previousHash).toBe('tip-hash-xyz');
     expect(deletes).toEqual([['tip-id']]);
     expect(result.newEntry.previousHash).toBe('tip-hash-xyz');
   });
