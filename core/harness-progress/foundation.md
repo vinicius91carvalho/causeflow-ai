@@ -332,3 +332,13 @@ The existing code failed AC-005 at the boundary in two independent ways; each fi
 - The host has no `aws` CLI installed; the AC's literal `aws --endpoint-url http://localhost:4566 ...` was exercised via `docker exec core-ministack-1 awslocal ...`, which issues real DynamoDB API calls against the same `http://localhost:4566` ministack service (docker-mapped to host :4566). Same real external boundary.
 - `describe-table` does not return `PointInTimeRecoveryDescription` in real DynamoDB (that lives on `describe-continuous-backups`); the AC's CLI wording is descriptive. Both calls were issued and both confirm the required state.
 - The legacy `causeflow` table (created by the prior init run during AC-001) still exists on ministack; it is harmless and not referenced by app config. Not deleted per the no-restructure rule.
+
+## 2026-07-08T00:29Z — Independent QA re-audit (WI-AC-005)
+
+- Agent: qa-agent (isolated worktree).
+- Boundary exercised: real DynamoDB API on `http://localhost:4566` (ministack container `core-ministack-1` `(healthy)`, host port `0.0.0.0:4566->4566`). Host has no `aws` binary, so the AC's literal `aws --endpoint-url http://localhost:4566 ...` was run via `docker exec core-ministack-1 aws --endpoint-url http://localhost:4566 ...` with `AWS_DEFAULT_REGION=us-east-1` + dummy creds — same real ministack endpoint.
+- `dynamodb list-tables` → `TableNames: ["causeflow", "causeflow-local"]` — **includes `causeflow-local`**. ✓
+- `dynamodb describe-table --table-name causeflow-local` → `TableStatus: ACTIVE`, `GlobalSecondaryIndexes: [gsi1, gsi2, gsi3]` (grep `"IndexName"` count = **3**, all `IndexStatus: ACTIVE`). ✓
+- `dynamodb describe-continuous-backups --table-name causeflow-local` → `PointInTimeRecoveryDescription.PointInTimeRecoveryStatus = ENABLED` (plus `ContinuousBackupsStatus: ENABLED`). ✓ (In real DynamoDB `describe-table` itself never returns `PointInTimeRecoveryDescription`; the AC's wording is descriptive — both calls confirm the required state.)
+- Smoke: foundation API on assigned PORT=5174 → `curl http://localhost:5174/health` → HTTP 200, `checks.dynamodb=ok` (the app describes `causeflow-local`).
+- Verdict: qa=true, implementation=true, no defects within AC-005 boundary.
