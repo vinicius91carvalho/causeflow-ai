@@ -609,3 +609,14 @@ implementation=true; defects=none
 - WorkItem: WI-AC-029
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T03:30:00.000Z — Integrated Verification (WI-AC-029)
+
+- Verifier: qa-agent (latest main, integrated)
+- AC-029 mapped checks (all pass):
+  1. `grep -rE 'mintlify\.com|mintlify\.app|mintlify deploy|mintlify auth' --include='*.{json,mdx,yml,yaml,sh,Dockerfile,ts,js,mjs,md}'` → EXIT=1 (zero matches in project).
+  2. Dockerfile invokes `mint export` only; no `mintlify deploy`/`mint deploy`; no Mintlify account token (grep EXIT=1).
+  3. README.md documents `docker compose up -d` as canonical run path; prior "deployed automatically via the Mintlify GitHub integration" sentence absent (grep EXIT=1).
+  4. No `.github/` directory; no GitHub Actions workflow runs `mint deploy`/`mintlify deploy` (grep EXIT=1).
+- Core smoke (real external boundary): `causeflow-docs` container running on port 5179 from current Dockerfile (build fully cached, image matches source). `curl http://localhost:5179/` → 200, body contains "CauseFlow AI" and "Quickstart". `docker logs causeflow-docs 2>&1 | grep -E 'mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|langfuse\.io|svix\.com|slack\.com|composio\.dev'` → zero matches (forbidden-host boundary holds).
+- Verdict: integration=true; implementation=true; qa=true; defects=none.
