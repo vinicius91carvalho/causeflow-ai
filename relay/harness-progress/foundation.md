@@ -852,3 +852,34 @@ Re-audited `.github/workflows/release.yml` after the `fix(ci): correct X.Y docke
 - WorkItem: WI-AC-008
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-008 — Integrated Verification on main (2026-07-08)
+
+Re-audited `.github/workflows/release.yml` at real external boundaries on integrated `main` (HEAD defed50). Boundary = parsed workflow structure (YAML parses cleanly via `python3 yaml.safe_load`) + the actual shell commands the workflow invokes, simulated locally with the workflow's own `cut` expressions.
+
+Every AC-008 clause verified against the committed file:
+
+- Trigger: `on: push: branches: [main]` — push to `main`. ✓
+- `release` job:
+  - `actions/checkout@v4` with `fetch-depth: 0` (+ `token: ${{ secrets.GITHUB_TOKEN }}`). ✓
+  - `actions/setup-node@v4` with `node-version: '22'`. ✓
+  - `npm ci`. ✓
+  - `npx semantic-release` with `env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}`. ✓
+  - Tag-produced gate: `BEFORE_TAG`/`AFTER_TAG` via `git describe --tags --abbrev=0` before/after `npx semantic-release`; if they differ and `AFTER_TAG` is non-empty → `echo "released=true" >> $GITHUB_OUTPUT` and `echo "version=${VERSION}" >> $GITHUB_OUTPUT` where `VERSION="${AFTER_TAG#v}"` (strips leading `v`). Job `outputs` expose `released` + `version` from `steps.semantic.outputs`. ✓
+- `docker` job: `needs: release`, `if: needs.release.outputs.released == 'true'`. ✓
+  - `docker/setup-qemu-action@v3` (QEMU). ✓
+  - `docker/setup-buildx-action@v3` (Docker Buildx). ✓
+  - `docker/login-action@v3` with `username: ${{ secrets.DOCKERHUB_USERNAME }}` / `password: ${{ secrets.DOCKERHUB_TOKEN }}` (DockerHub login). ✓
+  - `docker/build-push-action@v6` with `context: .`, `platforms: linux/amd64,linux/arm64`, `push: true`. ✓
+  - Image tags: `causeflowai/relay:${{ needs.release.outputs.version }}` (X.Y.Z), `causeflowai/relay:${{ env.MINOR }}` (X.Y), `causeflowai/relay:${{ env.MAJOR }}` (X), `causeflowai/relay:latest`. ✓
+
+Tag computation simulated locally with the workflow's own `cut` commands (real shell, not a mock):
+- `RELEASE_VERSION=1.2.3` → MAJOR=1, MINOR=1.2 → tags `1.2.3`, `1.2`, `1`, `latest`. ✓
+- `RELEASE_VERSION=2.0.0` → `2.0.0`, `2.0`, `2`, `latest`. ✓
+- `RELEASE_VERSION=10.11.12` → `10.11.12`, `10.11`, `10`, `latest`. ✓
+
+The previously-reported X.Y tag defect (`${{ env.MAJOR }}.${{ env.MINOR }}` rendering `1.1.2`) remains fixed — the committed file emits `${{ env.MINOR }}` for the X.Y tag.
+
+Scaffold check: `project_specs.xml` affected_surfaces for AC-008 = `.github/workflows/release.yml` (release + docker jobs), `Dockerfile`, `release.config.js` — all present on main.
+
+**Integrated verdict: integration=true, implementation=true, qa=true, no defects.** All AC-008 conditions pass on integrated main.
