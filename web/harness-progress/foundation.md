@@ -576,3 +576,10 @@ may have crashed in this repository earlier:
 remove the file manually to continue.
 fatal: Unable to write index.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T10:51:20.206Z — Explicit Resume
+
+- WorkItem: WI-AC-038
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Retrying again after a supervisor restart (previous supervisor process was hung, unresponsive to stop signal, force-killed and restarted cleanly). Retry for a fresh attempt.
+- NextAction: Coding Attempt 1
