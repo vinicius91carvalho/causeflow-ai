@@ -240,8 +240,8 @@ Key settings for your ECS task definition:
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
   "memory": "512",
-  "taskRoleArn": "arn:aws:iam::<account-id>:role/causeflow-relay-task-role",
-  "executionRoleArn": "arn:aws:iam::<account-id>:role/causeflow-relay-exec-role",
+  "taskRoleArn": "<relay-task-role-arn>",
+  "executionRoleArn": "<relay-execution-role-arn>",
   "containerDefinitions": [
     {
       "name": "relay",
@@ -252,15 +252,15 @@ Key settings for your ECS task definition:
       "secrets": [
         {
           "name": "RELAY_TOKEN",
-          "valueFrom": "arn:aws:secretsmanager:<region>:<account>:secret:causeflow/relay-token"
+          "valueFrom": "<aws-secretsmanager-secret-arn>"
         },
         {
           "name": "TENANT_ID",
-          "valueFrom": "arn:aws:secretsmanager:<region>:<account>:secret:causeflow/tenant-id"
+          "valueFrom": "<aws-secretsmanager-secret-arn>"
         },
         {
           "name": "PG_PASSWORD",
-          "valueFrom": "arn:aws:secretsmanager:<region>:<account>:secret:causeflow/pg-password"
+          "valueFrom": "<aws-secretsmanager-secret-arn>"
         }
       ],
       "environment": [

@@ -761,3 +761,86 @@ implementation=true; qa=true; defects=none
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-030-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T04:10:00Z — Implementation (WI-AC-031)
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Outcome: implementation=true; qa=pending; defects=none
+
+### Regression gate: AC-001..AC-025 against the docker-compose stack
+
+Two real defects surfaced when running the original 25 checks against the
+`causeflow-docs` runtime image (rebuilt clean, served on assigned port 5179);
+both fixed in this item.
+
+#### Defect 1 — `/quickstart` redirect and `/changelog` directory-index 404
+
+The `mint export` zip ships a `serve.js` that (a) ignores
+`docs.json#redirects` and (b) only resolves `<path>/index.html` / `<path>.html`
+— not Mintlify's `<dir>/index/index.html` layout used for `index.mdx` pages.
+Result: `/quickstart` (redirect source) and `/changelog` (the Changelog nav
+tab landing URL) both returned 404, failing AC-007 and the AC-006 Changelog-tab
+clause of AC-031. This was the deferred defect noted in WI-AC-029's journal
+("owned by AC-007/AC-006/AC-031").
+
+Fix: added a repo-root `serve-docs.js` (pure Node `http`/`fs`/`path`, zero
+outbound calls, only `PORT` env var) that (1) loads `docs.json#redirects`
+and internally rewrites a matching source URL to the destination page
+(HTTP 200, no extra hop — satisfies "GET /quickstart returns 200 and lands on
+the Quickstart page"), and (2) adds the `<path>/index/index.html` candidate
+to `resolveFile` so directory-index pages like `/changelog` resolve.
+`Dockerfile` runtime stage now `COPY docs.json ./` (not in the export zip)
+and `COPY serve-docs.js ./serve.js` (replaces the export's bundled server);
+`CMD ["node","serve.js"]` is unchanged. `docker build` exit 0.
+
+#### Defect 2 — AC-024 AWS-ARN invariant violated across 8 MDX files
+
+`grep -rEi '(arn:aws:|...)' --include='*.mdx'` returned 19 matching lines
+across 8 files (pre-existing content from commit 2ef02f6, not introduced by
+the docker work, but AC-031 requires the invariant to hold). Replaced every
+literal `arn:aws:…` and the real 12-digit AWS account ID `409171461008` in
+`integrations/cloud-providers.mdx` with compliant placeholder tokens
+(`<causeflow-aws-principal-arn>`, `<your-aws-iam-role-arn>`,
+`<aws-ecs-service-arn>`, `<aws-rds-instance-arn>`,
+`<aws-ecs-task-definition-arn>`, `<aws-sns-topic-arn>`,
+`<aws-cloudwatch-alarm-arn>`, `<relay-task-role-arn>`,
+`<relay-execution-role-arn>`, `<aws-secretsmanager-secret-arn>`) and
+behavioral text, per INVARIANTS.md ("replace with behavior-level
+description"). Files touched:
+`integrations/cloud-providers.mdx`, `api-reference/tenants/{create,get,update}-tenant.mdx`,
+`api-reference/graph/auto-discovery.mdx`, `api-reference/remediation/get-detail.mdx`,
+`api-reference/webhooks/payload-formats.mdx`, `relay/deployment.mdx`.
+
+Also added `title`+`description` frontmatter to the two orphaned snippet
+files (`snippets/auth-header.mdx`, `snippets/rate-limit-note.mdx`) so
+AC-004 holds across all 133 MDX (they previously had none).
+
+### Black-box verification (PORT=5179, clean `docker build`)
+
+- `docker compose config` valid; image rebuilt `causeflow-docs:local`
+  (`docker build` exit 0). Container on 5179: boot log
+  `Serving docs at http://localhost:3000`; forbidden-host log grep = 0.
+- AC-001: `GET /` → 200, body has "CauseFlow AI" (×4) and "Quickstart" (×3).
+- AC-007: `GET /quickstart` → 200 (redirect resolves via internal rewrite),
+  lands on Quickstart page (Quickstart ×4). `/changelog` → 200.
+- AC-006: all four nav-tab landing pages 200 (Documentation `/`, API
+  reference `/api-reference/introduction`, Relay `/relay/overview`, Changelog
+  `/changelog`); Changelog H1 matches `changelog/index.mdx` title.
+- AC-019: `/relay/overview` → 200; Mermaid rendered via the `Mermaid` component
+  (chart prop `flowchart TD …`) with zero raw `<pre>flowchart` code blocks.
+- AC-014: Authentication page covers JWT Bearer, `X-API-Key`, and
+  `X-Webhook-Signature` (HMAC).
+- AC-018: outbound-events catalog lists exactly 20 distinct dot-namespaced
+  events.
+- AC-013: all 82 API-reference endpoint pages listed in `docs.json` → 200.
+- Full navigation sweep: all 125 pages across the four tabs → 200.
+- AC-002: `mint broken-links` → exit 0, zero broken links.
+- Invariants AC-022/023/024/025, AC-016, AC-017: all grep zero matches.
+- AC-004/AC-005: every one of 133 MDX has `title`+`description` ≤160 chars.
+- MDX count = 133.
+
+### verdict
+
+implementation=true; integration=pending; qa=pending; defects=none
