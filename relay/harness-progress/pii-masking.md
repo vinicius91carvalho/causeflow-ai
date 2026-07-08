@@ -158,3 +158,10 @@
 - Verification: Independent QA agent tested `MaskingEngine.mask({ user: { email: "a@b.co", notes: "hello" } })` against compiled `dist/masking/masking-engine.js`. Full result: `{"masked":{"user":{"email":"***@***.***","notes":"hello"}},"maskedFieldCount":1}`. Email `a@b.co` matched by default email pattern -> `***@***.***`. `notes: hello` left untouched. `maskedFieldCount: 1` (only email matched). Arrays nested inside objects (tested with `["alice@example.com", "bob@test.org", "plain"]`) are properly walked, both emails masked, `maskedFieldCount: 2`. `npx tsc --noEmit` passes. No code changes needed.
 - Evidence: `scripts/qa/ac041-test.mjs` - standalone executable test
 - NextAction: none (AC-041 passes QA)
+
+## 2026-07-08T18:05:51.190Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-041
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
