@@ -273,3 +273,22 @@ All 7 tests in `scripts/qa/ac042-test.mjs` pass against the compiled `dist/maski
   6. `number` passes through, `maskedFieldCount: 0`
 - No code changes needed — the `enabled` check was already implemented in `MaskingEngine.mask()`.
 - NextAction: none (AC-043 passes)
+
+## 2026-07-08T23:15:00.000Z — QA Verified
+
+- WorkItem: WI-AC-043
+- AcceptanceChecks: AC-043
+- Outcome: qa=true, implementation=true
+- Verification: Independent QA agent executed `node scripts/qa/ac043-test.mjs` against compiled `dist/masking/masking-engine.js`. All 9 tests pass:
+  1. Disabled engine returns original string with email/CPF unchanged, `maskedFieldCount: 0`
+  2. Disabled engine returns original array unchanged, `maskedFieldCount: 0`
+  3. Disabled engine returns original nested object unchanged, `maskedFieldCount: 0`
+  4. Disabled engine returns credit card number unchanged, `maskedFieldCount: 0`
+  5. Disabled engine returns Bearer token unchanged, `maskedFieldCount: 0`
+  6. Disabled engine returns BR phone unchanged, `maskedFieldCount: 0`
+  7. Disabled engine ignores user-defined patterns, `maskedFieldCount: 0`
+  8. null and numbers pass through unchanged, `maskedFieldCount: 0`
+  9. Regression: enabled engine still masks correctly (email + CPF both masked, `maskedFieldCount: 1`)
+- `npx tsc --noEmit` clean. `npm run build` exits 0.
+- No code changes needed.
+- NextAction: none (AC-043 fully verified)
