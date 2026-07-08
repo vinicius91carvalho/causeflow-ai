@@ -164,3 +164,18 @@ fatal: Unable to write index.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T21:21Z — Verify-first: AC-017 passes at real WS boundary
+
+- WorkItem: WI-AC-017
+- Attempt: 1/3
+- AcceptanceChecks: AC-017
+- Role: coding-agent (verify-first mode)
+- Boundary: real `ws.WebSocketServer` stub on `127.0.0.1:5189/v1/relay/connect` + real compiled relay `node dist/index.js` with a temp config containing 2 resources (pg-1 postgres, mongo-1 mongodb, both database: testdb)
+- Flow: relay boots → loads config → opens WS with `?token=test-token-abc&tenantId=test-tenant-xyz` → sends `resource_update` (resources=2) → stub sends JSON-RPC 2.0 `list_resources` request (no params) → relay dispatches via `policyEngine.listResources().map(...)` → `wsClient.send(createResponse(request.id, resources))`
+- Captured response:
+  ```json
+  {"jsonrpc":"2.0","id":"0e16e632-3d5c-4ddb-bea7-ebd3ef70579f","result":[{"resourceId":"pg-1","type":"postgres","name":"Test Postgres 1","database":"testdb","readOnly":true},{"resourceId":"mongo-1","type":"mongodb","name":"Test Mongo 1","database":"testdb","readOnly":true}]}
+  ```
+- Verdict: jsonrpc='2.0'; id echoed; result is array of 2; each entry shaped `{resourceId,type,name,database,readOnly:true}`; types `postgres`|`mongodb`; readOnly===true for all; derived from policy engine resource list. All checks green.
+- Outcome: implementation=true (zero-diff checkpoint — no code changes). No defects.
