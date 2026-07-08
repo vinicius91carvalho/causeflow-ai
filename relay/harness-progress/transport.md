@@ -107,3 +107,19 @@ No root-cause fix required: the existing code already satisfies AC-013 at the re
 - WorkItem: WI-AC-013
 - Outcome: implementation=true (zero-diff)
 - NextAction: Integrated Verification
+
+## WI-AC-013 — QA audit (independent)
+
+**Result: qa=true, implementation=true**
+
+Independent audit on isolated worktree. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Ran a real `ws.WebSocketServer` on `127.0.0.1:5173` at `/v1/relay/connect` and the real `node dist/index.js` process with env-var fallback config (2 resources: `res-pg` postgres + `res-mg` mongodb; `TENANT_ID=tn-123`).
+
+Evidence:
+- On WebSocket `open`, the relay sent exactly one inbound message to the stub:
+  `{"type":"resource_update","relayId":"b63e9ec4-...","tenantId":"tn-123","resources":[{"resourceId":"res-pg","type":"postgres","name":"main-pg","database":"maindb","readOnly":true},{"resourceId":"res-mg","type":"mongodb","name":"main-mg","database":"mainmg","readOnly":true}]}`
+- Every configured resource is present (2/2), each mapped to `{ resourceId, type: 'postgres'|'mongodb', name, database, readOnly: true }`.
+- Message is constructed via `createResourceUpdate(relayId, tenantId, resources)` (`src/transport/ws-client.ts` `sendResourceUpdate` → `this.send(createResourceUpdate(this.relayId, this.opts.tenantId, resources))`), invoked from the `onConnect` callback wired in `src/index.ts` on the WS `open` event.
+- Shape matches `ResourceUpdateMessage` (`src/transport/protocol.ts`): `type`/`relayId`/`tenantId`/`resources[]` keys present with correct types; `readOnly` is `true` for every resource.
+- Validation verdict from the probe: `PASS`.
+
+No defects found.
