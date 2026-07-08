@@ -130,3 +130,30 @@ No defects found.
 - WorkItem: WI-AC-013
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T04:10Z — Integrated Verification (qa-agent on latest main)
+
+**Result: integration=true, implementation=true, qa=true**
+
+Integrated verification on latest main (`cc2b61b`) at a real WebSocket boundary. Built `dist/` (`npx tsc --noEmit` → 0; `npm run build` → 0). Ran a real `ws.WebSocketServer` on `127.0.0.1:5173` at `/v1/relay/connect` and the real `node dist/index.js` process using the env-var fallback config (no YAML file — `RELAY_CONFIG_PATH=/nonexistent/...`), with two resources: `order-pg` (postgres) + `order-mongo` (mongodb). Driver init is lazy (`pg.Pool` / `MongoClient` constructors never connect), so no DB is required to exercise the open-path resource_update send. Probe captured inbound messages for 6s.
+
+Evidence (probe verdict JSON, `/tmp/ac013-qa-verdict.json`):
+- `connections=1`; relay stdout contains `Connected to control plane` (`relayStdoutHasConnected=true`).
+- `totalMessages=1`, `resourceUpdateCount=1` — exactly one inbound message in the window, `type=resource_update`, arriving immediately on WebSocket `open`.
+- `shapeOk=true` — top-level keys exactly `relayId,resources,tenantId,type` (matches `ResourceUpdateMessage`).
+- `typeOk=true`; `relayIdOk=true` (`relayId=505aaa2c-ea43-49e7-8837-1c59947d2cdb`, UUID); `tenantOk=true` (tenantId === `ac013-qa-tenant`).
+- `resourceCountOk=true` (2/2 resources); `allResourcesMapped=true` — every configured resource (`order-pg` postgres + `order-mongo` mongodb, with matching `name`/`database`) is present.
+- `perResourceShapeOk=true` — each resource's keys exactly `database,name,readOnly,resourceId,type`; `readOnlyOk=true` (every entry `readOnly === true`); `typeValuesOk=true` (types in `{postgres,mongodb}`).
+- Wire bytes: `{"type":"resource_update","relayId":"505aaa2c-...","tenantId":"ac013-qa-tenant","resources":[{"resourceId":"order-pg","type":"postgres","name":"Order Service PostgreSQL","database":"orders","readOnly":true},{"resourceId":"order-mongo","type":"mongodb","name":"Order Service MongoDB","database":"orders","readOnly":true}]}`.
+- `createResourceUpdate(relayId, tenantId, resources)` direct call serializes to `{ type:'resource_update', relayId, tenantId, resources }` (keys exactly `relayId,resources,tenantId,type`) — matches `ResourceUpdateMessage`. The relay sends it via `WsClient.sendResourceUpdate` → `send(createResourceUpdate(this.relayId, this.opts.tenantId, resources))`, invoked from the `onConnect` callback wired in `src/index.ts` on the WS `open` event.
+
+AC-013 contract satisfied at the real boundary on integrated main. No defects found.
+
+## 2026-07-08T04:10Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-013
+- AcceptanceChecks: AC-013
+- Outcome: passed on integrated main
+- Evidence: /tmp/ac013-qa-verdict.json
+- NextAction: next Ready Work Item
