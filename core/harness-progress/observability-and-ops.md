@@ -190,3 +190,10 @@ Local untracked (gitignored): `/tmp/ac036-clerk-{priv,pub}.pem`, `.env.ac036`,
 **Defects:** None. Both parts of AC-036 are correctly implemented.
 Langfuse and Sentry end-to-end verification require runtime keys
 (inactive by design in this config) — infrastructure code is correct.
+
+## 2026-07-08T21:26:54.956Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
