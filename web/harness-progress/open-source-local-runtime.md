@@ -372,3 +372,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - No dead imports: `grep -r 'tenant-provisioning-fallback\|delete-user\|setup-stripe'` across dashboard src/scripts/ returns zero matches.
 - Environmental note (non-defect): `packages/auth/package.json` retains `@aws-sdk/client-cognito-identity-provider` per AC-036 (legacy reference). Lockfile retains AWS SDK entries from that package. AC-049 only removes AWS SDK from dashboard and root package.json.
 - Defects: []
+
+## 2026-07-08T20:05:25.146Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-049
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
