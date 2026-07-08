@@ -906,3 +906,10 @@ All AC-002 steps pass at the real HTTP boundary. No blocking defects. qa=true, i
 - Result: both defects from attempt 1 are fixed. PORT=5172 forwarded through turbo (env: ["PORT"] in turbo.json), website listens on 5172; dashboard dev script uses PORT+1 logic, listens on 5173. Both return HTTP 200. ✓
 - Evidence: Ports 5172 (website) and 5173 (dashboard) both listening and returning HTTP 200 via curl. Website `✓ Ready in 1164ms`, Dashboard `✓ Ready in 2.4s`.
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:30:25.758Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-002
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
