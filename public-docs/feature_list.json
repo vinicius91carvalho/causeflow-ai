@@ -480,7 +480,7 @@
     "implementation": false,
     "qa": false,
     "integration": false,
-    "retries": 1
+    "retries": 0
   },
   {
     "id": "WI-AC-023",
