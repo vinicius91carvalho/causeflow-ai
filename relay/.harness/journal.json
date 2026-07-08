@@ -69,6 +69,23 @@
         "valid_mongo_type_is_mongodb": "passed",
         "valid_mongo_database_is_relay": "passed"
       }
+    },
+    {
+      "id": "WI-AC-020",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-08T21:50:00Z",
+      "details": "Independent QA verification pass for AC-020 (protocol: unknown method + handler error). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + postgres + mongo). Probe script scripts/probe-ac020.mjs sent 4 test cases: (1) unknown method 'bogus_method' returns error code -32601 with message 'Unknown method: bogus_method'; (2) execute SELECT * FROM nonexistent_table on order-pg causes driver throw, catch block logs error-level with {err, requestId} and returns -32603 with relation does not exist message; (3) known method list_resources still works after error tests; (4) second unknown method 'unknown_method_xyz' confirms dynamic method name insertion. All 9 checks passed. Relay logs confirm 'Request handler error' at level 50 with {err, requestId} and audit entry with result:'error' and errorMessage set.",
+      "checks": {
+        "unknown_method_code_minus_32601": "passed",
+        "unknown_method_message_format": "passed",
+        "handler_error_caught_and_logged": "passed",
+        "handler_error_code_minus_32603": "passed",
+        "handler_error_message_from_err": "passed",
+        "dynamic_method_name": "passed",
+        "known_method_works_after": "passed"
+      }
     }
   ]
 }

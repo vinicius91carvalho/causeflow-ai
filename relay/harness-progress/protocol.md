@@ -336,3 +336,10 @@ fatal: Unable to write index.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/protocol/WI-AC-019-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T21:35:41.821Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-020
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
