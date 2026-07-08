@@ -227,3 +227,18 @@ erex="49 vir
 - RepairPlan: AC-008 is implemented correctly. All audit module scaffold files exist (entity, repository, use cases, routes, tests) and are wired in src/bootstrap.ts and src/app.ts at /v1/audit. GET / has no RBAC gate (viewer→200); DELETE /:id uses requireRole('admin') which throws ForbiddenError→403 for viewers; for admins it runs DeleteAuditEntryUseCase, which appends an 'audit.entry.deleted' entry whose previousHash equals the prior tip (captured pre-mutation via repo.getLastEntry on the byCreatedAt GSI) then hard-deletes the target — chain advances correctly even when deleting the prior tip. All 1057 unit tests pass (162 files), including audit.routes.test.ts. The Defect Report is non-actionable: its 'defects' array and the evidence file WI-AC-008-1-qa.log both contain scrambled token-salad (not real QA output) — the evidence capture is corrupted, not the code.; Do NOT modify product code — no observable defect exists against AC-008.; Re-run the WI-AC-008 QA pass with a working evidence harness; discard the corrupted WI-AC-008-1-qa.log and the associated defect report.; Optional hardening (not required for AC-008): add a DELETE /:id RBAC unit test to audit.routes.test.ts and a DeleteAuditEntryUseCase unit test covering (a) admin appends audit.entry.deleted with previousHash===priorTip, (b) deleting the prior tip still yields previousHash===priorTip — these are currently only indirectly covered.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/tenancy-and-access/WI-AC-008-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-08T04:14:00Z — Independent QA (WI-AC-008, this worktree)
+
+**Result: qa=true, implementation=true.**
+
+Independently reproduced the AC-008 boundary against a fresh server process on the assigned PORT=5182 (killed stale server, booted `node --env-file=.env.dev --import tsx/esm src/main.ts` from HEAD `9938ce0`). `GET /health` → 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`. Real `fetch` HTTP, real `@clerk/backend` networkless RS256 verification (private key at `/tmp/ac008-clerk-jwt-key.pem` matches `CLERK_JWT_KEY` SPKI in `.env.dev`), real DynamoDB at ministack :4566 — no mocks. Used a **fresh tenant** (`org_qa_ac008_<ts>`) with an independent chain seeded via `POST /v1/audit/terms-acceptance` (genesis → A → B). Boundary script: `/tmp/ac008-qa-independent.mjs`. **13/13 passed:**
+
+- `GET /v1/audit` as **viewer** (org:member, lowest-privilege) → **200** `{items:[...], count=2}`.
+- `DELETE /v1/audit/:id` as **viewer** → **403** `{error:FORBIDDEN, message:"Insufficient permissions. Required: admin"}` (RBAC via `requireRole('admin')`).
+- `DELETE /v1/audit/:id` as **admin** → **200** `{entryId, deleted:1, newEntry}`.
+- `newEntry.action` = `audit.entry.deleted`; **chain advance invariant**: `newEntry.previousHash` (`4bcd048c5d5b8658…`) == prior tip's `entryHash` captured pre-DELETE from `GET /v1/audit`. Cross-checked via a fresh GET (newest entry = deletion record, `previousHash` == prior tip).
+
+Path note (doc drift, not a defect, same as WI-AC-007): spec AC wording says `/api/v1/audit/...`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/audit/...`. Role note: codebase maps `org:admin`→`admin`, all other org roles→`member` (no literal `viewer` role string); member is the non-admin viewer-equivalent and is correctly blocked at 403 by `requireRole('admin')`. Functional AC-008 behaviour fully met.
+
+Local QA artefacts (gitignored, like `.env.dev`): `/tmp/ac008-qa-independent.mjs`, `/tmp/ac008-qa-server.log`, RSA keypair at `/tmp/ac008-clerk-jwt-key.*`. Server left running on 5182.
