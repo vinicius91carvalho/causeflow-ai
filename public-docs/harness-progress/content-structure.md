@@ -122,6 +122,87 @@ committed. No refactor, no restructuring.
 integration=true. AC-004 holds on integrated main at the real external
 boundary; no defects observed. implementation=true, qa=true.
 
+## 2026-07-08T03:45:00Z — Verify-first (WI-AC-006)
+
+- WorkItem: WI-AC-006
+- AcceptanceChecks: AC-006
+- context: content-structure
+- Mode: VERIFY-FIRST (existing codebase)
+- Attempt: 1
+- Outcome: implementation=true (zero-diff checkpoint; AC passes at real boundary)
+- NextAction: Integrated Verification
+
+### Acceptance check
+
+AC-006: All four navigation tabs declared in `docs.json` (Documentation, API
+reference, Relay, Changelog) render in the local Mintlify dev server; clicking
+the Changelog tab reaches a page whose H1 matches the title in
+`changelog/index.mdx`.
+
+### Audit result
+
+- `docs.json` `navigation.tabs` declares exactly four tabs: Documentation,
+  API reference, Relay, Changelog (lines 44, 106, 298, 323).
+- Changelog tab group points at `changelog/index`; file exists with frontmatter
+  `title: "Changelog"`.
+- Dev server running on assigned PORT=5170 (`mint dev --port 5170`, PWD =
+  public-docs).
+- No defects found in existing committed code; no changes required.
+
+### Boundary verification (real external boundary)
+
+- `GET http://localhost:5170/` → 200; rendered HTML contains all four tab
+  labels (Documentation, API reference, Relay, Changelog).
+- Representative page per tab all return 200:
+  - `/` (Documentation) → 200, H1 "CauseFlow AI Documentation"
+  - `/api-reference/introduction` (API reference) → 200, H1 "API introduction"
+  - `/relay/overview` (Relay) → 200, H1 "Relay overview"
+  - `/changelog` (Changelog) → 200, H1 "Changelog"
+- Changelog page H1 (`Changelog`) matches `changelog/index.mdx` frontmatter
+  `title` (`"Changelog"`) exactly.
+
+### Verdict
+
+implementation=true. Zero tracked files changed (zero-diff checkpoint).
+
+## 2026-07-08 QA — WI-AC-006 (independent re-audit)
+
+- Role: qa-agent (independent re-audit of isolated worktree)
+- WorkItem: WI-AC-006
+- AcceptanceChecks: AC-006
+- context: content-structure
+- Boundary: real HTTP — `mint dev` running on PORT=5170 from project
+  root (`@mintlify/cli dev --port 5170`, PWD = public-docs).
+
+### Audit result
+
+- `docs.json#navigation.tabs` declares exactly four tabs:
+  Documentation, API reference, Relay, Changelog.
+- All required scaffold directories present (getting-started, dashboard,
+  integrations, billing, security, api-reference, relay, changelog,
+  snippets, investigation, plans, tasks, docs, logo).
+- `changelog/index.mdx` frontmatter `title: "Changelog"`.
+
+### Boundary verification (real HTTP)
+
+- `GET http://localhost:5170/` -> 200; rendered HTML contains all four tab
+  labels (Documentation x5, API reference x3, Relay x3, Changelog x2).
+- Representative page per tab all return 200 with a rendered H1:
+  - `/` (Documentation) -> H1 "CauseFlow AI Documentation"
+  - `/api-reference/introduction` (API reference) -> H1 "API introduction"
+  - `/relay/overview` (Relay) -> H1 "Relay overview"
+  - `/changelog` (Changelog) -> H1 "Changelog"
+- Changelog page H1 (`Changelog`) matches `changelog/index.mdx` frontmatter
+  `title` (`Changelog`) exactly (programmatic compare -> MATCH=True).
+- No MDX parse errors on the Changelog page (200 with rendered body;
+  `error` tokens present are Next.js framework boilerplate / generic 404
+  component / "Errors and pagination" page reference, not parse errors).
+
+### Verdict
+
+qa=true. implementation=true. Zero defects. AC-006 holds on the isolated
+worktree at the real external HTTP boundary. No code changes required.
+
 ## 2026-07-08T03:37:19.754Z — Integrated Verification passed
 
 - Attempt: 1/3
@@ -130,3 +211,10 @@ boundary; no defects observed. implementation=true, qa=true.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/content-structure/WI-AC-004-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T04:03:09.641Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
