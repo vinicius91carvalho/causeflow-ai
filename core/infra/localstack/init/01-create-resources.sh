@@ -75,12 +75,12 @@ awslocal sqs create-queue \
   --attributes "{\"VisibilityTimeout\":\"600\",\"RedrivePolicy\":\"{\\\"deadLetterTargetArn\\\":\\\"$REM_DLQ_ARN\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}" \
   --region "$REGION" 2>/dev/null || true
 
-# Progress queues (worker → API real-time updates)
-awslocal sqs create-queue --queue-name causeflow-progress-dlq --region "$REGION" 2>/dev/null || true
-PROG_DLQ_ARN=$(awslocal sqs get-queue-attributes --queue-url "$ENDPOINT/000000000000/causeflow-progress-dlq" --attribute-names QueueArn --region "$REGION" --query 'Attributes.QueueArn' --output text)
+# Triage queues
+awslocal sqs create-queue --queue-name causeflow-triage-dlq --region "$REGION" 2>/dev/null || true
+TRIAGE_DLQ_ARN=$(awslocal sqs get-queue-attributes --queue-url "$ENDPOINT/000000000000/causeflow-triage-dlq" --attribute-names QueueArn --region "$REGION" --query 'Attributes.QueueArn' --output text)
 awslocal sqs create-queue \
-  --queue-name causeflow-progress \
-  --attributes "{\"VisibilityTimeout\":\"300\",\"RedrivePolicy\":\"{\\\"deadLetterTargetArn\\\":\\\"$PROG_DLQ_ARN\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}" \
+  --queue-name causeflow-triage \
+  --attributes "{\"VisibilityTimeout\":\"300\",\"RedrivePolicy\":\"{\\\"deadLetterTargetArn\\\":\\\"$TRIAGE_DLQ_ARN\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}" \
   --region "$REGION" 2>/dev/null || true
 
 echo "==> Creating Secrets"
@@ -102,6 +102,6 @@ awslocal kms create-alias \
 
 echo "==> LocalStack init complete!"
 echo "  DynamoDB table: $TABLE_NAME (3 GSIs, PITR enabled)"
-echo "  SQS queues: alerts, investigation, remediation, progress (+ 4 DLQs)"
+echo "  SQS queues: alerts, triage, investigation, remediation (+ 4 DLQs)"
 echo "  Secrets: jwt-secret, anthropic-api-key"
 echo "  KMS: alias/causeflow-token-encryption"

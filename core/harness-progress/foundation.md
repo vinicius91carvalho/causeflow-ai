@@ -461,3 +461,16 @@ Verified the DynamoDB boundary against the running `core-ministack-1` (endpoint 
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-005-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T02:30:00.000Z — Verify-first check (AC-006)
+
+- WorkItem: WI-AC-006
+- AcceptanceChecks: AC-006
+- Outcome: passed; implementation=true (after minimal fix)
+
+Verified the SQS + KMS boundary against the running `core-ministack-1` (endpoint http://localhost:4566, reachable from host). Host has no `aws` CLI, so the AC's literal commands were exercised via `docker exec core-ministack-1 awslocal ...` against the identical host-mapped :4566 service.
+
+- `sqs list-queues` → 8 URLs: causeflow-alerts, causeflow-alerts-dlq, causeflow-triage, causeflow-triage-dlq, causeflow-investigation, causeflow-investigation-dlq, causeflow-remediation, causeflow-remediation-dlq. ✓ (alerts / triage / investigation / remediation + 4 DLQs)
+- `kms list-aliases` → alias `alias/causeflow-token-encryption` present. ✓
+
+Defect found + root-cause fix (smallest diff): the init script `infra/localstack/init/01-create-resources.sh` created a `causeflow-progress` (+dlq) queue instead of the `causeflow-triage` (+dlq) queue required by AC-006 and referenced by `.env.dev` (`SQS_TRIAGE_QUEUE_URL`). The `progress` queue was unused in dev (`.env.dev` sets no `SQS_PROGRESS_QUEUE_URL`, so the progress consumer was already disabled). Renamed the queue block progress→triage in the init script and re-ran it against the live ministack (deleted the two progress queues first). No application code changed.
