@@ -83,6 +83,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-oss-dev-webhook-secret}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SLACK_SIGNING_SECRET: ${SLACK_SIGNING_SECRET:-test-signing-secret}
     ports:
       - '3099:5171'
     healthcheck:

@@ -40,6 +40,7 @@ function makeMockDeps(overrides: Partial<SlackRouteDeps> = {}): SlackRouteDeps {
             clientSecret: 'test-client-secret',
             redirectUri: 'https://api.causeflow.io/v1/integrations/slack/oauth/callback',
             stateSecret: 'test-state-secret',
+            signingSecret: 'test-signing-secret',
         },
         ...overrides,
     };

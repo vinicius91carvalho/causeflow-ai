@@ -204,6 +204,7 @@ export const config = {
     clientSecret: process.env['SLACK_CLIENT_SECRET'] ?? '',
     redirectUri: process.env['SLACK_REDIRECT_URI'] ?? '',
     stateSecret: process.env['SLACK_STATE_SECRET'] ?? '',
+    signingSecret: process.env['SLACK_SIGNING_SECRET'] ?? '',
   },
 
   ecs: {

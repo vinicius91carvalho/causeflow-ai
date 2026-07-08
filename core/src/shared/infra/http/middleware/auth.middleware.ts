@@ -32,6 +32,7 @@ const PUBLIC_PATHS = [
   '/v1/investigation/ws',  // WebSocket relay — uses its own JWT auth (not Clerk)
   '/v1/relay/',             // DB relay — uses its own token auth
   '/v1/integrations/slack/oauth/callback', // Slack OAuth browser redirect — no JWT available
+  '/v1/integrations/slack/events', // Slack Events API — verified via signing secret, not Bearer
 ];
 
 // Provisioning paths: require valid JWT but org_id claim is optional.

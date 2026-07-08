@@ -11,6 +11,11 @@ vi.mock('@clerk/backend', () => ({
 // Mock config so the middleware doesn't need real env vars
 vi.mock('../../../../src/shared/config/index.js', () => ({
   config: {
+    auth: {
+      jwtSecret: undefined,
+      jwtIssuer: 'causeflow',
+      jwtAudience: 'causeflow-api',
+    },
     clerk: {
       secretKey: 'test-clerk-secret-key',
     },
