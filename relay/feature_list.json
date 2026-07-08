@@ -1004,10 +1004,10 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
+    "implementation": true,
+    "qa": true,
     "integration": false,
-    "retries": 0
+    "retries": 1
   },
   {
     "id": "WI-AC-045",
