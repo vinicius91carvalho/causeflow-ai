@@ -102,3 +102,12 @@ Boundary (`node ac011-boundary.mjs`, real `fetch`es on PORT=5183, RS256 Clerk JW
 Regression: `pnpm typecheck` clean; `pnpm lint-invariants` 10/10 pass (I1–I11); `pnpm test:run` 162 files / 1057 tests pass.
 
 Doc-drift note unchanged: literal `/api/v1/billing/checkout-session` is not mounted (no global `/api` prefix; route is `/v1/billing/checkout` taking a `planKey` resolved to a Stripe Price ID via the plan catalog — the spec's security note says "never trust client-supplied price IDs"). Per the contradictions clause and WI-AC-007 precedent, the functional AC-011 behaviour is fully met.
+
+## 2026-07-08T04:33:44.270Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-011
+- AcceptanceChecks: AC-011
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/billing/WI-AC-011-1-integration_qa.log
+- NextAction: next Ready Work Item
