@@ -343,3 +343,59 @@ required.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/content-structure/WI-AC-007-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T04:36:00Z — Verify-first (WI-AC-005)
+
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- context: content-structure
+- Mode: VERIFY-FIRST (existing codebase)
+- Attempt: 1
+- Outcome: implementation=true (zero-diff checkpoint; AC passes at real boundary)
+- NextAction: Integrated Verification
+
+### Acceptance check
+
+AC-005: Every `description` field in `.mdx` frontmatter is at most 160
+characters — `awk` over frontmatter blocks returns no field whose value
+length exceeds 160. (Depends on AC-004, which already holds on main.)
+
+### Queue entry confirmed
+
+- `.git/harness-runs/public-docs--content-structure.json`: context=
+  content-structure, phase=coding, port=5170, featureIds=["WI-AC-005"],
+  attempt=1, currentFeatureId=WI-AC-005.
+
+### Audit result
+
+- In-scope `.mdx` files: 133 (excludes `.mintlify/`, `.artifacts/`,
+  `node_modules/`, `drafts/`, `.git/`).
+- Audit script (`/tmp/ac005_audit.sh`): for each `.mdx`, extracts the first
+  YAML frontmatter block (line 1 `---` to next `---`), parses it with
+  PyYAML, reads the `description` value, and flags `YAML_ERROR`, `NO_DESC`,
+  or `TOO_LONG(len)` when the string length exceeds 160.
+- Result on the worktree (HEAD deaecf4, clean tree): `TOTAL=133 FAIL=0`.
+  No `description` exceeds 160 characters; every file has a parseable
+  frontmatter `description`.
+- Spec-style `awk` over frontmatter blocks double-check: no field whose
+  value length exceeds 160.
+
+### Boundary verification (real external HTTP boundary)
+
+- `mint dev --port 5170` running from project root (PWD = public-docs);
+  `GET http://localhost:5170/` -> 200 (AC-001 / AC-004 dependency holds).
+- Rendered `<meta name="description">` lengths on representative pages,
+  all <= 160:
+  - `/` (index) -> 200, desc_len=159
+  - `/getting-started/quickstart` -> 200, desc_len=75
+  - `/api-reference/introduction` -> 200, desc_len=79
+  - `/relay/overview` -> 200, desc_len=107
+  - `/changelog` -> 200, desc_len=56
+- The frontmatter `description` values drive the rendered meta description,
+  confirming the audit field is the same field served at the boundary.
+
+### Verdict
+
+implementation=true. Zero tracked content files changed (zero-diff
+checkpoint). No refactor, no restructuring. AC-005 holds at the real
+external HTTP boundary.
