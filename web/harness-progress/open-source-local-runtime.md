@@ -281,3 +281,10 @@ Use /login to log into a provider via OAuth or API key. See:
   4. `LOOPS_API_KEY` is absent from `apps/website/.env.example`. ✓
 - Non-defect note: The AC-045 description mentions `http://core-api:3099` as the CORE_API_URL default, but the implementation uses `http://causeflow-api:5171` — this matches the actual docker-compose service name `causeflow-api` (not `core-api`) and container port `5171` (not host port `3099`). Per the project spec's contradictions clause: "implementation is treated as authoritative when documentation drifts." The .env.example and docker-compose.yml are internally consistent.
 - NextAction: orchestrator records verdict
+
+## 2026-07-08T18:52:49.691Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-045
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
