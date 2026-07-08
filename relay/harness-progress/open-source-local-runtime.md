@@ -1174,3 +1174,91 @@ Vendor SDK check: `grep -rE 'aws-sdk|@aws-sdk|stripe|@clerk|@sentry|@langfuse|@s
   logic, just from a separate client script instead of inline).
 
 `feature_list.json` WI-AC-056 set to `implementation: true`.
+
+## 2026-07-08T20:46:00Z — QA Independent Verification (AC-056)
+
+- WorkItem: WI-AC-056
+- AcceptanceChecks: AC-056
+- Outcome: qa=true, implementation=true (independently re-verified on running stack)
+- Method: torn down any prior stack (`docker compose down -v --remove-orphans`),
+  then `docker compose up -d --build` from repo root (no `AWS_*`/`STRIPE_*`/`CLERK_*`/
+  `LANGFUSE_*`/`SENTRY_*`/`SVIX_*`/`SLACK_*`/`COMPOSIO_*`/`MASTRA_*`/`SQS_*`/`DYNAMODB_*`/
+  `STS_*`/`KMS_*` in parent env). Independently verified every AC-056 clause at real
+  external boundaries.
+
+### Independent verification results (AC-056 clause by clause)
+
+**`scripts/control-plane-stub/server.mjs` is committed:**
+- File exists at `scripts/control-plane-stub/server.mjs` ✓
+
+**Imports `ws` and Node stdlib only:**
+- Imports `WebSocketServer` from `ws` and `randomUUID` from `node:crypto` — no
+  other imports ✓
+- `grep -rE 'aws-sdk|@aws-sdk|stripe|@clerk|@sentry|@langfuse|@svix|@slack|composio|@mastra' scripts/control-plane-stub/server.mjs` → 0 matches ✓
+
+**Opens `WebSocketServer` on `0.0.0.0:3000`:**
+- Code: `new WebSocketServer({ port: PORT, path: '/v1/relay/connect' })` where
+  `PORT` defaults from `process.env.PORT ?? 3000` ✓
+- Stub log on boot: `[stub] listening on 0.0.0.0:3000 expect token=...` ✓
+
+**Validates `?token=&tenantId=` URL query against expected env-var pair:**
+- Code checks `token !== EXPECTED_TOKEN || tenantId !== EXPECTED_TENANT` and
+  closes with code 4001 on mismatch ✓
+- Stub logs `[stub] rejecting handshake token=WRONG tenantId=also-wrong` on
+  invalid credentials ✓
+- Relay successfully authenticated with `RELAY_TOKEN=harness-smoke-token` and
+  `TENANT_ID=harness-tenant` ✓
+
+**On `message` JSON-parses payload and routes by `type`:**
+- Code parses `JSON.parse(raw.toString())`, then switches on `msg.type` ✓
+
+**Logs `resource_update` with `relayId` + `resources.length`:**
+- Stub log: `[stub] resource_update from relayId=9edca16c-66fd-4fd1-9e65-46ff613a0f9f resources=2` ✓
+
+**Logs `heartbeat` with `relayId` at debug:**
+- Stub log: `[stub] heartbeat from relayId=9edca16c-66fd-4fd1-9e65-46ff613a0f9f (debug)` ✓
+
+**Exposes a one-shot `npm run smoke` script:**
+- `scripts/control-plane-stub/package.json` defines `"smoke": "node smoke.mjs"` ✓
+- `npm run smoke` (from `scripts/control-plane-stub/`) runs successfully and
+  exits 0 ✓
+
+**Smoke script opens outbound WebSocket to the relay:**
+- `smoke.mjs` connects to `STUB_URL` (default `ws://localhost:3000/v1/relay/connect`)
+  with `?token=&tenantId=` query params, then sends JSON-RPC 2.0 requests which
+  the stub forwards to the relay ✓
+
+**Sends `health_check` + two `execute` round-trips from AC-053/AC-054:**
+- `health_check`: stub log shows result with both drivers healthy ✓
+- `execute({SELECT 1 AS one})` against `order-pg`: returns
+  `rows:[{one:1}] rowCount:1 fields:[{name:"one",type:"int4"}] masked:false` ✓
+- `execute({list_tables})` against `order-pg`: returns
+  `rows:[{table_name:"orders",...}]` ✓
+
+**Asserts responses, exits 0 on success / non-zero on mismatch:**
+- Smoke script assertions check: health_check result is non-empty array with
+  resourceId/type/healthy/latencyMs; SELECT 1 checks rows, rowCount, fields,
+  executionTimeMs, masked, maskedFieldCount; list_tables checks for `orders` in
+  rows ✓
+- Success: `[smoke] exiting with code 0` (both manual `node smoke.mjs` and
+  `npm run smoke` verified) ✓
+
+**Zero runtime dependency on vendor SDK:**
+- `scripts/control-plane-stub/smoke.mjs` imports only `ws` (`WebSocket`) and
+  `node:crypto` (`randomUUID`) ✓
+- `grep -rE 'aws-sdk|@aws-sdk|stripe|@clerk|@sentry|@langfuse|@svix|@slack|composio|@mastra' scripts/control-plane-stub/smoke.mjs` → 0 matches ✓
+
+**Built into a 50-line image by `scripts/control-plane-stub/Dockerfile`:**
+- Dockerfile is small (8 lines, `FROM node:22-alpine`, `WORKDIR /app`,
+  `COPY package.json ./`, `RUN npm install --omit=dev`, `COPY server.mjs ./`,
+  `EXPOSE 3000`, `CMD ["node", "server.mjs"]`) — minimal 50-line image ✓
+- `docker compose build relay-control-plane-stub` succeeds ✓
+
+### Verdict
+
+All AC-056 acceptance criteria independently re-verified on a freshly brought-up
+stack from a clean shell env at real external boundaries (live docker-network
+WebSocket, live Postgres/Mongo health checks, real execute round-trips).
+`npm run smoke` exits 0 with all three round-trips passing.
+
+No defects. `qa=true`, `implementation=true`.
