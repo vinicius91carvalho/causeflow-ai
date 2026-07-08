@@ -269,3 +269,16 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/lifecycle/WI-AC-049-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T17:15:00.000Z — AC-050 Passed
+
+- WorkItem: WI-AC-050
+- Outcome: PASSED
+- Implementation: true (no code changes needed)
+- AcceptanceChecks: AC-050
+- Evidence: All three workflows verified at real boundaries:
+  1. `npm run build` (tsc) exits 0 and produces clean `dist/` tree mirroring `src/` exactly — every `.ts` has a corresponding `.js`
+  2. `npm run dev` (tsx watch src/index.ts) starts the relay, watches `src/` for changes (confirmed via `[tsx] change in ./src/index.ts Rerunning...` log line after `touch src/index.ts`), and restarts on save
+  3. `npm start` (node dist/index.js) runs compiled output — "Starting CauseFlow Relay..." logged, config validation error (expected: no resources configured) reported with stack tracing `dist/`
+- No production code changes needed
+- Feature list updated: WI-AC-050 implementation=true, qa=true
