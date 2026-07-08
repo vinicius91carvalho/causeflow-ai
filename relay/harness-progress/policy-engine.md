@@ -44,3 +44,10 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T17:30:08.000Z — Verified
+
+- WorkItem: WI-AC-037
+- Outcome: PASSED
+- Evidence: Real WebSocket boundary test confirmed: resource with `allowedOperations: ['query']` rejects `execute` with `operation: 'describe_table'` → JSON-RPC `-32600` error with message `Policy denied: Operation describe_table not allowed on resource test-pg`. Audit entry logged with `result: 'denied'` and `policyChecks.reason` set to the denial reason.
+- Result: implementation=true (zero-diff: no code changes needed)
