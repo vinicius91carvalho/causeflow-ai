@@ -37,3 +37,24 @@
 3. **Git tracking** — PASS — Both files tracked and committed as part of WI-AC-045
 
 **Observation (non-blocking):** The project_specs.xml AC-045 description states CORE_API_URL default should be `http://core-api:3099`. The actual docker-compose.yml service is named `causeflow-api` (not `core-api`) and listens on port `5171` internally (port `3099` is the external host binding). The .env.example correctly uses `http://causeflow-api:5171`. This is a spec-text inaccuracy, not a functional defect — the implementation is internally consistent and correct.
+
+---
+
+## WI-AC-004 — Biome 2.4.4 lint+format check exits 0
+
+**State:** `implementation=true`
+
+**Summary:**
+- Removed 4 unused `// biome-ignore lint/suspicious/noConsole` suppression comments from test files that had no effect since `suspicious/noConsole` is not enabled in `biome.json`.
+- Ran `pnpm exec biome check --write .` to auto-format `feature_list.json` (the single formatting error causing non-zero exit).
+- `pnpm exec biome check .` now exits 0 with only warnings (76 remaining, all at `warn` severity from rules deliberately set to warn in `biome.json`).
+- `pnpm exec biome check --write .` also exits 0.
+- Verified no ESLint/Prettier config files exist anywhere in the repo (AC-004 Step 3 pass).
+- `pnpm turbo lint` exits 0 with all 7 tasks successful.
+
+**Changes:**
+- `tests/e2e/review/pd-auth-setup.ts` — removed unused suppression comment
+- `tests/dashboard/auth-setup.ts` — removed unused suppression comment
+- `tests/dashboard/language-selector.spec.ts` — removed unused suppression comment
+- `tests/dashboard/theme-language-race.spec.ts` — removed unused suppression comment
+- `feature_list.json` — auto-formatted by biome

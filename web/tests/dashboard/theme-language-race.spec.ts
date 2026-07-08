@@ -67,7 +67,6 @@ test.describe('Dashboard — theme/language race regression', () => {
       })
       .catch(() => {
         // Non-fatal restore failure — log only.
-        // biome-ignore lint/suspicious/noConsole: intentional restore log
         console.warn('[theme-language-race] failed to restore locale to en');
       });
     await ctx.close();

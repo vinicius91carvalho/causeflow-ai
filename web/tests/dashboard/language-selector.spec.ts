@@ -43,7 +43,6 @@ async function patchServerLocale(
   });
   if (!res.ok()) {
     // Non-fatal — log so the restore step is visible in CI output.
-    // biome-ignore lint/suspicious/noConsole: test restore logging is intentional
     console.warn(
       `[language-selector.spec] PATCH /api/settings { locale: ${locale} } → ${res.status()}`,
     );
