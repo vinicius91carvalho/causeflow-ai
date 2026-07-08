@@ -898,3 +898,48 @@ implementation=false; qa=false; defects=AC-018 introduction count stale (21, mus
 - RepairPlan: AC-031 regression defect confirmed. AC-018 (in-scope of AC-031's AC-001..AC-025 regression) is failing: api-reference/introduction.mdx line 74 still states 'CauseFlow publishes 21 real-time events across seven domains', while the outbound-events catalog (api-reference/webhooks/outbound-events.mdx) and the Card on line 88 of the same introduction page both correctly report 20 events. The stale '21' headline was never aligned, exactly the contradiction AC-018 was written to eliminate.; Edit api-reference/introduction.mdx line 74: change 'CauseFlow publishes 21 real-time events across seven domains' to 'CauseFlow publishes 20 real-time events across seven domains' (and adjust surrounding prose if grammar demands).; Do not touch api-reference/webhooks/outbound-events.mdx — its 20-row catalog is already correct.; Leave the Card at line 88 unchanged — 'All 20 EventBus events' is already correct.; Confirm no other file carries the stale '21 real-time events' / '21 events' count (grep already shows introduction.mdx line 74 is the sole occurrence).
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-031-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-08T05:50:00Z — Implementation (WI-AC-031, attempt 2)
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Attempt: 2/3
+- Outcome: implementation=true (black-box verified on rebuilt stack, PORT=5179)
+
+### Repair applied
+
+Fixed the AC-018 introduction-alignment defect flagged in attempt 1's QA.
+Single one-token edit in `api-reference/introduction.mdx` line 74:
+
+- `CauseFlow publishes 21 real-time events across seven domains`
+  → `CauseFlow publishes 20 real-time events across seven domains`
+
+The Card at line 88 ("All 20 EventBus events") and the
+`api-reference/webhooks/outbound-events.mdx` 20-row catalog were already
+correct and untouched. `grep -rn '21 real-time events\|21 events' --include='*.mdx'`
+now returns zero matches across the tree.
+
+### Black-box regression (rebuilt image, PORT=5179)
+
+`docker build . -t causeflow-docs:local` exit 0; container `causeflow-docs`
+on 5179->3000; boot log `Serving docs at http://localhost:3000`; forbidden-host
+log grep = 0.
+
+- AC-001: `GET /` -> 200, "CauseFlow AI" x4, "Quickstart" x3.
+- AC-007: `GET /quickstart` -> 200 (redirect resolves), lands on Quickstart.
+- AC-006: all four nav tabs 200 (/, /api-reference/introduction,
+  /relay/overview, /changelog).
+- AC-019: /relay/overview Mermaid renders (no raw `<pre>flowchart`).
+- AC-014: Authentication page covers JWT Bearer, X-API-Key,
+  X-Webhook-Signature (HMAC/sha256).
+- AC-018: catalog lists exactly 20 distinct dot-namespaced events; intro
+  page headline now says "20 real-time events" (2 matches), "21 real-time
+  events" 0 matches. 20 == 20, no off-by-one.
+- AC-022/023/024/025/016/017: all invariant greps exit 1 (zero matches).
+- AC-002: `mint broken-links` -> exit 0, zero broken links.
+- MDX count = 133; all carry title+description (AC-004/005 hold from prior).
+
+### verdict
+
+implementation=true; integration=pending; qa=pending; defects=none
