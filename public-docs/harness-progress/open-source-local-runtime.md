@@ -1012,3 +1012,12 @@ qa=true; implementation=true; defects=none
 - Defects: Integrated Verification failed
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-031-2-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-08T05:11:38.468Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-031
+- DefectReport: Integrated Verification failed
+- RepairPlan: WI-AC-031 Integrated Verification 'failed' is a harness-execution defect, not a content regression. The evidence log (WI-AC-031-2-integration_qa.log, 166 bytes) contains only the route header with outcome:failed and NO JSON verdict body, unlike every passing integration_qa log which carries a full {integration:true,defects:[]} body. Independent re-verification of the integrated main (branch gen/public-docs-open-source-local-runtime, HEAD bd59891, post-merge 498440d) against the running causeflow-docs:qa031 container on PORT=5179 and the source tree shows every AC-031 clause passes: AC-001 home 200 with CauseFlow AI+Quickstart; AC-002 mint broken-links exit 0 zero broken links; AC-007 /quickstart 200 lands on Quickstart (redirect resolves); AC-006 all four nav tabs 200 with matching Changelog H1; full nav sweep 125/125 pages 200; AC-018 intro line 74 says 20 real-time events with zero stale 21 matches; AC-019 Relay Mermaid renders as SVG; AC-014 Auth covers JWT/API-key/HMAC; AC-022/023/024/025/016/017 invariant greps all zero matches; 133 MDX all frontmatter-complete; container boot log has zero forbidden-host references. The prior AC-018 repair (21->20) is committed and present on disk. No scaffold artifacts are missing.; Do not modify any source files — the integrated main already satisfies AC-031 (verified independently on PORT=5179 and against the source tree).; Re-run the INTEGRATION_QA step (attempt 3) for WI-AC-031 against the current integrated main (HEAD bd59891) without code changes; expect integration=true, defects=[].; If the re-run again fails with an empty body, inspect the harness INTEGRATION_QA adapter/runtime (timeout, container teardown, subagent crash) rather than the docs repo — the empty 166-byte log vs the standard 258-byte passed log points to a harness-layer fault.; Ensure the causeflow-docs:qa031 container (or a clean equivalent) is up on the assigned port and that mint broken-links can reach the source tree before re-invoking.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-031-2-integration_qa.log
+- NextAction: Coding Attempt 3
