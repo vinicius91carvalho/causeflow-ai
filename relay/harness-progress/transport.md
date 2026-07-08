@@ -391,3 +391,10 @@ AC-015 contract satisfied at the real boundary on integrated main. No defects fo
 - Result: FORWARDED_COUNT=3 (ids 3,4,5), all with jsonrpc==='2.0' and a string method; one warn line `Invalid message from control plane` with `err.type=SyntaxError` for the bad-JSON case. `npx tsc --noEmit` → 0.
 - Source: `src/transport/ws-client.ts` message handler — `JSON.parse(typeof data === 'string' ? data : data.toString())`; guard `if (parsed.jsonrpc === '2.0' && parsed.method)` then `onMessage`; `catch (err) { logger.warn({ err }, 'Invalid message from control plane') }`.
 - NextAction: Integrated Verification
+
+## 2026-07-08T04:23:18.630Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
