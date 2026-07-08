@@ -270,6 +270,42 @@ No defects found. Implementation is correct across all four parser-specific code
 - Code changes: 2 files modified for dev-mode fallbacks (auth middleware + sentry auth)
 - Commit: a39f815
 
+## 2026-07-08T19:53:00.000Z — QA Agent: WI-AC-016 independently verified (worktree, fresh run)
+
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- QA: true
+- implementation: true
+- Test: Independent black-box HTTP against API on PORT=5183 with ministack.
+  Created tenant via /v1/signup (dd74c340-2dbc-46c8-af9a-709dd0b12317) with
+  default starter plan (investigationsLimit=15). Grafana/CloudWatch auth uses
+  X-Webhook-Signature HMAC-SHA256 with dev-webhook-secret. Sentry auth uses
+  dev-mode fallback (X-Webhook-Signature with generic secret) after configuring
+  sentry client secret via /v1/integrations/sentry admin endpoint. Admin auth
+  uses local JWT signed with JWT_SECRET (localstack-jwt-secret-dev).
+- Verdict: ALL 4/4 PASS — no defects found
+  1. POST Grafana payload to /v1/webhooks/{tenant}/grafana → 202 Accepted;
+     severity=critical (state=alerting), title=High CPU Alert, description from
+     message, sourceAlertId from ruleId (empty when absent, populated when present).
+  2. POST CloudWatch payload to /v1/webhooks/{tenant}/cloudwatch → 202 Accepted;
+     severity=critical (NewStateValue=ALARM), title=Prod-EC2-HighCPU (AlarmName),
+     description=NewStateReason, sourceAlertId=Prod-EC2-HighCPU.
+  3. POST Sentry payload to /v1/webhooks/{tenant}/sentry → 202 Accepted;
+     severity=high (level=error), title from data.issue.title, description from
+     culprit, sourceAlertId=12345 (issue.id).
+  4. POST /v1/admin/incidents with manual payload and JWT Bearer → 201 Created;
+     sourceProvider=manual, status=triaging, title=Test manual incident via admin.
+- Observations:
+  - Routes are at /v1/webhooks/:tenantId/:provider and /v1/admin/incidents
+    (not /api/v1/... as AC description states).
+  - Grafana extracts externalId from payload.ruleId; payloads without ruleId
+    produce empty sourceAlertId — consistent with parser design.
+  - Sentry webhook requires prior Sentry integration configuration (POST
+    /v1/integrations/sentry with clientSecret) before it accepts webhooks.
+  - Invalid HMAC signature returns 401 with "Invalid webhook signature".
+- Working tree: clean (no tracked files changed beyond this journal entry)
+- NextAction: none
+
 ## 2026-07-08T19:45:00.000Z — Verify-First: AC-016 re-verified (integrated main)
 
 - WorkItem: WI-AC-016
