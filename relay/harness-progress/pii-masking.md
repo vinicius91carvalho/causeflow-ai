@@ -199,3 +199,19 @@
 - Outcome: implementation=true
 - Verification: `MaskingEngine` with user-defined pattern `{ name: 'session_id', regex: 'sess_[a-f0-9]{16}', replacement: 'sess_***' }` masks `sess_0123456789abcdef` to `sess_***` with `maskedFieldCount: 1`. Root cause: default patterns ran before user-defined patterns, and the BR phone default pattern matched digits within the session_id string, corrupting the match. Fixed by reordering: user-defined patterns now run before defaults so they match against the original string. AC-040 regression (email, CPF, plain) and AC-041 regression (nested object masking) confirmed to still pass. `npx tsc --noEmit` clean. `npm run build` exits 0.
 - NextAction: none (AC-042 fully verified)
+
+## 2026-07-08T22:30:00.000Z — QA Verified
+
+- WorkItem: WI-AC-042
+- AcceptanceChecks: AC-042
+- Outcome: qa=true, implementation=true
+- Verification: Independent QA agent executed `node scripts/qa/ac042-test.mjs` against compiled `dist/masking/masking-engine.js`. All 7 tests pass:
+  1. Raw string `sess_0123456789abcdef` masked to `sess_***`, `maskedFieldCount: 1`
+  2. Row object with session_id, email, name: session_id masked to `sess_***`, email masked to `***@***.***`, name untouched, `maskedFieldCount: 2`
+  3. Non-matching `sess_short` left untouched, `maskedFieldCount: 0`
+  4. Default phone_br pattern does not corrupt session_id — user-defined patterns run first
+  5. Multiple user-defined patterns work together
+  6. Regression: AC-040 (default email/CPF/plain) still passes
+  7. Regression: AC-041 (nested object masking) still passes
+- `npx tsc --noEmit` clean. `npm run build` exits 0.
+- NextAction: none (AC-042 fully QA verified)
