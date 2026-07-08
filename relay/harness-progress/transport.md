@@ -66,3 +66,12 @@ No defects found. AC-012 satisfied at the real boundary on integrated main.
 - WorkItem: WI-AC-012
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T02:53:05.276Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- AcceptanceChecks: AC-012
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-012-1-integration_qa.log
+- NextAction: next Ready Work Item
