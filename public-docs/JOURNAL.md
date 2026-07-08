@@ -104,3 +104,4 @@ existing codebase already satisfies AC-011.
   parse errors, distinguishing prose present.
 - Outcome: implementation=true (no code changes needed)
 - This run (2026-07-08 18:13): qa=true implementation=true — all 9 pages HTTP 200, correct H1, zero MDX parse errors, no server-side errors
+- Integrated Verification (2026-07-08 18:23): integration=true — same pass criteria met on integrated main, HEAD 0e8f9d3

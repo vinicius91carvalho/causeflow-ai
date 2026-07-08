@@ -559,3 +559,12 @@ changes; the existing codebase already satisfies AC-010.
 - WorkItem: WI-AC-011
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:23:00.000Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-011
+- AcceptanceChecks: AC-011
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/product-narrative/WI-AC-011-1-integration_qa.log
+- NextAction: next Ready Work Item
