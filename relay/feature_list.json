@@ -177,7 +177,7 @@
     ],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 1
   },
