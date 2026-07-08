@@ -488,3 +488,12 @@ AC-036 is structural (legacy Auth.js v5 + Cognito reference package + single typ
 - `pnpm vitest run --project dashboard apps/dashboard/src/contexts/identity/domain/rbac/__tests__/role-guard.test.ts` → 1 file / 15 tests passed (3ms). The `@causeflow/auth/types` re-export resolves and the consuming RBAC test compiles + passes on integrated main. ✓
 
 No defects within the AC-036 boundary at the integrated boundary. integration=true set for WI-AC-036.
+
+## 2026-07-08T02:10:34.437Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-036
+- AcceptanceChecks: AC-036
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-036-1-integration_qa.log
+- NextAction: next Ready Work Item
