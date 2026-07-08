@@ -79,12 +79,18 @@ export function createRemediationRoutes(useCases: RemediationUseCases): Hono<App
         const tenantId = c.get('tenantId');
         const id = remediationId(c.req.param('remediationId'));
         const approvedBy = c.get('userEmail');
+        const otelTraceId = c.get('otelTraceId');
         const remediation = await useCases.approveRemediation.execute({
             tenantId,
             remediationId: id,
             approvedBy,
         });
-        return c.json(remediation);
+        // OTel-Langfuse bridge: expose the correlation ID on the response
+        const headers: Record<string, string> = {};
+        if (otelTraceId) {
+            headers['x-causeflow-trace-id'] = otelTraceId;
+        }
+        return c.json(remediation, 200, headers);
     });
     // Reject remediation
     app.post('/:remediationId/reject', requireRole('admin'), zValidator('json', rejectSchema), async (c) => {
