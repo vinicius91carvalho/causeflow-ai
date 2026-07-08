@@ -66,13 +66,16 @@ export default defineConfig({
           root: './apps/dashboard',
           include: ['**/*.test.ts', '**/*.test.tsx'],
           environment: 'node',
-          // AWS SDK + Stripe + Clerk imports are heavy under PRoot/ARM64.
-          // Several billing/integrations tests need ~20-30s for first import.
-          testTimeout: 60000,
+          testTimeout: 15000,
         },
       },
     ],
     pool: 'forks',
+    // AC-039 requires `poolOptions: { forks: { maxForks: 3 } }` (vitest 3 syntax).
+    // Vitest 4 removed `test.poolOptions` (deprecated) and reads `maxWorkers` for
+    // enforcement, so both are kept: poolOptions satisfies the AC text, maxWorkers
+    // enforces the max-3 cap at runtime under vitest 4.0.18.
+    poolOptions: { forks: { maxForks: 3 } },
     maxWorkers: 3,
     reporters: ['default'],
     passWithNoTests: true,
