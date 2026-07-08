@@ -158,3 +158,35 @@ Local untracked (gitignored): `/tmp/ac036-clerk-{priv,pub}.pem`, `.env.ac036`,
 - AcceptanceChecks: AC-036
 - Outcome: implementation=true
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:25:00.000Z — QA Verified (WI-AC-036)
+
+- WorkItem: WI-AC-036
+- Phase: qa
+- Outcome: implementation=true qa=true
+
+### Verification Summary
+
+**Part 1 — OTel span with correlation ID**
+- API booted on PORT=5187 with AWS runtime, health returns 200
+- x-request-id header present on every response (valid UUID)
+- CORS exposes X-Request-Id in Access-Control-Expose-Headers
+- POST /v1/admin/fire-test-errors with valid Clerk JWT returns 500
+  `{"error":"TestErrorFired","traceId":"424d6ca4-637f-4a30-a28d-ff1707206e51"}`
+  where traceId exactly matches the x-request-id header
+- OTel infrastructure: NodeSDK with AWS X-Ray ID generator, X-Ray propagator,
+  HTTP auto-instrumentation in otel.ts; instrumentedCall() wraps 7 integration
+  points; trace context propagates via SQS MessageAttributes
+
+**Part 2 — Sentry error capture**
+- initSentry() in main.ts; captureException() in error-handler.ts for 500+ errors
+- Unit tests verify Sentry.init called with DSN, withScope with proper tags
+- PII scrubbing in beforeSend strips sensitive headers, body, cookies, user IP/email
+- No-op when SENTRY_DSN unset (verified by unit tests)
+- POST /v1/admin/fire-test-errors → TestErrorFiredError → error handler → captureException
+
+**Test suite:** 162 files / 1057 tests pass, typecheck clean, invariants I1-I11 pass
+
+**Defects:** None. Both parts of AC-036 are correctly implemented.
+Langfuse and Sentry end-to-end verification require runtime keys
+(inactive by design in this config) — infrastructure code is correct.
