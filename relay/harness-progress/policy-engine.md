@@ -87,3 +87,15 @@
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/policy-engine/WI-AC-037-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T18:30:00.000Z — Verified
+
+- WorkItem: WI-AC-038
+- AcceptanceChecks: AC-038
+- Outcome: PASSED
+- Evidence: Real WebSocket boundary test on port 5192 confirmed:
+  1. `execute` with `limit=5000` against resource with `maxRowsPerQuery: 1000` → JSON-RPC `-32600` error with message `Policy denied: Row limit 5000 exceeds maximum 1000`.
+  2. `execute` with `limit=100` → policy accepts, driver clamps to `min(100, 1000)=100`.
+  3. `execute` with no limit → falls back to `maxRowsPerQuery=1000`, policy accepts, driver clamps to `min(1000, 1000)=1000`.
+- Result: implementation=true (zero-diff: no code changes needed)
+- NextAction: next Ready Work Item
