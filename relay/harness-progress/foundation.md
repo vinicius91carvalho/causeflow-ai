@@ -71,3 +71,11 @@ Evidence:
 - `src/config/schema.ts` → `connection: z.record(z.string())`.
 
 Verdict: implementation=false, qa=false, integration=false.
+
+## 2026-07-08T00:10:22.847Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-001
+- Defects: expected: a valid `relay-config.yaml` boots the relay (AC-001); observed: the committed `relay-config.example.yaml` declares `port: 5432` as a YAML number but `src/config/schema.ts` types `connection` as `z.record(z.string())`, so loading the documented example throws a fatal ZodError `resources[0].connection.port: Expected string, received number` and the process exits 1 without starting; evidence: `RELAY_CONFIG_PATH=./relay-config.example.yaml node dist/index.js` → NODE_EXIT=1 with log `"level":60` / `"msg":"Failed to start relay"` (ZodError path resources/0/connection/port); `grep 'port:' relay-config.example.yaml` → `port: 5432`; `src/config/schema.ts` → `connection: z.record(z.string())`. Other AC-001 boundaries pass: `npm install` exit 0; `npm run build` exit 0 producing `dist/index.js` + every src module; missing config → fatal log + exit 1; valid yaml (string port) + bad URL → starts pino, logs `Starting CauseFlow Relay...`, `Config loaded`, `Driver initialized`, reconnect backoff 1s→2s→4s; valid yaml + real `ws` stub on :5176 → `Connected to control plane`, stub records `?token=test-token&tenantId=test-tenant` and receives `resource_update`; env-var fallback → connects as `token=envtoken&tenantId=envtenant`.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-1-integration_qa.log
+- NextAction: Repair Plan
