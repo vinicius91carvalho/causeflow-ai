@@ -76,3 +76,16 @@ Use /login to log into a provider via OAuth or API key. See:
   - POST /events with valid signature returns 200 ✅
   - POST /events with tampered body returns 401 ✅
   - POST /events with stale timestamp returns 401 ✅
+
+## 2026-07-08T21:34:00.000Z — Re-verified AC-030 (boundary tests passed)
+
+- WorkItem: WI-AC-030
+- Implementation: true
+- Re-verification results (all pass):
+  - POST /install without auth returns 401 ✅
+  - POST /install with valid auth returns 200 + authUrl ✅
+  - POST /events url_verification returns challenge (200) ✅
+  - POST /events with valid signature returns 200 ✅
+  - POST /events with tampered body returns 401 ✅
+  - POST /events with stale timestamp returns 401 ✅
+- Changes: none (zero-diff re-verification, working tree clean)
