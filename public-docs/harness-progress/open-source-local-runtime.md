@@ -1877,3 +1877,54 @@ implementation=true; defects=none; No files changed (verification-only work item
 - RepairPlan: QA functional tests for AC-032 all pass (133 MDX pages, four tabs, redirect, Mintlify components, 84 API endpoint H1s, Dockerfile reproducibility, AC-031 regression). However, two mandatory scaffold artifacts required by project_specs.xml are missing: (1) `public-docs/check-invariants.sh` — referenced in INVARIANTS.md and project_specs as the PostToolUse hook that enforces content invariants AC-022 through AC-025; (2) `public-docs/.claude/settings.json` — referenced as the file that wires the check-invariants.sh hook. The QA correctly verified the content invariants hold (they do), but the automated enforcement mechanism is absent. A minor counting discrepancy also exists: QA reports 126 exported HTML pages vs 125 unique page paths in docs.json navigation.; Create `public-docs/check-invariants.sh` implementing the grep-based invariant checks from INVARIANTS.md (severity enum, status enum, host, AWS identifiers, KMS/LangFuse/Hindsight references, RBAC roles, placeholder formats, frontmatter completeness, description length). Script must exit 0 when invariants hold.; Create `public-docs/.claude/settings.json` with a PostToolUse hook that invokes `check-invariants.sh`, restoring automated invariant enforcement during agent tool calls.; Resolve the 126-vs-125 page count discrepancy: run `mint export` and count generated HTML files to confirm the correct export page count, or align the QA reporting to the correct number.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-032-1-qa.log
 - NextAction: Coding Attempt 2
+
+---
+
+## 2026-07-08T21:15:00Z — Implementation (WI-AC-032, attempt 2)
+
+- WorkItem: WI-AC-032
+- AcceptanceChecks: AC-032
+- context: open-source-local-runtime
+- Attempt: 2/3
+- Outcome: implementation=true (black-box verified on running stack PORT=5181)
+- NextAction: Integrated Verification
+
+### What changed
+
+WI-AC-032 attempt 2 repairs the two scaffold artifacts missing from attempt 1:
+
+1. **`check-invariants.sh`** — new file with all INVARIANTS.md grep checks
+   (severity, status, API host, AWS/KMS identifiers, RBAC, placeholders,
+   frontmatter, description length). Exits 0 when all invariants hold.
+
+2. **`check-description-length.py`** — helper script for description-length
+   check, invoked by check-invariants.sh.
+
+3. **`.claude/settings.json`** — PostToolUse hook invokes
+   `check-invariants.sh --quiet` after agent tool calls, restoring automated
+   invariant enforcement (removed during pi migration).
+
+4. **Page count discrepancy resolved**: 126 exported HTML = 125 nav pages + 1
+   root index/index.html variant (Mintlify export behavior). No source change.
+
+### Black-box verification (PORT=5181)
+
+**Scaffold:** check-invariants.sh exists, exits 0 (10/10 checks PASS);
+.claude/settings.json exists, valid JSON with PostToolUse hook;
+check-description-length.py exists, validates all descriptions <= 160.
+
+**AC-032 criteria:**
+- 133 MDX sources, 126 HTML exported (125 nav + 1 root variant) ✓
+- Four navigation tabs serving 200 ✓
+- /quickstart redirect -> 200 ✓
+- Mintlify components (Card, Mermaid) render without parse errors ✓
+- 84 API endpoint pages render with H1 matching frontmatter title ✓
+- Dockerfile reproducible from clean cache ✓
+- AC-031 regression: homepage, redirect, tabs, Mermaid, Auth page, 20 events,
+  invariants AC-022 through AC-025 all pass ✓
+
+**Boundary:** forbidden-host log grep = 0 matches.
+
+### verdict
+
+implementation=true; integration=pending; qa=pending; defects=none
