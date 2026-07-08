@@ -912,3 +912,15 @@ Exercised `release.config.js` at the real `npx semantic-release --dry-run --no-c
 Scaffold check: `project_specs.xml` affected_surfaces for AC-009 = `release.config.js` (semantic-release plugins) — present and unchanged on main.
 
 Verdict: implementation=true, zero code diff. All AC-009 conditions pass at the real semantic-release boundary.
+
+## WI-AC-009 — QA independent verification (2026-07-08)
+
+Re-verified AC-009 independently as qa-agent in the isolated worktree, at the real `npx semantic-release --dry-run --no-ci --ci=false` boundary (semantic-release 24.2.9) plus a direct ESM import of `release.config.js`.
+
+- Config loads as ESM (`export default`); `branches: ["main"]`.
+- 6 plugins resolved by semantic-release in the documented order: `commit-analyzer` (analyzeCommits) → `release-notes-generator` (generateNotes) → `changelog` (prepare, writes CHANGELOG.md) → `npm` (prepare+publish+addChannel) → `git` (prepare) → `github` (publish+success+fail).
+- `@semantic-release/npm` configured with `{ npmPublish: false }` (only bumps `package.json`, no publish).
+- `@semantic-release/git` configured with `assets: ['package.json', 'CHANGELOG.md']` and `message` whose first line is exactly `chore(release): ${nextRelease.version} [skip ci]`.
+- `branches: ['main']` branch restriction proven live: semantic-release reported `This test run was triggered on the branch gen/relay-foundation, while semantic-release is configured to only publish from main, therefore a new version won’t be published.`
+
+**QA verdict: qa=true, implementation=true, no defects.**
