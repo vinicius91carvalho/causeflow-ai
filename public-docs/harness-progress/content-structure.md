@@ -271,3 +271,46 @@ AC-007: The redirects block of `docs.json` (`{"source": "/quickstart",
 ### Verdict
 
 implementation=true. Zero tracked files changed (zero-diff checkpoint).
+
+## 2026-07-08 QA — WI-AC-007 (independent re-audit)
+
+- Role: qa-agent (independent re-audit of isolated worktree)
+- WorkItem: WI-AC-007
+- AcceptanceChecks: AC-007
+- context: content-structure
+- Boundary: real HTTP — `mint dev` running from project root (PWD =
+  public-docs). Port 5170 was already occupied by a sibling `mint dev`
+  instance (pid 3780459); this audit also launched its own instance on
+  5171 to confirm the behavior is reproducible and not specific to one
+  server process.
+
+### Audit result
+
+- `docs.json#redirects` (lines 349–353) declares exactly one entry:
+  `source: /quickstart`, `destination: /getting-started/quickstart`.
+- Destination file `getting-started/quickstart.mdx` exists with frontmatter
+  `title: "Quickstart"`, `description: "Create your account and investigate
+  your first incident in under 5 minutes."`.
+- All required scaffold directories present.
+
+### Boundary verification (real HTTP)
+
+- `GET http://localhost:5170/quickstart` (no follow) -> 307 with
+  `location: http://localhost:5170/getting-started/quickstart`.
+- `GET http://localhost:5170/quickstart` (-L follow) -> final 200, final URL
+  `http://localhost:5170/getting-started/quickstart`, 1 redirect.
+- Landed page body contains `<title>Quickstart - CauseFlow AI</title>`, H1
+  `Quickstart`, and the quickstart intro "Create your account and
+  investigate your first incident" — lands on the Quickstart page.
+- Reproduced on the dedicated instance (port 5171): `GET /quickstart` ->
+  307 -> `/getting-started/quickstart` -> 200 with the same Quickstart
+  page body.
+- AC-001 dependency holds: `GET /` -> 200 with `CauseFlow AI` (x4) and
+  `Quickstart` (x3).
+
+### Verdict
+
+qa=true. implementation=true. Zero defects. AC-007 holds on the isolated
+worktree at the real external HTTP boundary: `GET /quickstart` returns 200
+(after the 307 redirect) and lands on the Quickstart page. No code changes
+required.
