@@ -649,3 +649,23 @@ Re-verified every AC-011 invariant independently as qa-agent at the real Docker 
 - WorkItem: WI-AC-011
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-011 — Integrated verification (2026-07-08)
+
+Ran the AC-011 mapped checks against latest main (`ef8700c`) at the real Docker Engine boundary as the qa-agent performing Integrated Verification.
+
+`docker build . --platform linux/amd64 -t relay-qa-ac011` → exit 0 (cached, no rebuild errors).
+
+- Two stages: `FROM node:22-alpine AS builder` → `FROM node:22-alpine`. ✓
+- devDependencies only in builder: builder `RUN npm install`; runtime `RUN npm install --omit=dev`. Verified in runtime image: `node_modules/typescript` and `node_modules/.bin/tsc` ABSENT; prod deps `ws pg mongodb node-sql-parser zod pino uuid yaml` present. ✓
+- Builder runs `npx tsc` producing `dist/`; `dist/index.js` (+13 compiled modules) present in runtime image. ✓
+- `dist/` copied into runtime: `COPY --from=builder /app/dist/ ./dist/`. ✓
+- `adduser -D -u 10001 relay`: `/etc/passwd` → `relay:x:10001:10001::/home/relay:/bin/sh`. ✓
+- `USER relay`: `docker inspect` → `User=relay`; `docker run ... id` → `uid=10001(relay) gid=10001(relay)`. ✓
+- `CMD ["node","dist/index.js"]`: `docker inspect` → `Cmd=["node","dist/index.js"]`. ✓
+- `WORKDIR /app`: `docker inspect` → `WorkingDir=/app`. ✓
+- `EXPOSE 8080`: `docker inspect` → `ExposedPorts={"8080/tcp":{}}` only. ✓
+
+Core smoke: `node dist/index.js` boots, logs `Starting CauseFlow Relay...`, and exits non-zero on missing config (Zod error on empty resources) — consistent with AC-001 runtime behavior and no regression from integration.
+
+**Verdict: integration=true, implementation=true, no defects.** Zero code diff; journal-only commit.
