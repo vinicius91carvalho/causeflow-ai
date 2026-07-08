@@ -620,3 +620,12 @@ implementation=true; defects=none
   4. No `.github/` directory; no GitHub Actions workflow runs `mint deploy`/`mintlify deploy` (grep EXIT=1).
 - Core smoke (real external boundary): `causeflow-docs` container running on port 5179 from current Dockerfile (build fully cached, image matches source). `curl http://localhost:5179/` → 200, body contains "CauseFlow AI" and "Quickstart". `docker logs causeflow-docs 2>&1 | grep -E 'mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|langfuse\.io|svix\.com|slack\.com|composio\.dev'` → zero matches (forbidden-host boundary holds).
 - Verdict: integration=true; implementation=true; qa=true; defects=none.
+
+## 2026-07-08T03:15:37.310Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-029
+- AcceptanceChecks: AC-029
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-029-1-integration_qa.log
+- NextAction: next Ready Work Item
