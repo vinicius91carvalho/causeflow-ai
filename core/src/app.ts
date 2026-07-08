@@ -61,6 +61,15 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
         const html = readFileSync(resolve('dashboard/index.html'), 'utf-8');
         return c.html(html);
     });
+    // Widget bundle — Vite-built embeddable widget served at /widget/widget.js (public, no auth)
+    app.get('/widget/widget.js', (c) => {
+        try {
+            const bundle = readFileSync(resolve('packages/widget/dist/widget.js'), 'utf-8');
+            return c.body(bundle, 200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+        } catch {
+            return c.text('Widget bundle not built. Run `pnpm --filter @causeflow/widget build`.', 404);
+        }
+    });
     // Health checks
     // Response shape (Sprint 3 / I5): { status, service, version, commit, timestamp }
     //   - version → semver from package.json (stable, app-level)

@@ -15,6 +15,7 @@ const PUBLIC_PATHS = [
   '/v1/billing/webhook',
   '/v1/signup',
   '/v1/widget/',
+  '/widget/',
   '/portal',
   '/v1/investigation/ws',  // WebSocket relay — uses its own JWT auth (not Clerk)
   '/v1/relay/',             // DB relay — uses its own token auth

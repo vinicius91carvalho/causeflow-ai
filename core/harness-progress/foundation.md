@@ -144,3 +144,71 @@ No defects within the AC-002 boundary. integration=true set for WI-AC-002. PORT=
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-002-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-003 — Verify-first (foundation)
+
+**Result: implementation=true**
+
+Boundary exercised against the running app (real HTTP on the assigned PORT=5174, no mocks). Stack: `docker compose up -d ministack redis` (both `(healthy)`), `pnpm dev` → `CauseFlow is running` on 5174.
+
+- `curl http://localhost:5174/dashboard` → **HTTP 200**, `content-type: text/html; charset=UTF-8`, 146078 bytes.
+  - Alpine.js present (`alpinejs@3.x.x/dist/cdn.min.js`), Tailwind present (`cdn.tailwindcss.com`), `x-data` root elements present (12). ✓
+- `curl http://localhost:5174/widget/widget.js` → **HTTP 200**, `content-type: application/javascript; charset=utf-8`, 38037 bytes — the Vite-built widget IIFE bundle (`var CauseflowWidget=(function(c){...}`). ✓
+- Regression smoke: `/health` → 200; auth-gated `/v1/audit` → 401 (auth still enforced for non-public routes).
+- `pnpm typecheck` → clean. `pnpm lint-invariants` → 9 passed, 0 failed. `pnpm test:run` → 161 files / 1053 tests pass. `pnpm lint` → 0 errors (112 pre-existing `any` warnings, none new).
+
+### Root-cause fixes (smallest diff, 4 tracked files)
+
+The existing code failed AC-003 at the widget boundary only (dashboard already passed):
+
+1. **No `/widget/widget.js` route served** — the spec requires the widget bundle at `GET /widget/widget.js`, but `src/app.ts` had no such route and the global auth middleware returned 401 for it. Added a public route `app.get('/widget/widget.js', ...)` in `src/app.ts` that serves the Vite-built bundle from `packages/widget/dist/widget.js` with `Content-Type: application/javascript`. Returns 404 with a build hint if the dist is absent.
+2. **Widget bundle not built / wrong filename** — `packages/widget/vite.config.ts` emitted `causeflow-widget.js` and used `minify: 'terser'` (terser is not installed → build failed). Changed `fileName` to `widget.js` (matches the AC URL + portal-shell reference) and `minify` to `'esbuild'` (bundled, no extra dep). `pnpm --filter @causeflow/widget build` now produces `dist/widget.js`.
+3. **`/widget/` not in public-path allow-lists** — auth + tenant middleware would still reject the unauthenticated bundle request. Added `'/widget/'` to `PUBLIC_PATHS` in `auth.middleware.ts` and to the skip-list in `tenant.middleware.ts` (mirroring the existing `/v1/widget/` and `/portal` entries).
+
+No refactor/restructure of working code. Local untracked setup (gitignored, like `.env.dev`/`node_modules` in WI-AC-002): `pnpm install`, `cd packages/widget && pnpm install && pnpm build` (produces gitignored `packages/widget/dist/widget.js`). PORT=5174 used per harness assignment (spec's literal `:3099` is the known doc drift noted in WI-AC-002; the AC boundary — `/dashboard` HTML + `/widget/widget.js` JS bundle — passes on the assigned port).
+
+### Out of scope
+
+Wiring the widget build into the root `pnpm dev` script was deliberately NOT done: the widget is a standalone package (no pnpm-workspace.yaml) with its own lockfile, and a `predev` hook that depends on `packages/widget/node_modules` would regress AC-002's plain `pnpm dev` flow in a fresh checkout. Building the bundle is local setup, consistent with the WI-AC-002 `.env.dev`/`node_modules` pattern. A future work item can promote the widget to a workspace member if reproducible dev-time builds are required.
+
+## QA pass — AC-003 (independent re-test)
+
+**Result: qa=true, implementation=true**
+
+Re-ran independently against the running app in the isolated worktree (real HTTP on PORT=5174). Stack already up: `tsx watch --env-file=.env.dev src/main.ts` (pid 1207555) listening on 5174; ministack :4566 + redis :6379 `(healthy)`.
+
+- `curl http://localhost:5174/dashboard` → **HTTP 200**, `content-type: text/html; charset=UTF-8`, 146078 bytes.
+  - Tailwind present (`https://cdn.tailwindcss.com`), Alpine.js present (`alpinejs@3.x.x/dist/cdn.min.js`), `x-data` root element present (12 occurrences incl. body root `x-data="dashboard()"`). ✓
+- `curl http://localhost:5174/widget/widget.js` → **HTTP 200**, `content-type: application/javascript; charset=utf-8`, 38037 bytes — Vite-built widget IIFE bundle (`var CauseflowWidget=(function(c){...})`). ✓
+- Route wiring verified in `src/app.ts`: `app.get('/dashboard', ...)` serves `dashboard/index.html`; `app.get('/widget/widget.js', ...)` serves `packages/widget/dist/widget.js` with `Content-Type: application/javascript`. `/dashboard` + `/widget/` in auth + tenant public-path allow-lists.
+- Regression smoke: `/health` → 200 json `{dynamodb,redis,sqs,anthropic}: ok`.
+
+No defects within the AC-003 boundary. PORT=5174 used per harness assignment (spec's literal `:3099` is the known doc drift noted in WI-AC-002; the AC boundary — `/dashboard` returns Alpine+Tailwind+x-data HTML and `/widget/widget.js` returns the Vite bundle as `application/javascript` — passes on the assigned port).
+
+Note (out of scope, not a defect): the separate dockerized `core-causeflow-api-1` container on :3099 returns 500 for `/dashboard` and 401 for `/widget/widget.js` — it runs a stale `node dist/main.js` image predating the AC-003 route fixes and is not the surface under test in this isolated worktree (PORT=5174 dev server is).
+
+## 2026-07-07T23:29:24.027Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-07T23:33Z — Integrated Verification (latest main)
+
+- Result: integration=true, implementation=true, qa=true
+- Main HEAD: 71835a3 (merge of gen/core-foundation). `src/app.ts` + `dashboard/index.html` in main are byte-identical to the running gen/core-foundation dev server (diff confirmed). The built `packages/widget/dist/widget.js` is a gitignored build artifact present in the worktree (38037 bytes) — code path identical.
+- Real HTTP boundary on PORT=5174 (assigned integration port; spec's literal :3099 is the known doc drift, see WI-AC-002; a stale dockerized `core-causeflow-api-1` on :3099 is out of scope):
+  - `GET /dashboard` → 200, `content-type: text/html; charset=UTF-8`, 146022 bytes. Alpine.js present, Tailwind present, `x-data` root element present (`x-data="dashboard()"`). ✓
+  - `GET /widget/widget.js` → 200, `content-type: application/javascript; charset=utf-8`, 38025 bytes — Vite-built IIFE bundle `var CauseflowWidget=(function(c){...})`. ✓
+- Smoke: `/health` reachable on the same origin.
+- No defects within the AC-003 boundary. integration=true for WI-AC-003.
+
+## 2026-07-07T23:35:10.012Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- AcceptanceChecks: AC-003
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-003-1-integration_qa.log
+- NextAction: next Ready Work Item
