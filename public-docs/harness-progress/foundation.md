@@ -7061,3 +7061,17 @@
 - PreviousPhase: coding
 - Attempt: 2
 - NextAction: coding
+
+## 2026-07-08T01:30:00Z — Verify-First (WI-AC-002)
+
+- work_item: WI-AC-002
+- acceptance_check: AC-002
+- context: foundation
+- phase: verify-first (coding-agent, existing-codebase)
+- command: `mint broken-links` from project root
+- result: EXIT=0; stdout "success no broken links found"
+- prior_failure: EXIT=1 — `erro Syntax error - Unable to parse plans/causeflow-dashboard-exploration.md - 37:13: Unexpected character 4 ...` (the `<40` token parsed as JSX tag start)
+- root_cause: harness artifact directories (plans/, tasks/, docs/, harness-progress/) and top-level meta files (session-learnings.md, INVARIANTS.md, CLAUDE.md) contain `.md` planning/spec/journal files with non-backtick JSX-like tokens (<40, <Note>, <ParamField>, <Integration Name>) that break MDX parsing. None are documentation pages — none are referenced in docs.json navigation. Original docs site had `mint broken-links: 0` (per tasks/.../progress.json); harness setup added these artifacts afterward and broke the scan.
+- fix: minimal diff to .mintignore only — added plans/, tasks/, docs/, harness-progress/, session-learnings.md, INVARIANTS.md, CLAUDE.md. No docs source/content (.mdx, docs.json) modified.
+- recheck: `mint broken-links` → EXIT=0, "success no broken links found".
+- verdict: implementation=true; qa=true; integration=true; defects=none

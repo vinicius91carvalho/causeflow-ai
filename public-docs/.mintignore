@@ -5,3 +5,13 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Harness artifacts (planning/spec/journal files — not documentation pages;
+# contain JSX-like text such as `<40` or `<Note>` that breaks MDX parsing)
+plans/
+tasks/
+docs/
+harness-progress/
+session-learnings.md
+INVARIANTS.md
+CLAUDE.md
