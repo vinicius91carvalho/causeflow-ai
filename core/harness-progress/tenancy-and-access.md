@@ -59,9 +59,30 @@ Path note (doc drift, not a defect): spec AC wording says `/api/v1/auth/login`; 
 
 Local QA artefacts (gitignored, like `.env.dev`): `.env.qa`, `.qa-token`, `.qa-clerk-pubkey.pem`, `qa-mint-token.mjs`, `.qa-server.log`. Server process left running on 5181 for the duration of the tenancy-and-access context.
 
-## 2026-07-08T03:17:03.834Z — Checkpoint ready
+## 2026-07-08T03:21:18.987Z — Checkpoint ready
 
 - Attempt: 1/3
 - WorkItem: WI-AC-007
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T03:26:00Z — Integrated Verification (WI-AC-007) on latest main
+
+**Result: integration=true, implementation=true, qa=true.**
+
+Ran AC-007 at a real HTTP boundary against latest main (HEAD `0133f38` Merge branch 'gen/core-tenancy-and-access'), `WORKDIR=/home/vinicius/projects/causeflow-ai/core`, `PORT=5181`. No `verifyToken` mock — real `@clerk/backend` networkless RS256 verification.
+
+Fresh 2048-bit RSA keypair generated for integration; SPKI public PEM set as `CLERK_JWT_KEY` in main checkout's `.env.intq`. Booted `tsx --env-file=.env.intq src/main.ts` from main → `CauseFlow is running` on 5181. Stack healthy: ministack :4566, core-redis, `causeflow-local` table.
+
+Boundary evidence (real `curl`):
+- `POST /v1/auth/login` with `Authorization: Bearer <RS256 JWT>` (sub=user_intq_007, o.id=org_intq_tenant_007, o.rol=admin) → **200** `{"user":{"id":"user_intq_007","email":"intq@causeflow.ai"},"tenant":"org_intq_tenant_007","role":"admin","roles":["admin"]}` — response contains user (id=JWT sub), tenant (=JWT o.id, cryptographically verified), role (admin, mapped from o.rol).
+- `POST /v1/auth/login` with **no Authorization header** → **401** `Missing or invalid Authorization header`.
+- Defensive: JWT signed by a different RSA key → **401** `Invalid or expired token` (confirms real signature verification, not passthrough).
+
+Core smoke (main): `GET /health` → 200 `{dynamodb:ok, redis:ok, sqs:ok, anthropic:ok}`; `GET /dashboard` → 200 Alpine.js SPA shell (x-data + alpine present).
+
+Path note (doc drift, not a defect): spec AC wording says `/api/v1/auth/login`; implementation mounts all routes at `/v1/*` with no `/api` prefix (global, affects every AC). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/auth/login`; literal `/api/v1/auth/login` → 404 (with-auth) / 401 (no-auth). Functional AC-007 behaviour fully met on integrated main.
+
+Evidence: `.git/harness-runs/evidence/tenancy-and-access/WI-AC-007-integration-summary.txt` + `WI-AC-007-integration.log`. Server left running on 5181 for the tenancy-and-access context.
+
+5/5 boundary assertions + 2/2 smoke assertions passed. integration=true.
