@@ -892,3 +892,274 @@ Scaffold check: `project_specs.xml` affected_surfaces for AC-008 = `.github/work
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-008-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-009 — Verify-first (foundation)
+
+**Result: implementation=true** (zero code diff)
+
+Exercised `release.config.js` at the real `npx semantic-release --dry-run --no-ci --ci=false` boundary (semantic-release 24.2.9) — the same loader the release workflow invokes. No mocks; the real semantic-release config loader + plugin resolver.
+
+- Config loads cleanly as ESM (`export default`) — semantic-release reports `Running semantic-release version 24.2.9` then lists every plugin it resolved.
+- Plugin chain, in order, verified against semantic-release's own `Loaded plugin` output + a direct ESM import of the config file:
+  1. `@semantic-release/commit-analyzer` → `analyzeCommits` ✓
+  2. `@semantic-release/release-notes-generator` → `generateNotes` ✓
+  3. `@semantic-release/changelog` → `verifyConditions` + `prepare` (writes CHANGELOG.md) ✓
+  4. `@semantic-release/npm` → `verifyConditions` + `prepare` + `publish` + `addChannel`, configured with `{ npmPublish: false }` (only bumps `package.json` version, no publish) ✓
+  5. `@semantic-release/git` → `verifyConditions` + `prepare`, configured with `assets: ['package.json', 'CHANGELOG.md']` and `message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}'` (first line is exactly `chore(release): ${nextRelease.version} [skip ci]`) ✓
+  6. `@semantic-release/github` → `verifyConditions` + `publish` + `addChannel` + `success` + `fail` (creates the GitHub Release) ✓
+- `branches: ['main']` verified at the boundary: semantic-release reported `This test run was triggered on the branch gen/relay-foundation, while semantic-release is configured to only publish from main, therefore a new version won’t be published.` — proving the branch filter restricts releases to `main`.
+
+Scaffold check: `project_specs.xml` affected_surfaces for AC-009 = `release.config.js` (semantic-release plugins) — present and unchanged on main.
+
+Verdict: implementation=true, zero code diff. All AC-009 conditions pass at the real semantic-release boundary.
+
+## WI-AC-009 — QA independent verification (2026-07-08)
+
+Re-verified AC-009 independently as qa-agent in the isolated worktree, at the real `npx semantic-release --dry-run --no-ci --ci=false` boundary (semantic-release 24.2.9) plus a direct ESM import of `release.config.js`.
+
+- Config loads as ESM (`export default`); `branches: ["main"]`.
+- 6 plugins resolved by semantic-release in the documented order: `commit-analyzer` (analyzeCommits) → `release-notes-generator` (generateNotes) → `changelog` (prepare, writes CHANGELOG.md) → `npm` (prepare+publish+addChannel) → `git` (prepare) → `github` (publish+success+fail).
+- `@semantic-release/npm` configured with `{ npmPublish: false }` (only bumps `package.json`, no publish).
+- `@semantic-release/git` configured with `assets: ['package.json', 'CHANGELOG.md']` and `message` whose first line is exactly `chore(release): ${nextRelease.version} [skip ci]`.
+- `branches: ['main']` branch restriction proven live: semantic-release reported `This test run was triggered on the branch gen/relay-foundation, while semantic-release is configured to only publish from main, therefore a new version won’t be published.`
+
+**QA verdict: qa=true, implementation=true, no defects.**
+
+## 2026-07-08T05:19:36.245Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T05:23:10.448Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+	core/.env.example
+	core/.env.localstack
+	core/.gitignore
+	core/INVARIANTS.md
+	core/docker-compose.yml
+	core/infra/localstack/init/01-create-resources.sh
+	core/infra/scripts/check-invariants.ts
+	core/packages/widget/vite.config.ts
+	core/src/app.ts
+	core/src/bootstrap.ts
+	core/src/modules/audit/infra/audit.routes.ts
+	core/src/modules/audit/infra/dynamo-audit.repository.ts
+	core/src/modules/auth/infra/auth.routes.ts
+	core/src/modules/billing/application/handle-webhook.usecase.ts
+	core/src/modules/billing/infra/stripe-client.ts
+	core/src/modules/billing/infra/stripe-plan-catalog.service.ts
+	core/src/shared/config/index.ts
+	core/src/shared/domain/types.ts
+	core/src/shared/infra/health/checks/anthropic-check.ts
+	core/src/shared/infra/http/middleware/auth.middleware.ts
+	core/src/shared/infra/http/middleware/tenant.middleware.ts
+	core/tests/src/app.test.ts
+	core/tests/unit/modules/audit/dynamo-audit.repository.test.ts
+	public-docs/.gitignore
+	public-docs/.mintignore
+	public-docs/README.md
+	public-docs/api-reference/graph/auto-discovery.mdx
+	public-docs/api-reference/introduction.mdx
+	public-docs/api-reference/remediation/get-detail.mdx
+	public-docs/api-reference/tenants/create-tenant.mdx
+	public-docs/api-reference/tenants/get-tenant.mdx
+	public-docs/api-reference/tenants/update-tenant.mdx
+	public-docs/api-reference/webhooks/payload-formats.mdx
+	public-docs/docs.json
+	public-docs/integrations/cloud-providers.mdx
+	public-docs/relay/deployment.mdx
+	public-docs/snippets/auth-header.mdx
+	public-docs/snippets/rate-limit-note.mdx
+	relay/.github/workflows/release.yml
+	relay/.gitignore
+	relay/docs/tasks/infrastructure/2026-04-12_1200-cicd-docker-publish.md
+	relay/package-lock.json
+	relay/src/config/schema.ts
+	relay/src/drivers/postgres/pg-query-parser.ts
+	relay/src/index.ts
+	web/apps/dashboard/package.json
+	web/apps/dashboard/src/app/[locale]/accept-invitation/page.tsx
+	web/apps/dashboard/src/app/[locale]/auth/sign-in/[[...sign-in]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/auth/sign-up/[[...sign-up]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/beta-waitlist/page.tsx
+	web/apps/dashboard/src/app/[locale]/create-organization/[[...create-organization]]/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/[id]/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/new/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/analyses/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/intelligence/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/relay/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/settings/page.tsx
+	web/apps/dashboard/src/app/[locale]/dashboard/team/page.tsx
+	web/apps/dashboard/src/app/[locale]/onboarding/business-profile/page.tsx
+	web/apps/dashboard/src/app/[locale]/page.tsx
+	web/apps/dashboard/src/app/[locale]/waitlist/[[...waitlist]]/page.tsx
+	web/apps/dashboard/src/app/api/investigation/[id]/chat/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/detail/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/relay-token/route.ts
+	web/apps/dashboard/src/app/api/investigation/[id]/tool-calls/[toolCallId]/route.ts
+	web/apps/dashboard/src/contexts/identity/api/complete-profile-handler.test.ts
+	web/apps/dashboard/src/contexts/identity/api/complete-profile-handler.ts
+	web/apps/dashboard/src/contexts/identity/presentation/pages/beta-waitlist-page.tsx
+	web/apps/dashboard/src/contexts/settings/presentation/pages/settings-page.tsx
+	web/apps/dashboard/src/contexts/team/presentation/pages/team-page.tsx
+	web/apps/website/src/contexts/marketing/infrastructure/i18n/en.json
+	web/apps/website/src/contexts/marketing/infrastructure/i18n/pt-br.json
+	web/apps/website/src/contexts/marketing/presentation/pages/home-page.tsx
+	web/pnpm-lock.yaml
+	web/vitest.config.ts
+Please commit your changes or stash them before you merge.
+error: The following untracked working tree files would be overwritten by merge:
+	.harness/bootstrap.host
+	.harness/bootstrap.log
+	.harness/bootstrap.pid
+	.harness/conclude-merge.log
+	.harness/journal-conflict-resolve.log
+	.harness/projects.json
+	.pi/settings.json
+	.turbo/cache/040f6817376e2598-meta.json
+	.turbo/cache/040f6817376e2598.tar.zst
+	.turbo/cache/0aaf10ddfb42531f-meta.json
+	.turbo/cache/0aaf10ddfb42531f.tar.zst
+	.turbo/cache/599716d50635a10a-meta.json
+	.turbo/cache/599716d50635a10a.tar.zst
+	.turbo/cache/a24a607d82d1451c-meta.json
+	.turbo/cache/a24a607d82d1451c.tar.zst
+	.turbo/cache/a613f0db8d08696b-meta.json
+	.turbo/cache/a613f0db8d08696b.tar.zst
+	.turbo/cache/afd2111fb699d535-meta.json
+	.turbo/cache/afd2111fb699d535.tar.zst
+	.turbo/cache/c34fb7eaabe6966e-meta.json
+	.turbo/cache/c34fb7eaabe6966e.tar.zst
+	.turbo/cache/dfb2fce1822ff665-meta.json
+	.turbo/cache/dfb2fce1822ff665.tar.zst
+	core/.harness-technology-inventory.json
+	core/.harness/bootstrap.host
+	core/.harness/planner-feature.pid
+	core/ac011-boundary.mjs
+	core/harness-progress/billing.md
+	core/harness-progress/foundation.md
+	core/harness-progress/open-source-local-runtime.md
+	core/init.sh
+	core/project_specs.xml
+	core/src/modules/audit/application/delete-audit-entry.usecase.ts
+	core/tests/unit/modules/audit/delete-audit-entry.test.ts
+	public-docs/.dockerignore
+	public-docs/.harness-technology-inventory.json
+	public-docs/Dockerfile
+	public-docs/docker-compose.yml
+	public-docs/feature_list.json
+	public-docs/harness-progress/WI-AC-006-integration.md
+	public-docs/harness-progress/content-structure.md
+	public-docs/harness-progress/foundation.md
+	public-docs/harness-progress/open-source-local-runtime.md
+	public-docs/init.sh
+	public-docs/project_specs.xml
+	public-docs/serve-docs.js
+	relay/.env.example
+	relay/.harness-technology-inventory.json
+	relay/.harness/bootstrap.host
+	relay/.harness/bootstrap.log
+	relay/.harness/bootstrap.pid
+	relay/.harness/plan.done
+	relay/.harness/plan.host
+	relay/.harness/plan.log
+	relay/.harness/plan.pid
+	relay/docker-compose.yml
+	relay/feature_list.json
+	relay/harness-progress/foundation.md
+	relay/harness-progress/open-source-local-runtime.md
+	relay/harness-progress/transport.md
+	relay/init.sh
+	relay/project_specs.xml
+	relay/relay-config.docker.yaml
+	relay/scripts/control-plane-stub/Dockerfile
+	relay/scripts/control-plane-stub/initdb/01-orders.sql
+	relay/scripts/control-plane-stub/package.json
+	relay/scripts/control-plane-stub/server.mjs
+	web/.harness-technology-inventory.json
+	web/.harness/bootstrap.host
+	web/.harness/bootstrap.pid
+	web/.harness/plan.done
+	web/.harness/plan.host
+	web/.harness/plan.pid
+	web/apps/dashboard/src/contexts/identity/presentation/components/accept-invitation-client.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/accept-invitation-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/create-organization-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/sign-in-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/sign-up-page.tsx
+	web/apps/dashboard/src/contexts/identity/presentation/pages/waitlist-page.tsx
+	web/apps/dashboard/src/contexts/integrations/presentation/pages/relay-page.tsx
+	web/apps/dashboard/src/contexts/investigation/api/investigation-chat-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-detail-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-relay-token-handler.ts
+	web/apps/dashboard/src/contexts/investigation/api/investigation-tool-calls-handler.ts
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/analyses-page.tsx
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/analysis-detail-page.tsx
+	web/apps/dashboard/src/contexts/investigation/presentation/pages/new-analysis-page.tsx
+	web/apps/dashboard/src/contexts/onboarding/presentation/pages/business-profile-route-page.tsx
+	web/apps/dashboard/src/contexts/shared/presentation/pages/intelligence-route-page.tsx
+	web/apps/dashboard/src/contexts/shared/presentation/pages/root-page.tsx
+	web/feature_
+Aborting
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T11:38:20.550Z — Explicit Resume
+
+- WorkItem: WI-AC-009
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Retrying after all root causes fixed this session (main corruption, stuck state lock, conflict-marker corruption) -- system confirmed stable and clean now. Fresh retry.
+- NextAction: Coding Attempt 1
+
+## WI-AC-009 — Verify-first retry (2026-07-08)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Fresh retry after the merge/state-lock root causes were resolved this session. Working tree clean (HEAD e5fde89). Re-exercised AC-009 at two real external boundaries; no code changes.
+
+Boundary 1 — direct ESM import of `release.config.js` (`node -e "import('./release.config.js')..."`):
+- `branches: ["main"]`. ✓
+- Plugin chain in exact documented order: `@semantic-release/commit-analyzer` → `@semantic-release/release-notes-generator` → `@semantic-release/changelog` → `@semantic-release/npm` → `@semantic-release/git` → `@semantic-release/github`. ✓
+- `@semantic-release/npm` configured with `{ npmPublish: false }` (only updates `package.json` version). ✓
+- `@semantic-release/git` configured with `assets: ['package.json', 'CHANGELOG.md']` and `message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}'` (first line is exactly `chore(release): ${nextRelease.version} [skip ci]`). ✓
+- All six plugins present under `node_modules/` (bundled with `semantic-release` 24.2.9). ✓
+
+Boundary 2 — real `npx semantic-release --dry-run --no-ci --ci=false` (semantic-release 24.2.9, the same loader the release workflow invokes):
+- Config loads cleanly as ESM; every plugin resolved (`Loaded plugin "analyzeCommits" from "@semantic-release/commit-analyzer"`, `generateNotes` from `release-notes-generator`, `prepare` from `changelog`, `prepare`/`publish`/`addChannel` from `npm`, `prepare` from `git`, `publish`/`success`/`fail` from `github`). ✓
+- `branches: ['main']` branch restriction proven live: semantic-release reported `This test run was triggered on the branch gen/relay-foundation, while semantic-release is configured to only publish from main, therefore a new version won’t be published.` ✓
+
+Scaffold check: `project_specs.xml` affected_surfaces for AC-009 = `release.config.js` — present and unchanged.
+
+**Verify-first verdict: implementation=true, zero code diff.** All AC-009 conditions pass at the real semantic-release boundary.
+
+## WI-AC-009 — QA independent verification (2026-07-08)
+
+Re-audited AC-009 independently as qa-agent in the isolated worktree. No code changes; pure config audit at the real ESM + semantic-release boundary.
+
+- `release.config.js` is a valid ESM (`export default`) module; `node -e "import('./release.config.js')..."` loads it cleanly.
+- `branches: ['main']` — restricts releases to main. ✓
+- Plugin chain (6 plugins, exact documented order):
+  1. `@semantic-release/commit-analyzer` (no opts). ✓
+  2. `@semantic-release/release-notes-generator` (no opts). ✓
+  3. `@semantic-release/changelog` (no opts) — default `changelogFile` is `CHANGELOG.md` (verified in `node_modules/@semantic-release/changelog/lib/resolve-config.js`). ✓
+  4. `['@semantic-release/npm', { npmPublish: false }]` — only updates `package.json` version, no publish. ✓
+  5. `['@semantic-release/git', { assets: ['package.json', 'CHANGELOG.md'], message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}' }]` — commits package.json + CHANGELOG.md; commit subject line is exactly `chore(release): ${nextRelease.version} [skip ci]` (release notes appended in body is the standard pattern). ✓
+  6. `@semantic-release/github` (no opts) — creates GitHub Release. ✓
+- All six plugin packages present under `node_modules/@semantic-release/` (changelog, commit-analyzer, error, git, github, npm, release-notes-generator). ✓
+
+Scaffold check: `project_specs.xml` AC-009 affected surface = `release.config.js` — present.
+
+**QA verdict: qa=true, implementation=true, no defects.**
+
+## 2026-07-08T11:41:22.703Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
