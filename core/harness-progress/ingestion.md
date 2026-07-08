@@ -36,3 +36,15 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T17:33:30.000Z — AC-014 Verified
+
+- WorkItem: WI-AC-014
+- Outcome: implementation=true (boundary passed at real HTTP on PORT=5183, zero-diff)
+- Test: Black-box HTTP against running API on PORT=5183 (DynamoDB via ministack:4566, Redis:6379, SQS)
+- Verdict: AC-014 passes both boundary conditions:
+  1. POST valid HMAC → 202 Accepted, incident persisted (status=open, source=datadog)
+  2. POST invalid HMAC → 401 Unauthorized
+- Path note (doc drift, not a defect): spec AC wording says `/api/v1/webhooks/datadog`; implementation mounts webhook routes at `/v1/webhooks/:tenantId/:provider`. The `/api` prefix is absent globally (same established pattern as WI-AC-007..AC-009). Per the contradictions clause (implementation authoritative), the real boundary is `/v1/webhooks/{tenantId}/datadog`.
+- Status note (doc drift, not a defect): spec says `status=received`; the codebase's IncidentStatus type is `'open' | 'triaging' | …` (no `received` literal exists). The initial creation status is `'open'` per `IngestAlertUseCase`. Functional behaviour is fully met (incident persisted with correct metadata, source provider extracted, severity mapped).
+- NextAction: none
