@@ -30,7 +30,7 @@ export async function setupStripeProducts(stripe: Stripe): Promise<SetupResult[]
     let alreadyExisted = false;
 
     if (existing.data.length > 0) {
-      product = existing.data[0];
+      product = existing.data[0]!;
       alreadyExisted = true;
       console.log(`Product "${plan.name}" already exists (${product.id}), skipping creation`);
     } else {
@@ -55,8 +55,8 @@ export async function setupStripeProducts(stripe: Stripe): Promise<SetupResult[]
     let priceAmountCents: number;
 
     if (prices.data.length > 0) {
-      priceId = prices.data[0].id;
-      priceAmountCents = prices.data[0].unit_amount ?? plan.price * 100;
+      priceId = prices.data[0]!.id;
+      priceAmountCents = prices.data[0]!.unit_amount ?? plan.price * 100;
       console.log(`  Price already exists: ${priceId} ($${plan.price}/month)`);
     } else {
       priceAmountCents = plan.price * 100; // Convert dollars to cents

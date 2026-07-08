@@ -42,8 +42,8 @@ export function ToolCallGroup({ items }: { items: FeedItem[] }) {
         <Wrench className="h-3 w-3 text-muted-foreground shrink-0" />
         <span className="font-medium text-muted-foreground">{summary}</span>
         <span className="text-[10px] text-muted-foreground ml-auto whitespace-nowrap">
-          {new Date(items[0].timestamp).toLocaleTimeString()} —{' '}
-          {new Date(items[items.length - 1].timestamp).toLocaleTimeString()}
+          {new Date(items[0]!.timestamp).toLocaleTimeString()} —{' '}
+          {new Date(items[items.length - 1]!.timestamp).toLocaleTimeString()}
         </span>
         {expanded ? (
           <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />

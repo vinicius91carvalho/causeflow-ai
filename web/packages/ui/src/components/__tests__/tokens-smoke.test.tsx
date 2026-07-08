@@ -97,15 +97,15 @@ describe('cleric theme — token smoke test', () => {
     it('exports cleric theme from index.ts', async () => {
       const { themes } = await import('../../themes/index');
       expect(themes).toHaveProperty('cleric');
-      expect(themes.cleric.id).toBe('cleric');
-      expect(themes.cleric.supportsDarkMode).toBe(true);
+      expect(themes.cleric!.id).toBe('cleric');
+      expect(themes.cleric!.supportsDarkMode).toBe(true);
     });
 
     it('cleric theme has correct font definitions', async () => {
       const { themes } = await import('../../themes/index');
-      expect(themes.cleric.fonts?.sans).toBe('Plus Jakarta Sans');
-      expect(themes.cleric.fonts?.display).toBe('Space Grotesk');
-      expect(themes.cleric.fonts?.mono).toBe('JetBrains Mono');
+      expect(themes.cleric!.fonts?.sans).toBe('Plus Jakarta Sans');
+      expect(themes.cleric!.fonts?.display).toBe('Space Grotesk');
+      expect(themes.cleric!.fonts?.mono).toBe('JetBrains Mono');
     });
   });
 });

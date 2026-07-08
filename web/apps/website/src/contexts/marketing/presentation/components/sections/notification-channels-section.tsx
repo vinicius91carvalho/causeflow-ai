@@ -74,7 +74,7 @@ function NotifCardBlock({ card }: { card: NotifCard }) {
       {/* Header */}
       <div className="mb-2 flex items-center gap-2">
         <Image
-          src={ICON_SRCS[card.icon] ?? ICON_SRCS.slack}
+          src={ICON_SRCS[card.icon] ?? ICON_SRCS.slack!}
           alt=""
           aria-hidden="true"
           width={18}

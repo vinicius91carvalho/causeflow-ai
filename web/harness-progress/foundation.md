@@ -922,3 +922,42 @@ All AC-002 steps pass at the real HTTP boundary. No blocking defects. qa=true, i
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-002-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-003 — Independent QA (qa-agent, isolated worktree, PORT=5172)
+
+**Result: qa=true, implementation=true** — all AC-003 requirements pass at the `tsc` + `turbo` boundary.
+
+### Boundary exercised
+
+Real external boundary: `pnpm turbo check-types` (build step runs `tsc` for packages, `next build` with type checking for apps; check-types step runs `tsc --noEmit` for packages, `tsc --noEmit --project tsconfig.build.json` for dashboard). Type error injection/restore cycle at `packages/shared/src/lib/example.ts`.
+
+### Independent AC-003 evidence
+
+- **Step 1 — `pnpm turbo check-types --force` exit 0 with per-task success summary:** forced uncached run (14/14 successful). All 7 packages reported success: shared (tsc --noEmit), ui (tsc --noEmit), analytics (tsc --noEmit), auth (tsc --noEmit), forms (tsc --noEmit), website (tsc --noEmit), dashboard (tsc --noEmit --project tsconfig.build.json). Each task printed "successful". ✓
+- **Step 2 — `tsconfig.base.json` settings:** `"strict": true`, `"noUncheckedIndexedAccess": true`, `"moduleResolution": "bundler"`. All three enabled. ✓
+- **Step 3 — `apps/dashboard/tsconfig.build.json`:** extends `./tsconfig.json`; excludes `node_modules`, `sst.config.ts`, `**/*.test.*`, `**/__tests__/**` (Clerk type-test files excluded). ✓
+- **Type error injection test:** Added `export function broken(): string { return 42; }` to `packages/shared/src/lib/example.ts`; `pnpm turbo check-types` exited code 2 with `TS2322: Type 'number' is not assignable to type 'string'` (error surfaced in `@causeflow/shared#build` which runs `tsc`, blocking the pipeline before `check-types` runs). After restoring the file, check-types re-exits 0 (14/14). ✓
+
+### Notes
+
+- The dashboard runs `tsc --noEmit --project tsconfig.build.json` (confirmed from `apps/dashboard/package.json` scripts `check-types`). The builder config excludes `**/*.test.*` and `**/__tests__/**`, which covers Clerk type-test files (`.test.ts` patterns) as the AC describes.
+- The `turbo.json` configures `check-types` with `dependsOn: ["^build", "build"]`, so type errors in packages surface during the `build` step (which runs `tsc` — same as type-checking). The error still makes the pipeline exit non-zero, satisfying the AC.
+- No source diff required; tracked files are unchanged.
+
+### Verdict
+
+All AC-003 steps pass at the real `tsc` + `turbo` boundary. No defects within the AC-003 scope. qa=true, implementation=true for WI-AC-003.
+
+## 2026-07-08T18:52:00Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: commit; Integrated Verification
+
+## 2026-07-08T18:56:45.230Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

@@ -82,6 +82,7 @@ export function useAnimateOnScroll<T extends HTMLElement = HTMLDivElement>(
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!entry) return;
         if (entry.isIntersecting) {
           setIsVisible(true);
           if (triggerOnce) observer.unobserve(element);

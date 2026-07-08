@@ -101,14 +101,14 @@ function parseArgs(): Args {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--email' || a === '-e') {
-      emails = argv[++i]
+      emails = argv[++i]!
         .split(',')
         .map((s) => s.trim().toLowerCase())
         .filter(Boolean);
     } else if (a === '--stage') {
-      stage = argv[++i];
+      stage = argv[++i]!;
     } else if (a === '--table') {
-      tableName = argv[++i];
+      tableName = argv[++i]!;
     } else if (a === '--yes' || a === '-y') {
       yes = true;
     } else if (a === '--help' || a === '-h') {

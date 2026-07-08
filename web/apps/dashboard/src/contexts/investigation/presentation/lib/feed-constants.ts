@@ -60,7 +60,7 @@ export function parseComposioToolName(
       return { provider, displayName, action, logo: `https://logos.composio.dev/api/${provider}` };
     }
   }
-  const provider = parts[0].toLowerCase();
+  const provider = parts[0]!.toLowerCase();
   const action = parts
     .slice(1)
     .join(' ')

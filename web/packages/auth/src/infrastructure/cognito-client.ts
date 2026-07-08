@@ -159,7 +159,7 @@ export async function cognitoSignIn(params: { email: string; password: string })
 
     // Decode the ID token payload (base64url, middle segment) to extract sub + email
     const idTokenPayload = JSON.parse(
-      Buffer.from(result.IdToken.split('.')[1], 'base64url').toString('utf-8'),
+      Buffer.from(result.IdToken.split('.')[1]!, 'base64url').toString('utf-8'),
     ) as { sub: string; email: string };
 
     return {

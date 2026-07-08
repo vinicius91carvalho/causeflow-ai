@@ -128,20 +128,20 @@ export default function PricingPage({ params }: { params: Promise<{ locale: stri
     },
     {
       dimension: t('comparison.scenarioTeam5'),
-      values: [`$${PRICING_PLANS[0].price}/mo`, '$225/mo', '$100/mo', t('comparison.doesntServe')],
+      values: [`$${PRICING_PLANS[0]!.price}/mo`, '$225/mo', '$100/mo', t('comparison.doesntServe')],
     },
     {
       dimension: t('comparison.scenarioTeam10'),
-      values: [`$${PRICING_PLANS[0].price}/mo`, '$450/mo', '$200/mo', t('comparison.doesntServe')],
+      values: [`$${PRICING_PLANS[0]!.price}/mo`, '$450/mo', '$200/mo', t('comparison.doesntServe')],
     },
     {
       dimension: t('comparison.scenarioTeam20'),
-      values: [`$${PRICING_PLANS[1].price}/mo`, '$900/mo', '$400/mo', t('comparison.doesntServe')],
+      values: [`$${PRICING_PLANS[1]!.price}/mo`, '$900/mo', '$400/mo', t('comparison.doesntServe')],
     },
     {
       dimension: t('comparison.scenarioTeam50'),
       values: [
-        `$${PRICING_PLANS[2].price}/mo`,
+        `$${PRICING_PLANS[2]!.price}/mo`,
         '$2,250/mo',
         '$1,000/mo',
         t('comparison.doesntServe'),

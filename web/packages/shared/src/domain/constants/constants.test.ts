@@ -30,7 +30,7 @@ describe('PRICING_PLANS', () => {
   });
 
   it('first plan is starter', () => {
-    expect(PRICING_PLANS[0].id).toBe('starter');
+    expect(PRICING_PLANS[0]!.id).toBe('starter');
   });
 });
 

@@ -62,14 +62,14 @@ export function LiveFeedView({
     let i = 0;
 
     while (i < feed.length) {
-      const item = feed[i];
+      const item = feed[i]!;
       const isLastItem = i === feed.length - 1;
 
       if (item.type === 'tool_call') {
         const group: FeedItem[] = [item];
         let j = i + 1;
-        while (j < feed.length && feed[j].type === 'tool_call') {
-          group.push(feed[j]);
+        while (j < feed.length && feed[j]!.type === 'tool_call') {
+          group.push(feed[j]!);
           j++;
         }
         const nonMemoryGroup = group.filter(
@@ -88,7 +88,7 @@ export function LiveFeedView({
         }
         if (nonMemoryGroup.length > 0) {
           elements.push(
-            <div key={`group-${nonMemoryGroup[0].id}`}>
+            <div key={`group-${nonMemoryGroup[0]!.id}`}>
               <ToolCallGroup items={nonMemoryGroup} />
             </div>,
           );

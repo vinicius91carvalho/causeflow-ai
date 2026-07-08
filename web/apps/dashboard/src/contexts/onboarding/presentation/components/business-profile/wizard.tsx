@@ -68,7 +68,7 @@ export function BusinessProfileWizard({
 
   /** Validate the current step before advancing. Returns true if valid. */
   function validateCurrentStep(): boolean {
-    const stepSchema = buildZodSchemaForStep(currentStep, answers);
+    const stepSchema = buildZodSchemaForStep(currentStep!, answers);
     const result = stepSchema.safeParse(answers);
     if (result.success) {
       setErrors({});
@@ -76,7 +76,7 @@ export function BusinessProfileWizard({
     }
     const fieldErrors: Record<string, string> = {};
     for (const issue of result.error.issues) {
-      const field = issue.path[0];
+      const field = issue.path[0]!;
       if (typeof field === 'string' && !fieldErrors[field]) {
         fieldErrors[field] = issue.message;
       }

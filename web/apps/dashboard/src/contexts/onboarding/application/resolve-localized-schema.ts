@@ -50,7 +50,7 @@ function resolveString(
 
   // Last resort: first available key
   const keys = Object.keys(value) as SupportedLocale[];
-  if (keys.length > 0) return value[keys[0]] ?? '';
+  if (keys.length > 0) return value[keys[0]!] ?? '';
 
   return '';
 }
