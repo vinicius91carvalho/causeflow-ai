@@ -637,3 +637,10 @@ integrated main. No defects. `integration=true`, `implementation=true`,
 - Outcome: coding agent failed three times
 - Defects: 429: {"message":"Provider returned error","code":429,"metadata":{"raw":"qwen/qwen3-coder:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Venice","is_byok":false,"retry_after_seconds":26,"retry_after_seconds_raw":25.984,"headers":{"Retry-After":"26"}}}
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T16:43:28.819Z — Explicit Resume
+
+- WorkItem: WI-AC-053
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Confirmed via the log-detail fix: this block was pure OpenRouter 429 rate-limit exhaustion on qwen3-coder:free (8 req/min), not a real coding/QA defect -- the Work Item was never actually attempted. Also fixed the root cause (orchestrator now backs off before retrying after a 429 instead of instantly re-exhausting the same limit). Retry.
+- NextAction: Coding Attempt 1
