@@ -873,3 +873,12 @@ Merge with strategy ort failed.
 - WorkItem: WI-AC-040
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:13:55.271Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-040
+- AcceptanceChecks: AC-040
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/testing_and_observability/WI-AC-040-1-integration_qa.log
+- NextAction: next Ready Work Item
