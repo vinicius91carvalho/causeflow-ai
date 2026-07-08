@@ -172,3 +172,23 @@
 - WorkItem: WI-AC-048
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:10:00.000Z — Integrated Verification Passed
+
+- WorkItem: WI-AC-048
+- Outcome: PASSED
+- Integration: true
+- Implementation: true (no production code changes needed)
+- AcceptanceChecks: AC-048
+- Evidence: Independent black-box test-ac048.mjs run against full docker-compose stack
+  (relay + control-plane-stub + postgres + mongo).
+  1. Pre-error health_check returned both drivers healthy
+  2. Execute against non-existent table triggered -32603 error response:
+     {"code":-32603,"message":"relation \"non_existent_table_xyz\" does not exist"}
+  3. Error logged at error level (level:50) with err and requestId:
+     "Request handler error" logged with requestId matching the test call
+  4. Post-error health_check returned both drivers healthy — process stayed running
+  5. No reconnect/disconnect in logs after error — WS client not closed
+  6. Source code confirmed: try/catch in onMessage (src/index.ts) catches all throws,
+     logs with `{ err, requestId }`, returns -32603, does not close WS or crash process
+- Defects: []
