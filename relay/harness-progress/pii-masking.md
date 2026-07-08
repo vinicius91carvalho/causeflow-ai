@@ -123,3 +123,12 @@
 - WorkItem: WI-AC-040
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:03:31.134Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-040
+- AcceptanceChecks: AC-040
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-040-2-integration_qa.log
+- NextAction: next Ready Work Item
