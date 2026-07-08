@@ -150,3 +150,31 @@ Use /login to log into a provider via OAuth or API key. See:
 3. **No chat reply on events** — The `/events` handler acknowledges incoming Slack events with `{ok: true}` but implements no downstream reply pipeline.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/integrations-and-notifications/WI-AC-030-1-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-08T22:03:41.557Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-030
+- DefectReport: Integrated Verification of **WI-AC-030** complete.
+
+**Verdict: FAIL** — 6 defects found.
+
+**Working (all verified against live API at :3099):**
+- `POST /install` (authed) → 200 with authUrl + state
+- `POST /events` (url_verification) → 200 with challenge
+- `POST /events` (valid Slack signature) → 200 `{"ok":true}`
+- `POST /events` (tampered body) → 401 `{"error":"Invalid signature"}`
+- `POST /events` (stale timestamp / missing headers) → 401
+- `GET /oauth/authorize` → 302 redirect to Slack
+- `GET /oauth/callback` (with error param) → 302 redirect to dashboard
+- All 1057 unit tests pass (74 in integration module)
+
+**Critical defect:**
+1. **DynamoDB dependency in OSS runtime** — `GET /config`, `PATCH /config`, `DELETE /oauth`, `POST /test` all return **500** because `DynamoTenantRepository` requires DynamoDB, but the running API uses the OSS Postgres runtime where no AWS credentials are available. The `try/catch` pattern used in the install/events endpoints is not applied to the tenant-repo-dependent routes.
+
+2. **Bot token stored as plaintext** — `ConnectSlackUseCase` stores `accessToken` directly into tenant settings without KMS/AES-GCM encryption, contradicting the "KMS-encrypted ciphertext" spec requirement.
+
+3. **No chat reply on events** — The `/events` handler acknowledges incoming Slack events with `{ok: true}` but implements no downstream reply pipeline.
+- RepairPlan: WI-AC-030 FAIL — 3 defects confirmed via source inspection. All routes, entities, and use cases exist in the repository; the scaffold matches the spec. Each defect is a completion gap, not a missing scaffold item.; Wrap every `deps.tenantRepo.findById()` / `update()` call in `GET /config`, `PATCH /config`, `DELETE /oauth`, `POST /test` with try/catch that either returns a null tenant fallback or a 503/500 with a clear message instead of unhandled throw.; Inject `TokenEncryption` into `ConnectSlackUseCase` (add to constructor), call `encrypt(accessToken)` before storing into `slackConfig`, and decrypt on read in `UpdateSlackConfigUseCase` / `DisconnectSlackUseCase` / `GET /config`. Store the `EncryptedPayload` fields (ciphertext, encryptedDek, iv, tag) rather than the raw token string — or add a dedicated encrypted field in `SlackConfig`.; Wire a reply pipeline in `POST /events`: look up the tenant's `slackConfig.accessToken` via `tenantRepo`, instantiate `WebClient`, and call `chat.postMessage` (or `chat.postEphemeral`) with a confirmation message (e.g. 'Test event received') when the event type is `app_mention`, `message`, or the test payload. Use the same try/catch pattern so reply failures don't surface to Slack (Slack expects 200 for event acknowledgement).
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/integrations-and-notifications/WI-AC-030-1-integration_qa.log
+- NextAction: Coding Attempt 2
