@@ -12,14 +12,9 @@
     "test": "cd ../.. && vitest run --project dashboard",
     "test:watch": "cd ../.. && vitest --project dashboard",
     "clean": "rm -rf .next",
-    "credits:add": "tsx scripts/add-credits.ts",
-    "stripe:setup": "tsx scripts/setup-stripe.ts",
-    "users:delete": "tsx scripts/delete-user.ts"
+    "credits:add": "tsx scripts/add-credits.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.996.0",
-    "@aws-sdk/client-kms": "^3.996.0",
-    "@aws-sdk/lib-dynamodb": "^3.996.0",
     "@causeflow/analytics": "workspace:*",
     "@causeflow/auth": "workspace:*",
     "@causeflow/forms": "workspace:*",
@@ -41,7 +36,6 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
-
     "@opennextjs/aws": "3.9.14",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/canvas-confetti": "^1.9.0",
