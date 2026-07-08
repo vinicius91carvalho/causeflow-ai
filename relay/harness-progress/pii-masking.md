@@ -182,3 +182,12 @@
   Test 3: Deeply nested with mixed types works correctly.
   AC-040 regression also passes. `npx tsc --noEmit` clean.
 - NextAction: none (WI-AC-041 fully verified)
+
+## 2026-07-08T18:14:40.187Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-041
+- AcceptanceChecks: AC-041
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-041-1-integration_qa.log
+- NextAction: next Ready Work Item
