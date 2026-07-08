@@ -1569,3 +1569,57 @@ before commit).
 ### verdict
 
 implementation=true; integration=pending; qa=pending; defects=none
+
+## 2026-07-08 QA — WI-AC-033 (independent re-audit)
+
+- Role: qa-agent (independent re-audit of integrated main)
+- WorkItem: WI-AC-033 / AC-033 / context=open-source-local-runtime
+- Branch: gen/public-docs-open-source-local-runtime (HEAD 663754c)
+- Boundary: real external — fresh `docker build` + `docker run` on assigned port 5179.
+
+### Clause-by-clause audit
+
+1. Compose ships only `causeflow-docs` (port 3000):
+   `docker compose config --services` → `causeflow-docs` (single service);
+   ports `3000:3000`. PASS.
+2. No AWS/Stripe/Clerk/Sentry/Langfuse/Svix/Slack/Composio/Mintlify SaaS
+   endpoint referenced: `grep -inE
+   'aws|stripe|clerk|sentry|langfuse|svix|slack|composio|mintlify|amazonaws|anthropic|openai|chatgpt|claude'
+   docker-compose.yml` → exit 1 (0 matches). PASS.
+3. Compose valid: `docker compose config` → exit 0, empty stderr. PASS.
+4. Service depends on no other service: `grep -inE
+   'depends_on|links:|external_links|healthcheck' docker-compose.yml` → exit 1
+   (0 matches); resolved config has no `depends_on`, no `links`, no
+   `external_links`, no `healthcheck`. PASS.
+5. Monorepo integration / starts in parallel: the `causeflow-docs` service is
+   self-contained — runtime `Env` is `PORT=3000` (+ base-image PATH/NODE/YARN
+   only), build context is the project root, no external networks, no env-var
+   dependency on any other subproject. The monorepo root `docker-compose.yml`
+   (owned by the `core`/`web` open-source-local-runtime contexts) is not
+   present in this worktree's scope; the conditional "when included" clause is
+   satisfied by the service's self-contained shape: no `depends_on`, minimal
+   env, project-root build context → starts in parallel with no additional env
+   vars and no other services needing to be up first. PASS (by config
+   inspection of the service definition).
+
+### Live boundary (fresh image, assigned PORT=5179)
+
+- `docker build . -t causeflow-docs:ac033-qa` → exit 0.
+- Host port 3000 occupied by the shared `relay-control-plane-stub` container
+  (outside this worktree's scope); built image run as `causeflow-docs-ac033-qa`
+  with `-p 5179:3000 -e PORT=3000`. Canonical `docker-compose.yml` stays
+  `3000:3000`; override is uncommitted and the QA container was removed before
+  commit.
+- `GET http://localhost:5179/` → **200** in 2s; body has `CauseFlow AI` (×4)
+  and `Quickstart` (×3).
+- Boot log: `Serving docs at http://localhost:3000`.
+- `docker logs causeflow-docs-ac033-qa | grep -cE` forbidden-host pattern
+  (`mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|
+  anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|langfuse\.io|
+  svix\.com|slack\.com|composio\.dev`) → **0** matches.
+- Runtime `Env`: `PORT=3000`, `PATH`, `NODE_VERSION`, `YARN_VERSION` only —
+  no `MINTLIFY_*`, `CLERK_*`, `STRIPE_*`, `AWS_*`, etc.
+
+### verdict
+
+qa=true; implementation=true; defects=none
