@@ -425,3 +425,129 @@ rejection, live Postgres/Mongo healthchecks). No defects. `integration=true`,
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-052-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T02:30:00Z — Implementation (AC-055)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-055
+- AcceptanceChecks: AC-055
+- Outcome: implementation=true (black-box verified on running stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-055 requires a `.env.example` at the relay repo root containing only the
+relay's own env vars with docker-network defaults, no forbidden vendor
+entries, and that `docker compose --env-file .env.example up -d` from a clean
+shell env brings all four services Up. The `.env.example` file was already
+committed by AC-051 and already satisfies every AC-055 clause exactly; no
+source/config changes were required. This entry records the AC-055-specific
+black-box verification.
+
+Verified `.env.example` contents (all required vars present, defaults match):
+`RELAY_TOKEN=harness-smoke-token`, `TENANT_ID=harness-tenant`,
+`CONTROL_PLANE_URL=ws://relay-control-plane-stub:3000/v1/relay/connect`,
+`PG_HOST=relay-postgres`, `PG_PORT=5432`, `PG_DATABASE=relay`,
+`PG_USER=relay`, `PG_PASSWORD=relay`,
+`MONGO_URI=mongodb://relay-mongo:27017`, `MONGO_DATABASE=relay`,
+`MASKING_ENABLED=true`, `AUDIT_ENABLED=true`.
+
+### Black-box verification (clean env)
+
+- `grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example`
+  → 0.
+- `env -i PATH=/usr/bin:/bin HOME=$HOME docker compose --env-file .env.example up -d`
+  from repo root → all four services Up:
+  `relay-control-plane-stub (Up, 0.0.0.0:3000->3000)`,
+  `relay-postgres (Up, healthy, 5432)`,
+  `relay-mongo (Up, healthy, 27017)`,
+  `relay (Up, 8080/tcp — no host port mapping)`.
+- Relay boot log: `Starting CauseFlow Relay...`, `Driver initialized` for
+  `order-pg` + `order-mongo`, `Connected to control plane` with
+  `url=ws://relay-control-plane-stub:3000/v1/relay/connect`.
+- Stub log: `[stub] resource_update from relayId=50bffb4b-... resources=2`
+  (n=2 >= 1).
+- Service count: exactly 4 (`docker compose ps --services | wc -l` = 4).
+
+Note: a sibling `causeflow-docs` container (external to this repo) was holding
+host port 3000; it was stopped to free the stub's `0.0.0.0:3000` binding, and
+the stub was force-recreated to reattach its docker network after the initial
+port-conflict failure (transient, external to the relay repo — the relay
+itself needed no change).
+
+`feature_list.json` WI-AC-055 set to `implementation: true`.
+
+## 2026-07-08T02:35:00Z — QA Independent Verification (AC-055)
+
+- WorkItem: WI-AC-055
+- AcceptanceChecks: AC-055
+- Outcome: qa=true, implementation=true (independently re-verified on running stack)
+- Method: tore down existing stack (`docker compose down`), then
+  `env -i PATH=$PATH HOME=$HOME docker compose --env-file .env.example up -d`
+  from a clean shell (no `AWS_*`/`STRIPE_*`/`CLERK_*`/`LANGFUSE_*`/`SENTRY_*`/
+  `SVIX_*`/`SLACK_*`/`COMPOSIO_*`/`MASTRA_*`/`SQS_*`/`DYNAMODB_*`/`STS_*`/
+  `KMS_*` in parent env).
+
+### Independent verification results (AC-055 clause by clause)
+
+- `.env.example` exists at relay repo root and contains only the relay's own
+  env vars with the required defaults:
+  - `RELAY_TOKEN=harness-smoke-token`
+  - `TENANT_ID=harness-tenant`
+  - `CONTROL_PLANE_URL=ws://relay-control-plane-stub:3000/v1/relay/connect`
+  - `PG_HOST=relay-postgres`, `PG_PORT=5432`, `PG_DATABASE=relay`,
+    `PG_USER=relay`, `PG_PASSWORD=relay`
+  - `MONGO_URI=mongodb://relay-mongo:27017`, `MONGO_DATABASE=relay`
+  - `MASKING_ENABLED=true`, `AUDIT_ENABLED=true`
+- `grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example`
+  → 0.
+- `env -i PATH=$PATH HOME=$HOME docker compose --env-file .env.example up -d`
+  → all four services Up within ~14s (well under 60s budget):
+  - `relay-control-plane-stub (running, Up 14 seconds)`
+  - `relay-postgres (running, Up 14 seconds (healthy))`
+  - `relay-mongo (running, Up 14 seconds (healthy))`
+  - `relay (running, Up 11 seconds)`
+- Relay boot log contains `"msg":"Connected to control plane"` with
+  `url=ws://relay-control-plane-stub:3000/v1/relay/connect`.
+- Stub log contains
+  `[stub] resource_update from relayId=569eb7a9-... resources=2` (n=2 >= 1).
+
+### Verdict
+
+All AC-055 acceptance criteria independently re-verified on a freshly brought-up
+stack from a clean shell env. No defects. `qa=true`, `implementation=true`.
+
+## 2026-07-08T01:22:19.638Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-055
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T01:53:23.627Z — Resumed
+
+- WorkItem: WI-AC-055
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-08T01:53:23.650Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-055
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-08T02:24:27.867Z — Resumed
+
+- WorkItem: WI-AC-055
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-08T02:24:27.892Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-055
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

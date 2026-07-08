@@ -1242,8 +1242,8 @@
       "AC-051"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
+    "implementation": true,
+    "qa": true,
     "integration": false,
     "retries": 0
   },
