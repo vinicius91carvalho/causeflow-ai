@@ -810,6 +810,38 @@ fatal: Unable to write index.
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
 
+## 2026-07-08 Integrated Verification — WI-AC-005 (AC-005)
+
+- Role: qa-agent (Integrated Verification on integrated main)
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- context: content-structure
+- Boundary: source-tree frontmatter audit (133 MDX) + real external HTTP
+  boundary (mint dev on PORT=5170).
+
+### Audit result
+
+- In-scope `.mdx` files: 133 (excludes `.mintlify/`, `.artifacts/`,
+  `node_modules/`, `drafts/`, `.git/`).
+- Files with `description` field: 133 (AC-004 dependency holds).
+- Scalar-value description length > 160: **0**.
+- Quote-inclusive raw description length > 160: **0**.
+- Longest description: index.mdx = 153 chars (within limit).
+
+### Core smoke at the running boundary
+
+- `GET http://localhost:5170/` → 200 (AC-001 dependency holds).
+- `GET /getting-started/quickstart` → 200.
+- `GET /api-reference/introduction` → 200.
+- `GET /relay/overview` → 200.
+- `GET /changelog` → 200.
+
+### Verdict
+
+integration=true. implementation=true. qa=true. Zero defects. AC-005 holds
+on integrated main at both the source-tree and real external HTTP boundary:
+every `description` field in `.mdx` frontmatter is at most 160 characters.
+
 ## 2026-07-08T17:47:12.497Z — Checkpoint ready
 
 - Attempt: 1/3

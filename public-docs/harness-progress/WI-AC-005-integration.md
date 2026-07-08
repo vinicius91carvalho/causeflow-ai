@@ -74,3 +74,36 @@ Zero code changes needed.
 ### Verdict
 
 implementation=true. qa=true. Zero defects.
+
+## 2026-07-08 Integrated Verification — WI-AC-005 (final)
+
+- Role: qa-agent (Integrated Verification on integrated main)
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- context: content-structure
+- Branch: main (HEAD $(git rev-parse --short HEAD))
+- Boundary: source-tree frontmatter audit (133 MDX) + real external HTTP
+  boundary (mint dev on PORT=5170).
+
+### Audit result
+
+- In-scope `.mdx` files: 133 (excludes `.mintlify/`, `.artifacts/`,
+  `node_modules/`, `drafts/`, `.git/`).
+- Files with `description` field: 133 (AC-004 dependency holds).
+- Scalar-value description length > 160: **0**.
+- Quote-inclusive raw description length > 160: **0**.
+- Longest description: index.mdx = 153 chars (within limit).
+
+### Core smoke at the running boundary
+
+- `GET http://localhost:5170/` → 200 (AC-001 dependency holds).
+- `GET /getting-started/quickstart` → 200.
+- `GET /api-reference/introduction` → 200.
+- `GET /relay/overview` → 200.
+- `GET /changelog` → 200.
+
+### Verdict
+
+integration=true. implementation=true. qa=true. Zero defects. AC-005 holds
+on integrated main at both the source-tree and real external HTTP boundary:
+every `description` field in `.mdx` frontmatter is at most 160 characters.
