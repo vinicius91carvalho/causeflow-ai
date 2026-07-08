@@ -1119,6 +1119,12 @@ ${findingsSummary}`;
                 proposedFix: investigationResult.proposedFix,
                 totalCostUsd,
                 costBreakdown,
+                agentBreakdown: successfulResults.map((r) => ({
+                    agentRole: r.agentRole,
+                    inputTokens: r.usage.inputTokens,
+                    outputTokens: r.usage.outputTokens,
+                    costUsd: r.costUsd,
+                })),
                 investigationDurationMs,
             },
         });
@@ -1669,6 +1675,12 @@ ${buildAgentSummary(result.response, result.toolCalls)}`;
                 proposedFix: investigationResult.proposedFix,
                 totalCostUsd,
                 costBreakdown,
+                agentBreakdown: successfulResults.map((r) => ({
+                    agentRole: r.agentRole,
+                    inputTokens: r.usage.inputTokens,
+                    outputTokens: r.usage.outputTokens,
+                    costUsd: r.costUsd,
+                })),
                 investigationDurationMs,
             },
         });

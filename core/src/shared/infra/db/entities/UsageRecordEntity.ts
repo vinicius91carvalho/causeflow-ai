@@ -9,6 +9,7 @@ export const UsageRecordEntity = new Entity({
         type: { type: ['investigation', 'event'], required: true },
         incidentId: { type: 'string' },
         costUsd: { type: 'number' },
+        agentBreakdown: { type: 'any' },
         createdAt: {
             type: 'string',
             required: true,
