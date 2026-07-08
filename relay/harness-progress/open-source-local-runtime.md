@@ -1269,3 +1269,68 @@ No defects. `qa=true`, `implementation=true`.
 - WorkItem: WI-AC-056
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T20:51:00Z — Integrated Verification (AC-056)
+
+- WorkItem: WI-AC-056
+- AcceptanceChecks: AC-056
+- Outcome: integration=true, implementation=true, qa=true (all checks pass on latest main)
+- Method: verified on running docker-compose stack (all four services Up, healthy).
+  Re-ran `npm run smoke` from `scripts/control-plane-stub/` against real stub +
+  relay + Postgres/Mongo at external boundaries.
+
+### Integrated verification clause-by-clause
+
+**`scripts/control-plane-stub/server.mjs` committed:**
+- File exists at the expected path ✓
+
+**Imports `ws` and Node stdlib only:**
+- `import { WebSocketServer } from 'ws'` + `import { randomUUID } from 'node:crypto'` ✓
+- No AWS SDK, Stripe, @clerk/*, @sentry/*, @langfuse/*, @svix/*, @slack/*, composio, @mastra ✓
+
+**Opens `WebSocketServer` on `0.0.0.0:3000`:**
+- `new WebSocketServer({ port: PORT, path: '/v1/relay/connect' })` ✓
+- Boot log: `[stub] listening on 0.0.0.0:3000 expect token=...` ✓
+
+**Validates `?token=&tenantId=` against expected env-var pair:**
+- Rejects mismatched credentials with close code 4001 ✓
+- Relay authenticated with `RELAY_TOKEN=harness-smoke-token` ✓
+
+**On `message` JSON-parses and routes by `type`:**
+- `resource_update`: stub log `[stub] resource_update from relayId=... resources=2` ✓
+- `heartbeat`: stub log `[stub] heartbeat from relayId=... (debug)` ✓
+
+**Exposes `npm run smoke`:**
+- `package.json` defines `"smoke": "node smoke.mjs"` ✓
+- `npm run smoke` exits 0 with all assertions passing ✓
+
+**Smoke script behavior:**
+- Opens outbound WebSocket to relay via stub ✓
+- Sends `health_check` → both drivers healthy ✓
+- Sends `execute SELECT 1 AS one` → `{rows:[{one:1}],rowCount:1,fields:...,masked:false}` ✓
+- Sends `execute list_tables` → `{rows:[{table_name:"orders",table_type:"BASE TABLE"}]}` ✓
+- Asserts all responses ✓
+- Exits 0 on success ✓
+
+**Zero vendor SDK dependency:**
+- Only `ws` in package.json dependencies ✓
+- smke.mjs imports: `ws` + `node:crypto` only ✓
+
+**Built into small image by `scripts/control-plane-stub/Dockerfile`:**
+- Dockerfile is 7 lines (concise), `FROM node:22-alpine`, `npm install --omit=dev` ✓
+
+### Live smoke test output
+
+```
+[smoke] connecting to ws://localhost:3000/v1/relay/connect?token=harness-smoke-token&tenantId=harness-tenant
+[smoke] connected
+[smoke] health_check result=[{"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":8},{"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":1}]
+[smoke] execute(SELECT 1) result={"rows":[{"one":1}],"rowCount":1,"fields":[{"name":"one","type":"int4"}],"executionTimeMs":1,"masked":false,"maskedFieldCount":0}
+[smoke] execute(list_tables) result={"rows":[{"table_name":"orders","table_type":"BASE TABLE"}],"rowCount":1,"fields":[{"name":"table_name","type":"text"},{"name":"table_type","type":"text"}],"executionTimeMs":5,"masked":false,"maskedFieldCount":0}
+[smoke] exiting with code 0
+```
+
+### Verdict
+
+All AC-056 acceptance criteria pass at real external boundaries against the
+latest main. No defects found.
