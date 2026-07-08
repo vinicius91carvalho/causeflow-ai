@@ -278,3 +278,32 @@ qa=true, implementation=true for WI-AC-008.
 - WorkItem: WI-AC-008
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T01:30:00.000Z — Integrated Verification
+
+- WorkItem: WI-AC-008
+- Attempt: 1/3
+- Result: integration=true, implementation=true, qa=true
+
+### Boundaries exercised
+
+Filesystem (route/page file content) + compile (`tsc --noEmit` both apps) + HTTP (website dev server on port 5172). HEAD = main @ a631fef (Merge branch 'gen/web-foundation').
+
+### Evidence by AC clause
+
+1. **Every page is a thin re-export → `presentation/pages/<name>-page` — PASS.**
+   - Website: 13/13 `apps/website/src/app/**/page.tsx` are 1–4 line single re-exports; every target exists.
+   - Dashboard: 25/25 `apps/dashboard/src/app/**/page.tsx` are 1–5 line re-exports (optional `export const dynamic = 'force-dynamic'`); zero inline JSX/return/await logic; every target exists.
+2. **Every dashboard API route → `api/<name>-handler` — PASS.** 80/80 `apps/dashboard/src/app/api/**/route.ts` are 1–6 line re-exports (multi-line ones are Biome-wrapped single statements or carry only a directive + comment); zero inline `withAuth`/`fetch(`/`NextResponse`/`await` logic; every target exists.
+3. **No context `index.ts` barrel files — PASS.** `find apps/{website,dashboard}/src/contexts -name "index.ts"` and `-name "index.tsx"` → none.
+4. **`optimizePackageImports` in both `next.config.mjs` — PASS.** Dashboard: `@clerk/nextjs`, `@clerk/themes`, `lucide-react` + all 5 internal `@causeflow/*` (ui, shared, analytics, forms, auth). Website: `lucide-react` + the 4 `@causeflow/*` packages it depends on (ui, shared, analytics, forms); Clerk + `@causeflow/auth` correctly omitted — the website has no `@clerk/*` or `@causeflow/auth` dependency (cannot optimize a package not imported; grep confirmed zero imports).
+
+### Compile + HTTP boundaries
+
+- `tsc --noEmit` (website) → exit 0.
+- `tsc --noEmit --project tsconfig.build.json` (dashboard) → exit 0. All re-exports resolve to real context modules.
+- Website dev server (`next dev -p 5172`) → all 9 EN routes (`/ /product /security /integrations /pricing /use-cases /privacy /terms /about`) + PT-BR mirror (`/pt-br /pt-br/product /pt-br/pricing /pt-br/terms`) return 200; real `<title>` rendered; no errors in dev log.
+
+### Verdict
+
+All AC-008 clauses pass at structural, compile, and HTTP boundaries. No defects. integration=true for WI-AC-008.
