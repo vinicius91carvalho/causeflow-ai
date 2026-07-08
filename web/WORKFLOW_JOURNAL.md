@@ -44,17 +44,17 @@
 
 **State:** `implementation=true`
 
-**Summary:**
-- Removed 4 unused `// biome-ignore lint/suspicious/noConsole` suppression comments from test files that had no effect since `suspicious/noConsole` is not enabled in `biome.json`.
-- Ran `pnpm exec biome check --write .` to auto-format `feature_list.json` (the single formatting error causing non-zero exit).
-- `pnpm exec biome check .` now exits 0 with only warnings (76 remaining, all at `warn` severity from rules deliberately set to warn in `biome.json`).
-- `pnpm exec biome check --write .` also exits 0.
-- Verified no ESLint/Prettier config files exist anywhere in the repo (AC-004 Step 3 pass).
-- `pnpm turbo lint` exits 0 with all 7 tasks successful.
+**Summary (repair 2 — durable fix):**
+The previous fix (formatting `feature_list.json` inline) regressed when the harness regenerated the file with multi-line arrays at commit 16733d9. This second repair adds a Biome override that excludes `feature_list.json` from both linter and formatter, making the fix durable against future harness regenerations.
 
-**Changes:**
-- `tests/e2e/review/pd-auth-setup.ts` — removed unused suppression comment
-- `tests/dashboard/auth-setup.ts` — removed unused suppression comment
-- `tests/dashboard/language-selector.spec.ts` — removed unused suppression comment
-- `tests/dashboard/theme-language-race.spec.ts` — removed unused suppression comment
-- `feature_list.json` — auto-formatted by biome
+**Root cause:** `feature_list.json` is a harness-generated work-tracking file with 53+ single-element arrays (`["AC-001"]`) written as multi-line (`[\n  "AC-001"\n]`). Biome 2.4.4 JSON formatter requires inline single-element arrays. Since the file is a generated artifact (not source code), the correct approach is to exclude it from Biome checking.
+
+**Change:**
+- `web/biome.json` — added override entry for `feature_list.json` that disables linter and formatter (9 lines added). This uses the same pattern as the existing `docs/redesign-review/**` override.
+
+**Verification:**
+- `pnpm exec biome check .` exits 0 (76 warnings at `warn` severity, 0 errors)
+- `pnpm exec biome check --write .` produces no changes
+- Malformed import triggers `assist/source/organizeImports` exit 1
+- `--write` auto-fixes malformed imports and exits 0
+- No ESLint/Prettier configs exist
