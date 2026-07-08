@@ -659,3 +659,70 @@ integrated main. No defects. `integration=true`, `implementation=true`,
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T20:30:00Z — Implementation (AC-053)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-053
+- AcceptanceChecks: AC-053
+- Outcome: implementation=true (black-box verified on running docker-compose stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-053 requires that after `docker compose up -d`, the stub sends a JSON-RPC 2.0
+`health_check` request to the relay and the relay answers with one entry per
+initialized driver (`{ resourceId, type, healthy, latencyMs }`). The stub prints
+the JSON to its log as `[stub] health_check result=...` and exits 0. A failure of
+either driver (e.g. Postgres stopped) yields `healthy: false` for that entry
+while the other driver still reports `healthy: true`; the stub still exits 0 and
+prints the partial result.
+
+The relay already handled `health_check` correctly via `HealthReporter.checkAll()`
+in `src/index.ts` and `src/health/health-reporter.ts`. The missing piece was the
+stub's one-shot smoke behavior: the stub (when `SMOKE=1`) ran the smoke tests but
+did not exit afterward.
+
+Changed `scripts/control-plane-stub/server.mjs`:
+- `runSmoke` now asserts the health_check response shape: it must be a non-empty
+  array where each entry has `resourceId`, `type`, `healthy` (boolean), and
+  `latencyMs` (number). Individual drivers may be `healthy: false` — partial
+  results still pass the assertion and exit 0.
+- The execute tests (SELECT 1, list_tables) are log-only and do not affect the
+  exit code, so a Postgres outage does not cause non-zero exit (matching AC-053's
+  "stub still exits 0" requirement).
+- After all smoke tests, the stub calls `process.exit(exitCode)` so `SMOKE=1`
+  mode is a one-shot test that exits 0 on success (or non-zero on shape errors).
+  The `restart: unless-stopped` docker-compose policy then restarts the stub for
+  another cycle.
+
+No changes to the relay runtime (src/), Dockerfile, docker-compose.yml, config,
+or any other source — only the stub's server.mjs was modified.
+
+### Black-box verification (SMOKE=1 on running stack)
+
+**Normal case (all drivers healthy):**
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":1},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":1}
+]
+[stub] smoke exiting with code 0
+```
+
+**Failure case (Postgres container stopped):**
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":false,"latencyMs":5005},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":11}
+]
+[stub] execute(SELECT 1) result={"code":-32603,"message":"getaddrinfo EAI_AGAIN relay-postgres"}
+[stub] execute(list_tables) result={"code":-32603,"message":"getaddrinfo EAI_AGAIN relay-postgres"}
+[stub] smoke exiting with code 0
+```
+
+Both cases exit 0. The health_check response shape is correct (array with entries
+for both drivers). Partial results (Postgres unhealthy, Mongo healthy) are
+handled gracefully per AC-053.
+
+`feature_list.json` WI-AC-053 set to `implementation: true`.

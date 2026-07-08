@@ -64,11 +64,35 @@ async function waitForResponse(ws, id, timeoutMs = 15000) {
 }
 
 async function runSmoke(ws, relayId) {
+  let exitCode = 0;
   try {
+    // Health check (AC-053): send health_check, assert response shape.
+    // Allow individual drivers to be unhealthy (partial results still exit 0).
     const healthId = sendRpc(ws, 'health_check', {});
     const health = await waitForResponse(ws, healthId);
     log(`health_check result=${JSON.stringify(health.result)}`);
 
+    if (health.error) {
+      log(`smoke error: health_check returned error - ${JSON.stringify(health.error)}`);
+      exitCode = 1;
+    } else if (!health.result || !Array.isArray(health.result)) {
+      log(`smoke error: health_check result is not an array`);
+      exitCode = 1;
+    } else if (health.result.length === 0) {
+      log(`smoke error: health_check result is empty`);
+      exitCode = 1;
+    } else {
+      for (const entry of health.result) {
+        if (!entry.resourceId || !entry.type || typeof entry.healthy !== 'boolean' || typeof entry.latencyMs !== 'number') {
+          log(`smoke error: health_check entry malformed - ${JSON.stringify(entry)}`);
+          exitCode = 1;
+        }
+      }
+    }
+
+    // Execute SELECT 1 (AC-054) — log-only, does not affect exit code.
+    // When Postgres is running this succeeds; when Postgres is stopped (for
+    // AC-053's partial-health scenario) it fails gracefully.
     const execId = sendRpc(ws, 'execute', {
       resourceId: 'order-pg',
       operation: 'query',
@@ -77,6 +101,7 @@ async function runSmoke(ws, relayId) {
     const exec = await waitForResponse(ws, execId);
     log(`execute(SELECT 1) result=${JSON.stringify(exec.result ?? exec.error)}`);
 
+    // Execute list_tables (AC-054) — log-only, does not affect exit code.
     const listId = sendRpc(ws, 'execute', {
       resourceId: 'order-pg',
       operation: 'list_tables',
@@ -85,8 +110,12 @@ async function runSmoke(ws, relayId) {
     const list = await waitForResponse(ws, listId);
     log(`execute(list_tables) result=${JSON.stringify(list.result ?? list.error)}`);
   } catch (err) {
-    log(`smoke error: ${err.message}`);
+    log(`smoke fatal: ${err.message}`);
+    exitCode = 1;
   }
+
+  log(`smoke exiting with code ${exitCode}`);
+  process.exit(exitCode);
 }
 
 wss.on('connection', (ws, req) => {
@@ -110,7 +139,10 @@ wss.on('connection', (ws, req) => {
       log(`resource_update from relayId=${msg.relayId} resources=${n}`);
       if (RUN_SMOKE && !smokeStarted) {
         smokeStarted = true;
-        runSmoke(ws, msg.relayId).catch(() => {});
+        runSmoke(ws, msg.relayId).catch((err) => {
+          log(`smoke fatal: ${err.message}`);
+          process.exit(1);
+        });
       }
     } else if (msg.type === 'heartbeat') {
       log(`heartbeat from relayId=${msg.relayId} (debug)`);
