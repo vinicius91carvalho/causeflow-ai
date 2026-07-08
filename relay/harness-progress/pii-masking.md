@@ -322,3 +322,12 @@ All 7 tests in `scripts/qa/ac042-test.mjs` pass against the compiled `dist/maski
 - `npx tsc --noEmit` clean. `npm run build` exits 0. Docker compose stack (`relay`, `relay-postgres`, `relay-mongo`, `relay-control-plane-stub`) all healthy.
 - No code changes needed — AC-043 behavior was already correctly implemented.
 - NextAction: none (WI-AC-043 fully verified)
+
+## 2026-07-08T18:46:38.511Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-043
+- AcceptanceChecks: AC-043
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-043-1-integration_qa.log
+- NextAction: next Ready Work Item
