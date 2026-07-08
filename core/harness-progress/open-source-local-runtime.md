@@ -1366,3 +1366,12 @@ Per the shared-main safety rule, the QA agent did NOT attempt ref surgery
 main). The dangling `0695694` is preserved in `git reflog` for operator
 recovery. Verdict set to integration=false because the integrated `main` is
 not in a certifiable state, even though the AC-039 boundary itself passes.
+
+## 2026-07-08T11:54:35.157Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-039
+- AcceptanceChecks: AC-039
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-039-1-integration_qa.log
+- NextAction: next Ready Work Item
