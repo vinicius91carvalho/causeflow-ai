@@ -1137,3 +1137,22 @@ Boundary 2 — real `npx semantic-release --dry-run --no-ci --ci=false` (semanti
 Scaffold check: `project_specs.xml` affected_surfaces for AC-009 = `release.config.js` — present and unchanged.
 
 **Verify-first verdict: implementation=true, zero code diff.** All AC-009 conditions pass at the real semantic-release boundary.
+
+## WI-AC-009 — QA independent verification (2026-07-08)
+
+Re-audited AC-009 independently as qa-agent in the isolated worktree. No code changes; pure config audit at the real ESM + semantic-release boundary.
+
+- `release.config.js` is a valid ESM (`export default`) module; `node -e "import('./release.config.js')..."` loads it cleanly.
+- `branches: ['main']` — restricts releases to main. ✓
+- Plugin chain (6 plugins, exact documented order):
+  1. `@semantic-release/commit-analyzer` (no opts). ✓
+  2. `@semantic-release/release-notes-generator` (no opts). ✓
+  3. `@semantic-release/changelog` (no opts) — default `changelogFile` is `CHANGELOG.md` (verified in `node_modules/@semantic-release/changelog/lib/resolve-config.js`). ✓
+  4. `['@semantic-release/npm', { npmPublish: false }]` — only updates `package.json` version, no publish. ✓
+  5. `['@semantic-release/git', { assets: ['package.json', 'CHANGELOG.md'], message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}' }]` — commits package.json + CHANGELOG.md; commit subject line is exactly `chore(release): ${nextRelease.version} [skip ci]` (release notes appended in body is the standard pattern). ✓
+  6. `@semantic-release/github` (no opts) — creates GitHub Release. ✓
+- All six plugin packages present under `node_modules/@semantic-release/` (changelog, commit-analyzer, error, git, github, npm, release-notes-generator). ✓
+
+Scaffold check: `project_specs.xml` AC-009 affected surface = `release.config.js` — present.
+
+**QA verdict: qa=true, implementation=true, no defects.**
