@@ -111,3 +111,15 @@ Use /login to log into a provider via OAuth or API key. See:
 - WorkItem: WI-AC-030
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:48:00.000Z — Integrated Verification of WI-AC-030
+
+- WorkItem: WI-AC-030
+- Phase: integrated-verification
+- Verdict: FAIL
+- Defects:
+  1. GET /config, PATCH /config, DELETE /oauth, POST /test return 500 because DynamoTenantRepository requires DynamoDB but OSS Postgres runtime provides no AWS credentials — Slack module not adapted for OSS.
+  2. Bot token stored as plaintext in tenant settings.slackConfig.accessToken, not KMS-encrypted ciphertext in SlackOAuthStateEntity/SlackNotificationEntity as specified.
+  3. POST /events acknowledges events with {ok: true} but does not trigger a downstream "chat reply" — no processing pipeline for incoming Slack events.
+- Working endpoints: POST /install (200), POST /events url_verification (200), POST /events valid signature (200), POST /events tampered body (401), POST /events stale timestamp (401), GET /oauth/authorize (302), GET /oauth/callback (302).
+- All 1057 unit tests pass (74 in integration module).
