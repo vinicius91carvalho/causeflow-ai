@@ -465,3 +465,74 @@ changes; the existing codebase already satisfies AC-010.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08 Verify-first — WI-AC-010 (retry after config fix)
+
+- WorkItem: WI-AC-010
+- AcceptanceChecks: AC-010
+- context: product-narrative
+- Mode: VERIFY-FIRST (existing codebase)
+- Attempt: 2
+- Outcome: implementation=true (black-box verified at real HTTP boundary)
+- NextAction: Integrated Verification
+
+### Acceptance check
+
+AC-010: Each of the nine Integrations pages (Overview, Monitoring, GitHub,
+Communication, Project management, Databases, Custom webhooks, Cloud
+providers, HubSpot) is reachable from the documentation tab and renders
+without MDX parse errors.
+
+### Pre-flight (spec scaffold verification)
+
+- `project_specs.xml` present at repo root.
+- All nine Integrations `.mdx` files exist under `integrations/` with
+  `title` + `description` frontmatter (each description ≤160 chars):
+  overview, monitoring, github, communication, project-management,
+  databases, custom-webhooks, cloud-providers, hubspot.
+- `docs.json` Documentation tab "Integrations" group lists exactly these
+  nine pages.
+
+### Boundary verification (real external boundary — HTTP)
+
+- `mint dev --no-open --port 5188` running from project root (mint CLI
+  v4.2.666, node v24.16.0), confirmed listening on `*:5188`. AC-001
+  dependency holds: `GET http://localhost:5188/` → 200, body contains
+  "CauseFlow AI" and all four tab labels (Documentation, API
+  reference, Relay, Changelog).
+- Reachability from the Documentation tab: home HTML sidebar contains a
+  `href="/integrations/<page>"` link for each of the nine pages (overview
+  appears twice — index + entry; the other eight once each).
+
+Per-page render at the real HTTP boundary:
+
+| page                | HTTP | rendered H1                  | bytes  | parse markers |
+| ------------------- | ---- | ---------------------------- | ------ | ------------- |
+| overview            | 200  | Integrations overview        | 242563 | 0 |
+| monitoring          | 200  | Monitoring integrations      | 434441 | 0 |
+| github              | 200  | GitHub                       | 246012 | 0 |
+| communication       | 200  | Communication integrations   | 278921 | 0 |
+| project-management  | 200  | Project management integrations | 339481 | 0 |
+| databases           | 200  | Database integrations        | 223801 | 0 |
+| custom-webhooks     | 200  | Custom webhooks              | 430380 | 0 |
+| cloud-providers     | 200  | Cloud providers              | 378878 | 0 |
+| hubspot             | 200  | HubSpot                      | 235512 | 0 |
+
+- Each rendered H1 matches the page's `title` frontmatter exactly.
+- No `SyntaxError`/`Could not compile`/`Unexpected`/`MDX parse|compile
+  error`/`Module not found`/`is not defined` markers in any rendered body.
+- `mint dev` log has no error/parse/fail/warn/syntax/exception markers.
+- Each page body contains its distinguishing prose from the `.mdx` source
+  (e.g. "Datadog" on monitoring, "draft pull request" on github, "Jira" on
+  project-management, "AWS" on cloud-providers, "customer" on hubspot) —
+  all present.
+
+### Verdict
+
+All nine Integrations pages are reachable from the Documentation tab and
+render without MDX parse errors at the real external HTTP boundary.
+AC-010 PASSES against the existing committed code.
+
+implementation=true. Zero defects. Zero tracked content files changed —
+zero-diff checkpoint (only this journal updated). No refactor, no code
+changes; the existing codebase already satisfies AC-010.
