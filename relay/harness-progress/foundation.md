@@ -366,3 +366,16 @@ Verdict: qa=true, implementation=true, zero code diff. Both AC-004 conditions pa
 - WorkItem: WI-AC-004
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-004 — Integrated Verification on main (2026-07-07)
+
+Ran both AC-004 conditions at the real `node dist/index.js` process boundary on integrated main (HEAD 426163b; clean `dist` from `npm run build`, build exit 0). No mocks of the relay.
+
+- Case A — `controlPlane.url = 'not-a-url'` + valid `resources[0]` (`/tmp/ac004/cfg-badurl.yaml`, postgres resource, string port):
+  - Zod accepts `'not-a-url'` as-is (free-form `z.string()` in `src/config/schema.ts`); `loadConfig()` returns the parsed config (AC clause (a)).
+  - `RELAY_CONFIG_PATH=/tmp/ac004/cfg-badurl.yaml node dist/index.js` → pino logs `Starting CauseFlow Relay...` + `Config loaded` (resources=1, tenantId=test-tenant) + `Driver initialized` (order-pg), then `WsClient.connect()` → `new URL('not-a-url')` throws `TypeError: Invalid URL` (`code: ERR_INVALID_URL`, `input: not-a-url`). Caught by `main().catch()` → `level:60` fatal `Failed to start relay` → **NODE_EXIT=1**. The relay never silently starts with an invalid control-plane URL. ✓
+- Case B — missing `controlPlane.token` (`/tmp/ac004/cfg-notoken.yaml`, valid `resources[0]`, `controlPlane.url` set, no `token` key):
+  - `loadConfig()` throws `ZodError` with a clear error pointing at the missing field: `path: ["controlPlane","token"]`, `expected: "string"`, `received: "undefined"`, `message: "Required"`.
+  - `RELAY_CONFIG_PATH=/tmp/ac004/cfg-notoken.yaml node dist/index.js` → pino logs `Starting CauseFlow Relay...` then `level:60` fatal `Failed to start relay` carrying the `ZodError` (path `controlPlane/token`) → **NODE_EXIT=1**. ✓
+
+**Integrated verdict: integration=true, implementation=true, qa=true, no defects.** Both AC-004 conditions pass on integrated main.
