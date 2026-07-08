@@ -109,6 +109,14 @@
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-040-1-qa.log
 - NextAction: Coding Attempt 2
 
+## 2026-07-08T18:03:12.261Z — Integrated Verification Pass
+
+- WorkItem: WI-AC-040
+- Attempt: 3/3
+- Outcome: integration=true, implementation=true, qa=true
+- Verification: `MaskingEngine.mask(['john@example.com', '123.456.789-00', 'plain'])` returns `{ masked: ['***@***.***', '***.***.***-**', 'plain'], maskedFieldCount: 2 }` — exact match. Email local part + domain stripped, CPF dotted pattern masked, plain string untouched. `npx tsc --noEmit` passes. `npm run build` passes. No code changes needed.
+- NextAction: none (WI-AC-040 fully verified)
+
 ## 2026-07-08T17:58:27.023Z — Checkpoint ready
 
 - Attempt: 2/3
