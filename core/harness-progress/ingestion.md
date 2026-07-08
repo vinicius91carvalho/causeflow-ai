@@ -130,3 +130,34 @@
 - WorkItem: WI-AC-016
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T18:59:52.000Z — Integrated Verification passed
+
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Outcome: passed on integrated main
+- Test: Black-box HTTP tests against API on PORT=5183 with ministack+redis.
+  Used Billing Corp tenant (226e544c-d76d-4f61-91c8-cc901260036c) with unlimited
+  billing account, API key (cflo_ac016_...), and Sentry integration row with
+  KMS-encrypted client secret. 19 assertions covering all AC-016 conditions.
+- Verdict: AC-016 passes all 4 conditions:
+  1. POST Grafana payload to /v1/webhooks/:tenantId/grafana with valid
+     X-Webhook-Signature (HMAC-SHA256) → 202; incident.sourceProvider=grafana,
+     title=High CPU Usage, severity=critical (from state=alerting).
+  2. POST CloudWatch payload to /v1/webhooks/:tenantId/cloudwatch with valid
+     signature → 202; incident.sourceProvider=cloudwatch, title=RDS-ConnectionSpikes,
+     severity=critical (from NewStateValue=ALARM).
+  3. POST Sentry payload to /v1/webhooks/:tenantId/sentry with valid
+     Sentry-Hook-Signature → 202; incident.sourceProvider=sentry,
+     title=TypeError: Cannot read property x of undefined, severity=high
+     (from level=error).
+  4. POST /v1/admin/incidents with manual payload and API key Bearer auth →
+     201; incident.sourceProvider=manual, status=triaging.
+  All incidents verified by GET /v1/incidents/:id with same API key.
+- Observations:
+  - KMS_ENDPOINT must be set (e.g. KMS_ENDPOINT=http://localhost:4566) for
+    Sentry integration decryption to reach ministack KMS; .env.dev does not
+    include this variable by default.
+  - Sentry parser reads `data.issue.title` for the title field; payloads must
+    place the title inside the nested `data.issue` object, not at the top level.
+- Working tree: clean (no tracked files changed beyond this journal)
