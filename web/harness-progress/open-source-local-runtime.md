@@ -56,3 +56,38 @@
     differs.
 - NextAction: orchestrator reviews verdict; dependent WIs AC-045..AC-053 can
   proceed against this stack.
+
+## 2026-07-08T12:39:09Z — QA Verified (AC-044)
+
+- WorkItem: WI-AC-044
+- AcceptanceChecks: AC-044
+- Outcome: qa=true, implementation=true
+- Evidence: `.artifacts/ac044-qa/verification.log` (gitignored, local)
+- Independent re-run of all 3 AC steps from a clean shell env
+  (`env -i PATH=$PATH HOME=$HOME`; no CLERK_*/STRIPE_*/AWS_*/SENTRY_*/LOOPS_*/
+  CORE_API_URL/SST vars):
+  1. `docker compose up -d --build` brings up all 7 required services —
+     causeflow-postgres, redis, hindsight, causeflow-api, causeflow-worker,
+     causeflow-website (host 3000), causeflow-dashboard (host 3001); all
+     healthy (`docker compose ps`).
+  2. `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` -> 200 and
+     `curl -s -o /dev/null -w '%{http_code}' http://localhost:3001/auth/sign-in`
+     -> 200 (exact AC URL, no trailing slash; the trailing-slash variant
+     308-redirects to the canonical URL). Both reached 200 within seconds of
+     container start (<90s). Sign-in HTML renders the local form ("Sign in to
+     CauseFlow", email + password `<input>`s); 0 `accounts.dev`/`clerk.com`
+     iframe references — not Clerk-hosted UI.
+  3. `docker logs causeflow-dashboard 2>&1 | grep -cE 'clerk\.com|stripe\.com|
+     amazonaws\.com|sentry\.io|sst\.'` -> 0. Dashboard runtime env holds only
+     `CORE_API_URL`, `JWT_SECRET`, empty `NEXT_PUBLIC_*` analytics, and empty
+     `NEXT_PUBLIC_SENTRY_DSN` (no-op); no CLERK_*/STRIPE_*/AWS_*/LOOPS_*/SST
+     vars.
+- Environmental note (not an AC defect): the bundled compose defaults
+  `CORE_CONTEXT` to the sibling `core` working tree, which currently carries
+  uncommitted merge conflict markers in `src/bootstrap.ts`/`src/app.ts`
+  (active sibling work, not this worktree). To build a clean Core without
+  disturbing it, QA pointed `CORE_CONTEXT` at a clean `git worktree` of the
+  core's committed HEAD (`/tmp/core-clean-ac044/core`, commit 4e89aba,
+  AC-039-verified). The bundled `docker-compose.yml` is unchanged.
+- NextAction: orchestrator records verdict; dependent WIs AC-045..AC-053 can
+  proceed against this stack.
