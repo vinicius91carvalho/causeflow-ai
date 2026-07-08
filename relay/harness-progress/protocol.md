@@ -190,3 +190,10 @@ fatal: Unable to write index.
   ```
 - All checks green: jsonrpc='2.0', id echoed, result is array of 2, each entry has exactly `{resourceId,type,name,database,readOnly:true}`, readOnly===true for all, types `postgres`|`mongodb`, resourceId/type/name/database values match configured resources.
 - Outcome: qa=true, implementation=true, defects=none. No code changes (independent audit of already-working implementation).
+
+## 2026-07-08T21:12:57.765Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-017
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
