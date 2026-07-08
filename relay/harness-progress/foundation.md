@@ -166,3 +166,18 @@ Re-ran the full AC-001 boundary at the real `node dist/index.js` + `ws` stub on 
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-001-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## WI-AC-002 — Verify-first (foundation)
+
+**Result: implementation=true (zero-diff checkpoint)**
+
+Exercised every AC-002 boundary at real external boundaries (Docker Engine 29.6 + `docker buildx` 0.35; live `ws` control-plane stub on 0.0.0.0:5177). No code changes — the existing `Dockerfile` already satisfies every invariant.
+
+- `docker build . --platform linux/amd64` → exit 0; image `causeflow-relay:ac002` produced (multi-stage `node:22-alpine` builder → runtime).
+- Multi-arch buildx: registered `tonistiigi/binfmt --install arm64` (qemu-aarch64), then `docker buildx build --platform linux/amd64,linux/arm64 . --output type=oci,dest=...` → exit 0; manifest list built for both platforms.
+- `docker inspect <image>` → `ExposedPorts: {"8080/tcp":{}}` only (informational); `Config.User: relay`; `Cmd: ["node","dist/index.js"]`.
+- `docker run --rm <image> node -e "require('fs').readFileSync('/etc/passwd','utf8')"` → `/etc/passwd` contains `relay:x:10001:10001::/home/relay:/bin/sh`; running process `uid=10001 gid=10001`. Image runs as `relay` (UID 10001).
+- Read-only rootfs: `docker run --rm --read-only <image> node -e "writeFileSync('/app/test.txt','x')"` → `WRITE BLOCKED: EROFS` (read-only enforced when run with the documented `--read-only` production flag). The image boots and connects fine under `--read-only --tmpfs /tmp:size=64m --security-opt no-new-privileges --cap-drop ALL`.
+- Run with a valid config (`/tmp/ac002-relay-config.yaml` mounted ro, `RELAY_TOKEN`/`TENANT_ID` env, controlPlane.url → `ws://cp:5177/v1/relay/connect` via `--add-host=cp:host-gateway`) → pino logs `"Starting CauseFlow Relay..."` (pid 1, as `relay`), `Config loaded` (resources=2, tenantId=ac002-tenant), both drivers `Driver initialized`, then `"Connected to control plane"` (relayId+url). Stub log: `[stub] relay connected` + `[stub] resource_update from relayId=<uuid> resources=2`. Connection to the configured control plane confirmed at the real WS boundary.
+
+Verdict: implementation=true, zero code diff. All AC-002 invariants (build single + multi-arch, UID 10001 `relay` user, read-only-capable rootfs, only port 8080 exposed, boots + connects with valid config) pass.
