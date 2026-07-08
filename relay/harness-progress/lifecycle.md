@@ -63,3 +63,10 @@
 - Evidence: Two independent test runs of test-ac047.mjs against the docker-compose stack (relay + control-plane-stub + postgres + mongo). Both runs produced exit code 0 with "Shutting down..." in relay logs, and second SIGTERM had no effect. Control plane stub logs confirm "relay disconnected" with no reconnect (intentionalClose = true prevented backoff). Source code confirms WsClient.close() sets intentionalClose, stops heartbeat, clears reconnect timer, closes WS; then driver.close() is awaited for each driver with errors caught; then process.exit(0).
 - Defects: []
 - NextAction: None
+
+## 2026-07-08T19:30:52.639Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-047
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
