@@ -70,3 +70,13 @@
 - WorkItem: WI-AC-047
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T20:52:00.000Z — Integrated Verification Passed
+
+- WorkItem: WI-AC-047
+- Outcome: PASSED
+- Integration: true
+- Implementation: true
+- QA: true
+- Evidence: Independent black-box test-ac047.mjs run against full docker-compose stack (relay + control-plane-stub + postgres + mongo). SIGTERM sent to running relay container → container exited with code 0, "Shutting down..." logged, WsClient.close() set intentionalClose (no reconnect — verified via stub "relay disconnected" with no follow-up reconnect), driver.close() awaited for each initialized driver (errors caught), process.exit(0) completed. Second SIGTERM after process exit had no effect. Stack restarted cleanly after test and relay resumed normal heartbeat operation with the stub.
+- Defects: []
