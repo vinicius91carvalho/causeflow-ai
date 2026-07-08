@@ -333,3 +333,35 @@ No defects found. Implementation is correct across all four parser-specific code
 - WorkItem: WI-AC-016
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T20:01:00.000Z — Integrated Verification on main
+
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Outcome: passed on integrated main (HEAD 5489083)
+- QA: true | implementation: true | integration: true
+- Test: Independent black-box HTTP against API on PORT=5183 with ministack+redis.
+  Used test-tenant-ac016 (existing billing account, investigationsLimit=100).
+  Grafana/CloudWatch auth: X-Webhook-Signature HMAC-SHA256 with dev-webhook-secret.
+  Sentry auth: dev-mode fallback (X-Webhook-Signature with generic secret).
+  Admin auth: local JWT signed with JWT_SECRET (localstack-jwt-secret-dev).
+- Verdict: ALL 4/4 PASS — no defects found
+  1. POST Grafana payload -> 202 Accepted; sourceProvider=grafana,
+     severity=critical (state=alerting), title=High CPU Alert,
+     description from message.
+  2. POST CloudWatch payload -> 202 Accepted; sourceProvider=cloudwatch,
+     severity=critical (NewStateValue=ALARM), title=CPUUtilization-Alarm,
+     description from NewStateReason, sourceAlertId=CPUUtilization-Alarm.
+  3. POST Sentry payload -> 202 Accepted; sourceProvider=sentry,
+     severity=high (level=error), title from data.issue.title,
+     description from culprit, sourceAlertId from issue.id.
+  4. POST /v1/admin/incidents with manual payload and JWT -> 201 Created;
+     sourceProvider=manual, status=triaging.
+- Pre-existing issues (not related to AC-016):
+  - 5 lint errors (4 unnecessary type assertions + 1 unsafe assignment)
+  - 6 typecheck errors (sourceProvider in CreateManualIncidentInput + test stubs)
+  - redis: degraded in health check
+- pnpm test:run: 1057/1057 tests, 162 files, all passing
+- pnpm lint-invariants: all 11/11 pass
+- Working tree: clean (no tracked files changed)
+- NextAction: none
