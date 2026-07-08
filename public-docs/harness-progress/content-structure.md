@@ -321,3 +321,16 @@ required.
 - WorkItem: WI-AC-007
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08 — Integrated Verification WI-AC-007 (AC-007)
+
+- Scope: confirm `docs.json#redirects` entry `{"source":"/quickstart","destination":"/getting-started/quickstart"}`
+  resolves at runtime on integrated main (HEAD b00cffb), served at PORT 5170.
+- `GET http://localhost:5170/` -> 200 (AC-001 dependency holds; site name "CauseFlow AI" present).
+- `GET http://localhost:5170/quickstart` (no follow) -> 307 with `location: /getting-started/quickstart`.
+- `GET http://localhost:5170/quickstart` (-L follow) -> final 200, final URL `http://localhost:5170/getting-started/quickstart`.
+- Landed page H1 (id=page-title) text is `Quickstart`; title `<title>Quickstart - CauseFlow AI</title>` present.
+- `docs.json` lines 349–353 declare exactly the one redirect under test; destination file
+  `getting-started/quickstart.mdx` exists with frontmatter `title: "Quickstart"`.
+- Verdict: integration=true, implementation=true, qa=true. Zero defects. AC-007 holds at the real
+  external HTTP boundary on integrated main.
