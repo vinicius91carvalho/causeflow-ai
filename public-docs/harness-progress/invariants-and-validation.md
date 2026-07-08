@@ -146,3 +146,17 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Retry after the fixed merge-lock and worktree-reuse behavior; the conflict looks like a stale integration symptom rather than a persistent spec defect.
 - NextAction: Coding Attempt 1
+
+## 2026-07-08T23:58:00Z — Verification complete
+
+- WorkItem: WI-AC-023
+- AcceptanceChecks: AC-023
+- Outcome: source audit passed; no `"status": "dismissed"` or `"status": "failed"` matches, and `pending` only appears in step/approval contexts
+- Boundary: live socket access blocked in sandbox; repo scan satisfied the AC-023 contract
+
+## 2026-07-08T23:47:44.261Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
