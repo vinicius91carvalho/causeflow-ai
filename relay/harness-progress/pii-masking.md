@@ -249,3 +249,12 @@ All 7 tests in `scripts/qa/ac042-test.mjs` pass against the compiled `dist/maski
 - `npx tsc --noEmit` clean. `npm run build` exits 0.
 - No code changes needed — AC-042 behavior was already implemented.
 - NextAction: none (WI-AC-042 fully verified)
+
+## 2026-07-08T18:26:21.906Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-042
+- AcceptanceChecks: AC-042
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/pii-masking/WI-AC-042-1-integration_qa.log
+- NextAction: next Ready Work Item
