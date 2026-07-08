@@ -433,3 +433,29 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-050-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T21:14:17.340Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-051
+- DefectReport: All AC-051 acceptance checks pass. Here is the summary:
+
+**Verdict: implementation=true, qa=true** — zero defects found.
+
+### Verification Results
+
+| Check | Status | Evidence |
+|---|---|---|
+| `logos.composio.dev` / `backend.composio.dev` removed from `images.remotePatterns` | ✅ PASS | Dashboard config: `remotePatterns: []`; Website: no `images` config |
+| CSP allow-list no composio domains | ✅ PASS | No composio domains in any CSP directive in either app |
+| `composioTriggerId` removed from `Integration` domain type | ✅ PASS | Field absent; commit history confirms removal |
+| 15 integration type identifiers preserved | ✅ PASS | All 15 present in `IntegrationType` union (+ Notion/Shortcut extra) |
+| `/dashboard/integrations` renders cards | ✅ PASS | HTTP 200, 94KB rendered HTML with IntegrationsClient component |
+| "Connect" CTA POSTs to Core stub (200, empty data) | ✅ PASS | Code: `POST /v1/integrations/connect` via `initiateOAuthConnect` |
+| No `COMPOSIO_API_KEY` env var referenced | ✅ PASS | Zero grep matches in any `.env` or source file |
+| No composio in rendered HTML | ✅ PASS | Zero grep matches in served page |
+
+**Note (outside AC-051 scope):** The investigation feed context still references composio in `feed-constants.ts` (`logos.composio.dev` URLs, `COMPOSIO_DISPLAY_NAMES`), `group-feed-items.ts`, `tool-call-card.tsx`, `tool-error-card.tsx`, and `evidence-card.tsx`. The E2E test `tests/dashboard/integrations-composio.spec.ts` also remains. These are tool-call display components in the incident investigation feed — not part of the integrations page or AC-051 scope.
+- RepairPlan: AC-051 passes with zero defects. All three acceptance steps verified clean: (1) grep for composio.dev/composioTriggerId in next.config.mjs, integrations/domain/types.ts, and .env.example returns zero matches; (2) IntegrationType union has all 15 required identifiers (+ Notion/Shortcut extras); (3) Connect CTA calls POST /v1/integrations/connect via initiateOAuthConnect to Core stub. Config files (next.config.mjs has remotePatterns: [], CSP has no composio domains), domain type (no composioTriggerId), env files (no COMPOSIO_API_KEY), and integration card surface all clean.; Accept AC-051 as passed — zero defects.; File follow-up WI to clean up orphaned composio references in investigation feed context: remove `COMPOSIO_DISPLAY_NAMES`, `parseComposioToolName`, hardcoded `logos.composio.dev` URLs from feed-constants.ts; remove `composio_` prefix branching from group-feed-items.ts and tool-call-group.tsx; simplify tool-call-card.tsx, tool-error-card.tsx, evidence-card.tsx to remove composioInfo parsing.; Remove or skip-compat the Clerk-dependent E2E test at tests/dashboard/integrations-composio.spec.ts.; Update session-learnings.md: note that AC-051 scope is limited to integrations context + config files; investigation feed composio code is outside scope but should be tracked separately.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-051-1-qa.log
+- NextAction: Coding Attempt 2
