@@ -213,3 +213,24 @@
 - Test: `npx tsx scripts/qa/ac046-test.mts`
 - Result: implementation=true — zero code changes needed (code was already correct)
 - NextAction: (none — WI complete)
+
+## 2026-07-08T19:33:00.000Z — QA Independent Verification
+
+- WorkItem: WI-AC-046
+- Role: qa-agent (independent verification at real WebSocket boundary)
+- Outcome: PASS
+- Test: Fresh relay process spawned with temp config pointing at WS stub on port 5195. 7 scenarios run with different audit configurations (level=info, debug, warn, error, default, audit.enabled=false, base:{relayId} verification). Real relay process + real WS server, audit logs captured and parsed.
+- Evidence:
+  - Test 1 (level=info): 2 entries (denied + error) produced ✓
+  - Test 2 (level=debug): 2 entries produced ✓
+  - Test 3 (level=warn): 2 entries with denied at level=40, error at level=50 ✓
+  - Test 4 (level=error): 1 error entry, 0 denied entries (warn suppressed) ✓
+  - Test 5 (audit.enabled=false): 0 entries (short-circuits) ✓
+  - Test 6 (default level=info): 2 entries, all have relayId at top level ✓
+  - Test 7 (base:{relayId}): single relayId shared across all entries ✓
+  - 22 assertions total, all PASS
+  - Zod schema enforces z.enum(['debug','info','warn','error']).default('info')
+  - AuditLogger constructor passes config.level to pino({... base:{relayId}})
+  - `if (!this.enabled) return;` short-circuits log() when audit.enabled=false
+- Result: implementation=true, qa=true — no defects found
+- NextAction: (none — WI complete)
