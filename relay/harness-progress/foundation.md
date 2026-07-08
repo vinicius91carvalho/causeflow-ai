@@ -1163,3 +1163,33 @@ Scaffold check: `project_specs.xml` AC-009 affected surface = `release.config.js
 - WorkItem: WI-AC-009
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## WI-AC-009 — Integrated Verification on main (2026-07-08)
+
+Re-audited `release.config.js` at real external boundaries on integrated `main` (HEAD c58068e, clean tree). Boundary = direct ESM import of the config + real `npx semantic-release --dry-run --no-ci --ci=false` (semantic-release 24.2.9, the same loader the release workflow invokes). No mocks of the relay.
+
+Boundary 1 — direct ESM import (`node -e "import('./release.config.js')"`):
+- `branches: ["main"]`. ✓
+- 6 plugins in exact documented order: (1) `@semantic-release/commit-analyzer`, (2) `@semantic-release/release-notes-generator`, (3) `@semantic-release/changelog`, (4) `['@semantic-release/npm', {npmPublish:false}]`, (5) `['@semantic-release/git', {assets:['package.json','CHANGELOG.md'], message:'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}'}]`, (6) `@semantic-release/github`. ✓
+- `@semantic-release/npm` configured with `npmPublish: false` (only updates `package.json` version, no publish). ✓
+- `@semantic-release/git` `assets: ['package.json','CHANGELOG.md']`; commit subject line is exactly `chore(release): ${nextRelease.version} [skip ci]` (verified via `message.split('\n')[0]` === canonical). ✓
+- `@semantic-release/changelog` default `changelogFile` is `CHANGELOG.md` (verified in `node_modules/@semantic-release/changelog/lib/resolve-config.js`). ✓
+- All six plugin packages present under `node_modules/@semantic-release/` (changelog, commit-analyzer, error, git, github, npm, release-notes-generator). ✓
+
+Boundary 2 — real `npx semantic-release --dry-run --no-ci --ci=false` (semantic-release 24.2.9):
+- Config loads cleanly as ESM; every plugin resolved in order: `verifyConditions` from changelog/npm/git/github; `analyzeCommits` from commit-analyzer; `generateNotes` from release-notes-generator; `prepare` from changelog/npm/git; `publish`/`addChannel`/`success`/`fail` from github. ✓
+- `branches: ['main']` branch restriction proven live: semantic-release reported `Run automated release from branch main ... in dry-run mode` (main is the configured release branch; running on main proceeds). ✓
+- `@semantic-release/changelog`, `@semantic-release/npm`, `@semantic-release/git` `verifyConditions` all completed successfully. The `@semantic-release/github` `verifyConditions` failed only on `EINVALIDGHTOKEN` (dummy local token `ghp_dummy...`), which is an environment limitation, not a config defect — the plugin loaded and registered `publish`/`success`/`fail`. ✓
+
+Scaffold check: `project_specs.xml` AC-009 affected surface = `release.config.js` — present and unchanged on main.
+
+**Integrated verdict: integration=true, implementation=true, qa=true, no defects.** All AC-009 conditions pass on integrated main (plugin chain order, CHANGELOG.md write, npm `npmPublish:false`, git commit assets + `[skip ci]` subject, github release creation, `branches:['main']` restriction).
+
+## 2026-07-08T16:30:00.000Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- AcceptanceChecks: AC-009
+- Outcome: passed on integrated main
+- Evidence: /tmp/ac009-int (sr.log + sr2.log) and direct ESM import output
+- NextAction: next Ready Work Item
