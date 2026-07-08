@@ -522,3 +522,72 @@ integration=true; implementation=true; qa=true; defects=none
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-028-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T03:20:00.000Z — Implementation (WI-AC-029, main)
+
+- work_item: WI-AC-029
+- context: open-source-local-runtime
+- branch: gen/public-docs-open-source-local-runtime
+- acceptance_check: AC-029 (No Mintlify hosting SaaS)
+
+### Changes
+- `README.md`: replaced the `## Publishing` section (which contained the
+  forbidden sentence "Changes pushed to the default branch are deployed
+  automatically via the Mintlify GitHub integration") with a
+  `## Local runtime (Docker)` section documenting `docker compose up -d`
+  as the canonical run path, including the `docker build` command and a
+  note that the container carries no `.env`/`MINTLIFY_*`/deploy token and
+  the only runtime env var is `PORT` (default 3000).
+- No other source changes required: `Dockerfile` already uses
+  `mint export` (not `mint deploy`/`mintlify deploy`), requires no account
+  token, and the runtime stage has no SaaS entrypoint; no `.github/`
+  directory exists in the project.
+
+### AC-029 mapped checks (black-box)
+- `grep -rE 'mintlify\.com|mintlify\.app|mintlify deploy|mintlify auth' \
+    --include='*.{json,mdx,yml,yaml,sh,Dockerfile,ts,js,mjs,md}' .`
+  (excluding node_modules) → exit 1, **zero matches**.
+- `grep -rEn 'mint(lify)? deploy' …` → exit 1, **zero matches**.
+- `grep -nE 'mint(lify)? deploy|AUTH.?TOKEN|DEPLOY.?TOKEN|account.?token' Dockerfile`
+  → exit 1, **zero matches** (Dockerfile invokes `mint export`, no token).
+- `grep -n 'deployed automatically\|Mintlify GitHub integration' README.md`
+  → exit 1, sentence removed.
+- No `.github/` directory exists → no GitHub Actions workflow runs
+  `mint deploy`/`mintlify deploy`.
+- README now documents `docker compose up -d` as the canonical run path.
+
+### Runtime black-box test (port 5179)
+- Rebuilt `causeflow-docs:ac029` from project-root Dockerfile
+  (`docker build .` exit 0, fully cached stages).
+- Ran `causeflow-docs` container published to host port 5179
+  (`-p 5179:3000 -e PORT=3000`); boot log: `Serving docs at http://localhost:3000`.
+- `curl http://localhost:5179/` → 200, body contains "CauseFlow AI" and
+  "Quickstart".
+- `curl http://localhost:5179/getting-started/quickstart` → 200;
+  `/api-reference/introduction` → 200; `/relay/overview` → 200;
+  `/changelog/index` → 200.
+- `docker logs causeflow-docs 2>&1 | grep -E \
+    'mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|\
+     anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|\
+     langfuse\.io|svix\.com|slack\.com|composio\.dev'`
+  → **zero matches** (forbidden-host boundary holds).
+
+### Note on pre-existing static-export behavior (out of AC-029 scope)
+- `/quickstart` and `/changelog` return 404 via the export's `serve.js`
+  (no directory-index / client-redirect handling), while the underlying
+  pages `/getting-started/quickstart` and `/changelog/index` return 200.
+  This is the same static-export serve.js behavior present in prior
+  sessions (WI-AC-026/028) and is owned by AC-007/AC-006/AC-031, not by
+  AC-029. The README-only change in this item does not alter served
+  content, so runtime behavior is unchanged from the prior passing
+  integrated state.
+
+### verdict
+implementation=true; defects=none
+
+## 2026-07-08T03:20:30.000Z — Implementation ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-029
+- Outcome: implementation complete, black-box verified on port 5179
+- NextAction: QA / Integrated Verification

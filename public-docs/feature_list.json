@@ -620,7 +620,7 @@
       "AC-026"
     ],
     "verify_first": false,
-    "implementation": false,
+    "implementation": true,
     "qa": false,
     "integration": false,
     "retries": 0
