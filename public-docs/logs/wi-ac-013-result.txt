@@ -1,0 +1,5 @@
+WI-AC-013 independent QA (qa-agent, real HTTP)
+Boundary: mint dev --no-open --port 5174 from isolated worktree
+timestamp: 2026-07-08T12:40:36Z
+GET / -> 200
+OK=81 FAIL=0 TOTAL=81
