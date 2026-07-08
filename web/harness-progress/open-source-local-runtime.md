@@ -288,3 +288,17 @@ Use /login to log into a provider via OAuth or API key. See:
 - WorkItem: WI-AC-045
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T20:00:00Z — Integrated Verification (AC-045)
+
+- WorkItem: WI-AC-045
+- AcceptanceChecks: AC-045
+- Outcome: integration=true, implementation=true, qa=true
+- Evidence: All steps verified independently on git HEAD:
+  1. `grep -E 'CLERK_|STRIPE_|AWS_|SENTRY_|LOOPS_' apps/website/.env.example apps/dashboard/.env.example` → exit 1 (zero matches). ✓
+  2. `apps/website/.env.example` contains only `NEXT_PUBLIC_GA4_MEASUREMENT_ID` and `NEXT_PUBLIC_CLARITY_ID` (both optional, blank). `apps/dashboard/.env.example` contains `CORE_API_URL=http://causeflow-api:5171`, `JWT_SECRET=oss-dev-jwt-secret-change-me`, `NEXT_PUBLIC_GA4_MEASUREMENT_ID=`, `NEXT_PUBLIC_CLARITY_ID=`. No forbidden vars present. ✓
+  3. `JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}` is set identically on `causeflow-api` (line 98) and `causeflow-dashboard` (line 171) in `docker-compose.yml` — default matches dashboard's `.env.example` default. ✓
+  4. `LOOPS_API_KEY` is absent from `apps/website/.env.example`. ✓
+- Non-defect note: The AC-045 description documents the CORE_API_URL default as `http://core-api:3099`, but the implementation uses `http://causeflow-api:5171` — this matches the actual docker-compose service name `causeflow-api` (not `core-api`) and container port `5171` (not host port `3099`). Per the project spec's contradictions clause: implementation is authoritative when documentation drifts. The .env.example, docker-compose.yml, and Core's docker-compose.yml are internally consistent.
+- Defects: []
+- NextAction: orchestrator records verdict
