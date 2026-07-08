@@ -1021,3 +1021,30 @@ qa=true; implementation=true; defects=none
 - RepairPlan: WI-AC-031 Integrated Verification 'failed' is a harness-execution defect, not a content regression. The evidence log (WI-AC-031-2-integration_qa.log, 166 bytes) contains only the route header with outcome:failed and NO JSON verdict body, unlike every passing integration_qa log which carries a full {integration:true,defects:[]} body. Independent re-verification of the integrated main (branch gen/public-docs-open-source-local-runtime, HEAD bd59891, post-merge 498440d) against the running causeflow-docs:qa031 container on PORT=5179 and the source tree shows every AC-031 clause passes: AC-001 home 200 with CauseFlow AI+Quickstart; AC-002 mint broken-links exit 0 zero broken links; AC-007 /quickstart 200 lands on Quickstart (redirect resolves); AC-006 all four nav tabs 200 with matching Changelog H1; full nav sweep 125/125 pages 200; AC-018 intro line 74 says 20 real-time events with zero stale 21 matches; AC-019 Relay Mermaid renders as SVG; AC-014 Auth covers JWT/API-key/HMAC; AC-022/023/024/025/016/017 invariant greps all zero matches; 133 MDX all frontmatter-complete; container boot log has zero forbidden-host references. The prior AC-018 repair (21->20) is committed and present on disk. No scaffold artifacts are missing.; Do not modify any source files — the integrated main already satisfies AC-031 (verified independently on PORT=5179 and against the source tree).; Re-run the INTEGRATION_QA step (attempt 3) for WI-AC-031 against the current integrated main (HEAD bd59891) without code changes; expect integration=true, defects=[].; If the re-run again fails with an empty body, inspect the harness INTEGRATION_QA adapter/runtime (timeout, container teardown, subagent crash) rather than the docs repo — the empty 166-byte log vs the standard 258-byte passed log points to a harness-layer fault.; Ensure the causeflow-docs:qa031 container (or a clean equivalent) is up on the assigned port and that mint broken-links can reach the source tree before re-invoking.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-031-2-integration_qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-08T06:30:00Z — Coding Attempt 3 (WI-AC-031, attempt 3)
+
+- WorkItem: WI-AC-031
+- AcceptanceChecks: AC-031
+- context: open-source-local-runtime
+- Attempt: 3/3
+- HEAD: 1fa1e2a (gen/public-docs-open-source-local-runtime); no source files modified per repair plan
+- Runtime: causeflow-docs-qa container (image causeflow-docs:qa031) up on PORT=5179 (5179->3000); boot log "Serving docs at http://localhost:3000"
+
+### Black-box regression (curl + headless chromium CDP against PORT=5179)
+- AC-001: `GET /` -> 200; body has "CauseFlow AI" x4, "Quickstart" x3.
+- AC-007: `GET /quickstart` -> 200 (docs.json#redirects resolves), lands on Quickstart.
+- AC-006: all four nav-tab landings 200 — /, /api-reference/introduction, /relay/overview, /changelog.
+- Full nav sweep: all 125 docs.json-declared page paths -> 200 (0 non-200).
+- AC-018: `api-reference/introduction.mdx:74` says "20 real-time events"; `grep '21 real-time events'` -> 0 matches; outbound-events catalog table lists exactly 20 distinct dot-namespaced events (rows 26-45).
+- AC-019: headless chromium renders /relay/overview Mermaid as `svg#mermaid-_r_0_... class="flowchart"`; raw `flowchart TD` body text = 0; no `<pre>flowchart` raw code block.
+- AC-014: /api-reference/authentication covers Bearer, X-API-Key, X-Webhook-Signature, HMAC, sha256.
+- AC-022/023/024/025/016/017: all invariant greps exit 1 (zero matches) across 133 MDX.
+- AC-002: `mint broken-links` -> exit 0, "no broken links found".
+- Boundary: `docker logs causeflow-docs-qa | grep -E 'mintlify.com|...|composio.dev'` -> 0 matches.
+- Scaffold: Dockerfile, docker-compose.yml, docs.json, serve-docs.js, README.md, INVARIANTS.md, .mintignore, init.sh, CLAUDE.md all present.
+- Integrated main (integrationDir /home/vinicius/projects/causeflow-ai/public-docs) carries the 20-events fix at introduction.mdx:74.
+
+### verdict
+
+implementation=true; integration=pending (re-run INTEGRATION_QA expected integration=true, defects=[]); qa=pending; defects=none. No source changes — the prior INTEGRATION_QA 'failed' was a harness-layer empty-verdict defect, not a content regression.
