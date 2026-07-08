@@ -1,4 +1,10 @@
 import { Mail, Rocket } from 'lucide-react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Beta Access',
+  description: 'CauseFlow AI is currently in private beta.',
+};
 
 /**
  * Beta waitlist page shown to authenticated users whose email
@@ -38,4 +44,8 @@ export function BetaWaitlistPage() {
       </div>
     </div>
   );
+}
+
+export default function BetaWaitlistRoutePage() {
+  return <BetaWaitlistPage />;
 }

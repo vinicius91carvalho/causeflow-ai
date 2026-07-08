@@ -1,27 +1,19 @@
-import { PageHeader } from '@causeflow/ui/layouts';
-import type { Metadata } from 'next';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { TeamPageClient } from '@/contexts/team/presentation/components/team-page-client';
+import { OrganizationProfile } from '@clerk/nextjs';
 
-type Props = {
-  params: Promise<{ locale: string }>;
-};
+export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'dashboard.team' });
-  return { title: t('title') };
-}
-
-export default async function TeamPage({ params }: Props) {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'dashboard.team' });
-
+export default function TeamPage() {
   return (
-    <div className="space-y-6">
-      <PageHeader title={t('title')} description={t('description')} />
-      <TeamPageClient />
+    <div className="mx-auto max-w-4xl py-8">
+      <OrganizationProfile
+        routing="hash"
+        appearance={{
+          elements: {
+            rootBox: 'w-full',
+            card: 'shadow-none border border-border',
+          },
+        }}
+      />
     </div>
   );
 }
