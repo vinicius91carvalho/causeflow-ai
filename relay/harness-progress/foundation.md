@@ -108,3 +108,17 @@ Re-verified every AC-001 boundary at the real `node dist/index.js` + `ws` stub o
 - Env-var fallback (`CONTROL_PLANE_URL` + `RESOURCE_0_*` with JSON `{"port":5432}` + `RELAY_TOKEN=envtoken`/`TENANT_ID=envtenant`) → boots, `Config loaded` (tenantId=envtenant), attempts to connect.
 
 No other committed YAML examples exist (only `relay-config.example.yaml`; no `relay-config.docker.yaml` present). Verdict: implementation=true, all AC-001 boundaries pass.
+
+## WI-AC-001 — QA independent re-verification (2026-07-07)
+
+Independently re-ran the full AC-001 boundary as qa-agent in the isolated worktree (clean `dist`, real `node dist/index.js`, real `ws` stub on :5176). The previously-reported numeric-port defect is fixed (`src/config/schema.ts` widened `connection` to `z.record(z.union([z.string(), z.number()]))`; `src/index.ts` coerces `port: Number(...)`, others `String(...)`).
+
+- `npm install` → exit 0.
+- `npm run build` (`tsc`) → exit 0; produced `dist/index.js` + all 13 modules under `src/` (audit, config/loader, config/schema, drivers/driver.port, drivers/postgres/pg-driver, drivers/postgres/pg-query-parser, drivers/mongodb/mongo-driver, health/health-reporter, masking/masking-engine, policy/policy-engine, transport/protocol, transport/ws-client).
+- Missing config (no `RELAY_CONFIG_PATH`, absent `/app/relay-config.yaml`, no env vars) → pino `Starting CauseFlow Relay...` (info) then `level:60` fatal `Failed to start relay` (Zod `too_small` on `resources`), **NODE_EXIT=1**.
+- Documented example `relay-config.example.yaml` (unquoted numeric `port: 5432`) with env vars set → `Starting CauseFlow Relay...`, `Config loaded` (resources=2, tenantId=test-tenant), both drivers initialized, then attempts to connect to `controlPlane.url` (ws://localhost:3000). No ZodError on `connection.port` — defect fixed.
+- Valid yaml + bad URL (`ws://127.0.0.1:9`) → starts pino, `Config loaded`, `Driver initialized`, `WS error` (ECONNREFUSED), `Scheduling reconnect` backoff 1s→2s→4s, stays alive (timeout kill 124).
+- Valid yaml + real `ws` stub on :5176 → `Connected to control plane` (relayId+url logged); stub records `url=/v1/relay/connect?token=test-token&tenantId=test-tenant`, `Authorization: Bearer test-token`, `X-Tenant-Id: test-tenant`, and receives `resource_update` with 2 resources on open.
+- Env-var fallback (`CONTROL_PLANE_URL` + `RESOURCE_0_*` JSON `{"port":5432}` + `RELAY_TOKEN=envtoken`/`TENANT_ID=envtenant`, no YAML) → boots, `Config loaded` (tenantId=envtenant, resources=1), `Driver initialized`, connects as `token=envtoken&tenantId=envtenant`, stub receives `resource_update` with 1 resource.
+
+Verdict: qa=true, implementation=true, no defects. All AC-001 boundaries pass.
