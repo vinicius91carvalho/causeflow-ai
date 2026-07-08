@@ -42,3 +42,10 @@ No defects found.
 ### Out of scope
 
 `resource_update` payload (AC-013), reconnect/backoff (AC-014), connect URL/headers (AC-015), and message parsing (AC-016) are separate work items. AC-012's boundary is the 30s heartbeat send path only.
+
+## 2026-07-08T02:46:15.190Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
