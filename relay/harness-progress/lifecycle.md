@@ -117,3 +117,21 @@
 - WorkItem: WI-AC-047
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:30:00.000Z — QA Agent Integrated Verification (main)
+
+- WorkItem: WI-AC-047
+- Outcome: PASSED
+- Integration: true
+- Implementation: true
+- QA: true
+- Evidence: Independent black-box end-to-end test against full docker-compose stack.
+  1. Started standalone relay container on relay_default network with env-file and config mounted
+  2. Relay connected to control-plane stub (log: "Connected to control plane")
+  3. Sent `docker kill --signal SIGTERM relay-ac047`
+  4. Container exited with code 0 (exit code 0 from docker wait)
+  5. Logs contain "Shutting down..." line confirming handler triggered
+  6. Code review confirms: wsClient.close() sets intentionalClose=true, stops heartbeat, clears reconnect timer, closes WS; driver.close() awaited for each initialized driver with errors caught; process.exit(0)
+  7. Second SIGTERM after process exit has no effect (process already gone)
+  8. Stack restarted cleanly after test
+- Defects: []
