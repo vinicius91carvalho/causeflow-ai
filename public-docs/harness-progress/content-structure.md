@@ -165,6 +165,44 @@ the Changelog tab reaches a page whose H1 matches the title in
 
 implementation=true. Zero tracked files changed (zero-diff checkpoint).
 
+## 2026-07-08 QA — WI-AC-006 (independent re-audit)
+
+- Role: qa-agent (independent re-audit of isolated worktree)
+- WorkItem: WI-AC-006
+- AcceptanceChecks: AC-006
+- context: content-structure
+- Boundary: real HTTP — `mint dev` running on PORT=5170 from project
+  root (`@mintlify/cli dev --port 5170`, PWD = public-docs).
+
+### Audit result
+
+- `docs.json#navigation.tabs` declares exactly four tabs:
+  Documentation, API reference, Relay, Changelog.
+- All required scaffold directories present (getting-started, dashboard,
+  integrations, billing, security, api-reference, relay, changelog,
+  snippets, investigation, plans, tasks, docs, logo).
+- `changelog/index.mdx` frontmatter `title: "Changelog"`.
+
+### Boundary verification (real HTTP)
+
+- `GET http://localhost:5170/` -> 200; rendered HTML contains all four tab
+  labels (Documentation x5, API reference x3, Relay x3, Changelog x2).
+- Representative page per tab all return 200 with a rendered H1:
+  - `/` (Documentation) -> H1 "CauseFlow AI Documentation"
+  - `/api-reference/introduction` (API reference) -> H1 "API introduction"
+  - `/relay/overview` (Relay) -> H1 "Relay overview"
+  - `/changelog` (Changelog) -> H1 "Changelog"
+- Changelog page H1 (`Changelog`) matches `changelog/index.mdx` frontmatter
+  `title` (`Changelog`) exactly (programmatic compare -> MATCH=True).
+- No MDX parse errors on the Changelog page (200 with rendered body;
+  `error` tokens present are Next.js framework boilerplate / generic 404
+  component / "Errors and pagination" page reference, not parse errors).
+
+### Verdict
+
+qa=true. implementation=true. Zero defects. AC-006 holds on the isolated
+worktree at the real external HTTP boundary. No code changes required.
+
 ## 2026-07-08T03:37:19.754Z — Integrated Verification passed
 
 - Attempt: 1/3
