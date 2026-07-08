@@ -312,3 +312,74 @@ existing codebase already satisfies AC-009.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/product-narrative/WI-AC-009-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08 Verify-first — WI-AC-010
+
+- WorkItem: WI-AC-010
+- AcceptanceChecks: AC-010
+- context: product-narrative
+- Mode: VERIFY-FIRST (existing codebase)
+- Attempt: 1
+- Outcome: implementation=true (black-box verified at real HTTP boundary)
+- NextAction: Integrated Verification
+
+### Acceptance check
+
+AC-010: Each of the nine Integrations pages (Overview, Monitoring, GitHub,
+Communication, Project management, Databases, Custom webhooks, Cloud
+providers, HubSpot) is reachable from the documentation tab and renders
+without MDX parse errors.
+
+### Pre-flight (spec scaffold verification)
+
+- `project_specs.xml` present at repo root.
+- All nine Integrations `.mdx` files exist under `integrations/` with
+  `title` + `description` frontmatter (each description ≤160 chars):
+  overview, monitoring, github, communication, project-management,
+  databases, custom-webhooks, cloud-providers, hubspot.
+- `docs.json` Documentation tab "Integrations" group lists exactly these
+  nine pages.
+
+### Boundary verification (real external boundary — HTTP)
+
+- `mint dev --no-open --port 5188` running from project root (mint CLI
+  v4.2.666, node v24.16.0), confirmed listening on `*:5188`. AC-001
+  dependency holds: `GET http://localhost:5188/` → 200, body contains
+  "CauseFlow AI" (x4) and all four tab labels (Documentation, API
+  reference, Relay, Changelog).
+- Reachability from the Documentation tab: home HTML sidebar contains a
+  `href="/integrations/<page>"` link for each of the nine pages (overview
+  appears twice — index + entry; the other eight once each).
+
+Per-page render at the real HTTP boundary:
+
+| page                | HTTP | rendered H1                  | bytes  | parse markers |
+| ------------------- | ---- | ---------------------------- | ------ | ------------- |
+| overview            | 200  | Integrations overview        | 241469 | 0 |
+| monitoring          | 200  | Monitoring integrations      | 433884 | 0 |
+| github              | 200  | GitHub                       | 245455 | 0 |
+| communication       | 200  | Communication integrations   | 278187 | 0 |
+| project-management  | 200  | Project management integrations | 338924 | 0 |
+| databases           | 200  | Database integrations        | 223046 | 0 |
+| custom-webhooks     | 200  | Custom webhooks              | 420629 | 0 |
+| cloud-providers     | 200  | Cloud providers              | 378372 | 0 |
+| hubspot             | 200  | HubSpot                      | 234955 | 0 |
+
+- Each rendered H1 matches the page's `title` frontmatter exactly.
+- No `SyntaxError`/`Could not compile`/`Unexpected`/`MDX parse|compile
+  error`/`Module not found`/`is not defined` markers in any rendered body.
+- `mint dev` log has no error/parse/fail/warn/syntax/exception markers.
+- Each page body contains its distinguishing prose from the `.mdx` source
+  (e.g. "Datadog" on monitoring, "draft pull request" on github, "Jira" on
+  project-management, "cross-account" on cloud-providers, "customer
+  support bridge" on hubspot) — all present.
+
+### Verdict
+
+All nine Integrations pages are reachable from the Documentation tab and
+render without MDX parse errors at the real external HTTP boundary.
+AC-010 PASSES against the existing committed code (HEAD `91fc904`).
+
+implementation=true. Zero defects. Zero tracked content files changed —
+zero-diff checkpoint (only this journal updated). No refactor, no code
+changes; the existing codebase already satisfies AC-010.
