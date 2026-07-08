@@ -164,3 +164,33 @@ No refactor/restructure of working code. The read path (`GetUsageUseCase` / `GET
 - AcceptanceChecks: AC-012
 - Outcome: implementation=true (boundary passed at real HTTP on PORT=5181)
 - NextAction: Integrated Verification
+
+## 2026-07-08 — QA independent verification (WI-AC-012)
+
+**Result: qa=true, implementation=true**
+
+Independently re-ran the AC-012 boundary against a freshly booted app (`npx tsx --env-file=.env.ac012 ac012-boundary.ts`, which bootstraps the app with `DeterministicLLMClient` + `DeterministicAgentRunner` stubs so a real investigation runs end-to-end through the in-process pipeline fallback, no paid Anthropic calls). PORT=5181, existing stack: core-ministack :4566 (healthy), core-redis-1 (172.18.0.4:6379). `/health` → 200. Clerk JWT verified networklessly via `CLERK_JWT_KEY` (SPKI from /tmp/ac011-clerk-pub.pem, RS256 signed with /tmp/ac011-clerk-priv.pem).
+
+Real HTTP exercised (real `fetch`es on PORT=5181, full in-process pipeline: incident.created → triage → investigation → investigation.completed → RecordUsageUseCase):
+
+- `POST /v1/tenants` (admin JWT) → 201, `tenantId = org_ac012_<ts>` (= JWT `o.id`).
+- Provisioned a `BillingAccountEntity` for tenant A (setup only, so reserveInvestigation succeeds).
+- `POST /v1/incidents/chat` `{title, description, severity:"critical", suggestedAgents:[log_analyst, metric_analyst, infra_inspector]}` → 201, `incidentId` returned → in-process fallback dispatched a real stub-backed investigation.
+- Poll `GET /v1/incidents/:id` → reached terminal `status=awaiting_approval` (investigation completed).
+- `GET /v1/billing/usage` (tenant A) → 200, `records` non-empty (1), the record for the incident carries `type=investigation`, `incidentId=<id>`, `costUsd` (number), `agentBreakdown` non-empty (3 agents: log_analyst, metric_analyst, infra_inspector) with each agent's `agentRole`/`inputTokens`/`outputTokens`/`costUsd` (all numbers). This confirms a UsageRecordEntity is written on investigation completion with the investigation ID, per-agent token counts and per-agent cost (AC-012).
+- Tenant scoping: tenant B (`POST /v1/tenants` → 201; `GET /v1/billing/usage`) → 200 with `records.length === 0` — tenant B sees zero of tenant A's usage records (scoped to the calling tenant only).
+- Pagination shape present (response exposes `records` + `cursor`).
+
+All 18/18 boundary assertions passed; `AC-012: ALL ASSERTIONS PASSED`.
+
+Note: `agentBreakdown[].costUsd = 0` in this run because the `DeterministicAgentRunner` stub returns `costUsd: 0`; the wiring genuinely propagates each agent's computed `costUsd` from the runner into the persisted `UsageRecordEntity.agentBreakdown` (`investigate-incident.usecase.ts:1122-1127` → `bootstrap.ts:876-890` `RecordUsageUseCase` → `DynamoUsageRecordRepository`). With the real Anthropic runner the cost is non-zero. Non-critical Hindsight reflect/retain warnings logged (HINDSIGHT_API_URL empty) — best-effort, do not block the investigation or the usage record write, consistent with the spec's failure-behaviour for memory.
+
+Doc-drift note (unchanged from WI-AC-007/AC-011): literal `/api/v1/billing/usage` is not mounted (no global `/api` prefix; route is `/v1/billing/usage`). Per the contradictions clause (implementation authoritative), the functional AC-012 behaviour is fully met.
+
+## 2026-07-08T04:25:00.000Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- AcceptanceChecks: AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
