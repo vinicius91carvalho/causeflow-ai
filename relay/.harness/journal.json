@@ -34,6 +34,25 @@
         "both_resources_present": "passed",
         "response_shape": "passed"
       }
+    },
+    {
+      "id": "WI-AC-018",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-08T21:30:00Z",
+      "details": "Independent QA re-verification pass for AC-018 (describe_resource). Tested at real WebSocket boundary via running docker-compose stack. All 3 test cases pass: (1) unknown resourceId returns error -32602 'Unknown resource: <id>', (2) valid order-pg returns {tables, type:postgres, database}, (3) valid order-mongo returns {tables:[], type:mongodb, database}. Tested at real WebSocket boundary via running docker-compose stack. All checks passed without code changes. 1. describe_resource with unknown resourceId 'unknown-resource' -> JSON-RPC error { code:-32602, message:'Unknown resource: unknown-resource' }. 2. describe_resource with valid 'order-pg' -> { tables:[{table_name:'orders',table_type:'BASE TABLE'}], type:'postgres', database:'relay' }. 3. describe_resource with valid 'order-mongo' -> { tables:[], type:'mongodb', database:'relay' }. No defects.",
+      "checks": {
+        "unknown_resource_error_code": "passed",
+        "unknown_resource_error_message": "passed",
+        "valid_pg_has_tables_key": "passed",
+        "valid_pg_tables_contains_orders": "passed",
+        "valid_pg_type_is_postgres": "passed",
+        "valid_pg_database_is_relay": "passed",
+        "valid_mongo_has_tables_key": "passed",
+        "valid_mongo_type_is_mongodb": "passed",
+        "valid_mongo_database_is_relay": "passed"
+      }
     }
   ]
 }
