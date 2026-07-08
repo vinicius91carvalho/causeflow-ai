@@ -74,7 +74,7 @@ Attach this trust policy to the IAM role. Replace `<your-causeflow-external-id>`
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::409171461008:role/CauseFlowIntegrationRole"
+        "AWS": "<causeflow-aws-principal-arn>"
       },
       "Action": "sts:AssumeRole",
       "Condition": {
@@ -88,7 +88,7 @@ Attach this trust policy to the IAM role. Replace `<your-causeflow-external-id>`
 ```
 
 <Note>
-  CauseFlow AWS account ID: `409171461008`. Confirm the exact principal ARN in **Dashboard > Integrations > AWS** once you begin the connection flow. Do not share the external ID — it is a secret that proves the connection originated from your CauseFlow tenant.
+  CauseFlow's AWS account principal is displayed in **Dashboard > Integrations > AWS** once you begin the connection flow. Confirm the exact principal shown there before attaching the trust policy. Do not share the external ID — it is a secret that proves the connection originated from your CauseFlow tenant.
 </Note>
 
 ### Steps to configure in CauseFlow
@@ -104,7 +104,7 @@ Attach this trust policy to the IAM role. Replace `<your-causeflow-external-id>`
     In your AWS account, create a new IAM role with the permission policy and trust policy shown above. Use any name you like (for example, `CauseFlowRole`).
   </Step>
   <Step title="Copy the role ARN">
-    After creating the role, copy its ARN. The format is `arn:aws:iam::<your-aws-account-id>:role/<role-name>`.
+    After creating the role, copy its ARN. The format is the standard IAM role ARN for your AWS account (`<your-aws-account-id>` is your AWS account ID, shown in the AWS console).
   </Step>
   <Step title="Enter the role ARN in CauseFlow">
     Back in CauseFlow, paste the role ARN and click **Verify connection**. CauseFlow calls `sts:GetCallerIdentity` to confirm access.

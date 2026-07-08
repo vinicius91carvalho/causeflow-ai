@@ -86,9 +86,9 @@ CloudWatch alerts are delivered as SNS notifications. Configure an SNS topic sub
 {
   "Type": "Notification",
   "MessageId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "TopicArn": "arn:aws:sns:us-east-1:<your-aws-account-id>:causeflow-alarms",
+  "TopicArn": "<aws-sns-topic-arn>",
   "Subject": "ALARM: CheckoutServiceErrorRate in US East (N. Virginia)",
-  "Message": "{\"AlarmName\":\"CheckoutServiceErrorRate\",\"AlarmDescription\":\"Error rate exceeds 5% threshold\",\"NewStateValue\":\"ALARM\",\"NewStateReason\":\"Threshold Crossed: 1 out of the last 1 datapoints [7.3 (01/04/24 14:30:00)] was greater than the threshold (5.0).\",\"StateChangeTime\":\"2024-04-01T14:31:00Z\",\"Region\":\"US East (N. Virginia)\",\"AlarmArn\":\"arn:aws:cloudwatch:us-east-1:<your-aws-account-id>:alarm:CheckoutServiceErrorRate\",\"OldStateValue\":\"OK\",\"Trigger\":{\"MetricName\":\"ErrorRate\",\"Namespace\":\"CauseFlow/Checkout\",\"Dimensions\":[{\"value\":\"checkout-service\",\"name\":\"ServiceName\"}]}}",
+  "Message": "{\"AlarmName\":\"CheckoutServiceErrorRate\",\"AlarmDescription\":\"Error rate exceeds 5% threshold\",\"NewStateValue\":\"ALARM\",\"NewStateReason\":\"Threshold Crossed: 1 out of the last 1 datapoints [7.3 (01/04/24 14:30:00)] was greater than the threshold (5.0).\",\"StateChangeTime\":\"2024-04-01T14:31:00Z\",\"Region\":\"US East (N. Virginia)\",\"AlarmArn\":\"<aws-cloudwatch-alarm-arn>\",\"OldStateValue\":\"OK\",\"Trigger\":{\"MetricName\":\"ErrorRate\",\"Namespace\":\"CauseFlow/Checkout\",\"Dimensions\":[{\"value\":\"checkout-service\",\"name\":\"ServiceName\"}]}}",
   "Timestamp": "2024-04-01T14:31:05Z",
   "SignatureVersion": "1",
   "Signature": "EXAMPLE...",

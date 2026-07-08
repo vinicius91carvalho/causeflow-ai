@@ -29,7 +29,7 @@ All fields are optional. Include only the fields you want to change.
 
   <Expandable title="settings properties">
     <ParamField body="settings.awsRoleArn" type="string">
-      The ARN of the AWS IAM role CauseFlow will assume for AWS integrations. Example: `"arn:aws:iam::<your-aws-account-id>:role/CauseFlowRole"`.
+      The ARN of the AWS IAM role CauseFlow will assume for AWS integrations. Example: `"<your-aws-iam-role-arn>"`.
     </ParamField>
 
     <ParamField body="settings.awsExternalId" type="string">
@@ -63,7 +63,7 @@ Returns `200 OK` with the full updated tenant object.
   "plan": "pro",
   "createdAt": "2026-01-15T09:30:00Z",
   "settings": {
-    "awsRoleArn": "arn:aws:iam::<your-aws-account-id>:role/CauseFlowRoleV2",
+    "awsRoleArn": "<your-aws-iam-role-arn>",
     "awsExternalId": "causeflow-ext-id-acme",
     "awsRegion": "us-west-2",
     "autoRemediation": true

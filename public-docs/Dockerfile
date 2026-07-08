@@ -26,5 +26,11 @@ FROM node:22-alpine AS runtime
 WORKDIR /app
 ENV PORT=3000
 COPY --from=builder /out/ ./
+# `docs.json` is not included in the `mint export` zip; copy it from the
+# build context so the runtime server can honour `docs.json#redirects`.
+COPY docs.json ./
+# Replace the export's bundled `serve.js` with the CauseFlow runtime server
+# that honours redirects and Mintlify's directory-index layout.
+COPY serve-docs.js ./serve.js
 EXPOSE 3000
 CMD ["node", "serve.js"]
