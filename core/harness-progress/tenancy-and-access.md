@@ -352,3 +352,11 @@ Local QA artefacts (gitignored): `/tmp/ac009-qa.env`, `/tmp/ac009-qa-priv.pem`, 
 - WorkItem: WI-AC-009
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T15:39:05.934Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-009
+- Outcome: integration could not complete
+- Defects: merge conflict could not be resolved
+- NextAction: User reviews evidence and explicitly resumes with guidance
