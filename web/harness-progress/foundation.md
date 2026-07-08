@@ -431,3 +431,17 @@ No defects within the AC-033 boundary at the integrated boundary. integration=tr
 - **Description — dev credentials provider dev-only / stripped in prod:** `auth-config.ts` gates the development Credentials provider behind `process.env.ENABLE_DEV_CREDENTIALS === 'true'` with the comment "NEVER set ENABLE_DEV_CREDENTIALS=true in a real production deployment" — the branch is unreachable in a production build that does not set the flag. ✓
 
 No defects within the AC-036 boundary. Zero tracked-file diff (journal is untracked, not committed). implementation=true set for WI-AC-036.
+
+## WI-AC-036 — QA (independent verify)
+
+**Result: qa=true, implementation=true**
+
+Independent re-verification in isolated worktree (PORT=5172). All three AC steps + description clauses hold against the existing code; no source diff required.
+
+- Step 1: `packages/auth/package.json` + `packages/auth/src/infrastructure/auth-config.ts` present; deps `next-auth@5.0.0-beta.30`, `@auth/core@^0.39.0`, `@aws-sdk/client-cognito-identity-provider@^3.800.0` declared. ✓
+- Step 2: `grep -rn "@causeflow/auth" apps/dashboard/src` → sole hit is `apps/dashboard/src/contexts/identity/domain/rbac/__tests__/role-guard.test.ts:6: import type { UserRole } from '@causeflow/auth/types';`. No runtime import of `@causeflow/auth` anywhere in dashboard src. ✓
+- Step 3: `apps/dashboard/next.config.mjs:32` → `serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider']`. ✓
+- Description (dev credentials provider dev-only / stripped in prod): `auth-config.ts` gates the dev Credentials provider behind `process.env.ENABLE_DEV_CREDENTIALS === 'true'` with the explicit "NEVER set ... in a real production deployment" warning; branch unreachable in a production build that does not set the flag. Legacy package is not imported at runtime by the dashboard. ✓
+- Real test boundaries: `pnpm vitest run --project auth` → 15/15 pass; `pnpm vitest run --project dashboard …/rbac/__tests__/role-guard.test.ts` → 15/15 pass; `pnpm --filter @causeflow/auth check-types` → exit 0.
+
+No defects observed.
