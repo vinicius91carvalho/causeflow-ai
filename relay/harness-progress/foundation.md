@@ -838,3 +838,10 @@ Re-audited `.github/workflows/release.yml` after the `fix(ci): correct X.Y docke
 - WorkItem: WI-AC-008
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T04:59:45.313Z — Resumed
+
+- WorkItem: WI-AC-008
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
