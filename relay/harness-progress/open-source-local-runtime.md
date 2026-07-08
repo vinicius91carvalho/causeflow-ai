@@ -599,3 +599,215 @@ integrated main. No defects. `integration=true`, `implementation=true`,
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-055-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T13:00:12.396Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-053
+- Outcome: coding agent failed three times
+- Defects: 402: {"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits","code":402,"metadata":{"provider_name":null,"previous_errors":[{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5536. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5536. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4559. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4305. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4167. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4113. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3757. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 2583. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5683. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5536. To increase, visit https://openrouter.ai/settings/cr... [truncated 2020 chars]
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T13:04:56.077Z — Explicit Resume
+
+- WorkItem: WI-AC-053
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Transient merge-lock contention from a period of unusually high concurrent load (~80min ago), not a data problem -- system is calmer now. Fresh retry.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T13:04:58.511Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-053
+- Outcome: coding agent failed three times
+- Defects: 402: {"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits","code":402,"metadata":{"provider_name":null,"previous_errors":[{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5536. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5536. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4559. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4305. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4167. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 4113. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3875. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 3757. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 2583. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5683. To increase, visit https://openrouter.ai/settings/credits and add more credits"},{"code":402,"message":"This request requires more credits, or fewer max_tokens. You requested up to 32768 tokens, but can only afford 5536. To increase, visit https://openrouter.ai/settings/cr... [truncated 2020 chars]
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T14:42:19.793Z — Explicit Resume
+
+- WorkItem: WI-AC-053
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Root cause fixed: pi's model was requesting near-uncapped max_tokens against a zero-balance OpenRouter account, causing every call to 402. Switched to a free, explicitly-capped model (qwen/qwen3-coder:free, maxTokens:8192) and restarted. Fresh retry.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T14:43:07.822Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-053
+- Outcome: coding agent failed three times
+- Defects: 429: {"message":"Provider returned error","code":429,"metadata":{"raw":"qwen/qwen3-coder:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Venice","is_byok":false,"retry_after_seconds":26,"retry_after_seconds_raw":25.984,"headers":{"Retry-After":"26"}}}
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T16:43:28.819Z — Explicit Resume
+
+- WorkItem: WI-AC-053
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Confirmed via the log-detail fix: this block was pure OpenRouter 429 rate-limit exhaustion on qwen3-coder:free (8 req/min), not a real coding/QA defect -- the Work Item was never actually attempted. Also fixed the root cause (orchestrator now backs off before retrying after a 429 instead of instantly re-exhausting the same limit). Retry.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T16:43:30.321Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-053
+- Outcome: coding agent failed three times
+- Defects: Error: Model "nvidia-nim/deepseek-ai/deepseek-v4-pro" not found. Use --list-models to see available models.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-08T20:15:38.719Z — Explicit Resume
+
+- WorkItem: WI-AC-053
+- Outcome: user authorized a new Attempt cycle
+- Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
+- NextAction: Coding Attempt 1
+
+## 2026-07-08T20:30:00Z — Implementation (AC-053)
+
+- Attempt: 1/3
+- WorkItem: WI-AC-053
+- AcceptanceChecks: AC-053
+- Outcome: implementation=true (black-box verified on running docker-compose stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-053 requires that after `docker compose up -d`, the stub sends a JSON-RPC 2.0
+`health_check` request to the relay and the relay answers with one entry per
+initialized driver (`{ resourceId, type, healthy, latencyMs }`). The stub prints
+the JSON to its log as `[stub] health_check result=...` and exits 0. A failure of
+either driver (e.g. Postgres stopped) yields `healthy: false` for that entry
+while the other driver still reports `healthy: true`; the stub still exits 0 and
+prints the partial result.
+
+The relay already handled `health_check` correctly via `HealthReporter.checkAll()`
+in `src/index.ts` and `src/health/health-reporter.ts`. The missing piece was the
+stub's one-shot smoke behavior: the stub (when `SMOKE=1`) ran the smoke tests but
+did not exit afterward.
+
+Changed `scripts/control-plane-stub/server.mjs`:
+- `runSmoke` now asserts the health_check response shape: it must be a non-empty
+  array where each entry has `resourceId`, `type`, `healthy` (boolean), and
+  `latencyMs` (number). Individual drivers may be `healthy: false` — partial
+  results still pass the assertion and exit 0.
+- The execute tests (SELECT 1, list_tables) are log-only and do not affect the
+  exit code, so a Postgres outage does not cause non-zero exit (matching AC-053's
+  "stub still exits 0" requirement).
+- After all smoke tests, the stub calls `process.exit(exitCode)` so `SMOKE=1`
+  mode is a one-shot test that exits 0 on success (or non-zero on shape errors).
+  The `restart: unless-stopped` docker-compose policy then restarts the stub for
+  another cycle.
+
+No changes to the relay runtime (src/), Dockerfile, docker-compose.yml, config,
+or any other source — only the stub's server.mjs was modified.
+
+### Black-box verification (SMOKE=1 on running stack)
+
+**Normal case (all drivers healthy):**
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":1},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":1}
+]
+[stub] smoke exiting with code 0
+```
+
+**Failure case (Postgres container stopped):**
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":false,"latencyMs":5005},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":11}
+]
+[stub] execute(SELECT 1) result={"code":-32603,"message":"getaddrinfo EAI_AGAIN relay-postgres"}
+[stub] execute(list_tables) result={"code":-32603,"message":"getaddrinfo EAI_AGAIN relay-postgres"}
+[stub] smoke exiting with code 0
+```
+
+Both cases exit 0. The health_check response shape is correct (array with entries
+for both drivers). Partial results (Postgres unhealthy, Mongo healthy) are
+handled gracefully per AC-053.
+
+`feature_list.json` WI-AC-053 set to `implementation: true`.
+
+## 2026-07-08T20:29:30Z — QA Independent Verification (AC-053)
+
+- WorkItem: WI-AC-053
+- AcceptanceChecks: AC-053
+- Outcome: qa=true, implementation=true (independently re-verified on running stack)
+- Method: torn down prior stack (`docker compose down -v --remove-orphans`),
+  then `SMOKE=1 docker compose up -d` from repo root (no `AWS_*`/`STRIPE_*`/`CLERK_*`/
+  `LANGFUSE_*`/`SENTRY_*`/`SVIX_*`/`SLACK_*`/`COMPOSIO_*`/`MASTRA_*`/`SQS_*`/`DYNAMODB_*`/
+  `STS_*`/`KMS_*` in parent env). Independently verified health_check behavior
+  by inspecting stub logs for both fully-healthy and partial-failure scenarios.
+
+### Independent verification results
+
+**Normal case (all drivers healthy):**
+
+Stub log:
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":1},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":1}
+]
+[stub] smoke exiting with code 0
+```
+
+- Response is a valid JSON-RPC 2.0 response with `jsonrpc: '2.0'`, an `id`, and
+  a `result` array.
+- Each entry has `resourceId`, `type`, `healthy` (boolean), and `latencyMs` (number).
+- Both drivers report `healthy: true`.
+- Stub exits 0.
+
+**Partial failure case (relay-postgres container stopped):**
+
+```
+$ docker compose stop relay-postgres
+```
+
+Stub log:
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":false,"latencyMs":5005},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":12}
+]
+[stub] execute(SELECT 1) result={"code":-32603,"message":"getaddrinfo EAI_AGAIN relay-postgres"}
+[stub] execute(list_tables) result={"code":-32603,"message":"getaddrinfo EAI_AGAIN relay-postgres"}
+[stub] smoke exiting with code 0
+```
+
+- `order-pg` reports `healthy: false` with latencyMs ~5005 (connection timeout).
+- `order-mongo` still reports `healthy: true` with normal latency.
+- The execute queries against the unavailable Postgres return JSON-RPC error
+  `-32603` (expected — the driver cannot reach the database).
+- Stub still exits 0 (partial results accepted, per AC-053).
+
+**Recovery (relay-postgres restarted):**
+
+```
+$ docker compose start relay-postgres
+```
+
+Subsequent stub smoke cycles return to fully healthy status:
+```
+[stub] health_check result=[
+  {"resourceId":"order-pg","type":"postgres","healthy":true,"latencyMs":1},
+  {"resourceId":"order-mongo","type":"mongodb","healthy":true,"latencyMs":1}
+]
+[stub] smoke exiting with code 0
+```
+
+### Verdict
+
+All AC-053 acceptance criteria independently re-verified on a freshly brought-up
+stack at real external boundaries (live docker-network WebSocket, live Postgres
+connection timeout, live Mongo health check). Both the fully-healthy and
+partial-failure scenarios produce the correct health_check response shape and
+both exit 0. No defects.
+
+`qa=true`, `implementation=true`. `feature_list.json` WI-AC-053 `qa` set to `true`.
+
+## 2026-07-08T20:31:47.770Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-053
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
