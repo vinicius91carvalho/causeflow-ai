@@ -1,4 +1,5 @@
-import { Parser } from 'node-sql-parser';
+import sqlParser from 'node-sql-parser';
+const { Parser } = sqlParser;
 
 const parser = new Parser();
 

@@ -116,8 +116,13 @@ export class DynamoAuditRepository {
     };
   }
   async getLastEntry(tid: TenantId): Promise<AuditEntry | null> {
+    // Chronological tip of the hash chain. MUST query the byCreatedAt GSI
+    // (sort key = createdAt) — the primary index is sorted by entryId (UUID),
+    // so `order: 'desc'` on primary would return the lexicographically-highest
+    // UUID, not the most recent entry, breaking the chain. Using the same
+    // index as findByTenant keeps the tip consistent with list reads.
     const result = await AuditEntryEntity.query
-      .primary({ tenantId: tid })
+      .byCreatedAt({ tenantId: tid })
       .go({ limit: 1, order: 'desc' });
     const first = result.data[0];
     if (!first) return null;

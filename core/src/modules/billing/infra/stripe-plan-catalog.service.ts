@@ -2,6 +2,7 @@ import { getStripeClient } from './stripe-client.js';
 import { getRedisClient } from '../../../shared/infra/cache/redis-client.js';
 import { logger } from '../../../shared/infra/logger.js';
 import { PLAN_QUOTAS, QUOTA_PACKS } from '../domain/billing.types.js';
+import { config } from '../../../shared/config/index.js';
 import type { IPlanCatalogService, PlanDefinition, QuotaPackDefinition } from '../domain/plan-catalog.port.js';
 import type { TenantPlan } from '../../../shared/domain/types.js';
 
@@ -84,6 +85,20 @@ export class StripePlanCatalogService implements IPlanCatalogService {
         // 3. Fetch from Stripe
         try {
             const catalog = await this.fetchFromStripe();
+            // If Stripe returned no plan_key-tagged prices (e.g. stripe-mock or an
+            // unconfigured account), fall back to the hardcoded catalog seeded with
+            // env-configured price IDs so checkout/upgrade still work locally.
+            if (catalog.plans.length === 0) {
+                const fallback = this.buildFallbackCatalog();
+                this.inMemoryCache = fallback;
+                try {
+                    const redis = getRedisClient();
+                    await redis.set(CACHE_KEY, JSON.stringify(fallback), 'EX', CACHE_TTL_SECONDS);
+                } catch {
+                    // Redis write failed — in-memory cache is set, move on
+                }
+                return fallback;
+            }
             this.inMemoryCache = catalog;
 
             // Store in Redis (fire-and-forget)
@@ -249,8 +264,32 @@ export class StripePlanCatalogService implements IPlanCatalogService {
                 trialDays: 0,
                 features: [],
                 selfService: key !== 'enterprise',
-                stripePriceId: '',
+                stripePriceId:
+                    (key === 'starter' && config.stripe.starterFlatPriceId) ||
+                    (key === 'pro' && config.stripe.proFlatPriceId) ||
+                    (key === 'business' && config.stripe.businessFlatPriceId) ||
+                    (key === 'starter' && config.stripe.starterPriceId) ||
+                    (key === 'pro' && config.stripe.proPriceId) ||
+                    (key === 'business' && config.stripe.businessPriceId) ||
+                    '',
                 stripeProductId: '',
+                metered:
+                    (key === 'starter' && config.stripe.starterInvPriceId && config.stripe.starterEvtPriceId) ||
+                    (key === 'pro' && config.stripe.proInvPriceId && config.stripe.proEvtPriceId) ||
+                    (key === 'business' && config.stripe.businessInvPriceId && config.stripe.businessEvtPriceId)
+                        ? {
+                              invPriceId:
+                                  (key === 'starter' && config.stripe.starterInvPriceId) ||
+                                  (key === 'pro' && config.stripe.proInvPriceId) ||
+                                  (key === 'business' && config.stripe.businessInvPriceId) ||
+                                  '',
+                              evtPriceId:
+                                  (key === 'starter' && config.stripe.starterEvtPriceId) ||
+                                  (key === 'pro' && config.stripe.proEvtPriceId) ||
+                                  (key === 'business' && config.stripe.businessEvtPriceId) ||
+                                  '',
+                          }
+                        : undefined,
             }),
         );
 

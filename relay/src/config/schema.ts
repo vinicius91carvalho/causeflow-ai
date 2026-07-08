@@ -4,7 +4,7 @@ export const resourceConfigSchema = z.object({
   id: z.string(),
   type: z.enum(['postgres', 'mongodb']),
   name: z.string(),
-  connection: z.record(z.string()),
+  connection: z.record(z.union([z.string(), z.number()])),
   allowedOperations: z.array(z.enum(['query', 'describe_table', 'list_tables', 'explain'])).default(['query', 'describe_table', 'list_tables', 'explain']),
   maxRowsPerQuery: z.number().default(1000),
 });

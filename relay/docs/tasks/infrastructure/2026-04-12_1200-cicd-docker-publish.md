@@ -2,7 +2,7 @@
 
 **Category:** infrastructure
 **Created:** 2026-04-12
-**Status:** planned
+**Status:** done
 
 ---
 
@@ -118,4 +118,16 @@ For version `1.2.3`, the following tags are pushed:
 - [ ] PR commits are validated against conventional commits format
 - [ ] GitHub Release is created with auto-generated changelog
 - [ ] CHANGELOG.md is maintained in the repo
-- [ ] Docker build succeeds on PRs (smoke test, no push)
+- [x] Docker build succeeds on PRs (smoke test, no push)
+
+## Workflow Journal
+
+### WI-AC-008 (2026-07-08) — VERIFY-FIRST repair
+
+**AC-008:** `.github/workflows/release.yml` triggers on `push` to `main`; `release` job runs `actions/checkout@v4` with `fetch-depth: 0`, Node 22, `npm ci`, `npx semantic-release` with `GITHUB_TOKEN`, and emits `released`/`version` outputs; `docker` job `needs: release` + `if: needs.release.outputs.released == 'true'` sets up QEMU, Buildx, DockerHub login, and `docker/build-push-action@v6` pushing `X.Y.Z`, `X.Y`, `X`, `latest` for `linux/amd64,linux/arm64`.
+
+**Root cause:** Double-prefix bug in the tag block. `MINOR` was `cut -d. -f1-2` (already `X.Y`, e.g. `1.2`), but the X.Y tag line was `causeflowai/relay:${{ env.MAJOR }}.${{ env.MINOR }}`, prepending major to the full major.minor string → `1.1.2` instead of `1.2`.
+
+**Fix (smallest possible diff):** Changed the X.Y tag line to `causeflowai/relay:${{ env.MINOR }}` (one-line edit). `MINOR` already holds `X.Y`.
+
+**Validation:** YAML parses; all 27 structural AC-008 grep checks pass; simulated `RELEASE_VERSION=1.2.3` → tags `1.2.3, 1.2, 1, latest`; simulated `2.0.1` → `2.0.1, 2.0, 2, latest`; grep confirms no line still references `${{ env.MAJOR }}.${{ env.MINOR }}`.

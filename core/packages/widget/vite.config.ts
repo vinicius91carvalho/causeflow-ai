@@ -6,14 +6,14 @@ export default defineConfig({
       entry: 'src/index.ts',
       name: 'CauseflowWidget',
       formats: ['iife'],
-      fileName: () => 'causeflow-widget.js',
+      fileName: () => 'widget.js',
     },
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
       },
     },
-    minify: 'terser',
+    minify: 'esbuild',
     target: 'es2022',
   },
 });

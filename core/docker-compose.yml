@@ -11,8 +11,9 @@ services:
     volumes:
       - ministack_data:/tmp/ministack-state
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./infra/localstack/init:/etc/localstack/init/ready.d
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_ministack/health"]
+      test: ["CMD", "python3", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:4566/_ministack/health',timeout=3).status==200 else 1)"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -24,6 +25,12 @@ services:
       - '6379:6379'
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
 
   postgres:
     image: postgres:16-alpine
@@ -35,6 +42,12 @@ services:
       POSTGRES_PASSWORD: langfuse
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse -d langfuse"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
 
   langfuse:
     image: langfuse/langfuse:2
@@ -45,8 +58,16 @@ services:
       NEXTAUTH_SECRET: mysecret
       NEXTAUTH_URL: http://localhost:3001
       SALT: mysalt
+      HOSTNAME: 0.0.0.0
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:3000/api/public/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   customer-postgres:
     image: postgres:16-alpine
@@ -332,7 +353,7 @@ services:
       - '9999:9999'
     environment:
       HINDSIGHT_API_LLM_PROVIDER: anthropic
-      HINDSIGHT_API_LLM_API_KEY: ${ANTHROPIC_API_KEY:-}
+      HINDSIGHT_API_LLM_API_KEY: ${ANTHROPIC_API_KEY:-sk-ant-dev-placeholder}
       HINDSIGHT_API_ENABLE_BANK_CONFIG_API: 'false'
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8888/health || exit 1"]

@@ -30,7 +30,7 @@ Machine-verifiable contracts enforced in CI via `pnpm lint-invariants`.
 
 ## I5 — /health response includes commit
 - **Owner:** app
-- **Invariant:** `/health` response body has exactly these keys: `status, service, version, commit, timestamp`
+- **Invariant:** `/health` response body has exactly these top-level keys: `status, service, version, commit, timestamp, checks` (where `checks` is a per-service status map, e.g. `{ dynamodb, redis, sqs, anthropic }`; the Anthropic entry reports `ok` and is skipped when no API key is configured)
 - **Verify:** unit test in `tests/` (existing /health test)
 - **Fix:** `src/app.ts` reads `process.env['APP_VERSION']`
 
@@ -69,7 +69,13 @@ Machine-verifiable contracts enforced in CI via `pnpm lint-invariants`.
   - `! grep -rn 'Synthesis with citation failed — falling back' src/ --include='*.ts' | grep -q .`
 - **Fix:** Delete the orchestrator-mode catch-block fallback and route exhausted-citation cases to `terminateInconclusive`. Reference: Sprint 02.
 
-## I11 — Inconclusive outcome is persisted and emitted
+## I11 — No cross-module direct function calls
+- **Owner:** platform / architecture
+- **Invariant:** cross-module communication is restricted to (1) the in-process EventBus and (2) type-only imports from another module's `domain/`. A runtime (value) import of a use case / DTO / any symbol from another module's `application/` is a forbidden cross-module direct function call — it bypasses the composition root (`src/bootstrap.ts`) and the EventBus. Type-only imports (`import type ...`, or named bindings whose every binding carries the inline `type` modifier) remain allowed because they emit no runtime call (they are used for dependency-injection typing).
+- **Verify:** `infra/scripts/check-invariants.ts` walks `src/modules/**`*.ts` and fails on any non-type-only import whose target resolves into another module's `application/` (both `@modules/<mod>/application/...` and relative `../../<mod>/application/...` forms). Run: `pnpm lint-invariants`.
+- **Fix:** replace the direct import with an EventBus event/subscription, or inject the dependency through the composition root; if only the type is needed, use `import type ...`.
+
+## I12 — Inconclusive outcome is persisted and emitted
 - **Owner:** core / investigation module (`src/modules/investigation/application/investigate-incident.usecase.ts`, `src/workers/investigation-worker.ts`)
 - **Preconditions:** The use case has decided to terminate as inconclusive (zero evidences after re-invocation, OR exhausted-citation retries).
 - **Postconditions:** The incident DB record is updated with `status='inconclusive'` and `resolution` starting with `'inconclusive:'`. The EventBus publishes `investigation.inconclusive`, which the worker forwards to the progress SQS queue.

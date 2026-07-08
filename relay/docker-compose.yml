@@ -1,0 +1,79 @@
+# CauseFlow Relay — open-source local runtime.
+#
+# `docker compose up -d` brings up exactly four services with no paid/external
+# SaaS credentials: the local control-plane stub, a bundled customer Postgres,
+# a bundled customer Mongo, and the hardened relay image (no inbound ports).
+#
+# Every variable used below has a `${VAR:-default}` so a clean shell
+# (`env -i PATH=$PATH`) with no AWS_*/STRIPE_*/CLERK_*/... env vars still brings
+# the stack up. The relay container additionally reads `.env.example` via
+# `env_file` so its YAML config (`${RELAY_TOKEN}` etc.) interpolates correctly.
+# There is no `image: ministack`, `image: localstack`, `image: langfuse`, and no
+# AWS / Stripe / Clerk / Sentry / Langfuse / Svix / Slack / Composio / Mastra
+# env var anywhere in this file.
+
+services:
+  relay-control-plane-stub:
+    build:
+      context: ./scripts/control-plane-stub
+    image: causeflow-relay-control-plane-stub:local
+    container_name: relay-control-plane-stub
+    ports:
+      - "3000:3000"
+    environment:
+      RELAY_TOKEN: ${RELAY_TOKEN:-harness-smoke-token}
+      TENANT_ID: ${TENANT_ID:-harness-tenant}
+      PORT: "3000"
+      SMOKE: ${SMOKE:-0}
+    restart: unless-stopped
+
+  relay-postgres:
+    image: postgres:16-alpine
+    container_name: relay-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${PG_USER:-relay}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-relay}
+      POSTGRES_DB: ${PG_DATABASE:-relay}
+    volumes:
+      - ./scripts/control-plane-stub/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-relay} -d ${PG_DATABASE:-relay}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  relay-mongo:
+    image: mongo:7
+    container_name: relay-mongo
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ping:1}).ok' | grep -q 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  relay:
+    build:
+      context: .
+    image: causeflow-relay:local
+    container_name: relay
+    # No inbound port mapping — the relay is an outbound WebSocket client only.
+    env_file:
+      - .env.example
+    environment:
+      RELAY_CONFIG_PATH: /app/relay-config.yaml
+    volumes:
+      - ./relay-config.docker.yaml:/app/relay-config.yaml:ro
+    depends_on:
+      relay-control-plane-stub:
+        condition: service_started
+      relay-postgres:
+        condition: service_healthy
+      relay-mongo:
+        condition: service_healthy
+    restart: unless-stopped

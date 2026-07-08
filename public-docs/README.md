@@ -42,6 +42,24 @@ Preview at `http://localhost:3000`.
 mint broken-links
 ```
 
-## Publishing
+## Local runtime (Docker)
 
-Changes pushed to the default branch are deployed automatically via the Mintlify GitHub integration.
+The canonical way to run the docs site is the open-source local runtime — a
+multi-stage Docker image that builds the MDX site with the Mintlify CLI and
+serves the static export from a minimal container, with no dependency on the
+Mintlify hosting SaaS and no account credentials:
+
+```bash
+docker compose up -d
+```
+
+The `causeflow-docs` service comes up on `http://localhost:3000` (override the
+host port in `docker-compose.yml` if needed). The container carries no `.env`,
+no `MINTLIFY_*` env vars, and no deploy token — the only runtime env var is
+`PORT` (default `3000`).
+
+To build the image directly:
+
+```bash
+docker build . -t causeflow-docs:local
+```

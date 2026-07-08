@@ -128,7 +128,7 @@ describe('DynamoAuditRepository', () => {
   });
 
   it('getLastEntry() should return domain object when entries exist', async () => {
-    mockEntity.query.primary.mockReturnValue({
+    mockEntity.query.byCreatedAt.mockReturnValue({
       go: vi.fn().mockResolvedValue({
         data: [sampleAuditData],
       }),
@@ -136,14 +136,16 @@ describe('DynamoAuditRepository', () => {
 
     const result = await repo.getLastEntry(tenantId('tenant-1'));
 
-    expect(mockEntity.query.primary).toHaveBeenCalledWith({ tenantId: 'tenant-1' });
+    // Must query the byCreatedAt GSI (chronological tip), not the primary
+    // index (which is sorted by entryId UUID and would return the wrong tip).
+    expect(mockEntity.query.byCreatedAt).toHaveBeenCalledWith({ tenantId: 'tenant-1' });
     expect(result).not.toBeNull();
     expect(result!.entryId).toBe('audit-1');
     expect(result!.previousHash).toBe('hash-0');
   });
 
   it('getLastEntry() should return null when no entries exist', async () => {
-    mockEntity.query.primary.mockReturnValue({
+    mockEntity.query.byCreatedAt.mockReturnValue({
       go: vi.fn().mockResolvedValue({
         data: [],
       }),
@@ -151,8 +153,17 @@ describe('DynamoAuditRepository', () => {
 
     const result = await repo.getLastEntry(tenantId('tenant-1'));
 
-    expect(mockEntity.query.primary).toHaveBeenCalledWith({ tenantId: 'tenant-1' });
+    expect(mockEntity.query.byCreatedAt).toHaveBeenCalledWith({ tenantId: 'tenant-1' });
     expect(result).toBeNull();
+  });
+
+  it('getLastEntry() should query byCreatedAt with order: "desc" (chronological tip)', async () => {
+    const mockGo = vi.fn().mockResolvedValue({ data: [sampleAuditData] });
+    mockEntity.query.byCreatedAt.mockReturnValue({ go: mockGo });
+
+    await repo.getLastEntry(tenantId('tenant-1'));
+
+    expect(mockGo).toHaveBeenCalledWith(expect.objectContaining({ order: 'desc', limit: 1 }));
   });
 
   // AC-3: evidences round-trip in repository
@@ -304,34 +315,34 @@ describe('DynamoAuditRepository', () => {
     expect(result.items.every((item) => item.tenantId === 'tenant-A')).toBe(true);
   });
 
-  it('getLastEntry() for tenant-A must scope query.primary to tenant-A partition key', async () => {
-    mockEntity.query.primary.mockReturnValue({
+  it('getLastEntry() for tenant-A must scope query.byCreatedAt to tenant-A partition key', async () => {
+    mockEntity.query.byCreatedAt.mockReturnValue({
       go: vi.fn().mockResolvedValue({ data: [{ ...sampleAuditData, tenantId: 'tenant-A' }] }),
     });
 
     await repo.getLastEntry(tenantId('tenant-A'));
 
     // Asserts the partition key argument — proves DynamoDB isolation at the call boundary
-    expect(mockEntity.query.primary).toHaveBeenCalledWith(
+    expect(mockEntity.query.byCreatedAt).toHaveBeenCalledWith(
       expect.objectContaining({ tenantId: 'tenant-A' }),
     );
   });
 
-  it('getLastEntry() for tenant-B must scope query.primary to tenant-B partition key', async () => {
-    mockEntity.query.primary.mockReturnValue({
+  it('getLastEntry() for tenant-B must scope query.byCreatedAt to tenant-B partition key', async () => {
+    mockEntity.query.byCreatedAt.mockReturnValue({
       go: vi.fn().mockResolvedValue({ data: [{ ...sampleAuditData, tenantId: 'tenant-B' }] }),
     });
 
     await repo.getLastEntry(tenantId('tenant-B'));
 
     // Asserts the partition key argument — proves DynamoDB isolation at the call boundary
-    expect(mockEntity.query.primary).toHaveBeenCalledWith(
+    expect(mockEntity.query.byCreatedAt).toHaveBeenCalledWith(
       expect.objectContaining({ tenantId: 'tenant-B' }),
     );
   });
 
   it('getLastEntry() queries are not cross-contaminated between tenants', async () => {
-    mockEntity.query.primary
+    mockEntity.query.byCreatedAt
       .mockReturnValueOnce({
         go: vi.fn().mockResolvedValue({ data: [{ ...sampleAuditData, tenantId: 'tenant-A', entryId: 'last-A' }] }),
       })
@@ -343,11 +354,11 @@ describe('DynamoAuditRepository', () => {
     const lastB = await repo.getLastEntry(tenantId('tenant-B'));
 
     // Each call must use its own partition key — no shared query arg
-    expect(mockEntity.query.primary).toHaveBeenNthCalledWith(
+    expect(mockEntity.query.byCreatedAt).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({ tenantId: 'tenant-A' }),
     );
-    expect(mockEntity.query.primary).toHaveBeenNthCalledWith(
+    expect(mockEntity.query.byCreatedAt).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({ tenantId: 'tenant-B' }),
     );

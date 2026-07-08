@@ -47,6 +47,11 @@ export class RateLimitError extends AppError {
         super('Rate limit exceeded', 'RATE_LIMIT', 429, { retryAfterSeconds });
     }
 }
+export class QuotaExceededError extends AppError {
+    constructor(message: string, details?: Record<string, unknown>) {
+        super(message, 'QUOTA_EXCEEDED', 429, details);
+    }
+}
 export class PaymentRequiredError extends AppError {
     constructor(message: string, suggestion?: 'upgrade' | 'update_payment' | 'renew' | 'reactivate', details?: Record<string, unknown>) {
         super(message, 'CREDITS_EXHAUSTED', 402, { ...(suggestion && { suggestion }), ...details });

@@ -7,6 +7,7 @@ import { ListTenantsUseCase } from './modules/tenant/application/list-tenants.us
 import { DynamoAuditRepository } from './modules/audit/infra/dynamo-audit.repository.js';
 import { ClerkUserEmailResolver } from './modules/audit/infra/clerk-user-email-resolver.js';
 import { CreateAuditEntryUseCase } from './modules/audit/application/create-audit-entry.usecase.js';
+import { DeleteAuditEntryUseCase } from './modules/audit/application/delete-audit-entry.usecase.js';
 import { VerifyHashChainUseCase } from './modules/audit/application/verify-hash-chain.usecase.js';
 import { ListAuditEntriesUseCase } from './modules/audit/application/list-audit-entries.usecase.js';
 import { ExportAuditUseCase } from './modules/audit/application/export-audit.usecase.js';
@@ -86,8 +87,11 @@ import { HealthChecker } from './shared/infra/health/health-checker.js';
 import { DynamoDBHealthCheck } from './shared/infra/health/checks/dynamodb-check.js';
 import { RedisHealthCheck } from './shared/infra/health/checks/redis-check.js';
 import { SQSHealthCheck } from './shared/infra/health/checks/sqs-check.js';
+import { AnthropicHealthCheck } from './shared/infra/health/checks/anthropic-check.js';
+import { CircuitBreaker } from './shared/infra/llm/circuit-breaker.js';
 import { getRedisClient } from './shared/infra/cache/redis-client.js';
 import { DynamoApiKeyRepository } from './modules/tenant/infra/dynamo-api-key.repository.js';
+import { configureAuthApiKeyRepo } from './shared/infra/http/middleware/auth.middleware.js';
 import { CreateApiKeyUseCase } from './modules/tenant/application/create-api-key.usecase.js';
 import { ListApiKeysUseCase } from './modules/tenant/application/list-api-keys.usecase.js';
 import { RevokeApiKeyUseCase } from './modules/tenant/application/revoke-api-key.usecase.js';
@@ -311,6 +315,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     listAuditEntries: new ListAuditEntriesUseCase(auditRepo, userEmailResolver),
     verifyHashChain: new VerifyHashChainUseCase(auditRepo),
     exportAudit: new ExportAuditUseCase(auditRepo),
+    createAuditEntry,
+    deleteAuditEntry: new DeleteAuditEntryUseCase(auditRepo, createAuditEntry),
   };
 
   // Reserve/Refund — needed by ingestion routes (created early, before billing block)
@@ -929,6 +935,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // API Key Use Cases
   const apiKeyRepo = new DynamoApiKeyRepository();
+  // Wire the API-key resolver into the auth middleware so `cflo_…` Bearer
+  // tokens resolve to their tenant + creator identity on every request.
+  configureAuthApiKeyRepo(apiKeyRepo);
   const apiKeyUseCases: ApiKeyUseCases = {
     createApiKey: new CreateApiKeyUseCase(apiKeyRepo, eventBus),
     listApiKeys: new ListApiKeysUseCase(apiKeyRepo),
@@ -967,6 +976,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   healthChecker.register(new DynamoDBHealthCheck());
   healthChecker.register(new RedisHealthCheck(() => getRedisClient()));
   healthChecker.register(new SQSHealthCheck([config.sqs.alertQueueUrl, config.sqs.investigationQueueUrl, config.sqs.remediationQueueUrl]));
+  healthChecker.register(new AnthropicHealthCheck(new CircuitBreaker()));
 
   // === In-Process Fallback (dev without SQS) ===
   // When SQS is not configured, wire EventBus to dispatch the pipeline in-process.

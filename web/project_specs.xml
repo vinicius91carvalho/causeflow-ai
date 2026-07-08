@@ -1,0 +1,759 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project_specification>
+  <project_name>causeflow-web</project_name>
+  <mode>existing-codebase</mode>
+
+  <project_goal>
+    Ship the public-facing marketing site and the Clerk-authenticated product application for the CauseFlow AI incident investigation platform. The marketing site (causeflow.ai) converts engineering teams via localized, SEO-optimized pages; the dashboard (dashboard.causeflow.ai) gives those teams a real Clerk-authenticated workspace that proxies every entity — incidents, remediations, integrations, team, billing, settings, audit, intelligence, topology, memory, approvals — through the CauseFlow Core API. The repo is a pnpm + Turborepo + Next.js 15 monorepo with five shared packages (shared, ui, analytics, auth, forms) and two apps that share a strict DDD bounded-context layout.
+  </project_goal>
+
+  <overview>
+    Two Next.js 15 App Router applications in one pnpm/Turborepo workspace, plus five workspace packages. The website is fully static (SSG, served from CloudFront with a WAF in front), localized to EN (default, no prefix) and PT-BR (/pt-br/ prefix) via next-intl, and integrates GA4 + Microsoft Clarity for analytics. The dashboard is a Clerk-authenticated SSR application on Lambda@Edge; every entity is read and written through the CauseFlow Core API (CORE_API_URL) using a typed HTTP client that attaches a Clerk session JWT as a Bearer token. Stripe billing uses @stripe/react-stripe-js for the PaymentElement UI while all server-side Stripe operations (checkout, portal, webhooks) are owned by the Core API. The dashboard's only direct AWS dependency is a temporary tenant-provisioning fallback and a destructive user-deletion CLI script; Sentry error tracking and Pino structured logging are wired through the Next.js instrumentation hook. SST v3 provisions both apps to AWS (CloudFront + WAF + Lambda + Route 53 + ACM). The `packages/auth` package retains an Auth.js v5 + Cognito OIDC implementation as legacy reference and exposes only type re-exports to the dashboard; runtime auth is Clerk.
+  </overview>
+
+  <technology_stack>
+    <general>
+      pnpm 10.33.0 workspaces (declared in package.json + pnpm-workspace.yaml; .npmrc pins `node-linker=hoisted`, `package-import-method=copy`, `auto-install-peers=true`, `strict-peer-dependencies=false`). npm and npx are forbidden — only `pnpm`, `pnpm dlx`, and `pnpm exec` are allowed. Turborepo 2.8.10 orchestrates `build` / `dev` / `test` / `lint` / `check-types` across all 7 workspace members with content-hash caching. TypeScript 5.7.0 in strict mode (tsconfig.base.json + per-app tsconfig.json) with `noUncheckedIndexedAccess` and `moduleResolution: bundler`. Biome 2.4.4 is the single lint+format tool (biome.json) and replaces ESLint + Prettier. Conventional Commits; pre-commit runs Biome. Package manager pinning via packageManager field; pnpm is the single allowed installer.
+    </general>
+    <frontend>
+      <framework>Next.js 15.2.0 App Router for both apps. Website uses SSG (static export, served from CloudFront + S3 via OpenNext inside SST). Dashboard uses SSR on Lambda@Edge with the Clerk middleware running on every request. Both apps share the same routing patterns and `src/app/` → `src/contexts/` → bounded-context re-export convention.</framework>
+      <language>TypeScript 5.7.0 (strict) plus React 19 as the UI runtime across both apps and the five shared packages.</language>
+      <styling>Tailwind CSS 4.0 with the two-layer token system documented in `packages/ui/src/themes/THEMES.md`. Theme tokens live in `packages/ui/src/themes/` (cleric + original themes). Shadcn/ui primitives (Radix UI + class-variance-authority + tailwind-merge + clsx) live in `packages/ui/src/presentation/primitives/`. Icon set is lucide-react (74+ import sites in the dashboard alone).</styling>
+      <state_management>React 19 + Next.js App Router server components; the dashboard also uses a typed HTTP client at `apps/dashboard/src/lib/api/http-api-client.ts` with React `cache()` for plan-status lookups. No Redux / MobX / Zustand.</state_management>
+      <routing>App Router with the `[locale]` dynamic segment for i18n. Dashboard middleware (`apps/dashboard/src/middleware.ts`) runs the Clerk `clerkMiddleware()` first, then the i18n middleware, then a profile-completion guard. Website middleware (`apps/website/src/middleware.ts`) runs crawler detection → staging-auth → geo-redirect → Accept-Language → NEXT_LOCALE cookie.</routing>
+      <i18n>next-intl 4.1 with locales ['en', 'pt-br'], 'as-needed' prefix mode. Per-context i18n files at `apps/{website,dashboard}/src/contexts/<name>/infrastructure/i18n/{en,pt-br}.json` are deep-merged by `apps/{website,dashboard}/src/lib/i18n/compose.ts` into a single next-intl message tree. Cross-context imports use direct deep paths — context `index.ts` barrel files have been removed.</i18n>
+      <forms>Zod 3.23/3.24 schemas in `packages/forms/` and per-context API schemas in `apps/dashboard/src/lib/api/schemas.ts`. Sanitization helper is also in `@causeflow/forms`.</forms>
+      <patterns>Clean Architecture (Domain / Application / Infrastructure / Presentation) per bounded context. Website bounded contexts: `marketing`, `legal`, `shell`. Dashboard bounded contexts: `investigation`, `approvals`, `audit`, `identity`, `onboarding`, `team`, `integrations`, `billing`, `settings`, `shared`. Each context has DDD layers created only when needed. The dashboard `src/app/` directory holds thin re-exports only — every page delegates to `contexts/<name>/presentation/pages/` and every API route to `contexts/<name>/api/`. `next.config.mjs` config (`optimizePackageImports`) rewrites every heavy package (Clerk, lucide-react, all internal packages) so Webpack only compiles the modules actually used. Vitest 4.0.18 covers all 7 workspace projects (shared / forms / analytics / auth / ui / website / dashboard) with a forks pool and a 15s per-test timeout on the dashboard project. Playwright 1.58.2 covers the E2E suite against chromium (4 viewports: mobile 375×812, tablet 768×1024, desktop 1280×800, wide 1440×900) with analytics + tracker domains blocked in `test.beforeEach`. canvas-confetti fires the success burst animation on the dashboard's onboarding completion flow.</patterns>
+    </frontend>
+    <backend>
+      <runtime>Node.js >= 24 (`.nvmrc` pins 24; package.json engines field requires it). The dashboard builds with `tsc --noEmit --project tsconfig.build.json`; the website builds with `tsc --noEmit`. Both run inside SST-managed Lambda@Edge functions for production and on the local Node runtime for dev/test.</runtime>
+      <framework>Next.js 15.2.0 API routes (thin re-exports from `src/app/api/<route>/route.ts` into `src/contexts/<name>/api/<name>-handler.ts`). Each handler uses `withAuth` from `apps/dashboard/src/lib/api/with-auth.ts` which runs Clerk auth + RBAC + per-IP rate limit before delegating to the typed Core API client.</framework>
+      <database>None owned by the web apps. The dashboard is a pure proxy/UI: every entity (Tenant, User, Incident, Remediation, Pattern, ApiKey, BillingAccount, Invite, UserSettings, Integration, AuditEntry, Notification, Approval, Topology, Memory) is read and written through the CauseFlow Core API. The only direct DynamoDB write path is a temporary `tenant-provisioning-fallback` (apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts) and a destructive user-deletion CLI script at `apps/dashboard/scripts/delete-user.ts`; both reach into the Core API's single ElectroDB table using the same wire format.</database>
+      <logging>pino 10.3.1 in `apps/dashboard/src/lib/logger.ts` for structured JSON logs. The dashboard never logs raw tokens or PII; Sentry's beforeSend hook scrubs the same fields in `instrumentation-client.ts`, `sentry.server.config.ts`, and `sentry.edge.config.ts`.</logging>
+      <markdown>react-markdown 10.1 in the dashboard for the incident-feed question / completion cards and the intelligence page. highlight.js is used server-side in the website for the use-case code blocks (`apps/website/src/contexts/marketing/presentation/components/case-studies/code-block.tsx`) — the highlighter is bundled in the server bundle only and the client receives only styled HTML.</markdown>
+      <patterns>Per-context API handler with `withAuth` HOC: `auth()` from `@clerk/nextjs/server` → tenant + role resolution from session claims → Zod request validation → typed Core API call → JSON response. Every write API route also fires a Sentry capture and a pino request log. CLI scripts (`apps/dashboard/scripts/`) bypass Next.js entirely and use tsx + AWS SDK v3 + Stripe SDK directly.</patterns>
+    </backend>
+    <communication>
+      REST/JSON over the dashboard's `/api/...` routes (Next.js Route Handlers) and the Core API's `/v1/...` routes (proxied via the typed ICoreApiClient interface in `apps/dashboard/src/lib/api/core-api-client.ts`). Streaming responses use Next.js streaming primitives when the Core API returns a long-running SSE feed. The dashboard never exposes its Clerk session JWT to the browser — it always reads the token server-side via `getToken()` from `@clerk/nextjs/server` and forwards it as a Bearer token to the Core API (BFF pattern, see `apps/dashboard/src/lib/api/get-backend-token.ts`). Outbound: Clerk JWT verification, Stripe webhooks (handled by Core, not the dashboard), Sentry error capture, GA4 + Microsoft Clarity page views + events, Loops.so form submissions (declared in docs and CSP, currently no consumer in this repo).
+    </communication>
+  </technology_stack>
+
+  <integrations>
+    <integration name="Clerk (@clerk/nextjs v7)">
+      <responsibility>Dashboard authentication at runtime. Clerk owns user identity, sessions, and organizations (tenants); the dashboard reads `auth()` from `@clerk/nextjs/server` on every server request, attaches the session JWT as a Bearer to every Core API call, and exposes the Clerk-hosted sign-in / sign-up UI via `<SignIn />` and `<SignUp />`.</responsibility>
+      <availability>required</availability>
+      <configuration>CLERK_SECRET_KEY, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, NEXT_PUBLIC_CLERK_SIGN_IN_URL, NEXT_PUBLIC_CLERK_SIGN_UP_URL, NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL, NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL. Social providers (Google, GitHub) and email+password are configured in the Clerk dashboard, not in this repo. The dashboard's CSP allows `*.clerk.accounts.dev`, `*.clerk.com`, and `clerk.causeflow.ai`.</configuration>
+      <security>Clerk session JWT is verified server-side by `apps/dashboard/src/middleware.ts` via `clerkMiddleware()`. The dashboard forwards the JWT to the Core API which uses `@clerk/backend`'s `verifyToken` with the shared CLERK_SECRET_KEY. The token is never exposed to the browser — BFF pattern. Role + tenant resolution comes from Clerk organization membership (`orgId`, `orgRole`) at the top of every API route.</security>
+      <failure_behavior>Missing session → 401 redirect to /auth/sign-in. Expired or revoked token → middleware bounces to /auth/sign-in. The `getBackendToken` helper throws "No authenticated session" rather than silently failing; the calling route handler turns that into a 401.</failure_behavior>
+      <deployment>Production + staging: real Clerk. Local: dev Clerk instance; .env.local must contain real publishable + secret keys to log in. The dashboard has no mock auth path — the Core API client is the only mockable layer.</deployment>
+      <affected_surfaces>All dashboard routes (middleware), all authenticated API handlers (withAuth), the topbar / user-button UI, every server action that calls `auth()`.</affected_surfaces>
+    </integration>
+    <integration name="Auth.js v5 + AWS Cognito OIDC (legacy, retained for reference)">
+      <responsibility>Legacy authentication package preserved at `packages/auth/` for historical reference and type re-exports. The dashboard does not import the runtime exports from this package; only the `UserRole` type re-export (`@causeflow/auth/types`) is consumed by `apps/dashboard/src/contexts/identity/domain/rbac/__tests__/role-guard.test.ts`. Runtime authentication is Clerk — see the Clerk integration above.</responsibility>
+      <availability>legacy / retained for reference; not part of the production runtime</availability>
+      <configuration>Auth.js v5 (`next-auth@5.0.0-beta.30`) + `@auth/core` + `@aws-sdk/client-cognito-identity-provider`. Configuration lives at `packages/auth/src/infrastructure/auth-config.ts`. The dev credentials provider auto-enables in development; the production build strips it. Apps that historically used this package are documented in `docs/packages/auth.md` and apps/dashboard/CLAUDE.md as "legacy, not used at runtime".</configuration>
+      <security>Same threat model as before: Auth.js JWT sessions, Cognito OIDC for primary auth, Google + GitHub OAuth for social. The package retains the wiring but no production code path runs it.</security>
+      <failure_behavior>N/A at runtime. Build-time: if any consumer in the dashboard imports the runtime side, the build pulls in the cognito SDK which uses node:crypto and triggers a Webpack client-bundle error unless `serverExternalPackages` is set in next.config.mjs (it is, but only for the dashboard's pre-existing edge case).</failure_behavior>
+      <deployment>No active deployment. Retention is for documentation + future re-use; no env vars are injected by SST for this package.</deployment>
+      <affected_surfaces>`packages/auth/src/infrastructure/auth-config.ts` and the `UserRole` type re-export. No dashboard runtime path.</affected_surfaces>
+    </integration>
+    <integration name="CauseFlow Core API (CORE_API_URL)">
+      <responsibility>Single source of truth for all dashboard data. The typed `ICoreApiClient` interface at `apps/dashboard/src/lib/api/core-api-client.ts` declares 29+ methods (health, api-keys, feedback, patterns, incidents, remediations, approvals, audit, billing, integrations, intelligence, memory, notifications, topology, settings, team, tenant). `get-api-client.ts` resolves to either `http-api-client.ts` (real Core API) or `mock-api-client.ts` (no-op client) based on `CORE_API_URL`. The HTTP client attaches a Clerk session JWT as a Bearer on every request, propagates `lvh.me` to bypass the Core's WAF SSRF filter on local dev, and re-uses fetch with the platform default timeouts.</responsibility>
+      <availability>required</availability>
+      <configuration>CORE_API_URL — production = `https://api.causeflow.ai`, staging = `https://api-staging.causeflow.ai`, local dev = blank (falls through to mock). The dashboard's `get-backend-token.ts` attaches a Clerk session token via Bearer auth. No CORE_API_KEY / shared HMAC secret is used by the dashboard — auth is JWT-only.</configuration>
+      <security>All requests carry a short-lived Clerk session JWT; the Core API verifies it via JWKS using `@clerk/backend`'s `verifyToken` with the shared CLERK_SECRET_KEY. The dashboard never holds the Core API's HMAC secret. The HTTP client strips auth headers from any error that reaches `Sentry.captureException` to avoid leaking tokens.</security>
+      <failure_behavior>HTTP 401 from Core → middleware bounces to /auth/sign-in. 402 with `CREDITS_EXHAUSTED` → the incident-creation page blocks submission. 5xx → Sentry capture + pino log; the UI shows a generic error toast. Network failure → the same toast pattern; nothing in the dashboard crashes the request path on Core failure.</failure_behavior>
+      <deployment>Production: real Core API on CauseFlow's AWS account. Staging: real Core API on the staging stack. Local: blank CORE_API_URL → mock client; the dashboard runs end-to-end with no external service.</deployment>
+      <affected_surfaces>Every dashboard API route (`apps/dashboard/src/contexts/*/api/*-handler.ts`) and every page that calls `getApiClient()` directly (incidents, billing, settings, team, integrations, audit, intelligence, topology, memory, notifications, approvals).</affected_surfaces>
+    </integration>
+    <integration name="Stripe (React bindings @ runtime; server SDK in CLI scripts)">
+      <responsibility>Billing UI and programatic product setup. The dashboard's only runtime Stripe dependency is the React-side SDK: `@stripe/react-stripe-js` (Elements, PaymentElement, useStripe, useElements) for the Stripe Payment Element on the billing modal, and `@stripe/stripe-js` for `loadStripe()`. The dashboard's checkout, portal, and webhook handlers do not call Stripe directly — they call the Core API which owns `STRIPE_SECRET_KEY`, the checkout session creation, the customer portal redirect, and the Stripe webhook signature verification. The Stripe Server SDK (`stripe@20.4.0`) is installed as a dev dependency only and is used by the CLI scripts under `apps/dashboard/scripts/`: `setup-stripe.ts` (create products + prices programmatically) and `delete-user.ts` (cancel a Stripe customer as part of the destructive tenant-purge flow).</responsibility>
+      <availability>required for billing; CLI scripts are dev-time only</availability>
+      <configuration>Runtime: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY (publishable, safe for client). Dev: STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET are read by the CLI scripts from the local shell env or from the Core repo's .env.local — they are NOT in the dashboard's runtime environment. Plan + price IDs (STRIPE_PRICE_STARTER / _PRO / _BUSINESS) are read at CLI time only; the single source of truth for the plan catalog at runtime is `packages/shared/src/domain/constants/plans.ts`.</configuration>
+      <security>Dashboard runtime never holds the Stripe secret key. Webhook signature verification happens on the Core API side; the dashboard's `/api/billing/webhook` route is bypassed by the dashboard's middleware (Stripe sends to the Core API directly) and the route only accepts events forwarded by the Core. The Stripe publishable key is safe to expose to the browser; it can only create PaymentIntents against the public key, which the Core API then validates against the publishable key + customer session.</security>
+      <failure_behavior>Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY → Stripe Elements fail to load; the billing modal shows an error. CLI scripts: missing STRIPE_SECRET_KEY → process exits with a non-zero code and a clear error message. Webhook failure (on the Core side) → Stripe retries with exponential backoff per Stripe's standard policy.</failure_behavior>
+      <deployment>Runtime: real Stripe with publishable key per stage. CLI: real Stripe with test keys (sk_test_ / pk_test_) in staging; live keys (sk_live_ / pk_live_) only in production runs of the CLI scripts.</deployment>
+      <affected_surfaces>Dashboard: `apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx` (Stripe Elements), every API route under `apps/dashboard/src/contexts/billing/api/` (proxies to Core). CLI: `apps/dashboard/scripts/setup-stripe.ts` and `apps/dashboard/scripts/delete-user.ts`.</affected_surfaces>
+    </integration>
+    <integration name="Sentry (@sentry/nextjs 10)">
+      <responsibility>Error and exception capture across the dashboard. Initialized at three runtime boundaries via Next.js's instrumentation hook: server (Node.js runtime), edge (Lambda@Edge), and client (browser). All three `beforeSend` hooks scrub the same PII fields (auth headers, cookies, request bodies) for SOC2 / GDPR / LGPD compliance. `onRequestError` in `apps/dashboard/instrumentation.ts` forwards every Next.js error to Sentry; `src/app/global-error.tsx` is the root client-side error boundary that also captures via Sentry. Source maps are uploaded at build time via `withSentryConfig` in `next.config.mjs`.</responsibility>
+      <availability>optional — SDK no-ops when NEXT_PUBLIC_SENTRY_DSN is blank</availability>
+      <configuration>NEXT_PUBLIC_SENTRY_DSN (client + server + edge DSN). Build-time only: SENTRY_ORG (`causeflow-ai`), SENTRY_PROJECT (`causeflow-dashboard`), SENTRY_AUTH_TOKEN (CI secret). Sampling is env-aware (lower in dev, higher in prod). Disabling Sentry = blank NEXT_PUBLIC_SENTRY_DSN.</configuration>
+      <security>PII scrubbing enabled in every beforeSend hook (auth headers, cookies, request bodies, Clerk tokens). Source maps uploaded only for tagged releases; never logs raw Stripe tokens or customer credentials. Sentry_ORG + SENTRY_PROJECT are public; SENTRY_AUTH_TOKEN is CI-only.</security>
+      <failure_behavior>Send failures are swallowed silently (observability never takes down the request path). When DSN is empty the SDK no-ops at init time and no network call is made.</failure_behavior>
+      <deployment>Production + staging: real Sentry project `causeflow-dashboard` under org `causeflow-ai` (project ID 4511214189805568). Local: blank DSN → no-op.</deployment>
+      <affected_surfaces>Every server action, every API route, every client component via the global error boundary. Sentry.captureException is called explicitly in `src/app/global-error.tsx` (useEffect) and in every `withAuth` handler that catches a non-recoverable error.</affected_surfaces>
+    </integration>
+    <integration name="Google Analytics 4 (via @causeflow/analytics)">
+      <responsibility>Web analytics for the marketing site. Loaded via the AnalyticsProvider at the root layout (`apps/website/src/app/[locale]/layout.tsx`); page views and custom events fire through `trackGA4PageView` / `trackGA4Event` from `packages/analytics/src/infrastructure/ga4/`. The dashboard layout also wraps with AnalyticsProvider but the dashboard's tracking is intentionally minimal — only consent-gated page views in production.</responsibility>
+      <availability>optional — silently no-ops if NEXT_PUBLIC_GA4_MEASUREMENT_ID is empty</availability>
+      <configuration>NEXT_PUBLIC_GA4_MEASUREMENT_ID (public env var, format `G-XXXXXXXXXX`). Loaded via the gtag.js snippet; the CSP `script-src` allows `https://www.googletagmanager.com` and `connect-src` allows `https://www.google-analytics.com`.</configuration>
+      <security>No PII sent beyond what the page already exposes (URL, referrer, anonymized IP by gtag default). The analytics package has no access to auth tokens or PII fields; it never imports from contexts that hold them.</security>
+      <failure_behavior>Network failure or ad-blocker → gtag fires nothing; the UI is unaffected. Missing measurement ID → provider initializes in no-op mode.</failure_behavior>
+      <deployment>Production: real GA4 property for causeflow.ai. Staging: real GA4 property for staging.causeflow.ai. Local: blank → no tracking calls leave the browser. Playwright tests block `https://www.google-analytics.com` in test.beforeEach so test traffic never pollutes production metrics.</deployment>
+      <affected_surfaces>`apps/website/src/app/[locale]/layout.tsx` (provider mount), every page that calls `useTrackEvent()` from `@causeflow/analytics`, the pricing / security / integrations pages that fire custom conversion events.</affected_surfaces>
+    </integration>
+    <integration name="Microsoft Clarity (via @causeflow/analytics)">
+      <responsibility>Session recording and heatmaps for UX analysis on the marketing site. Loaded alongside GA4 by the AnalyticsProvider; initialized via `initClarity` from `packages/analytics/src/infrastructure/clarity/`. Provides free-tier heatmaps + session replay that complement GA4's quantitative funnel data.</responsibility>
+      <availability>optional — silently no-ops if NEXT_PUBLIC_CLARITY_ID is empty</availability>
+      <configuration>NEXT_PUBLIC_CLARITY_ID (public env var, project ID from https://clarity.microsoft.com). Loaded via the Clarity snippet; the CSP `script-src` allows `https://*.clarity.ms` and `connect-src` allows the same.</configuration>
+      <security>Clarity is configured to mask all input fields by default. The dashboard does not load Clarity in the production app — the `apps/dashboard/src/app/[locale]/layout.tsx` wraps the dashboard in AnalyticsProvider but the provider only initializes Clarity when NEXT_PUBLIC_CLARITY_ID is set AND the current route is the marketing site (decided by `getApiClient()` returning the marketing-site path, not the dashboard). In practice the dashboard does not record sessions.</security>
+      <failure_behavior>Same as GA4: network failure or ad-blocker → no recording; missing project ID → no-op init.</failure_behavior>
+      <deployment>Production: real Clarity project for causeflow.ai. Staging: real Clarity project for staging.causeflow.ai. Local: blank → no recording. Playwright tests block `*.clarity.ms` in test.beforeEach.</deployment>
+      <affected_surfaces>Marketing site pages only. Dashboard does not load Clarity in the authed application.</affected_surfaces>
+    </integration>
+    <integration name="AWS SDK v3 — DynamoDB client">
+      <responsibility>Two narrow DynamoDB access paths in the dashboard. (1) The temporary tenant-provisioning fallback at `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts` writes the `Tenant` and `BillingAccount` entities directly to the Core API's DynamoDB table when the Core's `POST /v1/tenants` returns 403 for brand-new Clerk users — this is a documented temporary workaround that gets removed once the Core's role guard is relaxed. (2) The destructive user-deletion CLI script at `apps/dashboard/scripts/delete-user.ts` scans and batch-deletes every item in the Core API's DynamoDB table scoped to a tenantId, and also cancels the corresponding Stripe customer. Both paths use the same wire format as the Core API's ElectroDB entities (lowercase composite keys, `__edb_e__` and `__edb_v__` metadata fields).</responsibility>
+      <availability>required for the user-deletion CLI script and the temporary provisioning fallback</availability>
+      <configuration>@aws-sdk/client-dynamodb + @aws-sdk/lib-dynamodb (^3.996.0 in both apps). AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY (or IAM role in prod) for the CLI scripts. The dashboard's runtime never holds these env vars; the CLI scripts read them from the local shell env. `serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider']` in `apps/dashboard/next.config.mjs` keeps the AWS SDK (and its node:crypto dependency) server-side only.</configuration>
+      <security>Destructive operations are gated by an explicit `--yes` flag on the CLI script. The provisioning fallback is the dashboard-side escape hatch only; it never runs unless the Core API returns 403, and the file's header comment documents the exact Core fix that retires it.</security>
+      <failure_behavior>Missing AWS credentials → CLI script exits with a non-zero code. Provisioning fallback: if the DynamoDB write fails, the dashboard logs a Sentry error and surfaces a generic error to the user (the Core's provisioning path is retried on the next request).</failure_behavior>
+      <deployment>Production: real DynamoDB on CauseFlow's AWS account (the Core's table `causeflow-<stage>`). Local: real AWS credentials or SSO; no local DynamoDB is used by the dashboard.</deployment>
+      <affected_surfaces>Dashboard runtime: `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts` (called from `apps/dashboard/src/contexts/identity/api/complete-profile-handler.ts` on 403 from Core). CLI: `apps/dashboard/scripts/delete-user.ts`.</affected_surfaces>
+    </integration>
+    <integration name="SST v3 on AWS">
+      <responsibility>Infrastructure as code for both apps. Each app has its own `sst.config.ts` that provisions a CloudFront distribution, a WAF WebACL (must be in us-east-1 for CloudFront association), the Next.js compute (S3 + CloudFront + Lambda@Edge via OpenNext inside SST for the website, Lambda@Edge for the dashboard), Route 53 records, and an ACM certificate. The dashboard's SST config also provisions CloudWatch alarms for Lambda errors and 5xx rates (production only). Env vars are injected at deploy time from the SST config — there are no `.env.staging` or `.env.production` files in this repo.</responsibility>
+      <availability>required for both apps</availability>
+      <configuration>AWS account 409171461008, region us-east-2. A separate `us-east-1` provider is created in each config for the WAF WebACL (CloudFront is a global service). Domains: causeflow.ai (website prod), staging.causeflow.ai (website staging), dashboard.causeflow.ai (dashboard prod), dashboard-staging.causeflow.ai (dashboard staging). Route 53 hosted zone Z01593322DGY9I94W9S7C (NS delegated from GoDaddy). SST runs on Bun; a wrapper at `~/.config/sst/bin/bun` delegates to `bun-real --backend=copyfile` to work around PRoot symlink limitations on the dev container.</configuration>
+      <security>WAF WebACL attached to CloudFront with AWS managed rule groups: AWSManagedRulesCommonRuleSet, AWSManagedRulesKnownBadInputsRuleSet, AWSManagedRulesAmazonIpReputationList, plus two custom rate-based rules (1000/5min site-wide, 100/5min on /api/). CloudWatch alarms fire on Lambda error rate and 5xx rate in production. ACM certs are AWS-managed and auto-renew.</security>
+      <failure_behavior>SST deployment failure → GitHub Actions workflow fails; no partial deploy. CloudFront invalidation is disabled in the dashboard config (Pulumi skips it when config hasn't changed; per `invalidation: false` in `sst.aws.Nextjs`).</failure_behavior>
+      <deployment>Staging: `sst deploy --stage staging` (auto on push to main via GitHub Actions). Production: workflow_dispatch with stage=production.</deployment>
+      <affected_surfaces>Both apps. Deploys: `.github/workflows/website-deploy.yml` and `.github/workflows/dashboard-deploy.yml`.</affected_surfaces>
+    </integration>
+    <integration name="GitHub Actions CI/CD">
+      <responsibility>Continuous integration + deployment. Two top-level workflows: `website-deploy.yml` (builds, type-checks, lints, tests, then deploys to staging on push to main; production via workflow_dispatch), and `dashboard-deploy.yml` (same pipeline, separate workflow). Each workflow sets up pnpm via `pnpm/action-setup@v4`, Node via `.nvmrc`, installs with `--frozen-lockfile`, then runs `pnpm turbo check-types`, `pnpm turbo lint`, `pnpm turbo test`, and `pnpm turbo build` before triggering the SST deploy.</responsibility>
+      <availability>required</availability>
+      <configuration>`ubuntu-latest` runner. Secrets live in the environment: staging secrets, production secrets, AWS access keys for SST. The workflows set `concurrency: website-deploy-${{ github.ref }}` and `cancel-in-progress: false` so two pushes don't race a deploy.</configuration>
+      <security>Workflows use `environment: staging` and `environment: production` which gates deployment behind GitHub Environments + required reviewers for production. AWS credentials are short-lived OIDC tokens from GitHub → AWS (not stored long-term).</security>
+      <failure_behavior>Test, lint, type-check, or build failure → SST deploy is skipped. Failed deploy → next push re-runs the pipeline; manual rollback via SST CLI.</failure_behavior>
+      <deployment>Runs in GitHub-hosted runners; no self-hosted infrastructure.</deployment>
+      <affected_surfaces>All push events to main + manual workflow_dispatch.</affected_surfaces>
+    </integration>
+    <integration name="Composio (third-party integration metadata)">
+      <responsibility>Third-party integration metadata for the dashboard's integration catalog. The 15 integration types (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) are surfaced as connection cards in the dashboard. Each has type-specific Zod validation for credentials; the credentials are forwarded to the Core API which handles encryption (KMS envelope) and DynamoDB storage. Composio's logo and metadata domains (`logos.composio.dev`, `backend.composio.dev`) are allow-listed in the dashboard's `next.config.mjs` `images.remotePatterns`. The dashboard's `Integration` domain type carries a `composioTriggerId` field; the runtime connection is brokered by the Core API, not the dashboard.</responsibility>
+      <availability>required for the integration catalog; each individual integration is optional per tenant</availability>
+      <configuration>No composio API key lives in this repo — the dashboard only references Composio's metadata endpoints via the `images.remotePatterns` allow-list. The actual Composio connection flow runs on the Core API; the dashboard forwards the user's OAuth response back to the Core.</configuration>
+      <security>Credentials are never held in the dashboard. The dashboard's `Integration` type holds the integration name + the encrypted credential reference returned by the Core; the ciphertext lives in the Core's DynamoDB table behind KMS.</security>
+      <failure_behavior>Image fetch failure from `logos.composio.dev` → the card falls back to the local icon. Composio trigger creation failure (on the Core side) → the dashboard shows an error toast and retries the connection flow.</failure_behavior>
+      <deployment>Composio endpoints are public; the dashboard's allow-list covers both logo and metadata domains. No per-stage Composio config — the dashboard uses the same allow-list in staging and production.</deployment>
+      <affected_surfaces>`apps/dashboard/src/contexts/integrations/` (domain, infrastructure, presentation, api layers). The connection modal at `apps/dashboard/src/contexts/integrations/presentation/components/connection-modal.tsx`.</affected_surfaces>
+    </integration>
+    <contradictions>
+      The web repo's documentation drifts from the implementation in three known places. The implementation is treated as authoritative, and the spec states the actual values:
+      (1) docs/architecture/tech-stack.md, docs/architecture/overview.md and docs/packages/auth.md describe dashboard authentication as Auth.js v5 + Cognito OIDC and dashboard persistence as direct DynamoDB via AWS SDK v3 + KMS. The implementation uses Clerk (@clerk/nextjs v7) at runtime, proxies all data through the CauseFlow Core API (CORE_API_URL), and only touches DynamoDB directly in a temporary tenant-provisioning-fallback and a destructive user-deletion CLI script. The `packages/auth` package is retained as legacy reference and exposes only type re-exports to the dashboard. Concretely: dashboard auth = Clerk (not Auth.js/Cognito); dashboard data = Core API proxy (not direct DynamoDB); AWS SDK in this repo is limited to the tenant-provisioning-fallback and the user-deletion CLI script.
+      (2) docs/architecture/tech-stack.md and apps/website/.env.example (LOOPS_API_KEY) describe a Loops.so email-marketing integration exposed via the website's /api/notify route. The implementation has no /api directory under apps/website/src/app — the Loops.so integration has no current consumer in this codebase. The only Loops.so reference is in the CSP `connect-src` allow-list at apps/website/next.config.mjs. Concretely: Loops.so is declared as a planned integration in docs and env templates but no runtime code path consumes it.
+      (3) docs/architecture/tech-stack.md names pnpm 10.30.1 as the package manager version. The implementation pins `packageManager: pnpm@10.33.0` in package.json. Concretely: use pnpm 10.33.0 as the active version; the docs reference 10.30.1 which is stale.
+    </contradictions>
+  </integrations>
+
+  <prerequisites>
+    <environment_setup>
+      Node.js >= 24 (`.nvmrc` pins 24, package.json engines requires it). pnpm 10.33.0 enforced via `packageManager: pnpm@10.33.0` and corepack. SST deploys require AWS credentials (the dev workflow uses GitHub OIDC → AWS). Local Playwright E2E needs chromium (`pnpm exec playwright install chromium`); in the PRoot dev container Playwright uses the system `/usr/bin/chromium` (the playwright config auto-detects it via `existsSync`). The PRoot-specific SST-bun wrapper at `~/.config/sst/bin/bun` is required only when deploying from the PRoot container (delegates to `bun-real --backend=copyfile` to work around PRoot symlink limitations). Local dev: copy `apps/website/.env.example` → `apps/website/.env.local` and `apps/dashboard/.env.example` → `apps/dashboard/.env.local`; both work with a blank `CORE_API_URL` to use the mock client. CI: `.github/workflows/website-deploy.yml` and `.github/workflows/dashboard-deploy.yml` run on `ubuntu-latest` with `pnpm/action-setup@v4`, `actions/setup-node@v4` keyed off `.nvmrc`, and `--frozen-lockfile` install. Commands: `pnpm install`, `pnpm turbo build`, `pnpm turbo dev`, `pnpm turbo test`, `pnpm turbo lint`, `pnpm turbo check-types`, `pnpm exec biome check .`, `pnpm exec biome check --write .`, `pnpm vitest run`, `pnpm exec playwright test tests/`. Forbidden tools: `npm`, `npx`, `pnpm dlx playwright` (use `pnpm exec playwright`), ESLint, Prettier, Turbopack in PRoot. The .env.staging file referenced by Playwright exists at apps/dashboard/.env.staging and holds STAGING_TEST_USER / STAGING_TEST_PASSWORD for Playwright-only login — it is not loaded by the runtime.
+    </environment_setup>
+  </prerequisites>
+
+  <core_features>
+    <foundation>
+      - pnpm install bootstraps the workspace; pnpm turbo build builds all 7 packages and apps in dependency order with content-hash caching
+      - pnpm turbo dev starts the website (port 3000) and dashboard (port 3001) in parallel
+      - Website dev: `next dev --hostname 127.0.0.1` (PRoot-safe); dashboard dev: `next dev --hostname localhost -p 3001` (Clerk requires `localhost`, not `127.0.0.1`)
+      - pnpm turbo check-types runs tsc --noEmit across every package; the dashboard uses `tsc --noEmit --project tsconfig.build.json` to skip the Clerk type-test files
+      - pnpm exec biome check . runs the unified lint + format check; pnpm exec biome check --write . auto-fixes
+      - pnpm vitest run runs the 7-project test suite (shared / forms / analytics / auth / ui / website / dashboard)
+      - pnpm exec playwright test tests/ runs the E2E suite against chromium (4 viewports); webServer block auto-starts the production server on port 3000
+      - Each app follows the bounded-context re-export pattern: src/app/ holds thin re-exports only; every page delegates to contexts/<name>/presentation/pages/ and every API route to contexts/<name>/api/
+      - The Core API client at apps/dashboard/src/lib/api/{core-api-client,http-api-client,get-api-client,with-auth}.ts is the single boundary between the dashboard and the Core
+    </foundation>
+    <website>
+      - Localized marketing site with 9 EN routes (/) home, /product, /security, /integrations, /pricing, /use-cases + nested case studies, /privacy, /terms, /from-opsgenie) and the same routes mirrored under /pt-br/
+      - next-intl with ['en', 'pt-br'] locales, 'as-needed' prefix mode, hreflang tags on every page, language selector in the header
+      - Middleware pipeline: crawler detection (45+ bot patterns, never redirect bots) → staging-auth cookie check (staging only) → geo-redirect to /pt-br/ for Brazil (via CloudFront-Viewed-Country header) → Accept-Language quality-weighted detection → NEXT_LOCALE cookie (1-year max-age)
+      - Security headers: X-Frame-Options DENY, CSP (self + GA + Clarity + Loops allow-list), HSTS 2 years + preload, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy disables camera/microphone/geolocation
+      - /get-started is retired (redirects to the dashboard's real sign-up URL per stage)
+      - /staging-auth is the password gate for the staging deploy (STAGING_PASSWORD = causeflow-staging-2026)
+      - robots.txt returns Disallow: / with noindex, nofollow meta tags on staging
+      - sitemap.ts generates the XML sitemap for all routes × locales
+      - structured-data.tsx injects JSON-LD (Organization, Website, FAQ) on home / product
+      - Per-context i18n files in apps/website/src/contexts/{marketing,legal,shell}/infrastructure/i18n/ are deep-merged by src/lib/i18n/compose.ts
+      - 25+ reusable section components live in apps/website/src/contexts/marketing/presentation/components/sections/
+      - sync-integrations-catalog.mjs under apps/website/scripts/ keeps the website's integration cards in sync with the canonical catalog
+    </website>
+    <dashboard>
+      - Clerk-authenticated SSR dashboard with 8 route groups: /auth (sign-in, sign-up, forgot-password, verify-email), /onboarding (complete-profile, choose-plan), /beta-waitlist, /dashboard (overview, analyses, new, [id], integrations, team, settings, billing, audit, intelligence, topology, relay, incidents), /api (44 endpoints), /accept-invitation, /waitlist, /create-organization
+      - Middleware pipeline: staging-auth → public route bypass → clerkMiddleware() → profile-completion guard → i18n
+      - RBAC: 9 permissions × 2 roles (admin / member) defined at apps/dashboard/src/contexts/identity/domain/rbac/permissions.ts; usePermission hook + RoleGuard component enforce at component level; withAuth HOC enforces at API level
+      - Credits system: free plan = 3 credits/month (lazy renewal every 30 days via GET /api/metrics); starter 20 / pro 75 / business 200 / enterprise unlimited; 1 credit per analysis; 402 + CREDITS_EXHAUSTED on exhaustion; single source of truth = packages/shared/src/domain/constants/plans.ts
+      - 15 integration types: Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks
+      - 9 bounded contexts: investigation, approvals, audit, identity, onboarding, team, integrations, billing, settings, shared
+      - 44 API routes: billing (5) + settings (5) + incidents (2) + approvals (3) + relay (1) + memory (3) + topology (3) + health (1) + notifications (2) + pattern-analytics (1) + onboarding + complete-profile + team + integrations (1+1) + 14 more
+      - Live SSE feed for incident detail pages (clerkMiddleware does not block streaming; the Core's SSE is forwarded as a streaming Next.js response)
+      - Plan gate: a plan is "active" only when Core returns status ∈ {active, trialing} AND currentPeriodEnd is set (blocks the bug where fresh tenants silently bypass the gate)
+      - lvh.me loopback rewrite: Core's WAF rejects Stripe callbacks containing `localhost` or 127.0.0.1; the checkout/portal handlers rewrite the URL host to lvh.me (a public-DNS loopback alias) before sending
+      - CLI scripts: add-credits.ts (Core API call to add credits to a tenant), setup-stripe.ts (create Stripe products + prices programmatically), delete-user.ts (destructive — purges Clerk + Stripe + Core DynamoDB for a tenant)
+      - Mock mode: blank CORE_API_URL falls through to the mock Core API client; the dashboard runs end-to-end with no external service
+    </dashboard>
+    <testing_and_observability>
+      - Vitest 7 projects (shared / forms / analytics / auth / ui / website / dashboard), forks pool, max 3 workers, dashboard project has a 15s per-test timeout
+      - Playwright 4 viewports (mobile 375×812, tablet 768×1024, desktop 1280×800, wide 1440×900), chromium only, workers 3, fully parallel, trace/video/screenshot off
+      - Playwright test.beforeEach blocks analytics (GA4, Clarity) and tracker domains
+      - Sentry wired at three runtime boundaries (server / edge / client) with identical PII scrubbing in every beforeSend hook
+      - pino structured JSON logs in apps/dashboard/src/lib/logger.ts; request logger middleware logs every authenticated request
+      - Verification protocol for dashboard changes: local Playwright with the mock client → staging login via web/apps/dashboard/.env.staging creds → aws logs tail /ecs/causeflow-staging-api --follow for staging verification → ship a Playwright spec with every PR
+    </testing_and_observability>
+    <open-source-local-runtime>
+      - Goal: the `web` workspace (website + dashboard) runs end-to-end via `docker compose up` from the monorepo root with zero paid/external SaaS credentials configured. The website's SSG/SSR rendering and the dashboard's full data plane (via the local Core API) work without Clerk, Stripe, AWS, Sentry, or SST. Only the website's optional analytics (GA4 / Microsoft Clarity) remain gated on env vars being set; the dashboard's Sentry no-ops when the DSN is empty. This mirrors the `core` subproject's `open-source-local-runtime` context so the two halves of the platform evolve as a single open-source codebase.
+      - Auth: local JWT auth replaces Clerk. The Core (per its own `open-source-local-runtime` context) exposes `POST /api/v1/auth/login` + `POST /api/v1/auth/register` + `GET /api/v1/whoami` and issues a short-lived JWT signed with `JWT_SECRET`. The dashboard's `apps/dashboard/src/middleware.ts` replaces `clerkMiddleware()` with a thin `verifyJwtCookie()` helper; the JWT is stored in an `__session` httpOnly cookie. `withAuth` reads the cookie and delegates to the Core's `whoami` to resolve user/tenant/role. `clerkMiddleware()`, the Clerk user-button, the Clerk-hosted sign-in/sign-up UI, and every `@clerk/*` import are removed from the dashboard's runtime. The existing `<SignIn />` / `<SignUp />` mount points become local React forms that POST to a dashboard route handler which calls the Core's `auth/login` and sets the cookie.
+      - Billing: the dashboard's Stripe React SDK (`@stripe/react-stripe-js`, `@stripe/stripe-js`, the `stripe` server SDK) is removed. `payment-modal.tsx` becomes a stub that POSTs to the Core's `StubBillingService` (which returns 410 Gone for `POST /api/v1/billing/checkout-session` per the Core's AC-043) and renders a "billing disabled in OSS build" message. The plan catalog stays in `packages/shared/src/domain/constants/plans.ts`; the plan-gate renders correctly against the Core's stub subscription response (`{ plan: 'free', status: 'active' }`).
+      - Persistence: the dashboard's only persistence is the JWT cookie and the request-time Core API proxy. `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts` is removed (the OSS Core handles provisioning inside its own `register` endpoint). `@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, and `@aws-sdk/client-cognito-identity-provider` are removed from `apps/dashboard/package.json` and from the root `package.json`. The `serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider']` block in `apps/dashboard/next.config.mjs` is removed.
+      - CLI scripts: `apps/dashboard/scripts/setup-stripe.ts` and `apps/dashboard/scripts/delete-user.ts` are removed (the former calls Stripe to create products + prices; the latter calls Stripe + DynamoDB to cancel + purge). `apps/dashboard/scripts/add-credits.ts` keeps its Core API call (no AWS or Stripe dependency).
+      - Deployment: `apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` are removed. Both apps run as plain Node processes inside Docker (the same multi-stage pattern as the `relay` subproject's `Dockerfile` — a builder stage that runs `pnpm install --frozen-lockfile` + `pnpm build`, then a runtime stage with `pnpm start`). The two `.github/workflows/*-deploy.yml` workflows drop the `sst deploy` step; production deploys are an out-of-band image publish + container run on the operator's host of choice.
+      - Sentry: the three `beforeSend` hooks in `apps/dashboard/instrumentation.ts`, `apps/dashboard/instrumentation-client.ts`, `apps/dashboard/sentry.server.config.ts`, and `apps/dashboard/sentry.edge.config.ts` stay in place; with `NEXT_PUBLIC_SENTRY_DSN` empty the SDK no-ops at init and no network call is made. The `withSentryConfig` wrapper in `apps/dashboard/next.config.mjs` is removed (source maps are not uploaded to a hosted Sentry project on the OSS build; the operator can re-enable by setting the three `SENTRY_*` build-time vars and adding the wrapper back).
+      - Composio: `logos.composio.dev` and `backend.composio.dev` are removed from `next.config.mjs#images.remotePatterns`. The `composioTriggerId` field is removed from the `Integration` domain type. The 15 integration cards stay in the UI; their "Connect" CTA POSTs to the Core's stub integration endpoint (which returns 200 with deterministic empty data).
+      - Loops.so: the `connect-src` CSP entry for `https://app.loops.so` is removed from `apps/website/next.config.mjs` (no consumer in the OSS build). `LOOPS_API_KEY` is removed from `apps/website/.env.example`.
+      - lvh.me loopback: the `lvh.me` rewrite in the dashboard's middleware and checkout/portal handlers is removed (no Stripe callbacks to rewrite).
+      - `packages/auth/`: retained as legacy reference. The `UserRole` type re-export used by the dashboard's RBAC tests stays. Runtime auth is owned by Core in the OSS build; the dashboard does not import from `@causeflow/auth` at runtime.
+      - .env.example ships with only `NEXT_PUBLIC_*` variables (GA4 / Clarity are optional, blank = no-op) + `CORE_API_URL` (default `http://core-api:3099` for the docker-compose network) + `JWT_SECRET` (shared with the Core container, for the dashboard's local JWT verification). `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*` (build-time), `LOOPS_*`, and SST-injected vars are all removed from the example file.
+      - `docker compose up -d` from the monorepo root brings up: `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api`, `causeflow-worker`, `causeflow-website` (port 3000), `causeflow-dashboard` (port 3001), plus the customer sample services from the Core's OSS compose. No SST, no `sst deploy`, no AWS credentials are loaded.
+      - The 43 original web acceptance checks still pass against the open-source stack: marketing site, RBAC, credits, plan gate, 44 API routes, integrations, billing, audit, intelligence, topology, memory, notifications, approvals, observability.
+    </open-source-local-runtime>
+  </core_features>
+
+  <non_goals>
+    - Owning any persistent data. The web apps are a UI + Clerk proxy; all entities live in the Core API's DynamoDB single-table design and the dashboard never holds credentials at rest
+    - Running Auth.js v5 + Cognito at runtime. The `packages/auth` package is retained as legacy reference and exposes only type re-exports to the dashboard
+    - Replacing the Core API. The dashboard never implements business logic that should live on the Core; it is a thin Clerk-authenticated proxy
+    - Browser-only deployments. Both apps require Node.js 24 at build time; the website builds static assets but the build pipeline itself needs Node
+  </non_goals>
+
+  <acceptance_checks>
+    <acceptance_check id="AC-001" context="foundation" category="foundation" depends_on="">
+      <title>pnpm install bootstraps the pnpm/Turborepo workspace</title>
+      <description>From a clean checkout, `pnpm install` (with the pnpm version pinned by `packageManager: pnpm@10.33.0` in `package.json`) bootstraps all 7 workspace members and exits 0. `node_modules/` exists at the root and resolves every declared runtime dependency of each workspace member listed in `pnpm-workspace.yaml` (apps/website, apps/dashboard, packages/shared, packages/ui, packages/analytics, packages/auth, packages/forms); per-member `node_modules/` directories appear only where pnpm version-isolation requires them (apps/website, apps/dashboard, packages/ui). The .npmrc pins `node-linker=hoisted`, `package-import-method=copy`, `auto-install-peers=true`, and `strict-peer-dependencies=false`. Re-running `pnpm install --frozen-lockfile` exits 0 against the committed pnpm-lock.yaml.</description>
+      <steps>
+        <step>Step 1: Run `pnpm install --frozen-lockfile` and confirm exit code 0 with no peer-dep failures.</step>
+        <step>Step 2: Verify `node_modules/` exists at the root and that every workspace member listed in pnpm-workspace.yaml resolves every one of its declared runtime dependencies (from the hoisted root under `node-linker=hoisted`); per-member `node_modules/` directories appear only where pnpm version-isolation requires them.</step>
+        <step>Step 3: Verify .npmrc pins node-linker=hoisted, package-import-method=copy, auto-install-peers=true, strict-peer-dependencies=false.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-002" context="foundation" category="foundation" depends_on="AC-001">
+      <title>pnpm turbo dev brings up website on $PORT (default 3000) and dashboard on $PORT+1 (3001) in parallel</title>
+      <description>After `pnpm install`, `pnpm turbo dev` starts both apps in parallel with content-hash caching. The website answers on the port passed in $PORT (default 3000) and the dashboard on $PORT+1 (default 3001). `curl -s -o /dev/null -w '%{http_code}' http://localhost:${PORT}` returns 200 for the website homepage and `curl -s -o /dev/null -w '%{http_code}' http://localhost:$((PORT+1))` returns 200 for the dashboard landing page. The dev process stays in the foreground until killed.</description>
+      <steps>
+        <step>Step 1: Run `PORT=3000 pnpm turbo dev` and tail `dev.log`.</step>
+        <step>Step 2: Poll `curl http://localhost:3000/` until it returns 200; then poll `curl http://localhost:3001/` until 200.</step>
+        <step>Step 3: Kill the dev process and confirm the script reports "Ready" once for each port.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-003" context="foundation" category="foundation" depends_on="AC-001">
+      <title>pnpm turbo check-types runs tsc --noEmit across every workspace project</title>
+      <description>`pnpm turbo check-types` runs `tsc --noEmit` (dashboard uses `tsc --noEmit --project tsconfig.build.json` to skip the Clerk type-test files) across all 7 workspace members in dependency order, exits 0, and prints a per-task success summary. The root `tsconfig.base.json` enables `strict: true` plus `noUncheckedIndexedAccess` and `moduleResolution: bundler`. Re-running it after intentionally introducing a type error inside `packages/shared/src/lib/example.ts` makes the command exit non-zero with a TS2xxx error.</description>
+      <steps>
+        <step>Step 1: Run `pnpm turbo check-types` and confirm exit 0 with every task reporting "successful".</step>
+        <step>Step 2: Confirm `tsconfig.base.json` enables strict, noUncheckedIndexedAccess, moduleResolution=bundler.</step>
+        <step>Step 3: Confirm `apps/dashboard/tsconfig.build.json` is referenced so Clerk type tests are excluded.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-004" context="foundation" category="foundation" depends_on="AC-001">
+      <title>pnpm exec biome check . runs the unified lint+format check; pnpm exec biome check --write . auto-fixes</title>
+      <description>Biome 2.4.4 (`biome.json` at the repo root) is the single lint+format tool. `pnpm exec biome check .` exits 0 against a clean tree. Introducing a malformed import (e.g. an ungrouped import that should be Biome-sorted) makes `pnpm exec biome check .` exit non-zero with a specific BIOME-### violation. `pnpm exec biome check --write .` re-runs the same check, auto-fixes the violation, and exits 0 on the same tree. ESLint and Prettier configs do not exist anywhere in the repo.</description>
+      <steps>
+        <step>Step 1: Run `pnpm exec biome check .` and confirm exit 0.</step>
+        <step>Step 2: Confirm `biome.json` exists at the repo root and Biome 2.4.4 is in devDependencies.</step>
+        <step>Step 3: Confirm no .eslintrc, .prettierrc, or eslint.config.* file exists anywhere under the repo.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-005" context="foundation" category="foundation" depends_on="AC-001">
+      <title>pnpm vitest run executes the 7-project test suite</title>
+      <description>The root `vitest.config.ts` defines 7 projects (shared, forms, analytics, auth, ui, website, dashboard) using a forks pool with a maximum of 3 workers. `pnpm vitest run` (also `pnpm turbo test`) executes the full suite, exits 0 when green, and prints per-project pass/fail counts. The dashboard project has a 15s per-test timeout; the others use the default.</description>
+      <steps>
+        <step>Step 1: Run `pnpm vitest run` and confirm exit 0 with all 7 projects reporting a pass count.</step>
+        <step>Step 2: Confirm `vitest.config.ts` declares projects for shared, forms, analytics, auth, ui, website, dashboard.</step>
+        <step>Step 3: Confirm the dashboard project config sets a 15s per-test timeout.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-006" context="foundation" category="foundation" depends_on="AC-001">
+      <title>pnpm exec playwright test tests/ runs the E2E suite against chromium</title>
+      <description>`pnpm exec playwright test tests/` runs the Playwright 1.58.2 E2E suite under `tests/` (audit.spec.ts and visual-functional.spec.ts) against chromium only, 4 viewports (mobile 375×812, tablet 768×1024, desktop 1280×800, wide 1440×900), workers 3, fully parallel, with trace/video/screenshot disabled. The `playwright.config.ts` webServer block auto-starts the production server on port 3000 if not already running. The suite blocks analytics + tracker domains (google-analytics.com, *.clarity.ms, Intercom) in test.beforeEach.</description>
+      <steps>
+        <step>Step 1: Run `pnpm exec playwright test tests/` and confirm exit 0 with a green report.</step>
+        <step>Step 2: Confirm `playwright.config.ts` configures chromium-only, 3 workers, fullyParallel, 4 projects for the 4 viewports.</step>
+        <step>Step 3: Confirm test.beforeEach in `tests/audit.spec.ts` and `tests/visual-functional.spec.ts` routes requests to analytics / clarity / Intercom domains through `page.route()` blocks.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-007" context="foundation" category="foundation" depends_on="AC-001">
+      <title>pnpm turbo build builds all 7 packages and apps in dependency order</title>
+      <description>`pnpm turbo build` (root `turbo.json` with `build: { cache: true }`) runs the build for every workspace member in topological dependency order with content-hash caching, exits 0, and emits per-task success output. The website build produces a static export served from CloudFront + S3; the dashboard build runs `tsc --noEmit --project tsconfig.build.json` and emits a Next.js Lambda@Edge bundle. After the build, `.next/` exists at the root of both apps.</description>
+      <steps>
+        <step>Step 1: Run `pnpm turbo build` and confirm exit 0 with every task successful.</step>
+        <step>Step 2: Confirm `.next/` exists under `apps/website/` and `apps/dashboard/` after the build.</step>
+        <step>Step 3: Confirm `turbo.json` sets `build: { cache: true }` and the dashboard's build script invokes `tsc --noEmit --project tsconfig.build.json`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-008" context="foundation" category="functional" depends_on="">
+      <title>Bounded-context re-export pattern: src/app/ holds thin re-exports only</title>
+      <description>Every page under `apps/website/src/app/[locale]/*/page.tsx` and `apps/dashboard/src/app/[locale]/*/page.tsx` is a 1-3 line thin re-export that delegates to a context's `presentation/pages/<name>-page.tsx`. Every API route under `apps/dashboard/src/app/api/*/route.ts` is a thin re-export that delegates to a context's `api/<name>-handler.ts`. Cross-context imports use direct deep paths — context `index.ts` barrel files do not exist in either app. `next.config.mjs` for both apps configures `optimizePackageImports` for Clerk, lucide-react, and every internal `@causeflow/*` package.</description>
+      <steps>
+        <step>Step 1: Pick 3 random `apps/website/src/app/[locale]/**/page.tsx` files and confirm each is a single-line re-export.</step>
+        <step>Step 2: Pick 3 random `apps/dashboard/src/app/api/**/route.ts` files and confirm each is a single-line re-export.</step>
+        <step>Step 3: Confirm no `index.ts` barrel file exists under either `apps/website/src/contexts/` or `apps/dashboard/src/contexts/`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-009" context="foundation" category="functional" depends_on="AC-001">
+      <title>Mock-mode fallback: blank CORE_API_URL falls through to the mock Core API client</title>
+      <description>`apps/dashboard/src/lib/api/get-api-client.ts` resolves to `mock-api-client.ts` when `CORE_API_URL` is unset, and to `http-api-client.ts` otherwise. With `CORE_API_URL` blank in `apps/dashboard/.env.local`, `pnpm --filter dashboard dev` starts and every page that calls `getApiClient()` (analyses, billing, settings, team, integrations, audit, intelligence, topology, memory, notifications, approvals) renders against the mock client without contacting any external service. Setting `CORE_API_URL` to a non-existent host instead causes the same pages to fail-fast with a fetch error.</description>
+      <steps>
+        <step>Step 1: With `CORE_API_URL` blank, start `pnpm --filter dashboard dev` (port 3001) and load `/dashboard`.</step>
+        <step>Step 2: Confirm every navigation renders without a network error in the dev log.</step>
+        <step>Step 3: Set `CORE_API_URL=http://127.0.0.1:1` and confirm the same navigation surfaces a fetch failure in the dev log.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-010" context="website" category="functional" depends_on="AC-002">
+      <title>9 EN routes return 200 and mirror under /pt-br/</title>
+      <description>The website exposes 9 EN routes (/, /product, /security, /integrations, /pricing, /use-cases, /from-opsgenie, /privacy, /terms) each returning HTTP 200. The same 9 routes are mirrored under /pt-br/ (so /pt-br/, /pt-br/product, ... /pt-br/terms) and return 200 with the Portuguese content. Each page renders the localized content from the per-context i18n files at `apps/website/src/contexts/{marketing,legal,shell}/infrastructure/i18n/pt-br.json`.</description>
+      <steps>
+        <step>Step 1: With the dev server up, `for path in / /product /security /integrations /pricing /use-cases /from-opsgenie /privacy /terms; do curl -s -o /dev/null -w "$path %{http_code}\n" http://localhost:3000$path; done` and confirm every line ends in 200.</step>
+        <step>Step 2: Repeat with `http://localhost:3000/pt-br$path` and confirm every line ends in 200.</step>
+        <step>Step 3: Confirm the response body for `/pricing` vs `/pt-br/pricing` contains different language (e.g. English vs Portuguese copy).</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-011" context="website" category="functional" depends_on="AC-010">
+      <title>next-intl wiring: ['en','pt-br'] locales, 'as-needed' prefix, hreflang tags, language selector</title>
+      <description>`apps/website/src/i18n/routing.ts` declares `locales: ['en','pt-br']`, `defaultLocale: 'en'`, `localePrefix: 'as-needed'`, `localeDetection: false`. `lib/metadata.ts#generatePageMetadata()` emits canonical + hreflang alternates on every page; the response body for `/` contains a `<link rel="alternate" hreflang="en" ...>`, a `<link rel="alternate" hreflang="pt-br" ...>`, and a `<link rel="alternate" hreflang="x-default" ...>`. The header renders a language selector that links to the same page under the other locale.</description>
+      <steps>
+        <step>Step 1: `curl http://localhost:3000/` and grep the response for `hreflang="en"`, `hreflang="pt-br"`, `hreflang="x-default"`.</step>
+        <step>Step 2: Confirm `apps/website/src/i18n/routing.ts` matches the documented locale config.</step>
+        <step>Step 3: Load the homepage in a browser and confirm the header renders a language selector linking to `/pt-br/`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-012" context="website" category="functional" depends_on="AC-002">
+      <title>Website middleware pipeline: crawler detection → staging auth → geo-redirect → Accept-Language → NEXT_LOCALE cookie</title>
+      <description>`apps/website/src/middleware.ts` runs the documented pipeline. (1) Crawler detection: 45+ bot user-agent substrings (googlebot, bingbot, slurp, ...) never get redirected. A request with `User-Agent: Googlebot/2.1` to `/` returns 200 with the canonical EN URL, not a geo-redirect. (2) Staging auth: when `NEXT_PUBLIC_DEPLOYMENT_STAGE === 'staging'`, requests without the staging cookie get bounced to `/staging-auth`. (3) Geo-redirect: a request with `Cloudfront-Viewer-Country: BR` to `/` returns a 307 to `/pt-br/`. (4) Accept-Language: a request with `Accept-Language: pt-BR,en;q=0.8` to `/` returns 307 to `/pt-br/`. (5) NEXT_LOCALE cookie: a request with the cookie set to `pt-br` to `/` returns 307 to `/pt-br/`, and the cookie carries `Max-Age=31536000`.</description>
+      <steps>
+        <step>Step 1: Send `curl -H 'User-Agent: Googlebot/2.1' http://localhost:3000/` and confirm the response is 200, not a redirect.</step>
+        <step>Step 2: Send `curl -H 'Cloudfront-Viewer-Country: BR' http://localhost:3000/` and confirm a 307 to /pt-br/.</step>
+        <step>Step 3: Send `curl -H 'Accept-Language: pt-BR,en;q=0.8' -i http://localhost:3000/` and confirm a 307 to /pt-br/; then re-send with `Cookie: NEXT_LOCALE=pt-br` and confirm 307 with `Set-Cookie: NEXT_LOCALE=pt-br; Max-Age=31536000`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-013" context="website" category="security" depends_on="AC-002">
+      <title>Website security headers: X-Frame-Options DENY, CSP, HSTS 2y+preload, Referrer-Policy, Permissions-Policy</title>
+      <description>Every response from the website (including SSG pages) carries: `X-Frame-Options: DENY`; a `Content-Security-Policy` that allow-lists `self`, GA4 (`https://www.googletagmanager.com`, `https://www.google-analytics.com`), Microsoft Clarity (`https://*.clarity.ms`), and Loops (`https://app.loops.so`); `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`; `Referrer-Policy: strict-origin-when-cross-origin`; and a `Permissions-Policy` that disables camera, microphone, and geolocation. Headers are defined in `apps/website/next.config.mjs` and apply to every route.</description>
+      <steps>
+        <step>Step 1: `curl -I http://localhost:3000/` and confirm every required header is present with the documented value.</step>
+        <step>Step 2: Confirm `apps/website/next.config.mjs` defines the headers() block with the documented CSP, HSTS, Referrer-Policy, and Permissions-Policy values.</step>
+        <step>Step 3: Send the same request to `/pt-br/` and confirm the header set is identical.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-014" context="website" category="functional" depends_on="AC-002">
+      <title>/get-started is retired; redirects to the dashboard's real sign-up URL per stage</title>
+      <description>`/get-started` is no longer a valid route in the website. `next.config.mjs` declares a `redirects()` block that maps `/get-started` (and `/pt-br/get-started`) to the per-stage sign-up URL: production → `https://dashboard.causeflow.ai/auth/sign-up`; staging → `https://dashboard-staging.causeflow.ai/auth/sign-up`. `curl -I http://localhost:3000/get-started` returns 307/308 with a Location header pointing at the dashboard sign-up URL.</description>
+      <steps>
+        <step>Step 1: `curl -I http://localhost:3000/get-started` and confirm a 307/308 with Location set to the dashboard sign-up URL.</step>
+        <step>Step 2: Confirm the same redirect applies to `/pt-br/get-started`.</step>
+        <step>Step 3: Confirm `apps/website/next.config.mjs` contains a redirects() entry keyed on `/get-started`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-015" context="website" category="functional" depends_on="AC-002">
+      <title>/staging-auth is the password gate for the staging deploy (STAGING_PASSWORD=causeflow-staging-2026)</title>
+      <description>When the website is deployed to staging, requests to any non-asset URL without the `staging-authorized` cookie are redirected to `/staging-auth`, which renders a password form. Submitting the documented password `causeflow-staging-2026` (set in `apps/website/sst.config.ts`) sets the staging-authorized cookie and redirects back to the originally-requested URL. In local dev (`NEXT_PUBLIC_DEPLOYMENT_STAGE !== 'staging'`), the gate is bypassed.</description>
+      <steps>
+        <step>Step 1: With `NEXT_PUBLIC_DEPLOYMENT_STAGE=staging` set, `curl -I http://localhost:3000/` and confirm a 307 to `/staging-auth`.</step>
+        <step>Step 2: Submit the documented password and confirm the staging-authorized cookie is set and the original URL is followed.</step>
+        <step>Step 3: Confirm the password is read from `apps/website/sst.config.ts` (production + staging) and that local dev bypasses the gate.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-016" context="website" category="functional" depends_on="AC-002">
+      <title>robots.ts (noindex on staging) + sitemap.ts (XML for all routes×locales) + structured-data.tsx (JSON-LD)</title>
+      <description>`apps/website/src/app/robots.ts` returns a robots response that disallows crawling (`Disallow: /`) when `NEXT_PUBLIC_DEPLOYMENT_STAGE === 'staging'` and allows it otherwise. `apps/website/src/app/sitemap.ts` generates an XML sitemap that includes every route × locale (EN + PT-BR). `apps/website/src/contexts/marketing/presentation/components/sections/structured-data.tsx` injects JSON-LD blocks (Organization, Website, FAQPage) into the home and product pages — `curl http://localhost:3000/` includes `<script type="application/ld+json">` payloads for each schema.</description>
+      <steps>
+        <step>Step 1: `curl http://localhost:3000/robots.txt` and confirm a `Disallow: /` line on staging or an empty/allow on production.</step>
+        <step>Step 2: `curl http://localhost:3000/sitemap.xml` and confirm an XML payload with one entry per route × locale.</step>
+        <step>Step 3: `curl http://localhost:3000/` and grep for `<script type="application/ld+json">`; confirm the payload parses to JSON with `@type: Organization`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-017" context="website" category="functional" depends_on="AC-001">
+      <title>Per-context i18n files are deep-merged by apps/website/src/lib/i18n/compose.ts</title>
+      <description>Each website context owns its translations at `apps/website/src/contexts/{marketing,legal,shell}/infrastructure/i18n/{en,pt-br}.json`. `apps/website/src/lib/i18n/compose.ts` deep-merges all per-context JSON files into a single next-intl message tree at build time. Editing `marketing/infrastructure/i18n/en.json` to add a new key (e.g. `home.hero.cta`) and referencing it via `useTranslations('home.hero')` on the homepage renders the new key; the change is reflected on both `http://localhost:3000/` and `http://localhost:3000/pt-br/` (the latter reads `pt-br.json`).</description>
+      <steps>
+        <step>Step 1: Confirm the per-context i18n files exist for marketing, legal, and shell in both en.json and pt-br.json.</step>
+        <step>Step 2: Confirm `apps/website/src/lib/i18n/compose.ts` deep-merges the per-context files.</step>
+        <step>Step 3: Add a sentinel key to one of the per-context files, rebuild / restart dev, and confirm it surfaces on the matching page in both EN and PT-BR.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-018" context="website" category="analytics" depends_on="AC-002">
+      <title>GA4 + Microsoft Clarity loaded via AnalyticsProvider; no-op when env vars are empty</title>
+      <description>`packages/analytics/src/infrastructure/ga4/index.ts` exposes `initGA4` and `trackGA4PageView`; `packages/analytics/src/infrastructure/clarity/index.ts` exposes `initClarity`. The AnalyticsProvider mounted by `apps/website/src/app/[locale]/layout.tsx` calls both when `NEXT_PUBLIC_GA4_MEASUREMENT_ID` and `NEXT_PUBLIC_CLARITY_ID` are set, and is a no-op when they are blank. With both env vars empty, the homepage does not make any request to `https://www.google-analytics.com` or `https://www.clarity.ms` (verifiable via Playwright network logging). When set, the page emits a gtag config call and a Clarity init call on first paint.</description>
+      <steps>
+        <step>Step 1: With both env vars blank, load `/` in Playwright with network logging and confirm zero requests to google-analytics.com or *.clarity.ms.</step>
+        <step>Step 2: Set `NEXT_PUBLIC_GA4_MEASUREMENT_ID=G-TEST` and `NEXT_PUBLIC_CLARITY_ID=TEST`, reload `/`, and confirm a gtag config + Clarity init request are made.</step>
+        <step>Step 3: Confirm the AnalyticsProvider is mounted at the website root layout and the analytics package never imports from contexts that hold auth tokens.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-019" context="dashboard" category="security" depends_on="AC-002">
+      <title>Clerk middleware: unauthenticated /dashboard access redirects to /auth/sign-in</title>
+      <description>`apps/dashboard/src/middleware.ts` is wrapped in `clerkMiddleware()` from `@clerk/nextjs/server`. A request to `http://localhost:3001/dashboard` (or any non-public route) without a Clerk session returns a 307 to `/auth/sign-in`. `GET /api/health/detailed` and `/api/billing/webhook` are explicitly public-route-matched and skip auth. After a successful Clerk sign-in the original URL is followed.</description>
+      <steps>
+        <step>Step 1: With the dev server up, `curl -I http://localhost:3001/dashboard` and confirm a 307 Location to `/auth/sign-in`.</step>
+        <step>Step 2: Confirm the same redirect happens for `/dashboard/analyses`, `/dashboard/billing`, and `/dashboard/integrations`.</step>
+        <step>Step 3: Confirm `GET /api/health/detailed` returns 200 without a session.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-020" context="dashboard" category="functional" depends_on="AC-019">
+      <title>Dashboard middleware pipeline: staging auth → public bypass → clerkMiddleware → profile guard → i18n</title>
+      <description>`apps/dashboard/src/middleware.ts` runs the documented pipeline in order. The `isPublicRoute` matcher includes `/api/health(.*)`, `/api/ingestion/webhook`, `/auth/(.*)`, `/accept-invitation(.*)`, `/beta-waitlist(.*)`, `/waitlist(.*)`, `/create-organization(.*)`, and the locale-prefixed equivalents. A request to a non-public route with a valid Clerk session but no Clerk organization is redirected to `/create-organization`. Authenticated requests that have an org reach the page; unauthenticated requests are redirected to `/auth/sign-in` before the org check runs.</description>
+      <steps>
+        <step>Step 1: Confirm `isPublicRoute` in `apps/dashboard/src/middleware.ts` matches every documented public route + its locale-prefixed variant.</step>
+        <step>Step 2: Sign in with a Clerk session that has no `orgId` and confirm navigation to `/dashboard` is redirected to `/create-organization`.</step>
+        <step>Step 3: Sign in with a Clerk session that has an `orgId` and confirm the dashboard renders without a redirect.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-021" context="dashboard" category="security" depends_on="AC-019">
+      <title>RBAC: 9 permissions × 2 roles enforced at API level (withAuth) and component level (RoleGuard)</title>
+      <description>`apps/dashboard/src/contexts/identity/domain/rbac/permissions.ts` defines 9 permissions (MANAGE_TEAM, MANAGE_INTEGRATIONS, MANAGE_BILLING, MANAGE_SETTINGS, SUBMIT_ANALYSIS, VIEW_ANALYSES, VIEW_INTEGRATIONS, VIEW_BILLING, VIEW_SETTINGS, VIEW_TEAM) and the `hasPermission(role, permission)` predicate. The role map assigns all 9 to `admin` and 5 read/submit permissions to `member`. `withAuth(handler, { adminOnly: true })` returns 403 for member; `withAuth(handler, { requiredRole: 'admin' })` does the same. `RoleGuard` + the `usePermission` hook hide admin-only UI controls for members. `requirePermission(role, perm)` throws server-side before the handler runs.</description>
+      <steps>
+        <step>Step 1: Confirm `permissions.ts` defines exactly 9 permission constants and the admin / member permission arrays match the documented sets.</step>
+        <step>Step 2: As a member, `POST /api/billing/checkout` (adminOnly) returns 403; the same call as an admin returns the proxied response from Core.</step>
+        <step>Step 3: Render a page that wraps an admin-only button in `<RoleGuard permission="manage_billing">` and confirm the button is hidden for member and visible for admin.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-022" context="dashboard" category="functional" depends_on="AC-019">
+      <title>Credits system: free plan = 3 credits/month lazy-renewed every 30 days; 402 CREDITS_EXHAUSTED on exhaustion; plans.ts is the single source of truth</title>
+      <description>`packages/shared/src/domain/constants/plans.ts` is the single source of truth for plan catalog (starter=15, pro=60, business=200 credits/month, enterprise=unlimited). The free plan grants 3 credits/month, renewed lazily on the next `GET /api/metrics` call once 30 days have elapsed. Submitting a new analysis decrements by 1; when credits reach 0, `POST /api/incidents` returns `402` with `{ code: 'CREDITS_EXHAUSTED' }`. Credits stay active during `canceling` status until `currentPeriodEnd`.</description>
+      <steps>
+        <step>Step 1: Confirm `packages/shared/src/domain/constants/plans.ts` defines the documented plan catalog and `getCreditsForPlan()` returns the documented counts.</step>
+        <step>Step 2: As a free-plan tenant with 0 credits, `POST /api/incidents` returns 402 with body `{ "code": "CREDITS_EXHAUSTED" }`.</step>
+        <step>Step 3: As a free-plan tenant with 1 credit remaining, `POST /api/incidents` returns 200 and a subsequent call returns 402 CREDITS_EXHAUSTED.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-023" context="dashboard" category="functional" depends_on="AC-022">
+      <title>Plan gate: active only when status ∈ {active, trialing} AND currentPeriodEnd is set</title>
+      <description>`apps/dashboard/src/contexts/billing/application/plan-status.ts#fetchPlanStatus` returns `hasActivePlan: true` only when the Core API's `GET /v1/billing/subscription` returns `status ∈ {active, trialing}` AND `currentPeriodEnd` is set. Fresh tenants whose Core subscription has `status='active'` but no `currentPeriodEnd` (because they have never completed Stripe checkout) return `hasActivePlan: false`, which the dashboard layout uses to render the plan gate. The Core API default of `status='active'` for never-subscribed tenants is overridden by the missing `currentPeriodEnd` check.</description>
+      <steps>
+        <step>Step 1: As a fresh tenant with Core returning `{ status: 'active', currentPeriodEnd: null }`, `getPlanStatus()` returns `hasActivePlan: false` and the dashboard layout renders the plan gate.</step>
+        <step>Step 2: As a paid tenant with Core returning `{ status: 'active', currentPeriodEnd: '2026-12-31T...' }`, `getPlanStatus()` returns `hasActivePlan: true` and the dashboard renders.</step>
+        <step>Step 3: Confirm `plan-status.ts` documents the cross-check rationale (the Core API defaults to active for fresh tenants).</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-024" context="dashboard" category="functional" depends_on="AC-019">
+      <title>44 API routes: each route delegates to contexts/&lt;name&gt;/api/&lt;name&gt;-handler.ts</title>
+      <description>The dashboard's `src/app/api/` directory contains 44 route handlers. Every file is a thin re-export that delegates to a context's `api/<name>-handler.ts`. Routes are grouped by context: billing (checkout, portal, webhook, subscription, usage), settings (settings, api-keys), incidents (list, feedback), approvals (list, pending, respond), relay (status), memory (insights, summary, ask), topology (list, [id], health), health (detailed), notifications (list, patch), pattern-analytics, onboarding (complete-profile, connect-integration), team (list, invite, invites, invite-email, user, user-role), integrations (list, type, oauth-authorize, oauth-callback, oauth-status, oauth-token, sentry, slack-oauth, slack-config, github-*, triggers-available, triggers, trigger-id, test-connection, aws-setup).</description>
+      <steps>
+        <step>Step 1: `find apps/dashboard/src/app/api -name 'route.ts' | wc -l` returns 44 (or, after the documented changes, the documented count).</step>
+        <step>Step 2: Confirm every `route.ts` is a 1-line re-export of a context handler.</step>
+        <step>Step 3: Confirm `apps/dashboard/src/contexts/*/api/*-handler.ts` exists for every route.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-025" context="dashboard" category="functional" depends_on="AC-024">
+      <title>Live SSE feed: incident detail pages forward the Core API's streaming response</title>
+      <description>The incident detail page (`/dashboard/analyses/[id]`) opens a Server-Sent Events stream that forwards the Core API's `/v1/incidents/:id/stream` as a streaming Next.js response. The Clerk middleware does not block streaming responses; the dashboard's API route handler returns a `Response` with `Content-Type: text/event-stream` and pipes Core's events through. A running investigation emits per-agent events (log, metric, change, code, infra, db) to the client as they complete.</description>
+      <steps>
+        <step>Step 1: Open an incident detail page with a running investigation and confirm the browser opens an EventSource (or fetch streaming) connection to the dashboard's incident API.</step>
+        <step>Step 2: Confirm the API route uses `Content-Type: text/event-stream` and proxies events from the Core API.</step>
+        <step>Step 3: Confirm the Clerk middleware's `isPublicRoute` matcher does not block the streaming endpoint and the API route returns a streaming Response, not a buffered JSON one.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-026" context="dashboard" category="functional" depends_on="AC-024">
+      <title>lvh.me loopback rewrite: localhost → lvh.me for Stripe callbacks to bypass the Core WAF SSRF filter</title>
+      <description>Core's WAF rejects Stripe callbacks containing `localhost` or `127.0.0.1` in the URL. The dashboard's checkout and portal handlers rewrite the URL host from `localhost` to `lvh.me` (a public-DNS loopback alias) before calling Core. The dev middleware (`apps/dashboard/src/middleware.ts`) does the inverse rewrite — a request with hostname `lvh.me` in dev is redirected to `localhost` so the Clerk session cookie is honored. Production uses the real dashboard hostname; the rewrite is dev-only.</description>
+      <steps>
+        <step>Step 1: Confirm `apps/dashboard/src/middleware.ts` redirects `lvh.me` → `localhost` in dev.</step>
+        <step>Step 2: Confirm the checkout / portal handlers rewrite `localhost` → `lvh.me` before calling Core.</step>
+        <step>Step 3: In dev, set `CORE_API_URL=http://api.lvh.me:9999` (or similar) and confirm the handlers' outbound URL uses the lvh.me host.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-027" context="dashboard" category="functional" depends_on="AC-002">
+      <title>15 integration types are surfaced as connection cards in the dashboard's integrations page</title>
+      <description>`apps/dashboard/src/contexts/integrations/domain/types.ts` enumerates 15 integration types: Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks. The integration catalog page renders one connection card per type with the Composio logo, the integration description, and a "Connect" CTA. Each integration has a type-specific Zod schema in `apps/dashboard/src/lib/api/schemas.ts`; credentials are forwarded to the Core API for KMS-envelope encryption and DynamoDB storage.</description>
+      <steps>
+        <step>Step 1: Sign in as admin, load `/dashboard/integrations`, and confirm 15 integration cards are rendered (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks).</step>
+        <step>Step 2: Confirm `Integration` type carries a `composioTriggerId` field and the integration-domain types file lists exactly 15 type identifiers.</step>
+        <step>Step 3: Confirm the dashboard's `next.config.mjs` `images.remotePatterns` allow-lists `logos.composio.dev` and `backend.composio.dev`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-028" context="dashboard" category="functional" depends_on="">
+      <title>9 bounded contexts (investigation, approvals, audit, identity, onboarding, team, integrations, billing, settings) + shared with DDD layers</title>
+      <description>The dashboard's `src/contexts/` directory contains 10 bounded contexts: investigation, approvals, audit, identity, onboarding, team, integrations, billing, settings, shared. Each context has a DDD layout with only the layers it needs (domain, application, infrastructure, presentation, api). The website's `src/contexts/` directory contains 3 contexts: marketing, legal, shell. `index.ts` barrel files do not exist in any context in either app — all imports use direct deep paths. Per-context i18n files live at `infrastructure/i18n/{en,pt-br}.json` and are deep-merged by `apps/{website,dashboard}/src/lib/i18n/compose.ts`.</description>
+      <steps>
+        <step>Step 1: `ls apps/dashboard/src/contexts/` shows investigation, approvals, audit, identity, onboarding, team, integrations, billing, settings, shared (10 contexts).</step>
+        <step>Step 2: `ls apps/website/src/contexts/` shows marketing, legal, shell (3 contexts).</step>
+        <step>Step 3: Confirm no `index.ts` exists in any of those context directories.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-029" context="dashboard" category="security" depends_on="AC-019">
+      <title>withAuth: 401/403/429 enforcement at the API boundary</title>
+      <description>`apps/dashboard/src/lib/api/with-auth.ts#withAuth(handler, options)` enforces, in order: (1) Clerk auth — no session returns 401 with `{ error: 'Authentication required.' }`; (2) tenant validation — no `orgId` returns 403 with `{ error: 'Profile setup required. Please complete onboarding.' }` (skippable with `allowNoOrg: true`); (3) role guard — `adminOnly: true` or `requiredRole: 'admin'` returns 403 with `{ error: 'Admin access required.' }` / `{ error: 'Insufficient role for this action.' }`; (4) per-user rate limit — 60 req/min default, 429 with `Retry-After` header on excess; (5) staff-only — `staffOnly: true` returns 403 for non-staff emails. The wrapped handler runs only after all guards pass.</description>
+      <steps>
+        <step>Step 1: With no session, `GET /api/settings` returns 401 with the documented body.</step>
+        <step>Step 2: With a session but no `orgId`, `GET /api/settings` returns 403 with the documented body.</step>
+        <step>Step 3: With a member session, `POST /api/billing/checkout` (adminOnly) returns 403; with 70 requests in 60s the 70th returns 429 with a `Retry-After` header.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-030" context="dashboard" category="security" depends_on="AC-019">
+      <title>BFF pattern: Clerk session JWT forwarded as Bearer to Core API; never exposed to the browser</title>
+      <description>`apps/dashboard/src/lib/api/get-backend-token.ts` reads the Clerk session JWT server-side via `getToken()` from `@clerk/nextjs/server`. The dashboard's `http-api-client.ts` attaches it as `Authorization: Bearer <jwt>` on every Core API request. The browser never sees the token: the React tree only renders Core API responses, never the JWT itself. The HTTP client also strips auth headers from any error that reaches `Sentry.captureException`. The dashboard's `.env.local` lists no `STRIPE_SECRET_KEY` or any other Core-side secret — only `NEXT_PUBLIC_*` and `CLERK_SECRET_KEY`.</description>
+      <steps>
+        <step>Step 1: Sign in, then in the browser dev tools confirm no `__session` JWT, no `Authorization` header on outbound requests, and no JWT in any rendered HTML.</step>
+        <step>Step 2: Tail the dev log while loading a dashboard page and confirm every Core API call carries `Authorization: Bearer ...` server-side.</step>
+        <step>Step 3: Confirm `apps/dashboard/src/lib/api/http-api-client.ts` scrubs `Authorization` from any error it forwards to Sentry.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-031" context="dashboard" category="security" depends_on="AC-024">
+      <title>Stripe: dashboard React SDK loads PaymentElement with the publishable key; secret key never in dashboard runtime env</title>
+      <description>The dashboard's runtime Stripe dependency is `@stripe/react-stripe-js` (Elements, PaymentElement, useStripe, useElements) and `@stripe/stripe-js` (loadStripe). The billing modal at `apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx` mounts a Stripe PaymentElement when `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is set. Checkout, portal, and webhook handlers do not call Stripe directly — they call the Core API, which owns `STRIPE_SECRET_KEY` and webhook signature verification. The dashboard's `.env.local` and SST env injection list no `STRIPE_SECRET_KEY`. The Stripe Server SDK (`stripe@20.x`) is installed as a dev dependency for the CLI scripts only.</description>
+      <steps>
+        <step>Step 1: With `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` set, open the billing modal and confirm the Stripe PaymentElement iframe loads.</step>
+        <step>Step 2: Confirm `STRIPE_SECRET_KEY` is NOT listed in `apps/dashboard/.env.example` and NOT referenced in `apps/dashboard/sst.config.ts` env injection.</step>
+        <step>Step 3: Confirm `stripe` appears in `devDependencies` (not `dependencies`) of `apps/dashboard/package.json` and is only imported from `apps/dashboard/scripts/setup-stripe.ts` and `apps/dashboard/scripts/delete-user.ts`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-032" context="dashboard" category="security" depends_on="AC-001">
+      <title>Sentry: 3 beforeSend hooks (server/edge/client) scrub PII; SDK no-ops when DSN is blank</title>
+      <description>`apps/dashboard/instrumentation.ts` registers the server (`sentry.server.config.ts`) and edge (`sentry.edge.config.ts`) configs; `apps/dashboard/instrumentation-client.ts` registers the client config. All three `beforeSend` hooks apply identical PII scrubbing (auth headers, cookies, request bodies, Clerk tokens) for SOC2 / GDPR / LGPD compliance. `onRequestError` forwards every Next.js error to Sentry. `src/app/global-error.tsx` is the root client error boundary that also calls `Sentry.captureException` in `useEffect`. When `NEXT_PUBLIC_SENTRY_DSN` is blank, the SDK no-ops at init and no network call is made.</description>
+      <steps>
+        <step>Step 1: Confirm `instrumentation.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, `instrumentation-client.ts`, and `global-error.tsx` exist and the three Sentry.*.init() calls reference the same PII scrubbing helper.</step>
+        <step>Step 2: With `NEXT_PUBLIC_SENTRY_DSN=` empty, load the dashboard and confirm no outbound request to `*.sentry.io`.</step>
+        <step>Step 3: Set a non-empty DSN, throw a synthetic error, and confirm the error lands in the Sentry project `causeflow-dashboard` under org `causeflow-ai`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-033" context="foundation" category="ops" depends_on="">
+      <title>SST v3: each app's sst.config.ts provisions CloudFront + WAF + Lambda + Route 53 + ACM</title>
+      <description>`apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` each provision: a CloudFront distribution, a WAF WebACL (must live in `us-east-1` for CloudFront association — a separate `us-east-1` provider is created in each config), the Next.js compute (S3 + CloudFront + Lambda@Edge via OpenNext for the website; Lambda@Edge for the dashboard), Route 53 records, and an ACM certificate. The dashboard's config also provisions CloudWatch alarms for Lambda error rate and 5xx rate in production only. Domains: causeflow.ai / staging.causeflow.ai (website), dashboard.causeflow.ai / dashboard-staging.causeflow.ai (dashboard). The hosted zone is `Z01593322DGY9I94W9S7C`.</description>
+      <steps>
+        <step>Step 1: Confirm `apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` each declare a `us-east-1` provider for the WAF WebACL.</step>
+        <step>Step 2: Confirm both configs use `sst.aws.Nextjs` for the website and dashboard deployments.</step>
+        <step>Step 3: Confirm the dashboard config provisions CloudWatch alarms and the website config does not.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-034" context="foundation" category="ops" depends_on="AC-007">
+      <title>GitHub Actions: 2 workflows (website-deploy.yml, dashboard-deploy.yml) with frozen-lockfile + type-check + lint + test + build + SST deploy</title>
+      <description>`.github/workflows/website-deploy.yml` and `.github/workflows/dashboard-deploy.yml` are the two deploy workflows. Each sets up pnpm via `pnpm/action-setup@v4`, Node via `.nvmrc` (24), installs with `--frozen-lockfile`, then runs `pnpm turbo check-types`, `pnpm turbo lint`, `pnpm turbo test`, `pnpm turbo build` before triggering the SST deploy. Staging deploys trigger on push to main; production deploys trigger via `workflow_dispatch` with `inputs.stage=production`. The workflows use `environment: staging` / `environment: production` and `concurrency:` to avoid racing deploys.</description>
+      <steps>
+        <step>Step 1: Confirm both workflow files exist under `.github/workflows/`, each referencing pnpm/action-setup@v4 and --frozen-lockfile.</step>
+        <step>Step 2: Confirm each workflow runs check-types, lint, test, build in sequence before the SST deploy step.</step>
+        <step>Step 3: Confirm each workflow sets `environment: staging` and `environment: production` plus a `concurrency` block.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-035" context="dashboard" category="functional" depends_on="AC-024">
+      <title>Composio: 15 integration types; image allow-list for logos.composio.dev and backend.composio.dev</title>
+      <description>The dashboard's integration catalog uses Composio for third-party integration metadata. The 15 integration types (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) are surfaced as connection cards in the dashboard. The `Integration` domain type carries a `composioTriggerId` field. The dashboard's `next.config.mjs` `images.remotePatterns` allow-lists `logos.composio.dev` and `backend.composio.dev`. No Composio API key lives in this repo — the actual Composio connection flow runs on the Core API; the dashboard only references Composio's metadata endpoints via the image allow-list.</description>
+      <steps>
+        <step>Step 1: Confirm `apps/dashboard/next.config.mjs` lists `logos.composio.dev` and `backend.composio.dev` in `images.remotePatterns`.</step>
+        <step>Step 2: Confirm `apps/dashboard/src/contexts/integrations/domain/types.ts` defines the 15 integration types and the `Integration` type carries `composioTriggerId`.</step>
+        <step>Step 3: Confirm no `COMPOSIO_API_KEY` env var is referenced in `apps/dashboard/.env.example` or `apps/dashboard/sst.config.ts`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-036" context="foundation" category="functional" depends_on="">
+      <title>Auth.js v5 + Cognito: packages/auth/ retained for reference; only UserRole type re-export is consumed by the dashboard</title>
+      <description>`packages/auth/` retains the legacy Auth.js v5 (`next-auth@5.0.0-beta.30`) + `@auth/core` + `@aws-sdk/client-cognito-identity-provider` wiring at `packages/auth/src/infrastructure/auth-config.ts` for historical reference. The dashboard does not import the runtime exports from this package at runtime; the only consumer is the `UserRole` type re-export (`@causeflow/auth/types`) used by `apps/dashboard/src/contexts/identity/domain/rbac/__tests__/role-guard.test.ts`. The dev credentials provider auto-enables in development only; the production build strips it.</description>
+      <steps>
+        <step>Step 1: Confirm `packages/auth/package.json` and `packages/auth/src/infrastructure/auth-config.ts` exist.</step>
+        <step>Step 2: `grep -r "from '@causeflow/auth" apps/dashboard/src` returns only the `__tests__/role-guard.test.ts` import of the `UserRole` type.</step>
+        <step>Step 3: Confirm `apps/dashboard/next.config.mjs` lists `@aws-sdk/client-cognito-identity-provider` in `serverExternalPackages` so the AWS SDK stays server-side.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-037" context="dashboard" category="functional" depends_on="">
+      <title>AWS SDK v3 limited to tenant-provisioning-fallback.ts and delete-user.ts CLI</title>
+      <description>The dashboard's runtime never holds AWS credentials. `@aws-sdk/client-dynamodb` and `@aws-sdk/lib-dynamodb` are imported by exactly two paths: (1) `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts`, which writes a `Tenant` and `BillingAccount` directly to the Core API's DynamoDB table when the Core's `POST /v1/tenants` returns 403 — a documented temporary workaround; (2) `apps/dashboard/scripts/delete-user.ts`, which scans and batch-deletes every item in the Core's DynamoDB table scoped to a tenantId, and also cancels the corresponding Stripe customer. The provisioning fallback is called from `complete-profile-handler.ts` on a 403 from Core; the CLI script is gated by an explicit `--yes` flag. `AWS_REGION` and AWS credentials are read from the local shell env (or IAM role in prod) and are not part of the dashboard's runtime env.</description>
+      <steps>
+        <step>Step 1: `grep -r "@aws-sdk" apps/dashboard/src` returns only the tenant-provisioning-fallback import.</step>
+        <step>Step 2: `grep -r "@aws-sdk" apps/dashboard/scripts` returns the delete-user import.</step>
+        <step>Step 3: Confirm `apps/dashboard/.env.example` does not list `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY` (these come from the shell env or SSO, not the dashboard's runtime env).</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-038" context="foundation" category="functional" depends_on="">
+      <title>Loops.so declared as planned integration; CSP allow-list but no current consumer in this codebase</title>
+      <description>Loops.so is declared as a planned email-marketing integration in docs and the `apps/website/.env.example` (LOOPS_API_KEY). There is no `apps/website/src/app/api/notify` route in the current codebase — `apps/website/src/app` has no `/api` directory. The only runtime reference to Loops is the `Content-Security-Policy` `connect-src` allow-list at `apps/website/next.config.mjs` (https://app.loops.so). The integration has no current consumer; it is a planned integration only.</description>
+      <steps>
+        <step>Step 1: Confirm `apps/website/src/app` has no `/api` subdirectory.</step>
+        <step>Step 2: Confirm `apps/website/next.config.mjs` lists `https://app.loops.so` in CSP connect-src.</step>
+        <step>Step 3: Confirm `LOOPS_API_KEY` is listed in `apps/website/.env.example` but no code in `apps/website/src/` imports from any loops-related module.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-039" context="testing_and_observability" category="testing" depends_on="AC-001">
+      <title>Vitest 7 projects with forks pool, max 3 workers, 15s per-test timeout on the dashboard project</title>
+      <description>The root `vitest.config.ts` defines 7 projects (shared, forms, analytics, auth, ui, website, dashboard) with a `pool: 'forks'` worker model and `poolOptions: { forks: { maxForks: 3 } }`. The dashboard project sets `testTimeout: 15000`; the other projects use the default. `pnpm vitest run` runs all 7 projects and emits a per-project pass/fail summary. `apps/dashboard/package.json` lists `vitest` as a dev dependency.</description>
+      <steps>
+        <step>Step 1: Confirm `vitest.config.ts` defines projects for shared, forms, analytics, auth, ui, website, dashboard.</step>
+        <step>Step 2: Confirm `pool: 'forks'` and `poolOptions: { forks: { maxForks: 3 } }` are set.</step>
+        <step>Step 3: Confirm the dashboard project has `testTimeout: 15000` and the others use the default.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-040" context="testing_and_observability" category="testing" depends_on="AC-001">
+      <title>Playwright 4 viewports (mobile 375×812, tablet 768×1024, desktop 1280×800, wide 1440×900) chromium only, workers 3, fully parallel, trace/video/screenshot off</title>
+      <description>`playwright.config.ts` configures Playwright 1.58.2 with `projects:` for 4 viewports (mobile 375×812, tablet 768×1024, desktop 1280×800, wide 1440×900), chromium only, `workers: 3`, `fullyParallel: true`, and `trace: 'off'`, `video: 'off'`, `screenshot: 'off'`. The `webServer` block auto-starts the production server on port 3000 if not already running. The configuration is the single Playwright config for both apps' E2E coverage.</description>
+      <steps>
+        <step>Step 1: Confirm `playwright.config.ts` declares 4 projects with the documented viewport sizes and chromium-only.</step>
+        <step>Step 2: Confirm `workers: 3`, `fullyParallel: true`, `trace: 'off'`, `video: 'off'`, `screenshot: 'off'`.</step>
+        <step>Step 3: Confirm the `webServer` block starts the production server on port 3000.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-041" context="testing_and_observability" category="testing" depends_on="AC-040">
+      <title>Playwright test.beforeEach blocks analytics + tracker domains (GA4, Clarity, Intercom)</title>
+      <description>`tests/audit.spec.ts` and `tests/visual-functional.spec.ts` declare a `test.beforeEach` that uses `page.route()` to block any request to `https://www.google-analytics.com`, `https://*.clarity.ms`, `https://clarity.ms`, and Intercom. This prevents test traffic from polluting production analytics. The block list covers both gtag's `collect` endpoint and Clarity's session-replay endpoints.</description>
+      <steps>
+        <step>Step 1: `grep -n 'page.route' tests/audit.spec.ts tests/visual-functional.spec.ts` returns route blocks for google-analytics.com, clarity.ms, and Intercom.</step>
+        <step>Step 2: Run `pnpm exec playwright test tests/audit.spec.ts` with a console listener and confirm no request to those domains is made.</step>
+        <step>Step 3: Confirm the block list matches the documented domains in the spec (GA, Clarity, Intercom).</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-042" context="testing_and_observability" category="observability" depends_on="AC-001">
+      <title>pino structured JSON logs in apps/dashboard/src/lib/logger.ts; never logs raw tokens or PII</title>
+      <description>`apps/dashboard/src/lib/logger.ts` exports a pino 10.3.1 logger configured for structured JSON output. The logger redacts auth headers, Clerk session tokens, and Stripe secrets. `withAuth` and every API handler that catches a non-recoverable error also call `dashLogger.error` with a structured payload (method, path, userId, tenantId, duration) and forward the error to Sentry. The Sentry `beforeSend` hooks apply the same redaction in the observability layer.</description>
+      <steps>
+        <step>Step 1: Confirm `apps/dashboard/src/lib/logger.ts` exports a pino logger and `apps/dashboard/package.json` lists `pino@^10.3.1` as a dependency.</step>
+        <step>Step 2: Trigger a logged error in a dashboard API route and confirm the dev log shows structured JSON with method / path / userId / tenantId, and no JWT, Authorization header, or Stripe secret in the payload.</step>
+        <step>Step 3: Confirm the Sentry beforeSend hooks in instrumentation-client.ts, sentry.server.config.ts, and sentry.edge.config.ts apply the same redaction.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-043" context="testing_and_observability" category="testing" depends_on="AC-040,AC-041">
+      <title>Verification protocol for dashboard changes: local Playwright with mock client → staging login via env.staging creds → aws logs tail /ecs/causeflow-staging-api --follow</title>
+      <description>`apps/dashboard/CLAUDE.md` documents the verification protocol: (1) local sanity via `pnpm --filter dashboard dev` (port 3001) with blank `CORE_API_URL` (mock client), Playwright codegen or scripted specs, screenshots into `.artifacts/playwright/screenshots/YYYY-MM-DD_HHmm/`; (2) staging verification via the test creds in `web/apps/dashboard/.env.staging` (`STAGING_TEST_USER`, `STAGING_TEST_PASSWORD`) on `https://dashboard-staging.causeflow.ai`, with `aws logs tail /ecs/causeflow-staging-api --follow` running in parallel; (3) E2E coverage — every PR that touches dashboard UI or APIs ships a Playwright spec; (4) manual user steps (Sentry Internal Integration, GitHub OAuth app, Slack workspace approval) are surfaced in the PR description and the agent pauses for user confirmation. The `.env.staging` file holds login creds only, not runtime env.</description>
+      <steps>
+        <step>Step 1: Confirm `apps/dashboard/CLAUDE.md` documents the four-step verification protocol with the exact URL, AWS log group, and env-staging path.</step>
+        <step>Step 2: Confirm `apps/dashboard/.env.staging` exists, contains `STAGING_TEST_USER` and `STAGING_TEST_PASSWORD`, and is excluded from runtime env.</step>
+        <step>Step 3: Confirm `apps/dashboard/.gitignore` does NOT exclude `.env.staging` (Playwright reads it; the file is intentionally tracked) and the `kill_command` in the repo's CLAUDE.md kills both Next.js and Playwright processes before any test.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-044" context="open-source-local-runtime" category="foundation" depends_on="">
+      <title>`docker compose up` brings up the open-source web+core stack; website (port 3000) and dashboard (port 3001) answer 200 with no Clerk/Stripe/AWS/SST env vars configured</title>
+      <description>From a clean monorepo root with a blank shell env (no `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LOOPS_*`, `CORE_API_URL`, or SST-injected vars set), `docker compose up -d` brings up `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api`, `causeflow-worker`, `causeflow-website` (port 3000), and `causeflow-dashboard` (port 3001) per the bundled `docker-compose.yml`. Within 90 seconds `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` returns 200 and `curl -s -o /dev/null -w '%{http_code}' http://localhost:3001/auth/sign-in` returns 200 (the dashboard's local sign-in form, not the Clerk-hosted UI). Grepping the dashboard container's boot log for `clerk.com`, `stripe.com`, `amazonaws.com`, `sentry.io`, or `sst.` returns zero outbound URLs.</description>
+      <steps>
+        <step>Step 1: With a clean shell env (`env -i PATH=$PATH`), `docker compose up -d` from the monorepo root and `docker compose ps` reports every service healthy.</step>
+        <step>Step 2: `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` returns 200; `curl -s -o /dev/null -w '%{http_code}' http://localhost:3001/auth/sign-in` returns 200.</step>
+        <step>Step 3: `docker logs causeflow-dashboard 2>&1 | grep -E 'clerk\.com|stripe\.com|amazonaws\.com|sentry\.io|sst\.'` returns zero lines.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-045" context="open-source-local-runtime" category="foundation" depends_on="AC-044">
+      <title>`.env.example` is reduced to NEXT_PUBLIC_* (optional) + CORE_API_URL + JWT_SECRET; no Clerk/Stripe/AWS/Sentry/Loops/SST vars</title>
+      <description>`apps/website/.env.example` ships with only `NEXT_PUBLIC_GA4_MEASUREMENT_ID` and `NEXT_PUBLIC_CLARITY_ID` (both optional, blank = no-op). `apps/dashboard/.env.example` ships with only `CORE_API_URL` (default `http://core-api:3099` for the docker-compose network), `JWT_SECRET` (shared with the Core container, must match the Core's `JWT_SECRET`), and the optional `NEXT_PUBLIC_*` analytics keys. `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*` (build-time), `LOOPS_*`, and any SST-injected var are absent from both files. `LOOPS_API_KEY` is removed from `apps/website/.env.example`.</description>
+      <steps>
+        <step>Step 1: `grep -E 'CLERK_|STRIPE_|AWS_|SENTRY_|LOOPS_' apps/website/.env.example apps/dashboard/.env.example` returns zero lines.</step>
+        <step>Step 2: Confirm `apps/dashboard/.env.example` lists `CORE_API_URL` and `JWT_SECRET` and `apps/website/.env.example` lists only the two `NEXT_PUBLIC_*` keys.</step>
+        <step>Step 3: Confirm the dashboard's `docker run` mounts the same `JWT_SECRET` as the Core's `docker run` (the JWT issued by the Core is verifiable by the dashboard's `verifyJwtCookie`).</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-046" context="open-source-local-runtime" category="security" depends_on="AC-044">
+      <title>Local JWT auth replaces Clerk: sign-in form → Core `/api/v1/auth/login` → `__session` httpOnly cookie → middleware verifies → `withAuth` resolves user/tenant/role via Core `whoami`</title>
+      <description>`apps/dashboard/src/middleware.ts` no longer imports `clerkMiddleware`. The middleware reads the `__session` httpOnly cookie (set by the dashboard's sign-in route handler), verifies it with `JWT_SECRET` using the same `jose` library the Core uses, and lets the request through. `withAuth(handler, options)` extracts the cookie, calls the Core's `GET /api/v1/whoami` with `Authorization: Bearer <jwt>`, and resolves `userId` + `tenantId` + `role` from the response. The dashboard's `/auth/sign-in` and `/auth/sign-up` pages are local React forms that POST to a new dashboard route handler (`/api/auth/login`, `/api/auth/register`) which proxies to the Core's endpoints, then sets the `__session` cookie. An unauthenticated `GET /dashboard` still redirects to `/auth/sign-in` (preserving AC-019's behavior).</description>
+      <steps>
+        <step>Step 1: `grep -r '@clerk/nextjs/server' apps/dashboard/src` returns zero matches; `grep -r 'clerkMiddleware' apps/dashboard/src` returns zero matches.</step>
+        <step>Step 2: Submit the sign-in form with a Core-issued credential and confirm the `__session` httpOnly cookie is set; reload `/dashboard` and confirm it renders without a Clerk-hosted redirect.</step>
+        <step>Step 3: `GET /dashboard` without the cookie still returns 307 to `/auth/sign-in` (AC-019's behavior is preserved).</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-047" context="open-source-local-runtime" category="foundation" depends_on="AC-046">
+      <title>`@clerk/nextjs` is removed from the dashboard's `package.json`; `pnpm --filter dashboard build` succeeds with no Clerk import in the source or build output</title>
+      <description>`@clerk/nextjs` (and any `@clerk/*` subpackage) is removed from `apps/dashboard/package.json#dependencies`. `pnpm install --frozen-lockfile` succeeds. `pnpm --filter dashboard build` (which runs `tsc --noEmit --project tsconfig.build.json` + `next build`) exits 0. `grep -r '@clerk' apps/dashboard/src apps/dashboard/scripts` returns zero matches. The `tsconfig.build.json` (which previously excluded Clerk type tests) is simplified to a standard dashboard build config; if any Clerk-flavored type-test files remain, they are deleted.</description>
+      <steps>
+        <step>Step 1: `grep -E '@clerk' apps/dashboard/package.json` returns zero matches.</step>
+        <step>Step 2: `pnpm --filter dashboard build` exits 0; the build log does not mention `clerk`.</step>
+        <step>Step 3: `grep -r '@clerk' apps/dashboard/src apps/dashboard/scripts` returns zero matches.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-048" context="open-source-local-runtime" category="security" depends_on="AC-046">
+      <title>Stub billing replaces Stripe React SDK: `payment-modal.tsx` POSTs to Core's `StubBillingService`; the plan-gate renders correctly against the stub subscription response</title>
+      <description>`@stripe/react-stripe-js`, `@stripe/stripe-js`, and the `stripe` server SDK are removed from `apps/dashboard/package.json`. `apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx` no longer mounts a Stripe `PaymentElement`; it renders a local "Billing disabled in OSS build" panel and POSTs to the Core's `POST /api/v1/billing/checkout-session`, which returns 410 Gone per the Core's AC-043. The plan-gate (`apps/dashboard/src/contexts/billing/application/plan-status.ts#fetchPlanStatus`) renders correctly when the Core returns `{ plan: 'free', status: 'active' }` (a fresh tenant on the OSS build). The dashboard's `POST /api/billing/checkout` and `POST /api/billing/portal` route handlers stay (they proxy to the Core) and surface the 410 from the Core as a clear "billing disabled" message.</description>
+      <steps>
+        <step>Step 1: `grep -E '@stripe|stripe-' apps/dashboard/package.json` returns zero matches; `grep -r '@stripe' apps/dashboard/src` returns zero matches.</step>
+        <step>Step 2: Open the billing modal as a fresh tenant and confirm the "Billing disabled in OSS build" panel renders (no Stripe iframe, no `*.stripe.com` request).</step>
+        <step>Step 3: `POST /api/billing/checkout` from the dashboard returns the 410 from the Core; `fetchPlanStatus()` returns `hasActivePlan: false` for a fresh tenant so the plan-gate renders.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-049" context="open-source-local-runtime" category="foundation" depends_on="AC-044">
+      <title>AWS SDK removed: `@aws-sdk/*` deps removed, `tenant-provisioning-fallback.ts` and the `setup-stripe.ts` / `delete-user.ts` CLI scripts deleted, `serverExternalPackages` block in `next.config.mjs` removed</title>
+      <description>`@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, and `@aws-sdk/client-cognito-identity-provider` are removed from `apps/dashboard/package.json` (dependencies) and from the root `package.json` (if present). `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts` is deleted (the OSS Core handles provisioning inside its own `register` endpoint per the Core's AC-042). `apps/dashboard/scripts/setup-stripe.ts` and `apps/dashboard/scripts/delete-user.ts` are deleted. The `serverExternalPackages: ['@aws-sdk/client-cognito-identity-provider']` block in `apps/dashboard/next.config.mjs` is removed. `apps/dashboard/scripts/add-credits.ts` keeps its Core API call and is the only remaining script. `pnpm --filter dashboard build` exits 0.</description>
+      <steps>
+        <step>Step 1: `grep -E '@aws-sdk' apps/dashboard/package.json package.json` returns zero matches; the file `tenant-provisioning-fallback.ts` does not exist; the files `setup-stripe.ts` and `delete-user.ts` do not exist under `apps/dashboard/scripts/`.</step>
+        <step>Step 2: `grep -E 'serverExternalPackages' apps/dashboard/next.config.mjs` returns zero matches.</step>
+        <step>Step 3: `pnpm --filter dashboard build` exits 0; `apps/dashboard/scripts/add-credits.ts` is the only file in `apps/dashboard/scripts/` (besides the `__tests__/` directory).</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-050" context="open-source-local-runtime" category="ops" depends_on="AC-044">
+      <title>SST removed: `sst.config.ts` files for website and dashboard are deleted; `withSentryConfig` removed; the two GitHub Actions workflows no longer run `sst deploy`; both apps run as plain Node processes inside Docker</title>
+      <description>`apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` are deleted. The `withSentryConfig(...)` wrapper in `apps/dashboard/next.config.mjs` is removed (the surrounding `next.config.mjs` keeps its `optimizePackageImports`, headers, redirects, and image allow-list). `.github/workflows/website-deploy.yml` and `.github/workflows/dashboard-deploy.yml` keep their `check-types` / `lint` / `test` / `build` steps but drop the `sst deploy` step (replaced with a comment pointing operators to the Docker build). Both apps have a multi-stage `Dockerfile` that mirrors the `relay` subproject's pattern: a builder stage that runs `pnpm install --frozen-lockfile` + `pnpm build`, then a runtime stage that runs `pnpm start`. The `docker-compose.yml` from AC-044 references those Dockerfiles.</description>
+      <steps>
+        <step>Step 1: The files `apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` do not exist; `grep -E 'sst|withSentryConfig' apps/dashboard/next.config.mjs` returns zero matches.</step>
+        <step>Step 2: `grep -E 'sst deploy' .github/workflows/website-deploy.yml .github/workflows/dashboard-deploy.yml` returns zero matches; both workflows still run `check-types` + `lint` + `test` + `build`.</step>
+        <step>Step 3: `apps/website/Dockerfile` and `apps/dashboard/Dockerfile` exist; `docker compose -f docker-compose.yml up -d` from the monorepo root brings both apps up via those Dockerfiles.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-051" context="open-source-local-runtime" category="foundation" depends_on="AC-044">
+      <title>Composio removed: `logos.composio.dev` and `backend.composio.dev` allow-list entries deleted; `composioTriggerId` field removed from the `Integration` domain type; 15 integration cards still render against the Core's stub integration endpoint</title>
+      <description>`logos.composio.dev` and `backend.composio.dev` are removed from `next.config.mjs#images.remotePatterns` (and any CSP allow-list). The `composioTriggerId` field is removed from the `Integration` domain type at `apps/dashboard/src/contexts/integrations/domain/types.ts`; the 15 integration type identifiers (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) stay. The `/dashboard/integrations` page still renders 15 connection cards; the "Connect" CTA POSTs to the Core's stub integration endpoint, which returns 200 with deterministic empty data. No `COMPOSIO_API_KEY` env var is referenced anywhere in the OSS build.</description>
+      <steps>
+        <step>Step 1: `grep -E 'composio\.dev|composioTriggerId' apps/dashboard/next.config.mjs apps/dashboard/src/contexts/integrations/domain/types.ts apps/dashboard/.env.example` returns zero matches.</step>
+        <step>Step 2: Sign in as admin, load `/dashboard/integrations`, and confirm 15 integration cards are rendered (same identifiers as AC-027).</step>
+        <step>Step 3: Click a "Connect" CTA and confirm the Core's stub integration endpoint returns 200 with empty data; no `composio.dev` or `backend.composio.dev` request is made.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-052" context="open-source-local-runtime" category="foundation" depends_on="AC-044">
+      <title>Loops.so + lvh.me removed: `app.loops.so` CSP entry deleted; `lvh.me` loopback rewrite removed from the dashboard's middleware and checkout/portal handlers</title>
+      <description>The `connect-src` CSP entry for `https://app.loops.so` is removed from `apps/website/next.config.mjs`. `LOOPS_API_KEY` is removed from `apps/website/.env.example`. The `lvh.me` → `localhost` rewrite in `apps/dashboard/src/middleware.ts` and the inverse `localhost` → `lvh.me` rewrite in the dashboard's checkout/portal API handlers are removed (no Stripe callbacks to rewrite in the OSS build). The dashboard's `curl http://localhost:3001/...` requests work as-is; no `lvh.me` host appears anywhere in the dashboard's source.</description>
+      <steps>
+        <step>Step 1: `grep -E 'loops\.so|app\.loops\.so' apps/website/next.config.mjs apps/website/.env.example` returns zero matches.</step>
+        <step>Step 2: `grep -rE 'lvh\.me' apps/dashboard/src apps/dashboard/next.config.mjs` returns zero matches.</step>
+        <step>Step 3: `curl -I http://localhost:3001/dashboard` in the OSS compose stack still returns 307 to `/auth/sign-in` (no lvh.me rewrite needed).</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-053" context="open-source-local-runtime" category="foundation" depends_on="AC-044,AC-046,AC-048,AC-049">
+      <title>Regression: all 43 original web acceptance checks (AC-001 through AC-043) pass against the open-source docker-compose stack</title>
+      <description>With the OSS docker-compose stack up from AC-044, the following original checks still pass (any check that described a vendor-specific implementation now passes against the local equivalent — e.g. AC-019's redirect behavior is preserved by the local JWT middleware, AC-022's 402 CREDITS_EXHAUSTED is preserved by the local credits ledger, AC-031's "no STRIPE_SECRET_KEY in dashboard env" is trivially true because Stripe is gone, AC-037's "AWS SDK limited to two files" is trivially true because AWS SDK is gone). Concretely: `pnpm turbo check-types` + `pnpm turbo lint` + `pnpm turbo test` + `pnpm turbo build` all exit 0 inside the dashboard container; `curl http://localhost:3000/` returns 200; the dashboard's sign-in form works end-to-end with the Core's local auth; `GET /api/incidents` (with a valid cookie) returns the Core's stub data; the plan-gate renders correctly for a fresh tenant; Sentry is a no-op with `NEXT_PUBLIC_SENTRY_DSN` empty.</description>
+      <steps>
+        <step>Step 1: `docker exec causeflow-dashboard pnpm turbo check-types` and `docker exec causeflow-dashboard pnpm turbo lint` and `docker exec causeflow-dashboard pnpm turbo test` and `docker exec causeflow-dashboard pnpm turbo build` all exit 0.</step>
+        <step>Step 2: `curl http://localhost:3000/` returns 200; `curl http://localhost:3001/auth/sign-in` returns 200; submitting the sign-in form with a Core-issued credential returns a session and `GET /dashboard` renders.</step>
+        <step>Step 3: `GET /api/settings` with a valid `__session` cookie returns 200; `GET /api/billing/subscription` returns the Core's stub `{ plan: 'free', status: 'active' }`; `POST /api/incidents` decrements credits and returns 402 CREDITS_EXHAUSTED when the ledger is empty.</step>
+      </steps>
+    </acceptance_check>
+  </acceptance_checks>
+</project_specification>
