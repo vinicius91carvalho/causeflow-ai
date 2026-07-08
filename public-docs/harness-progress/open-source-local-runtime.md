@@ -116,3 +116,35 @@ qa=true; implementation=true; defects=none
 - WorkItem: WI-AC-026
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T01:50:00Z — Integrated Verification (WI-AC-026)
+
+- WorkItem: WI-AC-026
+- AcceptanceChecks: AC-026
+- context: open-source-local-runtime
+- Attempt: 1/3
+- Outcome: integration=true (independent run on latest main)
+
+### Independent integrated run
+
+Tore down existing container/image (`docker compose down`, `docker rmi
+causeflow-docs:local`) and re-ran the canonical command from a blank env
+(`env -i HOME PATH USER TERM` — no `MINTLIFY_*`, `MINTLIFY_AUTH_TOKEN`,
+`MINTLIFY_DEPLOY_TOKEN`, `CLERK_*`, `STRIPE_*`, `AWS_*`,
+`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SENTRY_*`, `LANGFUSE_*`, `SVIX_*`,
+`SLACK_*`, or `COMPOSIO_*` set). Image rebuilt from scratch via the
+multi-stage Dockerfile (`mint export --telemetry false` → `node:22-alpine`
+runtime serving `serve.js`).
+
+- `docker compose up -d` → `causeflow-docs` Up on `0.0.0.0:3000->3000/tcp`.
+- HTTP 200 returned on the first curl attempt (well within the 60s budget).
+- `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` → **200**.
+- Response body contains site name `CauseFlow AI` (4 matches) and the
+  Quickstart intro card (3 matches).
+- `docker logs causeflow-docs 2>&1 | grep -cE` for the forbidden-host
+  pattern (`mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|langfuse\.io|svix\.com|slack\.com|composio\.dev`)
+  → **0** matches. Full runtime log: `Serving docs at http://localhost:3000`.
+
+### verdict
+
+integration=true; implementation=true; qa=true; defects=none
