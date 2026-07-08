@@ -157,3 +157,12 @@ AC-013 contract satisfied at the real boundary on integrated main. No defects fo
 - Outcome: passed on integrated main
 - Evidence: /tmp/ac013-qa-verdict.json
 - NextAction: next Ready Work Item
+
+## 2026-07-08T03:32:14.165Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-013
+- AcceptanceChecks: AC-013
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/transport/WI-AC-013-1-integration_qa.log
+- NextAction: next Ready Work Item
