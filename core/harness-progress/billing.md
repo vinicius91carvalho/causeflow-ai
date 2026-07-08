@@ -194,3 +194,10 @@ Doc-drift note (unchanged from WI-AC-007/AC-011): literal `/api/v1/billing/usage
 - AcceptanceChecks: AC-012
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T05:07:24.749Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
