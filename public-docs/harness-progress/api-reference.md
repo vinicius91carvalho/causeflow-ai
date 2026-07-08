@@ -139,3 +139,26 @@ on integrated main at the real external HTTP boundary. Evidence saved to
 `/home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/`
 (`WI-AC-013-check.py`, `WI-AC-013-result.txt`, `WI-AC-013-mintdev.log`).
 - NextAction: next Ready Work Item
+
+## 2026-07-08T12:40:36Z — Independent QA (qa-agent, isolated worktree)
+
+- Role: qa-agent (independent, real HTTP)
+- WorkItem: WI-AC-013 / AC-013 / context=api-reference
+- Boundary: `mint dev --no-open --port 5174` launched from the isolated
+  worktree (`/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs`);
+  `ss` confirmed `*:5174 LISTEN`; `GET /` → HTTP 200; dev log (38 lines) had
+  zero `parse error|syntax error|failed|mdx error|cannot|invalid|✗|✘` lines.
+- Method: parsed `docs.json` API reference tab, enumerated every endpoint page
+  in the 20 endpoint groups named in AC-013 (Incidents, Triage, Investigation,
+  Remediation, Memory and Chat, Skills, Triggers, Integrations, Knowledge,
+  Graph, Billing, Notifications, Audit, Webhooks, GitHub, Tenants, API keys,
+  Analytics, Health, Widget) plus the two Relay API pages named in AC-013
+  (listed under the Relay tab). 81 pages total.
+- For each page: `GET http://127.0.0.1:5174/<path>` → HTTP 200; parsed the
+  rendered `<h1 id="page-title">…</h1>`, stripped nested tags, and compared to
+  the page's frontmatter `title` (quotes stripped).
+- Result: **OK=81 FAIL=0 TOTAL=81** — every listed endpoint page renders its
+  H1 matching the frontmatter `title`.
+- Evidence: `logs/wi-ac-013-check.py`, `logs/wi-ac-013-result.txt`,
+  `logs/mintdev-5174.log`. Dev server stopped; no lingering processes.
+- Verdict: qa=true; implementation=true; defects=none.
