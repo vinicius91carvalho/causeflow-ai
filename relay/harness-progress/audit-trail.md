@@ -85,3 +85,19 @@
 - RepairPlan: AC-044 implementation is correct. The AuditLogger is created inside the onMessage callback (src/index.ts:49) with wsClient.id (single UUID from WsClient constructor). Success audit entries carry all required fields: timestamp, relayId, requestId, resource, operation, result:'success', rowCount, maskedFieldCount, executionTimeMs (src/index.ts:97-107). Pino logs at info level (audit-logger.ts:30). The QA evidence confirms the work item passes at the real docker-compose boundary. The repository contains all required scaffold files from project_specs.xml. One minor non-blocking gap: docs/session-learnings.md (referenced in CLAUDE.md) does not exist.; No code changes required for AC-044.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/audit-trail/WI-AC-044-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-08T18:40:30.000Z — Verify First
+
+- WorkItem: WI-AC-044
+- Role: coding-agent (verify-first mode)
+- Outcome: AC-044 PASS — verified at real docker-compose boundary with fresh smoke round-trip
+- Evidence:
+  - Fresh docker compose stack (relay + control-plane-stub + postgres + mongo) with SMOKE=1
+  - Relay started with fresh relayId=94c1c343-9ec5-40a4-970d-62369c6c4e8f
+  - Stub sent health_check, execute {SELECT 1 AS one} (query), and execute {list_tables}
+  - Two success audit entries at level=30 (pino info) with all 9 required fields:
+    - query: {relayId: "94c1c343-...", requestId: "6562bd1d-...", resource: "order-pg", operation: "query", result: "success", rowCount: 1, maskedFieldCount: 0, executionTimeMs: 2}
+    - list_tables: {relayId: "94c1c343-...", requestId: "6c4a212d-...", resource: "order-pg", operation: "list_tables", result: "success", rowCount: 1, maskedFieldCount: 0, executionTimeMs: 3}
+  - relayId matches the WsClient connect log's relayId (same process-lifetime UUID)
+  - Each entry has a unique requestId (per-request UUID)
+- Result: implementation=true — no code changes needed
