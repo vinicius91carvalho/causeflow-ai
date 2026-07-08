@@ -439,3 +439,12 @@ I verified the Authentication page at `api-reference/authentication.mdx` against
 - WorkItem: WI-AC-014
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-08T21:34:49.482Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-014
+- AcceptanceChecks: AC-014
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-014-2-integration_qa.log
+- NextAction: next Ready Work Item
