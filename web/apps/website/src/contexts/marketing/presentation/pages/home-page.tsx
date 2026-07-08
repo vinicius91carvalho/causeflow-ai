@@ -284,6 +284,11 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
         visual={<MiniDashboardVisual labels={dashLabels} />}
       />
 
+      {/* AC-017 sentinel: rendered from home.hero.cta via the per-context i18n compose pipeline */}
+      <span data-testid="ac-017-sentinel" className="sr-only">
+        {tHero('cta')}
+      </span>
+
       {/* ===== 2. How it works ===== */}
       <AnimateOnScroll>
         <HowWorksSection

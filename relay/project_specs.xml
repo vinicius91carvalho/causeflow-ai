@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project_specification>
+  <project_name>causeflow-relay</project_name>
+  <mode>existing-codebase</mode>
+
+  <project_goal>
+    Ship a hardened, read-only relay agent — packaged as a multi-arch Docker image (causeflowai/relay) and versioned via semantic-release — that connects outbound from a customer's private network to the CauseFlow control plane over a single WebSocket /v1/relay/connect endpoint, executes JSON-RPC 2.0 requests (execute, list_resources, describe_resource, health_check) against configured PostgreSQL and MongoDB resources, enforces per-resource policy (allowlist + row limits) and SQL/aggregation safety, masks PII before results leave the network, emits a structured JSON audit trail, and reports resource updates + a 30s heartbeat. The image runs as non-root UID 10001 with a read-only filesystem, all Linux capabilities dropped, and no inbound ports.
+  </project_goal>
+
+  <overview>
+    CauseFlow Relay is a small Node.js 22 / TypeScript agent deployed inside the customer's VPC or on-prem environment. It opens an outbound WebSocket connection to the CauseFlow control plane at /v1/relay/connect, authenticates with a per-tenant token, and surfaces a JSON-RPC 2.0 interface that the CauseFlow AI investigation agents use to read from the customer's own databases. The relay never accepts inbound connections, never publishes a public IP, and never writes to the customer databases — it enforces read-only at three layers (the driver interface contract, the SQL/AST parser that blocks DDL/DML/dangerous functions, and a `BEGIN READ ONLY` PostgreSQL transaction with a 30-second statement timeout; for MongoDB, `$out` and `$merge` aggregation stages are blocked). Per-resource policy decides which databases are reachable, which operations each one permits (query, describe_table, list_tables, explain), and the maximum rows per query. PII masking (CPF, email, credit card, bearer token, BR phone, plus user-defined regexes) runs on every result row before anything leaves the customer's network, so the control plane and AI agents only ever see sanitized data. Every request is logged as a structured JSON audit entry. The image is published to Docker Hub as `causeflowai/relay` for `linux/amd64` and `linux/arm64`, with version tags derived from Conventional Commits via semantic-release.
+  </overview>
+
+  <technology_stack>
+    <general>
+      Node.js 22 ESM agent with a single TypeScript entry point (`src/index.ts`) that loads config, initializes drivers + engines, opens a WebSocket to the control plane, and handles JSON-RPC 2.0 messages. Single-package layout (no monorepo). Pinned via `node:22-alpine` in `Dockerfile` and `node-version: '22'` in every GitHub Actions workflow. Container-first distribution: a hardened multi-stage Docker image published to Docker Hub, with version tags computed by semantic-release. Conventional Commits enforced by commitlint on PRs; CI runs commitlint + `npm run build` + a Docker build smoke test; Release runs semantic-release followed by a multi-arch docker buildx build + push to `causeflowai/relay`.
+    </general>
+    <material_libraries>
+      - Node.js 22 — runtime and Docker base image
+      - TypeScript — source language; `tsc` (TypeScript Compiler) builds; `tsx` runs `npm run dev` (tsx watch on `src/index.ts`)
+      - ws — WebSocket client used by `WsClient` (`src/transport/ws-client.ts`)
+      - pg — PostgreSQL client with a connection pool (`src/drivers/postgres/pg-driver.ts`)
+      - mongodb — MongoDB native driver used by `MongoDriver` (`src/drivers/mongodb/mongo-driver.ts`)
+      - node-sql-parser — SQL AST parser used by `validateQuery` (`src/drivers/postgres/pg-query-parser.ts`)
+      - zod — schema validation for the loaded config and every per-resource block (`src/config/schema.ts`)
+      - pino — structured JSON logging across `src/index.ts`, per-driver loggers, `AuditLogger`, and the `WsClient`
+      - uuid — generates the per-process `relayId` and per-request `requestId`
+      - yaml — parses the `relay-config.yaml` file in `src/config/loader.ts`
+      - semantic-release — versioning + changelog, configured in `release.config.js` and run in the release workflow
+      - commitlint — Conventional Commits enforcement, configured in `commitlint.config.js` and run on PRs
+    </material_libraries>
+    <backend>
+      <runtime>Node.js 22 (Alpine). Build is `tsc` (strict mode, `NodeNext` modules); dev is `tsx watch`. Production runs `node dist/index.js` from inside the container as UID 10001 (`relay` user, non-root).</runtime>
+      <language>TypeScript ^5.7.0 with `strict: true`, `module: NodeNext`, `moduleResolution: NodeNext`, `target: ES2022`, `esModuleInterop: true`, `skipLibCheck: true`, declarations + source maps on.</language>
+      <database>None owned. The relay never persists; it reads from PostgreSQL and MongoDB instances the customer already runs, behind a per-resource `IReadOnlyDriver` port. Both PostgreSQL (via `pg`) and MongoDB (via `mongodb`) are customer-side resources; the relay never stores its own data.</database>
+      <logging>pino 9.5 — structured JSON logs across the lifecycle logger, per-driver loggers, the audit logger, and the WebSocket client logger. Audit log levels: info on success, warn on denial, error on error.</logging>
+      <config>YAML file (`relay-config.yaml`) loaded from `RELAY_CONFIG_PATH` or `/app/relay-config.yaml`, parsed by the `yaml` library, with `${VAR}` interpolation against `process.env` and a full env-var fallback when no file is present. zod schemas validate the loaded config before any driver is constructed.</config>
+      <patterns>Hexagonal layout: a `IReadOnlyDriver` port (`src/drivers/driver.port.ts`) decouples the request handler from concrete PostgreSQL / MongoDB drivers. Per-resource engines (PolicyEngine, MaskingEngine, AuditLogger, HealthReporter) are stateless and constructed from config; the WebSocket client (`WsClient`) owns the transport and reconnect loop. No global state, no singletons outside the top-level drivers Map and the WsClient.</patterns>
+      <port>No listening port in the runtime container — the relay is an outbound WebSocket client only. The Dockerfile declares `EXPOSE 8080` but it is informational; the image is run with no inbound port mappings in production.</port>
+    </backend>
+    <frontend>removed — this project has no frontend; the relay is a backend agent</frontend>
+    <communication>
+      Outbound WebSocket to the CauseFlow control plane at `${controlPlane.url}` (default `ws://localhost:3000/v1/relay/connect` for local dev, `wss://<host>/v1/relay/connect` in production). Connection URL carries `?token=<RELAY_TOKEN>&tenantId=<TENANT_ID>`; headers carry `Authorization: Bearer <token>` and `X-Tenant-Id: <tenantId>`. JSON-RPC 2.0 in both directions: control-plane → relay methods are `execute`, `list_resources`, `describe_resource`, `health_check`; relay → control-plane messages are `heartbeat` (every 30s) and `resource_update` (on connect and on change). All inbound messages are validated as JSON-RPC 2.0 before being handed to the dispatch switch in `src/index.ts`. Reconnect uses exponential backoff (1s → 30s max) on any non-intentional close.
+    </communication>
+  </technology_stack>
+
+  <integrations>
+    <integration name="PostgreSQL (customer database, via pg driver)">
+      <responsibility>Read-only execution of `query`, `describe_table`, `list_tables`, and `explain` against a customer-managed PostgreSQL instance, scoped to a single configured resource. The relay connects with a dedicated read-only credential supplied by the customer; the control plane never sees the connection string.</responsibility>
+      <availability>required (at least one of Postgres / Mongo per tenant); optional per-resource — the relay works with any subset of resource types configured</availability>
+      <configuration>`resources[].type=postgres` with `connection: { host, port, database, user, password }` (all env-interpolated), plus `allowedOperations` (default `[query, describe_table, list_tables, explain]`) and `maxRowsPerQuery` (default 1000). No TLS-by-default in the driver; relies on the customer's network policy.</configuration>
+      <security>Three-layer read-only enforcement: (1) `IReadOnlyDriver` interface contracts `validate` + `execute` and the relay never calls anything else; (2) `validateQuery` in `src/drivers/postgres/pg-query-parser.ts` parses the SQL with `node-sql-parser`, rejects anything that is not a single SELECT (or CTE/EXPLAIN), rejects semicolons that would split multi-statements, and rejects dangerous function names (`pg_sleep`, `pg_read_file`, `pg_write_file`, `pg_ls_dir`, `pg_stat_file`, `pg_terminate_backend`, `pg_cancel_backend`, `pg_reload_conf`, `dblink`, `dblink_exec`, etc.); (3) every `query` execution runs inside a `BEGIN READ ONLY` transaction with `SET statement_timeout = '30s'` and a server-enforced `LIMIT`. Connection pool: `max: 5`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 10000`. Customer supplies a read-only DB role; the relay never escalates.</security>
+      <failure_behavior>Pool exhaustion or connection failure → driver throws → main loop returns a JSON-RPC `-32603` internal error to the control plane and writes an audit entry with `result: 'error'`. Bad SQL → `validate` returns `{valid:false, reason}` → main loop returns `-32602 invalid params` with the reason. Statement timeout (30s) → server-side timeout → main loop returns `-32603`.</failure_behavior>
+      <deployment>Production: customer runs the relay container in the same VPC as the target Postgres; the container's network policy must allow outbound to the DB host. Local: a customer can run a Postgres in docker-compose and point the relay at it via env. Test: `pg-mem` or any throwaway instance works; the relay does not need a persistent store of its own.</deployment>
+      <affected_surfaces>`src/drivers/postgres/pg-driver.ts` (connection pool + per-operation dispatch), `src/drivers/postgres/pg-query-parser.ts` (SQL AST validation), `src/policy/policy-engine.ts` (operation allowlist + row-limit clamp), `src/index.ts` (request handler switch on `execute` / `describe_resource` / `health_check`).</affected_surfaces>
+    </integration>
+    <integration name="MongoDB (customer database, via mongodb driver)">
+      <responsibility>Read-only execution of `query`, `describe_table`, `list_tables`, and `explain` against a customer-managed MongoDB instance, scoped to a single configured resource. The relay connects with a connection URI supplied by the customer; the control plane never sees the URI.</responsibility>
+      <availability>required (at least one of Postgres / Mongo per tenant); optional per-resource — the relay works with any subset of resource types configured</availability>
+      <configuration>`resources[].type=mongodb` with `connection: { uri, database }` (env-interpolated), plus `allowedOperations` and `maxRowsPerQuery` exactly as for Postgres. The connection URI may include credentials and TLS options in standard MongoDB format.</configuration>
+      <security>Read-only enforcement at two layers: (1) the `IReadOnlyDriver` port; (2) `validate` in `src/drivers/mongodb/mongo-driver.ts` walks the aggregation pipeline (if provided) and rejects any stage whose key is `$out` or `$merge` — the only Mongo write paths that would otherwise be reachable through an aggregation. Connection pool: `maxPoolSize: 5`, `serverSelectionTimeoutMS: 10000`. `describe_table` infers schema from up to 10 sample documents; `query` supports a JSON `filter` or a `sql` string that is JSON.parsed into a filter.</security>
+      <failure_behavior>Connection failure or timeout → driver throws → main loop returns `-32603` and writes an audit entry with `result: 'error'`. `find` on a missing collection → driver throws `Missing collection parameter` → `-32603`. Blocked aggregation stage → `validate` returns the reason → main loop returns `-32602`.</failure_behavior>
+      <deployment>Production: customer runs the relay container with network reachability to the Mongo deployment (Atlas IP allowlist or VPC peering). Local: a customer can run Mongo in docker-compose; the URI accepts any standard form. Test: a `mongo:7` container in CI is enough; the relay does not need a persistent store of its own.</deployment>
+      <affected_surfaces>`src/drivers/mongodb/mongo-driver.ts` (per-operation dispatch + aggregation validator), `src/policy/policy-engine.ts`, `src/index.ts`.</affected_surfaces>
+    </integration>
+    <integration name="CauseFlow Control Plane WebSocket endpoint (wss://<host>/v1/relay/connect)">
+      <responsibility>Outbound-only WebSocket connection that delivers JSON-RPC 2.0 requests to the relay and receives `heartbeat` + `resource_update` messages back. The control plane is owned by the CauseFlow Core API and tracked there as RelayRegistry + WssRelayGateway. The relay never accepts inbound connections and never publishes a public IP.</responsibility>
+      <availability>required</availability>
+      <configuration>`controlPlane.url` (default `ws://localhost:3000/v1/relay/connect` for local dev), `controlPlane.token` (env-interpolated from `RELAY_TOKEN`), `controlPlane.tenantId` (env-interpolated from `TENANT_ID`). The relay appends `?token=<token>&tenantId=<tenantId>` to the URL and sets `Authorization: Bearer <token>` + `X-Tenant-Id: <tenantId>` headers. The token authenticates the relay to the control plane and is tenant-scoped.</configuration>
+      <security>Authentication is per-tenant Bearer token; the relay never sends raw DB credentials over this socket. Tenant isolation is enforced on the control-plane side (it knows which token belongs to which tenant). The relay does not implement mTLS on the WebSocket — the customer's network policy + the token are the trust boundary. The connection drops + reconnects with exponential backoff (1s → 30s max) on any non-intentional close, never on an intentional `close()`.</security>
+      <failure_behavior>Connect failure → backoff and retry; heartbeat lost is not detected at the relay (the control plane side tracks heartbeat liveness). Invalid JSON or non-JSON-RPC messages from the control plane are logged at warn and dropped — they never crash the relay. Unknown method → JSON-RPC `-32601 method not found`.</failure_behavior>
+      <deployment>Production: `wss://<your-causeflow-instance>/v1/relay/connect`; the relay is run with `--read-only`, `--tmpfs /tmp:size=64m`, `--security-opt no-new-privileges`, `--cap-drop ALL`, and no inbound port mapping. Local: `ws://localhost:3000/v1/relay/connect` for development against a local Core API; the relay works with the URL pointing at any reachable WSS endpoint.</deployment>
+      <affected_surfaces>`src/transport/ws-client.ts` (connection + heartbeat + reconnect), `src/transport/protocol.ts` (JSON-RPC 2.0 types and helpers), `src/index.ts` (request handler + `resource_update` + `heartbeat` send), `src/health/health-reporter.ts` (periodic health probe response).</affected_surfaces>
+    </integration>
+    <integration name="Docker Hub (causeflowai/relay) — image registry">
+      <responsibility>Public, customer-facing image registry. The release pipeline pushes the multi-arch image to `causeflowai/relay` with tags `X.Y.Z`, `X.Y`, `X`, and `latest` for every new version. Customers pull a pinned version during onboarding and upgrades.</responsibility>
+      <availability>required (no image registry = no install path for customers)</availability>
+      <configuration>`DOCKERHUB_USERNAME=causeflowai` and `DOCKERHUB_TOKEN` (PAT with read/write) are stored as GitHub Actions secrets on `causeflow/relay`. Image tags are derived from the version computed by semantic-release; the Dockerfile is the only build artifact and is published as-is from the repo.</configuration>
+      <security>DockerHub credentials never appear in the image and never appear in this repo. Only the GitHub Actions workflow reads them. The published image is reproducible from the source at the tagged commit.</security>
+      <failure_behavior>DockerHub login failure or push failure → release job fails → no tag is created; the workflow is rerun on next push. No fallback registry is configured.</failure_behavior>
+      <deployment>Production: DockerHub is the single registry customers pull from. The CI workflow builds and pushes for `linux/amd64` and `linux/arm64` via Docker Buildx + QEMU. Local: a developer can `docker build` directly; no push is required for local development.</deployment>
+      <affected_surfaces>`.github/workflows/release.yml` (Build & Push Docker Image job), `Dockerfile` (multi-stage build).</affected_surfaces>
+    </integration>
+    <integration name="GitHub Actions (CI + Release)">
+      <responsibility>Continuous integration (PR validation: commitlint, tsc build, Docker smoke build) and continuous delivery (semantic-release + multi-arch Docker push) on `causeflow/relay`.</responsibility>
+      <availability>required</availability>
+      <configuration>Two workflow files: `.github/workflows/ci.yml` (PR → `main` trigger; runs `npm ci`, commitlint over the PR's commits, `npm run build`, and `docker build . --platform linux/amd64` as a smoke test). `.github/workflows/release.yml` (push → `main` trigger; runs semantic-release, then if a new version was released, builds and pushes the multi-arch image).</configuration>
+      <security>Workflows run with the default `GITHUB_TOKEN` for checkout and semantic-release. The DockerHub credentials are pulled from repository secrets. No credentials are baked into the image or logged.</security>
+      <failure_behavior>PR commitlint failure or build failure → checks fail → PR is blocked. Release semantic-release step failure → release job fails → no new tag is created. Docker build/push failure → release job fails after the semantic-release step; the version tag remains, but the image is missing for that version (rerun is required).</failure_behavior>
+      <deployment>CI runs on `ubuntu-latest` GitHub-hosted runners. Both workflows are versioned to commit-hash actions where possible (e.g. `actions/checkout@v4`); Docker login uses `docker/login-action@v3`, buildx uses `docker/build-push-action@v6`.</deployment>
+      <affected_surfaces>`.github/workflows/ci.yml`, `.github/workflows/release.yml`, `release.config.js` (semantic-release plugins), `commitlint.config.js` (commitlint config).</affected_surfaces>
+    </integration>
+  </integrations>
+
+  <prerequisites>
+    <environment_setup>
+      - Node.js 22 (Alpine) runtime base image — required by `Dockerfile` and pinned in every GitHub Actions workflow via `actions/setup-node@v4` with `node-version: '22'`.
+      - Docker (>= 20) on the host that builds or runs the image (multi-arch buildx is exercised in CI; locally a single-arch `docker build` is sufficient).
+      - Customer PostgreSQL and/or MongoDB instance (network reachable from relay) on the same VPC / on-prem network as the relay container.
+      - CauseFlow tenant with relay enabled (RELAY_TOKEN, TENANT_ID) — provides the per-tenant Bearer token used to authenticate the WebSocket to the control plane.
+      - Outbound HTTPS/WSS to control plane (port 443) — the relay only opens outbound connections; the customer's firewall needs no inbound rules.
+      - Optional env vars: `RELAY_CONFIG_PATH` (defaults to `/app/relay-config.yaml` inside the container; not set on dev), `CONTROL_PLANE_URL` (defaults to `ws://localhost:3000/v1/relay/connect`), `MASKING_ENABLED` (default `true`), `AUDIT_ENABLED` (default `true`), and per-resource env-var fallbacks (`RESOURCE_0_ID`, `RESOURCE_0_TYPE`, `RESOURCE_0_CONNECTION`, `RESOURCE_0_MAX_ROWS`, ...) used when no YAML file is present.
+      - Repository conventions: Conventional Commits (enforced by commitlint on PRs), `<type>/<short-description>` branches, automated semver via semantic-release. The repo is single-package npm; `package-lock.json` is the source of truth (`npm ci` in CI).
+      - Secrets / credentials (never inline in this repo, only in GitHub Actions secrets and customer-side env): `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `RELAY_TOKEN`, `TENANT_ID`, per-resource `PG_*` / `MONGO_*` connection env vars.
+    </environment_setup>
+  </prerequisites>
+
+  <core_features>
+    <foundation>
+      - Config loading from YAML with `${VAR}` env interpolation and a full env-var fallback when no file is present (`src/config/loader.ts`); Zod-validated at load time (`src/config/schema.ts`) so a misconfigured control plane or resource fails fast at boot, not at first request
+      - Outbound WebSocket client (`src/transport/ws-client.ts`) that opens the connection with Bearer + tenant headers, sends `heartbeat` every 30 seconds, sends `resource_update` on connect, and reconnects with exponential backoff (1s → 30s max) on any non-intentional close
+      - JSON-RPC 2.0 protocol layer (`src/transport/protocol.ts`) with typed `RpcRequest`/`RpcResponse`, `createResponse`, `createErrorResponse`, `createHeartbeat`, `createResourceUpdate` helpers, and the documented method set: `execute`, `list_resources`, `describe_resource`, `health_check`
+      - Entry point (`src/index.ts`) wires drivers + engines + WS client, dispatches inbound JSON-RPC methods to the right engine, and installs `SIGINT` / `SIGTERM` graceful shutdown that closes the WS client, drains every driver's connection pool, and exits 0
+      - Per-resource health reporter (`src/health/health-reporter.ts`) that runs `healthCheck` on every driver in parallel-style and returns `{ resourceId, type, healthy, latencyMs }[]`
+      - Hardened multi-stage Docker image: `node:22-alpine` builder → `node:22-alpine` runtime, non-root `relay` user (UID 10001), `npm install --omit=dev`, `EXPOSE 8080` informational, `CMD ["node", "dist/index.js"]`
+      - Local development: `npm run dev` (tsx watch on `src/index.ts`), `npm run build` (tsc → `dist/`), `npm start` (`node dist/index.js`)
+      - CI on PR: `npm ci` → commitlint over the PR commits → `npm run build` → `docker build . --platform linux/amd64` smoke test (`.github/workflows/ci.yml`)
+      - Release on push to `main`: semantic-release computes the next version (Conventional Commits → semver), then a `docker buildx` multi-arch (`linux/amd64`, `linux/arm64`) build and push to `causeflowai/relay` with tags `X.Y.Z`, `X.Y`, `X`, `latest` (`.github/workflows/release.yml`)
+      - semantic-release config (`release.config.js`) chains `@semantic-release/commit-analyzer` → `@semantic-release/release-notes-generator` → `@semantic-release/changelog` → `@semantic-release/npm` (no publish) → `@semantic-release/git` (commits package.json + CHANGELOG.md back) → `@semantic-release/github` (creates GitHub Release)
+      - commitlint config (`commitlint.config.js`) extends `@commitlint/config-conventional` so PR commits always parse as `fix:`, `feat:`, `chore:`, etc.
+      - `.dockerignore` excludes `node_modules`, `.git`, `dist`, `*.md` (except `relay-config.example.yaml`), `docs/`, `.github/`, `*.test.ts`, coverage, logs
+    </foundation>
+    <drivers>
+      - `IReadOnlyDriver` port (`src/drivers/driver.port.ts`) defines `validate`, `execute`, `healthCheck`, `capabilities`, `close`, and the shared `DriverCommand` / `DriverResult` shapes
+      - PostgreSQL driver (`src/drivers/postgres/pg-driver.ts`) implements the port with a `pg.Pool` (`max: 5`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 10000`) and the four operations: `list_tables` (information_schema.tables in `public`), `describe_table` (information_schema.columns + table_constraints merged), `query` (single SELECT in a `BEGIN READ ONLY` transaction with `SET statement_timeout = '30s'` and server-enforced `LIMIT`), `explain` (`EXPLAIN ANALYZE`)
+      - PostgreSQL query parser (`src/drivers/postgres/pg-query-parser.ts`) uses `node-sql-parser` to AST-parse each query, reject any non-SELECT statement, reject multi-statement injection (semicolons splitting statements), and reject a hardcoded list of dangerous function names (`pg_sleep`, `lo_import`/`lo_export`, `pg_read_file`/`pg_write_file`/`pg_read_binary_file`, `pg_ls_dir`/`pg_stat_file`, `pg_terminate_backend`/`pg_cancel_backend`/`pg_reload_conf`, `set_config`/`current_setting`, `dblink`/`dblink_exec`); falls back to a textual first-word check (INSERT/UPDATE/DELETE/DROP/ALTER/CREATE/TRUNCATE/GRANT/REVOKE/COPY → reject) if the parser cannot parse the statement
+      - MongoDB driver (`src/drivers/mongodb/mongo-driver.ts`) implements the port with a `MongoClient` (`maxPoolSize: 5`, `serverSelectionTimeoutMS: 10000`) and the four operations: `list_tables` (`listCollections().toArray()`), `describe_table` (schema inferred from 10 sample documents + `indexes()`), `query` (`collection.find(filter).limit(limit)`, accepting either a JSON `filter` or a `sql` string parsed as JSON), `explain` (`collection.find(filter).explain('executionStats')`)
+      - MongoDB aggregation validator (inside `src/drivers/mongodb/mongo-driver.ts`) walks the supplied pipeline and rejects any stage whose key is `$out` or `$merge` — the only Mongo write paths reachable through an aggregation
+      - Per-driver health checks: Postgres = `SELECT 1` against the pool, MongoDB = `db.admin().ping()`; both return `false` on any error
+    </drivers>
+    <policy-engine>
+      - `PolicyEngine` (`src/policy/policy-engine.ts`) built from the resource list at startup; `evaluate(resourceId, command)` runs three checks in order: (1) resource exists in the config, (2) operation is in the resource's `allowedOperations`, (3) for `query`, the requested `limit` does not exceed `maxRowsPerQuery` (the driver then clamps it to `min(requested, max)`)
+      - Returns `{ allowed: false, reason }` for every denial; the main loop turns denials into a JSON-RPC `-32600 invalid request` with the reason attached and writes an audit entry with `result: 'denied'`
+      - `getResource` and `listResources` are exposed for the `describe_resource` and `list_resources` JSON-RPC methods
+    </policy-engine>
+    <pii-masking>
+      - `MaskingEngine` (`src/masking/masking-engine.ts`) applies regex-based PII masking to every result row before anything leaves the customer's network
+      - Default patterns: CPF (`\d{3}\.\d{3}\.\d{3}-\d{2}` → `***.***.***-**`), email → `***@***.***`, credit card → `****-****-****-****`, bearer token (`Bearer ...` → `Bearer ***`), BR phone → `(**) *****-****`
+      - User-defined patterns from `masking.patterns` are added on top of the defaults, each with `{ name, regex, replacement }`
+      - Masking walks strings, arrays, and objects recursively; each masked value increments `maskedFieldCount`; the response carries both `masked: boolean` and `maskedFieldCount: number` so the control plane knows when PII was sanitized
+      - Can be disabled via `masking.enabled: false` or `MASKING_ENABLED=false` (default on)
+    </pii-masking>
+    <audit-trail>
+      - `AuditLogger` (`src/audit/audit-logger.ts`) writes a structured JSON entry for every request, tagged with `relayId` (the relay's UUID, generated once at startup), `requestId`, `resource`, `operation`, and `result` (`success` / `denied` / `error`)
+      - Success entries also carry `rowCount`, `maskedFieldCount`, and `executionTimeMs`; denied entries carry `policyChecks.reason`; error entries carry `errorMessage`
+      - Log level follows the entry's `result`: `info` for success, `warn` for denial, `error` for error
+      - Level is configured via `audit.level` (debug / info / warn / error, default `info`) and can be disabled via `audit.enabled: false` or `AUDIT_ENABLED=false`
+    </audit-trail>
+    <relay-initiated-messages>
+      - `heartbeat` every 30s while the WebSocket is open: `{ type: 'heartbeat', relayId, tenantId }` — keeps the control plane's `RelayRegistry` aware of liveness
+      - `resource_update` on connect (and on any future resource change): `{ type: 'resource_update', relayId, tenantId, resources: [{ resourceId, type, name, database, readOnly: true }] }` — tells the control plane which databases this relay can reach
+      - Both messages are constructed via `createHeartbeat` and `createResourceUpdate` in `src/transport/protocol.ts` and sent via `WsClient.send`; the relay never sends JSON-RPC responses for its own messages
+    </relay-initiated-messages>
+    <graceful-shutdown>
+      - On `SIGINT` or `SIGTERM`, the entry point sets `intentionalClose` on the WS client (so the close does not trigger reconnect), closes the WebSocket, awaits `close()` on every driver, and exits 0
+      - Any driver `close()` failure is caught and ignored — shutdown is best-effort and never blocks the exit
+      - Unhandled errors inside a request handler are caught at the top of the `onMessage` callback; the relay responds with a JSON-RPC `-32603 internal error` carrying the error message and logs at error
+    </graceful-shutdown>
+    <open-source-local-runtime>
+      - Goal: the relay subproject runs end-to-end via `docker compose up` from this repo root with zero paid/external SaaS credentials configured. The relay is already free of AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, and Mastra — the work here is to make that verifiable at a real docker-compose boundary and to add a local control-plane stub + local customer databases so the full JSON-RPC path can be exercised without any external service.
+      - Local control plane stub: a small `node:22-alpine` + `ws` service committed at `scripts/control-plane-stub/server.mjs` and wired into `docker-compose.yml` as the `relay-control-plane-stub` service. It listens on `0.0.0.0:3000` and answers the same `/v1/relay/connect` JSON-RPC 2.0 contract the CauseFlow control plane does: it accepts the relay's WebSocket handshake, validates the `?token=&tenantId=` query string against a fixed expected pair, logs every `resource_update` and `heartbeat` it receives, and on connect runs a `health_check` round-trip plus an `execute` against the bundled `order-pg` resource. No AWS, Stripe, Clerk, or any other vendor SDK is imported; only `ws` and the Node stdlib.
+      - Local customer databases: a `postgres:16-alpine` container (`relay-postgres`, port 5432) seeded by `scripts/control-plane-stub/initdb/01-orders.sql` with a small `orders` table for the demo `execute` path, and a `mongo:7` container (`relay-mongo`, port 27017) with no seed (the `describe_table` round-trip works against an empty database). Both are customer-side resources — the relay never owns or persists data.
+      - `relay-config.docker.yaml` is committed and mounted into the relay container; it points `controlPlane.url` at `ws://relay-control-plane-stub:3000/v1/relay/connect` and the two `resources[]` at the local Postgres and Mongo via `host: relay-postgres` / `uri: mongodb://relay-mongo:27017`.
+      - `.env.example` is added at the repo root and contains only the relay's own env vars: `RELAY_TOKEN`, `TENANT_ID`, `CONTROL_PLANE_URL`, `PG_HOST`, `PG_PORT`, `PG_DATABASE`, `PG_USER`, `PG_PASSWORD`, `MONGO_URI`, `MONGO_DATABASE`, and the optional `MASKING_ENABLED` / `AUDIT_ENABLED` toggles. No `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entries.
+      - `docker compose up -d` from the relay repo root brings up exactly four services — `relay-control-plane-stub`, `relay-postgres`, `relay-mongo`, `relay` — and within 60 seconds the relay's boot log contains "Connected to control plane" and the stub's log contains one `[stub] resource_update from relayId=<uuid> resources=<n>` line. No outbound traffic to AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra is attempted (verifiable by grepping the relay boot log for vendor hostnames; the only outbound URL the relay ever resolves is the local stub).
+      - The 50 original acceptance checks (AC-001 through AC-050) still pass: the hardened container still runs as UID 10001, the policy engine / masking engine / audit logger / Postgres / Mongo drivers are unchanged, the WebSocket transport still speaks JSON-RPC 2.0 with the documented `execute` / `list_resources` / `describe_resource` / `health_check` methods, and graceful shutdown still works. This context adds the open-source docker-compose plumbing on top of the existing single-image distribution; it does not rewrite the relay.
+    </open-source-local-runtime>
+  </core_features>
+
+  <acceptance_checks>
+    <acceptance_check id="AC-001" context="foundation" category="foundation" depends_on="">
+      <description>`npm install` followed by `npm run build` exits 0 and produces `dist/index.js` plus every module under `src/`. `node dist/index.js` with a missing config file logs a fatal error and exits non-zero; with a valid `relay-config.yaml` (or the documented env-var fallbacks) the process starts the pino logger, logs "Starting CauseFlow Relay...", loads the config, and begins attempting to connect to `controlPlane.url` (failing fast on bad config but retrying on bad URL until the WS reaches the control plane).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-002" context="foundation" category="foundation" depends_on="AC-001">
+      <description>`docker build . --platform linux/amd64` (and on a buildx host, `--platform linux/amd64,linux/arm64`) succeeds and produces an image that, when run with a valid config, starts as UID 10001, logs the same "Starting CauseFlow Relay..." line, and connects to the configured control plane. `docker run --rm <image> node -e "require('fs').readFileSync('/etc/passwd','utf8')"` shows the image runs as `relay` (UID 10001) and the root filesystem is read-only by default; `docker inspect <image>` shows no exposed ports other than the informational 8080.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-003" context="foundation" category="foundation" depends_on="AC-001">
+      <description>`npx tsc --noEmit` exits 0; the project compiles under `strict: true` with `module: NodeNext` and `moduleResolution: NodeNext`. `package.json` declares `"type": "module"` and every internal import uses the explicit `.js` extension on the relative path (e.g. `from './transport/protocol.js'`).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-004" context="foundation" category="foundation" depends_on="AC-001">
+      <description>A `relay-config.yaml` with `controlPlane.url = 'not-a-url'` and a valid `resources[0]` is loaded by `loadConfig()`; the Zod schema either accepts the URL string as-is (it is a free-form `z.string()`) or, when the Zod parse throws, the relay logs the parse error and exits non-zero — it never silently starts with an invalid control-plane URL. A YAML file with a missing `controlPlane.token` fails Zod validation with a clear error pointing at the missing field.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-005" context="foundation" category="foundation" depends_on="AC-001">
+      <description>When no YAML file is present at `RELAY_CONFIG_PATH` and `/app/relay-config.yaml`, `loadConfig()` falls back to building the config from environment variables: it reads `CONTROL_PLANE_URL` (default `ws://localhost:3000/v1/relay/connect`), `RELAY_TOKEN`, `TENANT_ID`, walks `RESOURCE_0_*` / `RESOURCE_1_*` / ... until a `RESOURCE_N_ID` is missing, JSON-parses each `RESOURCE_N_CONNECTION`, and uses `RESOURCE_N_MAX_ROWS` (default 1000). The fallback config round-trips through the same Zod schema as the YAML path.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-006" context="foundation" category="foundation" depends_on="AC-001">
+      <description>Environment variable interpolation: a YAML file containing `token: ${RELAY_TOKEN}` resolves to the value of `process.env.RELAY_TOKEN` at load time. Interpolation works at any nesting depth (string, object, array) and substitutes an empty string for unset variables (no exception is thrown for missing vars, matching the documented behavior).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-007" context="foundation" category="foundation" depends_on="AC-002">
+      <description>`.github/workflows/ci.yml` is triggered on `pull_request` to `main`, runs `actions/setup-node@v4` with `node-version: '22'`, runs `npm ci`, validates PR commits with `npx commitlint --from $BASE_SHA --to $HEAD_SHA --verbose`, runs `npm run build`, and runs `docker build . --platform linux/amd64` as a smoke test. Each step exits 0 on a passing PR.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-008" context="foundation" category="foundation" depends_on="AC-002">
+      <description>`.github/workflows/release.yml` is triggered on `push` to `main`. The `release` job runs `actions/checkout@v4` with `fetch-depth: 0`, sets up Node 22, runs `npm ci`, then `npx semantic-release` with `GITHUB_TOKEN`. If a new tag is produced, the workflow sets `released=true` and the version. The `docker` job (which `needs: release` and `if: needs.release.outputs.released == 'true'`) then sets up QEMU, sets up Docker Buildx, logs in to DockerHub with `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN`, and runs `docker/build-push-action@v6` to push the image with tags `X.Y.Z`, `X.Y`, `X`, and `latest` for `linux/amd64,linux/arm64`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-009" context="foundation" category="foundation" depends_on="AC-002">
+      <description>`release.config.js` chains the documented semantic-release plugins in order: `@semantic-release/commit-analyzer` → `@semantic-release/release-notes-generator` → `@semantic-release/changelog` (writes CHANGELOG.md) → `@semantic-release/npm` (with `npmPublish: false`, only updates `package.json` version) → `@semantic-release/git` (commits `package.json` + `CHANGELOG.md` back with the `chore(release): ${nextRelease.version} [skip ci]` message) → `@semantic-release/github` (creates the GitHub Release). `branches: ['main']` restricts releases to the main branch.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-010" context="foundation" category="foundation" depends_on="AC-001">
+      <description>`commitlint.config.js` extends `['@commitlint/config-conventional']` so PR commits validated by `npx commitlint` accept messages like `fix: handle ws reconnect`, `feat: add redis driver`, `feat!: change config schema` (with `BREAKING CHANGE:` footer or `!` suffix triggering a major), and reject messages that do not parse as a Conventional Commit.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-011" context="foundation" category="foundation" depends_on="AC-001">
+      <description>The Dockerfile builds in two stages (`node:22-alpine AS builder` → `node:22-alpine`), installs devDependencies only in the builder stage, runs `npx tsc` to produce `dist/`, then copies `dist/` into the runtime stage, runs `npm install --omit=dev` to install only production dependencies, creates the `relay` user with `adduser -D -u 10001 relay`, sets `USER relay`, and starts with `CMD ["node", "dist/index.js"]`. `WORKDIR /app` and `EXPOSE 8080` are declared.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-012" context="transport" category="functional" depends_on="AC-001">
+      <description>When the WebSocket is open, `WsClient` sends a `heartbeat` message every 30 seconds with the same `relayId` (a UUID generated once in the `WsClient` constructor) and the configured `tenantId`. The heartbeat is constructed via `createHeartbeat(relayId, tenantId)` and matches the `HeartbeatMessage` shape `{ type: 'heartbeat', relayId, tenantId }`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-013" context="transport" category="functional" depends_on="AC-001">
+      <description>On WebSocket `open`, the relay sends a `resource_update` message containing every resource from the loaded config, each mapped to `{ resourceId, type: 'postgres' | 'mongodb', name, database, readOnly: true }`. The message is constructed via `createResourceUpdate(relayId, tenantId, resources)` and matches the `ResourceUpdateMessage` shape.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-014" context="transport" category="functional" depends_on="AC-001">
+      <description>On any non-intentional WebSocket `close`, the `WsClient` schedules a reconnect via `setTimeout` with the current `reconnectDelay` (starting at 1000ms, doubling up to `maxReconnectDelay = 30000`), and the next `connect()` is invoked from the timer. Calling `WsClient.close()` sets `intentionalClose = true` first, so an intentional close does not schedule a reconnect.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-015" context="transport" category="functional" depends_on="AC-001">
+      <description>The `connect()` method appends `?token=<token>&tenantId=<tenantId>` to the parsed URL and sets the headers `Authorization: Bearer <token>` and `X-Tenant-Id: <tenantId>` on the `new WebSocket(url, { headers })` call. A log line at info level (`'Connected to control plane'`) is emitted on the `open` event with `relayId` and `url` attached; on `error`, an error-level log is emitted; on `close`, an info log plus a `scheduleReconnect` is invoked unless `intentionalClose` is set.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-016" context="transport" category="functional" depends_on="AC-001">
+      <description>On a `message` event, the `WsClient` JSON-parses the payload (string or buffer). Messages that fail to parse are logged at warn with the parse error and dropped. Messages where `parsed.jsonrpc !== '2.0'` or `parsed.method` is missing are likewise dropped. Only well-formed JSON-RPC 2.0 requests are forwarded to `opts.onMessage`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-017" context="protocol" category="functional" depends_on="AC-001">
+      <description>A JSON-RPC 2.0 `list_resources` request (no params) returns a list of resources shaped as `{ resourceId, type, name, database, readOnly: true }[]` derived from the policy engine's resource list. The response uses `createResponse(request.id, resources)`, producing `{ jsonrpc: '2.0', id, result: [...] }`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-018" context="protocol" category="functional" depends_on="AC-001">
+      <description>A JSON-RPC 2.0 `describe_resource` request with `{ resourceId: '<unknown>' }` returns a JSON-RPC error with code `-32602` and message `Unknown resource: <id>` (via `createErrorResponse`). A valid `resourceId` triggers `driver.execute({ operation: 'list_tables', params: {} })` on the matching driver and returns `{ tables, type, database }`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-019" context="protocol" category="functional" depends_on="AC-001">
+      <description>A JSON-RPC 2.0 `health_check` request returns an array of `{ resourceId, type, healthy, latencyMs }[]` produced by `HealthReporter.checkAll()`, one entry per initialized driver. If a driver's `healthCheck()` throws, that entry is logged at warn with `{ err, resourceId }` and included with `healthy: false` and the measured latency; the other drivers' results are unaffected.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-020" context="protocol" category="functional" depends_on="AC-001">
+      <description>A JSON-RPC 2.0 request with an unknown method (anything not in `['execute', 'list_resources', 'describe_resource', 'health_check']`) returns a JSON-RPC error with code `-32601` (method not found) and the message `Unknown method: <method>`. A request that throws inside the handler is caught, logged at error with `{ err, requestId }`, and answered with code `-32603` and the error's `message` (or `'Internal error'` for non-Error throws).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-021" context="protocol" category="functional" depends_on="AC-001">
+      <description>A JSON-RPC 2.0 `execute` request with `params.resourceId = 'main-pg'`, `params.operation = 'query'`, and `params.params = { sql: 'SELECT id, status FROM orders' }` returns a JSON-RPC 2.0 response whose `result` shape is `{ rows, rowCount, fields, executionTimeMs, masked: <maskedFieldCount > 0>, maskedFieldCount }`. The `result.masked` and `result.maskedFieldCount` reflect the masking step's output.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-022" context="postgres-driver" category="functional" depends_on="AC-001">
+      <description>With a Postgres resource configured, an `execute` request with `operation: 'list_tables'` runs `SELECT table_name, table_type FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name` against the configured database and returns the rows as `rows`, with `fields: [{ name: 'table_name', type: 'text' }, { name: 'table_type', type: 'text' }]`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-023" context="postgres-driver" category="functional" depends_on="AC-001">
+      <description>With a Postgres resource configured, an `execute` request with `operation: 'describe_table'` and `params.params.tableName = 'orders'` runs the information_schema.columns + information_schema.table_constraints queries scoped to the `public` schema and the named table, merging the column rows and the constraint rows (with each constraint row tagged `_type: 'constraint'`) into the response `rows`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-024" context="postgres-driver" category="functional" depends_on="AC-001">
+      <description>With a Postgres resource configured, an `execute` request with `operation: 'query'` and a single SELECT statement runs inside `BEGIN READ ONLY; SET statement_timeout = '30s'; <sql> LIMIT <n>; COMMIT;` on a dedicated `client` from the pool, and the response carries the rows, `rowCount`, `fields` (each `{ name, type }` derived from `pg`'s `dataTypeID`), and the measured `executionTimeMs`. The client is released back to the pool in a `finally` block; any error triggers `ROLLBACK` (best-effort) before the throw.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-025" context="postgres-driver" category="functional" depends_on="AC-001">
+      <description>With a Postgres resource configured, an `execute` request with `operation: 'query'` and `params.params.limit = N` clamps the executed limit to `min(N, resource.maxRowsPerQuery)` and appends `LIMIT <clamped>` to the SQL. The clamped limit is enforced both at the policy engine (rejection when `N > maxRowsPerQuery`) and at the driver (defensive clamp in the SQL).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-026" context="postgres-driver" category="functional" depends_on="AC-001">
+      <description>With a Postgres resource configured, an `execute` request with `operation: 'explain'` runs `EXPLAIN ANALYZE <sql>` and returns the explain rows verbatim. (The pg-query-parser also runs on `explain`; multi-statement and non-SELECT-shaped queries are rejected the same way as for `query`.)</description>
+    </acceptance_check>
+    <acceptance_check id="AC-027" context="postgres-driver" category="functional" depends_on="AC-001">
+      <description>`PgDriver.healthCheck()` runs `SELECT 1` against the pool and returns `true` on success or `false` on any error (without re-throwing). `PgDriver.close()` awaits `pool.end()` and is called by the graceful-shutdown path.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-028" context="postgres-sql-parser" category="functional" depends_on="AC-001">
+      <description>`validateQuery("SELECT 1")` returns `{ valid: true }`. `validateQuery("INSERT INTO t VALUES (1)")` returns `{ valid: false, reason: 'Only SELECT statements are allowed, got INSERT' }` (or a textual `'INSERT statements are not allowed'` fallback if the parser throws). `validateQuery("SELECT 1; DROP TABLE users")` returns `{ valid: false, reason: 'Multi-statement queries are not allowed' }`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-029" context="postgres-sql-parser" category="functional" depends_on="AC-001">
+      <description>`validateQuery("SELECT pg_sleep(10)")`, `validateQuery("SELECT * FROM pg_proc WHERE proname = 'pg_read_file'")` (containing the substring `pg_read_file`), and any query whose lowercased text contains one of the documented dangerous function names (`pg_sleep`, `lo_import`, `lo_export`, `pg_read_file`, `pg_write_file`, `pg_read_binary_file`, `pg_ls_dir`, `pg_stat_file`, `pg_terminate_backend`, `pg_cancel_backend`, `pg_reload_conf`, `set_config`, `current_setting`, `dblink`, `dblink_exec`) returns `{ valid: false, reason: 'Dangerous function detected: <name>' }`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-030" context="postgres-sql-parser" category="functional" depends_on="AC-001">
+      <description>`validateQuery("WITH x AS (SELECT 1) SELECT * FROM x")` returns `{ valid: true }`. `validateQuery("SELECT * FROM (SELECT pg_sleep(1)) s")` is rejected via the dangerous-function text scan. `validateQuery("EXPLAIN SELECT 1")` is accepted at the parser level (its operation is `query` or `explain` at the driver; the parser only checks for SELECT/CTE shape).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-031" context="mongo-driver" category="functional" depends_on="AC-001">
+      <description>With a MongoDB resource configured, an `execute` request with `operation: 'list_tables'` calls `db.listCollections().toArray()` and returns the mapped `{ name, type }[]` rows.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-032" context="mongo-driver" category="functional" depends_on="AC-001">
+      <description>With a MongoDB resource configured, an `execute` request with `operation: 'describe_table'` and `params.params.tableName = 'orders'` infers a schema from up to 10 sample documents via `collection.find().limit(10).toArray()`, walks the documents to record the set of `typeof value` per field, and merges those rows with the `indexes()` output (each tagged `_type: 'index'`, `{ name, key }`).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-033" context="mongo-driver" category="functional" depends_on="AC-001">
+      <description>With a MongoDB resource configured, an `execute` request with `operation: 'query'` accepts either `params.params.filter` (used directly as the find filter) or `params.params.sql` (JSON.parsed into a filter when `filter` is empty), falls back to `{}` if neither is supplied, and runs `collection.find(query).limit(<clamped limit>).toArray()`. The result `rows` is the array of found documents cast to `Record<string, unknown>[]`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-034" context="mongo-driver" category="functional" depends_on="AC-001">
+      <description>With a MongoDB resource configured, an `execute` request with `operation: 'query'` and `params.params.pipeline = [{ $match: { status: 'failed' } }, { $out: 'archive' }]` is rejected by `validate` with `reason: 'Aggregation stage $out is not allowed'`. The same applies to `$merge`. A pipeline of only `$match` / `$group` / `$sort` / `$project` / `$limit` stages is accepted.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-035" context="mongo-driver" category="functional" depends_on="AC-001">
+      <description>With a MongoDB resource configured, an `execute` request with `operation: 'explain'` runs `collection.find(filter).explain('executionStats')` and returns `{ rows: [<explanation>], rowCount: 1, executionTimeMs }`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-036" context="mongo-driver" category="functional" depends_on="AC-001">
+      <description>`MongoDriver.healthCheck()` runs `db.admin().ping()` and returns `true` on success, `false` on any error. `MongoDriver.close()` awaits `client.close()`. The driver is constructed with `maxPoolSize: 5` and `serverSelectionTimeoutMS: 10000`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-037" context="policy-engine" category="functional" depends_on="AC-001">
+      <description>A resource configured with `allowedOperations: ['query']` rejects an `execute` request with `operation: 'describe_table'` via the policy engine with `reason: 'Operation describe_table not allowed on resource <id>'`; the main loop turns that into a JSON-RPC `-32600` error and writes an audit entry with `result: 'denied'`, `policyChecks.reason` set to the denial reason.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-038" context="policy-engine" category="functional" depends_on="AC-001">
+      <description>An `execute` request with `params.params.limit = 5000` against a resource with `maxRowsPerQuery: 1000` is rejected by the policy engine with `reason: 'Row limit 5000 exceeds maximum 1000'`. An `execute` request with `params.params.limit = 100` (or no limit, which falls back to `maxRowsPerQuery`) is accepted; the driver then clamps the actual `LIMIT` (or Mongo `find().limit`) to `min(100, 1000) = 100`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-039" context="policy-engine" category="functional" depends_on="AC-001">
+      <description>An `execute` request with `params.resourceId = 'unknown-resource'` is rejected at the policy engine with `reason: 'Unknown resource: unknown-resource'`. The main loop writes an audit entry with `result: 'denied'`, `policyChecks.reason` set to the denial reason, and returns a JSON-RPC `-32600` error with that reason attached.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-040" context="pii-masking" category="functional" depends_on="AC-001">
+      <description>`MaskingEngine.mask(['john@example.com', '123.456.789-00', 'plain'])` returns `{ masked: ['***@***.***', '***.***.***-**', 'plain'], maskedFieldCount: 2 }` when masking is enabled with the default patterns. The masked output round-trips: the email regex strips the local part + domain, the CPF regex matches the dotted pattern, and the plain string is left alone.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-041" context="pii-masking" category="functional" depends_on="AC-001">
+      <description>`MaskingEngine.mask({ user: { email: 'a@b.co', notes: 'hello' } })` recursively walks the object, masks the email field, leaves `notes` alone, and returns `{ masked: { user: { email: '***@***.***', notes: 'hello' } }, maskedFieldCount: 1 }`. Arrays nested inside objects are also walked.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-042" context="pii-masking" category="functional" depends_on="AC-001">
+      <description>User-defined patterns from `masking.patterns` are added to the default set. A config with `{ name: 'session_id', regex: 'sess_[a-f0-9]{16}', replacement: 'sess_***' }` causes the string `sess_0123456789abcdef` to be masked to `sess_***` and the response `maskedFieldCount` to include this match.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-043" context="pii-masking" category="functional" depends_on="AC-001">
+      <description>When `masking.enabled = false` is configured (or `MASKING_ENABLED=false` is set), `MaskingEngine.mask(data)` returns `{ masked: data, maskedFieldCount: 0 }` without applying any patterns.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-044" context="audit-trail" category="functional" depends_on="AC-001">
+      <description>Every successful `execute` request writes a pino info entry with `{ timestamp, relayId, requestId, resource, operation, result: 'success', rowCount, maskedFieldCount, executionTimeMs }`. The `relayId` is the same UUID the WS client generated at startup and is reused across the lifetime of the process. The audit logger is created inside the `onMessage` callback for every request, so it carries the same `relayId` and a per-request `requestId`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-045" context="audit-trail" category="functional" depends_on="AC-001">
+      <description>Every denied request (policy engine denial, driver validation failure, unknown resource) writes a pino warn entry with `result: 'denied'` and `policyChecks.reason` set to the denial reason. Every errored request writes a pino error entry with `result: 'error'` (an unhandled error from the try/catch in `onMessage` also writes a top-level error log with `{ err, requestId }` before the response is sent).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-046" context="audit-trail" category="functional" depends_on="AC-001">
+      <description>`audit.level` accepts `'debug' | 'info' | 'warn' | 'error'` (default `'info'`). The pino logger is constructed with the chosen level and `base: { relayId }` so every entry is automatically tagged. Setting `audit.enabled = false` short-circuits `log()` and writes nothing.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-047" context="lifecycle" category="functional" depends_on="AC-001">
+      <description>Sending `SIGTERM` (or `SIGINT`) to a running relay triggers the shutdown handler: `WsClient.close()` is invoked first (which sets `intentionalClose = true`, clears the heartbeat interval and reconnect timer, and closes the WebSocket), then `driver.close()` is awaited for every initialized driver (errors are caught and ignored), then `process.exit(0)`. A second `SIGTERM` after the first completes has no effect (the process is already gone).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-048" context="lifecycle" category="functional" depends_on="AC-001">
+      <description>An unhandled error inside a request handler (for example, a driver throws a non-recoverable error during `execute`) is caught at the top of the `onMessage` callback, logged at error with `{ err, requestId }`, and the request is answered with a JSON-RPC error `{ code: -32603, message: <err.message || 'Internal error'> }`. The process stays running and the WS client is not closed.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-049" context="lifecycle" category="functional" depends_on="AC-001">
+      <description>A driver that fails to initialize (the `try`/`catch` around the driver construction in `main()`) is logged at error with `{ err, id: resource.id }` and skipped; the relay continues to start with the remaining successfully-initialized drivers and reports them in the next `resource_update` and `list_resources` response. A relay with zero successfully-initialized drivers still starts the WS client and answers `health_check` with an empty array (no resources to check).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-050" context="lifecycle" category="functional" depends_on="AC-001">
+      <description>Dev workflow: `npm install` then `npm run dev` (which runs `tsx watch src/index.ts`) starts the relay, watches `src/` for changes, and restarts the process on every save. Build workflow: `npm run build` produces a clean `dist/` tree mirroring `src/`. Run workflow: `npm start` runs `node dist/index.js` against the compiled output.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-051" context="open-source-local-runtime" category="foundation" depends_on="">
+      <description>With a clean shell env (`env -i PATH=$PATH`), no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` env vars set, `docker compose up -d` from the relay repo root brings up exactly four services: `relay-control-plane-stub` (port 3000), `relay-postgres` (port 5432), `relay-mongo` (port 27017), and `relay` (the hardened image, no inbound port mapping). Within 60 seconds `docker compose ps` reports all four as `Up`, the relay's boot log contains the line `Connected to control plane`, and the stub's log contains `[stub] resource_update from relayId=<uuid> resources=<n>` for `n >= 1`. Grepping the relay container's boot log (`docker compose logs relay`) for `amazonaws.com`, `stripe.com`, `clerk.`, `langfuse`, `sentry.io`, `svix.com`, `slack.com`, `composio`, `mastra`, or any other vendor hostname returns 0 matches; the only outbound URL the relay attempts to resolve is `ws://relay-control-plane-stub:3000/v1/relay/connect`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-052" context="open-source-local-runtime" category="foundation" depends_on="AC-051">
+      <description>A new `docker-compose.yml` exists at the relay repo root and defines the four services with no `image: ministack`, no `image: localstack`, no `image: langfuse`, no AWS / Stripe / Clerk / Sentry / Langfuse / Svix / Slack / Composio / Mastra env vars anywhere. The `relay-control-plane-stub` is a small `node:22-alpine` + `ws` service built from `scripts/control-plane-stub/Dockerfile` (a one-line `COPY server.mjs .` + `CMD ["node", "server.mjs"]`), listens on `0.0.0.0:3000`, accepts the relay's WebSocket handshake on `/v1/relay/connect`, validates the `?token=<RELAY_TOKEN>&tenantId=<TENANT_ID>` query string against the same env vars the relay uses, and on a `resource_update` message from the relay logs `[stub] resource_update from relayId=<relayId> resources=<n>`. The stub's source (`scripts/control-plane-stub/server.mjs`) imports only `ws` and Node stdlib modules — no AWS SDK, no Stripe, no `@clerk/*`, no other vendor SDK.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-053" context="open-source-local-runtime" category="functional" depends_on="AC-051,AC-052">
+      <description>After `docker compose up -d` from AC-051, the stub's startup script sends a JSON-RPC 2.0 `health_check` request to the relay over the open WebSocket. The relay answers with `{ jsonrpc: '2.0', id, result: [{ resourceId: 'order-pg', type: 'postgres', healthy: true, latencyMs: <n> }, { resourceId: 'order-mongo', type: 'mongodb', healthy: true, latencyMs: <n> }] }` (one entry per initialized driver). The stub prints the JSON to its log as `[stub] health_check result=...` and exits 0. A failure of either driver (e.g. the Postgres container is stopped) yields `healthy: false` for that entry while the other driver still reports `healthy: true`; the stub still exits 0 and prints the partial result.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-054" context="open-source-local-runtime" category="functional" depends_on="AC-051,AC-052">
+      <description>After `docker compose up -d` from AC-051, the stub sends a JSON-RPC 2.0 `execute` request to the relay with `params: { resourceId: 'order-pg', operation: 'query', params: { sql: 'SELECT 1 AS one' } }`. The relay executes the query against the local `relay-postgres` container (the `orders` table was created by `scripts/control-plane-stub/initdb/01-orders.sql` on first start) and returns `{ jsonrpc: '2.0', id, result: { rows: [{ one: 1 }], rowCount: 1, fields: [{ name: 'one', type: 'int4' }], executionTimeMs: <n>, masked: false, maskedFieldCount: 0 } }`. The stub prints the result, then sends a second `execute` with `operation: 'list_tables'` and asserts the response `result.rows` contains an `orders` row. The stub script exits 0; both queries hit the local Postgres on the docker network, not an external service.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-055" context="open-source-local-runtime" category="foundation" depends_on="AC-051">
+      <description>A new `.env.example` is committed at the relay repo root and contains only the relay's own env vars: `RELAY_TOKEN` (default `harness-smoke-token`), `TENANT_ID` (default `harness-tenant`), `CONTROL_PLANE_URL` (default `ws://relay-control-plane-stub:3000/v1/relay/connect`), `PG_HOST` (default `relay-postgres`), `PG_PORT` (default `5432`), `PG_DATABASE` (default `relay`), `PG_USER` (default `relay`), `PG_PASSWORD` (default `relay`), `MONGO_URI` (default `mongodb://relay-mongo:27017`), `MONGO_DATABASE` (default `relay`), and the optional `MASKING_ENABLED` (default `true`) + `AUDIT_ENABLED` (default `true`) toggles. The file contains no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entries. `grep -icE 'AWS_|STRIPE|CLERK|LANGFUSE|SENTRY|SVIX|SLACK|COMPOSIO|MASTRA|SQS|DYNAMODB|STS|KMS' .env.example` returns 0. `docker compose --env-file .env.example up -d` from a clean shell env brings all four services Up.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-056" context="open-source-local-runtime" category="foundation" depends_on="AC-051,AC-052">
+      <description>`scripts/control-plane-stub/server.mjs` is committed: it imports `ws` and Node stdlib only, opens a `WebSocketServer` on `0.0.0.0:3000`, on `connection` validates the `?token=&tenantId=` URL query against the expected env-var pair, on `message` JSON-parses the payload and routes by `type` (logging `resource_update` with `relayId` + `resources.length`, logging `heartbeat` with `relayId` at debug), and exposes a one-shot `npm run smoke` script that opens its own outbound WebSocket to the relay, sends `health_check` and the two `execute` round-trips from AC-053 / AC-054, asserts the responses, and exits 0 on success / non-zero on mismatch. The stub has zero runtime dependency on any vendor SDK and is built into a 50-line image by `scripts/control-plane-stub/Dockerfile`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-057" context="open-source-local-runtime" category="security" depends_on="AC-001">
+      <description>The relay's `package.json` contains no `aws-sdk`, `@aws-sdk/*`, `stripe`, `@stripe/*`, `@clerk/*`, `@langfuse/*`, `@sentry/*`, `@svix/*`, `@slack/*`, `composio-*`, or `@mastra/*` dependency. `rg -in "aws-sdk|@aws-sdk|^\"stripe\"|@stripe|@clerk|@langfuse|@sentry|@svix|@slack|composio|@mastra" package.json` returns 0 matches. The same regex over the source tree (excluding `node_modules`, `package-lock.json`, `.harness*`, `docs/`, `CHANGELOG.md`, `harness-progress/`, `feature_list.json`) returns 0 matches: no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra API is referenced anywhere in the relay's runtime code. `package-lock.json` likewise has no transitive dependency on any of those packages (the regex applied to `package-lock.json` returns 0 matches). The relay's `.env.example` from AC-055 contains no `AWS_*`, `STRIPE_*`, `CLERK_*`, `LANGFUSE_*`, `SENTRY_*`, `SVIX_*`, `SLACK_*`, `COMPOSIO_*`, `MASTRA_*`, `SQS_*`, `DYNAMODB_*`, `STS_*`, or `KMS_*` entry.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-058" context="open-source-local-runtime" category="functional" depends_on="AC-051,AC-052,AC-055">
+      <description>Regression: the 50 original acceptance checks (AC-001 through AC-050) still pass against the new open-source layout. Concretely: `npm install` then `npm run build` exits 0 and produces `dist/index.js`; `npx tsc --noEmit` exits 0; `docker build . --platform linux/amd64` succeeds and produces an image that starts as UID 10001 (per AC-002's invariants). The `relay-config.docker.yaml` referenced by `docker-compose.yml` is a thin wrapper around the existing `relay-config.example.yaml` (same controlPlane + resources shape, just with the docker-network hostnames); `loadConfig()` parses it without code changes. PII masking, the audit logger, the policy engine, the Postgres / Mongo drivers, the WebSocket transport, the JSON-RPC dispatch, and graceful shutdown all behave identically to the original 50-check contract — the open-source context adds the docker-compose plumbing on top, it does not modify the relay's runtime behavior.</description>
+    </acceptance_check>
+  </acceptance_checks>
+
+  <database_schema>
+    <tables>removed — the relay does not own a database; it is a stateless agent that reads from customer-managed PostgreSQL and MongoDB instances only</tables>
+  </database_schema>
+
+  <api_endpoints_summary>
+    The relay is not an HTTP server; it is a WebSocket client. The outbound control plane endpoint is configured at deploy time as `controlPlane.url` (default `ws://localhost:3000/v1/relay/connect`, production `wss://<host>/v1/relay/connect`).
+
+    Inbound JSON-RPC 2.0 methods (control plane → relay):
+    - execute: run a database operation (query, describe_table, list_tables, explain) against a configured resource; subject to policy + driver validation + masking + audit
+    - list_resources: return the configured resources as `{ resourceId, type, name, database, readOnly: true }[]`
+    - describe_resource: return `{ tables, type, database }` for a single resource (delegates to the driver's `list_tables`)
+    - health_check: return `{ resourceId, type, healthy, latencyMs }[]` (one per initialized driver)
+
+    Outbound relay-initiated messages (relay → control plane):
+    - heartbeat: every 30s, `{ type: 'heartbeat', relayId, tenantId }`
+    - resource_update: on connect, `{ type: 'resource_update', relayId, tenantId, resources: [...] }`
+  </api_endpoints_summary>
+
+  <ui_layout>removed — the relay has no UI; the customer-facing experience is the CauseFlow control plane dashboard, which lives in the `web` sibling project</ui_layout>
+
+  <design_system>removed — the relay has no UI</design_system>
+
+  <key_interactions>
+    Customer provisioning (out of scope for this repo, lives in the `web` + `core` siblings):
+    1. Customer signs in to CauseFlow, enables the relay integration, and is issued a per-tenant `RELAY_TOKEN` and `TENANT_ID`.
+    2. Customer copies `relay-config.example.yaml` to `relay-config.yaml` and fills in `${RELAY_TOKEN}`, `${TENANT_ID}`, and the per-resource connection env vars (or hard-coded values for local testing).
+    3. Customer runs the Docker image with the documented flags (`--read-only`, `--cap-drop ALL`, `--security-opt no-new-privileges`, no inbound port mapping) and the config file mounted read-only.
+
+    Relay runtime (this repo):
+    1. On start, `loadConfig()` reads `RELAY_CONFIG_PATH` (or `/app/relay-config.yaml`) and parses it through Zod. If the file is missing, it builds a config from `RELAY_TOKEN` / `TENANT_ID` / `CONTROL_PLANE_URL` and the `RESOURCE_N_*` env-var family.
+    2. For every resource in the config, the relay tries to construct a `PgDriver` or `MongoDriver`. Failures are logged and the resource is skipped; the relay still starts.
+    3. The `WsClient` opens the WebSocket to the control plane. On `open`, it sends `resource_update` (every configured resource as `{ resourceId, type, name, database, readOnly: true }`) and starts a 30s `heartbeat` interval.
+    4. For every inbound JSON-RPC 2.0 request, the dispatch switch in `src/index.ts` routes the request to the right handler:
+       - `list_resources` → `PolicyEngine.listResources()` mapped to the public resource shape
+       - `describe_resource` → `driver.execute({ operation: 'list_tables', params: {} })` wrapped with the resource's `type` and `database`
+       - `execute` → `PolicyEngine.evaluate` → `driver.validate` → `driver.execute` → `MaskingEngine.mask` → audit log → response
+       - `health_check` → `HealthReporter.checkAll()` against every initialized driver
+    5. On `SIGINT` / `SIGTERM`, the relay closes the WS client (without triggering a reconnect), closes every driver, and exits 0.
+    6. On any non-intentional WS close, the client reconnects with exponential backoff (1s → 30s max), re-sends `resource_update` on the next `open`, and resumes heartbeats.
+  </key_interactions>
+
+  <implementation_steps>
+    <step number="1">
+      <title>Foundation: build, container, CI, and release pipeline</title>
+      <tasks>
+        - Confirm `npm install` and `npm run build` produce a clean `dist/` tree (src/index.ts entry compiles to dist/index.js plus every other module)
+        - Confirm `docker build . --platform linux/amd64` produces a runnable image that starts as UID 10001
+        - Confirm `.github/workflows/ci.yml` runs commitlint + build + Docker smoke on PRs and `.github/workflows/release.yml` runs semantic-release + multi-arch Docker push on `main` pushes
+        - Confirm `release.config.js` chains the documented semantic-release plugins in order and `commitlint.config.js` extends `@commitlint/config-conventional`
+        - Verify `npx tsc --noEmit` exits 0 and every internal import uses the `.js` extension on the relative path
+      </tasks>
+    </step>
+    <step number="2">
+      <title>Config + transport + lifecycle</title>
+      <tasks>
+        - Verify `loadConfig()` reads YAML from `RELAY_CONFIG_PATH` (default `/app/relay-config.yaml`), interpolates `${VAR}` against `process.env` at every nesting depth, and falls back to env-var-only mode when the file is missing
+        - Verify every loaded config passes through the Zod schemas in `src/config/schema.ts` and a bad config fails fast at boot
+        - Verify `WsClient` opens the WS with `?token=&tenantId=` query params and `Authorization` / `X-Tenant-Id` headers, sends `heartbeat` every 30s, sends `resource_update` on `open`, and reconnects with exponential backoff (1s → 30s max) on non-intentional close
+        - Verify graceful shutdown: `SIGINT` / `SIGTERM` → `WsClient.close()` (intentional) → `driver.close()` for every driver (errors swallowed) → `process.exit(0)`
+        - Verify the JSON-RPC dispatch in `src/index.ts` routes `execute`, `list_resources`, `describe_resource`, `health_check` to the right handler and returns the documented JSON-RPC error codes (-32600, -32601, -32602, -32603) on the documented failure paths
+      </tasks>
+    </step>
+    <step number="3">
+      <title>Drivers: Postgres and MongoDB read-only enforcement</title>
+      <tasks>
+        - Verify `PgDriver` opens a `pg.Pool` (max 5, idle 30s, connect 10s) and implements the four operations (`list_tables`, `describe_table`, `query` inside `BEGIN READ ONLY; SET statement_timeout = '30s'; <sql> LIMIT <n>; COMMIT;`, `explain`) on a dedicated client with `client.release()` in `finally`
+        - Verify `validateQuery` rejects multi-statement SQL (semicolons splitting statements), non-SELECT statements (INSERT/UPDATE/DELETE/DROP/ALTER/CREATE/TRUNCATE/GRANT/REVOKE/COPY), and the documented dangerous functions (`pg_sleep`, `lo_import`/`lo_export`, `pg_read_file`/`pg_write_file`/`pg_read_binary_file`, `pg_ls_dir`/`pg_stat_file`, `pg_terminate_backend`/`pg_cancel_backend`/`pg_reload_conf`, `set_config`/`current_setting`, `dblink`/`dblink_exec`)
+        - Verify `MongoDriver` opens a `MongoClient` (maxPoolSize 5, serverSelectionTimeout 10s) and implements the four operations; `validate` rejects `$out` and `$merge` aggregation stages
+        - Verify `healthCheck` and `close` on both drivers
+      </tasks>
+    </step>
+    <step number="4">
+      <title>Policy + masking + audit</title>
+      <tasks>
+        - Verify `PolicyEngine.evaluate` enforces (1) resource exists, (2) operation in `allowedOperations`, (3) `query` row limit not exceeded; denials produce a JSON-RPC `-32600` response and an audit entry with `result: 'denied'`
+        - Verify `MaskingEngine` applies the default patterns (CPF, email, credit card, bearer token, BR phone) plus user-defined patterns, walks strings + arrays + objects recursively, and reports the correct `maskedFieldCount`; `masking.enabled: false` short-circuits
+        - Verify `AuditLogger` writes a structured JSON entry on every request with the documented shape, level follows `result` (info/warn/error), and `audit.enabled: false` short-circuits
+      </tasks>
+    </step>
+  </implementation_steps>
+
+  <success_criteria>
+    <functionality>
+      - `npm run build` produces a clean `dist/` and the image starts, opens the WebSocket, sends `resource_update` and `heartbeat`, and dispatches the four JSON-RPC methods to the right engines
+      - Postgres `execute` runs only single SELECT statements inside a `READ ONLY` transaction with a 30s statement timeout, with server-enforced `LIMIT`
+      - Postgres `validate` rejects multi-statement SQL, DDL/DML, and the documented dangerous functions; MongoDB `validate` rejects `$out` and `$merge` aggregation stages
+      - Policy engine enforces resource existence, operation allowlist, and row limits; denials return JSON-RPC `-32600` with the reason
+      - PII masking runs on every result row before it leaves the network; `maskedFieldCount` and `masked` are returned in the response
+      - Every request (success, denied, error) writes a structured JSON audit entry tagged with `relayId` + `requestId`
+      - WebSocket reconnects with exponential backoff on non-intentional close; intentional close (graceful shutdown) does not trigger reconnect
+    </functionality>
+    <user_experience>
+      - Customer onboards in two steps: copy `relay-config.example.yaml` to `relay-config.yaml`, then `docker run` with the documented flags; no firewall changes needed
+      - The container runs as UID 10001 with a read-only root filesystem, all capabilities dropped, and no inbound ports
+      - PII never leaves the customer's network — the control plane and AI agents only see masked data, and the masking patterns (CPF, email, credit card, bearer token, BR phone) are documented and configurable
+    </user_experience>
+    <technical_quality>
+      - `npx tsc --noEmit` is clean; `strict: true` is on; every internal import uses the `.js` extension
+      - No global mutable state outside the top-level `drivers` Map and the single `WsClient`; engines are constructed from config and are otherwise stateless
+      - PII never logged: bearer tokens do not appear in any log line; errors are caught and turned into JSON-RPC errors with the error message
+      - Conventional Commits enforced on PRs; semver derived automatically from commit messages; multi-arch image published on every release
+    </technical_quality>
+    <design_polish>removed — the relay has no UI; design polish is delegated to the CauseFlow control plane dashboard in the `web` sibling project</design_polish>
+    <open_source_local_runtime>
+      Acceptance Checks AC-051 through AC-058 all pass against the running docker-compose stack with no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars configured. `docker compose up -d` from a clean clone with an unchanged `.env.example` brings the relay + the local control-plane stub + the bundled Postgres + the bundled Mongo to a healthy state in under 60 seconds, and the stub's smoke script (`npm run smoke` in `scripts/control-plane-stub/`) reproduces a full `health_check` + `execute { query: SELECT 1 }` + `execute { list_tables }` round-trip against the relay over the docker-network WebSocket. The relay's `package.json` and source tree contain zero references to `aws-sdk`, `stripe`, `@clerk/*`, `@sentry/*`, `@langfuse/*`, `@svix/*`, `@slack/*`, `composio-*`, or `@mastra/*`; the 50 original acceptance checks (AC-001..AC-050) continue to pass on the new layout.
+    </open_source_local_runtime>
+  </success_criteria>
+</project_specification>

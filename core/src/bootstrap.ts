@@ -7,6 +7,7 @@ import { ListTenantsUseCase } from './modules/tenant/application/list-tenants.us
 import { DynamoAuditRepository } from './modules/audit/infra/dynamo-audit.repository.js';
 import { ClerkUserEmailResolver } from './modules/audit/infra/clerk-user-email-resolver.js';
 import { CreateAuditEntryUseCase } from './modules/audit/application/create-audit-entry.usecase.js';
+import { DeleteAuditEntryUseCase } from './modules/audit/application/delete-audit-entry.usecase.js';
 import { VerifyHashChainUseCase } from './modules/audit/application/verify-hash-chain.usecase.js';
 import { ListAuditEntriesUseCase } from './modules/audit/application/list-audit-entries.usecase.js';
 import { ExportAuditUseCase } from './modules/audit/application/export-audit.usecase.js';
@@ -86,8 +87,14 @@ import { HealthChecker } from './shared/infra/health/health-checker.js';
 import { DynamoDBHealthCheck } from './shared/infra/health/checks/dynamodb-check.js';
 import { RedisHealthCheck } from './shared/infra/health/checks/redis-check.js';
 import { SQSHealthCheck } from './shared/infra/health/checks/sqs-check.js';
+import { AnthropicHealthCheck } from './shared/infra/health/checks/anthropic-check.js';
+import { CircuitBreaker } from './shared/infra/llm/circuit-breaker.js';
+import { PostgresHealthCheck } from './shared/infra/health/checks/postgres-check.js';
+import { OssAnthropicHealthCheck } from './shared/infra/health/checks/oss-anthropic-check.js';
+import { QueuesHealthCheck } from './shared/infra/health/checks/queues-check.js';
 import { getRedisClient } from './shared/infra/cache/redis-client.js';
 import { DynamoApiKeyRepository } from './modules/tenant/infra/dynamo-api-key.repository.js';
+import { configureAuthApiKeyRepo } from './shared/infra/http/middleware/auth.middleware.js';
 import { CreateApiKeyUseCase } from './modules/tenant/application/create-api-key.usecase.js';
 import { ListApiKeysUseCase } from './modules/tenant/application/list-api-keys.usecase.js';
 import { RevokeApiKeyUseCase } from './modules/tenant/application/revoke-api-key.usecase.js';
@@ -150,6 +157,7 @@ import { PurchaseQuotaPackUseCase } from './modules/billing/application/purchase
 import { UpdateBillingSettingsUseCase } from './modules/billing/application/update-billing-settings.usecase.js';
 import { GetUsageUseCase } from './modules/billing/application/get-usage.usecase.js';
 import { ReserveInvestigationUseCase } from './modules/billing/application/reserve-investigation.usecase.js';
+import { RecordUsageUseCase } from './modules/billing/application/record-usage.usecase.js';
 import { ListPlansUseCase } from './modules/billing/application/list-plans.usecase.js';
 import { UpgradeSubscriptionUseCase } from './modules/billing/application/upgrade-subscription.usecase.js';
 import { CancelSubscriptionUseCase } from './modules/billing/application/cancel-subscription.usecase.js';
@@ -311,6 +319,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     listAuditEntries: new ListAuditEntriesUseCase(auditRepo, userEmailResolver),
     verifyHashChain: new VerifyHashChainUseCase(auditRepo),
     exportAudit: new ExportAuditUseCase(auditRepo),
+    createAuditEntry,
+    deleteAuditEntry: new DeleteAuditEntryUseCase(auditRepo, createAuditEntry),
   };
 
   // Reserve/Refund — needed by ingestion routes (created early, before billing block)
@@ -857,6 +867,37 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     });
   });
 
+  // === EventBus Wiring: Usage Record on Investigation Completion (AC-012) ===
+  // After a successful investigation completes, persist a UsageRecordEntity
+  // carrying the investigation ID, per-agent token counts and per-agent cost.
+  const recordUsage = new RecordUsageUseCase(
+    billingAccountRepo,
+    usageRecordRepo,
+    eventBus,
+    stripeMeterServiceEarly,
+    tenantRepo,
+  );
+  eventBus.subscribe('investigation.completed', async (event) => {
+    const incId = (event.payload['incidentId'] as string) ?? undefined;
+    const totalCostUsd =
+      (event.payload['totalCostUsd'] as number | undefined) ??
+      (event.payload['costUsd'] as number | undefined);
+    const agentBreakdown = event.payload['agentBreakdown'] as
+      | Array<{ agentRole: string; inputTokens: number; outputTokens: number; costUsd: number }>
+      | undefined;
+    try {
+      await recordUsage.execute({
+        tenantId: tenantId(event.tenantId),
+        type: 'investigation',
+        ...(incId && { incidentId: incidentId(incId) }),
+        ...(totalCostUsd !== undefined && { costUsd: totalCostUsd }),
+        ...(agentBreakdown && { agentBreakdown }),
+      });
+    } catch (err) {
+      logger.error({ err, incidentId: incId, tenantId: event.tenantId }, 'Failed to record usage on investigation completion');
+    }
+  });
+
   eventBus.subscribe('notification.approval_responded', async (event) => {
     await createAuditEntry.execute({
       tenantId: tenantId(event.tenantId),
@@ -929,6 +970,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // API Key Use Cases
   const apiKeyRepo = new DynamoApiKeyRepository();
+  // Wire the API-key resolver into the auth middleware so `cflo_…` Bearer
+  // tokens resolve to their tenant + creator identity on every request.
+  configureAuthApiKeyRepo(apiKeyRepo);
   const apiKeyUseCases: ApiKeyUseCases = {
     createApiKey: new CreateApiKeyUseCase(apiKeyRepo, eventBus),
     listApiKeys: new ListApiKeysUseCase(apiKeyRepo),
@@ -963,10 +1007,23 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   });
 
   // === Health Checker ===
+  //
+  // The check set is runtime-aware so that the open-source local runtime
+  // (AC-039) reports exactly {postgres, redis, anthropic, queues} and never
+  // pings an AWS endpoint at boot, while the original AWS control plane keeps
+  // its DynamoDB / SQS checks (AC-002 / AC-005 / AC-006).
   const healthChecker = new HealthChecker();
-  healthChecker.register(new DynamoDBHealthCheck());
-  healthChecker.register(new RedisHealthCheck(() => getRedisClient()));
-  healthChecker.register(new SQSHealthCheck([config.sqs.alertQueueUrl, config.sqs.investigationQueueUrl, config.sqs.remediationQueueUrl]));
+  if (config.isOss()) {
+    healthChecker.register(new PostgresHealthCheck());
+    healthChecker.register(new RedisHealthCheck(() => getRedisClient()));
+    healthChecker.register(new OssAnthropicHealthCheck());
+    healthChecker.register(new QueuesHealthCheck(() => getRedisClient()));
+  } else {
+    healthChecker.register(new DynamoDBHealthCheck());
+    healthChecker.register(new RedisHealthCheck(() => getRedisClient()));
+    healthChecker.register(new SQSHealthCheck([config.sqs.alertQueueUrl, config.sqs.investigationQueueUrl, config.sqs.remediationQueueUrl]));
+    healthChecker.register(new AnthropicHealthCheck(new CircuitBreaker()));
+  }
 
   // === In-Process Fallback (dev without SQS) ===
   // When SQS is not configured, wire EventBus to dispatch the pipeline in-process.

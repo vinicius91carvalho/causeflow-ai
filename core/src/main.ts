@@ -19,10 +19,13 @@ import { createRelayWSServer } from './shared/infra/relay/relay-ws-server.js';
 import { InvestigationRelayRegistry, createInvestigationRelayServer } from './shared/infra/relay/investigation-relay-server.js';
 
 async function main() {
-  logger.info({ env: config.env }, 'Starting CauseFlow...');
+  logger.info({ env: config.env, runtime: config.runtime }, 'Starting CauseFlow...');
 
-  // Ensure DynamoDB table exists (dev/LocalStack only)
-  if (config.isDev()) {
+  // Ensure DynamoDB table exists (dev/LocalStack only) — skipped in the OSS
+  // local runtime where Postgres replaces DynamoDB (AC-039/AC-040). Calling
+  // DescribeTable here would contact the AWS endpoint, which the OSS boot path
+  // must never do.
+  if (config.isDev() && !config.isOss()) {
     await ensureTable();
   }
 
@@ -38,8 +41,10 @@ async function main() {
   const ctx = await bootstrap({ relayGateway });
   const app = createApp(ctx);
 
-  // Seed dev tenants (idempotent — skips if already exist)
-  if (config.isDev()) {
+  // Seed dev tenants (idempotent — skips if already exist). Skipped in the OSS
+  // runtime: seeding writes through DynamoDB repositories which would contact
+  // AWS at boot. OSS dev seeding arrives with the Postgres repositories (AC-040).
+  if (config.isDev() && !config.isOss()) {
     await seedDevTenants(ctx);
   }
 

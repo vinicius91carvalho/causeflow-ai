@@ -337,21 +337,35 @@ export class HandleWebhookUseCase {
     logger.info({ tenantId: tid, subscriptionId: subscription.id }, 'Trial ending soon for tenant');
   }
 
-  /** Sync BillingAccount quotas from Stripe catalog */
+  /** Sync BillingAccount quotas from Stripe catalog (create if missing). */
   private async syncBillingAccount(tid: string, plan: TenantPlan): Promise<void> {
     if (!this.billingAccountRepo) return;
     try {
       const planDef = await this.planCatalog.getPlanByKey(plan);
       if (!planDef) return;
 
+      const now = new Date().toISOString();
       const account = await this.billingAccountRepo.findByTenantId(tenantId(tid));
-      if (account) {
-        await this.billingAccountRepo.update(tenantId(tid), {
+      if (!account) {
+        // No BillingAccount yet for this tenant (e.g. tenant created without
+        // going through the billing signup flow). Create one so the webhook
+        // establishes the BillingAccountEntity for the user.
+        await this.billingAccountRepo.create({
+          tenantId: tenantId(tid),
           investigationsLimit: planDef.investigationsLimit,
+          investigationsUsed: 0,
           eventsLimit: planDef.eventsLimit,
-          updatedAt: new Date().toISOString(),
+          eventsUsed: 0,
+          createdAt: now,
+          updatedAt: now,
         });
+        return;
       }
+      await this.billingAccountRepo.update(tenantId(tid), {
+        investigationsLimit: planDef.investigationsLimit,
+        eventsLimit: planDef.eventsLimit,
+        updatedAt: now,
+      });
     } catch (err) {
       logger.warn({ err, tenantId: tid, plan }, 'Failed to sync BillingAccount from webhook');
     }

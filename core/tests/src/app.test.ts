@@ -71,9 +71,9 @@ describe('GET /health', () => {
 
     const body = (await res.json()) as Record<string, unknown>;
 
-    // I5 contract: exactly these five keys, no more, no less.
+    // I5 contract: exactly these six keys, no more, no less.
     expect(Object.keys(body).sort()).toEqual(
-      ['commit', 'service', 'status', 'timestamp', 'version'].sort()
+      ['checks', 'commit', 'service', 'status', 'timestamp', 'version'].sort()
     );
 
     expect(body['status']).toBe('ok');
@@ -81,6 +81,7 @@ describe('GET /health', () => {
     expect(body['version']).toBe('0.1.0');
     expect(body['commit']).toBe('abc1234');
     expect(typeof body['timestamp']).toBe('string');
+    expect(body['checks']).toEqual({});
   });
 
   it('returns commit="unknown" when APP_VERSION is not set', async () => {

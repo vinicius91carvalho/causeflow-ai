@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { requestId } from 'hono/request-id';
+import { config } from './shared/config/index.js';
 import { errorHandler } from './shared/infra/http/middleware/error-handler.js';
 import { authMiddleware } from './shared/infra/http/middleware/auth.middleware.js';
 import { tenantMiddleware } from './shared/infra/http/middleware/tenant.middleware.js';
@@ -61,19 +62,46 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
         const html = readFileSync(resolve('dashboard/index.html'), 'utf-8');
         return c.html(html);
     });
+    // Widget bundle — Vite-built embeddable widget served at /widget/widget.js (public, no auth)
+    app.get('/widget/widget.js', (c) => {
+        try {
+            const bundle = readFileSync(resolve('packages/widget/dist/widget.js'), 'utf-8');
+            return c.body(bundle, 200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+        } catch {
+            return c.text('Widget bundle not built. Run `pnpm --filter @causeflow/widget build`.', 404);
+        }
+    });
     // Health checks
     // Response shape (Sprint 3 / I5): { status, service, version, commit, timestamp }
     //   - version → semver from package.json (stable, app-level)
     //   - commit  → 7-char git SHA baked at image build time via Dockerfile ARG GIT_SHA
+    //
+    // In the open-source local runtime (AC-039) the body is instead a flat map
+    //   of check name → status, e.g. {postgres:"ok",redis:"ok",anthropic:"ok",queues:"ok"}
+    //   (anthropic is "skipped" when no API key is set). The AWS control plane
+    //   keeps the I5 metadata shape so verify-deploy's `commit` assertion holds.
     app.get('/health', async (c) => {
         const result = await ctx.healthChecker.runAll();
         const httpStatus = result.status === 'down' ? 503 : 200;
+        if (config.isOss()) {
+            const checks: Record<string, string> = {};
+            for (const check of result.checks ?? []) {
+                checks[check.name] = check.status;
+            }
+            return c.json(checks, httpStatus);
+        }
+        // Per-service health map (e.g. { dynamodb: 'ok', redis: 'ok', sqs: 'ok', anthropic: 'ok' }).
+        // Anthropic reports 'ok' (skipped) when no API key is configured.
+        const checks = Object.fromEntries(
+            (result.checks ?? []).map((check: HealthCheckResult) => [check.name, check.status]),
+        );
         return c.json({
             status: result.status,
             service: 'causeflow',
             version: '0.1.0',
             commit: process.env['APP_VERSION'] ?? 'unknown',
             timestamp: result.timestamp,
+            checks,
         }, httpStatus);
     });
     // Detailed health — protected (requires auth)
@@ -120,6 +148,18 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
     app.route('/v1/integrations', createIntegrationRoutes(ctx.integrationUseCases));
     // Auth routes (Clerk webhook + whoami)
     app.route('/v1/auth', createAuthRoutes(ctx.authUseCases));
+    // Whoami — returns authenticated principal (user + tenant) from the
+    // middleware context. Works with both Clerk JWTs and tenant API keys
+    // (cflo_…), letting programmatic callers resolve their identity.
+    app.get('/v1/whoami', (c) => {
+        const roles = c.get('userRoles') ?? [];
+        return c.json({
+            user: { id: c.get('userId'), email: c.get('userEmail') },
+            tenantId: c.get('tenantId'),
+            role: roles[0] ?? null,
+            roles,
+        });
+    });
     // Skills routes (tenant-specific investigation skills)
     if (ctx.skillRoutes) {
         app.route('/', ctx.skillRoutes);

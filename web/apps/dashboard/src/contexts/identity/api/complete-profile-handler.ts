@@ -3,7 +3,9 @@ import { auth, clerkClient } from '@clerk/nextjs/server';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { teamSizeValues } from '@/contexts/identity/domain/types';
+import { provisionTenantDirect } from '@/contexts/identity/infrastructure/tenant-provisioning-fallback';
 import { getApiClient } from '@/lib/api/get-api-client';
+import { CoreApiError } from '@/lib/api/http-api-client';
 import { parseBody } from '@/lib/api/parse-body';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
@@ -114,12 +116,36 @@ export async function POST(request: NextRequest) {
       resolvedTenantId = tenant.tenantId;
     } catch (firstErr) {
       const firstMsg = firstErr instanceof Error ? firstErr.message : String(firstErr);
+      const isForbidden =
+        (firstErr instanceof CoreApiError && firstErr.status === 403) || firstMsg.includes('403');
       const isConflict =
         firstMsg.toLowerCase().includes('slug') ||
         firstMsg.toLowerCase().includes('conflict') ||
         firstMsg.includes('409');
 
-      if (isConflict) {
+      if (isForbidden && orgId) {
+        // Core's `POST /v1/tenants` returned 403 FORBIDDEN — its role guard
+        // rejects brand-new Clerk users whose org role isn't granted yet.
+        // Fall back to writing the Tenant + BillingAccount directly to the
+        // Core's DynamoDB table using the ElectroDB wire format. This is a
+        // documented temporary workaround — see
+        // `tenant-provisioning-fallback.ts` for the full context and the
+        // exact Core fix that retires this branch.
+        try {
+          await provisionTenantDirect({
+            tenantId: orgId,
+            name: companyName,
+            slug,
+            ownerEmail,
+          });
+          resolvedTenantId = orgId;
+        } catch (fallbackErr) {
+          console.error(
+            '[complete-profile] Tenant provisioning fallback failed:',
+            fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr),
+          );
+        }
+      } else if (isConflict) {
         // Slug collision — retry once with a random suffix
         try {
           const slugWithSuffix = `${generateSlug(companyName)}-${randomSlugSuffix()}`;

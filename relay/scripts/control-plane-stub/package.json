@@ -1,0 +1,13 @@
+{
+  "name": "causeflow-relay-control-plane-stub",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "smoke": "SMOKE=1 node server.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

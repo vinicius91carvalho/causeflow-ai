@@ -2,8 +2,9 @@
 /**
  * check-invariants.ts — machine-verifiable contract checks for CauseFlow.
  *
- * Checks invariants I1–I7 as defined in INVARIANTS.md.
+ * Checks invariants I1–I11 as defined in INVARIANTS.md.
  * I5 is skipped here (verified by unit tests).
+ * I12 (inconclusive outcome) is verified by integration test, not here.
  *
  * Exit codes:
  *   0 — all invariants pass
@@ -12,11 +13,12 @@
 
 import { execSync } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 
 const ROOT = resolve(new URL('.', import.meta.url).pathname, '..', '..');
 const WORKFLOWS_DIR = join(ROOT, '.github', 'workflows');
+const MODULES_DIR = join(ROOT, 'src', 'modules');
 
 interface CheckResult {
   id: string;
@@ -336,6 +338,101 @@ function checkI10(): void {
 }
 
 // ---------------------------------------------------------------------------
+// I11 — No cross-module direct function calls
+// ---------------------------------------------------------------------------
+// Cross-module communication is restricted to (1) the in-process EventBus and
+// (2) type-only imports from another module's `domain/`. Importing a use case
+// (a value binding) from another module's `application/` is a forbidden
+// cross-module direct function call — it bypasses the composition root and the
+// EventBus. Type-only imports (`import type ...`) remain allowed because they
+// emit no runtime call (used for dependency-injection typing).
+// ---------------------------------------------------------------------------
+function walkTsFiles(dir: string): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...walkTsFiles(p));
+    } else if (entry.name.endsWith('.ts')) {
+      out.push(p);
+    }
+  }
+  return out;
+}
+
+// An import is a runtime (value) import unless it is `import type ...` or every
+// named binding is prefixed with the inline `type` modifier.
+function isTypeOnlyImport(line: string): boolean {
+  if (/^import\s+type\b/.test(line)) return true;
+  const named = line.match(/^import\s*\{([^}]*)\}\s*from/);
+  if (named) {
+    const bindings = named[1]!.split(',').map((s) => s.trim()).filter((s) => s.length > 0);
+    if (bindings.length > 0 && bindings.every((b) => /^type\b/.test(b))) return true;
+  }
+  return false;
+}
+
+function checkI11(): void {
+  const id = 'I11';
+  const description = 'No cross-module direct function calls (no value imports from another module\'s application/)';
+  const violations: string[] = [];
+
+  let files: string[];
+  try {
+    files = walkTsFiles(MODULES_DIR);
+  } catch (err: unknown) {
+    fail(id, description, `Could not walk ${MODULES_DIR}: ${String(err)}`);
+    return;
+  }
+
+  const importRe = /^[ \t]*import\b(?:[^'"`;]*?\bfrom\s*)?['"]([^'"]+)['"]/gm;
+
+  for (const file of files) {
+    const rel = relative(MODULES_DIR, file).split('/');
+    const currentModule = rel[0]!;
+    const src = readFileSync(file, 'utf8');
+
+    let match: RegExpExecArray | null;
+    while ((match = importRe.exec(src)) !== null) {
+      const lineStart = src.lastIndexOf('\n', match.index) + 1;
+      const lineEnd = src.indexOf('\n', match.index);
+      const line = src.slice(lineStart, lineEnd === -1 ? undefined : lineEnd).trim();
+      if (isTypeOnlyImport(line)) continue; // type-only imports are allowed
+
+      const spec = match[1]!;
+      let targetModule: string | null = null;
+      let targetsApplication = false;
+
+      if (spec.startsWith('@modules/')) {
+        const parts = spec.slice('@modules/'.length).split('/');
+        targetModule = parts[0] ?? null;
+        targetsApplication = parts.slice(1).join('/').startsWith('application/');
+      } else if (spec.startsWith('./') || spec.startsWith('../')) {
+        const resolved = resolve(dirname(file), spec);
+        const relToModules = relative(MODULES_DIR, resolved);
+        if (relToModules && !relToModules.startsWith('..') && !relToModules.startsWith('/')) {
+          const parts = relToModules.split('/');
+          targetModule = parts[0] ?? null;
+          targetsApplication = parts[1] === 'application';
+        }
+      }
+
+      if (targetModule && targetModule !== currentModule && targetsApplication) {
+        violations.push(
+          `${relative(ROOT, file)} — module '${currentModule}' value-imports from module '${targetModule}' application/ ("${spec}")`,
+        );
+      }
+    }
+  }
+
+  if (violations.length === 0) {
+    pass(id, description);
+  } else {
+    fail(id, description, violations.join('\n        '));
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Run all checks
 // ---------------------------------------------------------------------------
 console.log('Running invariant checks...\n');
@@ -350,6 +447,7 @@ checkI7();
 checkI8();
 checkI9();
 checkI10();
+checkI11();
 
 const failed = results.filter((r) => !r.passed);
 const passed = results.filter((r) => r.passed);

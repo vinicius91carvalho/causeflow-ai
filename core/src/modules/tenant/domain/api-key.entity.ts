@@ -7,8 +7,11 @@ export interface ApiKey {
     keyHash: string;
     prefix: string;
     status: ApiKeyStatus;
+    scopes?: string[];
     webhookSecretHash?: string;
     lastUsedAt?: string;
     createdAt: string;
     revokedAt?: string;
+    createdBy?: string;
+    createdByEmail?: string;
 }

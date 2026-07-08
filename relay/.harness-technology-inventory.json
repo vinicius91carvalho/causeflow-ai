@@ -1,0 +1,221 @@
+{
+  "project": "relay",
+  "technologies": [
+    {
+      "name": "Node.js 22",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "Dockerfile", "kind": "configuration" },
+        { "path": ".github/workflows/ci.yml", "kind": "configuration" },
+        { "path": ".github/workflows/release.yml", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "TypeScript",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "tsconfig.json", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "tsc",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "tsconfig.json", "kind": "configuration" },
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "Dockerfile", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "tsx",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" }
+      ]
+    },
+    {
+      "name": "npm",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "package-lock.json", "kind": "manifest" },
+        { "path": "Dockerfile", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "ws",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "src/transport/ws-client.ts", "kind": "adapter" }
+      ]
+    },
+    {
+      "name": "pg",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "src/drivers/postgres/pg-driver.ts", "kind": "adapter" }
+      ]
+    },
+    {
+      "name": "mongodb",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "src/drivers/mongodb/mongo-driver.ts", "kind": "adapter" }
+      ]
+    },
+    {
+      "name": "node-sql-parser",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "src/drivers/postgres/pg-query-parser.ts", "kind": "adapter" }
+      ]
+    },
+    {
+      "name": "zod",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "src/config/schema.ts", "kind": "adapter" }
+      ]
+    },
+    {
+      "name": "pino",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "src/index.ts", "kind": "adapter" },
+        { "path": "src/audit/audit-logger.ts", "kind": "adapter" }
+      ]
+    },
+    {
+      "name": "uuid",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "src/transport/ws-client.ts", "kind": "adapter" }
+      ]
+    },
+    {
+      "name": "yaml",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "src/config/loader.ts", "kind": "adapter" }
+      ]
+    },
+    {
+      "name": "semantic-release",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "release.config.js", "kind": "configuration" },
+        { "path": ".github/workflows/release.yml", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "commitlint",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "package.json", "kind": "manifest" },
+        { "path": "commitlint.config.js", "kind": "configuration" },
+        { "path": ".github/workflows/ci.yml", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "PostgreSQL",
+      "section": "integrations",
+      "evidence": [
+        { "path": "src/drivers/postgres/pg-driver.ts", "kind": "adapter" },
+        { "path": "src/drivers/postgres/pg-query-parser.ts", "kind": "adapter" },
+        { "path": "relay-config.example.yaml", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "MongoDB",
+      "section": "integrations",
+      "evidence": [
+        { "path": "src/drivers/mongodb/mongo-driver.ts", "kind": "adapter" },
+        { "path": "relay-config.example.yaml", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "CauseFlow Control Plane WebSocket endpoint",
+      "section": "integrations",
+      "evidence": [
+        { "path": "src/transport/ws-client.ts", "kind": "adapter" },
+        { "path": "src/config/loader.ts", "kind": "configuration" },
+        { "path": "relay-config.example.yaml", "kind": "configuration" },
+        { "path": "README.md", "kind": "documentation" }
+      ]
+    },
+    {
+      "name": "Docker Hub",
+      "section": "integrations",
+      "evidence": [
+        { "path": ".github/workflows/release.yml", "kind": "configuration" },
+        { "path": "docs/tasks/infrastructure/2026-04-12_1200-cicd-docker-publish.md", "kind": "documentation" }
+      ]
+    },
+    {
+      "name": "GitHub Actions",
+      "section": "integrations",
+      "evidence": [
+        { "path": ".github/workflows/ci.yml", "kind": "configuration" },
+        { "path": ".github/workflows/release.yml", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "Docker",
+      "section": "integrations",
+      "evidence": [
+        { "path": "Dockerfile", "kind": "configuration" },
+        { "path": ".github/workflows/release.yml", "kind": "configuration" },
+        { "path": ".github/workflows/ci.yml", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "Node.js 22 (Alpine) runtime base image",
+      "section": "prerequisites",
+      "evidence": [
+        { "path": "Dockerfile", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "Docker (>= 20)",
+      "section": "prerequisites",
+      "evidence": [
+        { "path": "README.md", "kind": "documentation" }
+      ]
+    },
+    {
+      "name": "Customer PostgreSQL and/or MongoDB instance",
+      "section": "prerequisites",
+      "evidence": [
+        { "path": "README.md", "kind": "documentation" },
+        { "path": "relay-config.example.yaml", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "CauseFlow tenant with relay enabled",
+      "section": "prerequisites",
+      "evidence": [
+        { "path": "README.md", "kind": "documentation" },
+        { "path": "relay-config.example.yaml", "kind": "configuration" },
+        { "path": "src/config/loader.ts", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "Outbound HTTPS/WSS to control plane",
+      "section": "prerequisites",
+      "evidence": [
+        { "path": "README.md", "kind": "documentation" }
+      ]
+    }
+  ],
+  "contradictions": []
+}

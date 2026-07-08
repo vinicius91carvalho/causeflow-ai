@@ -23,7 +23,25 @@ export const config = {
     region: env('AWS_REGION', 'sa-east-1'),
     dynamoEndpoint: process.env['DYNAMODB_ENDPOINT'],
     sqsEndpoint: process.env['SQS_ENDPOINT'],
-    tableName: env('DYNAMODB_TABLE_NAME', 'causeflow'),
+    tableName: env('DYNAMODB_TABLE_NAME', 'causeflow-local'),
+  },
+
+  // CauseFlow runtime flavour.
+  //  - 'aws'  : the original control plane (DynamoDB + SQS + Clerk + Stripe ...)
+  //  - 'oss'  : the open-source local runtime (Postgres + Redis/BullMQ + local
+  //             JWT auth + stub billing/cloud). Selected by CAUSEFLOW_RUNTIME=oss.
+  //             In this mode the boot path contacts ONLY Postgres, Redis,
+  //             Hindsight and (optionally) Anthropic — never AWS, Stripe, Clerk,
+  //             Sentry, Langfuse, Svix, Slack, Composio or Mastra.
+  runtime: env('CAUSEFLOW_RUNTIME', 'aws') as 'aws' | 'oss',
+
+  postgres: {
+    url: process.env['DATABASE_URL'],
+    host: process.env['POSTGRES_HOST'] ?? 'causeflow-postgres',
+    port: envInt('POSTGRES_PORT', 5432),
+    database: env('POSTGRES_DB', 'causeflow'),
+    user: process.env['POSTGRES_USER'] ?? 'causeflow',
+    password: process.env['POSTGRES_PASSWORD'] ?? '',
   },
 
   redis: {
@@ -138,6 +156,11 @@ export const config = {
 
   clerk: {
     secretKey: env('CLERK_SECRET_KEY', ''),
+    // Optional PEM public key (Clerk Dashboard → API keys → JWT public key).
+    // When set, @clerk/backend verifies session JWTs networklessly (no JWKS
+    // call) — the only way to verify a Clerk session JWT locally without a
+    // live Clerk instance. Standard `CLERK_JWT_KEY` env var.
+    jwtKey: env('CLERK_JWT_KEY', ''),
     webhookSecret: env('CLERK_WEBHOOK_SECRET', ''),
   },
 
@@ -162,6 +185,11 @@ export const config = {
     proEvtPriceId: env('STRIPE_PRO_EVT_PRICE_ID', ''),
     businessInvPriceId: env('STRIPE_BUSINESS_INV_PRICE_ID', ''),
     businessEvtPriceId: env('STRIPE_BUSINESS_EVT_PRICE_ID', ''),
+    // Optional override to point the Stripe SDK at stripe-mock (local/E2E) or a
+    // proxy. When STRIPE_HOST is unset, the SDK uses the real Stripe API.
+    host: env('STRIPE_HOST', ''),
+    port: env('STRIPE_PORT', ''),
+    protocol: env('STRIPE_PROTOCOL', ''),
   },
 
   composio: {
@@ -207,4 +235,5 @@ export const config = {
   isDev: () => config.env === 'development',
   isProd: () => config.env === 'production',
   isTest: () => config.env === 'test',
+  isOss: () => config.runtime === 'oss',
 } as const;

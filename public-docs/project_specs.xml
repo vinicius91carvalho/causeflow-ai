@@ -1,0 +1,364 @@
+<project_specification>
+  <project_name>CauseFlow public documentation</project_name>
+  <mode>existing-codebase</mode>
+
+  <project_goal>
+    Render the complete CauseFlow product and API documentation site from MDX through Mintlify, with every page reachable from navigation, zero broken links, valid frontmatter, and machine-verifiable content invariants holding across all 133 `.mdx` files.
+  </project_goal>
+
+  <overview>
+    The CauseFlow public documentation is a Mintlify-hosted MDX site that documents the CauseFlow AI product (incident investigation, integrations, billing, security), its REST API, and the CauseFlow Relay privacy-preserving database agent. It is the single source of truth that customers and integrators consult before integrating with CauseFlow or evaluating its plan tiers.
+
+    The site is built from MDX files organized under `getting-started/`, `dashboard/`, `integrations/`, `billing/`, `security/`, `api-reference/`, `relay/`, and `changelog/`. Site structure, navigation, colors, logo, and redirects live in `docs.json`; navigation is grouped into four tabs (Documentation, API reference, Relay, Changelog). Content invariants in `INVARIANTS.md` enforce vocabulary and boundary rules (severity enum, status enum, API host, no internal AWS identifiers, approved placeholder formats) that are checked by a `check-invariants.sh` PostToolUse hook.
+  </overview>
+
+  <technology_stack>
+    <general>
+      Mintlify documentation platform; MDX (Markdown + JSX) page format; Mintlify CLI (`mint`) for local preview and broken-link checks; Mermaid for inline diagrams; Mintlify components for layout (`Card`, `CardGroup`, `Steps`, `Note`, `Tip`, `Warning`, `Info`, `CodeGroup`, `ParamField`, `Tabs`); Mintlify GitHub App publishes the site automatically on push to the default branch; the repo holds only source content — no application code, no build server, no test runner beyond Mintlify's own validators.
+    </general>
+    <frontend>
+      <framework>Mintlify (theme: `mint`)</framework>
+      <styling>Mintlify theme tokens (primary `#1A8B6F`, light `#4ECDC4`, dark `#26233E`); no custom CSS</styling>
+      <state_management>removed</state_management>
+      <routing>Mintlify file-based routing driven by `docs.json` navigation; explicit page paths per group</routing>
+      <port>Local dev server runs on port 3000 via `mint dev`</port>
+      <patterns>MDX + Mintlify components over custom JSX; reusable snippets under `snippets/`; no client-side state, no SPA shell</patterns>
+    </frontend>
+    <backend>
+      <runtime>removed (static-site rendering only)</runtime>
+      <database>removed</database>
+      <port>removed</port>
+      <patterns>removed</patterns>
+    </backend>
+    <communication>removed (the docs site is read-only content; the API being documented uses REST + SSE; Relay uses WSS — those are out of scope for this project)</communication>
+  </technology_stack>
+
+  <integrations>
+    <integration name="Mintlify GitHub App">
+      <responsibility>Auto-builds and publishes the site when commits land on the default branch. The repo at `causeflow/public-docs` is connected to a Mintlify deployment; pushes to the default branch trigger a build and deploy to `docs.causeflow.ai`.</responsibility>
+      <availability>required</availability>
+      <configuration>Configured externally in the Mintlify dashboard — points at the GitHub repo and default branch. No in-repo credentials, no `.env` keys, no webhook secrets in this repository.</configuration>
+      <security>The Mintlify GitHub App receives a GitHub App installation scoped to the repo; build artifacts are served from Mintlify-managed infrastructure. This repo holds no long-lived secrets.</security>
+      <failure_behavior>If the GitHub App is uninstalled, pushes do not deploy — the site continues to serve the last successful build until the App is reinstalled or builds are restored.</failure_behavior>
+      <deployment>Production deployment is fully delegated to the Mintlify GitHub App; no CI workflow in this repo handles production deploys. Local replacement: `mint dev` for preview, `mint broken-links` to validate.</deployment>
+      <affected_surfaces>Every page in the site — all 133 MDX files, `docs.json`, logo and favicon assets.</affected_surfaces>
+    </integration>
+    <integration name="Mintlify contextual AI">
+      <responsibility>Provides the AI assistant menu in the docs reader — readers can copy a page, view source, or open the page in Claude or ChatGPT for follow-up questions. Surfaced as a per-page "contextual" menu in Mintlify.</responsibility>
+      <availability>feature-flagged (per `docs.json` `contextual.options`: `["copy", "view", "claude", "chatgpt"]`)</availability>
+      <configuration>Selected in `docs.json` under `contextual.options`. No credentials in this repo — the menu delegates to Mintlify-managed providers.</configuration>
+      <security>External AI providers (Anthropic Claude, OpenAI ChatGPT) receive page content only when a reader explicitly invokes the menu item. No credentials held in this repo; the page payload is the only data crossing the boundary.</security>
+      <failure_behavior>If a provider is unavailable, that menu option silently fails for the reader; the rest of the site renders normally.</failure_behavior>
+      <deployment>Managed by Mintlify; toggled by editing `docs.json`.</deployment>
+      <affected_surfaces>Reader chrome on every page; not visible in MDX source content.</affected_surfaces>
+    </integration>
+  </integrations>
+
+  <prerequisites>
+    <environment_setup>
+      Node.js (any active LTS) is required to install and run the Mintlify CLI. The CLI is installed globally with `npm i -g mint`. The local development preview is `mint dev` run from the project root (the directory that contains `docs.json`); the dev server listens on `http://localhost:3000`. Link validation is `mint broken-links` and must return zero broken links.
+
+      This repository holds no `.env` file and no secrets: authentication, publishing, and the contextual AI menu are all delegated to the Mintlify GitHub App and Mintlify-managed providers. The `skills-lock.json` file pins the Mintlify skill version. `INVARIANTS.md` defines the content invariants enforced by the `check-invariants.sh` PostToolUse hook.
+    </environment_setup>
+  </prerequisites>
+
+  <core_features>
+    <foundation>
+      - Mintlify dev server boots from this directory and serves `http://localhost:3000` without errors
+      - `mint broken-links` exits 0
+      - `docs.json` validates against the Mintlify schema (`https://mintlify.com/docs.json`)
+      - The Mintlify GitHub App is the only publishing path; no CI deploy workflow in this repo
+      - README documents the local preview and broken-link commands
+    </foundation>
+    <content-structure>
+      - Top-level directory layout: `getting-started/`, `dashboard/`, `integrations/`, `billing/`, `security/`, `api-reference/`, `relay/`, `changelog/`, `snippets/`, `investigation/`, `plans/`, `tasks/`, `docs/`, `logo/`
+      - Every `.mdx` has YAML frontmatter with `title` and `description`; `description` is at most 160 characters
+      - `docs.json` declares four navigation tabs: Documentation, API reference, Relay, Changelog — every page listed under a group resolves to a real `.mdx` file
+      - Snippets under `snippets/` are referenced by other pages rather than duplicated
+      - `.mintignore` excludes `drafts/` and `*.draft.mdx` from build
+    </content-structure>
+    <product-narrative>
+      - Getting-started tab covers Quickstart, key concepts, how-it-works, AI transparency, skills, memory-and-chat, and triggers
+      - Dashboard tab covers overview, incidents, analyses, remediations, audit-trail, team-management, settings
+      - Integrations tab covers cloud providers, monitoring, GitHub, communication, project management, databases, custom webhooks, HubSpot
+      - Billing tab covers plans, usage and credits, manage subscription
+      - Security tab covers overview, authentication, RBAC, data privacy, compliance
+      - All inbound cross-references between pages resolve at build time (no broken links)
+    </product-narrative>
+    <api-reference>
+      - Single base URL `https://api.causeflow.ai` and version prefix `/v1`; no divergent hostnames (`api.causeflow.io|dev|local|prod`) in any example
+      - Authentication page documents JWT Bearer (header `Authorization: Bearer <jwt>`) with Clerk-issued tokens, API keys (header `X-API-Key: cflo_…`), and webhook HMAC-SHA256 signatures (header `X-Webhook-Signature: sha256=…`)
+      - Errors and pagination page documents the JSON error envelope, HTTP status codes (400/401/403/404/409/429/500/503), and cursor-based pagination
+      - Outbound events catalog at `api-reference/webhooks/outbound-events.mdx` lists exactly 20 dot-namespaced EventBus events across seven domains (tenant, user, incident, investigation, remediation, integration, trigger, knowledge)
+      - API examples use only the approved placeholder formats: `ten_EXAMPLE_…`, `cflo_live_sk_EXAMPLE_…`, truncated JWTs starting `eyJhbGc…`
+    </api-reference>
+    <relay-documentation>
+      - Relay tab covers overview, architecture, quickstart, configuration, PII masking, policy engine, deployment, troubleshooting
+      - `relay/overview.mdx` renders a Mermaid diagram of the outbound-only WSS flow
+      - `relay/configuration.mdx` documents `relay-config.yaml` end-to-end (controlPlane, resources, operations, row limits, env-var substitution)
+      - Relay section describes privacy guarantees: zero inbound traffic, read-only access, PII masking inside the customer network, audit trail, container hardening (non-root, read-only FS, no-new-privileges)
+      - Relay API endpoints under `api-reference/relay/` align with the configuration reference
+    </relay-documentation>
+    <invariants-and-validation>
+      - Severity vocabulary across all `.mdx` is restricted to `critical | high | medium | low | info` — no `emergency | urgent | notice | debug | warn`
+      - Incident `status` vocabulary is restricted to the lifecycle `open → triaging → investigating → awaiting_approval → remediating → resolved → closed`; `pending` is allowed for step-level and approval-level status only
+      - RBAC role vocabulary is `admin | member` only
+      - No MDX references AWS ARNs, 12-digit account IDs adjacent to "account" or "arn", `.internal` hostnames, `sqs.<region>.amazonaws.com` URLs, KMS key IDs, LangFuse URLs, Hindsight URLs, internal DynamoDB table names, or ECS cluster/task-definition names
+      - Tenant ID, API key, and JWT placeholders follow the approved formats only
+    </invariants-and-validation>
+    <open-source-local-runtime>
+      - Goal: the `public-docs` site builds and serves end-to-end via `docker compose up` from the project root with zero paid/external SaaS credentials configured. The site is the same 133-MDX documentation set rendered by the Mintlify CLI; the only difference is that the build pipeline and the runtime container have no dependency on the Mintlify hosting SaaS, the Mintlify GitHub App, or the Mintlify contextual AI providers (Claude / ChatGPT).
+      - Build: the project ships a multi-stage `Dockerfile` at the project root. A `builder` stage installs Node.js and the `mint` CLI (Mintlify's open-source CLI) and produces a built site (static export or in-process dev server bundle). A `runtime` stage copies the built site into a minimal image — `nginx:alpine` for the static variant or `node:22-alpine` for the dev-server variant. The runtime image carries no `.env`, no `MINTLIFY_*` env vars, and no Mintlify account credentials.
+      - Runtime: `docker compose up -d` from the project root brings up one `causeflow-docs` service on port 3000. `curl http://localhost:3000/` returns the homepage with the site name "CauseFlow AI" and the Quickstart intro card. The container's boot log contains no requests to `mintlify.com`, `mintlify.app`, `clerk.com`, `stripe.com`, `amazonaws.com`, `sentry.io`, `langfuse.io`, `svix.com`, `slack.com`, `composio.dev`, `anthropic.com`, `claude.ai`, `openai.com`, or `chatgpt.com`.
+      - Contextual AI removed: `docs.json#contextual.options` is reduced to `["copy", "view"]` (or the `contextual` block is removed entirely). The Claude and ChatGPT menu options are gone; no outbound request is made to `anthropic.com`, `claude.ai`, `openai.com`, or `chatgpt.com` when a reader opens the contextual menu on any page. The AI-provider delegate that the Mintlify contextual feature wired to those SaaS endpoints is fully removed from the runtime path.
+      - Mintlify hosting SaaS removed: there is no `mintlify deploy`, no `mint deploy`, no Mintlify GitHub App configuration, and no Mintlify account env vars in the project. The repo's `README.md` documents `docker compose up` as the canonical run path; the prior "Changes pushed to the default branch are deployed automatically via the Mintlify GitHub integration" sentence is removed. The `docs.causeflow.ai` host is treated as a content reference only — the runtime container never resolves it.
+      - `.env.example` and the build env: `.env.example` is either absent or contains only optional `MINTLIFY_*` overrides (e.g. a port override). The container's required env vars are minimal: `PORT` (default 3000). No `MINTLIFY_AUTH_TOKEN`, `MINTLIFY_DEPLOY_TOKEN`, `MINTLIFY_DEPLOYMENT_ID`, `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LANGFUSE_*`, `SVIX_*`, `SLACK_*`, or `COMPOSIO_*` env vars are referenced in `Dockerfile`, `docker-compose.yml`, or `docs.json`.
+      - Content invariants preserved: every original content invariant (severity enum, status enum, RBAC role enum, no AWS ARNs / `.internal` hostnames / SQS URLs / LangFuse URLs / Hindsight URLs / KMS IDs, approved placeholder formats) still holds across the 133 MDX files. The docs site still describes the CauseFlow product, including its use of vendors (Clerk for auth, Stripe for billing, AWS for execution) — those are content describing the product, not runtime dependencies of the docs site.
+      - Regression: all 25 original acceptance checks (AC-001 through AC-025) still pass against the docker-compose stack. Specifically: `curl http://localhost:3000/` returns 200 with the homepage content; `GET /quickstart` returns 200 and lands on the Quickstart page (the redirect from `docs.json#redirects` still resolves); every navigation tab (Documentation, API reference, Relay, Changelog) renders; the Mermaid diagram on the Relay overview renders as SVG (not raw code); the Authentication page covers JWT Bearer, API key, and HMAC verification; the Outbound events catalog still lists 20 events; the content invariants from AC-022 through AC-025 still hold across all 133 MDX files.
+      - Monorepo integration: when the monorepo root `docker-compose.yml` (defined by the `core` / `web` open-source-local-runtime contexts) includes the `causeflow-docs` service alongside `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api`, `causeflow-worker`, `causeflow-website`, and `causeflow-dashboard`, the same docs content is reachable at `http://localhost:3000/` with no additional env vars. The docs service depends on no other service and is therefore started in parallel rather than after.
+    </open-source-local-runtime>
+  </core_features>
+
+  <acceptance_checks>
+    <acceptance_check id="AC-001" context="foundation" category="foundation" depends_on="">
+      <description>Running `mint dev` from the project root starts a local server and `GET http://localhost:3000/` returns HTTP 200 with HTML containing the site name "CauseFlow AI" and the intro card "Quickstart" — observed via curl or browser.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-002" context="foundation" category="foundation" depends_on="">
+      <description>Running `mint broken-links` from the project root exits with status code 0 and reports zero broken links across the site.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-003" context="foundation" category="foundation" depends_on="">
+      <description>`docs.json` is valid JSON and validates against the `https://mintlify.com/docs.json` JSON schema — every navigation `tab` declares its `groups` and every `pages` entry resolves to a real `.mdx` file under the project root.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-004" context="content-structure" category="functional" depends_on="AC-001">
+      <description>Every `.mdx` file under the project root (excluding `.mintlify/`, `.artifacts/`, `node_modules/`, `drafts/`) has YAML frontmatter with both `title` and `description` fields. A scripted find + head -5 + grep returns no `MISSING TITLE: …` lines.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-005" context="content-structure" category="style" depends_on="AC-004">
+      <description>Every `description` field in `.mdx` frontmatter is at most 160 characters — `awk` over frontmatter blocks returns no field whose value length exceeds 160.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-006" context="content-structure" category="functional" depends_on="AC-003">
+      <description>All four navigation tabs declared in `docs.json` (Documentation, API reference, Relay, Changelog) render in the local Mintlify dev server; clicking the Changelog tab reaches a page whose H1 matches the title in `changelog/index.mdx`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-007" context="content-structure" category="functional" depends_on="AC-001">
+      <description>The redirects block of `docs.json` (currently `{"source": "/quickstart", "destination": "/getting-started/quickstart"}`) resolves at runtime — `GET /quickstart` returns 200 and lands on the Quickstart page.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-008" context="product-narrative" category="functional" depends_on="AC-001">
+      <description>Each of the seven pages listed under Getting started (Quickstart, Key concepts, How it works, AI transparency, Skills, Memory and chat, Triggers) is reachable from the documentation tab in `mint dev` and renders without MDX parse errors.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-009" context="product-narrative" category="functional" depends_on="AC-001">
+      <description>Each of the seven Dashboard pages (Overview, Incidents, Analyses, Remediations, Audit trail, Team management, Settings) is reachable from the documentation tab and renders.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-010" context="product-narrative" category="functional" depends_on="AC-001">
+      <description>Each of the nine Integrations pages (Overview, Monitoring, GitHub, Communication, Project management, Databases, Custom webhooks, Cloud providers, HubSpot) is reachable and renders.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-011" context="product-narrative" category="functional" depends_on="AC-001">
+      <description>Each of the three Billing pages (Plans, Usage and credits, Manage subscription), the five Security pages (Overview, Authentication, RBAC, Data privacy, Compliance), and the Changelog index is reachable and renders.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-012" context="api-reference" category="functional" depends_on="AC-001">
+      <description>The API reference introduction page renders with H1 "API introduction", the base-URL code block showing exactly `https://api.causeflow.ai`, and the version note "v1" — `mint dev` does not log a parse error for `api-reference/introduction.mdx`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-013" context="api-reference" category="functional" depends_on="AC-001">
+      <description>Every endpoint page listed under the API reference tab in `docs.json` (incidents, triage, investigation, remediation, memory, skills, triggers, integrations, knowledge, graph, billing, notifications, audit, webhooks, GitHub, tenants, API keys, analytics, health, widget, relay) renders its H1 matching the `title` frontmatter — observed by curling each rendered URL in `mint dev`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-014" context="api-reference" category="functional" depends_on="AC-001">
+      <description>The Authentication page (`api-reference/authentication.mdx`) renders sections for JWT Bearer tokens, API keys, and Webhook HMAC signature verification, each with a working code example; the `verifyWebhookSignature` snippet compiles syntactically (Node.js `node --check`).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-015" context="api-reference" category="functional" depends_on="AC-001">
+      <description>The Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-016" context="api-reference" category="style" depends_on="AC-013">
+      <description>Every API example URL across the api-reference pages uses the host `https://api.causeflow.ai` only — `grep -rE 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx'` returns no matches.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-017" context="api-reference" category="style" depends_on="AC-013">
+      <description>Every tenant-ID placeholder in api-reference examples matches the `ten_EXAMPLE_…` shape and every API-key placeholder matches `cflo_live_sk_EXAMPLE_…` — no real-looking UUIDs or full JWTs appear in any example (`grep -rE '(ten_[a-zA-Z0-9]{16,})|(cflo_live_sk_[a-zA-Z0-9]{16,})' --include='*.mdx' | grep -v EXAMPLE` returns nothing).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-018" context="api-reference" category="functional" depends_on="AC-013">
+      <description>The Outbound events catalog (`api-reference/webhooks/outbound-events.mdx`) renders a table whose row count equals exactly 20 distinct dot-namespaced events, and the introduction page either states the same count or links to this page as the source of truth — no off-by-one in the headline count. Event catalog lists 20 events; the introduction page's 21-event count is stale and the introduction must align to 20.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-019" context="relay-documentation" category="functional" depends_on="AC-001">
+      <description>The Relay tab renders each of its eight pages (Overview, Architecture, Quickstart, Configuration, PII masking, Policy engine, Deployment, Troubleshooting) without MDX parse errors, and the Overview page renders the Mermaid `flowchart TD` block (Mintlify serves the rendered diagram, not raw code).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-020" context="relay-documentation" category="functional" depends_on="AC-019">
+      <description>The Configuration page documents `controlPlane`, `resources`, `allowedOperations`, `maxRowsPerQuery`, and the `${VAR_NAME}` env-var substitution — observed by `grep` for each of those keys returning at least one match in `relay/configuration.mdx`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-021" context="relay-documentation" category="style" depends_on="AC-019">
+      <description>The Relay overview's "What the Relay is not" section names proxy, tunnel, and replication-agent anti-patterns — `grep -E 'Not a (proxy|tunnel)|replication agent' relay/overview.mdx` returns all three matches.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-022" context="invariants-and-validation" category="style" depends_on="AC-013">
+      <description>Across every `.mdx`, the only severity tokens that appear are `critical | high | medium | low | info` — `grep -rEn 'severity[: ].*(emergency|urgent|notice|debug|warn)' --include='*.mdx'` returns no matches.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-023" context="invariants-and-validation" category="style" depends_on="AC-013">
+      <description>Across every `.mdx`, no `Incident.status` value of `"dismissed"` or `"failed"` appears; `"pending"` appears only for step-level or approval-level status — `grep -rEn '"status": *"(dismissed|failed)"' --include='*.mdx'` returns no matches.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-024" context="invariants-and-validation" category="style" depends_on="AC-013">
+      <description>No MDX references AWS ARNs, `.internal` hostnames, `sqs.<region>.amazonaws.com` URLs, 12-digit account IDs adjacent to "account" or "arn", KMS key IDs, LangFuse URLs, Hindsight URLs, internal DynamoDB table names, or ECS cluster/task-definition names — `grep -rEi '(arn:aws:|\.internal[^a-z]|sqs\.[a-z0-9-]+\.amazonaws\.com|[0-9]{12}.*(account|arn)|kms:key/[a-f0-9-]{36}|langfuse|hindsight\.[a-z]+|causeflow-(staging|production)[- ]|/ecs/causeflow)' --include='*.mdx'` returns no matches.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-025" context="invariants-and-validation" category="style" depends_on="AC-013">
+      <description>RBAC role names across all MDX are restricted to `admin` and `member`; no other role tokens appear in RBAC context — observed by `grep -rn 'roles\?:' --include='*.mdx'` and confirming only the two role names are listed under any `roles` or `role:` line.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-026" context="open-source-local-runtime" category="foundation" depends_on="">
+      <description>From a clean checkout with a blank shell env (no `MINTLIFY_*`, `MINTLIFY_AUTH_TOKEN`, `MINTLIFY_DEPLOY_TOKEN`, `CLERK_*`, `STRIPE_*`, `AWS_*`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SENTRY_*`, `LANGFUSE_*`, `SVIX_*`, `SLACK_*`, or `COMPOSIO_*` set), `docker compose up -d` from the project root brings up the `causeflow-docs` service on port 3000. Within 60 seconds `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/` returns 200 and the response body contains the site name "CauseFlow AI" and the intro card "Quickstart". `docker logs causeflow-docs 2>&1 | grep -E 'mintlify\.com|mintlify\.app|clerk\.com|stripe\.com|amazonaws\.com|anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|sentry\.io|langfuse\.io|svix\.com|slack\.com|composio\.dev'` returns zero matches.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-027" context="open-source-local-runtime" category="foundation" depends_on="AC-026">
+      <description>The project ships a multi-stage `Dockerfile` at the project root. The `builder` stage installs Node.js and the `mint` CLI (Mintlify's open-source CLI) and produces a built site (static export or a runnable dev server bundle). The `runtime` stage copies the built site into a minimal image — `nginx:alpine` for the static variant, or `node:22-alpine` for the dev-server variant. The runtime image contains no `.env`, no `MINTLIFY_*` env vars, and no Mintlify account credentials. `docker build . -t causeflow-docs:test` exits 0; for the nginx variant the resulting image is under 200 MB (no `node_modules` carried into the runtime stage). `docker inspect causeflow-docs:test` shows the runtime image has no entrypoint that talks to `mintlify.com` or any other external SaaS host.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-028" context="open-source-local-runtime" category="foundation" depends_on="AC-026">
+      <description>`docs.json#contextual.options` no longer contains `claude` or `chatgpt`. After a reader invokes the contextual menu on any page (for example via Playwright clicking the per-page "contextual" trigger), no outbound request is made to `anthropic.com`, `claude.ai`, `openai.com`, or `chatgpt.com` (verifiable via Playwright network logging). The contextual menu only offers local actions (`copy` and `view`) — the AI-provider delegate that the Mintlify contextual feature wired to those SaaS endpoints is fully removed from the runtime path. `grep -E '"(claude|chatgpt)"' docs.json` returns zero matches.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-029" context="open-source-local-runtime" category="foundation" depends_on="AC-026">
+      <description>No Mintlify hosting SaaS. `grep -rE 'mintlify\.com|mintlify\.app|mintlify deploy|mintlify auth' --include='*.{json,mdx,yml,yaml,sh,Dockerfile,ts,js,mjs,md}'` returns no matches in the project. The Dockerfile does not invoke `mintlify deploy` or `mint deploy` and does not require a Mintlify account token. `README.md` documents `docker compose up` as the canonical run path; the prior "Changes pushed to the default branch are deployed automatically via the Mintlify GitHub integration" sentence is removed. No GitHub Actions workflow in the project runs `mint deploy` or `mintlify deploy`.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-030" context="open-source-local-runtime" category="foundation" depends_on="AC-026">
+      <description>The project's `.env.example` is either absent or contains only optional `MINTLIFY_*` overrides (e.g. a port override). The container's required env vars are minimal: `PORT` (default 3000) for the runtime stage. No `MINTLIFY_AUTH_TOKEN`, `MINTLIFY_DEPLOY_TOKEN`, `MINTLIFY_DEPLOYMENT_ID`, `CLERK_*`, `STRIPE_*`, `AWS_*`, `SENTRY_*`, `LANGFUSE_*`, `SVIX_*`, `SLACK_*`, or `COMPOSIO_*` env vars are referenced anywhere in `Dockerfile`, `docker-compose.yml`, or `docs.json`. `grep -E 'CLERK_|STRIPE_|AWS_|SENTRY_|LANGFUSE_|SVIX_|SLACK_|COMPOSIO_|MINTLIFY_(AUTH|DEPLOY)' .env.example Dockerfile docker-compose.yml` returns zero matches.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-031" context="open-source-local-runtime" category="functional" depends_on="AC-026">
+      <description>Regression: all 25 original acceptance checks (AC-001 through AC-025) pass against the docker-compose stack. Specifically: `curl http://localhost:3000/` returns 200 with the homepage content; `GET /quickstart` returns 200 and lands on the Quickstart page (the redirect from `docs.json#redirects` still resolves); every navigation tab (Documentation, API reference, Relay, Changelog) renders; the Mermaid diagram on the Relay overview renders as SVG (not raw code); the Authentication page covers JWT Bearer, API key, and HMAC verification; the Outbound events catalog still lists 20 events; the content invariants from AC-022 through AC-025 (severity enum, status enum, no AWS ARNs / `.internal` / SQS URLs / LangFuse URLs / Hindsight URLs / KMS IDs, RBAC role enum) still hold across all 133 MDX files. `mint broken-links` against the source tree still exits 0 with zero broken links.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-032" context="open-source-local-runtime" category="foundation" depends_on="AC-026,AC-027">
+      <description>The built site, when served by the runtime image, renders the same 133 MDX pages, the same four navigation tabs, the same redirect (`/quickstart` → `/getting-started/quickstart`), and the same Mintlify components (Card, CardGroup, Steps, Note, Tip, Warning, Info, CodeGroup, ParamField, Tabs, Mermaid) without MDX parse errors. Every endpoint page listed under the API reference tab (incidents, triage, investigation, remediation, memory, skills, triggers, integrations, knowledge, graph, billing, notifications, audit, webhooks, GitHub, tenants, API keys, analytics, health, widget, relay) renders its H1 matching the `title` frontmatter. The Dockerfile's runtime stage is reproducible: rebuilding from a clean Docker cache produces a functionally identical image that passes AC-031.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-033" context="open-source-local-runtime" category="foundation" depends_on="AC-026">
+      <description>The `docker-compose.yml` ships with only the `causeflow-docs` service (port 3000). It does not reference any AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mintlify SaaS endpoint. The compose file is valid (`docker compose config` exits 0) and the service depends on no other service. When the monorepo's root `docker-compose.yml` (defined by the `core` / `web` open-source-local-runtime contexts) includes the `public-docs` service as well, the docs site is reachable at `http://localhost:3000/` with no additional env vars and no other services needing to be up first; the docs service starts in parallel with the other subprojects' services.</description>
+    </acceptance_check>
+  </acceptance_checks>
+
+  <database_schema>
+    <tables>removed</tables>
+  </database_schema>
+
+  <api_endpoints_summary>
+    The api-reference section documents the CauseFlow control-plane API at `https://api.causeflow.ai/v1/`. Endpoints are grouped by surface; each is one method on one path. The docs site does not implement any of these endpoints — it documents them.
+
+    Incidents — GET/POST /v1/incidents, GET/PATCH /v1/incidents/{id}, POST /v1/incidents/{id}/status
+    Triage — POST /v1/incidents/{id}/triage, POST /v1/incidents/{id}/classify, GET /v1/incidents/{id}/evidence, GET /v1/incidents/{id}/evidence/list
+    Investigation — POST /v1/investigations, POST /v1/investigations/{id}/context, GET /v1/investigations/{id}/results, GET /v1/investigations/{id}/known-solution, POST /v1/investigations/{id}/feedback, POST /v1/investigations/{id}/abort
+    Remediation — GET /v1/remediations, POST /v1/remediations/{id}/approve, POST /v1/remediations/{id}/reject, POST /v1/remediations/{id}/execute, POST /v1/remediations/{id}/feedback, GET /v1/remediations/{id}
+    Memory and Chat — POST /v1/memory/chat, GET /v1/memory/insights, GET /v1/memory/runbooks, GET /v1/memory/chat-history
+    Skills — POST/GET /v1/skills, GET/PATCH/DELETE /v1/skills/{id}
+    Triggers — GET/POST /v1/triggers, DELETE /v1/triggers/{id}
+    Integrations — GET /v1/integrations, GET /v1/integrations/catalog, GET/POST /v1/integrations/credentials, POST /v1/integrations/connect
+    Knowledge — GET /v1/knowledge/patterns, POST /v1/knowledge/search, POST /v1/knowledge/feedback
+    Graph — POST /v1/graph/services, POST /v1/graph/dependencies, GET /v1/graph/blast-radius, POST /v1/graph/auto-discovery
+    Billing — GET /v1/billing/plans, GET /v1/billing/subscription, GET /v1/billing/credits, GET /v1/billing/usage, POST /v1/billing/purchase
+    Notifications — GET /v1/notifications/stream, GET /v1/notifications, POST /v1/notifications/{id}/read, GET /v1/notifications/approvals-pending, POST /v1/notifications/approvals/respond, GET /v1/notifications/list, POST /v1/notifications/respond
+    Audit — GET /v1/audit, POST /v1/audit/verify, POST /v1/audit/export
+    Webhooks — POST /v1/webhooks/alert, GET /v1/webhooks/events, POST /v1/webhooks/subscribe
+    GitHub — GET /v1/github/installation, DELETE /v1/github/installation
+    Tenants — GET/POST /v1/tenants, GET/PATCH /v1/tenants/{id}
+    API keys — POST/GET /v1/api-keys, DELETE /v1/api-keys/{id}
+    Analytics — GET /v1/analytics/incidents
+    Health — GET /v1/health, GET /v1/health/detailed
+    Widget (roadmap) — POST /v1/widget/sessions, POST /v1/widget/sessions/{id}/messages, GET /v1/widget/sessions/{id}/stream, POST /v1/widget/sessions/{id}/push, POST /v1/widget/sessions/{id}/close
+    Relay — GET /v1/relay/status, POST /v1/relay/connect (control-plane side; the Relay's outbound WSS endpoint is `wss://api.causeflow.ai/v1/relay/connect`)
+
+    Real-time delivery today: Server-Sent Events on `GET /v1/notifications/stream`. Programmatic webhook subscription is on the roadmap.
+  </api_endpoints_summary>
+
+  <ui_layout>
+    <main_structure>
+      Static Mintlify site. Persistent chrome: top navbar with a Support mailto link and a primary "Dashboard" button pointing to `https://dashboard.causeflow.ai`; left sidebar with four tabs (Documentation, API reference, Relay, Changelog) and grouped pages; main content area. Global anchors in the top-right link to "Dashboard" and a "Status" health badge pointing at `https://api.causeflow.ai/v1/health`. The contextual AI menu (Copy / View / Claude / ChatGPT) appears on every page.
+    </main_structure>
+    <sidebar>
+      Tabbed, one tab per `docs.json` `tab`; each tab holds a vertical list of `groups`, each group a heading and a list of page links. The active page is highlighted. Tabs collapse on narrow viewports.
+    </sidebar>
+    <main>
+      Single column. Top of page: H1 (from frontmatter `title`) and a subtitle. Body: MDX content with components (`<Card>`, `<CardGroup>`, `<Steps>`, `<Note>`, `<Tip>`, `<Warning>`, `<Info>`, `<CodeGroup>`, `<ParamField>`, `<Tabs>`). Inline Mermaid blocks are rendered as SVG.
+    </main>
+  </ui_layout>
+
+  <design_system>
+    <color_palette>
+      Primary `#1A8B6F` (CauseFlow teal), accent light `#4ECDC4`, dark text/background `#26233E`. Theme defaults to light appearance; switchable in Mintlify's reader. Logo is light/dark SVG under `/logo/light.svg` and `/logo/dark.svg`; favicon is `/favicon.svg`.
+    </color_palette>
+    <typography>
+      Mintlify theme defaults; no custom font stack in this repo. Headings use sentence case (per `CLAUDE.md` style rules). UI elements are bolded; code, file names, commands, and paths use monospace.
+    </typography>
+    <components>
+      Prefer built-in Mintlify components over custom JSX. Reusable snippets live under `snippets/` (currently `auth-header.mdx` and `rate-limit-note.mdx`) and are imported from other pages. Custom Markdown inside snippets is rendered as the snippet's content.
+    </components>
+    <animations>
+      Mintlify theme defaults — no custom animation code in this repo.
+    </animations>
+  </design_system>
+
+  <key_interactions>
+    1. Reader lands on `docs.causeflow.ai` (homepage) and reads the How-it-works flow.
+    2. Reader clicks Quickstart, follows the seven-step account → profile → connect-tools → create-incident → review-results walkthrough, with side links to the API reference for programmatic flows.
+    3. Reader opens the API reference tab, lands on Introduction, then Authentication, then drills into a specific endpoint (for example, `POST /v1/incidents`). Each endpoint page renders path, method, headers, request body, response, and error codes; the right rail shows the table of contents for the current page.
+    4. Reader evaluates Relay: opens the Relay tab, reads Overview (including the Mermaid diagram), then Configuration to copy the `relay-config.yaml` shape with `${VAR_NAME}` placeholders, then Deployment to follow the Docker / Kubernetes / ECS Fargate steps.
+    5. Reader checks status by clicking the global "Status" anchor in the top-right; the link goes to `https://api.causeflow.ai/v1/health`.
+    6. Reader exports a page to Claude or ChatGPT via the contextual AI menu when a question needs more than the static doc.
+
+    For a contributor (writing/curating the site):
+    1. Editor runs `npm i -g mint` once.
+    2. Editor runs `mint dev` and edits `.mdx` files; the browser hot-reloads.
+    3. Editor runs `mint broken-links` before pushing; CI / the local PostToolUse `check-invariants.sh` enforces vocabulary and host invariants.
+    4. Editor pushes to the default branch; the Mintlify GitHub App builds and deploys to `docs.causeflow.ai`.
+  </key_interactions>
+
+  <implementation_steps>
+    <step number="1">
+      <title>Foundation: Mintlify dev server, broken-link check, schema-valid docs.json</title>
+      <tasks>
+        - Install Mintlify CLI: `npm i -g mint` (prereq, not committed to this repo).
+        - From the project root, run `mint dev` and confirm `http://localhost:3000/` returns 200 with the home content (AC-001).
+        - Run `mint broken-links` and confirm exit 0 and zero broken links (AC-002).
+        - Validate `docs.json` against `https://mintlify.com/docs.json`; every navigation page resolves to a real `.mdx` (AC-003).
+      </tasks>
+    </step>
+    <step number="2">
+      <title>Content structure: frontmatter, navigation coverage, redirects</title>
+      <tasks>
+        - Audit every `.mdx` for `title` + `description` frontmatter; fix any page missing either (AC-004).
+        - Enforce `description` length ≤ 160 chars (AC-005).
+        - Confirm all four tabs render end-to-end and the Changelog index H1 matches the frontmatter `title` (AC-006).
+        - Confirm `/quickstart` redirect lands on the Quickstart page (AC-007).
+      </tasks>
+    </step>
+    <step number="3">
+      <title>Product narrative coverage: getting-started, dashboard, integrations, billing, security, changelog</title>
+      <tasks>
+        - Walk all 7 Getting-started pages, all 7 Dashboard pages, all 9 Integrations pages, the 3 Billing + 5 Security + Changelog index — confirm reachability and no MDX parse errors (AC-008, AC-009, AC-010, AC-011).
+      </tasks>
+    </step>
+    <step number="4">
+      <title>API reference: introduction, authentication, errors/pagination, endpoint coverage, host and placeholder invariants</title>
+      <tasks>
+        - Verify the introduction page renders with the canonical base URL and version (AC-012).
+        - Verify every endpoint group listed in `docs.json` renders (AC-013).
+        - Verify the Authentication page covers JWT, API key, and HMAC verification; HMAC example compiles (AC-014).
+        - Verify Errors and pagination page renders the standard envelope, status table, and cursor example (AC-015).
+        - Enforce host invariant (AC-016) and placeholder invariant (AC-017) across api-reference.
+        - Reconcile the event count: outbound-events page lists 20; update api-reference/introduction.mdx to match the catalog (AC-018, resolves the documented contradiction).
+      </tasks>
+    </step>
+    <step number="5">
+      <title>Relay documentation: eight-page coverage, Mermaid diagram, configuration reference, anti-pattern callouts</title>
+      <tasks>
+        - Verify all 8 Relay tab pages render and the Mermaid flowchart renders as SVG (AC-019).
+        - Verify the Configuration page documents all required keys (AC-020).
+        - Verify the "What the Relay is not" section names proxy/tunnel/replication-agent (AC-021).
+      </tasks>
+    </step>
+    <step number="6">
+      <title>Invariants and content boundaries</title>
+      <tasks>
+        - Enforce the severity enum (AC-022), the incident status enum with the `pending` exception (AC-023), the AWS-identifier exclusion (AC-024), and the RBAC role enum (AC-025) via the `check-invariants.sh` PostToolUse hook in `.claude/settings.json` (already wired).
+      </tasks>
+    </step>
+  </implementation_steps>
+
+  <success_criteria>
+    <functionality>
+      `mint dev` boots the site; every page in the four navigation tabs renders without MDX parse errors; `mint broken-links` returns 0; redirects in `docs.json` resolve; the contextual AI menu offers Copy / View / Claude / ChatGPT on every page.
+    </functionality>
+    <user_experience>
+      A first-time reader can move from the homepage to Quickstart to the API reference in three clicks; the Search bar (Mintlify) finds pages by title and body; the Mermaid diagram on the Relay Overview renders inline rather than as raw code.
+    </user_experience>
+    <technical_quality>
+      Every `.mdx` has `title` and `description ≤ 160`; only the canonical API host appears; placeholder formats are limited to the approved shapes; the event count on the introduction page matches the catalog (20); content invariants are checked by the local hook and hold across all 133 MDX files.
+    </technical_quality>
+    <design_polish>
+      Mintlify theme tokens (primary `#1A8B6F`) are applied; logo and favicon resolve; sentence-case headings; bold UI element names; code formatting for file names, commands, paths, and code references; no custom CSS overrides.
+    </design_polish>
+  </success_criteria>
+</project_specification>

@@ -1,0 +1,78 @@
+{
+  "technologies": [
+    {
+      "name": "Mintlify",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "docs.json", "kind": "manifest" },
+        { "path": "README.md", "kind": "documentation" },
+        { "path": "CLAUDE.md", "kind": "documentation" },
+        { "path": ".agents/skills/mintlify/SKILL.md", "kind": "documentation" }
+      ]
+    },
+    {
+      "name": "MDX",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "index.mdx", "kind": "documentation" },
+        { "path": "getting-started/quickstart.mdx", "kind": "documentation" },
+        { "path": "api-reference/authentication.mdx", "kind": "documentation" }
+      ]
+    },
+    {
+      "name": "Mintlify CLI",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "README.md", "kind": "documentation" },
+        { "path": "skills-lock.json", "kind": "configuration" }
+      ]
+    },
+    {
+      "name": "Mintlify components",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "index.mdx", "kind": "documentation" },
+        { "path": "integrations/overview.mdx", "kind": "documentation" },
+        { "path": "api-reference/authentication.mdx", "kind": "documentation" },
+        { "path": "api-reference/introduction.mdx", "kind": "documentation" }
+      ]
+    },
+    {
+      "name": "Mermaid",
+      "section": "technology_stack",
+      "evidence": [
+        { "path": "relay/overview.mdx", "kind": "documentation" }
+      ]
+    },
+    {
+      "name": "Node.js",
+      "section": "prerequisites",
+      "evidence": [
+        { "path": "README.md", "kind": "documentation" },
+        { "path": ".agents/skills/mintlify/SKILL.md", "kind": "documentation" }
+      ]
+    },
+    {
+      "name": "Mintlify GitHub App",
+      "section": "integrations",
+      "evidence": [
+        { "path": "README.md", "kind": "documentation" },
+        { "path": "docs.json", "kind": "manifest" }
+      ]
+    },
+    {
+      "name": "Mintlify contextual AI",
+      "section": "integrations",
+      "evidence": [
+        { "path": "docs.json", "kind": "manifest" }
+      ]
+    }
+  ],
+  "contradictions": [
+    {
+      "documentation": "api-reference/introduction.mdx line 72-76 says 21 real-time events across seven domains; api-reference/webhooks/outbound-events.mdx line 7 says 20 EventBus events across seven domains and the table totals 20. The event-catalog count prevails (20) — single source of truth is api-reference/webhooks/outbound-events.mdx.",
+      "implementation": "api-reference/webhooks/outbound-events.mdx",
+      "resolution": "Event catalog lists 20 events; the introduction page's 21-event count is stale and the introduction must align to 20."
+    }
+  ]
+}

@@ -3,7 +3,7 @@ set -euo pipefail
 
 REGION="us-east-1"
 ENDPOINT="http://localhost:4566"
-TABLE_NAME="causeflow"
+TABLE_NAME="causeflow-local"
 
 echo "==> Creating DynamoDB table: $TABLE_NAME"
 awslocal dynamodb create-table \
@@ -42,6 +42,13 @@ awslocal dynamodb create-table \
   --region "$REGION" \
   2>/dev/null || echo "Table $TABLE_NAME already exists"
 
+echo "==> Enabling Point-in-Time Recovery on $TABLE_NAME"
+awslocal dynamodb update-continuous-backups \
+  --table-name "$TABLE_NAME" \
+  --point-in-time-recovery-specification PointInTimeRecoveryEnabled=true \
+  --region "$REGION" \
+  2>/dev/null || echo "PITR already configured on $TABLE_NAME"
+
 echo "==> Creating SQS queues"
 
 # Alert queues
@@ -68,12 +75,12 @@ awslocal sqs create-queue \
   --attributes "{\"VisibilityTimeout\":\"600\",\"RedrivePolicy\":\"{\\\"deadLetterTargetArn\\\":\\\"$REM_DLQ_ARN\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}" \
   --region "$REGION" 2>/dev/null || true
 
-# Progress queues (worker → API real-time updates)
-awslocal sqs create-queue --queue-name causeflow-progress-dlq --region "$REGION" 2>/dev/null || true
-PROG_DLQ_ARN=$(awslocal sqs get-queue-attributes --queue-url "$ENDPOINT/000000000000/causeflow-progress-dlq" --attribute-names QueueArn --region "$REGION" --query 'Attributes.QueueArn' --output text)
+# Triage queues
+awslocal sqs create-queue --queue-name causeflow-triage-dlq --region "$REGION" 2>/dev/null || true
+TRIAGE_DLQ_ARN=$(awslocal sqs get-queue-attributes --queue-url "$ENDPOINT/000000000000/causeflow-triage-dlq" --attribute-names QueueArn --region "$REGION" --query 'Attributes.QueueArn' --output text)
 awslocal sqs create-queue \
-  --queue-name causeflow-progress \
-  --attributes "{\"VisibilityTimeout\":\"300\",\"RedrivePolicy\":\"{\\\"deadLetterTargetArn\\\":\\\"$PROG_DLQ_ARN\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}" \
+  --queue-name causeflow-triage \
+  --attributes "{\"VisibilityTimeout\":\"300\",\"RedrivePolicy\":\"{\\\"deadLetterTargetArn\\\":\\\"$TRIAGE_DLQ_ARN\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}" \
   --region "$REGION" 2>/dev/null || true
 
 echo "==> Creating Secrets"
@@ -94,7 +101,7 @@ awslocal kms create-alias \
   --region "$REGION" 2>/dev/null || true
 
 echo "==> LocalStack init complete!"
-echo "  DynamoDB table: $TABLE_NAME (3 GSIs)"
-echo "  SQS queues: alerts, investigation, remediation, progress (+ 4 DLQs)"
+echo "  DynamoDB table: $TABLE_NAME (3 GSIs, PITR enabled)"
+echo "  SQS queues: alerts, triage, investigation, remediation (+ 4 DLQs)"
 echo "  Secrets: jwt-secret, anthropic-api-key"
 echo "  KMS: alias/causeflow-token-encryption"

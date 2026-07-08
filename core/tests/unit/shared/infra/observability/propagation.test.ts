@@ -60,7 +60,7 @@ vi.mock('@shared/infra/observability/otel.js', () => ({
     // Simulates real shutdownOtel behavior for tests
     const { sdk } = await import('@shared/infra/observability/otel.js');
     await Promise.race([
-      sdk.shutdown(),
+      sdk?.shutdown() ?? Promise.resolve(),
       new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
     ]);
   }),

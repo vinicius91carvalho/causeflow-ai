@@ -36,6 +36,20 @@ export function createAuthRoutes(useCases: AuthUseCases) {
         }
     });
 
+    // Login — verifies the Clerk session JWT via authMiddleware (which runs on
+    // all non-public paths) and returns the user, tenant and role extracted by
+    // the middleware. A call without a Bearer token is rejected 401 by the
+    // auth middleware before reaching this handler.
+    app.post('/login', (c) => {
+        const roles = c.get('userRoles') ?? [];
+        return c.json({
+            user: { id: c.get('userId'), email: c.get('userEmail') },
+            tenant: c.get('tenantId'),
+            role: roles[0] ?? null,
+            roles,
+        });
+    });
+
     // Whoami — returns authenticated user info from middleware context
     app.get('/me', (c) => {
         return c.json({

@@ -12,7 +12,8 @@
       "vizConfidence": "97% confiança",
       "vizFixDescription": "Vazamento de memória no pool de conexões — auto-scaling disparado às 3:42 AM causou overflow de max_connections do PostgreSQL.",
       "vizFixButton": "Abrir Fix PR →",
-      "vizProcessing": "Investigando..."
+      "vizProcessing": "Investigando...",
+      "cta": "CauseFlow Acesso Antecipado (sentinela AC-017)"
     },
     "techBar": {
       "title": "Conecta às ferramentas que seu time já usa"

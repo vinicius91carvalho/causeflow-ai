@@ -50,9 +50,32 @@ import { InvestigationWSClient } from '../shared/infra/relay/investigation-ws-cl
 const INCIDENT_ID = process.env['INCIDENT_ID'];
 const TENANT_ID = process.env['TENANT_ID'];
 const SUGGESTED_AGENTS = (process.env['SUGGESTED_AGENTS'] ?? '').split(',').filter(Boolean);
-if (!INCIDENT_ID || !TENANT_ID) {
+const OSS_RUNTIME = process.env['CAUSEFLOW_RUNTIME'] === 'oss';
+
+// In the open-source local runtime the `causeflow-worker` compose service is
+// a long-lived container (AC-039) that the LocalInvestigationTaskDispatcher will
+// later drive to run investigations (AC-044/AC-046). When it is started with
+// no INCIDENT_ID it must NOT exit and must NOT contact any external endpoint —
+// it just reports readiness and waits for SIGTERM. The per-incident dispatch
+// path (INCIDENT_ID set) is unchanged.
+const STANDBY_MODE = OSS_RUNTIME && !INCIDENT_ID;
+
+if (!STANDBY_MODE && (!INCIDENT_ID || !TENANT_ID)) {
     logger.fatal({ INCIDENT_ID, TENANT_ID }, 'Missing required env vars INCIDENT_ID / TENANT_ID');
     process.exit(1);
+}
+
+if (STANDBY_MODE) {
+    logger.info({ runtime: 'oss', mode: 'standby' }, 'causeflow-worker standby — waiting for investigation dispatch (no outbound calls)');
+    const shutdown = (sig: string) => {
+        logger.info({ sig }, 'causeflow-worker standby shutting down');
+        process.exit(0);
+    };
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
+    // Keep the event loop alive without any network/SDK clients. A regular
+    // (non-unref) interval is the keepalive primitive; it performs no work.
+    setInterval(() => { /* heartbeat — no work */ }, 60_000);
 }
 // ── Constants ──────────────────────────────────────────────────────
 const INVESTIGATION_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -557,7 +580,9 @@ Read each message in context and respond accordingly:
         process.exit(1);
     }
 }
-main().catch((err) => {
-    logger.fatal({ err, incidentId: INCIDENT_ID, tenantId: TENANT_ID }, 'Investigation worker unhandled error');
-    process.exit(1);
-});
+if (!STANDBY_MODE) {
+    main().catch((err) => {
+        logger.fatal({ err, incidentId: INCIDENT_ID, tenantId: TENANT_ID }, 'Investigation worker unhandled error');
+        process.exit(1);
+    });
+}

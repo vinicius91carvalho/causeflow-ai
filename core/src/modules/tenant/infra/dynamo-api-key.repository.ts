@@ -12,9 +12,13 @@ function toDomain(raw: Record<string, any>) {
         keyHash: raw['keyHash'],
         prefix: raw['prefix'],
         status: raw['status'],
+        scopes: raw['scopes'],
+        webhookSecretHash: raw['webhookSecretHash'],
         lastUsedAt: raw['lastUsedAt'],
         revokedAt: raw['revokedAt'],
         createdAt: raw['createdAt'],
+        createdBy: raw['createdBy'],
+        createdByEmail: raw['createdByEmail'],
     };
 }
 export class DynamoApiKeyRepository {
@@ -26,6 +30,9 @@ export class DynamoApiKeyRepository {
             keyHash: apiKey.keyHash,
             prefix: apiKey.prefix,
             status: apiKey.status,
+            scopes: apiKey.scopes,
+            createdBy: apiKey.createdBy,
+            createdByEmail: apiKey.createdByEmail,
         }).go();
         return toDomain(result.data);
     }

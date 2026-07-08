@@ -1,0 +1,357 @@
+services:
+  ministack:
+    image: nahuelnucera/ministack
+    ports:
+      - '4566:4566'
+    environment:
+      - MINISTACK_REGION=us-east-1
+      - PERSIST_STATE=1
+      - STATE_DIR=/tmp/ministack-state
+      - LOG_LEVEL=INFO
+    volumes:
+      - ministack_data:/tmp/ministack-state
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_ministack/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: langfuse
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: langfuse
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  langfuse:
+    image: langfuse/langfuse:2
+    ports:
+      - '3001:3000'
+    environment:
+      DATABASE_URL: postgresql://langfuse:langfuse@postgres:5432/langfuse
+      NEXTAUTH_SECRET: mysecret
+      NEXTAUTH_URL: http://localhost:3001
+      SALT: mysalt
+    depends_on:
+      - postgres
+
+  customer-postgres:
+    image: postgres:16-alpine
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_DB: payments
+      POSTGRES_USER: payment_svc
+      POSTGRES_PASSWORD: test123
+    volumes:
+      - ./samples/payment-service/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - customer_postgres_data:/var/lib/postgresql/data
+
+  payment-service:
+    build: ./samples/payment-service
+    ports:
+      - '3100:3000'
+    environment:
+      - PORT=3000
+      - DB_HOST=customer-postgres
+      - DB_PORT=5432
+      - DB_NAME=payments
+      - DB_USER=payment_svc
+      - DB_PASSWORD=test123
+      - REDIS_URL=redis://redis:6379
+      - CW_ENDPOINT=http://ministack:4566
+      - CW_REGION=us-east-1
+      - LOG_LEVEL=info
+    depends_on:
+      customer-postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      ministack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  billing-postgres:
+    image: postgres:16-alpine
+    ports:
+      - '5434:5432'
+    environment:
+      POSTGRES_DB: billing
+      POSTGRES_USER: billing_svc
+      POSTGRES_PASSWORD: billing_pass
+    volumes:
+      - ./samples/billing-service/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - billing_postgres_data:/var/lib/postgresql/data
+    networks:
+      - customer-vpc
+
+  billing-service:
+    build: ./samples/billing-service
+    ports:
+      - '3300:3000'
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://billing_svc:billing_pass@billing-postgres:5432/billing
+      - CW_ENDPOINT=http://ministack:4566
+      - CW_REGION=us-east-1
+    depends_on:
+      billing-postgres:
+        condition: service_started
+      ministack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - customer-vpc
+      - default
+
+  # ── Customer VPC (isolated network — DBs inaccessible from host) ─────
+  # The relay is the ONLY path to query these databases.
+
+  order-postgres:
+    image: postgres:16-alpine
+    # NO ports exposed — isolated inside customer-vpc network
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: order_svc
+      POSTGRES_PASSWORD: test123
+    volumes:
+      - ./samples/order-service/init-pg.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - order_postgres_data:/var/lib/postgresql/data
+    networks:
+      - customer-vpc
+
+  order-mongo:
+    image: mongo:7
+    # NO ports exposed — isolated inside customer-vpc network
+    volumes:
+      - ./samples/order-service/init-mongo.js:/docker-entrypoint-initdb.d/01-init.js:ro
+      - order_mongo_data:/data/db
+    networks:
+      - customer-vpc
+
+  order-service:
+    build: ./samples/order-service
+    ports:
+      - '3200:3000'
+    environment:
+      - PORT=3000
+      - DB_HOST=order-postgres
+      - DB_PORT=5432
+      - DB_NAME=orders
+      - DB_USER=order_svc
+      - DB_PASSWORD=test123
+      - MONGO_URI=mongodb://order-mongo:27017
+      - MONGO_DATABASE=orders
+      - CW_ENDPOINT=http://ministack:4566
+      - CW_REGION=us-east-1
+      - LOG_LEVEL=info
+    depends_on:
+      order-postgres:
+        condition: service_started
+      order-mongo:
+        condition: service_started
+      ministack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - customer-vpc
+      - default
+
+  causeflow-relay:
+    build: ./relay
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      - CONTROL_PLANE_URL=${RELAY_CONTROL_PLANE_URL:-ws://host.docker.internal:3099/v1/relay/connect}
+      - RELAY_TOKEN=${RELAY_TOKEN:-smoke-test-secret}
+      - TENANT_ID=${RELAY_TENANT_ID:-smoke-tenant}
+      - RESOURCE_0_ID=order-pg
+      - RESOURCE_0_TYPE=postgres
+      - RESOURCE_0_NAME=Order Service PostgreSQL
+      - RESOURCE_0_CONNECTION={"host":"order-postgres","port":5432,"database":"orders","user":"order_svc","password":"test123"}
+      - RESOURCE_1_ID=order-mongo
+      - RESOURCE_1_TYPE=mongodb
+      - RESOURCE_1_NAME=Order Service MongoDB
+      - RESOURCE_1_CONNECTION={"uri":"mongodb://order-mongo:27017","database":"orders"}
+      - RESOURCE_2_ID=billing-pg
+      - RESOURCE_2_TYPE=postgres
+      - RESOURCE_2_NAME=Billing Service PostgreSQL
+      - RESOURCE_2_CONNECTION={"host":"billing-postgres","port":5432,"database":"billing","user":"billing_svc","password":"billing_pass"}
+    depends_on:
+      order-postgres:
+        condition: service_started
+      order-mongo:
+        condition: service_started
+      billing-postgres:
+        condition: service_started
+    networks:
+      - customer-vpc
+      - default
+
+  # ── Marketplace Platform (catalog, order, fulfillment) ──────────────
+  # Customer's e-commerce app. DynamoDB tables live in ministack.
+
+  marketplace-catalog:
+    build: ./samples/marketplace-platform
+    ports:
+      - '3400:3000'
+    command: ["node", "dist/catalog/index.js"]
+    environment:
+      PORT: '3000'
+      SERVICE_NAME: catalog-api
+      DYNAMODB_ENDPOINT: http://ministack:4566
+      CW_ENDPOINT: http://ministack:4566
+      CW_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+      LOG_GROUP: /ecs/catalog-api
+      METRICS_NAMESPACE: Custom/CatalogApi
+    depends_on:
+      ministack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  marketplace-order:
+    build: ./samples/marketplace-platform
+    ports:
+      - '3500:3000'
+    command: ["node", "dist/order/index.js"]
+    environment:
+      PORT: '3000'
+      SERVICE_NAME: order-api
+      DYNAMODB_ENDPOINT: http://ministack:4566
+      CATALOG_API_URL: http://marketplace-catalog:3000
+      FULFILLMENT_API_URL: http://marketplace-fulfillment:3000
+      CW_ENDPOINT: http://ministack:4566
+      CW_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+      LOG_GROUP: /ecs/order-api
+      METRICS_NAMESPACE: Custom/OrderApi
+    depends_on:
+      ministack:
+        condition: service_healthy
+      marketplace-catalog:
+        condition: service_healthy
+      marketplace-fulfillment:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  marketplace-fulfillment:
+    build: ./samples/marketplace-platform
+    ports:
+      - '3600:3000'
+    command: ["node", "dist/fulfillment/index.js"]
+    environment:
+      PORT: '3000'
+      SERVICE_NAME: fulfillment-api
+      DYNAMODB_ENDPOINT: http://ministack:4566
+      CW_ENDPOINT: http://ministack:4566
+      CW_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+      LOG_GROUP: /ecs/fulfillment-api
+      METRICS_NAMESPACE: Custom/FulfillmentApi
+    depends_on:
+      ministack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ── Notification Service (TechCorp — push retry bug) ───────────────
+  # Customer's notification microservice. DynamoDB table lives in ministack.
+
+  notification-service:
+    build: ./samples/notification-service
+    ports:
+      - '3700:3000'
+    environment:
+      PORT: '3000'
+      DYNAMODB_ENDPOINT: http://ministack:4566
+      CW_ENDPOINT: http://ministack:4566
+      CW_REGION: us-east-1
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      TABLE_NAME: notifications
+      LOG_GROUP: /ecs/notification-service
+      METRICS_NAMESPACE: Custom/NotificationService
+      PUSH_FAILURE_RATE: '0.7'
+    depends_on:
+      ministack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  hindsight:
+    image: ghcr.io/vectorize-io/hindsight:latest
+    ports:
+      - '8888:8888'
+      - '9999:9999'
+    environment:
+      HINDSIGHT_API_LLM_PROVIDER: anthropic
+      HINDSIGHT_API_LLM_API_KEY: ${ANTHROPIC_API_KEY:-}
+      HINDSIGHT_API_ENABLE_BANK_CONFIG_API: 'false'
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8888/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  customer-vpc:
+    # Internal network — databases NOT accessible from host.
+    # Only services on this network (order-service, causeflow-relay) can reach the DBs.
+    internal: true
+
+volumes:
+  ministack_data:
+  redis_data:
+  postgres_data:
+  customer_postgres_data:
+  order_postgres_data:
+  order_mongo_data:
+  billing_postgres_data:

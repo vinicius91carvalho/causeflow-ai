@@ -1,7 +1,7 @@
 
 export interface HealthCheckResult {
     name: string;
-    status: 'ok' | 'degraded' | 'down';
+    status: 'ok' | 'degraded' | 'down' | 'skipped';
     latencyMs: number;
     details?: Record<string, unknown>;
 }
@@ -38,6 +38,12 @@ export class HealthChecker {
         }));
         let aggregated: 'ok' | 'degraded' | 'down' = 'ok';
         for (const result of results) {
+            // 'skipped' checks (e.g. Anthropic with no API key in the OSS
+            // runtime) do not affect the aggregate — they are neither healthy
+            // nor unhealthy, just not configured.
+            if (result.status === 'skipped') {
+                continue;
+            }
             if (result.status === 'down') {
                 aggregated = 'down';
                 break;
