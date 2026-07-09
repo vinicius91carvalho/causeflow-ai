@@ -135,12 +135,13 @@
       "qa": true,
       "implementation": true,
       "integration": true,
-      "timestamp": "2026-07-09T07:00:00Z",
-      "details": "Integrated Verification pass for AC-030 (postgres-sql-parser). validateQuery tested at compiled dist boundary. All three AC-030 conditions verified: (1) validateQuery('WITH x AS (SELECT 1) SELECT * FROM x') returns {valid:true}; (2) validateQuery('SELECT * FROM (SELECT pg_sleep(1)) s') rejected via dangerous-function text scan: {valid:false, reason:'Dangerous function detected: pg_sleep'}; (3) validateQuery('EXPLAIN SELECT 1') accepted: {valid:true} (parser throws on EXPLAIN, catch block allows it via first-word check). npm run build and tsc --noEmit pass. No code changes needed -- zero-diff checkpoint.",
+      "timestamp": "2026-07-09T07:02:00Z",
+      "details": "Independent QA verification pass for AC-030 (postgres-sql-parser). Tested all three conditions: (1) validateQuery(\"WITH x AS (SELECT 1) SELECT * FROM x\") returns {valid:true}; (2) validateQuery(\"SELECT * FROM (SELECT pg_sleep(1)) s\") rejected: {valid:false, reason:\"Dangerous function detected: pg_sleep\"}; (3) validateQuery(\"EXPLAIN SELECT 1\") accepted: {valid:true} (parser throws on EXPLAIN, catch block fallback accepts via first-word check). PgDriver.validate() correctly delegates to validateQuery(). npx tsc --noEmit passes. npm run build passes. No defects.",
       "checks": {
         "with_cte_accepted": "passed",
         "pg_sleep_in_subquery_rejected": "passed",
         "explain_accepted": "passed",
+        "driver_validate_wired": "passed",
         "npm_run_build": "passed",
         "tsc_noEmit": "passed"
       }
