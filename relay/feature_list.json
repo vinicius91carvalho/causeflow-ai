@@ -820,10 +820,10 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": true,
-    "qa": true,
+    "implementation": false,
+    "qa": false,
     "integration": false,
-    "retries": 1
+    "retries": 2
   },
   {
     "id": "WI-AC-037",
