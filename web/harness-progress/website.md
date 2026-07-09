@@ -155,3 +155,11 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - RepairPlan: WI-AC-012 INTEGRATION_QA failed with 'Session terminated, killing shell... ...killed.' — the agent process (pi) was killed by a signal before producing any stdout/stderr beyond the `script` wrapper's terminal-session teardown message. The middleware code is correct: CRAWLER_UA_PATTERNS has 61 entries (>=45 required), and all 5 behavioral ACs passed in the preceding coding+QA rounds. No code changes are needed for AC-012 itself.; No product-code changes to apps/website/src/middleware.ts — it is correct (61 crawler patterns ≥ 45, all behavioral ACs passing).; Before retrying INTEGRATION_QA, ensure port 5173 is clean: `pkill -f 'next.*5173' 2>/dev/null; lsof -ti :5173 | xargs kill -9 2>/dev/null` and remove any stale `.harness/app.pid` file.; Consider modifying the orchestrator's `spawnAgent` to detect the 'Session terminated' stderr pattern and retry with a fresh port or after cleanup rather than propagating the infrastructure error as a WI defect.; Consider allocating a dedicated port-check + cleanup step in `stopApp()` / `cleanupBrowserOrphans()` that also kills orphan `next dev` processes on the assigned port, not just browser processes.; If resource contention is the root cause, reduce concurrent workers for the website context or increase memory-per-worker-mb.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/website/WI-AC-012-2-integration_qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-09T19:02:39.492Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-012
+- Outcome: coding agent failed three times
+- Defects: Session terminated, killing shell... ...killed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
