@@ -169,3 +169,11 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Confirmed the relay boundary directly on localhost:5179: the page renders, and relay/overview.mdx already contains the required Not a proxy / Not a tunnel / Not a replication agent contract. Retry so the context can re-run with the verified evidence instead of the sandbox-only browser complaint.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T00:25:33.713Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: coding agent declined the Work Item
+- Defects: Repo scaffold and project_specs.xml are present; relay/overview.mdx already contains the required Not a proxy / Not a tunnel / Not a replication agent lines. I could not re-run the live HTTP/browser boundary in this sandbox because localhost socket access is blocked and the browser MCP call was cancelled, so no files were changed and no commit was made.
+- NextAction: User reviews evidence and explicitly resumes with guidance
