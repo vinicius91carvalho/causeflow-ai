@@ -445,3 +445,34 @@ No source code changes needed. No defects found.
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-035-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T19:04:21.142Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-036
+- DefectReport: All verifications pass. Here is the summary of what was tested for **WI-AC-036**:
+
+**Source-level verification (mongo-driver.ts):**
+- Constructor: `new MongoClient(uri, { maxPoolSize: 5, serverSelectionTimeoutMS: 10000 })` ✓
+- `healthCheck()`: calls `await this.db.admin().ping()`, returns `true` on success, catches all errors and returns `false` ✓
+- `close()`: `await this.client.close()` ✓
+
+**Runtime verification (against live relay-mongo on localhost:27017):**
+- `db.admin().ping()` returns `{ ok: 1 }` ✓
+- `client.close()` resolves cleanly ✓
+- Ping after close throws (expected — connection is closed) ✓
+- Unreachable host (192.0.2.99) throws gracefully ✓
+
+**Existing test-ac036.mjs:** All 4 test groups pass (WebSocket health_check RPC, source parameter check, direct MongoClient health check + close, error path) ✓
+
+**Journal updated and committed.**
+- RepairPlan: WI-AC-036 (MongoDriver healthCheck/close/construction params) passes all verifications with zero defects. The QA agent verified: (1) source-level constructor uses maxPoolSize:5 and serverSelectionTimeoutMS:10000; (2) healthCheck() calls db.admin().ping() returning true/false; (3) close() awaits client.close(); (4) runtime db.admin().ping() returns {ok:1} against live relay-mongo; (5) client.close() resolves cleanly; (6) ping after close throws (expected); (7) unreachable host throws gracefully; (8) test-ac036.mjs passes all 4 test groups. All 11 checks in .harness/journal.json are marked passed. Repository scaffold (src/drivers/mongodb/mongo-driver.ts, src/drivers/driver.port.ts, src/index.ts import, etc.) matches project_specs.xml — no missing files or structural gaps.; No repair actions required — AC-036 implementation is correct and fully verified.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-036-1-qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-09T19:06:03.321Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

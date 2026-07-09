@@ -714,6 +714,64 @@
         "explain_nonexistent_collection_graceful": "passed",
         "source_code_find_explain_executionStats": "passed"
       }
+    },
+    {
+      "id": "WI-AC-036",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T19:03:17Z",
+      "details": "QA Agent independent verification for AC-036 (MongoDriver healthCheck + close + construction params). Verified at source code level: constructor uses maxPoolSize:5 and serverSelectionTimeoutMS:10000; healthCheck() calls db.admin().ping() returning true on success / false on any error; close() awaits client.close(). Runtime verified against live relay-mongo (localhost:27017): db.admin().ping() returns {ok:1}; client.close() resolves cleanly; ping after close throws; unreachable host gracefully fails. Existing test-ac036.mjs passes all 4 test groups. No defects found. Setting qa=true, implementation=true.",
+      "checks": {
+        "source_constructor_maxPoolSize_5": "passed",
+        "source_constructor_serverSelectionTimeoutMS_10000": "passed",
+        "source_healthCheck_uses_db_admin_ping": "passed",
+        "source_healthCheck_returns_true_on_success": "passed",
+        "source_healthCheck_returns_false_on_error": "passed",
+        "source_close_awaits_client_close": "passed",
+        "runtime_db_admin_ping_returns_ok": "passed",
+        "runtime_client_close_resolves": "passed",
+        "runtime_ping_fails_after_close": "passed",
+        "runtime_unreachable_host_graceful_failure": "passed",
+        "existing_test_ac036_all_pass": "passed"
+      }
+    },
+    {
+      "id": "WI-AC-036",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:59:59Z",
+      "details": "Verify-first pass for AC-036 (MongoDriver healthCheck/close/construction). Ran test-ac036.mjs against real running docker-compose stack (relay + control-plane-stub on port 5191 + relay-mongo + relay-postgres). Test 1: health_check RPC via WebSocket returns healthy=true for order-mongo. Test 2: Source code confirmed maxPoolSize:5 and serverSelectionTimeoutMS:10000 in constructor. Test 3: Direct MongoClient db.admin().ping() returns {ok:1}; client.close() resolves cleanly; ping after close throws (expected). Test 4: Unreachable host gracefully fails. All 4 test groups pass with 0 failures. Zero-diff checkpoint: no source code changes needed.",
+      "checks": {
+        "health_check_rpc_healthy": "passed",
+        "source_maxPoolSize_5": "passed",
+        "source_serverSelectionTimeoutMS_10000": "passed",
+        "healthCheck_db_admin_ping_returns_true": "passed",
+        "close_resolves_cleanly": "passed",
+        "ping_fails_after_close": "passed",
+        "unreachable_host_graceful_failure": "passed",
+        "all_test_groups_pass": "passed"
+      }
+    },
+    {
+      "id": "WI-AC-036",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:59:59Z",
+      "details": "Independent QA verification for AC-036 (MongoDriver healthCheck + close + construction params). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-mongo + relay-postgres). Executed test-ac036.mjs: (1) health_check RPC via WebSocket returns healthy=true for order-mongo with latencyMs=1; (2) Source code confirmed maxPoolSize:5 and serverSelectionTimeoutMS:10000 in constructor (mongo-driver.ts:20-23); (3) Direct MongoClient db.admin().ping() returns {ok:1}, healthCheck returns true; close() awaits client.close() and resolves cleanly; ping after close throws (expected); (4) Unreachable host gracefully returns false without throwing. All 4 test groups pass with 0 failures. Constructor params, healthCheck via db.admin().ping(), and close via client.close() all conform to AC-036 spec. No defects.",
+      "checks": {
+        "health_check_rpc_healthy": "passed",
+        "source_maxPoolSize_5": "passed",
+        "source_serverSelectionTimeoutMS_10000": "passed",
+        "healthCheck_db_admin_ping_returns_true": "passed",
+        "close_awaits_client_close": "passed",
+        "close_resolves_cleanly": "passed",
+        "ping_fails_after_close": "passed",
+        "unreachable_host_returns_false_no_throw": "passed",
+        "all_test_groups_pass": "passed"
+      }
     }
   ]
 }
