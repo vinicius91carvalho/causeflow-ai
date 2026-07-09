@@ -1370,3 +1370,11 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - WorkItem: WI-AC-018
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T18:42:48.443Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-018
+- Defects: Session terminated, killing shell... ...killed.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-018-1-integration_qa.log
+- NextAction: Repair Plan
