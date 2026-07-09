@@ -493,3 +493,10 @@ No source code changes needed. No defects found.
 - RepairPlan: WI-AC-036 implementation is correct: MongoDriver.healthCheck() calls db.admin().ping() with true/false return, close() awaits client.close(), and constructor sets maxPoolSize:5 and serverSelectionTimeoutMS:10000. The implementation was verified correct in two prior QA runs (WI-AC-036-1 passed all 4 test groups; WI-AC-036-2 QA returned defects=[]). The INTEGRATION_QA failure (Session terminated, killing shell... ...killed.) is an environmental sub-agent timeout/hang, not a code defect. The relay-mongo container is healthy and running (Up 17h), but test-ac036.mjs Test 3 connects directly to mongodb://localhost:27017 which a sandboxed sub-agent cannot reach, causing indefinite hang until harness kill.; Modify test-ac036.mjs Test 3 to connect through the relay's health_check RPC endpoint (same as Test 1) instead of making a direct MongoClient connection, or add a serverSelectionTimeoutMS:2000 override to the direct MongoClient in Test 3 so it fails fast instead of hanging 10s.; Alternatively, remove Test 3's direct MongoDB connection entirely since Test 1 already validates healthCheck behavior through the relay WebSocket (which is the only path relevant in production).; Ensure integration QA sub-agent has DOCKER_HOST or docker-network awareness so it can connect to relay-mongo on its container hostname rather than localhost.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-036-2-integration_qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-09T19:36:25.203Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
