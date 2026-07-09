@@ -133,3 +133,18 @@ NextAction: complete.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-031-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T12:48Z — Verify-first (coding agent)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+Boundary exercised at real WebSocket + MongoDB boundary: ran `test-ac032.mjs` which seeded MongoDB with an `orders` collection (documents with string, number, object, array, null, Date types + 3 indexes), connected to the running control-plane stub, sent a JSON-RPC 2.0 `execute` request with `{ resourceId: 'order-mongo', operation: 'describe_table', params: { tableName: 'orders' } }`, and captured the response.
+
+Evidence:
+- Schema inference: 7 fields detected (`_id`, `status`, `amount`, `customer`, `tags`, `notes`, `createdAt`). Each field's types correctly reflect the `typeof` values from sample docs.
+- `notes` correctly detected both `object` (null) and `string` ("Handle with care") types across the 2 documents.
+- `tags` properly typed as `object` (array), `customer` as `object` (nested doc), `createdAt` as `object` (Date).
+- Index rows: 4 indexes returned — `_id_`, `idx_status`, `idx_amount`, `customer_1_createdAt_-1` — each tagged `_type: 'index'` with `{ name, key }`.
+- Row count 11 (7 schema + 4 index) matches `rowCount`.
+- `executionTimeMs: 19` valid non-negative number.
+- No code changes required: the existing `MongoDriver.execute('describe_table')` implementation already satisfies AC-032 at the real WS+Mongo boundary.
