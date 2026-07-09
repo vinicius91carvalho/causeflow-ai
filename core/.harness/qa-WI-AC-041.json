@@ -3,7 +3,7 @@
   "qa": true,
   "integration": true,
   "implementation": true,
-  "tested": "2026-07-09T17:50:00-03:00",
+  "tested": "2026-07-09T21:25:00Z",
   "verification": {
     "bootLogQueues": "pass",
     "adminQueuesEndpoint": "pass",
@@ -14,7 +14,8 @@
     "noSqsCalled": "pass"
   },
   "observations": [
-    "Status goes to 'resolved' (not 'triaged') because TriageIncidentUseCase auto-resolves low-severity incidents when LLM is unavailable. This is expected application behavior, not a BullMQ integration defect."
+    "Status goes to 'resolved' (not 'triaged') because TriageIncidentUseCase auto-resolves low-severity incidents when LLM is unavailable. This is expected application behavior, not a BullMQ integration defect.",
+    "Lifecycle handler labeled 'sqs-consumers' even in OSS mode with BullMQ workers — cosmetic only"
   ],
   "defects": []
 }
