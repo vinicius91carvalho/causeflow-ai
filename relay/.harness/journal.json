@@ -261,6 +261,31 @@
         "tsc_noEmit": "passed",
         "ac038_cross_validation": "passed"
       }
+    },
+    {
+      "id": "WI-AC-027",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T12:00:00Z",
+      "details": "Independent QA verification for AC-027 (PgDriver.healthCheck + close). Tested at real Postgres external boundary (relay-postgres:5432). All verifications pass: (1) healthCheck on working connection returns true, runs SELECT 1 (source-confirmed), uses try/catch with no re-throw; (2) healthCheck on unreachable host returns false without throwing; (3) close resolves without error on working and failed drivers, awaits pool.end(); (4) graceful-shutdown path in index.ts registers SIGTERM/SIGINT handlers, iterates drivers calling driver.close() with .catch(()={}) error swallowing, wsClient.close() precedes driver.close(); (5) IReadOnlyDriver port declares healthCheck(): Promise<boolean> and close(): Promise<void>; (6) E2E health_check RPC via WebSocket confirms order-pg reports healthy:true with latencyMs>=0; (7) tsc --noEmit clean; (8) npm run build clean. 31/31 independent assertions pass across 4 test suites. No defects found.",
+      "checks": {
+        "healthCheck_working_returns_true": "passed",
+        "healthCheck_unreachable_returns_false_no_throw": "passed",
+        "close_resolves_without_error": "passed",
+        "close_on_failed_driver_no_throw": "passed",
+        "shutdown_handler_calls_driver_close": "passed",
+        "shutdown_handler_swallows_close_error": "passed",
+        "health_check_rpc_via_ws": "passed",
+        "npm_run_build": "passed",
+        "tsc_noEmit": "passed",
+        "select_1_source_confirmed": "passed",
+        "try_catch_no_rethrow": "passed",
+        "close_awaits_pool_end": "passed",
+        "port_contract_healthCheck": "passed",
+        "port_contract_close": "passed",
+        "shutdown_order_ws_first": "passed"
+      }
     }
   },
     {
