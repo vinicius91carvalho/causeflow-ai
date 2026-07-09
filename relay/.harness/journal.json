@@ -90,5 +90,23 @@
         "non_error_throw_fallback": "passed"
       }
     }
+  },
+    {
+      "id": "WI-AC-028",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T02:30:00Z",
+      "details": "Integrated Verification pass for AC-028 (postgres-sql-parser). validateQuery tested at compiled dist boundary. All three acceptance-check conditions verified: (1) validateQuery('SELECT 1') returns {valid:true}; (2) validateQuery('INSERT INTO t VALUES (1)') returns {valid:false, reason:'Only SELECT statements are allowed, got INSERT'} (parser-succeeds path) and the textual fallback 'INSERT statements are not allowed' works when the parser throws on malformed SQL; (3) validateQuery('SELECT 1; DROP TABLE users') returns {valid:false, reason:'Multi-statement queries are not allowed'}. Project builds cleanly (npm run build -> dist/). tsc --noEmit passes. PgDriver.validate() wires validateQuery for query/explain operations. No defects.",
+      "checks": {
+        "select_1_returns_valid_true": "passed",
+        "insert_rejected_with_appropriate_reason": "passed",
+        "multi_statement_rejected": "passed",
+        "fallback_path_when_parser_throws": "passed",
+        "npm_run_build": "passed",
+        "tsc_noEmit": "passed",
+        "pg_driver_integration": "passed"
+      }
+    }
   ]
 }
