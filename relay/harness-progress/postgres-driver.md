@@ -506,3 +506,10 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - PreviousPhase: qa
 - Attempt: 1
 - NextAction: qa
+
+## 2026-07-09T12:21:19.259Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
