@@ -1,7 +1,7 @@
 # QA Journal - WI-AC-030 (integrations-and-notifications: Slack OAuth + Events)
 
 ## Test Date
-2026-07-08
+2026-07-09
 
 ## Environment
 - API running on PORT=5185 against ministack (DynamoDB, SQS, KMS at localhost:4566)
@@ -45,8 +45,19 @@
 ## Observations
 1. The /install endpoint correctly generates a state token, persists it to SlackOAuthStateEntity in DynamoDB, and returns the Slack OAuth authorize URL.
 2. The /events endpoint correctly verifies Slack signing secret using HMAC-SHA256, rejects tampered bodies (401), and acknowledges valid events (200).
-3. The events endpoint does not currently forward received events to trigger a chat reply - it acknowledges and logs only.
+3. The events endpoint now forwards `message` and `app_mention` events to `replyToEvent()` which looks up the tenant by workspace ID and calls `chat.postMessage` asynchronously (fire-and-forget). Reply failures are logged and swallowed.
 4. The OAuth completion / callback requires a real Slack app for end-to-end testing (not possible in this isolated test).
+5. Token encryption: `ConnectSlackUseCase` now accepts `TokenEncryption` in constructor and encrypts the access token before storing. `DisconnectSlackUseCase` decrypts for token revocation. Routes decrypt for `POST /test`.
+6. All `tenantRepo.findById()` calls in routes (`GET /config`, `PATCH /config`, `DELETE /oauth`, `POST /test`) are wrapped in try/catch to handle DynamoDB unavailability gracefully.
+7. Unit tests: 1058/1058 pass. Slack package tests (connect-slack.usecase + slack.routes) updated for encryption.
+
+## Files Changed
+- src/modules/integration/application/connect-slack.usecase.ts (add TokenEncryption injection, encrypt accessToken)
+- src/modules/integration/application/disconnect-slack.usecase.ts (add TokenEncryption injection, decrypt for revocation)
+- src/modules/integration/infra/slack.routes.ts (add try/catch wrappers, decryptToken helper, replyToEvent pipeline)
+- src/bootstrap.ts (pass tokenEncryption to Slack use cases and slackDeps)
+- tests/unit/modules/integration/connect-slack.usecase.test.ts (add mock TokenEncryption, update assertions)
+- tests/unit/modules/integration/slack.routes.test.ts (add mock TokenEncryption to deps)
 
 ## Verdict
 qa=true implementation=true

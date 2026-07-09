@@ -1,9 +1,9 @@
-import { ValidationError } from '../../../shared/domain/errors.js';
-import { NotFoundError } from '../../../shared/domain/errors.js';
+import { ValidationError, NotFoundError } from '../../../shared/domain/errors.js';
 import { logger } from '../../../shared/infra/logger.js';
 import type { ITenantRepository } from '../../tenant/domain/tenant.repository.js';
 import type { SlackConfig, SlackConfigResponse } from '../../tenant/domain/tenant.entity.js';
 import type { TenantId } from '../../../shared/domain/value-objects.js';
+import type { TokenEncryption } from '../../../shared/application/ports/token-encryption.port.js';
 
 export interface ConnectSlackInput {
     code: string;
@@ -35,10 +35,12 @@ interface SlackOAuthV2Response {
 export class ConnectSlackUseCase {
     private readonly tenantRepo: ITenantRepository;
     private readonly oauthConfig: SlackOAuthConfig;
+    private readonly tokenEncryption: TokenEncryption;
 
-    constructor(tenantRepo: ITenantRepository, oauthConfig: SlackOAuthConfig) {
+    constructor(tenantRepo: ITenantRepository, oauthConfig: SlackOAuthConfig, tokenEncryption: TokenEncryption) {
         this.tenantRepo = tenantRepo;
         this.oauthConfig = oauthConfig;
+        this.tokenEncryption = tokenEncryption;
     }
 
     async execute(input: ConnectSlackInput): Promise<SlackConfigResponse> {
@@ -80,9 +82,13 @@ export class ConnectSlackUseCase {
 
         const now = new Date().toISOString();
 
-        // Build SlackConfig — access_token and webhookUrl stored but never logged
+        // Encrypt the access token before storing
+        const encryptedPayload = await this.tokenEncryption.encrypt(data.access_token);
+        const accessToken = JSON.stringify(encryptedPayload);
+
+        // Build SlackConfig — access_token is stored encrypted, never logged
         const slackConfig: SlackConfig = {
-            accessToken: data.access_token,
+            accessToken,
             webhookUrl: data.incoming_webhook.url,
             channel: data.incoming_webhook.channel,
             channelId: data.incoming_webhook.channel_id,

@@ -3,6 +3,22 @@ import { ConnectSlackUseCase } from '../../../../src/modules/integration/applica
 import type { ITenantRepository } from '../../../../src/modules/tenant/domain/tenant.repository.js';
 import type { Tenant, TenantSettings } from '../../../../src/modules/tenant/domain/tenant.entity.js';
 import { tenantId } from '../../../../src/shared/domain/value-objects.js';
+import type { TokenEncryption, EncryptedPayload } from '../../../../src/shared/application/ports/token-encryption.port.js';
+
+// ─── Mock TokenEncryption ───────────────────────────────────────────────────
+function makeMockTokenEncryption(): TokenEncryption {
+    return {
+        encrypt: vi.fn(async (plaintext: string): Promise<EncryptedPayload> => ({
+            ciphertext: Buffer.from(`encrypted:${plaintext}`).toString('base64'),
+            encryptedDek: Buffer.from('fake-dek').toString('base64'),
+            iv: Buffer.from('fake-iv').toString('base64'),
+            tag: Buffer.from('fake-tag').toString('base64'),
+        })),
+        decrypt: vi.fn(async (payload: EncryptedPayload): Promise<string> =>
+            Buffer.from(payload.ciphertext, 'base64').toString('utf8').replace('encrypted:', ''),
+        ),
+    };
+}
 
 // ─── Shared fixtures ───────────────────────────────────────────────────────────
 
@@ -56,16 +72,18 @@ function makeMockTenantRepo(): ITenantRepository {
 
 describe('ConnectSlackUseCase', () => {
     let tenantRepo: ITenantRepository;
+    let tokenEncryption: TokenEncryption;
     let useCase: ConnectSlackUseCase;
     let fetchSpy: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
         tenantRepo = makeMockTenantRepo();
+        tokenEncryption = makeMockTokenEncryption();
         useCase = new ConnectSlackUseCase(tenantRepo, {
             clientId: 'test-client-id',
             clientSecret: 'test-client-secret',
             redirectUri: 'https://api.causeflow.io/v1/integrations/slack/oauth/callback',
-        });
+        }, tokenEncryption);
 
         // Mock global fetch
         fetchSpy = vi.fn();
@@ -112,8 +130,13 @@ describe('ConnectSlackUseCase', () => {
         expect(slackConfig.workspaceId).toBe('T1234567');
         expect(slackConfig.workspaceName).toBe('Acme Corp');
         expect(slackConfig.configurationUrl).toBe('https://acme.slack.com/services/B456');
-        // Access token and webhook url must be stored (not redacted)
-        expect(slackConfig.accessToken).toBe('xoxb-test-bot-token-12345');
+        // Access token must be stored encrypted (not plaintext)
+        expect(slackConfig.accessToken).not.toBe('xoxb-test-bot-token-12345');
+        const parsed = JSON.parse(slackConfig.accessToken);
+        expect(parsed.ciphertext).toBeTruthy();
+        expect(parsed.encryptedDek).toBeTruthy();
+        expect(parsed.iv).toBeTruthy();
+        expect(parsed.tag).toBeTruthy();
         expect(slackConfig.webhookUrl).toBe('https://hooks.slack.com/services/T123/B456/abc123');
         expect(slackConfig.installedAt).toBeTruthy();
     });
@@ -175,8 +198,10 @@ describe('ConnectSlackUseCase', () => {
     });
 
     it('SECURITY: does not log accessToken or webhookUrl', async () => {
-        const loggerSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
-        const loggerInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined);
+        const infoLog: unknown[][] = [];
+        const warnLog: unknown[][] = [];
+        const loggerSpy = vi.spyOn(console, 'log').mockImplementation((...args) => { infoLog.push(args); });
+        const loggerWarnSpy = vi.spyOn(console, 'warn').mockImplementation((...args) => { warnLog.push(args); });
 
         fetchSpy.mockResolvedValueOnce({
             ok: true,
@@ -185,8 +210,7 @@ describe('ConnectSlackUseCase', () => {
 
         await useCase.execute({ code: 'valid-oauth-code', tenantId: TENANT_ID });
 
-        // Verify token was not logged to console
-        const allCalls = [...loggerSpy.mock.calls, ...loggerInfoSpy.mock.calls]
+        const allCalls = [...infoLog, ...warnLog]
             .map((args) => JSON.stringify(args));
 
         for (const call of allCalls) {
@@ -195,6 +219,29 @@ describe('ConnectSlackUseCase', () => {
         }
 
         loggerSpy.mockRestore();
-        loggerInfoSpy.mockRestore();
+        loggerWarnSpy.mockRestore();
+    });
+
+    it('SECURITY: encrypts accessToken before storing', async () => {
+        fetchSpy.mockResolvedValueOnce({
+            ok: true,
+            json: async () => SLACK_OAUTH_RESPONSE,
+        });
+
+        await useCase.execute({ code: 'valid-oauth-code', tenantId: TENANT_ID });
+
+        expect(tokenEncryption.encrypt).toHaveBeenCalledWith('xoxb-test-bot-token-12345');
+
+        const updateCall = vi.mocked(tenantRepo.update).mock.calls[0]!;
+        const updatedSettings = updateCall[1]?.settings as TenantSettings;
+        const slackConfig = (updatedSettings as any)?.slackConfig;
+
+        expect(slackConfig.accessToken).not.toBe('xoxb-test-bot-token-12345');
+        const parsed = JSON.parse(slackConfig.accessToken);
+        expect(parsed.ciphertext).toBeTruthy();
+        expect(parsed.encryptedDek).toBeTruthy();
+
+        const decrypted = await tokenEncryption.decrypt(parsed);
+        expect(decrypted).toBe('xoxb-test-bot-token-12345');
     });
 });
