@@ -285,3 +285,10 @@ Result rows are `Record<string, unknown>[]`. All assertions pass. No source code
 **Defects resolved**: The prior integration_qa failure was not a code defect — `gen/relay-mongo-driver` already equals `plan/opensource-docker` at commit `ffd1efb` (merge already occurred at `6b596ff`), so the harness merge pre-condition produced an empty evidence file. No merge was needed; re-verification against the running stack confirms AC-033 passes.
 
 - NextAction: complete — implementation=true
+
+## 2026-07-09T17:58:31.674Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-033
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
