@@ -931,3 +931,11 @@ Use /login to log into a provider via OAuth or API key. See:
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T20:22:55.017Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-051
+- Outcome: coding agent failed three times
+- Defects: Session terminated, killing shell... ...killed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
