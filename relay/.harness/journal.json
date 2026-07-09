@@ -663,6 +663,20 @@
         "npm_run_build_clean": "passed",
         "source_code_verified": "passed"
       }
+    },
+    {
+      "id": "WI-AC-034",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:59:00Z",
+      "details": "Fresh independent QA verification pass for AC-034 (mongo-driver aggregation pipeline validation). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 execute requests with operation:query and pipeline params against resource order-mongo through stub to relay. Test 1: pipeline with  stage -> rejected with error code -32602 and message \"Validation failed: Aggregation stage  is not allowed\". Test 2: pipeline with  stage -> rejected with error code -32602 and message \"Validation failed: Aggregation stage  is not allowed\". Test 3: pipeline with  +  -> accepted with result.rows = []. Test 4: pipeline with  +  +  +  -> accepted with result.rows = []. All 4 tests pass at the real WebSocket boundary. No defects.",
+      "checks": {
+        "out_rejected": "passed",
+        "merge_rejected": "passed",
+        "match_group_accepted": "passed",
+        "match_sort_project_limit_accepted": "passed"
+      }
     }
   ]
 }
