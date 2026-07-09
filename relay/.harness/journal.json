@@ -155,7 +155,7 @@
       "implementation": true,
       "integration": true,
       "timestamp": "2026-07-09T07:18:00Z",
-      "details": "Integrated Verification pass for AC-030 (postgres-sql-parser). Tested at compiled dist boundary. All three acceptance-check conditions verified: (1) validateQuery(\"WITH x AS (SELECT 1) SELECT * FROM x\") returns {valid:true} \u2014 parser.astify succeeds, stmt.type===\"select\", no dangerous functions found; (2) validateQuery(\"SELECT * FROM (SELECT pg_sleep(1)) s\") returns {valid:false, reason:\"Dangerous function detected: pg_sleep\"} \u2014 parser.astify succeeds, text scan catches pg_sleep; (3) validateQuery(\"EXPLAIN SELECT 1\") returns {valid:true} \u2014 parser throws on EXPLAIN, catch block fallback accepts via first-word EXPLAIN check. PgDriver.validate() delegates to validateQuery() for query/explain operations. npx tsc --noEmit passes. npm run build passes. No defect found.",
+      "details": "Integrated Verification pass for AC-030 (postgres-sql-parser). Tested at compiled dist boundary. All three acceptance-check conditions verified: (1) validateQuery(\"WITH x AS (SELECT 1) SELECT * FROM x\") returns {valid:true} — parser.astify succeeds, stmt.type===\"select\", no dangerous functions found; (2) validateQuery(\"SELECT * FROM (SELECT pg_sleep(1)) s\") returns {valid:false, reason:\"Dangerous function detected: pg_sleep\"} — parser.astify succeeds, text scan catches pg_sleep; (3) validateQuery(\"EXPLAIN SELECT 1\") returns {valid:true} — parser throws on EXPLAIN, catch block fallback accepts via first-word EXPLAIN check. PgDriver.validate() delegates to validateQuery() for query/explain operations. npx tsc --noEmit passes. npm run build passes. No defect found.",
       "checks": {
         "with_cte_accepted": "passed",
         "pg_sleep_in_subquery_rejected": "passed",
@@ -261,8 +261,7 @@
         "tsc_noEmit": "passed",
         "ac038_cross_validation": "passed"
       }
-    }
-  },
+    },
     {
       "id": "WI-AC-021",
       "qa": true,
@@ -302,6 +301,28 @@
         "maskedFieldCount_present": "passed",
         "masked_consistency": "passed",
         "driver_source_confirms_contract": "passed"
+      }
+    },
+    {
+      "id": "WI-AC-032",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T13:30:00Z",
+      "details": "QA pass for AC-032 (mongo-driver describe_table). E2E test at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + relay-postgres + relay-mongo). Seeded orders collection with documents of varied types (string, number, object, array, null, Date) and 3 indexes. Sent JSON-RPC 2.0 execute request with operation:describe_table, params:{tableName:orders} against resource order-mongo through stub to relay. Response: 7 schema rows (_id:string, status:string, amount:number, customer:object, tags:object, notes:object/string, createdAt:object) + 4 index rows (_type:index with name and key). Type inference correctly records set of typeof values per field across 2 sample documents (notes correctly shows both object and string). Indexes() output merged with _type: index tag and name/key properties. rowCount=11 matches rows.length. executionTimeMs=32 valid. masked/maskedFieldCount present.",
+      "checks": {
+        "jsonrpc_2_0": "passed",
+        "no_error_in_response": "passed",
+        "rows_is_array": "passed",
+        "rowCount_matches": "passed",
+        "schema_rows_have_field_types": "passed",
+        "all_expected_fields_present": "passed",
+        "type_inference_correct": "passed",
+        "notes_correctly_both_types": "passed",
+        "index_rows_tagged_with_type": "passed",
+        "index_rows_have_name_key": "passed",
+        "named_indexes_found": "passed",
+        "compound_index_found": "passed"
       }
     }
   ]
