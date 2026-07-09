@@ -66,6 +66,11 @@ interface WithAuthOptions {
 /**
  * Call the Core API's whoami endpoint to resolve user identity from the
  * local JWT session cookie.
+ *
+ * The Core API /v1/whoami response may be nested:
+ *   { user: { id, email, name }, tenantId, role }
+ * or flat:
+ *   { id, email, name, tenantId, role }
  */
 async function resolveWhoami(
   coreUrl: string,
@@ -77,7 +82,7 @@ async function resolveWhoami(
   name: string;
   role: 'admin' | 'member';
 }> {
-  const res = await fetch(`${coreUrl}/v1/auth/me`, {
+  const res = await fetch(`${coreUrl}/v1/whoami`, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -97,13 +102,23 @@ async function resolveWhoami(
     orgId?: string;
     role?: string;
     orgRole?: string;
+    // Nested user object (Core API /v1/whoami shape)
+    user?: {
+      id?: string;
+      userId?: string;
+      email?: string;
+      name?: string;
+    };
   };
 
+  // Support both flat and nested response shapes
+  const user = data.user ?? {};
+
   return {
-    userId: data.id ?? data.userId ?? '',
+    userId: user.id ?? user.userId ?? data.id ?? data.userId ?? '',
     tenantId: data.tenantId ?? data.orgId ?? '',
-    email: data.email ?? '',
-    name: data.name ?? '',
+    email: user.email ?? data.email ?? '',
+    name: user.name ?? data.name ?? '',
     role: (data.role ?? data.orgRole) === 'admin' ? 'admin' : 'member',
   };
 }
@@ -121,7 +136,8 @@ function claimsToAuth(claims: SessionClaims): {
 } {
   return {
     userId: (claims.sub as string) ?? (claims.userId as string) ?? '',
-    tenantId: (claims.tenantId as string) ?? (claims.orgId as string) ?? '',
+    tenantId:
+      (claims.tenantId as string) ?? (claims.tenant_id as string) ?? (claims.orgId as string) ?? '',
     email: (claims.email as string) ?? '',
     name: (claims.name as string) ?? '',
     role: ((claims.role ?? claims.orgRole) as string) === 'admin' ? 'admin' : 'member',
