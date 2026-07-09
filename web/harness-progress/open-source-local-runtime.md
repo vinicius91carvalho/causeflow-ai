@@ -979,3 +979,10 @@ Core API `/v1/integrations/connect` returns `500 INTERNAL_ERROR` (Core-side stub
 - RepairPlan: QA Defect Report for WI-AC-051 confirms all 3 steps PASS: (1) no composio.dev or composioTriggerId in next.config.mjs, integration types, or .env.example; (2) 15 integration cards render; (3) Connect CTA proxies to Core API with zero composio.dev requests from the browser. The web repository implementation is correct. The sole reported issue (Core API /v1/integrations/connect returning 500) is a Core-side stub problem, not a web-repo defect.; Close WI-AC-051 as PASS for the web repository — no code changes needed in apps/dashboard/, apps/website/, or packages/.; File a separate Core-side work item (WI-CORE-xxx) for the /v1/integrations/connect 500 INTERNAL_ERROR in the Core API stub endpoint.; Note: 21 remaining composio references in apps/dashboard/src/contexts/investigation/ (feed-constants.ts, group-feed-items.ts, 4 feed-card components) are out of scope for AC-051 — they relate to rendering tool-call results from the Core's investigation pipeline, not the integration catalog. Consider a follow-up WI to migrate those to local fallback icons if logos.composio.dev is unreachable in the OSS runtime.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-051-2-qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-09T20:51:24.832Z — Resumed
+
+- WorkItem: WI-AC-051
+- PreviousPhase: qa
+- Attempt: 3
+- NextAction: qa
