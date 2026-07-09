@@ -4,6 +4,37 @@ Date: 2026-07-09
 Action: QA verification of AC-025 (RBAC role names restricted to `admin` and `member`)
 Result: PASS
 
+## 2026-07-09 — Integrated Verification — WI-AC-025 (qa-agent)
+
+- WorkItem: WI-AC-025
+- AcceptanceChecks: AC-025
+- Context: invariants-and-validation
+- Mode: Integrated Verification (static audit)
+- HEAD: $(git rev-parse --short HEAD)
+
+### Acceptance check
+
+AC-025: RBAC role names across all MDX are restricted to `admin` and `member`; no other role tokens appear in RBAC context.
+
+### Source-level audit (static check, no server required)
+
+- `grep -rn 'roles\?:' --include='*.mdx'` found 68 matches.
+- All `**Required role:**` lines use only `admin`, `member`, `admin` or `member`, or `Any authenticated user` (descriptive, not a role token).
+- `integrations/cloud-providers.mdx:180` references GCP IAM `roles/viewer` — not CauseFlow RBAC context.
+- `api-reference/memory/chat-history.mdx:113` uses `role: string` in TypeScript chat-message example — not CauseFlow RBAC.
+- `security/rbac.mdx` defines only **Admin** and **Member** roles in the permission matrix.
+- `dashboard/team-management.mdx` discusses only `admin` and `member` roles for team assignment.
+- `changelog/index.mdx:44` confirms "RBAC reconciled to 2 roles (`admin`, `member`)".
+- `grep -rnE '(viewer|owner|editor|superadmin|read_only|write_only|manager|contributor|maintainer|operator|reporter)' --include='*.mdx' | grep -ivE 'IAM|cloud|AWS|Azure|GCP|gcp|aws|iam|AssumeRole|Service Principal|STS|cross-account|permission|policy|trust.*policy|cloud\.provider|provider.*role|log.*group|monitoring|troubleshoot|reader.*role|viewer.*role|service\.account'` returned zero CauseFlow RBAC hits.
+
+### Defects
+
+None. All RBAC role references are `admin` or `member`.
+
+### Verdict
+
+All AC-025 criteria pass via static file audit. No defects found. Zero-diff (no content changes required).
+
 ## 2026-07-09 — QA — WI-AC-025
 
 - AC-025 passed: `grep -rn 'roles\?:' --include='*.mdx'` found 68 matches across all 133 MDX files.
