@@ -946,3 +946,12 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Auto-retry: coding exhausted three attempts; apply smallest root-cause fix per Repair Plan.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T20:31:14.490Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-051
+- DefectReport: Session terminated, killing shell... ...killed.
+- RepairPlan: WI-AC-051 implementation is complete and correct — `logos.composio.dev` and `backend.composio.dev` are already removed from `next.config.mjs#images.remotePatterns` (empty array `[]`), `composioTriggerId` is absent from the `Integration` domain type, all 15 integration identifiers are present, and zero `COMPOSIO_API_KEY` references exist in the OSS build. The QA Defect Report's single entry "Session terminated, killing shell... ...killed." is a harness infrastructure failure (shell process killed before any checks ran), not a code defect. All prior QA attempts (Attempt 1, independent verification, and two re-verifications) passed with zero defects.; Accept AC-051 as passed — the code implementation is correct and all previous QA attempts confirm zero defects.; File a separate follow-up work item (not AC-051) to clean orphaned composio references in the investigation feed context: `feed-constants.ts` (COMPOSIO_DISPLAY_NAMES, parseComposioToolName, hardcoded logos.composio.dev URLs), `group-feed-items.ts` (composio_ prefix branching), `tool-call-group.tsx`, `tool-call-card.tsx`, `tool-error-card.tsx`, `evidence-card.tsx`, and the Clerk-dependent E2E test `tests/dashboard/integrations-composio.spec.ts`.; Optionally increase the QA agent's resource limit or timeout in the harness config to prevent shell OOM on future re-verification runs.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-051-1-qa.log
+- NextAction: Coding Attempt 2
