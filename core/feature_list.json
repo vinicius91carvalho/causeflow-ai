@@ -1025,9 +1025,9 @@
     "acceptance_checks": ["AC-050"],
     "depends_on": ["AC-039"],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0
   },
   {
