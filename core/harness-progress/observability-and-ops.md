@@ -368,3 +368,12 @@ Code paths verified by unit tests and real HTTP boundary assertions.
 - WorkItem: WI-AC-036
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T12:16:17.803Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- AcceptanceChecks: AC-036
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/observability-and-ops/WI-AC-036-3-integration_qa.log
+- NextAction: next Ready Work Item
