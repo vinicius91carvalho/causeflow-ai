@@ -398,3 +398,17 @@ Code paths verified by unit tests and real HTTP boundary assertions.
 - WorkItem: WI-AC-037
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T17:17:59.538Z — Resumed
+
+- WorkItem: WI-AC-037
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-09T17:17:59.601Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-037
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
