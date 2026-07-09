@@ -340,3 +340,17 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - PreviousPhase: blocked
 - Attempt: 3
 - NextAction: user-guidance
+
+## 2026-07-09T20:01:24.505Z — Resumed
+
+- WorkItem: WI-AC-030
+- PreviousPhase: coding
+- Attempt: 3
+- NextAction: coding
+
+## 2026-07-09T20:01:33.407Z — Resumed
+
+- WorkItem: WI-AC-030
+- PreviousPhase: coding
+- Attempt: 3
+- NextAction: coding
