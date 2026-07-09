@@ -148,6 +148,23 @@
       "integration": true,
       "timestamp": "2026-07-09T06:30:00Z",
       "details": "Integrated Verification pass for AC-029 (postgres-sql-parser dangerous functions). validateQuery tested at compiled dist boundary. All 19 test cases pass: (1) validateQuery('SELECT pg_sleep(10)') => {valid:false, reason:'Dangerous function detected: pg_sleep'}; (2) validateQuery(\"SELECT * FROM pg_proc WHERE proname = 'pg_read_file'\") => {valid:false, reason:'Dangerous function detected: pg_read_file'}; (3) all 15 documented dangerous functions (pg_sleep, lo_import, lo_export, pg_read_file, pg_write_file, pg_read_binary_file, pg_ls_dir, pg_stat_file, pg_terminate_backend, pg_cancel_backend, pg_reload_conf, set_config, current_setting, dblink, dblink_exec) are correctly rejected when their name appears anywhere in the lowercased query text, with the exact function name in the reason; (4) uppercase PG_SLEEP is also caught via lowercased text check; (5) dblink_exec has priority over dblink for correct function name; (6) safe query 'SELECT 1' still returns {valid:true}. Project builds cleanly (npm run build -> dist/). tsc --noEmit passes. PgDriver.validate() correctly wires validateQuery for query/explain operations. No defects."
+    },
+    {
+      "id": "WI-AC-024",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T02:22:00Z",
+      "details": "Integrated Verification pass for AC-024 (postgres-driver query). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 execute requests through stub to relay. (1) SELECT specific columns from orders: 5 rows returned with correct fields (id:int4, status:text, customer:text, total_cents:int4, created_at:timestamptz), executionTimeMs=14, masked=false, maskedFieldCount=0. (2) SELECT with explicit LIMIT 1: returns 1 row. (3) Error on bad table: returns -32603 with driver error. (4) SELECT 1 AS one: returns rows=[{one:1}], field one:int4. Fix: MaskingEngine.mask() was converting Date objects into empty {} via Object.entries(). Added plain-object guard (value.constructor !== Object) to pass Date and other non-plain objects through unmodified. npx tsc --noEmit clean. 53/53 assertions passed.",
+      "checks": {
+        "response_shape_fields_and_rows": "passed",
+        "rowCount_matches": "passed",
+        "executionTimeMs_present": "passed",
+        "fields_match_AC024_spec": "passed",
+        "limit_respected": "passed",
+        "error_path_returns_32603": "passed",
+        "select_1_works": "passed"
+      }
     }
   ]
 }
