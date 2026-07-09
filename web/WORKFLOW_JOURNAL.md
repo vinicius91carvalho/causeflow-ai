@@ -505,3 +505,21 @@ All acceptance criteria verified at real HTTP boundary (port 5173) — zero code
 - Files changed: 13 files (238 insertions, 45 deletions). New file: `outbound-webhook.service.ts`.
 - All 1070 unit tests pass. TypeScript compilation clean.
 - App starts successfully with all SaaS env vars empty — only error is Postgres connectivity when run outside docker compose (expected).
+
+## WI-AC-052 — Loops.so + lvh.me removed
+
+**State:** `implementation=true`
+
+**Summary:**
+- Verified Step 1: `grep -E 'loops\.so|app\.loops\.so' apps/website/next.config.mjs apps/website/.env.example` returns zero matches (already clean from prior AC-045/AC-050 work).
+- Verified Step 2: `grep -rn 'lvh\.me' apps/dashboard/src apps/dashboard/next.config.mjs` returns zero matches after removing `rewriteLoopbackForWaf` from `checkout-handler.ts`.
+- **Change (1 file, 1 edit):** `apps/dashboard/src/contexts/billing/api/checkout-handler.ts` — removed the `rewriteLoopbackForWaf` function (JSDoc + body) and its calls (`successUrl`/`cancelUrl` now use the raw URLs directly instead of rewriting through the function). The portal handler (`portal-handler.ts`) already had no `lvh.me` references; the middleware (`middleware.ts`) already had no `lvh.me` rewrite.
+- Step 3: Live HTTP on assigned port 5193 — `/dashboard` returns 307 to `/auth/sign-in` (no lvh.me rewrite needed); `/auth/sign-in` returns 200; `/auth/sign-up` returns 200; `/accept-invitation` returns 200.
+- Build cached, exits 0. All 8 billing API test files pass (22 tests). Biome clean.
+- No `lvh.me` host appears anywhere in the dashboard's source.
+
+### QA Verdict (WI-AC-052)
+- **Step 1 (grep):** `grep -E 'loops\.so|app\.loops\.so' apps/website/next.config.mjs apps/website/.env.example` → zero matches. PASS
+- **Step 2 (grep):** `grep -rE 'lvh\.me' apps/dashboard/src apps/dashboard/next.config.mjs` → zero matches. PASS
+- **Step 3 (HTTP):** `/dashboard` returns 307 → `/auth/sign-in?redirect_url=%2Fdashboard` (no lvh.me rewrite). PASS
+- **qa=true, implementation=true**
