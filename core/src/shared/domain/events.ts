@@ -47,6 +47,18 @@ export interface IncidentStatusChangedEvent extends DomainEvent {
         incidentId: string;
         from: string;
         to: string;
+        title?: string;
+        severity?: string;
+    };
+}
+
+export interface IncidentSeverityChangedEvent extends DomainEvent {
+    eventType: 'incident.severity_changed';
+    payload: {
+        incidentId: string;
+        severity: string;
+        previousSeverity: string;
+        title: string;
     };
 }
 

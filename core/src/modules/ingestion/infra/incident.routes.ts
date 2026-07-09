@@ -11,6 +11,7 @@ import { sanitizeIncidentForTenant } from '../domain/incident.entity.js';
 import type { GetIncidentUseCase } from '../application/get-incident.usecase.js';
 import type { ListIncidentsUseCase } from '../application/list-incidents.usecase.js';
 import type { UpdateIncidentStatusUseCase } from '../application/update-incident-status.usecase.js';
+import type { UpdateIncidentSeverityUseCase } from '../application/update-incident-severity.usecase.js';
 import type { CreateManualIncidentUseCase } from '../application/create-manual-incident.usecase.js';
 import type { ReserveInvestigationUseCase } from '../../billing/application/reserve-investigation.usecase.js';
 
@@ -18,6 +19,7 @@ export interface IncidentUseCases {
     getIncident: GetIncidentUseCase;
     listIncidents: ListIncidentsUseCase;
     updateIncidentStatus: UpdateIncidentStatusUseCase;
+    updateIncidentSeverity?: UpdateIncidentSeverityUseCase;
     createManualIncident: CreateManualIncidentUseCase;
     incidentRepo: IIncidentRepository;
     reserveInvestigation?: ReserveInvestigationUseCase;
@@ -149,5 +151,20 @@ export function createIncidentRoutes(useCases: IncidentUseCases): Hono<AppEnv, i
         const incident = await useCases.updateIncidentStatus.execute(tenantId, id, status, patchActorUserId, patchActorEmail);
         return c.json(sanitizeIncidentForTenant(incident));
     });
+
+    // PATCH /v1/incidents/:id/severity — update incident severity (AC-033)
+    app.patch('/:id/severity', requireRole('admin'), zValidator('json', z.object({
+        severity: z.enum(['critical', 'high', 'medium', 'low', 'info']),
+    })), async (c) => {
+        if (!useCases.updateIncidentSeverity) {
+            return c.json({ error: 'Severity update not configured' }, 501);
+        }
+        const tenantId = c.get('tenantId');
+        const id = incidentId(c.req.param('id'));
+        const { severity } = c.req.valid('json');
+        await useCases.updateIncidentSeverity.execute(tenantId, id, severity);
+        return c.json({ ok: true });
+    });
+
     return app;
 }

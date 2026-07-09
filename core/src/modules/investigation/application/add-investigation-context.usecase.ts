@@ -74,6 +74,7 @@ export class AddInvestigationContextUseCase {
                         incidentId: input.incidentId,
                         from: incident.status,
                         to: 'triaging',
+                        title: incident.title,
                     },
                 });
                 if (this.deps.messageQueue && this.deps.investigationQueueUrl) {

@@ -41,7 +41,7 @@ export class UpdateIncidentStatusUseCase {
             eventType: 'incident.status_changed',
             occurredAt: new Date().toISOString(),
             tenantId,
-            payload: { incidentId, from: incident.status, to: newStatus, actorUserId, actorEmail },
+            payload: { incidentId, from: incident.status, to: newStatus, title: incident.title, actorUserId, actorEmail },
         });
         return updated;
     }
