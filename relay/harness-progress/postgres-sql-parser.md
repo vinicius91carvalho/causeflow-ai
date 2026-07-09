@@ -143,3 +143,12 @@ Independently verified all three AC-030 conditions at the compiled dist boundary
 - WorkItem: WI-AC-030
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T02:20:00.449Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-030
+- AcceptanceChecks: AC-030
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/postgres-sql-parser/WI-AC-030-1-integration_qa.log
+- NextAction: next Ready Work Item
