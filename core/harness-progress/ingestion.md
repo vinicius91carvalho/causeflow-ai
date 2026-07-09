@@ -449,3 +449,10 @@ DynamoDB, 1-minute dedup window).
 - Defects: Integrated Verification failed
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/ingestion/WI-AC-015-1-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-09T20:00:46.488Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: repair_plan
+- Attempt: 1
+- NextAction: repair-plan
