@@ -377,3 +377,27 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T10:55:00.000Z — AC-026 verified at real boundary, implementation=true
+
+- WorkItem: WI-AC-026
+- Attempt: 1/3
+- Result: implementation=true — one-line fix applied.
+- Details: Exercised AC-026 end-to-end against real Postgres (`127.0.0.1:5432`, `relay`/`relay`, seeded `orders` table) via a real relay process (built from `src/`) and a real WebSocket control-plane stub on port 5190. Sent JSON-RPC 2.0 `execute` requests with `operation:'explain'` over the WebSocket boundary.
+  
+  **Test results (28/28 passed):**
+  1. Explain `SELECT ... WHERE id = 1` → 4 explain plan rows (`QUERY PLAN` column), rowCount=4, executionTimeMs>0 ✓
+  2. Explain `SELECT * FROM orders` → 3 explain plan rows, rowCount=3 ✓
+  3. Multi-statement explain (`SELECT 1; SELECT 2`) → rejected with -32602 "Multi-statement queries are not allowed" ✓
+  4. Non-SELECT explain (`INSERT INTO ...`) → rejected with -32602 "Only SELECT statements are allowed, got INSERT" ✓
+  5. Dangerous function explain (`SELECT pg_sleep(0)`) → rejected with -32602 "Dangerous function detected: pg_sleep" ✓
+  6. Regular query still works (backward compat) → 5 rows ✓
+  
+  **Bug found and fixed:** `result.rowCount` was always 0 for explain because `pg` returns `null` for `result.rowCount` on utility statements (EXPLAIN ANALYZE is a utility command, not a SELECT/DML). The `?? 0` fallback in `src/drivers/postgres/pg-driver.ts` converted `null` to 0. Fixed by using `result.rows.length` instead (line 146).
+  
+  - `npm run build` → exit 0 ✓
+  - `npx tsc --noEmit` → exit 0 ✓
+  - `scripts/qa/ac026-test.mjs` committed.
+  - `src/drivers/postgres/pg-driver.ts` patched (explain case: `result.rowCount ?? 0` → `result.rows.length`).
+  - feature_list.json updated: implementation=true, qa=true, integration=true.
+- NextAction: completed

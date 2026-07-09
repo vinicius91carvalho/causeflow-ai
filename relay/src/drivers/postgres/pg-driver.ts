@@ -222,7 +222,7 @@ export class PgDriver implements IReadOnlyDriver {
         const result = await this.pool.query(`EXPLAIN ANALYZE ${sql}`);
         return {
           rows: result.rows,
-          rowCount: result.rowCount ?? 0,
+          rowCount: result.rows.length,
           executionTimeMs: Date.now() - start,
         };
       }
