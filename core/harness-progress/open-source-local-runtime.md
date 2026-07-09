@@ -219,3 +219,12 @@ Here is a summary of what was verified:
 - WorkItem: WI-AC-040
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T18:02:50.494Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-040
+- AcceptanceChecks: AC-040
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-040-3-integration_qa.log
+- NextAction: next Ready Work Item
