@@ -123,3 +123,29 @@ Performed by qa-agent against plan/opensource-docker branch at PORT=5193.
 - Added `https://app.loops.so` to the `connect-src` CSP directive (was missing from the original config). All other AC-013 headers were already present.
 
 ### implementation=true
+
+---
+
+## Verification — WI-AC-015 (website staging-auth gate)
+
+### Verdict: PASS
+
+### Checks performed (black-box HTTP tests at PORT=5173):
+
+1. **Redirect to /staging-auth** ✅ — With `NEXT_PUBLIC_DEPLOYMENT_STAGE=staging` and `NEXT_PUBLIC_STAGING_PASSWORD=causeflow-staging-2026` set, `GET /` without `staging-authorized` cookie returns 307 to `/staging-auth`. Verified via curl.
+
+2. **Password form renders at /staging-auth** ✅ — `GET /staging-auth` returns 200 with the password form HTML (username + password fields, branded UI).
+
+3. **Correct credentials set cookie and redirect** ✅ — Submitting `username=causeflow` and `password=causeflow-staging-2026` via Next.js server action (multipart POST with action metadata) returns 303 See Other to `/` with `Set-Cookie: staging-authorized=...; Path=/; HttpOnly; SameSite=lax; Max-Age=604800`. The cookie value is base64-encoded `staging-authorized:causeflow-staging-2026`.
+
+4. **Valid cookie bypasses gate** ✅ — Request with valid `staging-authorized` cookie returns 200 (no redirect). Invalid cookie (wrong value) returns 307 to `/staging-auth`.
+
+5. **Local dev bypasses gate** ✅ — Without `NEXT_PUBLIC_DEPLOYMENT_STAGE=staging` (plain dev mode), `GET /` returns 200 directly (no redirect). The `checkStagingAuth()` function returns `null` when `stage !== 'staging'`.
+
+6. **Password source** ✅ — The documented password `causeflow-staging-2026` is read from `NEXT_PUBLIC_STAGING_PASSWORD` env var (not sst.config.ts, which is deleted in OSS build per AC-050). Both sources provide the same password value.
+
+### Notes:
+- `sst.config.ts` does not exist (OSS build) — the password is configured via `NEXT_PUBLIC_STAGING_PASSWORD` env var instead.
+- All flows verified against live HTTP responses at the real boundary. No code changes needed (zero-diff checkpoint).
+
+### implementation=true
