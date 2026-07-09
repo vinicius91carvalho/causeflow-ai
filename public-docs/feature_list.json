@@ -350,7 +350,7 @@
     "verify_first": true,
     "implementation": true,
     "qa": true,
-    "integration": false,
+    "integration": true,
     "retries": 0,
     "verify_notes": "Independent QA PASS 2026-07-09: project_specs.xml read and required scaffold present; 133 MDX files total, 84 under api-reference. Exact AC-016 command `grep -rE 'api\\.causeflow\\.(io|dev|local|prod)' --include='*.mdx' .` exited 1 with no output, confirming zero forbidden CauseFlow API hosts. Zero defects."
   },
