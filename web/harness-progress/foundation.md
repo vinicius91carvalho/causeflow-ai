@@ -1064,3 +1064,10 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T12:14:56.705Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-005
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
