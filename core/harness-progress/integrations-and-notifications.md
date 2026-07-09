@@ -303,3 +303,10 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - RepairPlan: QA defect confirmed: `SlackNotificationSubscriber` passes the raw encrypted token (`JSON.stringify({ciphertext, encryptedDek, iv, tag})`) directly to `new WebClient()` at 3 call sites (lines 69, 135, 205) without decrypting it first. This breaks all automated Slack notifications (incident created, investigation started/completed) in production. Tests pass because they use `accessToken: 'xoxb-test-token'` (plaintext), never exercising the encrypted path.; Inject `TokenEncryption` port into `SlackNotificationSubscriber` constructor (adds `tokenEncryption: TokenEncryption` parameter).; Add a private `decryptToken(raw: string): Promise<string>` method that `JSON.parse`s and decrypts the payload, falling back to plaintext if parsing fails (matching the pattern in `DisconnectSlackUseCase`).; Replace `new WebClient(slackConfig.accessToken)` with `new WebClient(await this.decryptToken(slackConfig.accessToken))` at lines 69, 135, and 205 in `slack-notification.subscriber.ts`.; Update `bootstrap.ts` line ~931 to pass `kmsTokenEncryption` (or the wired `TokenEncryption` instance) to the `SlackNotificationSubscriber` constructor.; Update `slack-notification.subscriber.test.ts` to (a) mock a `TokenEncryption` with a `decrypt` that returns `'xoxb-decrypted-token'`, (b) update `makeSlackConfig()` to return `accessToken: JSON.stringify({ciphertext:'...', encryptedDek:'...', iv:'...', tag:'...'})` (encrypted payload format), and (c) add a test that verifies `decrypt` is called with the parsed payload before `WebClient` is constructed.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/integrations-and-notifications/WI-AC-030-2-qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-09T17:18:18.086Z — Resumed
+
+- WorkItem: WI-AC-030
+- PreviousPhase: qa
+- Attempt: 3
+- NextAction: qa
