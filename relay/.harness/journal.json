@@ -155,7 +155,7 @@
       "implementation": true,
       "integration": true,
       "timestamp": "2026-07-09T07:18:00Z",
-      "details": "Integrated Verification pass for AC-030 (postgres-sql-parser). Tested at compiled dist boundary. All three acceptance-check conditions verified: (1) validateQuery(\"WITH x AS (SELECT 1) SELECT * FROM x\") returns {valid:true} \u2014 parser.astify succeeds, stmt.type===\"select\", no dangerous functions found; (2) validateQuery(\"SELECT * FROM (SELECT pg_sleep(1)) s\") returns {valid:false, reason:\"Dangerous function detected: pg_sleep\"} \u2014 parser.astify succeeds, text scan catches pg_sleep; (3) validateQuery(\"EXPLAIN SELECT 1\") returns {valid:true} \u2014 parser throws on EXPLAIN, catch block fallback accepts via first-word EXPLAIN check. PgDriver.validate() delegates to validateQuery() for query/explain operations. npx tsc --noEmit passes. npm run build passes. No defect found.",
+      "details": "Integrated Verification pass for AC-030 (postgres-sql-parser). Tested at compiled dist boundary. All three acceptance-check conditions verified: (1) validateQuery(\"WITH x AS (SELECT 1) SELECT * FROM x\") returns {valid:true} — parser.astify succeeds, stmt.type===\"select\", no dangerous functions found; (2) validateQuery(\"SELECT * FROM (SELECT pg_sleep(1)) s\") returns {valid:false, reason:\"Dangerous function detected: pg_sleep\"} — parser.astify succeeds, text scan catches pg_sleep; (3) validateQuery(\"EXPLAIN SELECT 1\") returns {valid:true} — parser throws on EXPLAIN, catch block fallback accepts via first-word EXPLAIN check. PgDriver.validate() delegates to validateQuery() for query/explain operations. npx tsc --noEmit passes. npm run build passes. No defect found.",
       "checks": {
         "with_cte_accepted": "passed",
         "pg_sleep_in_subquery_rejected": "passed",
@@ -200,6 +200,24 @@
         "error_rollback": "passed",
         "read_only_enforcement": "passed",
         "pg_driver_e2e": "passed"
+      }
+    },
+    {
+      "id": "WI-AC-025",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T02:32:02.707Z",
+      "details": "QA pass for AC-025 (postgres-driver limit clamping). Tested at real WebSocket boundary via docker-compose stack (relay + control-plane-stub + relay-postgres + relay-mongo) and at PgDriver direct boundary. 6/6 test groups pass: (1) no explicit limit defaults to maxRows=1000, returns all 5 rows; (2) limit=3 clamped to 3 rows with ids [1,2,3]; (3) limit=5 clamped to 5 rows with ids [1,2,3,4,5]; (4) limit=2000 (exceeds maxRowsPerQuery=1000) rejected by policy engine with code -32600 and message containing 2000 and 1000; (5) PgDriver defensive clamp verifies limit=2000 clamped to min(2000,1000)=1000 returns all 5 rows; (6) PgDriver with maxRows=3 clamps both no-limit (defaults to 3) and limit=10 (clamped to min(10,3)=3) returning 3 rows. No defects.",
+      "checks": {
+        "no_explicit_limit_returns_all_rows": "passed",
+        "limit_3_clamped_to_3_rows": "passed",
+        "limit_5_clamped_to_5_rows": "passed",
+        "limit_2000_rejected_by_policy": "passed",
+        "driver_defensive_clamp": "passed",
+        "driver_maxRows_3_clamping": "passed",
+        "npm_run_build": "passed",
+        "docker_stack_healthy": "passed"
       }
     }
   ]
