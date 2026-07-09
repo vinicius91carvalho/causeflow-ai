@@ -19,6 +19,7 @@ out/
 .env
 .env.*
 !.env.example
+!apps/dashboard/.env.staging
 
 # Testing
 coverage/
