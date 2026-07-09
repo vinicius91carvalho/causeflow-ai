@@ -508,3 +508,11 @@ No source code changes needed. No defects found.
 - Defects: Session terminated, killing shell... ...killed.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-036-3-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-09T19:37:37.289Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- Outcome: Integrated Verification failed after Attempt 3
+- Defects: Session terminated, killing shell... ...killed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
