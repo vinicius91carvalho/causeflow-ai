@@ -972,3 +972,10 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - RepairPlan: INTEGRATION_QA for WI-AC-024 timed out — the pi agent using model `opencode-go/deepseek-v4-flash` did not produce any output before the 30-minute HARNESS_AGENT_TIMEOUT_MS expired. The orchestrator sent SIGTERM to the agent process group, which the `script` PTY wrapper caught and logged as 'Session terminated, killing shell... ...killed.' to stderr. The actual AC-024 grep check passes on both the feature branch and the integration branch (confirmed by the merge agent and by `check-invariants.sh --quiet` returning exit 0 on the current integration checkout). This is an operational/timeout defect, not a content-invariant violation.; Reset feature_list.json flags for WI-AC-024: set `implementation` to false, `qa` to false, `integration` to false, and `retries` to 1 (current) so attempt 2 can proceed.; Re-run the INTEGRATION_QA step on the `plan/opensource-docker` integration branch via the orchestrator — the AC-024 check is a simple grep that completes in <1 second, so this should pass quickly.; If the opencode-go/deepseek-v4-flash model shows persistent API latency, add a `.harness/roles.json` with a more reliable validation fallback model or use direct-host mode (`harness=pi` with default model).
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/invariants-and-validation/WI-AC-024-1-integration_qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-09T18:45:54.197Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-024
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
