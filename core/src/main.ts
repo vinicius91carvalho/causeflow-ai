@@ -1,7 +1,5 @@
 import './shared/infra/observability/otel.js';
 import { shutdownOtel } from './shared/infra/observability/otel.js';
-import { initSentry } from './shared/infra/observability/sentry.js';
-initSentry();
 import { serve } from '@hono/node-server';
 import type { Server as HttpServer } from 'node:http';
 import { config } from './shared/config/index.js';
@@ -23,6 +21,12 @@ import { InvestigationRelayRegistry, createInvestigationRelayServer } from './sh
 
 async function main() {
   logger.info({ env: config.env, runtime: config.runtime }, 'Starting CauseFlow...');
+
+  // Sentry: dynamically imported so @sentry/node is never loaded when
+  // SENTRY_DSN is empty (AC-049). The call is async and fully no-op when
+  // the env var is not set.
+  const { initSentry } = await import('./shared/infra/observability/sentry.js');
+  await initSentry();
 
   // OSS runtime: run Postgres schema migrations to ensure all 31 tables exist
   // in the causeflow schema (AC-040).

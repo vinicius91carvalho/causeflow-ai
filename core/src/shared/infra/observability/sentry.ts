@@ -1,15 +1,29 @@
-import * as Sentry from '@sentry/node';
-
 const SENTRY_DSN = process.env.SENTRY_DSN;
+
+/**
+ * Lazy reference to the Sentry SDK. Only populated when SENTRY_DSN is set.
+ * This ensures @sentry/node is never loaded at module level when Sentry is
+ * not configured (AC-049).
+ */
+let _Sentry: typeof import('@sentry/node') | null = null;
+
+async function getSentry(): Promise<typeof import('@sentry/node') | null> {
+  if (_Sentry !== null) return _Sentry;
+  if (!SENTRY_DSN) return null;
+  _Sentry = await import('@sentry/node');
+  return _Sentry;
+}
 
 /**
  * Initialize Sentry for the core backend.
  * No-op when SENTRY_DSN is not configured (local dev without Sentry).
+ * The @sentry/node module is NOT loaded at module level — it is imported
+ * lazily only when this function is called and SENTRY_DSN is set (AC-049).
  */
-export function initSentry(): void {
-  if (!SENTRY_DSN) {
-    console.warn('[Sentry] SENTRY_DSN not set — Sentry disabled');
-    return;
+export async function initSentry(): Promise<void> {
+  const Sentry = await getSentry();
+  if (!Sentry) {
+    return; // Sentry not configured — silently skip (no console.warn in production)
   }
 
   Sentry.init({
@@ -50,9 +64,11 @@ export function initSentry(): void {
 
 /**
  * Capture an exception with contextual scope.
- * Falls back to console.error when Sentry is not initialized.
+ * Falls back to no-op when Sentry is not configured (SENTRY_DSN empty).
+ * The @sentry/node module is NOT loaded at module level — it is imported
+ * lazily only when SENTRY_DSN is set (AC-049).
  */
-export function captureException(
+export async function captureException(
   error: unknown,
   context?: {
     requestId?: string;
@@ -61,8 +77,9 @@ export function captureException(
     method?: string;
     path?: string;
   },
-): void {
-  if (!SENTRY_DSN) {
+): Promise<void> {
+  const Sentry = await getSentry();
+  if (!Sentry) {
     return; // Already logged via Pino in error-handler
   }
 
@@ -75,5 +92,3 @@ export function captureException(
     Sentry.captureException(error);
   });
 }
-
-export { Sentry };

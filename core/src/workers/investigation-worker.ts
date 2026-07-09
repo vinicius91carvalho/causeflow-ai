@@ -15,7 +15,6 @@ import { STSCredentialVendor } from '../shared/infra/credentials/sts-credential-
 import { StubCredentialVendor } from '../shared/infra/credentials/stub-credential-vendor.js';
 import { AnthropicClient } from '../shared/infra/llm/anthropic-client.js';
 import { EnhancedPTCRunner } from '../shared/infra/llm/enhanced-ptc-runner.js';
-import { MastraAgentRunner } from '../shared/infra/llm/mastra-agent-runner.js';
 import { DynamoSkillRepository } from '../modules/skills/infra/dynamo-skill.repository.js';
 import { SelectSkillsUseCase } from '../modules/skills/application/select-skills.usecase.js';
 import { createObservabilityStack } from '../shared/infra/observability/observability-factory.js';
@@ -146,7 +145,7 @@ async function workerBootstrap() {
         return client;
     })();
     const rawAgentRunner = config.enhancedRunner.mastra
-        ? new MastraAgentRunner()
+        ? new (await import('../shared/infra/llm/mastra-agent-runner.js')).MastraAgentRunner()
         : new EnhancedPTCRunner();
     const llmClient = new ObservedAnthropicClient(rawLlmClient, tracer, metrics, traceContext);
     const agentRunner = new ObservedAgentRunner(rawAgentRunner, tracer, metrics, traceContext);
@@ -384,7 +383,7 @@ async function main() {
 
         // Set up follow-up agent runner for Q&A
         const followupRunner = config.enhancedRunner.mastra
-            ? new MastraAgentRunner()
+            ? new (await import('../shared/infra/llm/mastra-agent-runner.js')).MastraAgentRunner()
             : new EnhancedPTCRunner();
         const conversationHistory: Array<{ role: 'operator' | 'agent'; message: string; timestamp: string }> = [];
 

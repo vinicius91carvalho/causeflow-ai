@@ -22,7 +22,7 @@ describe('sentry', () => {
 
       const Sentry = await import('@sentry/node');
       const { initSentry } = await import('../../../../src/shared/infra/observability/sentry.js');
-      initSentry();
+      await initSentry();
 
       expect(Sentry.init).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -37,9 +37,11 @@ describe('sentry', () => {
       const original = process.env.SENTRY_DSN;
       delete process.env.SENTRY_DSN;
 
+      // Force re-import to pick up cleared SENTRY_DSN env var
+      vi.resetModules();
       const Sentry = await import('@sentry/node');
       const { initSentry } = await import('../../../../src/shared/infra/observability/sentry.js');
-      initSentry();
+      await initSentry();
 
       expect(Sentry.init).not.toHaveBeenCalled();
 
@@ -60,7 +62,7 @@ describe('sentry', () => {
 
       const { captureException } = await import('../../../../src/shared/infra/observability/sentry.js');
       const err = new Error('boom');
-      captureException(err, {
+      await captureException(err, {
         requestId: 'req-1',
         tenantId: 'tenant-1',
         userId: 'user-1',
@@ -82,10 +84,13 @@ describe('sentry', () => {
       const original = process.env.SENTRY_DSN;
       delete process.env.SENTRY_DSN;
 
+      // Force re-import to pick up cleared SENTRY_DSN env var
+      vi.resetModules();
       const Sentry = await import('@sentry/node');
       const { captureException } = await import('../../../../src/shared/infra/observability/sentry.js');
-      captureException(new Error('boom'));
+      await captureException(new Error('boom'));
 
+      // With DSN empty, the dynamic import is skipped so withScope is never called
       expect(Sentry.withScope).not.toHaveBeenCalled();
 
       process.env.SENTRY_DSN = original;
@@ -99,7 +104,7 @@ describe('sentry', () => {
 
       const Sentry = await import('@sentry/node');
       const { initSentry } = await import('../../../../src/shared/infra/observability/sentry.js');
-      initSentry();
+      await initSentry();
 
       const initCall = (Sentry.init as ReturnType<typeof vi.fn>).mock.calls[0]![0] as {
         beforeSend: (event: Record<string, unknown>) => Record<string, unknown>;

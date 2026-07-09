@@ -1,4 +1,3 @@
-import { WebClient } from '@slack/web-api';
 import { tenantId as toTenantId, incidentId as toIncidentId } from '../../domain/value-objects.js';
 import { formatIncidentBlocks, formatInvestigationStartedBlocks, formatResolutionBlocks } from '../../infra/chat/slack-message-formatter.js';
 import { config } from '../../config/index.js';
@@ -82,6 +81,7 @@ export class SlackNotificationSubscriber {
             });
 
             const plainToken = await this.decryptToken(slackConfig.accessToken);
+            const { WebClient } = await import('@slack/web-api');
             const client = new WebClient(plainToken);
             const result = await client.chat.postMessage({
                 channel: slackConfig.channelId,
@@ -149,6 +149,7 @@ export class SlackNotificationSubscriber {
             const slackNotificationTs = incident.slackNotificationTs;
 
             const plainToken = await this.decryptToken(slackConfig.accessToken);
+            const { WebClient } = await import('@slack/web-api');
             const client = new WebClient(plainToken);
             const result = await client.chat.postMessage({
                 channel: slackConfig.channelId,
@@ -220,6 +221,7 @@ export class SlackNotificationSubscriber {
             const slackNotificationTs = incident.slackNotificationTs;
 
             const plainToken = await this.decryptToken(slackConfig.accessToken);
+            const { WebClient } = await import('@slack/web-api');
             const client = new WebClient(plainToken);
             const result = await client.chat.postMessage({
                 channel: slackConfig.channelId,

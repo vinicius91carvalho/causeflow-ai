@@ -1,0 +1,34 @@
+{
+  "workItemId": "WI-AC-049",
+  "qa": true,
+  "integration": true,
+  "implementation": true,
+  "tested": "2026-07-09T22:50:00Z",
+  "verification": {
+    "sentryDynamicImport": "pass",
+    "sentryNoSdkLoadWhenDsnEmpty": "pass",
+    "langfuseNoopWhenKeysEmpty": "pass",
+    "svixFallbackToFetch": "pass",
+    "slackWebClientDynamicImport": "pass",
+    "slackRoutesNotConfiguredSentinel": "pass",
+    "composioDynamicImport": "pass",
+    "composioEmptyToolListWhenNoKey": "pass",
+    "mastraDynamicImportInWorker": "pass",
+    "appStartsWithNoOptionalSaaS": "pass",
+    "all1070UnitTestsPass": "pass"
+  },
+  "observations": [
+    "All optional SaaS SDKs (Sentry, Langfuse, Svix, Slack, Composio, Mastra) now use dynamic imports so they are never loaded at module level when their env vars are empty.",
+    "Sentry: @sentry/node dynamically imported; initSentry() and captureException() are async and return immediately when SENTRY_DSN is unset.",
+    "Langfuse: Already gated via observability-factory.ts — noop tracer/metric recorder when LANGFUSE_PUBLIC_KEY/SECRET_KEY absent.",
+    "Svix: New OutboundWebhookService dispatches via Svix SDK when SVIX_API_KEY is set, or falls back to direct fetch POST without retry library.",
+    "Slack: @slack/web-api dynamically imported per-call in slack routes and notification subscriber; module never loaded at import time.",
+    "Composio: @composio/core dynamically imported; getComposioClient() returns Promise<null> when COMPOSIO_API_KEY empty.",
+    "Mastra: MastraAgentRunner dynamically imported in investigation-worker.ts only when MASTRA_ENABLED=true.",
+    "Slack routes return 'Slack not configured' sentinel (400) when env vars are empty.",
+    "Composio tool provider returns empty tool list when API key absent.",
+    "Mastra agent runner is never loaded when MASTRA_ENABLED=false.",
+    "All 1070 unit tests pass. TypeScript compilation clean."
+  ],
+  "defects": []
+}

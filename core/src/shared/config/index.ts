@@ -205,6 +205,12 @@ export const config = {
     protocol: env('STRIPE_PROTOCOL', ''),
   },
 
+  svix: {
+    apiKey: process.env['SVIX_API_KEY'] ?? '',
+    appId: process.env['SVIX_APP_ID'] ?? '',
+    baseUrl: process.env['SVIX_BASE_URL'] ?? '',
+  },
+
   composio: {
     apiKey: process.env['COMPOSIO_API_KEY'] ?? '',
     baseUrl: process.env['COMPOSIO_BASE_URL'] ?? '',

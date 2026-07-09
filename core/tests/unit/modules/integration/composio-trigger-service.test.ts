@@ -79,7 +79,7 @@ describe('ComposioTriggerService.createTrigger', () => {
 
     describe('GitHub (Composio-backed providers)', () => {
         it('calls Composio HTTP upsert for GitHub triggers', async () => {
-            vi.mocked(getComposioClient).mockReturnValue(null);
+            vi.mocked(getComposioClient).mockResolvedValue(null);
 
             const mockFetch = vi.fn().mockResolvedValue({
                 ok: true,
@@ -100,7 +100,7 @@ describe('ComposioTriggerService.createTrigger', () => {
         });
 
         it('does NOT throw for GitHub trigger when SDK client is null (HTTP fallback)', async () => {
-            vi.mocked(getComposioClient).mockReturnValue(null);
+            vi.mocked(getComposioClient).mockResolvedValue(null);
 
             const mockFetch = vi.fn().mockResolvedValue({
                 ok: true,

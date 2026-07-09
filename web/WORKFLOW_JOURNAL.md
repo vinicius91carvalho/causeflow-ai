@@ -487,3 +487,21 @@ All acceptance criteria verified at real HTTP boundary (port 5173) — zero code
 - Zero composio references in rendered HTML.
 - Build cached, exits 0. 163 test files (1070 tests) pass. Biome clean.
 - Repair Plan code changes (with-auth → /v1/whoami, session-auth tenant_id) committed.
+
+---
+
+## WI-AC-049 — Optional SaaS integrations are no-op when env vars empty
+
+**State:** `implementation=true`
+
+**Summary:**
+- Made all 6 optional SaaS integrations use dynamic imports so their SDKs are never loaded at module level when env vars are empty.
+- **Sentry** (`SENTRY_DSN`): `@sentry/node` dynamically imported; `initSentry()`/`captureException()` now async, return immediately when DSN unset.
+- **Langfuse** (`LANGFUSE_*`): Already gated via `observability-factory.ts` — noop tracer/metric recorder returned when keys absent.
+- **Svix** (`SVIX_API_KEY`): Created `OutboundWebhookService` that uses Svix SDK when configured, falls back to direct `fetch` POST without retry library.
+- **Slack** (`SLACK_*`): `@slack/web-api` dynamically imported per-call in slack routes and notification subscriber; routes return "Slack not configured" sentinel (400) when env vars empty.
+- **Composio** (`COMPOSIO_API_KEY`): `@composio/core` dynamically imported; `getComposioClient()` returns `null` promise; tool provider returns empty tool list.
+- **Mastra** (`MASTRA_ENABLED`): `MastraAgentRunner` dynamically imported in investigation-worker.ts only when `MASTRA_ENABLED=true`.
+- Files changed: 13 files (238 insertions, 45 deletions). New file: `outbound-webhook.service.ts`.
+- All 1070 unit tests pass. TypeScript compilation clean.
+- App starts successfully with all SaaS env vars empty — only error is Postgres connectivity when run outside docker compose (expected).

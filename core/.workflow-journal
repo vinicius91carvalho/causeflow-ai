@@ -39,3 +39,49 @@
 - `clerk-client.ts` — not imported in OSS boot path
 - `ClerkUserEmailResolver` — `undefined` in OSS mode (bootstrap.ts)
 - `handle-clerk-webhook.usecase.ts` — dynamically imported only in non-OSS mode
+
+## WI-AC-049: Optional SaaS are no-op when env vars empty
+
+### Status: IMPLEMENTED & VERIFIED (all SaaS guards confirmed)
+
+### Verification
+
+**Sentry** (src/shared/infra/observability/sentry.ts):
+- `initSentry()` returns immediately when SENTRY_DSN is empty
+- `captureException()` returns immediately when SENTRY_DSN is empty
+- `@sentry/node` is dynamically imported only when DSN is set
+- Boot log confirms: `[Sentry] SENTRY_DSN not set — Sentry disabled`
+
+**Langfuse** (src/shared/infra/observability/observability-factory.ts):
+- `createObservabilityStack()` returns `NoopTracer` + `NoopMetricRecorder` when LANGFUSE_* empty
+- Langfuse SDK dynamically imported only when keys are set
+- Boot log confirms: `Using noop observability (Langfuse not configured)`
+
+**Svix** (src/shared/infra/integrations/outbound-webhook.service.ts):
+- `dispatchWebhook()` checks `config.svix.apiKey && config.svix.appId`
+- Falls back to direct `fetch` POST when Svix not configured (no retry library)
+- `svix` SDK dynamically imported only when needed
+
+**Slack** (src/shared/infra/chat/slack-chat-platform.ts, slack.routes.ts):
+- `ChatPlatform` port defaults to `WebPortalChatPlatform` (no Slack deps needed)
+- `SlackChatPlatform` never instantiated in boot path
+- `@slack/web-api` dynamically imported in all runtime code paths
+- Slack routes return `{"ok":false,"error":"Slack not configured"}` when no Slack config
+- `SlackNotificationSubscriber` gracefully skips when `tenant.settings.slackConfig` absent
+
+**Composio** (composio-client.ts, composio-tool-provider.ts):
+- `getComposioClient()` returns `null` when COMPOSIO_API_KEY is empty
+- `ComposioToolProvider.getTools()` returns `[]` when client is null
+- `ComposioToolProvider` only instantiated when `config.composio.apiKey` is set
+- Routes return `{"error":"Composio not configured"}` when API key empty
+
+**Mastra** (investigation-worker.ts):
+- `config.enhancedRunner.mastra` = `env('MASTRA_ENABLED', 'false') === 'true'`
+- `MastraAgentRunner` never imported/instantiated when MASTRA_ENABLED=false
+- Dynamic `import` only executes when flag is true
+
+### Black-box verification
+- All 1070 unit tests pass (162 test files)
+- Health endpoint: `{"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}`
+- Boot log shows zero SaaS initialization messages (no Sentry init, no Langfuse connect, no Svix, no Slack, no Composio, no Mastra)
+- Integration endpoints return proper "not configured" responses
