@@ -459,3 +459,10 @@ fatal: Unable to write index.
 - Outcome: integration could not complete
 - Defects: Checkpoint was not integrated into main
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T17:18:00.047Z — Explicit Resume
+
+- WorkItem: WI-AC-021
+- Outcome: user authorized a new Attempt cycle
+- Guidance: WI-AC-021 checkpoint-not-integrated is a transient merge/integration race in the shared monorepo git root. No index.lock present now. Retry integration.
+- NextAction: Coding Attempt 1
