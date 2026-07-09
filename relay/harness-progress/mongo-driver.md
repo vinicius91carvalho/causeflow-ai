@@ -530,3 +530,17 @@ No source code changes needed. No defects found.
 - WorkItem: WI-AC-036
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T20:00:46.584Z — Resumed
+
+- WorkItem: WI-AC-036
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-09T20:00:46.615Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
