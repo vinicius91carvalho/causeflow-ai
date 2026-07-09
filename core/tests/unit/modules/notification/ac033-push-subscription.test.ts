@@ -90,7 +90,7 @@ describe('AC-033: Push Subscription Routes', () => {
         }),
       });
       expect(res.status).toBe(200);
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, unknown>;
       expect(body).toEqual({ ok: true });
       expect(pushSubscriptionRepo.upsert).toHaveBeenCalledWith(
         expect.any(String),
@@ -108,7 +108,7 @@ describe('AC-033: Push Subscription Routes', () => {
         }),
       });
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, unknown>;
       expect(body.error).toContain('endpoint');
     });
 
@@ -122,7 +122,7 @@ describe('AC-033: Push Subscription Routes', () => {
         }),
       });
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, unknown>;
       expect(body.error).toContain('p256dh');
     });
 
@@ -136,7 +136,7 @@ describe('AC-033: Push Subscription Routes', () => {
         }),
       });
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, unknown>;
       expect(body.error).toContain('auth');
     });
 
@@ -155,7 +155,7 @@ describe('AC-033: Push Subscription Routes', () => {
         }),
       });
       expect(res.status).toBe(501);
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, unknown>;
       expect(body.error).toContain('not configured');
     });
   });
@@ -170,7 +170,7 @@ describe('AC-033: Push Subscription Routes', () => {
         }),
       });
       expect(res.status).toBe(200);
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, unknown>;
       expect(body).toEqual({ ok: true });
       expect(pushSubscriptionRepo.delete).toHaveBeenCalledWith(
         expect.any(String),
@@ -197,7 +197,7 @@ describe('AC-033: Push Subscription Routes', () => {
         body: JSON.stringify({}),
       });
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, unknown>;
       expect(body.error).toContain('endpoint');
     });
 
