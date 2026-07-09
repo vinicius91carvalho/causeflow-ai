@@ -2081,3 +2081,11 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - PreviousPhase: blocked
 - Attempt: 1
 - NextAction: user-guidance
+
+## 2026-07-09T21:09:03.730Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- Outcome: coding agent failed three times
+- Defects: Session terminated, killing shell...
+- NextAction: User reviews evidence and explicitly resumes with guidance
