@@ -395,3 +395,26 @@ The evidence repository call in the triage use case now has a try/catch wrapper 
 
 ## Verdict
 qa=true implementation=true integration=true
+
+---
+
+## 2026-07-09T17:17:00Z — AC-041 re-verification against running API (PORT=5171)
+
+**Result: implementation=true. All AC-041 requirements verified at the real HTTP boundary.**
+
+### Boundary exercised against running stack (CAUSEFLOW_RUNTIME=oss, no ANTHROPIC_API_KEY)
+
+1. **Boot log** lists all 4 BullMQ queues (causeflow-alerts, causeflow-triage, causeflow-investigation, causeflow-remediation) with worker counts. No 'disabled - ANTHROPIC_API_KEY not set' warnings.
+2. **`GET /admin/queues`** returns all 4 queues with depth, completed/failed counts, and last 5 jobs.
+3. **`POST /v1/admin/incidents`** creates an incident (status=open) and enqueues a triage job.
+4. **Triage worker** picks up the job within 2 seconds — queue depth goes to 0, completed count increments.
+5. **Incident row** updates to status=resolved with fallback severity=low (LLM unavailable — expected without ANTHROPIC_API_KEY).
+6. **No SQS endpoint** is called at any point (boot log, health checks, queue operations all use Redis/BullMQ exclusively).
+7. **messageQueue.send** uses `triageQueueUrl` (causeflow-triage) in both IngestAlertUseCase and CreateManualIncidentUseCase.
+8. **causeflow-triage** has both a worker (created in bootstrap.ts OSS block) and a producer (enqueue via BullMqMessageQueue).
+
+### Defects verified as fixed
+- **Defect 1**: Workers are no longer gated on `config.anthropic.apiKey`. All 3 OSS workers start unconditionally.
+- **Defect 2**: `triageQueueUrl` is extracted in bootstrap and passed to the ingress use cases. Jobs go to causeflow-triage, not causeflow-alerts.
+
+.qa-WI-AC-041.json updated: implementation=true, qa=true, defects=[].
