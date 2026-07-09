@@ -773,5 +773,25 @@
         "all_test_groups_pass": "passed"
       }
     }
+    },
+    {
+      "id": "WI-AC-036",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:59:59Z",
+      "details": "Verify-first re-pass for AC-036 (MongoDriver healthCheck/close/construction). Ran test-ac036.mjs against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-mongo + relay-postgres). All 4 test groups pass with 0 failures: (1) health_check RPC via WebSocket returns healthy=true for order-mongo (latencyMs=3); (2) Source code confirmed maxPoolSize:5 and serverSelectionTimeoutMS:10000 in constructor; (3) Direct MongoClient db.admin().ping() returns {ok:1}, close() resolves cleanly, ping after close fails (expected); (4) Unreachable host gracefully returns false without throwing. Zero-diff checkpoint: no source code changes needed.",
+      "checks": {
+        "health_check_rpc_healthy": "passed",
+        "source_maxPoolSize_5": "passed",
+        "source_serverSelectionTimeoutMS_10000": "passed",
+        "healthCheck_db_admin_ping_returns_true": "passed",
+        "close_awaits_client_close": "passed",
+        "close_resolves_cleanly": "passed",
+        "ping_fails_after_close": "passed",
+        "unreachable_host_returns_false_no_throw": "passed",
+        "all_test_groups_pass_0_failures": "passed"
+      }
+    }
   ]
 }
