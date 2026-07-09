@@ -223,3 +223,10 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/website/WI-AC-013-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T22:21:03.205Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-014
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
