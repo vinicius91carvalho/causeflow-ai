@@ -63,3 +63,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T10:58:00.000Z — Verified
+
+- WorkItem: WI-AC-031
+- Outcome: verification passed — no code defects
+- Evidence: Real-boundary test started a local WS control plane on port 5191 and ran the relay via tsx pointing at a live MongoDB (relay-mongo from docker-compose). Sent JSON-RPC execute request with operation: 'list_tables' for the MongoDB resource. Response returned correctly: rows array with { name, type } per collection (verified with test collections test_orders and test_products, each correctly mapped as { name: 'test_orders', type: 'collection' }). Empty DB returned empty rows array — also valid. No code changes needed; all previous failures were infrastructure/config issues (402/429 API credit exhaustion, unrecognized provider keys), not relay code defects.
+- NextAction: complete — implementation=true
