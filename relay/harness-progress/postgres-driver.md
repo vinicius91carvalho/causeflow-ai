@@ -166,3 +166,10 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T02:07:05.000Z — AC-022 verified at real boundary, implementation=true (zero-diff)
+
+- WorkItem: WI-AC-022
+- Attempt: 1/3
+- Result: implementation=true — no code changes needed.
+- Details: Exercised AC-022 end-to-end against real Postgres (`127.0.0.1:5432`, `relay`/`relay`, seeded `orders` table) via a real relay process (built from `src/`) and a real WebSocket control-plane stub on port 5190. Sent `execute { operation: 'list_tables' }` over JSON-RPC 2.0. Response: rows=`[{table_name:"orders",table_type:"BASE TABLE"}]`, fields=`[{name:"table_name",type:"text"},{name:"table_type",type:"text"}]`, rowCount=1, masked=false, maskedFieldCount=0. Audit confirms success. All contract checks pass. No tracked files changed.
