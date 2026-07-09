@@ -1,5 +1,44 @@
 # observability-and-ops workflow journal
 
+## 2026-07-09T17:22:00Z — Integrated Verification (WI-AC-037)
+
+- WorkItem: WI-AC-037
+- Phase: integration_qa
+- Outcome: integration=true
+
+### Acceptance Boundary Exercised
+
+**Part 1 — DLQ redrive**
+- Pushed a test message to `causeflow-alerts-dlq` via SQS API
+- Verified source `causeflow-alerts` queue had 0 messages before
+- After 35 seconds (exceeding the 30-second scheduler tick), the message appeared on `causeflow-alerts` with identical content: `{"test":"dlq-redrive-...","source":"dlq-test"}`
+- The DLQ was empty (0 messages remaining)
+- Proves the scheduler's `dlq-redrive` job runs every 30s and correctly redrives messages
+
+**Part 2 — Cost rollup**
+- Created test UsageRecordEntity records: investigation cost=0.50, event cost=0.25
+- Executed the same cost rollup logic as in main.ts
+- Aggregated total cost: 0.75 (0.50 + 0.25)
+- Wrote a daily_rollup UsageRecordEntity with type=daily_rollup, costUsd=0.75, and agentBreakdown
+- Verified rollup exists and matches the aggregated cost
+- Verified idempotency: duplicate run correctly detects existing rollup and skips
+
+**Test suite**
+- 162 unit test files / 1064 tests pass
+- SQS integration test: 6 tests pass (queues exist and operational)
+- DynamoDB integration test: 6 tests pass (table exists with GSIs)
+- InProcessScheduler unit test: 6 tests pass
+- DLQ redriver unit test: 7 tests pass
+
+**Code verification**
+- `src/shared/infra/scheduler/scheduler.ts`: InProcessScheduler runs jobs on interval, graceful stop
+- `src/main.ts`: dlq-redrive job (30s interval) and cost-rollup job (1h interval) registered
+- `src/shared/infra/queue/dlq-redriver.ts`: redriveDLQ reads from DLQ, sends to target, deletes from DLQ
+- `src/shared/infra/db/entities/UsageRecordEntity.ts`: daily_rollup in type enum, byType GSI for efficient querying
+- Both scheduler jobs are properly wired into the lifecycle for graceful shutdown
+
+**Defects:** None. Both parts of AC-037 correctly implemented and verified at real external boundaries.
+
 ## 2026-07-08T15:55:46.849Z — Resumed
 
 - WorkItem: WI-AC-036
