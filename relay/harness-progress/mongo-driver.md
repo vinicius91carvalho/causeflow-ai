@@ -386,3 +386,12 @@ Result rows are `Record<string, unknown>[]`. All assertions pass. No source code
 - WorkItem: WI-AC-034
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T18:57:35.987Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-034
+- AcceptanceChecks: AC-034
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-034-2-integration_qa.log
+- NextAction: next Ready Work Item
