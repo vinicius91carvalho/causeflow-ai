@@ -129,6 +129,21 @@
       "integration": true,
       "timestamp": "2026-07-09T06:30:00Z",
       "details": "Integrated Verification pass for AC-029 (postgres-sql-parser dangerous functions). validateQuery tested at compiled dist boundary. All 19 test cases pass: (1) validateQuery('SELECT pg_sleep(10)') => {valid:false, reason:'Dangerous function detected: pg_sleep'}; (2) validateQuery(\"SELECT * FROM pg_proc WHERE proname = 'pg_read_file'\") => {valid:false, reason:'Dangerous function detected: pg_read_file'}; (3) all 15 documented dangerous functions (pg_sleep, lo_import, lo_export, pg_read_file, pg_write_file, pg_read_binary_file, pg_ls_dir, pg_stat_file, pg_terminate_backend, pg_cancel_backend, pg_reload_conf, set_config, current_setting, dblink, dblink_exec) are correctly rejected when their name appears anywhere in the lowercased query text, with the exact function name in the reason; (4) uppercase PG_SLEEP is also caught via lowercased text check; (5) dblink_exec has priority over dblink for correct function name; (6) safe query 'SELECT 1' still returns {valid:true}. Project builds cleanly (npm run build -> dist/). tsc --noEmit passes. PgDriver.validate() correctly wires validateQuery for query/explain operations. No defects."
+    },
+    {
+      "id": "WI-AC-030",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T07:00:00Z",
+      "details": "Integrated Verification pass for AC-030 (postgres-sql-parser). validateQuery tested at compiled dist boundary. All three AC-030 conditions verified: (1) validateQuery('WITH x AS (SELECT 1) SELECT * FROM x') returns {valid:true}; (2) validateQuery('SELECT * FROM (SELECT pg_sleep(1)) s') rejected via dangerous-function text scan: {valid:false, reason:'Dangerous function detected: pg_sleep'}; (3) validateQuery('EXPLAIN SELECT 1') accepted: {valid:true} (parser throws on EXPLAIN, catch block allows it via first-word check). npm run build and tsc --noEmit pass. No code changes needed -- zero-diff checkpoint.",
+      "checks": {
+        "with_cte_accepted": "passed",
+        "pg_sleep_in_subquery_rejected": "passed",
+        "explain_accepted": "passed",
+        "npm_run_build": "passed",
+        "tsc_noEmit": "passed"
+      }
     }
   ]
 }

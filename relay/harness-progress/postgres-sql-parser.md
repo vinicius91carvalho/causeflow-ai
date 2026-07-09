@@ -112,3 +112,18 @@ Conditions verified:
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/postgres-sql-parser/WI-AC-029-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T07:00:00.000Z — Verify-first passed (zero-diff checkpoint)
+
+- WorkItem: WI-AC-030
+- AcceptanceChecks: AC-030
+- Outcome: passed at real boundary
+- Result: implementation=true (zero-diff checkpoint, no code changes)
+
+Exercised every AC-030 condition against the existing compiled `dist/drivers/postgres/pg-query-parser.js` module at a real external boundary. No code changes needed — the existing `src/drivers/postgres/pg-query-parser.ts` already satisfies every invariant.
+
+Conditions verified:
+- `validateQuery("WITH x AS (SELECT 1) SELECT * FROM x")` returns `{ valid: true }` ✓
+- `validateQuery("SELECT * FROM (SELECT pg_sleep(1)) s")` returns `{ valid: false, reason: 'Dangerous function detected: pg_sleep' }` ✓
+- `validateQuery("EXPLAIN SELECT 1")` returns `{ valid: true }` ✓ (parser throws on EXPLAIN, catch block allows it via first-word check)
+- `npm run build` and `npx tsc --noEmit` pass ✓
