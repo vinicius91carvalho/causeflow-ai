@@ -1228,3 +1228,34 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-015-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T13:05:00Z — VERIFY-FIRST PASS
+
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Boundary: Mintlify dev preview on port 5170 plus source invariant grep.
+- Result: `grep -rE 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx' .` returned zero matches; all 84 `api-reference` MDX routes returned HTTP 200 and rendered HTML contained no forbidden host matches.
+- Verdict: implementation=true; no MDX/content changes.
+
+## 2026-07-09T12:44:12.026Z — Resumed
+
+- WorkItem: WI-AC-016
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T13:10:00Z — Independent QA passed
+
+- Role: qa-agent
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Scaffold: `project_specs.xml` read; required top-level files/directories present.
+- Evidence: 133 `.mdx` files total; 84 under `api-reference/`; exact AC grep `grep -rE 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx' .` exited 1 with no output.
+- Verdict: implementation=true; qa=true; defects=none.
+
+## 2026-07-09T12:45:31.658Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
