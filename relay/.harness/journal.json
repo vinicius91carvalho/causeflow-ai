@@ -90,7 +90,6 @@
         "non_error_throw_fallback": "passed"
       }
     },
-
     {
       "id": "WI-AC-021",
       "qa": true,
@@ -229,7 +228,7 @@
       "implementation": true,
       "integration": true,
       "timestamp": "2026-07-09T14:30:00Z",
-      "details": "Re-verification pass for AC-032 (mongo-driver describe_table). Re-ran black-box test at real WebSocket boundary (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Orders collection reseeded with 2 documents (varied types: string, number, object, array, null, Date) + 3 indexes. Sent JSON-RPC 2.0 execute: operation=describe_table, params={tableName:orders}, resourceId=order-mongo. Response: 7 schema rows with correct typeof inference (_id:string, status:string, amount:number, customer:object, tags:object, notes:[object,string], createdAt:object) + 4 index rows tagged _type:index with name+key (_id_, idx_status, idx_amount, customer_1_createdAt_-1). rowCount=11, executionTimeMs=4, masked=false, maskedFieldCount=0. All 14 assertion groups passed. No code changes needed — implementation already conforms to AC-032 spec.",
+      "details": "Re-verification pass for AC-032 (mongo-driver describe_table). Re-ran black-box test at real WebSocket boundary (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Orders collection reseeded with 2 documents (varied types: string, number, object, array, null, Date) + 3 indexes. Sent JSON-RPC 2.0 execute: operation=describe_table, params={tableName:orders}, resourceId=order-mongo. Response: 7 schema rows with correct typeof inference (_id:string, status:string, amount:number, customer:object, tags:object, notes:[object,string], createdAt:object) + 4 index rows tagged _type:index with name+key (_id_, idx_status, idx_amount, customer_1_createdAt_-1). rowCount=11, executionTimeMs=4, masked=false, maskedFieldCount=0. All 14 assertion groups passed. No code changes needed \u2014 implementation already conforms to AC-032 spec.",
       "checks": {
         "jsonrpc_2_0": "passed",
         "no_error_in_response": "passed",
@@ -443,7 +442,7 @@
       "implementation": true,
       "integration": true,
       "timestamp": "2026-07-09T18:45:41Z",
-      "details": "Verified AC-034 (mongo-driver aggregation pipeline validation) at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 execute requests with operation:query and pipeline params against resource order-mongo. Test 1: pipeline with $out stage → rejected with error code -32602 and message \"Validation failed: Aggregation stage $out is not allowed\". Test 2: pipeline with $merge stage → rejected with error code -32602 and message \"Validation failed: Aggregation stage $merge is not allowed\". Test 3: pipeline with $match/$group → accepted with result.rows = [] (no matching data). Test 4: pipeline with $match/$sort/$project/$limit → accepted with result.rows = []. All 4 tests passed. Implementation is correct — no code changes needed.",
+      "details": "Verified AC-034 (mongo-driver aggregation pipeline validation) at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 execute requests with operation:query and pipeline params against resource order-mongo. Test 1: pipeline with $out stage \u2192 rejected with error code -32602 and message \"Validation failed: Aggregation stage $out is not allowed\". Test 2: pipeline with $merge stage \u2192 rejected with error code -32602 and message \"Validation failed: Aggregation stage $merge is not allowed\". Test 3: pipeline with $match/$group \u2192 accepted with result.rows = [] (no matching data). Test 4: pipeline with $match/$sort/$project/$limit \u2192 accepted with result.rows = []. All 4 tests passed. Implementation is correct \u2014 no code changes needed.",
       "checks": [
         "$out rejected",
         "$merge rejected",
@@ -623,6 +622,25 @@
       "integration": true,
       "timestamp": "2026-07-09T23:59:59Z",
       "details": "Verify-first re-pass for AC-036 (MongoDriver healthCheck/close/construction). Ran test-ac036.mjs against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-mongo + relay-postgres). All 4 test groups pass with 0 failures: (1) health_check RPC via WebSocket returns healthy=true for order-mongo (latencyMs=1); (2) Source code confirmed maxPoolSize:5 and serverSelectionTimeoutMS:10000 in constructor; (3) Direct MongoClient db.admin().ping() returns {ok:1}, close() resolves cleanly, ping after close fails (expected); (4) Unreachable host gracefully returns false without throwing. Zero-diff checkpoint: working tree clean, no source code changes needed.",
+      "checks": {
+        "health_check_rpc_healthy": "passed",
+        "source_maxPoolSize_5": "passed",
+        "source_serverSelectionTimeoutMS_10000": "passed",
+        "healthCheck_db_admin_ping_returns_true": "passed",
+        "close_awaits_client_close": "passed",
+        "close_resolves_cleanly": "passed",
+        "ping_fails_after_close": "passed",
+        "unreachable_host_returns_false_no_throw": "passed",
+        "all_test_groups_pass_0_failures": "passed"
+      }
+    },
+    {
+      "id": "WI-AC-036",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:59:59Z",
+      "details": "Verify-first pass for AC-036 (MongoDriver healthCheck/close/construction). Ran test-ac036.mjs against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-mongo + relay-postgres). All 4 test groups pass with 0 failures. Zero-diff checkpoint: working tree clean, no source code changes needed.",
       "checks": {
         "health_check_rpc_healthy": "passed",
         "source_maxPoolSize_5": "passed",
