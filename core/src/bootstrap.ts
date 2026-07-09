@@ -649,6 +649,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     finalizeConnection,
     saveSentryClientSecret,
     getSentryIntegrationStatus,
+    composioRouteDeps: config.composio.apiKey
+      ? { composioToolProvider, createTrigger, composioTriggerService }
+      : undefined,
   };
 
   // Billing Use Cases (reuse early billing repo)

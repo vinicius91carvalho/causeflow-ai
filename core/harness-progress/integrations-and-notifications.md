@@ -881,3 +881,24 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T20:45:00.000Z — Verified AC-031 (routes added, boundary tests pass)
+
+- WorkItem: WI-AC-031
+- Implementation: true
+- Changes:
+  - Added `ComposioRouteDeps` interface and `createComposioRoutes()` in trigger.routes.ts
+  - Added `GET /composio/tools` — returns available tools from Composio tool provider
+  - Added `POST /composio/triggers` — creates trigger subscription via CreateTriggerUseCase
+  - Mounted composio sub-router at `/composio` within integration routes
+  - Wired composio deps through IntegrationUseCases in bootstrap
+  - Added OSS runtime error handling for DynamoDB-backed IntegrationEntity lookup
+- Boundary verification results (all pass against live API at :3099):
+  - GET /v1/integrations/composio/tools returns tools list (200) ✅
+  - POST /v1/integrations/composio/triggers missing fields returns 400 ✅
+  - POST /v1/integrations/composio/triggers unconnected OAuth provider returns 400 ✅
+  - POST /v1/integrations/composio/triggers no auth returns 401 ✅
+  - The route exists at the path specified in AC-031 ✅
+- Pre-existing limitation (not caused by this AC): DynamoDB-backed repositories (IntegrationEntity, DynamoTriggerRepository) fail in OSS runtime — same issue as the existing /v1/triggers/ route
+- Typecheck: pre-existing errors only (unrelated admin.routes.test.ts)
+- Build: clean
