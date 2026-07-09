@@ -772,7 +772,6 @@
         "unreachable_host_returns_false_no_throw": "passed",
         "all_test_groups_pass": "passed"
       }
-    }
     },
     {
       "id": "WI-AC-036",
@@ -791,6 +790,26 @@
         "ping_fails_after_close": "passed",
         "unreachable_host_returns_false_no_throw": "passed",
         "all_test_groups_pass_0_failures": "passed"
+      }
+    },
+    {
+      "id": "WI-AC-036",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T22:30:00Z",
+      "details": "Independent QA verification for AC-036 (MongoDriver healthCheck + close + construction params). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-mongo + relay-postgres). Executed test-ac036.mjs against live stack. (1) health_check RPC via WebSocket returns healthy=true for order-mongo with latencyMs=1. (2) Source code confirmed maxPoolSize:5 and serverSelectionTimeoutMS:10000 in constructor (mongo-driver.ts:20-21). (3) Direct MongoClient db.admin().ping() returns {ok:1}, healthCheck returns true; close() awaits client.close() and resolves cleanly; ping after close throws (expected, client is closed). (4) Unreachable host (192.0.2.1:27017) gracefully fails with false without throwing. All 4 test groups pass with 0 failures. Constructor params, healthCheck via db.admin().ping(), and close via client.close() all conform to AC-036 spec. QA journal written to docs/qa-journal-ac036.md.",
+      "checks": {
+        "health_check_rpc_via_ws": "passed",
+        "source_maxPoolSize_5": "passed",
+        "source_serverSelectionTimeoutMS_10000": "passed",
+        "healthCheck_db_admin_ping_ok": "passed",
+        "healthCheck_returns_true": "passed",
+        "close_awaits_client_close": "passed",
+        "close_resolves_cleanly": "passed",
+        "ping_fails_after_close": "passed",
+        "unreachable_host_gracefully_returns_false": "passed",
+        "all_4_test_groups_pass_0_failures": "passed"
       }
     }
   ]
