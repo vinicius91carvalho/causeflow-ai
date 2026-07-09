@@ -555,3 +555,18 @@ subscribe page stale count is fixed. All event counts now align with the
 catalog.
 
 implementation=true qa=true integration=false
+
+## 2026-07-09 Re-verification — WI-AC-018 (this agent run)
+
+- Run by: coding-agent (VERIFY-FIRST mode)
+- HEAD: 4a67cce
+- mint dev running on port 5170
+- Black-box re-verification at real HTTP boundary:
+  - `/api-reference/webhooks/outbound-events` — 20 unique dot-namespaced
+    events confirmed via curl
+  - `/api-reference/introduction` — states "20 real-time events" and
+    "All 20 EventBus events"
+  - `/api-reference/webhooks/subscribe` — states "all 20 outbound events"
+    (stale "21" fixed by commit 4a67cce)
+- No code changes needed — fix already applied in HEAD
+- outcome: implementation=true qa=true integration=false

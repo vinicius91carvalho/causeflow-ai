@@ -393,8 +393,8 @@
       "AC-013"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
+    "implementation": true,
+    "qa": true,
     "integration": false,
     "retries": 0
   },
