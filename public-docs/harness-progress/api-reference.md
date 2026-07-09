@@ -492,3 +492,41 @@ I verified the Authentication page at `api-reference/authentication.mdx` against
 - PreviousPhase: qa
 - Attempt: 1
 - NextAction: qa
+
+## 2026-07-09T00:45:20.911Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: QA agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f4456-07d9-7e81-bd09-994590ae9656
+--------
+user
+You are the qa-agent. Independently test exactly this Work Item in its isolated worktree.
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Use a real browser for UI or real HTTP for API behavior. On pass set qa=true. On any defect set implementation=false and qa=false. Update the journal concisely and commit. Return only JSON: {"id":"...","qa":true|false,"implementation":true|false,"defects":["expected ...; observed ...; evidence ..."]}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
