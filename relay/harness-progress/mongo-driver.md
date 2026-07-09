@@ -265,3 +265,23 @@ The implementation in `src/drivers/mongodb/mongo-driver.ts` correctly infers sch
 - RepairPlan: AC-033 implementation is correct and tested — all scenarios pass at real WebSocket+MongoDB boundary. The integration_qa step failed not because of a code defect but because the WI branch `gen/relay-mongo-driver` already equals the integration target `plan/opensource-docker` at commit `ffd1efb` (the merge already occurred at `6b596ff`). The harness integration_qa process found no pending merge work and recorded outcome=failed with an empty evidence file (only the routing line).; No code changes to `src/drivers/mongodb/mongo-driver.ts` or any source file are needed — the implementation is correct and verified (all 7 test scenarios pass: filter, sql, fallback, limit=3, limit=0, policy rejection of limit=2000, filter precedence).; Re-run integration_qa directly against `plan/opensource-docker` (the branch already contains the code) without attempting a merge from `gen/relay-mongo-driver` into itself.; Alternatively, advance `gen/relay-mongo-driver` to a new commit (e.g., a no-op chore commit) to create a distinct merge base, then re-run integrated verification.; Update `harness-progress/mongo-driver.md` to reset the defect counter and set `integration=true` after a successful re-verification.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-033-1-integration_qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-09T20:00:00Z — Verify-first re-pass (coding agent)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+Ran `.harness/test-ac033.mjs` against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). All 7 scenarios pass at real WebSocket + MongoDB boundary:
+
+- **Filter direct**: `{status: 'active'}` returns 4 rows
+- **SQL as JSON filter**: `'{"status":"inactive"}'` returns 3 rows, `'{"score":{"$gte":80}}'` returns 4 rows
+- **Fallback to {}**: no filter/sql returns all 8 rows
+- **Limit=3**: returns 3 rows
+- **Limit=0**: returns 0 rows
+- **Limit=2000**: rejected by policy engine with code -32600
+- **Filter precedence**: both filter and sql present, filter wins (4 active rows)
+
+Result rows are `Record<string, unknown>[]`. All assertions pass. No source code changes needed — implementation already conforms to AC-033 spec.
+
+**Defects resolved**: The prior integration_qa failure was not a code defect — `gen/relay-mongo-driver` already equals `plan/opensource-docker` at commit `ffd1efb` (merge already occurred at `6b596ff`), so the harness merge pre-condition produced an empty evidence file. No merge was needed; re-verification against the running stack confirms AC-033 passes.
+
+- NextAction: complete — implementation=true

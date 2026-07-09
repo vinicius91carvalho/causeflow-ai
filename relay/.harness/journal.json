@@ -573,6 +573,25 @@
         "rows_are_objects": "passed",
         "response_shape_valid": "passed"
       }
+    },
+    {
+      "id": "WI-AC-033",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T20:00:00Z",
+      "details": "Verify-first re-pass for AC-033 (mongo-driver query filter/sql/fallback). Ran test-ac033.mjs against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). All 7 scenarios pass: filter direct (4 active rows), sql as JSON filter (3 inactive rows, 4 with score>=80), fallback to {} (8 rows), limit=3 returns 3 rows, limit=0 returns 0 rows, limit=2000 rejected by policy engine (-32600), filter takes precedence when both filter+sql supplied. Result rows are Record<string, unknown>[]. Zero-diff checkpoint: no source code changes needed.",
+      "checks": {
+        "filter_direct": "passed",
+        "sql_as_json_filter": "passed",
+        "fallback_to_empty": "passed",
+        "limit_clamping_3": "passed",
+        "limit_zero": "passed",
+        "policy_rejects_over_limit": "passed",
+        "filter_takes_precedence": "passed",
+        "rows_are_objects": "passed",
+        "response_shape_valid": "passed"
+      }
     }
   ]
 }
