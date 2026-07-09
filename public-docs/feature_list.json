@@ -459,8 +459,9 @@
     "verify_first": true,
     "implementation": true,
     "qa": true,
-    "integration": false,
-    "retries": 0
+    "integration": true,
+    "retries": 0,
+    "verify_notes": "Integrated Verification passed on main. Required scaffold present; `mint dev --port 5170` served `/relay/overview` with HTTP 200; rendered HTML contains 'What the Relay is not', 'Not a proxy', 'Not a tunnel', and 'Not a replication agent'; source grep returned exactly three matches."
   },
   {
     "id": "WI-AC-022",
