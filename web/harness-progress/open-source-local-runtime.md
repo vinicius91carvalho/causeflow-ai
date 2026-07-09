@@ -955,3 +955,27 @@ Use /login to log into a provider via OAuth or API key. See:
 - RepairPlan: WI-AC-051 implementation is complete and correct — `logos.composio.dev` and `backend.composio.dev` are already removed from `next.config.mjs#images.remotePatterns` (empty array `[]`), `composioTriggerId` is absent from the `Integration` domain type, all 15 integration identifiers are present, and zero `COMPOSIO_API_KEY` references exist in the OSS build. The QA Defect Report's single entry "Session terminated, killing shell... ...killed." is a harness infrastructure failure (shell process killed before any checks ran), not a code defect. All prior QA attempts (Attempt 1, independent verification, and two re-verifications) passed with zero defects.; Accept AC-051 as passed — the code implementation is correct and all previous QA attempts confirm zero defects.; File a separate follow-up work item (not AC-051) to clean orphaned composio references in the investigation feed context: `feed-constants.ts` (COMPOSIO_DISPLAY_NAMES, parseComposioToolName, hardcoded logos.composio.dev URLs), `group-feed-items.ts` (composio_ prefix branching), `tool-call-group.tsx`, `tool-call-card.tsx`, `tool-error-card.tsx`, `evidence-card.tsx`, and the Clerk-dependent E2E test `tests/dashboard/integrations-composio.spec.ts`.; Optionally increase the QA agent's resource limit or timeout in the harness config to prevent shell OOM on future re-verification runs.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-051-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-09T20:45:47.524Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-051
+- DefectReport: The QA verification is complete.
+
+**Summary of findings:**
+
+| Check | Result |
+|---|---|
+| **Step 1** - No composio references in config/types/env | ✅ PASS |
+| **Step 2** - 15 integration cards rendered on `/dashboard/integrations` | ✅ PASS |
+| **Step 3** - Connect CTA proxies to Core API, no direct composio.dev requests | ✅ PASS |
+
+**Web repo implementation is correct.** The Connect CTA code paths were verified:
+- OAuth: `/api/integrations/oauth/{provider}/authorize` → Core API `/v1/integrations/connect`
+- Credential: `POST /api/integrations` → Core API `/v1/integrations/credentials`
+- Zero composio.dev requests originate from the browser.
+
+Core API `/v1/integrations/connect` returns `500 INTERNAL_ERROR` (Core-side stub issue, not a web-repo defect).
+- RepairPlan: QA Defect Report for WI-AC-051 confirms all 3 steps PASS: (1) no composio.dev or composioTriggerId in next.config.mjs, integration types, or .env.example; (2) 15 integration cards render; (3) Connect CTA proxies to Core API with zero composio.dev requests from the browser. The web repository implementation is correct. The sole reported issue (Core API /v1/integrations/connect returning 500) is a Core-side stub problem, not a web-repo defect.; Close WI-AC-051 as PASS for the web repository — no code changes needed in apps/dashboard/, apps/website/, or packages/.; File a separate Core-side work item (WI-CORE-xxx) for the /v1/integrations/connect 500 INTERNAL_ERROR in the Core API stub endpoint.; Note: 21 remaining composio references in apps/dashboard/src/contexts/investigation/ (feed-constants.ts, group-feed-items.ts, 4 feed-card components) are out of scope for AC-051 — they relate to rendering tool-call results from the Core's investigation pipeline, not the integration catalog. Consider a follow-up WI to migrate those to local fallback icons if logos.composio.dev is unreachable in the OSS runtime.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-051-2-qa.log
+- NextAction: Coding Attempt 3
