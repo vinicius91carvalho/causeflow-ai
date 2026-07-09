@@ -184,3 +184,17 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - WorkItem: WI-AC-012
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T22:09:45.000Z — Resumed
+
+- WorkItem: WI-AC-012
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-09T22:09:45.047Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
