@@ -988,3 +988,29 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T21:36:00.000Z — Verified AC-032 (boundary + relay query tests pass)
+
+- WorkItem: WI-AC-032
+- Implementation: true
+- Changes:
+  - Fix PUBLIC_PATHS: change '/v1/relay/' to '/v1/relay/connect' so HTTP relay
+    endpoints (status, tokens) require auth and get proper tenant context.
+    The WS endpoint stays public via server upgrade handler, not Hono middleware.
+  - Fix tenant middleware skip path similarly.
+  - Add ac032-boundary.mjs — boundary verification test
+  - Add ac032-relay-query-test.mjs — direct WS RPC protocol test
+- Boundary verification results (all pass against live API at :5185):
+  - Host CANNOT resolve or reach ac032-pg (DNS + TCP isolation) ✅
+  - Health returns 200 with dynamodb/redis/sqs ok ✅
+  - /v1/relay/status (authed) returns connected=true, test-pg resource ✅
+  - /v1/relay/status (no auth) returns 401 (UNAUTHORIZED) ✅
+  - Relay container logs: Connected to control plane, Driver initialized ✅
+  - Direct query from docker network returns testdb|42 ✅
+- Relay RPC protocol test (via ac032-relay-query-test.mjs):
+  - list_resources → test-pg resource listed ✅
+  - execute query SELECT current_database() → "testdb" (matches direct) ✅
+  - execute SELECT 42 AS answer, 'hello' AS greeting → answer=42 (matches direct) ✅
+  - describe_resource → postgres, tables [customers, products] ✅
+  - health_check → healthy ✅
+
