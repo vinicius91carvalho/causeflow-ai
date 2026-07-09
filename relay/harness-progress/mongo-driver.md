@@ -324,3 +324,33 @@ Result rows are `Record<string, unknown>[]`. All assertions pass. No source code
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-033-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T18:48:04.397Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-034
+- DefectReport: Task complete. Here is a summary of the QA verification:
+
+**Work Item:** WI-AC-034 (MongoDB aggregation pipeline validation)
+
+**Method:** Real WebSocket boundary test via docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 `execute` requests with `operation: 'query'` and pipeline params against resource `order-mongo` through the control-plane stub to the relay.
+
+**Results (4/4 passed):**
+
+| Test | Pipeline | Expected | Observed | Verdict |
+|------|----------|----------|----------|---------|
+| 1 | `[{ $match }, { $out }]` | Error -32602, `$out is not allowed` | `{"code":-32602, "message":"Validation failed: Aggregation stage $out is not allowed"}` | ✓ |
+| 2 | `[{ $match }, { $merge }]` | Error -32602, `$merge is not allowed` | `{"code":-32602, "message":"Validation failed: Aggregation stage $merge is not allowed"}` | ✓ |
+| 3 | `[{ $match }, { $group }]` | Accepted, `result.rows = []` | `{"result":{"rows":[],"rowCount":0,"executionTimeMs":2}}` | ✓ |
+| 4 | `[{ $match }, { $sort }, { $project }, { $limit }]` | Accepted, `result.rows = []` | `{"result":{"rows":[],"rowCount":0,"executionTimeMs":1}}` | ✓ |
+
+**Additional verification:**
+- Source code confirms `BLOCKED_AGGREGATION_STAGES = ['$out', '$merge']` at `src/drivers/mongodb/mongo-driver.ts:13`
+- `npx tsc --noEmit` clean
+- `npm run build` clean
+- Git worktree clean (no uncommitted changes)
+
+**No defects found.** The implementation conforms perfectly to the AC-034 specification.
+- RepairPlan: QA verification for WI-AC-034 (MongoDB aggregation pipeline validation) passed 4/4 tests. All three required behaviors confirmed: $out is rejected, $merge is rejected, and a pipeline of only $match/$group/$sort/$project/$limit is accepted. The source code implements BLOCKED_AGGREGATION_STAGES = ['$out', '$merge'] in src/drivers/mongodb/mongo-driver.ts:13 with a validate() method that walks the pipeline and rejects banned stages. TypeScript compilation and build are clean. The repository contains every scaffold artifact required by project_specs.xml (25/25 files verified present). No defects found.; No repair actions required. WI-AC-034 implementation is complete and verified.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-034-1-qa.log
+- NextAction: Coding Attempt 2
