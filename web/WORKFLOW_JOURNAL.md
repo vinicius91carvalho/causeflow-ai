@@ -523,3 +523,16 @@ All acceptance criteria verified at real HTTP boundary (port 5173) — zero code
 - **Step 2 (grep):** `grep -rE 'lvh\.me' apps/dashboard/src apps/dashboard/next.config.mjs` → zero matches. PASS
 - **Step 3 (HTTP):** `/dashboard` returns 307 → `/auth/sign-in?redirect_url=%2Fdashboard` (no lvh.me rewrite). PASS
 - **qa=true, implementation=true**
+
+---
+
+## WI-AC-014 — /get-started redirects to dashboard sign-up
+
+**State:** `implementation=true`
+
+**Summary:**
+- Fixed `/get-started` redirect destination in `apps/website/next.config.mjs` — was `DASHBOARD_URL` (base URL only), now `${DASHBOARD_URL}/auth/sign-up`.
+- Step 1 (PASS): `GET /get-started` → 308 `Location: https://dashboard-staging.causeflow.ai/auth/sign-up`.
+- Step 2 (PASS): `GET /pt-br/get-started` → 308 `Location: https://dashboard-staging.causeflow.ai/auth/sign-up`.
+- Step 3 (PASS): `apps/website/next.config.mjs` contains `redirects()` entries keyed on `/get-started` and `/:locale(pt-br)/get-started`.
+- Biome lint: clean. TypeScript check: clean (exit 0).

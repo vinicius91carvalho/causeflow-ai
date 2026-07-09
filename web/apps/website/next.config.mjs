@@ -17,13 +17,13 @@ const nextConfig = {
     // /get-started is retired — route users straight to the dashboard sign-up.
     {
       source: '/get-started',
-      destination: DASHBOARD_URL,
+      destination: `${DASHBOARD_URL}/auth/sign-up`,
       permanent: true,
       locale: false,
     },
     {
       source: '/:locale(pt-br)/get-started',
-      destination: DASHBOARD_URL,
+      destination: `${DASHBOARD_URL}/auth/sign-up`,
       permanent: true,
       locale: false,
     },
