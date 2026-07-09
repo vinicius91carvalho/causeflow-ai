@@ -236,3 +236,42 @@ The previous fix (formatting `feature_list.json` inline) regressed when the harn
 - Test files updated: Clerk mocks replaced with session-auth mocks; topbar tests rewritten for new implementation.
 - Build succeeds; dev server serves sign-in (200), sign-up (200); unauthenticated `/dashboard` redirects to `/auth/sign-in` (307).
 - All 165 dashboard test files pass (1080 tests).
+
+---
+
+## QA Verification (WI-AC-019) — re-verification after redirect_url fix
+
+**Run by:** qa-agent on 2026-07-09
+
+**Verdict:** `implementation=true, qa=true`
+
+**Checks performed (all PASS):**
+
+1. **Non-public route redirect (Step 1)** — PASS
+   - `GET /dashboard` → 307 `/auth/sign-in?redirect_url=%2Fdashboard`
+
+2. **Protected routes (Step 2)** — PASS
+   - `GET /dashboard/analyses` → 307 `/auth/sign-in?redirect_url=%2Fdashboard%2Fanalyses`
+   - `GET /dashboard/billing` → 307 `/auth/sign-in?redirect_url=%2Fdashboard%2Fbilling`
+   - `GET /dashboard/integrations` → 307 `/auth/sign-in?redirect_url=%2Fdashboard%2Fintegrations`
+   - `GET /dashboard/settings` → 307 `/auth/sign-in?redirect_url=%2Fdashboard%2Fsettings`
+   - `GET /dashboard/team` → 307 `/auth/sign-in?redirect_url=%2Fdashboard%2Fteam`
+   - `GET /dashboard/audit` → 307 `/auth/sign-in?redirect_url=%2Fdashboard%2Faudit`
+
+3. **Public API routes (Step 3)** — PASS
+   - `GET /api/health` → 200 `{"status":"ok",...}` (no auth required)
+   - `GET /api/health/detailed` → 200 `{"status":"degraded",...}` (no auth required)
+   - `GET /auth/sign-in` → 200 (public page, no redirect)
+   - `GET /auth/sign-up` → 200 (public page, no redirect)
+   - `GET /accept-invitation` → 200 (public page, no redirect)
+
+4. **redirect_url preservation** — PASS
+   - POST sign-in reads `redirect_url` from URL query params and redirects there
+   - Fallback to `/dashboard` when `redirect_url` is absent
+
+**Defects found:** None.
+
+**Notes:**
+- The middleware uses local JWT auth (`__session` cookie, `decodeJwtPayload`) instead of `clerkMiddleware()` from `@clerk/nextjs/server`. This is expected per AC-046 (open-source-local-runtime migration) and documented in the project spec as preserving AC-019's redirect behavior. All behavioral requirements pass.
+- `/api/billing/webhook` does not exist as a route in the OSS build — Stripe webhook handling was removed per AC-048/AC-052. The middleware correctly passes all `/api/*` routes through without auth (returns 404 for non-existent routes). This is not a defect.
+- Tested against production build (`next build` + `next start` on port 5181) after dev server exhibited compilation hangs on API route first access. Production build compiled cleanly (15.5s) and all routes responded correctly.
