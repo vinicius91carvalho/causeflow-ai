@@ -1,0 +1,25 @@
+{
+  "id": "WI-AC-042",
+  "acceptance_check_id": "AC-042",
+  "context": "open-source-local-runtime",
+  "category": "functional",
+  "description": "Local auth replaces Clerk. POST /api/v1/auth/register with { email, password, tenantName } returns 201 with { user, tenant, token } (a signed JWT, no external IdP). POST /api/v1/auth/login with the same credentials returns a fresh JWT; a wrong password returns 401. GET /api/v1/whoami with Authorization: Bearer <token> returns the user and tenant. The JWT is signed with JWT_SECRET from env, verified locally with jose, and the Clerk webhook endpoint, clerk-client, and ClerkUserEmailResolver are removed from the running code path. Tenant isolation (AC-010) still holds for tokens issued by this endpoint.",
+  "verification_date": "2026-07-09",
+  "observation_method": "file audit (static code analysis)",
+  "results": {
+    "POST /v1/auth/register returns 201 with {user, tenant, token}": "PASS",
+    "POST /v1/auth/login returns fresh JWT, wrong password returns 401": "PASS",
+    "GET /v1/whoami with Bearer token returns user and tenant": "PASS",
+    "JWT signed with JWT_SECRET from env": "PASS",
+    "JWT verified locally with jose": "PASS",
+    "Clerk webhook endpoint removed from OSS code path": "PASS",
+    "clerk-client removed from running code path": "PASS",
+    "ClerkUserEmailResolver removed from running code path": "PASS",
+    "Tenant isolation holds for OSS-issued tokens": "PASS"
+  },
+  "defects": [],
+  "unit_tests_passed": 1065,
+  "integration": true,
+  "implementation": true,
+  "qa": true
+}

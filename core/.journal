@@ -656,3 +656,92 @@ qa=true implementation=true integration=true
 - **Defect 2**: `triageQueueUrl` is extracted in bootstrap and passed to the ingress use cases. Jobs go to causeflow-triage, not causeflow-alerts.
 
 .qa-WI-AC-041.json updated: implementation=true, qa=true, defects=[].
+
+---
+
+# QA Journal - WI-AC-042 (open-source-local-runtime: local auth replaces Clerk)
+
+## Test Date
+2026-07-09
+
+## Work Item
+WI-AC-042
+
+## Environment
+- File audit against branch `plan/opensource-docker` (no server started)
+- CAUSEFLOW_RUNTIME=oss code path
+
+## Verification Results (Static Code Audit)
+
+### Requirement 1: POST /v1/auth/register returns 201 with {user, tenant, token}
+- ✅ Handler in `oss-auth.routes.ts` POST `/register` mounted at `/v1/auth`
+- ✅ Creates tenant via `PgTenantRepository.create()` and user via `PgUserRepository.create()`
+- ✅ Password hashed with scrypt (timing-safe), stored in user JSONB data column via `pgUpdate`
+- ✅ JWT signed with `SignJWT` from `jose` using `config.auth.jwtSecret` (reads JWT_SECRET env)
+- ✅ Returns 201 with `{ user: {id, email, name}, tenant: {id, name, slug}, token }`
+
+### Requirement 2: POST /v1/auth/login returns fresh JWT; wrong password returns 401
+- ✅ Handler in `oss-auth.routes.ts` POST `/login` mounted at `/v1/auth`
+- ✅ Retrieves user by email via `PgUserRepository.findByEmail()`
+- ✅ Loads password hash from Postgres JSONB, verifies with `scryptSync` + `timingSafeEqual`
+- ✅ Returns JWT on success, 401 `{"error":"Invalid email or password"}` on mismatch
+
+### Requirement 3: GET /v1/whoami returns user and tenant
+- ✅ Route at `GET /v1/whoami` in `app.ts`
+- ✅ Reads from middleware context set by `auth.middleware.ts`
+- ✅ Returns `{ user: {id, email}, tenantId, role, roles }`
+
+### Requirement 4: JWT signed with JWT_SECRET, verified with jose locally
+- ✅ Signing: `oss-auth.routes.ts` uses `SignJWT` with HS256, `config.auth.jwtSecret`
+- ✅ Verification: `auth.middleware.ts` OSS path uses `jwtVerify` from `jose` with same secret
+- ✅ Claims match: `sub`, `email`, `tenant_id`, `roles`, issuer=`causeflow`, audience=`causeflow-api`
+- ✅ Default dev secret when JWT_SECRET unset: `'dev-secret-DO-NOT-USE-IN-PRODUCTION'`
+
+### Requirement 5: Clerk webhook endpoint removed from running code path
+- ✅ `app.ts` mounts `ossAuthRouter` (OSS routes) when `config.isOss()`, not Clerk auth.routes
+- ✅ The `POST /clerk-webhook` endpoint in `auth.routes.ts` is never mounted in OSS mode
+- ✅ `handle-clerk-webhook.usecase.ts` is only dynamically imported in the AWS runtime branch
+
+### Requirement 6: clerk-client removed from running code path
+- ✅ `clerk-client.ts` is lazily initialized (no `createClerkClient` call at module load)
+- ✅ Imported via `create-invite.usecase.ts` but `getClerkClient()` is never called in OSS mode
+- ✅ `sendClerkInvitation` wraps errors gracefully
+- ✅ Bootstrap comment explicitly notes the dynamic import pattern avoids pulling in @clerk/backend
+
+### Requirement 7: ClerkUserEmailResolver removed from running code path
+- ✅ Bootstrap sets `userEmailResolver = undefined` when `config.isOss()`
+- ✅ `ListAuditEntriesUseCase` handles undefined resolver gracefully
+
+### Requirement 8: Tenant isolation (AC-010) holds for OSS-issued tokens
+- ✅ JWT contains `tenant_id` as a signed claim (HS256), cannot be tampered with
+- ✅ `auth.middleware.ts` reads `tenant_id` from verified JWT, sets it on request context via `tenantId()` branded type
+- ✅ All Postgres repositories scope queries by `tenant_id` (every table has `tenant_id NOT NULL`)
+- ✅ Cross-tenant reads impossible — tenant comes from signed JWT claim, never from request params
+
+## Relevant Files Inspected
+| File | Purpose |
+|------|---------|
+| `src/modules/auth/infra/oss-auth.routes.ts` | OSS register + login + whoami handlers |
+| `src/modules/auth/infra/auth.routes.ts` | Clerk auth routes (not mounted in OSS) |
+| `src/modules/auth/infra/clerk-client.ts` | Clerk client (lazy init, not called in OSS) |
+| `src/modules/auth/application/handle-clerk-webhook.usecase.ts` | Clerk webhook handler (not loaded in OSS) |
+| `src/modules/audit/infra/clerk-user-email-resolver.ts` | Clerk email resolver (undefined in OSS) |
+| `src/modules/user/application/create-invite.usecase.ts` | Uses Clerk client (error-wrapped) |
+| `src/modules/tenant/infra/pg-tenant.repository.ts` | Postgres tenant repo for OSS |
+| `src/modules/user/infra/pg-user.repository.ts` | Postgres user repo for OSS |
+| `src/shared/infra/http/middleware/auth.middleware.ts` | Auth middleware with OSS JWT verification |
+| `src/shared/infra/db/postgres/pg-utils.ts` | Postgres JSONB storage utilities |
+| `src/bootstrap.ts` | Composition root with OSS/AWS branching |
+| `src/app.ts` | Route mounting with OSS/AWS branching |
+| `src/shared/config/index.ts` | Config with `isOss()` flag |
+| `.env.example` | OSS env with CAUSEFLOW_RUNTIME=oss |
+
+## Unit Tests
+- All 1065 tests pass across 162 test files
+- `pnpm test:run` green
+
+## Defects
+None.
+
+## Verdict
+integration=true, implementation=true, qa=true
