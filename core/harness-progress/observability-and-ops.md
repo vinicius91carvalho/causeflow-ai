@@ -333,3 +333,10 @@ Code paths verified by unit tests and real HTTP boundary assertions.
 - PreviousPhase: integration_qa
 - Attempt: 3
 - NextAction: integration-qa
+
+## 2026-07-09T10:52:38.624Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
