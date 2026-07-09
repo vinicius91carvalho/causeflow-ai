@@ -313,3 +313,10 @@ BullMQ on Redis replaces SQS in the open-source local runtime (AC-041).
 - Outcome: integration could not complete
 - Defects: merge conflict could not be resolved
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T20:01:01.657Z — Resumed
+
+- WorkItem: WI-AC-041
+- PreviousPhase: blocked
+- Attempt: 2
+- NextAction: user-guidance
