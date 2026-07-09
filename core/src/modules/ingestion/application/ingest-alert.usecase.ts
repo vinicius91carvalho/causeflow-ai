@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { incidentId } from '../../../shared/domain/value-objects.js';
 import { ValidationError } from '../../../shared/domain/errors.js';
+import { config } from '../../../shared/config/index.js';
 import type { IIncidentRepository } from '../domain/incident.repository.js';
 import type { Incident } from '../domain/incident.entity.js';
 import type { IEventBus } from '../../../shared/domain/events.js';
@@ -29,7 +30,15 @@ export class IngestAlertUseCase {
         const normalized = parser.parse(rawAlert);
         const existing = await this.repo.findBySourceAlert(tenantId, normalized.source, normalized.externalId);
         if (existing) {
-            return existing;
+            // Check dedup window: if the existing incident's createdAt is within
+            // the configured window, return it (no duplicate). Otherwise treat
+            // this as a new occurrence and create a fresh incident.
+            const createdAt = new Date(existing.createdAt).getTime();
+            const now = Date.now();
+            const windowMs = config.ingestion.dedupWindowMinutes * 60 * 1000;
+            if (now - createdAt < windowMs) {
+                return existing;
+            }
         }
         const now = new Date().toISOString();
         const incident = {

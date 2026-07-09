@@ -502,3 +502,59 @@ integration=true, implementation=true, qa=true
 - Unit tests with mocked LLM client confirm the success path works correctly
 - The system handles the API failure gracefully and allows retries
 
+
+---
+
+# QA Journal - WI-AC-015 (ingestion: Datadog dedup)
+
+## Test Date
+2026-07-09
+
+## Work Item
+WI-AC-015
+
+## Environment
+- API running on PORT=5175 against ministack (DynamoDB, SQS, KMS at localhost:4566)
+- AWS mode (CAUSEFLOW_RUNTIME=aws), mock AWS credentials
+- Infrastructure: Docker compose with ministack, redis
+- Webhook secret: dev-webhook-secret
+- DEDUP_WINDOW_MINUTES=60
+- Billing account with investigationsLimit=-1 for test tenant tenant123
+
+## Verification Results
+
+### Part 1: First POST creates a new incident
+- POST /v1/webhooks/tenant123/datadog with valid HMAC → 202 Accepted
+- Response includes new incidentId: d21e70ca-9d97-403b-930f-1f4504b10c2d
+- ✅ PASS
+
+### Part 2: Second identical POST within dedup window returns same incident ID
+- POST same payload again → 202 Accepted
+- Returns SAME incidentId: d21e70ca-9d97-403b-930f-1f4504b10c2d
+- ✅ PASS — dedup works, no duplicate incident created
+
+### Part 3: No duplicate triage message for deduped POST
+- Alerts SQS queue contains exactly 2 messages:
+  - One for the first incident (d21e70ca)
+  - One for the third incident (2234281d, after window expiry)
+- No message for the second POST (which was deduped)
+- ✅ PASS
+
+### Part 4: Third POST after dedup window expiry creates a new incident
+- Set existing incident's createdAt to 2 hours in the past (simulating window expiry)
+- POST same payload → 202 Accepted
+- Returns DIFFERENT incidentId: 2234281d-2f12-417f-8e32-457e97e9cb67
+- DynamoDB query confirms 2 distinct incidents for same sourceAlertId=alert-001
+- ✅ PASS
+
+## Summary
+All 4 boundary conditions of AC-015 pass:
+1. First identical POST → new incident created
+2. Second identical POST within dedup window → existing incident returned (dedup)
+3. No duplicate triage SQS message for the deduped POST
+4. Third identical POST after window expiry → new incident created
+
+Working tree: clean (no tracked files changed)
+
+## Verdict
+qa=true implementation=true integration=true
