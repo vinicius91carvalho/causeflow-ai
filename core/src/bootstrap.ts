@@ -260,6 +260,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // in the AWS runtime (AC-041). These are passed to use cases that need to
   // enqueue work downstream (triage → investigation → remediation).
   const alertQueueUrl = config.isOss() ? config.bullmq.alertQueueName : config.sqs.alertQueueUrl;
+  const triageQueueUrl = config.isOss() ? config.bullmq.triageQueueName : config.sqs.alertQueueUrl;
   const investigationQueueUrl = config.isOss() ? config.bullmq.investigationQueueName : config.sqs.investigationQueueUrl;
   const remediationQueueUrl = config.isOss() ? config.bullmq.remediationQueueName : config.sqs.remediationQueueUrl;
 
@@ -389,7 +390,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       eventBus,
       providerRegistry,
       messageQueue,
-      alertQueueUrl,
+      triageQueueUrl,
     ),
     reserveInvestigation,
     sentryIntegrationRepo,
@@ -399,7 +400,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     incidentRepo,
     eventBus,
     messageQueue,
-    alertQueueUrl,
+    triageQueueUrl,
     investigationQueueUrl,
   );
 
@@ -1240,23 +1241,39 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     const { createBullWorker } = await import('./shared/infra/queue/bull-mq-consumer.js');
 
     // Triage worker — picks up triage jobs from causeflow-triage
-    if (config.anthropic.apiKey) {
+    // Workers are started unconditionally in OSS mode (no API key required).
+    // If the LLM is unavailable, the fallback assigns low severity.
+    {
       const triageWorker = createBullWorker({
         queueName: config.bullmq.triageQueueName,
         handler: async (body) => {
-          await triageIncident.execute(
-            tenantId(body['tenantId'] as string),
-            incidentId(body['incidentId'] as string),
-          );
+          try {
+            await triageIncident.execute(
+              tenantId(body['tenantId'] as string),
+              incidentId(body['incidentId'] as string),
+            );
+          } catch (err) {
+            logger.warn({ err, incidentId: body['incidentId'] }, 'Triage worker fallback — marking incident as triaged with default severity');
+            const tid = tenantId(body['tenantId'] as string);
+            const iid = incidentId(body['incidentId'] as string);
+            try {
+              await incidentRepo.update(tid, iid, {
+                severity: 'low',
+                status: 'triaging',
+                updatedAt: new Date().toISOString(),
+              });
+            } catch (updateErr) {
+              logger.error({ err: updateErr, incidentId: body['incidentId'] }, 'Triage worker fallback update failed');
+            }
+          }
         },
       });
       consumers.push({ stop: triageWorker.stop });
-    } else {
-      logger.warn('[STARTUP] BullMQ triage worker disabled — ANTHROPIC_API_KEY not set');
     }
 
     // Investigation worker — picks up investigation jobs from causeflow-investigation
-    if (config.anthropic.apiKey) {
+    // Started unconditionally in OSS mode.
+    {
       const investigationWorker = createBullWorker({
         queueName: config.bullmq.investigationQueueName,
         handler: async (body) => {
@@ -1268,8 +1285,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
         },
       });
       consumers.push({ stop: investigationWorker.stop });
-    } else {
-      logger.warn('[STARTUP] BullMQ investigation worker disabled — ANTHROPIC_API_KEY not set');
     }
 
     // Remediation worker — picks up remediation jobs from causeflow-remediation
@@ -1285,23 +1300,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       },
     });
     consumers.push({ stop: remediationWorker.stop });
-
-    // Alert queue worker (causeflow-alerts) — picks up triage jobs that came via webhook
-    if (config.anthropic.apiKey) {
-      const alertWorker = createBullWorker({
-        queueName: config.bullmq.alertQueueName,
-        concurrency: 3,
-        handler: async (body) => {
-          await triageIncident.execute(
-            tenantId(body['tenantId'] as string),
-            incidentId(body['incidentId'] as string),
-          );
-        },
-      });
-      consumers.push({ stop: alertWorker.stop });
-    } else {
-      logger.warn('[STARTUP] BullMQ alert worker disabled — ANTHROPIC_API_KEY not set');
-    }
   } else {
     // AWS runtime: SQS consumers
     startQueueConsumer('triage', alertQueueUrl, true, (url) => {
