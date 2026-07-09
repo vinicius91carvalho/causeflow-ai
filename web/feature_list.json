@@ -1286,7 +1286,7 @@
     ],
     "verify_first": false,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 0
   },
