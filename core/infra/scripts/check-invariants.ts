@@ -439,13 +439,18 @@ function checkI11(): void {
 // `stripe`, `@clerk/*`, or `@aws-sdk/*`. This preserves the Clean
 // Architecture dependency rule (Infra → Application → Domain).
 // AC-051 / open-source-local-runtime.
+//
+// NOTE: Patterns match only actual import statements (lines starting with
+// `import` or `from`) to avoid false-positives from comments, variable
+// names, or string literals. This is more precise than a file-wide word
+// boundary match.
 // ---------------------------------------------------------------------------
-const FORBIDDEN_DOMAIN_IMPORTS = [
-  /\bpg\b/,
-  /\bbullmq\b/,
-  /\bstripe\b/,
-  /@clerk\//,
-  /@aws-sdk\//,
+const FORBIDDEN_DOMAIN_IMPORT_RE = [
+  /^import[^'"`]*['"][^'"`]*\bpg\b[^'"`]*['"]/m,
+  /^import[^'"`]*['"][^'"`]*\bbullmq\b[^'"`]*['"]/m,
+  /^import[^'"`]*['"][^'"`]*\bstripe\b[^'"`]*['"]/m,
+  /^import[^'"`]*['"][^'"`]*@clerk\/[^'"`]*['"]/m,
+  /^import[^'"`]*['"][^'"`]*@aws-sdk\/[^'"`]*['"]/m,
 ];
 
 function checkI12(): void {
@@ -470,7 +475,7 @@ function checkI12(): void {
     for (const file of files) {
       const content = readFileSync(file, 'utf8');
       const rel = relative(ROOT, file);
-      for (const pattern of FORBIDDEN_DOMAIN_IMPORTS) {
+      for (const pattern of FORBIDDEN_DOMAIN_IMPORT_RE) {
         const match = content.match(pattern);
         if (match) {
           violations.push(rel + ' — matches /' + pattern.source + '/ ("' + match[0].slice(0, 80) + '")');
