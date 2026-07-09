@@ -478,7 +478,7 @@
     "implementation": true,
     "qa": true,
     "integration": false,
-    "retries": 1
+    "retries": 0
   },
   {
     "id": "WI-AC-022",

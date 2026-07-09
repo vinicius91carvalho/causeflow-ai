@@ -423,3 +423,103 @@ fatal: Unable to write index.
 - WorkItem: WI-AC-021
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T12:10:58.493Z — Resumed
+
+- WorkItem: WI-AC-021
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-09T12:10:58.575Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-09T12:16:50.521Z — Resumed
+
+- WorkItem: WI-AC-021
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-09T12:16:50.574Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-09T12:18:35.101Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: integration could not complete
+- Defects: Checkpoint was not integrated into main
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T17:18:00.047Z — Explicit Resume
+
+- WorkItem: WI-AC-021
+- Outcome: user authorized a new Attempt cycle
+- Guidance: WI-AC-021 checkpoint-not-integrated is a transient merge/integration race in the shared monorepo git root. No index.lock present now. Retry integration.
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T17:22:27.349Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-09T17:50:27.176Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: integration could not complete
+- Defects: merge conflict could not be resolved
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T19:56:54.493Z — Explicit Resume
+
+- WorkItem: WI-AC-021
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Protocol WI-AC-021 checkpoint-not-integrated. Retry merge/integration; no index.lock on shared monorepo.
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T20:00:33.227Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-09T20:00:46.616Z — Resumed
+
+- WorkItem: WI-AC-021
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T20:00:46.647Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-09T20:00:56.465Z — Resumed
+
+- WorkItem: WI-AC-021
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T20:00:56.486Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
