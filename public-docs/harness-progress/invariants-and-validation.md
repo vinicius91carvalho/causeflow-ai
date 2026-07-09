@@ -920,3 +920,10 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Outcome: PASS; qa=true implementation=true
 - Evidence: required scaffold present; 133 `.mdx` files found; `mint dev --port 5180` served all 125 `docs.json` navigation pages with HTTP 200 and no MDX compile markers; exact AC-024 grep returned zero matches; `./check-invariants.sh --quiet` passed; `INVARIANTS.md` documents the AWS/internal identifier boundary.
 - Defects: none
+
+## 2026-07-09T12:49:05.404Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
