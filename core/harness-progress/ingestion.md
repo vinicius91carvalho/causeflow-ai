@@ -505,3 +505,10 @@ DynamoDB, 1-minute dedup window).
   - Window-expiry (60-min) cannot be exercised in real time without shorter window;
     code logic in ingest-alert.usecase.ts is correct
   - Zero-diff checkpoint: no code changes needed
+
+## 2026-07-09T22:45:42.383Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-015
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
