@@ -1037,3 +1037,10 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Result: `GET /api-reference/errors-and-pagination` returned HTTP 200 with rendered HTML containing the JSON error envelope, status-code table entries 400/401/403/404/409/429/500/503, and cursor-pagination fields `items`, `cursor`, and `count`.
 - Evidence: `.harness-evidence/api-reference/WI-AC-015-2026-07-09-errors-and-pagination-rendered.html`
 - Verdict: implementation=true; no MDX/content changes.
+
+## 2026-07-09T12:16:50.562Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
