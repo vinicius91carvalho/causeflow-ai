@@ -184,3 +184,10 @@ The implementation in `src/drivers/mongodb/mongo-driver.ts` correctly infers sch
 - RepairPlan: Work Item WI-AC-032 (MongoDB describe_table schema inference) — QA passed. All 14 assertion groups verified at the real WebSocket boundary against the running docker-compose stack (relay + control-plane-stub + relay-mongo). The implementation correctly infers schema from up to 10 sample documents via `collection.find().limit(10).toArray()`, walks documents to record `typeof value` per field, merges those rows with `indexes()` output (tagged `_type: 'index'` with `name` and `key`), and returns correct response metadata (`rowCount`, `executionTimeMs`, `masked`, `maskedFieldCount`). Repository scaffold required by project_specs.xml is present (src/drivers/mongodb/mongo-driver.ts, src/drivers/driver.port.ts, etc.). The only noted quirk — control-plane-stub port 5191 instead of 3000 due to port conflict on the host — is an infrastructure artifact, not a product defect.; No code changes needed — AC-032 is correctly implemented and verified.; No scaffold repairs needed — all required module files (driver port, Mongo driver, Postgres driver, config schemas, audit logger, policy engine, masking engine, health reporter, WS transport) exist and match the project_specs.xml structure.; If the port conflict (3000 occupied) recurs during subsequent work items, consider pinning the control-plane-stub to a dedicated port in docker-compose.yml or documenting the WORKDIR-specific PORT convention.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-032-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-09T12:49:19.961Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-032
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
