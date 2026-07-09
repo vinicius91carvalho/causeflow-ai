@@ -1228,3 +1228,11 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-015-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T13:05:00Z — VERIFY-FIRST PASS
+
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Boundary: Mintlify dev preview on port 5170 plus source invariant grep.
+- Result: `grep -rE 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx' .` returned zero matches; all 84 `api-reference` MDX routes returned HTTP 200 and rendered HTML contained no forbidden host matches.
+- Verdict: implementation=true; no MDX/content changes.
