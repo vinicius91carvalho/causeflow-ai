@@ -1378,3 +1378,19 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Defects: Session terminated, killing shell... ...killed.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-018-1-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-09T18:44:27.362Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-018
+- DefectReport: Session terminated, killing shell... ...killed.
+- RepairPlan: Integration QA for WI-AC-018 was killed before producing any output. The evidence log (233 bytes) contains only the route header and 'Session terminated, killing shell... ...killed.' — no grep results, no curl output, no QA verdict. The content itself is already correct: the outbound events catalog (api-reference/webhooks/outbound-events.mdx) has exactly 20 dot-namespaced events (confirmed via grep count), the introduction page states '20 real-time events' and 'All 20 EventBus events' (no stale '21'), and the fix was pre-applied in commit 4a67cce. The repository contains all required scaffold artifacts (133 MDX, 14 top-level dirs, docs.json, .mintignore, feature_list.json).; Kill any orphaned mint dev processes not needed for the current phase (the port 5180 zombie is already dead; ensure no residual servers accumulate between work items).; Re-run the integration QA for WI-AC-018 against the live mint dev server on port 5170 — the content is correct and should pass with zero defects.; Add a harness-level cleanup step between work-item phases to kill leftover dev server processes (pkill -f 'mint.*dev') to prevent resource accumulation across consecutive work items.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-018-1-integration_qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-09T18:46:27.255Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-018
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

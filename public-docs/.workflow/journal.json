@@ -1,0 +1,17 @@
+{
+  "work_items": [
+    {
+      "id": "WI-AC-018",
+      "context": "api-reference",
+      "acceptance_checks": ["AC-018"],
+      "status": "verified",
+      "implementation": true,
+      "result": "All AC-018 checks pass via black-box testing on port 5170. Outbound events catalog renders exactly 20 distinct dot-namespaced events (confirmed via curl and grep of rendered HTML). Introduction page states '20 real-time events' and 'All 20 EventBus' (no stale '21'). Zero stale '21 event' references across all MDX files. No code changes needed — pre-applied fix already correct. Zero-diff checkpoint.",
+      "verified_at": "2026-07-09T00:00:00Z",
+      "verified_by": "coding-agent",
+      "qa": true,
+      "qa_at": "2026-07-09T00:00:00Z",
+      "qa_by": "qa-agent"
+    }
+  ]
+}
