@@ -216,3 +216,12 @@
 - Evidence: required scaffold present; `grep -E 'Not a (proxy|tunnel)|replication agent' relay/overview.mdx` returned all three anti-pattern lines; `mint dev --port 5170` served `/relay/overview` with HTTP 200 and rendered the "What the Relay is not" section with `Not a proxy`, `Not a tunnel`, and `Not a replication agent`.
 - Defects: None
 - NextAction: next Ready Work Item
+
+## 2026-07-09T00:38:51.589Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- AcceptanceChecks: AC-021
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/relay-documentation/WI-AC-021-1-integration_qa.log
+- NextAction: next Ready Work Item
