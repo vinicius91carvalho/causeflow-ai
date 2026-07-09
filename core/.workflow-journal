@@ -1,5 +1,18 @@
 # Workflow Journal
 
+## WI-AC-044: AES-256-GCM token encryption replaces KMS
+
+### Status: IMPLEMENTED & VERIFIED (QA PASS)
+
+### Changes
+- Verified `AesGcmTokenEncryption` class implements AES-256-GCM using Node's `node:crypto`
+- Verified key loaded from `TOKEN_ENCRYPTION_KEY` env var with SHA-256 passphrase derivation
+- Verified `bootstrap.ts` wires `AesGcmTokenEncryption` (no KMS code in running path)
+- Verified 11 unit tests pass: round-trip (OAuth token, long token, empty string, distinct IV), tamper detection (ciphertext byte, IV byte, tag byte, replaced ciphertext), env-derived key, passphrase derivation, no-key-throws
+- Verified `KmsTokenEncryption` class removed from codebase
+- Verified KMS alias provisioning removed from `infra/localstack/init/01-create-resources.sh`
+- Verified `infra/localstack/init/01-create-resources.sh` has zero KMS references
+
 ## WI-AC-042: Local auth replaces Clerk
 
 ### Status: IMPLEMENTED & VERIFIED (QA PASS)
