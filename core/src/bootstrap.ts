@@ -46,9 +46,7 @@ import type { LLMClient } from './shared/application/ports/llm-client.port.js';
 import { GetCloudIntegrationUseCase } from './modules/integration/application/get-cloud-integration.usecase.js';
 import { StubCredentialVendor } from './shared/infra/credentials/stub-credential-vendor.js';
 import type { CredentialVendor } from './shared/application/ports/credential-vendor.port.js';
-import { SQSMessageQueue } from './shared/infra/queue/sqs-message-queue.js';
-import { DynamoEvidenceRepository } from './modules/triage/infra/dynamo-evidence.repository.js';
-import { DynamoToolCallRepository } from './modules/triage/infra/dynamo-tool-call.repository.js';
+// SQSMessageQueue, DynamoEvidenceRepository, DynamoToolCallRepository — dynamically imported in AWS runtime block
 import { TriageIncidentUseCase } from './modules/triage/application/triage-incident.usecase.js';
 import { InvestigateIncidentUseCase } from './modules/investigation/application/investigate-incident.usecase.js';
 import { DispatchInvestigationUseCase } from './modules/investigation/application/dispatch-investigation.usecase.js';
@@ -120,7 +118,7 @@ import { RecordInvestigationFeedbackUseCase } from './modules/investigation/appl
 import { ChatInvestigationUseCase } from './modules/investigation/application/chat-investigation.usecase.js';
 import { InvestigationRegistry } from './modules/investigation/application/investigation-registry.js';
 import { RecordRemediationFeedbackUseCase } from './modules/remediation/application/record-remediation-feedback.usecase.js';
-import { DynamoRunbookRegistryRepository } from './shared/infra/db/dynamo-runbook-registry.repository.js';
+// DynamoRunbookRegistryRepository — dynamically imported in AWS runtime block
 import { HindsightAgentMemory } from './shared/infra/memory/hindsight-agent-memory.js';
 import { ComposioToolProvider } from './shared/infra/integrations/composio-tool-provider.js';
 import { ComposioTriggerService } from './shared/infra/integrations/composio-trigger-service.js';
@@ -179,8 +177,8 @@ import { UpdateSettingsUseCase } from './modules/user/application/update-setting
 import { GetUserByEmailUseCase } from './modules/user/application/get-user-by-email.usecase.js';
 import { AcceptInviteUseCase } from './modules/user/application/accept-invite.usecase.js';
 import { ChatUseCase } from './modules/memory/application/chat.usecase.js';
-import { DynamoChatHistoryRepository } from './modules/memory/infra/dynamo-chat-history.repository.js';
-import { DynamoCodeKnowledgeRepository } from './modules/code-intelligence/infra/dynamo-code-knowledge.repository.js';
+// DynamoChatHistoryRepository — dynamically imported in AWS runtime block
+// DynamoCodeKnowledgeRepository — dynamically imported in AWS runtime block
 import { StaticCodeRepository } from './shared/infra/code-repository/static-code-repository.js';
 import { IndexRepositoryUseCase } from './modules/code-intelligence/application/index-repository.usecase.js';
 import { SuggestRepoMappingUseCase } from './modules/code-intelligence/application/suggest-repo-mapping.usecase.js';
@@ -254,7 +252,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // The AWS runtime keeps the original SQSMessageQueue.
   const messageQueue = config.isOss()
     ? new (await import('./shared/infra/queue/bull-mq-message-queue.js')).BullMqMessageQueue()
-    : new SQSMessageQueue();
+    : new (await import('./shared/infra/queue/sqs-message-queue.js')).SQSMessageQueue();
 
   // Resolve queue identifiers — BullMQ queue names in OSS runtime, SQS URLs
   // in the AWS runtime (AC-041). These are passed to use cases that need to
@@ -303,17 +301,23 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     tenantRepo = new PgTenantRepository();
     auditRepo = new PgAuditRepository();
     incidentRepo = new PgIncidentRepository();
-    evidenceRepo = new DynamoEvidenceRepository(); // TODO: implement PgEvidenceRepository
-    toolCallRepo = new DynamoToolCallRepository(); // TODO: implement PgToolCallRepository
-    codeKnowledgeRepo = new DynamoCodeKnowledgeRepository(); // TODO: implement PgCodeKnowledgeRepository
+    const { PgEvidenceRepository } = await import('./modules/triage/infra/pg-evidence.repository.js');
+    const { PgToolCallRepository } = await import('./modules/triage/infra/pg-tool-call.repository.js');
+    const { PgCodeKnowledgeRepository } = await import('./modules/code-intelligence/infra/pg-code-knowledge.repository.js');
+    evidenceRepo = new PgEvidenceRepository();
+    toolCallRepo = new PgToolCallRepository();
+    codeKnowledgeRepo = new PgCodeKnowledgeRepository();
   } else {
     logger.info('Bootstrap: using DynamoDB repositories (AWS runtime)');
     tenantRepo = new DynamoTenantRepository();
     auditRepo = new DynamoAuditRepository();
     incidentRepo = new DynamoIncidentRepository();
-    evidenceRepo = new DynamoEvidenceRepository();
-    toolCallRepo = new DynamoToolCallRepository();
-    codeKnowledgeRepo = new DynamoCodeKnowledgeRepository();
+    const { DynamoEvidenceRepository: DynamoEvidenceRepo } = await import('./modules/triage/infra/dynamo-evidence.repository.js');
+    const { DynamoToolCallRepository: DynamoToolCallRepo } = await import('./modules/triage/infra/dynamo-tool-call.repository.js');
+    const { DynamoCodeKnowledgeRepository: DynamoCodeKnowledgeRepo } = await import('./modules/code-intelligence/infra/dynamo-code-knowledge.repository.js');
+    evidenceRepo = new DynamoEvidenceRepo();
+    toolCallRepo = new DynamoToolCallRepo();
+    codeKnowledgeRepo = new DynamoCodeKnowledgeRepo();
   }
 
   // Observability Stack
@@ -448,7 +452,15 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     : undefined;
 
   // Core dependencies (Hindsight + RunbookRegistry)
-  const runbookRegistry = new DynamoRunbookRegistryRepository();
+  // AC-040: PgRunbookRegistryRepository in OSS runtime, Dynamo in AWS runtime
+  const runbookRegistry = await (async () => {
+    if (config.isOss()) {
+      const { PgRunbookRegistryRepository } = await import('./shared/infra/db/pg-runbook-registry.repository.js');
+      return new PgRunbookRegistryRepository();
+    }
+    const { DynamoRunbookRegistryRepository } = await import('./shared/infra/db/dynamo-runbook-registry.repository.js');
+    return new DynamoRunbookRegistryRepository();
+  })();
   const agentMemory = new HindsightAgentMemory({ baseUrl: config.hindsight.baseUrl, apiKey: config.hindsight.apiKey });
 
   // Investigation Use Cases
@@ -538,7 +550,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const chatInvestigation = new ChatInvestigationUseCase({
     incidentRepo, evidenceRepo, agentRunner, agentMemory,
     llmClient: llmClient as unknown as LLMClient,
-    chatHistory: new DynamoChatHistoryRepository(),
+    chatHistory: config.isOss()
+      ? new (await import('./modules/memory/infra/pg-chat-history.repository.js')).PgChatHistoryRepository()
+      : new (await import('./modules/memory/infra/dynamo-chat-history.repository.js')).DynamoChatHistoryRepository(),
     addInvestigationContext,
     dispatchFollowupWorker: config.ecs.cluster ? async (iid, tid) => {
       const { dispatchInvestigation } = await import('./shared/infra/ecs/task-dispatcher.js');
@@ -726,7 +740,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   };
 
   // Memory Use Cases (Hindsight-backed)
-  const chatHistoryRepo = new DynamoChatHistoryRepository();
+  const chatHistoryRepo = config.isOss()
+    ? new (await import('./modules/memory/infra/pg-chat-history.repository.js')).PgChatHistoryRepository()
+    : new (await import('./modules/memory/infra/dynamo-chat-history.repository.js')).DynamoChatHistoryRepository();
   const memoryUseCases: MemoryUseCases = {
     agentMemory,
     runbookRegistry,
