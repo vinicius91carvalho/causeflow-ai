@@ -70,3 +70,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: verification passed — no code defects
 - Evidence: Real-boundary test started a local WS control plane on port 5191 and ran the relay via tsx pointing at a live MongoDB (relay-mongo from docker-compose). Sent JSON-RPC execute request with operation: 'list_tables' for the MongoDB resource. Response returned correctly: rows array with { name, type } per collection (verified with test collections test_orders and test_products, each correctly mapped as { name: 'test_orders', type: 'collection' }). Empty DB returned empty rows array — also valid. No code changes needed; all previous failures were infrastructure/config issues (402/429 API credit exhaustion, unrecognized provider keys), not relay code defects.
 - NextAction: complete — implementation=true
+
+## 2026-07-09T12:22:12.366Z — Resumed
+
+- WorkItem: WI-AC-031
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
