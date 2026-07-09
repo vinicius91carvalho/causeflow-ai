@@ -1383,3 +1383,10 @@ not in a certifiable state, even though the AC-039 boundary itself passes.
 - Outcome: coding agent failed three times
 - Defects: Error: Model "nvidia-nim/deepseek-ai/deepseek-v4-pro" not found. Use --list-models to see available models.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T01:56:47.599Z — Explicit Resume
+
+- WorkItem: WI-AC-040
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Verified stale: this run's context already advanced to WI-AC-040 (per .git/harness-runs/core--open-source-local-runtime.json currentFeatureId), and the AC-039 boundary check itself passed cleanly on first attempt (docker compose, /health, forbidden-outbound scan, lint-invariants, typecheck all green). The 'integration could not complete' was a git ref race: a concurrent planner process (pid 1011321) ran git reset on main between this worker's git log and git commit, clobbering the ref out from under it -- tree content was fully preserved and recoverable via reflog, no content defect. Retry against current main tip; do not perform any git ref surgery. If the same 'parent commit changed under us' signature recurs, escalate to pause (not abort) -- that would indicate a live concurrency bug in the shared-main locking, not an AC-039 spec problem.
+- NextAction: Coding Attempt 1
