@@ -236,3 +236,40 @@ Use /login to log into a provider via OAuth or API key. See:
 - PreviousPhase: coding
 - Attempt: 2
 - NextAction: coding
+
+## 2026-07-09T12:58:00.000Z — Re-verified AC-030 (all checks pass)
+
+- WorkItem: WI-AC-030
+- Implementation: true
+- Boundary verification results (all pass against live API at :3099):
+  - POST /install (authed) returns 200 + authUrl + state ✅
+  - POST /install (no auth) returns 401 ✅
+  - POST /events url_verification returns challenge (200) ✅
+  - POST /events valid signature returns 200 ✅
+  - POST /events tampered body returns 401 ✅
+  - POST /events stale timestamp returns 401 ✅
+  - POST /events missing headers returns 401 ✅
+  - GET /config returns {"connected":false} (200) ✅
+  - PATCH /config handles slack-not-connected gracefully ✅
+  - DELETE /oauth handles slack-not-connected gracefully ✅
+  - POST /test handles slack-not-configured gracefully ✅
+- Changes: none (zero-diff re-verification, working tree clean)
+- Verdict: implementation=true
+
+## 2026-07-09T12:59:00.000Z — QA defect found
+
+- WorkItem: WI-AC-030
+- Attempt: 2
+- Phase: independent-qa
+- QA Verdict: FAIL
+- Acceptance criteria pass:
+  - POST /install (authed) returns 200 + authUrl + state ✅
+  - POST /events url_verification returns challenge (200) ✅
+  - POST /events valid signature returns 200 (reply pipeline exists) ✅
+  - POST /events tampered body returns 401 ✅
+  - Bot token KMS-encrypted via ConnectSlackUseCase ✅
+  - All 21 slack unit tests pass ✅
+- Defect found:
+  - **Critical: SlackNotificationSubscriber does not decrypt encrypted accessToken** — The subscriber (src/shared/application/subscribers/slack-notification.subscriber.ts, lines 69, 135, 205) passes `slackConfig.accessToken` directly to `new WebClient()`, but ConnectSlackUseCase now stores the token as `JSON.stringify(encryptedPayload)` (KMS envelope encryption). The WebClient receives an encrypted JSON string instead of a valid Slack token, causing all automated notifications (incident created, investigation started/completed) to fail silently. Tests use plaintext `'xoxb-test-token'` stub and don't catch this. Fix: inject TokenEncryption into SlackNotificationSubscriber and decrypt before use.
+- Evidence: source review confirms subscriber uses raw accessToken; tests mock with plaintext token; e45c27b fix committed encryption without updating subscriber
+- NextAction: Repair Plan
