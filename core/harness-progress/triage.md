@@ -125,3 +125,11 @@ oss-dev-jwt-secret-change-me for tenant 32996af2-19ba-4d58-ba76-1cb7da13d540.
 - WorkItem: WI-AC-017
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T18:39:56.554Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-017
+- Defects: Session terminated, killing shell... ...killed.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/triage/WI-AC-017-2-integration_qa.log
+- NextAction: Repair Plan
