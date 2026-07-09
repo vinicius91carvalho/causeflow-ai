@@ -103,3 +103,12 @@ Conditions verified:
 - WorkItem: WI-AC-029
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T02:15:22.944Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-029
+- AcceptanceChecks: AC-029
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/postgres-sql-parser/WI-AC-029-1-integration_qa.log
+- NextAction: next Ready Work Item
