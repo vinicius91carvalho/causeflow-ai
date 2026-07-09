@@ -59,3 +59,17 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: This block was a real bug in my own config, not a code defect: the previous pi adapter switch referenced a made-up provider key (nvidia-nim) in models.json that pi never actually recognized -- it needed either an explicit 'api' field (unrecognized custom provider) or credentials in ~/.pi/agent/auth.json under pi's real native provider key, neither of which was done. Fixed: credentials now in auth.json under the correct native keys (nvidia, opencode-go), and the adapter points at opencode-go/deepseek-v4-flash (much higher throughput ceiling, verified working end-to-end via a direct pi invocation before this retry). Retry.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T02:30:00.000Z — Verify-first passed (zero-diff checkpoint)
+
+- WorkItem: WI-AC-028
+- AcceptanceChecks: AC-028
+- Outcome: passed at real boundary
+- Result: implementation=true (zero-diff checkpoint, no code changes)
+
+Exercised every AC-028 condition against the existing compiled `dist/drivers/postgres/pg-query-parser.js` module at a real external boundary. No code changes needed — the existing `src/drivers/postgres/pg-query-parser.ts` already satisfies every invariant.
+
+Conditions verified:
+- `validateQuery("SELECT 1")` returns `{ valid: true }` ✓
+- `validateQuery("INSERT INTO t VALUES (1)")` returns `{ valid: false, reason: 'Only SELECT statements are allowed, got INSERT' }` ✓ (parser-succeeds path; also accepts the `INSERT statements are not allowed` textual fallback if the parser throws)
+- `validateQuery("SELECT 1; DROP TABLE users")` returns `{ valid: false, reason: 'Multi-statement queries are not allowed' }` ✓
