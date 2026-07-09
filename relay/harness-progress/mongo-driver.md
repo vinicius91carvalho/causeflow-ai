@@ -1,5 +1,30 @@
 # mongo-driver workflow journal
 
+## 2026-07-09T23:45:00Z — Verify-first passed (WI-AC-034)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+Ran `test-ac034.mjs` against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo).
+All 4 scenarios pass at real WebSocket + MongoDB boundary:
+
+- **Test 1**: Pipeline `[{ $match }, { $out }]` rejected with error -32602, `Validation failed: Aggregation stage $out is not allowed` ✓
+- **Test 2**: Pipeline `[{ $match }, { $merge }]` rejected with error -32602, `Validation failed: Aggregation stage $merge is not allowed` ✓
+- **Test 3**: Pipeline `[{ $match }, { $group }]` accepted, `result.rows = []` ✓
+- **Test 4**: Pipeline `[{ $match }, { $sort }, { $project }, { $limit }]` accepted, `result.rows = []` ✓
+
+Additional verification:
+- `npx tsc --noEmit` clean
+- `npm run build` clean
+- Git worktree clean (no uncommitted changes)
+- `BLOCKED_AGGREGATION_STAGES = ['$out', '$merge']` at `src/drivers/mongodb/mongo-driver.ts:13`
+- `validate()` walks pipeline and rejects banned stages
+
+No source code changes needed — implementation already conforms to AC-034 spec.
+
+- NextAction: complete — implementation=true
+
+
+
 ## 2026-07-08T12:59:41.296Z — Blocked Work Item
 
 - Attempt: 1/3
