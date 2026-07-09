@@ -123,6 +123,24 @@
       }
     },
     {
+      "id": "WI-AC-023",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T03:30:00Z",
+      "details": "Integrated Verification pass for AC-023 (postgres-driver describe_table). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + postgres + mongo). Sent JSON-RPC 2.0 execute request with operation:'describe_table', params:{tableName:'orders'} against resource 'order-pg' through the stub to the relay. Response rows: 5 column rows (id, status, customer, total_cents, created_at from information_schema.columns) + 1 constraint row (orders_pkey PRIMARY KEY on id tagged _type:'constraint' from information_schema.table_constraints). rowCount=6 matches rows.length. Column rows have column_name, data_type, is_nullable, column_default, character_maximum_length. Constraint rows have constraint_name, constraint_type, column_name, _type:'constraint'. The query runs information_schema.columns + information_schema.table_constraints scoped to public schema and orders table. No defects.",
+      "checks": {
+        "response_has_rows_array": "passed",
+        "column_rows_present": "passed",
+        "constraint_rows_tagged_with_type": "passed",
+        "expected_columns_found": "passed",
+        "primary_key_constraint_found": "passed",
+        "rowCount_matches_rows_length": "passed",
+        "executionTimeMs_present": "passed",
+        "masked_is_false": "passed"
+      }
+    },
+    {
       "id": "WI-AC-029",
       "qa": true,
       "implementation": true,
