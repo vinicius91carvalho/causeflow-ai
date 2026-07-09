@@ -32,7 +32,7 @@
     "context": "foundation",
     "category": "functional",
     "title": "Bounded-context re-export pattern: src/app/ holds thin re-exports only",
-    "description": "Every page under `apps/website/src/app/[locale]/*/page.tsx` and `apps/dashboard/src/app/[locale]/*/page.tsx` is a 1-3 line thin re-export that delegates to a context's `presentation/pages/<name>-page.tsx`. Every API route under `apps/dashboard/src/app/api/*/route.ts` is a thin re-export that delegates to a context's `api/<name>-handler.ts`. Cross-context imports use direct deep paths \u2014 context `index.ts` barrel files do not exist in either app. `next.config.mjs` for both apps configures `optimizePackageImports` for Clerk, lucide-react, and every internal `@causeflow/*` package.",
+    "description": "Every page under `apps/website/src/app/[locale]/*/page.tsx` and `apps/dashboard/src/app/[locale]/*/page.tsx` is a 1-3 line thin re-export that delegates to a context's `presentation/pages/<name>-page.tsx`. Every API route under `apps/dashboard/src/app/api/*/route.ts` is a thin re-export that delegates to a context's `api/<name>-handler.ts`. Cross-context imports use direct deep paths — context `index.ts` barrel files do not exist in either app. `next.config.mjs` for both apps configures `optimizePackageImports` for Clerk, lucide-react, and every internal `@causeflow/*` package.",
     "steps": [
       "Step 1: Pick 3 random `apps/website/src/app/[locale]/**/page.tsx` files and confirm each is a single-line re-export.",
       "Step 2: Pick 3 random `apps/dashboard/src/app/api/**/route.ts` files and confirm each is a single-line re-export.",
@@ -56,7 +56,7 @@
     "context": "dashboard",
     "category": "functional",
     "title": "9 bounded contexts (investigation, approvals, audit, identity, onboarding, team, integrations, billing, settings) + shared with DDD layers",
-    "description": "The dashboard's `src/contexts/` directory contains 10 bounded contexts: investigation, approvals, audit, identity, onboarding, team, integrations, billing, settings, shared. Each context has a DDD layout with only the layers it needs (domain, application, infrastructure, presentation, api). The website's `src/contexts/` directory contains 3 contexts: marketing, legal, shell. `index.ts` barrel files do not exist in any context in either app \u2014 all imports use direct deep paths. Per-context i18n files live at `infrastructure/i18n/{en,pt-br}.json` and are deep-merged by `apps/{website,dashboard}/src/lib/i18n/compose.ts`.",
+    "description": "The dashboard's `src/contexts/` directory contains 10 bounded contexts: investigation, approvals, audit, identity, onboarding, team, integrations, billing, settings, shared. Each context has a DDD layout with only the layers it needs (domain, application, infrastructure, presentation, api). The website's `src/contexts/` directory contains 3 contexts: marketing, legal, shell. `index.ts` barrel files do not exist in any context in either app — all imports use direct deep paths. Per-context i18n files live at `infrastructure/i18n/{en,pt-br}.json` and are deep-merged by `apps/{website,dashboard}/src/lib/i18n/compose.ts`.",
     "steps": [
       "Step 1: `ls apps/dashboard/src/contexts/` shows investigation, approvals, audit, identity, onboarding, team, integrations, billing, settings, shared (10 contexts).",
       "Step 2: `ls apps/website/src/contexts/` shows marketing, legal, shell (3 contexts).",
@@ -84,7 +84,7 @@
     "context": "foundation",
     "category": "ops",
     "title": "SST v3: each app's sst.config.ts provisions CloudFront + WAF + Lambda + Route 53 + ACM",
-    "description": "`apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` each provision: a CloudFront distribution, a WAF WebACL (must live in `us-east-1` for CloudFront association \u2014 a separate `us-east-1` provider is created in each config), the Next.js compute (S3 + CloudFront + Lambda@Edge via OpenNext for the website; Lambda@Edge for the dashboard), Route 53 records, and an ACM certificate. The dashboard's config also provisions CloudWatch alarms for Lambda error rate and 5xx rate in production only. Domains: causeflow.ai / staging.causeflow.ai (website), dashboard.causeflow.ai / dashboard-staging.causeflow.ai (dashboard). The hosted zone is `Z01593322DGY9I94W9S7C`.",
+    "description": "`apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` each provision: a CloudFront distribution, a WAF WebACL (must live in `us-east-1` for CloudFront association — a separate `us-east-1` provider is created in each config), the Next.js compute (S3 + CloudFront + Lambda@Edge via OpenNext for the website; Lambda@Edge for the dashboard), Route 53 records, and an ACM certificate. The dashboard's config also provisions CloudWatch alarms for Lambda error rate and 5xx rate in production only. Domains: causeflow.ai / staging.causeflow.ai (website), dashboard.causeflow.ai / dashboard-staging.causeflow.ai (dashboard). The hosted zone is `Z01593322DGY9I94W9S7C`.",
     "steps": [
       "Step 1: Confirm `apps/website/sst.config.ts` and `apps/dashboard/sst.config.ts` each declare a `us-east-1` provider for the WAF WebACL.",
       "Step 2: Confirm both configs use `sst.aws.Nextjs` for the website and dashboard deployments.",
@@ -132,7 +132,7 @@
     "context": "dashboard",
     "category": "functional",
     "title": "AWS SDK v3 limited to tenant-provisioning-fallback.ts and delete-user.ts CLI",
-    "description": "The dashboard's runtime never holds AWS credentials. `@aws-sdk/client-dynamodb` and `@aws-sdk/lib-dynamodb` are imported by exactly two paths: (1) `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts`, which writes a `Tenant` and `BillingAccount` directly to the Core API's DynamoDB table when the Core's `POST /v1/tenants` returns 403 \u2014 a documented temporary workaround; (2) `apps/dashboard/scripts/delete-user.ts`, which scans and batch-deletes every item in the Core's DynamoDB table scoped to a tenantId, and also cancels the corresponding Stripe customer. The provisioning fallback is called from `complete-profile-handler.ts` on a 403 from Core; the CLI script is gated by an explicit `--yes` flag. `AWS_REGION` and AWS credentials are read from the local shell env (or IAM role in prod) and are not part of the dashboard's runtime env.",
+    "description": "The dashboard's runtime never holds AWS credentials. `@aws-sdk/client-dynamodb` and `@aws-sdk/lib-dynamodb` are imported by exactly two paths: (1) `apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts`, which writes a `Tenant` and `BillingAccount` directly to the Core API's DynamoDB table when the Core's `POST /v1/tenants` returns 403 — a documented temporary workaround; (2) `apps/dashboard/scripts/delete-user.ts`, which scans and batch-deletes every item in the Core's DynamoDB table scoped to a tenantId, and also cancels the corresponding Stripe customer. The provisioning fallback is called from `complete-profile-handler.ts` on a 403 from Core; the CLI script is gated by an explicit `--yes` flag. `AWS_REGION` and AWS credentials are read from the local shell env (or IAM role in prod) and are not part of the dashboard's runtime env.",
     "steps": [
       "Step 1: `grep -r \"@aws-sdk\" apps/dashboard/src` returns only the tenant-provisioning-fallback import.",
       "Step 2: `grep -r \"@aws-sdk\" apps/dashboard/scripts` returns the delete-user import.",
@@ -156,7 +156,7 @@
     "context": "foundation",
     "category": "functional",
     "title": "Loops.so declared as planned integration; CSP allow-list but no current consumer in this codebase",
-    "description": "Loops.so is declared as a planned email-marketing integration in docs and the `apps/website/.env.example` (LOOPS_API_KEY). There is no `apps/website/src/app/api/notify` route in the current codebase \u2014 `apps/website/src/app` has no `/api` directory. The only runtime reference to Loops is the `Content-Security-Policy` `connect-src` allow-list at `apps/website/next.config.mjs` (https://app.loops.so). The integration has no current consumer; it is a planned integration only.",
+    "description": "Loops.so is declared as a planned email-marketing integration in docs and the `apps/website/.env.example` (LOOPS_API_KEY). There is no `apps/website/src/app/api/notify` route in the current codebase — `apps/website/src/app` has no `/api` directory. The only runtime reference to Loops is the `Content-Security-Policy` `connect-src` allow-list at `apps/website/next.config.mjs` (https://app.loops.so). The integration has no current consumer; it is a planned integration only.",
     "steps": [
       "Step 1: Confirm `apps/website/src/app` has no `/api` subdirectory.",
       "Step 2: Confirm `apps/website/next.config.mjs` lists `https://app.loops.so` in CSP connect-src.",
@@ -288,7 +288,7 @@
     "context": "foundation",
     "category": "foundation",
     "title": "pnpm exec playwright test tests/ runs the E2E suite against chromium",
-    "description": "`pnpm exec playwright test tests/` runs the Playwright 1.58.2 E2E suite under `tests/` (audit.spec.ts and visual-functional.spec.ts) against chromium only, 4 viewports (mobile 375\u00d7812, tablet 768\u00d71024, desktop 1280\u00d7800, wide 1440\u00d7900), workers 3, fully parallel, with trace/video/screenshot disabled. The `playwright.config.ts` webServer block auto-starts the production server on port 3000 if not already running. The suite blocks analytics + tracker domains (google-analytics.com, *.clarity.ms, Intercom) in test.beforeEach.",
+    "description": "`pnpm exec playwright test tests/` runs the Playwright 1.58.2 E2E suite under `tests/` (audit.spec.ts and visual-functional.spec.ts) against chromium only, 4 viewports (mobile 375×812, tablet 768×1024, desktop 1280×800, wide 1440×900), workers 3, fully parallel, with trace/video/screenshot disabled. The `playwright.config.ts` webServer block auto-starts the production server on port 3000 if not already running. The suite blocks analytics + tracker domains (google-analytics.com, *.clarity.ms, Intercom) in test.beforeEach.",
     "steps": [
       "Step 1: Run `pnpm exec playwright test tests/` and confirm exit 0 with a green report.",
       "Step 2: Confirm `playwright.config.ts` configures chromium-only, 3 workers, fullyParallel, 4 projects for the 4 viewports.",
@@ -495,7 +495,7 @@
     ],
     "context": "website",
     "category": "functional",
-    "title": "Website middleware pipeline: crawler detection \u2192 staging auth \u2192 geo-redirect \u2192 Accept-Language \u2192 NEXT_LOCALE cookie",
+    "title": "Website middleware pipeline: crawler detection → staging auth → geo-redirect → Accept-Language → NEXT_LOCALE cookie",
     "description": "`apps/website/src/middleware.ts` runs the documented pipeline. (1) Crawler detection: 45+ bot user-agent substrings (googlebot, bingbot, slurp, ...) never get redirected. A request with `User-Agent: Googlebot/2.1` to `/` returns 200 with the canonical EN URL, not a geo-redirect. (2) Staging auth: when `NEXT_PUBLIC_DEPLOYMENT_STAGE === 'staging'`, requests without the staging cookie get bounced to `/staging-auth`. (3) Geo-redirect: a request with `Cloudfront-Viewer-Country: BR` to `/` returns a 307 to `/pt-br/`. (4) Accept-Language: a request with `Accept-Language: pt-BR,en;q=0.8` to `/` returns 307 to `/pt-br/`. (5) NEXT_LOCALE cookie: a request with the cookie set to `pt-br` to `/` returns 307 to `/pt-br/`, and the cookie carries `Max-Age=31536000`.",
     "steps": [
       "Step 1: Send `curl -H 'User-Agent: Googlebot/2.1' http://localhost:3000/` and confirm the response is 200, not a redirect.",
@@ -548,7 +548,7 @@
     "context": "website",
     "category": "functional",
     "title": "/get-started is retired; redirects to the dashboard's real sign-up URL per stage",
-    "description": "`/get-started` is no longer a valid route in the website. `next.config.mjs` declares a `redirects()` block that maps `/get-started` (and `/pt-br/get-started`) to the per-stage sign-up URL: production \u2192 `https://dashboard.causeflow.ai/auth/sign-up`; staging \u2192 `https://dashboard-staging.causeflow.ai/auth/sign-up`. `curl -I http://localhost:3000/get-started` returns 307/308 with a Location header pointing at the dashboard sign-up URL.",
+    "description": "`/get-started` is no longer a valid route in the website. `next.config.mjs` declares a `redirects()` block that maps `/get-started` (and `/pt-br/get-started`) to the per-stage sign-up URL: production → `https://dashboard.causeflow.ai/auth/sign-up`; staging → `https://dashboard-staging.causeflow.ai/auth/sign-up`. `curl -I http://localhost:3000/get-started` returns 307/308 with a Location header pointing at the dashboard sign-up URL.",
     "steps": [
       "Step 1: `curl -I http://localhost:3000/get-started` and confirm a 307/308 with Location set to the dashboard sign-up URL.",
       "Step 2: Confirm the same redirect applies to `/pt-br/get-started`.",
@@ -599,11 +599,11 @@
     ],
     "context": "website",
     "category": "functional",
-    "title": "robots.ts (noindex on staging) + sitemap.ts (XML for all routes\u00d7locales) + structured-data.tsx (JSON-LD)",
-    "description": "`apps/website/src/app/robots.ts` returns a robots response that disallows crawling (`Disallow: /`) when `NEXT_PUBLIC_DEPLOYMENT_STAGE === 'staging'` and allows it otherwise. `apps/website/src/app/sitemap.ts` generates an XML sitemap that includes every route \u00d7 locale (EN + PT-BR). `apps/website/src/contexts/marketing/presentation/components/sections/structured-data.tsx` injects JSON-LD blocks (Organization, Website, FAQPage) into the home and product pages \u2014 `curl http://localhost:3000/` includes `<script type=\"application/ld+json\">` payloads for each schema.",
+    "title": "robots.ts (noindex on staging) + sitemap.ts (XML for all routes×locales) + structured-data.tsx (JSON-LD)",
+    "description": "`apps/website/src/app/robots.ts` returns a robots response that disallows crawling (`Disallow: /`) when `NEXT_PUBLIC_DEPLOYMENT_STAGE === 'staging'` and allows it otherwise. `apps/website/src/app/sitemap.ts` generates an XML sitemap that includes every route × locale (EN + PT-BR). `apps/website/src/contexts/marketing/presentation/components/sections/structured-data.tsx` injects JSON-LD blocks (Organization, Website, FAQPage) into the home and product pages — `curl http://localhost:3000/` includes `<script type=\"application/ld+json\">` payloads for each schema.",
     "steps": [
       "Step 1: `curl http://localhost:3000/robots.txt` and confirm a `Disallow: /` line on staging or an empty/allow on production.",
-      "Step 2: `curl http://localhost:3000/sitemap.xml` and confirm an XML payload with one entry per route \u00d7 locale.",
+      "Step 2: `curl http://localhost:3000/sitemap.xml` and confirm an XML payload with one entry per route × locale.",
       "Step 3: `curl http://localhost:3000/` and grep for `<script type=\"application/ld+json\">`; confirm the payload parses to JSON with `@type: Organization`."
     ],
     "depends_on": [
@@ -755,7 +755,7 @@
     ],
     "context": "dashboard",
     "category": "functional",
-    "title": "Dashboard middleware pipeline: staging auth \u2192 public bypass \u2192 clerkMiddleware \u2192 profile guard \u2192 i18n",
+    "title": "Dashboard middleware pipeline: staging auth → public bypass → clerkMiddleware → profile guard → i18n",
     "description": "`apps/dashboard/src/middleware.ts` runs the documented pipeline in order. The `isPublicRoute` matcher includes `/api/health(.*)`, `/api/ingestion/webhook`, `/auth/(.*)`, `/accept-invitation(.*)`, `/beta-waitlist(.*)`, `/waitlist(.*)`, `/create-organization(.*)`, and the locale-prefixed equivalents. A request to a non-public route with a valid Clerk session but no Clerk organization is redirected to `/create-organization`. Authenticated requests that have an org reach the page; unauthenticated requests are redirected to `/auth/sign-in` before the org check runs.",
     "steps": [
       "Step 1: Confirm `isPublicRoute` in `apps/dashboard/src/middleware.ts` matches every documented public route + its locale-prefixed variant.",
@@ -781,7 +781,7 @@
     ],
     "context": "dashboard",
     "category": "security",
-    "title": "RBAC: 9 permissions \u00d7 2 roles enforced at API level (withAuth) and component level (RoleGuard)",
+    "title": "RBAC: 9 permissions × 2 roles enforced at API level (withAuth) and component level (RoleGuard)",
     "description": "`apps/dashboard/src/contexts/identity/domain/rbac/permissions.ts` defines 9 permissions (MANAGE_TEAM, MANAGE_INTEGRATIONS, MANAGE_BILLING, MANAGE_SETTINGS, SUBMIT_ANALYSIS, VIEW_ANALYSES, VIEW_INTEGRATIONS, VIEW_BILLING, VIEW_SETTINGS, VIEW_TEAM) and the `hasPermission(role, permission)` predicate. The role map assigns all 9 to `admin` and 5 read/submit permissions to `member`. `withAuth(handler, { adminOnly: true })` returns 403 for member; `withAuth(handler, { requiredRole: 'admin' })` does the same. `RoleGuard` + the `usePermission` hook hide admin-only UI controls for members. `requirePermission(role, perm)` throws server-side before the handler runs.",
     "steps": [
       "Step 1: Confirm `permissions.ts` defines exactly 9 permission constants and the admin / member permission arrays match the documented sets.",
@@ -860,7 +860,7 @@
     "context": "dashboard",
     "category": "security",
     "title": "withAuth: 401/403/429 enforcement at the API boundary",
-    "description": "`apps/dashboard/src/lib/api/with-auth.ts#withAuth(handler, options)` enforces, in order: (1) Clerk auth \u2014 no session returns 401 with `{ error: 'Authentication required.' }`; (2) tenant validation \u2014 no `orgId` returns 403 with `{ error: 'Profile setup required. Please complete onboarding.' }` (skippable with `allowNoOrg: true`); (3) role guard \u2014 `adminOnly: true` or `requiredRole: 'admin'` returns 403 with `{ error: 'Admin access required.' }` / `{ error: 'Insufficient role for this action.' }`; (4) per-user rate limit \u2014 60 req/min default, 429 with `Retry-After` header on excess; (5) staff-only \u2014 `staffOnly: true` returns 403 for non-staff emails. The wrapped handler runs only after all guards pass.",
+    "description": "`apps/dashboard/src/lib/api/with-auth.ts#withAuth(handler, options)` enforces, in order: (1) Clerk auth — no session returns 401 with `{ error: 'Authentication required.' }`; (2) tenant validation — no `orgId` returns 403 with `{ error: 'Profile setup required. Please complete onboarding.' }` (skippable with `allowNoOrg: true`); (3) role guard — `adminOnly: true` or `requiredRole: 'admin'` returns 403 with `{ error: 'Admin access required.' }` / `{ error: 'Insufficient role for this action.' }`; (4) per-user rate limit — 60 req/min default, 429 with `Retry-After` header on excess; (5) staff-only — `staffOnly: true` returns 403 for non-staff emails. The wrapped handler runs only after all guards pass.",
     "steps": [
       "Step 1: With no session, `GET /api/settings` returns 401 with the documented body.",
       "Step 2: With a session but no `orgId`, `GET /api/settings` returns 403 with the documented body.",
@@ -886,7 +886,7 @@
     "context": "dashboard",
     "category": "security",
     "title": "BFF pattern: Clerk session JWT forwarded as Bearer to Core API; never exposed to the browser",
-    "description": "`apps/dashboard/src/lib/api/get-backend-token.ts` reads the Clerk session JWT server-side via `getToken()` from `@clerk/nextjs/server`. The dashboard's `http-api-client.ts` attaches it as `Authorization: Bearer <jwt>` on every Core API request. The browser never sees the token: the React tree only renders Core API responses, never the JWT itself. The HTTP client also strips auth headers from any error that reaches `Sentry.captureException`. The dashboard's `.env.local` lists no `STRIPE_SECRET_KEY` or any other Core-side secret \u2014 only `NEXT_PUBLIC_*` and `CLERK_SECRET_KEY`.",
+    "description": "`apps/dashboard/src/lib/api/get-backend-token.ts` reads the Clerk session JWT server-side via `getToken()` from `@clerk/nextjs/server`. The dashboard's `http-api-client.ts` attaches it as `Authorization: Bearer <jwt>` on every Core API request. The browser never sees the token: the React tree only renders Core API responses, never the JWT itself. The HTTP client also strips auth headers from any error that reaches `Sentry.captureException`. The dashboard's `.env.local` lists no `STRIPE_SECRET_KEY` or any other Core-side secret — only `NEXT_PUBLIC_*` and `CLERK_SECRET_KEY`.",
     "steps": [
       "Step 1: Sign in, then in the browser dev tools confirm no `__session` JWT, no `Authorization` header on outbound requests, and no JWT in any rendered HTML.",
       "Step 2: Tail the dev log while loading a dashboard page and confirm every Core API call carries `Authorization: Bearer ...` server-side.",
@@ -911,8 +911,8 @@
     ],
     "context": "dashboard",
     "category": "functional",
-    "title": "Plan gate: active only when status \u2208 {active, trialing} AND currentPeriodEnd is set",
-    "description": "`apps/dashboard/src/contexts/billing/application/plan-status.ts#fetchPlanStatus` returns `hasActivePlan: true` only when the Core API's `GET /v1/billing/subscription` returns `status \u2208 {active, trialing}` AND `currentPeriodEnd` is set. Fresh tenants whose Core subscription has `status='active'` but no `currentPeriodEnd` (because they have never completed Stripe checkout) return `hasActivePlan: false`, which the dashboard layout uses to render the plan gate. The Core API default of `status='active'` for never-subscribed tenants is overridden by the missing `currentPeriodEnd` check.",
+    "title": "Plan gate: active only when status ∈ {active, trialing} AND currentPeriodEnd is set",
+    "description": "`apps/dashboard/src/contexts/billing/application/plan-status.ts#fetchPlanStatus` returns `hasActivePlan: true` only when the Core API's `GET /v1/billing/subscription` returns `status ∈ {active, trialing}` AND `currentPeriodEnd` is set. Fresh tenants whose Core subscription has `status='active'` but no `currentPeriodEnd` (because they have never completed Stripe checkout) return `hasActivePlan: false`, which the dashboard layout uses to render the plan gate. The Core API default of `status='active'` for never-subscribed tenants is overridden by the missing `currentPeriodEnd` check.",
     "steps": [
       "Step 1: As a fresh tenant with Core returning `{ status: 'active', currentPeriodEnd: null }`, `getPlanStatus()` returns `hasActivePlan: false` and the dashboard layout renders the plan gate.",
       "Step 2: As a paid tenant with Core returning `{ status: 'active', currentPeriodEnd: '2026-12-31T...' }`, `getPlanStatus()` returns `hasActivePlan: true` and the dashboard renders.",
@@ -963,11 +963,11 @@
     ],
     "context": "dashboard",
     "category": "functional",
-    "title": "lvh.me loopback rewrite: localhost \u2192 lvh.me for Stripe callbacks to bypass the Core WAF SSRF filter",
-    "description": "Core's WAF rejects Stripe callbacks containing `localhost` or `127.0.0.1` in the URL. The dashboard's checkout and portal handlers rewrite the URL host from `localhost` to `lvh.me` (a public-DNS loopback alias) before calling Core. The dev middleware (`apps/dashboard/src/middleware.ts`) does the inverse rewrite \u2014 a request with hostname `lvh.me` in dev is redirected to `localhost` so the Clerk session cookie is honored. Production uses the real dashboard hostname; the rewrite is dev-only.",
+    "title": "lvh.me loopback rewrite: localhost → lvh.me for Stripe callbacks to bypass the Core WAF SSRF filter",
+    "description": "Core's WAF rejects Stripe callbacks containing `localhost` or `127.0.0.1` in the URL. The dashboard's checkout and portal handlers rewrite the URL host from `localhost` to `lvh.me` (a public-DNS loopback alias) before calling Core. The dev middleware (`apps/dashboard/src/middleware.ts`) does the inverse rewrite — a request with hostname `lvh.me` in dev is redirected to `localhost` so the Clerk session cookie is honored. Production uses the real dashboard hostname; the rewrite is dev-only.",
     "steps": [
-      "Step 1: Confirm `apps/dashboard/src/middleware.ts` redirects `lvh.me` \u2192 `localhost` in dev.",
-      "Step 2: Confirm the checkout / portal handlers rewrite `localhost` \u2192 `lvh.me` before calling Core.",
+      "Step 1: Confirm `apps/dashboard/src/middleware.ts` redirects `lvh.me` → `localhost` in dev.",
+      "Step 2: Confirm the checkout / portal handlers rewrite `localhost` → `lvh.me` before calling Core.",
       "Step 3: In dev, set `CORE_API_URL=http://api.lvh.me:9999` (or similar) and confirm the handlers' outbound URL uses the lvh.me host."
     ],
     "depends_on": [
@@ -990,7 +990,7 @@
     "context": "dashboard",
     "category": "security",
     "title": "Stripe: dashboard React SDK loads PaymentElement with the publishable key; secret key never in dashboard runtime env",
-    "description": "The dashboard's runtime Stripe dependency is `@stripe/react-stripe-js` (Elements, PaymentElement, useStripe, useElements) and `@stripe/stripe-js` (loadStripe). The billing modal at `apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx` mounts a Stripe PaymentElement when `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is set. Checkout, portal, and webhook handlers do not call Stripe directly \u2014 they call the Core API, which owns `STRIPE_SECRET_KEY` and webhook signature verification. The dashboard's `.env.local` and SST env injection list no `STRIPE_SECRET_KEY`. The Stripe Server SDK (`stripe@20.x`) is installed as a dev dependency for the CLI scripts only.",
+    "description": "The dashboard's runtime Stripe dependency is `@stripe/react-stripe-js` (Elements, PaymentElement, useStripe, useElements) and `@stripe/stripe-js` (loadStripe). The billing modal at `apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx` mounts a Stripe PaymentElement when `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is set. Checkout, portal, and webhook handlers do not call Stripe directly — they call the Core API, which owns `STRIPE_SECRET_KEY` and webhook signature verification. The dashboard's `.env.local` and SST env injection list no `STRIPE_SECRET_KEY`. The Stripe Server SDK (`stripe@20.x`) is installed as a dev dependency for the CLI scripts only.",
     "steps": [
       "Step 1: With `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` set, open the billing modal and confirm the Stripe PaymentElement iframe loads.",
       "Step 2: Confirm `STRIPE_SECRET_KEY` is NOT listed in `apps/dashboard/.env.example` and NOT referenced in `apps/dashboard/sst.config.ts` env injection.",
@@ -1016,7 +1016,7 @@
     "context": "dashboard",
     "category": "functional",
     "title": "Composio: 15 integration types; image allow-list for logos.composio.dev and backend.composio.dev",
-    "description": "The dashboard's integration catalog uses Composio for third-party integration metadata. The 15 integration types (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) are surfaced as connection cards in the dashboard. The `Integration` domain type carries a `composioTriggerId` field. The dashboard's `next.config.mjs` `images.remotePatterns` allow-lists `logos.composio.dev` and `backend.composio.dev`. No Composio API key lives in this repo \u2014 the actual Composio connection flow runs on the Core API; the dashboard only references Composio's metadata endpoints via the image allow-list.",
+    "description": "The dashboard's integration catalog uses Composio for third-party integration metadata. The 15 integration types (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) are surfaced as connection cards in the dashboard. The `Integration` domain type carries a `composioTriggerId` field. The dashboard's `next.config.mjs` `images.remotePatterns` allow-lists `logos.composio.dev` and `backend.composio.dev`. No Composio API key lives in this repo — the actual Composio connection flow runs on the Core API; the dashboard only references Composio's metadata endpoints via the image allow-list.",
     "steps": [
       "Step 1: Confirm `apps/dashboard/next.config.mjs` lists `logos.composio.dev` and `backend.composio.dev` in `images.remotePatterns`.",
       "Step 2: Confirm `apps/dashboard/src/contexts/integrations/domain/types.ts` defines the 15 integration types and the `Integration` type carries `composioTriggerId`.",
@@ -1041,8 +1041,8 @@
     ],
     "context": "testing_and_observability",
     "category": "testing",
-    "title": "Playwright 4 viewports (mobile 375\u00d7812, tablet 768\u00d71024, desktop 1280\u00d7800, wide 1440\u00d7900) chromium only, workers 3, fully parallel, trace/video/screenshot off",
-    "description": "`playwright.config.ts` configures Playwright 1.58.2 with `projects:` for 4 viewports (mobile 375\u00d7812, tablet 768\u00d71024, desktop 1280\u00d7800, wide 1440\u00d7900), chromium only, `workers: 3`, `fullyParallel: true`, and `trace: 'off'`, `video: 'off'`, `screenshot: 'off'`. The `webServer` block auto-starts the production server on port 3000 if not already running. The configuration is the single Playwright config for both apps' E2E coverage.",
+    "title": "Playwright 4 viewports (mobile 375×812, tablet 768×1024, desktop 1280×800, wide 1440×900) chromium only, workers 3, fully parallel, trace/video/screenshot off",
+    "description": "`playwright.config.ts` configures Playwright 1.58.2 with `projects:` for 4 viewports (mobile 375×812, tablet 768×1024, desktop 1280×800, wide 1440×900), chromium only, `workers: 3`, `fullyParallel: true`, and `trace: 'off'`, `video: 'off'`, `screenshot: 'off'`. The `webServer` block auto-starts the production server on port 3000 if not already running. The configuration is the single Playwright config for both apps' E2E coverage.",
     "steps": [
       "Step 1: Confirm `playwright.config.ts` declares 4 projects with the documented viewport sizes and chromium-only.",
       "Step 2: Confirm `workers: 3`, `fullyParallel: true`, `trace: 'off'`, `video: 'off'`, `screenshot: 'off'`.",
@@ -1093,8 +1093,8 @@
     ],
     "context": "testing_and_observability",
     "category": "testing",
-    "title": "Verification protocol for dashboard changes: local Playwright with mock client \u2192 staging login via env.staging creds \u2192 aws logs tail /ecs/causeflow-staging-api --follow",
-    "description": "`apps/dashboard/CLAUDE.md` documents the verification protocol: (1) local sanity via `pnpm --filter dashboard dev` (port 3001) with blank `CORE_API_URL` (mock client), Playwright codegen or scripted specs, screenshots into `.artifacts/playwright/screenshots/YYYY-MM-DD_HHmm/`; (2) staging verification via the test creds in `web/apps/dashboard/.env.staging` (`STAGING_TEST_USER`, `STAGING_TEST_PASSWORD`) on `https://dashboard-staging.causeflow.ai`, with `aws logs tail /ecs/causeflow-staging-api --follow` running in parallel; (3) E2E coverage \u2014 every PR that touches dashboard UI or APIs ships a Playwright spec; (4) manual user steps (Sentry Internal Integration, GitHub OAuth app, Slack workspace approval) are surfaced in the PR description and the agent pauses for user confirmation. The `.env.staging` file holds login creds only, not runtime env.",
+    "title": "Verification protocol for dashboard changes: local Playwright with mock client → staging login via env.staging creds → aws logs tail /ecs/causeflow-staging-api --follow",
+    "description": "`apps/dashboard/CLAUDE.md` documents the verification protocol: (1) local sanity via `pnpm --filter dashboard dev` (port 3001) with blank `CORE_API_URL` (mock client), Playwright codegen or scripted specs, screenshots into `.artifacts/playwright/screenshots/YYYY-MM-DD_HHmm/`; (2) staging verification via the test creds in `web/apps/dashboard/.env.staging` (`STAGING_TEST_USER`, `STAGING_TEST_PASSWORD`) on `https://dashboard-staging.causeflow.ai`, with `aws logs tail /ecs/causeflow-staging-api --follow` running in parallel; (3) E2E coverage — every PR that touches dashboard UI or APIs ships a Playwright spec; (4) manual user steps (Sentry Internal Integration, GitHub OAuth app, Slack workspace approval) are surfaced in the PR description and the agent pauses for user confirmation. The `.env.staging` file holds login creds only, not runtime env.",
     "steps": [
       "Step 1: Confirm `apps/dashboard/CLAUDE.md` documents the four-step verification protocol with the exact URL, AWS log group, and env-staging path.",
       "Step 2: Confirm `apps/dashboard/.env.staging` exists, contains `STAGING_TEST_USER` and `STAGING_TEST_PASSWORD`, and is excluded from runtime env.",
@@ -1274,9 +1274,9 @@
     "id": "WI-AC-052",
     "context": "open-source-local-runtime",
     "category": "foundation",
-    "description": "The `connect-src` CSP entry for `https://app.loops.so` is removed from `apps/website/next.config.mjs`. `LOOPS_API_KEY` is removed from `apps/website/.env.example`. The `lvh.me` \u2192 `localhost` rewrite in `apps/dashboard/src/middleware.ts` and the inverse `localhost` \u2192 `lvh.me` rewrite in the dashboard's checkout/portal API handlers are removed (no Stripe callbacks to rewrite in the OSS build). The dashboard's `curl http://localhost:3001/...` requests work as-is; no `lvh.me` host appears anywhere in the dashboard's source.",
+    "description": "The `connect-src` CSP entry for `https://app.loops.so` is removed from `apps/website/next.config.mjs`. `LOOPS_API_KEY` is removed from `apps/website/.env.example`. The `lvh.me` → `localhost` rewrite in `apps/dashboard/src/middleware.ts` and the inverse `localhost` → `lvh.me` rewrite in the dashboard's checkout/portal API handlers are removed (no Stripe callbacks to rewrite in the OSS build). The dashboard's `curl http://localhost:3001/...` requests work as-is; no `lvh.me` host appears anywhere in the dashboard's source.",
     "steps": [
-      "Verify AC-052: The `connect-src` CSP entry for `https://app.loops.so` is removed from `apps/website/next.config.mjs`. `LOOPS_API_KEY` is removed from `apps/website/.env.example`. The `lvh.me` \u2192 `localhost` rewrite in `apps/dashboard/src/middleware.ts` and the inverse `localhost` \u2192 `lvh.me` rewrite in the dashboard's checkout/portal API handlers are removed (no Stripe callbacks to rewrite in the OSS build). The dashboard's `curl http://localhost:3001/...` requests work as-is; no `lvh.me` host appears anywhere in the dashboard's source."
+      "Verify AC-052: The `connect-src` CSP entry for `https://app.loops.so` is removed from `apps/website/next.config.mjs`. `LOOPS_API_KEY` is removed from `apps/website/.env.example`. The `lvh.me` → `localhost` rewrite in `apps/dashboard/src/middleware.ts` and the inverse `localhost` → `lvh.me` rewrite in the dashboard's checkout/portal API handlers are removed (no Stripe callbacks to rewrite in the OSS build). The dashboard's `curl http://localhost:3001/...` requests work as-is; no `lvh.me` host appears anywhere in the dashboard's source."
     ],
     "acceptance_checks": [
       "AC-052"
@@ -1294,9 +1294,9 @@
     "id": "WI-AC-053",
     "context": "open-source-local-runtime",
     "category": "foundation",
-    "description": "With the OSS docker-compose stack up from AC-044, the following original checks still pass (any check that described a vendor-specific implementation now passes against the local equivalent \u2014 e.g. AC-019's redirect behavior is preserved by the local JWT middleware, AC-022's 402 CREDITS_EXHAUSTED is preserved by the local credits ledger, AC-031's \"no STRIPE_SECRET_KEY in dashboard env\" is trivially true because Stripe is gone, AC-037's \"AWS SDK limited to two files\" is trivially true because AWS SDK is gone). Concretely: `pnpm turbo check-types` + `pnpm turbo lint` + `pnpm turbo test` + `pnpm turbo build` all exit 0 inside the dashboard container; `curl http://localhost:3000/` returns 200; the dashboard's sign-in form works end-to-end with the Core's local auth; `GET /api/incidents` (with a valid cookie) returns the Core's stub data; the plan-gate renders correctly for a fresh tenant; Sentry is a no-op with `NEXT_PUBLIC_SENTRY_DSN` empty.",
+    "description": "With the OSS docker-compose stack up from AC-044, the following original checks still pass (any check that described a vendor-specific implementation now passes against the local equivalent — e.g. AC-019's redirect behavior is preserved by the local JWT middleware, AC-022's 402 CREDITS_EXHAUSTED is preserved by the local credits ledger, AC-031's \"no STRIPE_SECRET_KEY in dashboard env\" is trivially true because Stripe is gone, AC-037's \"AWS SDK limited to two files\" is trivially true because AWS SDK is gone). Concretely: `pnpm turbo check-types` + `pnpm turbo lint` + `pnpm turbo test` + `pnpm turbo build` all exit 0 inside the dashboard container; `curl http://localhost:3000/` returns 200; the dashboard's sign-in form works end-to-end with the Core's local auth; `GET /api/incidents` (with a valid cookie) returns the Core's stub data; the plan-gate renders correctly for a fresh tenant; Sentry is a no-op with `NEXT_PUBLIC_SENTRY_DSN` empty.",
     "steps": [
-      "Verify AC-053: With the OSS docker-compose stack up from AC-044, the following original checks still pass (any check that described a vendor-specific implementation now passes against the local equivalent \u2014 e.g. AC-019's redirect behavior is preserved by the local JWT middleware, AC-022's 402 CREDITS_EXHAUSTED is preserved by the local credits ledger, AC-031's \"no STRIPE_SECRET_KEY in dashboard env\" is trivially true because Stripe is gone, AC-037's \"AWS SDK limited to two files\" is trivially true because AWS SDK is gone). Concretely: `pnpm turbo check-types` + `pnpm turbo lint` + `pnpm turbo test` + `pnpm turbo build` all exit 0 inside the dashboard container; `curl http://localhost:3000/` returns 200; the dashboard's sign-in form works end-to-end with the Core's local auth; `GET /api/incidents` (with a valid cookie) returns the Core's stub data; the plan-gate renders correctly for a fresh tenant; Sentry is a no-op with `NEXT_PUBLIC_SENTRY_DSN` empty."
+      "Verify AC-053: With the OSS docker-compose stack up from AC-044, the following original checks still pass (any check that described a vendor-specific implementation now passes against the local equivalent — e.g. AC-019's redirect behavior is preserved by the local JWT middleware, AC-022's 402 CREDITS_EXHAUSTED is preserved by the local credits ledger, AC-031's \"no STRIPE_SECRET_KEY in dashboard env\" is trivially true because Stripe is gone, AC-037's \"AWS SDK limited to two files\" is trivially true because AWS SDK is gone). Concretely: `pnpm turbo check-types` + `pnpm turbo lint` + `pnpm turbo test` + `pnpm turbo build` all exit 0 inside the dashboard container; `curl http://localhost:3000/` returns 200; the dashboard's sign-in form works end-to-end with the Core's local auth; `GET /api/incidents` (with a valid cookie) returns the Core's stub data; the plan-gate renders correctly for a fresh tenant; Sentry is a no-op with `NEXT_PUBLIC_SENTRY_DSN` empty."
     ],
     "acceptance_checks": [
       "AC-053"
