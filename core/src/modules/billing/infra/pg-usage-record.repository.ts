@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 import type { IUsageRecordRepository, ListUsageOptions } from '../domain/usage-record.repository.js';
 import type { UsageRecord } from '../domain/usage-record.entity.js';
 import type { TenantId } from '../../../shared/domain/value-objects.js';
+import { usageRecordId } from '../../../shared/domain/value-objects.js';
 import { pgGet, pgInsert, pgUpdate, pgQuery } from '../../../shared/infra/db/postgres/pg-utils.js';
 
 const TABLE = 'usage_records';
@@ -13,32 +14,23 @@ const TABLE = 'usage_records';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toDomain(row: any): UsageRecord {
     return {
-        recordId: row.entity_id as UsageRecord['recordId'],
+        recordId: usageRecordId(row.entity_id),
         tenantId: row.tenant_id,
-        investigationId: row.data['investigationId'] as string | undefined,
-        agentName: row.data['agentName'] as string | undefined,
         type: row.data['type'] as UsageRecord['type'],
-        tokensIn: row.data['tokensIn'] as number | undefined,
-        tokensOut: row.data['tokensOut'] as number | undefined,
-        costUsd: row.data['costUsd'] as number | undefined,
-        recordedAt: row.data['recordedAt'] as string,
-        agentBreakdown: row.data['agentBreakdown'] as UsageRecord['agentBreakdown'],
         incidentId: row.data['incidentId'] as UsageRecord['incidentId'],
+        costUsd: row.data['costUsd'] as number | undefined,
+        agentBreakdown: row.data['agentBreakdown'] as UsageRecord['agentBreakdown'],
+        createdAt: row.created_at,
     };
 }
 
 export class PgUsageRecordRepository implements IUsageRecordRepository {
     async create(record: UsageRecord): Promise<UsageRecord> {
         const data: Record<string, unknown> = {
-            investigationId: record.investigationId,
-            agentName: record.agentName,
             type: record.type,
-            tokensIn: record.tokensIn,
-            tokensOut: record.tokensOut,
-            costUsd: record.costUsd,
-            recordedAt: record.recordedAt,
-            agentBreakdown: record.agentBreakdown,
             incidentId: record.incidentId,
+            costUsd: record.costUsd,
+            agentBreakdown: record.agentBreakdown,
         };
         const row = await pgInsert(TABLE, record.tenantId, record.recordId, data);
         return toDomain(row);
