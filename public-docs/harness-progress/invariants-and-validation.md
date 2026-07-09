@@ -168,3 +168,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: integration could not complete
 - Defects: merge conflict could not be resolved
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T00:07:25.252Z — Explicit Resume
+
+- WorkItem: WI-AC-023
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Verified in the invariant journal and in the repo: AC-023 passes by source audit, and the earlier merge-conflict symptom was a stale integration artifact. Retry once the active worker slot frees up so the context can be re-run against the fixed harness.
+- NextAction: Coding Attempt 1
