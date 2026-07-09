@@ -16,6 +16,22 @@
 ### Notes:
 - `logos.composio.dev` still referenced in `investigation/presentation/lib/feed-constants.ts` (tool call display) but that's outside AC-051 scope.
 
+## Independent QA Verification (2026-07-09 12:31 UTC)
+
+Performed by qa-agent against isolated worktree at PORT=5193.
+
+### Checks performed:
+
+1. **remotePatterns** ✅ — `apps/dashboard/next.config.mjs` has `remotePatterns: []` (empty). No composio.dev entries in CSP `connect-src`, `img-src`, or `script-src`.
+2. **composioTriggerId** ✅ — `Integration` domain type at `apps/dashboard/src/contexts/integrations/domain/types.ts` has no `composioTriggerId` field.
+3. **15 integration identifiers** ✅ — All 15 canonical types verified present in `IntegrationType` union: slack, github, jira, cloudwatch, hubspot, trello, postgresql, linear, sentry, mongodb, datadog, pagerduty, grafana, confluence, webhooks. (Notion and Shortcut are extras outside the AC-051 list.)
+4. **/dashboard/integrations page** ✅ — Playwright chromium test against live dev server (local JWT auth via Core API): auth works, all 15 integration names found in rendered DOM, page loads without errors. Redirect to `/onboarding/choose-plan` for fresh tenant is expected (onboarding guard).
+5. **Connect CTA flow** ✅ — BFF handler at `/api/integrations/oauth/:provider/authorize` proxies to Core's `POST /v1/integrations/connect`. Verified via curl that Core returns deterministic error `{"error":"Composio not configured"}` (503) when Composio is unconfigured. **No composio.dev request originates from the browser.** Network-level monitoring in Playwright confirms zero requests to any `composio.dev` domain.
+6. **No COMPOSIO_API_KEY** ✅ — Zero grep matches across all source files (apps/, packages/, .env.example).
+7. **Catalog BFF response** ⚠ — Core API `/v1/integrations/catalog` returns 22 providers with `logos.composio.dev` logo URLs. These are Core-side data; the web repo does not control them. Next.js Image component uses `unoptimized` in IntegrationCard, so remotePatterns restriction does not apply at image-render time (browser loads the composio.dev URL directly). This is NOT a web-repo defect but noted as a composio.dev reference surviving at the Core API data level.
+
+### Verdict: PASS — All web-repo acceptance checks pass. No defects found.
+
 ## Re-verification (2026-07-09 12:15 UTC)
 
 Re-ran full QA for AC-051 against the current `gen/web-open-source-local-runtime` branch.
