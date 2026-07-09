@@ -30,14 +30,6 @@ export const connectIntegrationSchema = z.discriminatedUnion('type', [
     apiToken: z.string().min(1, 'API Token is required'),
   }),
   z.object({
-    type: z.literal('notion'),
-    // OAuth — no manual credential fields
-  }),
-  z.object({
-    type: z.literal('shortcut'),
-    apiToken: z.string().min(1, 'API Token is required'),
-  }),
-  z.object({
     type: z.literal('github'),
     installationId: z.string().min(1, 'Installation ID is required'),
     appId: z.string().min(1, 'App ID is required'),
