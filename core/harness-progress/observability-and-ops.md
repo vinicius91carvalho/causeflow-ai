@@ -384,3 +384,10 @@ Code paths verified by unit tests and real HTTP boundary assertions.
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T12:44:12.277Z — Resumed
+
+- WorkItem: WI-AC-037
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
