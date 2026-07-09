@@ -46,3 +46,33 @@ After 2 seconds:
 AC-041 implementation is verified. BullMQ on Redis correctly replaces SQS. The 4 BullMQ queues are listed at boot, `/admin/queues` returns detailed stats, and the `POST /api/v1/incidents` → triage worker → job completed → incident updated flow works end-to-end without any SQS calls.
 
 **Defects:** None blocking.
+
+## 2026-07-09 — Repair Plan executed (Coding Attempt 3)
+
+### Changes Made
+
+Applied the Repair Plan's 7 actions for cross-dependency defects:
+
+1. **docker-compose.yml** — Removed stale AWS env vars (`AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `DYNAMODB_ENDPOINT`, `DYNAMODB_TABLE_NAME`, `SQS_ENDPOINT`, `KMS_ENDPOINT`, `SLACK_SIGNING_SECRET`) from the causeflow-api service. These contradicted AC-039/AC-053 and referenced a non-existent ministack container.
+
+2. **PgEvidenceRepository** — Created `src/modules/triage/infra/pg-evidence.repository.ts` implementing `IEvidenceRepository` over the `evidence` Postgres table. Wired in bootstrap.ts OSS path (replaces DynamoEvidenceRepository).
+
+3. **PgToolCallRepository** — Created `src/modules/triage/infra/pg-tool-call.repository.ts` implementing `IToolCallRepository` over the `tool_calls` Postgres table. Wired in bootstrap.ts OSS path (replaces DynamoToolCallRepository).
+
+4. **PgCodeKnowledgeRepository** — Created `src/modules/code-intelligence/infra/pg-code-knowledge.repository.ts` implementing `ICodeKnowledgeRepository` over `repo_nodes`, `package_dependencies`, `repo_service_maps`, `service_edges`, `patterns` Postgres tables. Wired in bootstrap.ts OSS path (replaces DynamoCodeKnowledgeRepository).
+
+5. **PgChatHistoryRepository** — Created `src/modules/memory/infra/pg-chat-history.repository.ts` implementing `IChatHistoryRepository` over the `chat_messages` Postgres table. Wired in bootstrap.ts both in `ChatInvestigationUseCase` and `MemoryUseCases` (replaces DynamoChatHistoryRepository).
+
+6. **PgRunbookRegistryRepository** — Created `src/shared/infra/db/pg-runbook-registry.repository.ts` implementing `IRunbookRegistryRepository` over the `runbook_registry` Postgres table. Wired in bootstrap.ts OSS path (replaces DynamoRunbookRegistryRepository).
+
+7. **Dynamic imports** — Converted 6 top-level SQS/Dynamo imports in bootstrap.ts (`SQSMessageQueue`, `DynamoEvidenceRepository`, `DynamoToolCallRepository`, `DynamoCodeKnowledgeRepository`, `DynamoChatHistoryRepository`, `DynamoRunbookRegistryRepository`) to runtime-conditional dynamic imports under the AWS branch, avoiding module resolution in OSS mode.
+
+### Verification
+- `pnpm typecheck` — green (no errors)
+- `pnpm test:run` — 162 test files, 1065 tests passed
+- `pnpm lint-invariants` — 10/10 passed (I1-I11)
+- `pnpm lint` — all 122 errors are pre-existing (none in new files)
+- docker-compose.yml contains zero `AWS_`, `DYNAMODB_`, `SQS_`, `KMS_`, `SLACK_` env vars
+
+### Status
+Implementation=true. All 7 Repair Plan actions complete.

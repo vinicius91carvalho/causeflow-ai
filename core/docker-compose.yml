@@ -85,14 +85,7 @@ services:
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-oss-dev-webhook-secret}
       DEDUP_WINDOW_MINUTES: ${DEDUP_WINDOW_MINUTES:-60}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      AWS_REGION: us-east-1
-      AWS_ACCESS_KEY_ID: fake
-      AWS_SECRET_ACCESS_KEY: fake
-      DYNAMODB_ENDPOINT: http://172.18.0.3:4566
-      DYNAMODB_TABLE_NAME: causeflow-local
-      SQS_ENDPOINT: http://ministack:4566
-      KMS_ENDPOINT: http://ministack:4566
-      SLACK_SIGNING_SECRET: ${SLACK_SIGNING_SECRET:-test-signing-secret}
+      # No AWS/Stripe/Clerk env vars — this is the OSS runtime (AC-039/AC-053).
     ports:
       - '3099:5171'
     healthcheck:
