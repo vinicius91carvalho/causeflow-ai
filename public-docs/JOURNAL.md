@@ -325,3 +325,59 @@ implementation=true qa=true integration=true; defects=0.
 - Smoke: `GET /` and `GET /quickstart` returned HTTP 200 and rendered `CauseFlow AI` plus `Quickstart`; `mint broken-links` returned success.
 - AC-015: `GET /api-reference/errors-and-pagination` returned HTTP 200 and rendered the JSON error envelope, status codes `400/401/403/404/409/429/500/503`, and pagination fields `items`, `cursor`, and `count`.
 - Verdict: implementation=true qa=true integration=true; defects=0.
+
+## 2026-07-09 — VERIFY-FIRST (coding-agent) — WI-AC-017
+
+- WorkItem: WI-AC-017
+- AcceptanceChecks: AC-017
+- context: api-reference
+- Mode: VERIFY-FIRST (existing codebase)
+- HEAD: 1ff3afd
+- PORT: 5170
+
+### Acceptance check
+
+AC-017: Every tenant-ID placeholder in api-reference examples matches
+`ten_EXAMPLE_…`, every API-key placeholder matches `cflo_live_sk_EXAMPLE_…`,
+and no real-looking UUIDs or full JWTs appear in any example.
+
+### Pre-flight (scaffold verification)
+
+- `project_specs.xml` present at repo root with AC-017 defined.
+- All api-reference `.mdx` pages present and renderable.
+
+### Source audit (grep verification)
+
+**Step 1 & 2 — Tenant-ID and API-key placeholder format:**
+
+`grep -rE '(ten_[a-zA-Z0-9]{16,})|(cflo_live_sk_[a-zA-Z0-9]{16,})' --include='*.mdx' . | grep -v EXAMPLE` → exit 1, zero output. All `ten_` occurrences use `ten_EXAMPLE_…`; all `cflo_live_sk_` occurrences use `cflo_live_sk_EXAMPLE_…`.
+
+**Step 3 — Full JWT audit:**
+
+`grep -rnE 'eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]+' --include='*.mdx' . | grep -v "eyJhbGc\|\.\.\."` → zero matches. No full JWTs (only truncated `eyJhbGc…`).
+
+**UUID audit:**
+
+One UUID-like pattern found: `a1b2c3d4-e5f6-7890-abcd-ef1234567890` in `api-reference/webhooks/payload-formats.mdx`. This is a clearly dummy value (sequential hex pattern), not a real UUID.
+
+### Boundary verification (real external boundary — HTTP)
+
+- `mint dev` running on port 5170, confirmed HTTP 200 on `/`.
+- Rendered pages fetched: authentication, create-key, list-tenants, create-tenant,
+  skills/get, webhooks/outbound-events — all HTTP 200.
+- Rendered tenant IDs: `ten_EXAMPLE_01HX9VTPQR3KF8MZ`, `ten_EXAMPLE_02JY0WUQRS4LG9NA`, `ten_EXAMPLE_ABC123` — all follow approved format.
+- Rendered API keys (auth page): `cflo_live_sk_EXAMPLE_01HX9VTPQR3KF8MZ` — approved format.
+- Rendered API keys (create-key page): fixed from `cflo_abc_live_sk_01HX9VTPQR3KF8MZWBYD5N6JCE_secret` to `cflo_live_sk_EXAMPLE_01HX9VTPQR3KF8MZ`.
+- Rendered API key prefix (create-key page): fixed from `cflo_abc` to `cflo_live`.
+
+### Defect found and fixed
+
+**File:** `api-reference/api-keys/create-key.mdx`
+**Issue:** The `plaintextKey` response example used `cflo_abc_live_sk_01HX9VTPQR3KF8MZWBYD5N6JCE_secret` which does not match the approved `cflo_live_sk_EXAMPLE_…` format.
+**Fix:** Changed `prefix` to `"cflo_live"` and `plaintextKey` to `"cflo_live_sk_EXAMPLE_01HX9VTPQR3KF8MZ"` — the approved placeholder format used consistently across other API reference pages.
+
+### Verdict
+
+AC-017 passes at the real HTTP boundary. All tenant-ID and API-key placeholders now follow the approved `ten_EXAMPLE_…` and `cflo_live_sk_EXAMPLE_…` formats. No real-looking UUIDs or full JWTs appear in any example. All content invariants hold.
+
+implementation=true qa=true integration=false
