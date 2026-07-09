@@ -331,3 +331,19 @@ All acceptance criteria verified at real HTTP boundary (port 5173) — zero code
 - The middleware uses local JWT auth (`__session` cookie, `decodeJwtPayload`) instead of `clerkMiddleware()` from `@clerk/nextjs/server`. This is expected per AC-046 (open-source-local-runtime migration) and documented in the project spec as preserving AC-019's redirect behavior. All behavioral requirements pass.
 - `/api/billing/webhook` does not exist as a route in the OSS build — Stripe webhook handling was removed per AC-048/AC-052. The middleware correctly passes all `/api/*` routes through without auth (returns 404 for non-existent routes). This is not a defect.
 - Tested against production build (`next build` + `next start` on port 5181) after dev server exhibited compilation hangs on API route first access. Production build compiled cleanly (15.5s) and all routes responded correctly.
+
+---
+
+## WI-AC-043 — Verification protocol for dashboard changes in CLAUDE.md
+
+**State:** `implementation=true`
+
+**Summary:**
+- Scaffolded `apps/dashboard/.env.staging` with `STAGING_TEST_USER` and `STAGING_TEST_PASSWORD` placeholders (login credentials only, not runtime env — header documents this).
+- Added `!apps/dashboard/.env.staging` to `.gitignore` so the file is tracked despite `.env.*` pattern.
+- Committed both changes (commit `2ebee20`).
+
+**Validation (post-commit, from repo root):**
+- Step 1 (CLAUDE.md protocol): Unchanged at HEAD — 4-step verification protocol already documented. PASS.
+- Step 2 (.env.staging exists): File in HEAD contains `STAGING_TEST_USER=placeholder@causeflow.ai`, `STAGING_TEST_PASSWORD=placeholder-password`, header states "NOT loaded by the runtime". PASS.
+- Step 3 (.gitignore exclusion): `git check-ignore web/apps/dashboard/.env.staging` returns exit code 1 (not ignored). `git ls-files` shows file tracked. PASS.
