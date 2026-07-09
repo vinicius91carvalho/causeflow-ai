@@ -250,3 +250,25 @@
 - `pnpm vitest run --project dashboard`: 163 test files, 1070 tests, all passed.
 - `pnpm exec biome check apps/dashboard/src/contexts/integrations/`: 55 files checked clean.
 - No code changes needed — implementation was already complete in commit 181149bf.
+
+---
+
+## WI-AC-051 Re-Verification (2026-07-09) — Task closeout
+
+**State:** `implementation=true`
+
+**Summary:**
+- Final re-verification of all AC-051 acceptance criteria on assigned PORT=5193.
+- Static analysis: `grep -E 'composio\.dev|composioTriggerId' apps/dashboard/next.config.mjs apps/dashboard/src/contexts/integrations/domain/types.ts apps/dashboard/.env.example` returns zero matches (exit 1).
+- `grep -rn 'COMPOSIO_API_KEY' apps/ packages/` returns zero matches (exit 1).
+- `next.config.mjs` has `remotePatterns: []` (empty array) — no composio domains.
+- CSP headers contain zero composio domains in any directive.
+- `Integration` interface has no `composioTriggerId` field; all 15 IntegrationType identifiers (slack through webhooks) present.
+- Live HTTP test: `/auth/sign-in` returns 200; `/dashboard/integrations` redirects to sign-in (307) for unauthenticated users as expected.
+- Zero composio references in rendered HTML (sign-in page checked).
+- Build (`pnpm --filter @causeflow/dashboard build`) exits 0.
+- Vitest dashboard project: 163 test files, 1070 tests, all passed.
+- Integration-specific tests: 16 test files, 151 tests, all passed.
+- Biome lint: 55 files checked clean.
+- Connect CTA: OAuth flow POSTs to `/api/integrations/connect` (proxied to Core API); credential flow POSTs to `/api/integrations` (proxied to Core API). No composio.dev or backend.composio.dev request originates from browser.
+- No code changes needed — WI-AC-051 implementation is complete and verified.
