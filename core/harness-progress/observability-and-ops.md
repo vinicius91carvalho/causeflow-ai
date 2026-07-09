@@ -451,3 +451,12 @@ Code paths verified by unit tests and real HTTP boundary assertions.
 - WorkItem: WI-AC-037
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T17:23:51.853Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-037
+- AcceptanceChecks: AC-037
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/observability-and-ops/WI-AC-037-1-integration_qa.log
+- NextAction: next Ready Work Item
