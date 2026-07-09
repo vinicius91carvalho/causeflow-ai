@@ -72,6 +72,7 @@
     "@types/web-push": "^3.6.4",
     "@vectorize-io/hindsight-client": "^0.4.22",
     "ai": "^6.0.158",
+    "bullmq": "^5.0.0",
     "electrodb": "^2.14.0",
     "hono": "^4.6.0",
     "ioredis": "^5.4.0",

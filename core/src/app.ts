@@ -22,6 +22,7 @@ import { createNotificationRoutes } from './modules/notification/infra/notificat
 import { createAnalyticsRoutes } from './modules/ingestion/infra/analytics.routes.js';
 import { createApiKeyRoutes } from './modules/tenant/infra/api-key.routes.js';
 import { createAdminRoutes } from './modules/ingestion/infra/admin.routes.js';
+import { createAdminQueueRoutes } from './shared/infra/queue/bull-admin.js';
 import { createComposioWebhookRoute, createTriggerRoutes } from './modules/integration/infra/trigger.routes.js';
 import { createIntegrationRoutes } from './modules/integration/infra/integration.routes.js';
 import { createRelayRoutes } from './modules/integration/infra/relay.routes.js';
@@ -124,6 +125,12 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
             })),
         }, httpStatus);
     });
+    // Admin queue visibility — BullMQ queue stats for the open-source local runtime (AC-041).
+    // This is a local-only admin endpoint that reports queue depth, completed/failed counts,
+    // and the last 5 jobs. It is mounted regardless of runtime so devs can check queues even
+    // in AWS mode if they have Redis access.
+    app.route('/admin', createAdminQueueRoutes());
+
     // Module routes
     app.route('/v1/tenants', createTenantRoutes(ctx.tenantUseCases));
     app.route('/v1/audit', createAuditRoutes(ctx.auditUseCases));

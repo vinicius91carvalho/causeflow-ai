@@ -27,7 +27,7 @@ function memoryIncr(key: string, windowSeconds: number) {
 }
 export const rateLimitMiddleware = createMiddleware(async (c, next) => {
     const path = c.req.path;
-    if (path === '/health' || path === '/health/detailed')
+    if (path === '/health' || path === '/health/detailed' || path === '/admin/queues')
         return next();
     const tenantId = c.get('tenantId') ?? 'anonymous';
     const windowSeconds = config.rateLimit.windowSeconds;

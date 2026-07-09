@@ -206,6 +206,16 @@ async function main() {
     shutdown: closeRedis,
   });
 
+  // Close the dedicated BullMQ Redis connection (AC-041). Only initialised
+  // in the OSS runtime but safe to close regardless.
+  lifecycle.register({
+    name: 'bullmq-redis',
+    shutdown: async () => {
+      const { closeBullRedis } = await import('./shared/infra/queue/bull-mq-connection.js');
+      await closeBullRedis();
+    },
+  });
+
   // Flush and shutdown OTel SDK (after all app work is done)
   lifecycle.register({
     name: 'otel',
@@ -219,6 +229,24 @@ async function main() {
 
   const server = serve({ fetch: app.fetch, port: config.port }, (info) => {
     logger.info({ port: info.port }, 'CauseFlow is running');
+
+    // AC-041: Log the 4 BullMQ queues at startup.
+    // In the OSS runtime, these are backed by the shared Redis connection.
+    // In the AWS runtime, the queue names are informational (SQS is used).
+    const queueNames = [
+      config.bullmq.alertQueueName,
+      config.bullmq.triageQueueName,
+      config.bullmq.investigationQueueName,
+      config.bullmq.remediationQueueName,
+    ];
+    const workerCounts = config.isOss() ? 'worker=1' : 'worker=0 (SQS)';  // In OSS mode each queue has 1 worker; in AWS mode workers are separate processes.
+    logger.info(
+      {
+        queues: queueNames.map((name) => `${name} (${workerCounts})`),
+        transport: config.isOss() ? 'bullmq-on-redis' : 'sqs',
+      },
+      `BullMQ queues: ${queueNames.join(', ')} — ${workerCounts}`,
+    );
   });
 
   // Attach WebSocket server for relay connections

@@ -228,3 +228,64 @@ Here is a summary of what was verified:
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-040-3-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T18:17:23.000Z — Implementation (AC-041)
+
+- Attempt: 1/1
+- WorkItem: WI-AC-041
+- AcceptanceChecks: AC-041
+- Outcome: implementation=true (black-box verified on running stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+BullMQ on Redis replaces SQS in the open-source local runtime (AC-041).
+
+**New files:**
+- `src/shared/infra/queue/bull-mq-connection.ts` — Dedicated Redis connection for BullMQ
+  (separate ioredis instance with `maxRetriesPerRequest: null`)
+- `src/shared/infra/queue/bull-mq-message-queue.ts` — BullMqMessageQueue implementing
+  the MessageQueue port. Sends jobs to named BullMQ queues on Redis
+- `src/shared/infra/queue/bull-mq-consumer.ts` — createBullWorker factory that creates
+  BullMQ Worker instances with proper error handling and lifecycle
+- `src/shared/infra/queue/bull-admin.ts` — GET /admin/queues endpoint handler that
+  returns queue depth, completed/failed counts, and last 5 jobs per queue
+
+**Modified files:**
+- `package.json` — Added `bullmq@^5.0.0` dependency
+- `src/shared/config/index.ts` — Added `bullmq` config section with 4 queue names
+  (causeflow-alerts, causeflow-triage, causeflow-investigation, causeflow-remediation)
+- `src/bootstrap.ts` — OSS mode: uses BullMqMessageQueue instead of SQSMessageQueue;
+  creates BullMQ workers for triage, investigation, remediation, and alert queues;
+  disables in-process fallback when BullMQ is active
+- `src/app.ts` — Mounts GET /admin/queues at /admin/queues
+- `src/main.ts` — Logs the 4 BullMQ queues with worker counts at startup; closes
+  BullMQ Redis connection on graceful shutdown
+- `src/shared/infra/http/middleware/auth.middleware.ts` — Added /admin/queues to PUBLIC_PATHS
+- `src/shared/infra/http/middleware/tenant.middleware.ts` — Added /admin/queues to skip paths
+- `src/shared/infra/http/middleware/rate-limit.middleware.ts` — Added /admin/queues to skip paths
+
+### Key architectural decisions
+
+1. The existing `MessageQueue` port interface (`send(queueUrl, body)`) is unchanged.
+   The BullMQ implementation treats `queueUrl` as a queue name.
+2. Queue identifiers are resolved at bootstrap: BullMQ queue names in OSS mode,
+   SQS URLs in AWS mode. All use cases receive the correct identifier transparently.
+3. Workers use the same use case instances (triageIncident, dispatchInvestigation,
+   proposeRemediation) that the SQS consumers would invoke.
+4. The dedicated BullMQ Redis connection uses `maxRetriesPerRequest: null` as
+   required by BullMQ for blocking commands (separate from the shared Redis client).
+
+### Black-box verification
+
+1. Boot log shows 4 BullMQ queues with worker counts.
+2. `GET /admin/queues` returns queue name, depth, completed/failed counts, and
+   last 5 job payloads for all 4 queues.
+3. `POST /v1/incidents` without severity enqueues a triage job to causeflow-alerts.
+4. The BullMQ alert worker picks up the job within <2 seconds.
+5. The job moves to `completed` or `failed` status (depending on Anthropic API key).
+6. Incident status updates to `triaging` after triage worker processes it.
+7. No SQS endpoint is called (verified by code path — SQSMessageQueue is never
+   instantiated; SQS consumers are never started in OSS mode).
+8. Health endpoint returns `{"postgres":"ok","redis":"ok","anthropic":"ok","queues":"ok"}`
+   where `queues` check pings Redis (the BullMQ transport).

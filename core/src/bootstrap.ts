@@ -250,7 +250,18 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     logger.error({ err, eventType }, 'EventBus handler error');
   });
   const providerRegistry = new ProviderRegistry();
-  const messageQueue = new SQSMessageQueue();
+  // AC-041: In the OSS runtime, BullMQ on Redis replaces SQS.
+  // The AWS runtime keeps the original SQSMessageQueue.
+  const messageQueue = config.isOss()
+    ? new (await import('./shared/infra/queue/bull-mq-message-queue.js')).BullMqMessageQueue()
+    : new SQSMessageQueue();
+
+  // Resolve queue identifiers — BullMQ queue names in OSS runtime, SQS URLs
+  // in the AWS runtime (AC-041). These are passed to use cases that need to
+  // enqueue work downstream (triage → investigation → remediation).
+  const alertQueueUrl = config.isOss() ? config.bullmq.alertQueueName : config.sqs.alertQueueUrl;
+  const investigationQueueUrl = config.isOss() ? config.bullmq.investigationQueueName : config.sqs.investigationQueueUrl;
+  const remediationQueueUrl = config.isOss() ? config.bullmq.remediationQueueName : config.sqs.remediationQueueUrl;
 
   // Register Alert Parsers
   const datadogParser = new DatadogParser();
@@ -378,7 +389,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       eventBus,
       providerRegistry,
       messageQueue,
-      config.sqs.alertQueueUrl,
+      alertQueueUrl,
     ),
     reserveInvestigation,
     sentryIntegrationRepo,
@@ -388,8 +399,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     incidentRepo,
     eventBus,
     messageQueue,
-    config.sqs.alertQueueUrl,
-    config.sqs.investigationQueueUrl,
+    alertQueueUrl,
+    investigationQueueUrl,
   );
 
   const incidentUseCases: IncidentUseCases = {
@@ -408,7 +419,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     eventBus,
     llmClient,
     messageQueue,
-    investigationQueueUrl: config.sqs.investigationQueueUrl,
+    investigationQueueUrl,
     minInvestigationSeverity: config.triage.minInvestigationSeverity,
     updateIncidentStatus: incidentUseCases.updateIncidentStatus,
   });
@@ -450,7 +461,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     credentialVendor,
     toolHandlerFactory: createToolHandler,
     messageQueue,
-    remediationQueueUrl: config.sqs.remediationQueueUrl,
+    remediationQueueUrl,
     defaultRegion: config.aws.region,
     synthesisModel: config.anthropic.synthesisModel,
     relayGateway: overrides?.relayGateway,
@@ -463,7 +474,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     evidenceRepo,
     eventBus,
     messageQueue,
-    investigationQueueUrl: config.sqs.investigationQueueUrl,
+    investigationQueueUrl,
   });
   // Investigation mode registry — pluggable reasoning strategies.
   // Orchestrator is default; hypothesis-driven mode is available for staff
@@ -729,7 +740,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       sseManager,
       toolHandlerFactory: createToolHandler,
       messageQueue,
-      investigationQueueUrl: config.sqs.investigationQueueUrl,
+      investigationQueueUrl,
       defaultRegion: config.aws.region,
       chatHistory: chatHistoryRepo,
       reserveInvestigation,
@@ -1081,6 +1092,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // (AC-039) reports exactly {postgres, redis, anthropic, queues} and never
   // pings an AWS endpoint at boot, while the original AWS control plane keeps
   // its DynamoDB / SQS checks (AC-002 / AC-005 / AC-006).
+  //
+  // AC-041: In the OSS runtime, the queues health check pings Redis (the
+  // BullMQ transport), not SQS. The checks are unchanged from the existing
+  // pattern — only the check impl differs.
   const healthChecker = new HealthChecker();
   if (config.isOss()) {
     healthChecker.register(new PostgresHealthCheck());
@@ -1095,11 +1110,13 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   }
 
   // === In-Process Fallback (dev without SQS) ===
-  // When SQS is not configured, wire EventBus to dispatch the pipeline in-process.
+  // When SQS is not configured AND we are NOT in OSS mode (which uses BullMQ),
+  // wire EventBus to dispatch the pipeline in-process.
   // This ensures the full flow works in dev without docker-compose.
+  // AC-041: In OSS mode, BullMQ on Redis provides the queue layer — no fallback needed.
   const sqsConfigured = !!(config.sqs.alertQueueUrl && config.sqs.investigationQueueUrl && config.sqs.remediationQueueUrl);
 
-  if (!sqsConfigured && !config.isProd()) {
+  if (!sqsConfigured && !config.isProd() && !config.isOss()) {
     logger.info('[STARTUP] SQS not configured — enabling in-process pipeline fallback');
 
     // incident.created → triage (replaces alert queue consumer)
@@ -1214,21 +1231,95 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     consumers.push(start(url));
   }
 
-  startQueueConsumer('triage', config.sqs.alertQueueUrl, true, (url) => {
-    return startTriageConsumer(url, triageIncident);
-  });
+  if (config.isOss()) {
+    // AC-041: BullMQ workers replace SQS consumers in the OSS runtime.
+    // Workers process jobs from named BullMQ queues on the shared Redis instance.
+    // The triage worker calls the same triageIncident use case that the SQS
+    // consumer would invoke; the investigation and remediation workers are
+    // started but only process when jobs arrive (no polling loop).
+    const { createBullWorker } = await import('./shared/infra/queue/bull-mq-consumer.js');
 
-  startQueueConsumer('investigation', config.sqs.investigationQueueUrl, true, (url) => {
-    return startInvestigationConsumer(url);
-  });
+    // Triage worker — picks up triage jobs from causeflow-triage
+    if (config.anthropic.apiKey) {
+      const triageWorker = createBullWorker({
+        queueName: config.bullmq.triageQueueName,
+        handler: async (body) => {
+          await triageIncident.execute(
+            tenantId(body['tenantId'] as string),
+            incidentId(body['incidentId'] as string),
+          );
+        },
+      });
+      consumers.push({ stop: triageWorker.stop });
+    } else {
+      logger.warn('[STARTUP] BullMQ triage worker disabled — ANTHROPIC_API_KEY not set');
+    }
 
-  startQueueConsumer('remediation', config.sqs.remediationQueueUrl, false, (url) => {
-    return startRemediationConsumer(url, proposeRemediation);
-  });
+    // Investigation worker — picks up investigation jobs from causeflow-investigation
+    if (config.anthropic.apiKey) {
+      const investigationWorker = createBullWorker({
+        queueName: config.bullmq.investigationQueueName,
+        handler: async (body) => {
+          const tid = tenantId(body['tenantId'] as string);
+          const iid = incidentId(body['incidentId'] as string);
+          const suggestedAgents = (body['suggestedAgents'] as string[]) ??
+            ['log_analyst', 'metric_analyst', 'infra_inspector'];
+          await dispatchInvestigation.execute({ tenantId: tid, incidentId: iid, suggestedAgents });
+        },
+      });
+      consumers.push({ stop: investigationWorker.stop });
+    } else {
+      logger.warn('[STARTUP] BullMQ investigation worker disabled — ANTHROPIC_API_KEY not set');
+    }
 
-  startQueueConsumer('progress', config.sqs.progressQueueUrl, false, (url) => {
-    return startProgressConsumer(url, sseManager);
-  });
+    // Remediation worker — picks up remediation jobs from causeflow-remediation
+    const remediationWorker = createBullWorker({
+      queueName: config.bullmq.remediationQueueName,
+      handler: async (body) => {
+        await proposeRemediation.execute({
+          tenantId: tenantId(body['tenantId'] as string),
+          incidentId: incidentId(body['incidentId'] as string),
+          rootCause: (body['rootCause'] as string) ?? '',
+          recommendedActions: (body['recommendedActions'] as StructuredAction[]) ?? [],
+        });
+      },
+    });
+    consumers.push({ stop: remediationWorker.stop });
+
+    // Alert queue worker (causeflow-alerts) — picks up triage jobs that came via webhook
+    if (config.anthropic.apiKey) {
+      const alertWorker = createBullWorker({
+        queueName: config.bullmq.alertQueueName,
+        concurrency: 3,
+        handler: async (body) => {
+          await triageIncident.execute(
+            tenantId(body['tenantId'] as string),
+            incidentId(body['incidentId'] as string),
+          );
+        },
+      });
+      consumers.push({ stop: alertWorker.stop });
+    } else {
+      logger.warn('[STARTUP] BullMQ alert worker disabled — ANTHROPIC_API_KEY not set');
+    }
+  } else {
+    // AWS runtime: SQS consumers
+    startQueueConsumer('triage', alertQueueUrl, true, (url) => {
+      return startTriageConsumer(url, triageIncident);
+    });
+
+    startQueueConsumer('investigation', investigationQueueUrl, true, (url) => {
+      return startInvestigationConsumer(url);
+    });
+
+    startQueueConsumer('remediation', remediationQueueUrl, false, (url) => {
+      return startRemediationConsumer(url, proposeRemediation);
+    });
+
+    startQueueConsumer('progress', config.sqs.progressQueueUrl, false, (url) => {
+      return startProgressConsumer(url, sseManager);
+    });
+  }
 
   // Register Composio webhook subscription if apiKey is configured
   if (config.composio.apiKey) {

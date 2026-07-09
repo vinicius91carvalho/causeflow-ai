@@ -105,6 +105,15 @@ export const config = {
     progressQueueUrl: process.env['SQS_PROGRESS_QUEUE_URL'],
   },
 
+  // BullMQ queue names for the open-source local runtime (AC-041).
+  // Used only when CAUSEFLOW_RUNTIME=oss. In the AWS runtime SQS is used.
+  bullmq: {
+    alertQueueName: process.env['BULLMQ_ALERT_QUEUE'] ?? 'causeflow-alerts',
+    triageQueueName: process.env['BULLMQ_TRIAGE_QUEUE'] ?? 'causeflow-triage',
+    investigationQueueName: process.env['BULLMQ_INVESTIGATION_QUEUE'] ?? 'causeflow-investigation',
+    remediationQueueName: process.env['BULLMQ_REMEDIATION_QUEUE'] ?? 'causeflow-remediation',
+  },
+
   webhook: {
     secret: env('WEBHOOK_SECRET', 'dev-webhook-secret'),
   },
