@@ -584,3 +584,27 @@ qa=true implementation=true integration=true
 
 ### Verdict
 implementation=true — zero-diff checkpoint
+
+---
+
+## 2026-07-09T19:45:00Z — AC-015 independent QA (qa-agent, isolated worktree)
+
+**Result: implementation=true, qa=true**
+
+### Approach
+- Wrote `tests/unit/modules/ingestion/dedup-window.test.ts` — exercises dedup at real HTTP boundary through the webhook routes with a 1-second dedup window (mocked config) and `vi.useFakeTimers()` for deterministic time control.
+- Fixed pre-existing test bug in `ingest-alert.test.ts` — the "idempotent" mock incident lacked `createdAt`, which caused the dedup window check to always fail (NaN < windowMs = false).
+
+### HTTP Boundary Verification (4 scenarios)
+
+1. **Two identical POSTs within dedup window** → second call returns the same `incidentId`; `repo.create` called once; `messageQueue.send` called once (no duplicate enqueue) ✅
+2. **Third POST after window elapses** (advance 1.5s past 1s window) → different `incidentId`; 2 total creates; 2 total enqueues ✅
+3. **Event emission** → only one `incident.created` event published for deduplicated alerts ✅
+4. **Different Datadog alert IDs** → produce separate incidents (different `sourceAlertId` not deduped) ✅
+
+### Fixes
+- `tests/unit/modules/ingestion/ingest-alert.test.ts`: Added `createdAt: new Date().toISOString()` to the mock existing incident so the dedup window check works correctly.
+
+### Test Results
+- 18 test files, 122 tests pass in `tests/unit/modules/ingestion/` (was 121 due to pre-existing bug, now 122)
+- Full suite: 163 test files, 1069 pass, 7 pre-existing auth.middleware.test.ts failures (unrelated)
