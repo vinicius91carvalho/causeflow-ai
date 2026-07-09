@@ -577,3 +577,10 @@ hook: UserPromptSubmit Completed
 ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
 ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T00:58:13.192Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota only: Codex reported usage limit during coding, not a product defect. Fixed supervisor now auto-pauses and retry-queues provider quota/rate-limit closures instead of raising Input Requests.
+- NextAction: Coding Attempt 1
