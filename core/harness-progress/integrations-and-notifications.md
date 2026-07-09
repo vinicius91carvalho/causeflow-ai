@@ -974,3 +974,10 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - WorkItem: WI-AC-031
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T21:08:25.387Z — Resumed
+
+- WorkItem: WI-AC-031
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
