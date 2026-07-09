@@ -1678,3 +1678,10 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - Outcome: coding agent failed three times
 - Defects: Session terminated, killing shell... ...killed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T20:49:21.277Z — Resumed
+
+- WorkItem: WI-AC-006
+- PreviousPhase: blocked
+- Attempt: 1
+- NextAction: user-guidance
