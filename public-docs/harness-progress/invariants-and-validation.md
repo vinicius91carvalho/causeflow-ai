@@ -903,3 +903,12 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T12:50:00Z — Verification complete
+
+- WorkItem: WI-AC-024
+- AcceptanceChecks: AC-024
+- Outcome: PASS
+- Boundary: `mint dev --port 5180`; all 125 `docs.json` navigation pages returned HTTP 200 with no MDX parse markers and no rendered AC-024 forbidden patterns. AC-013 dependency checked across 81 API reference pages: HTTP 200 and title present.
+- Evidence: 133 `.mdx` files audited; exact AC-024 grep returned zero matches. `INVARIANTS.md` documents the same boundary and `./check-invariants.sh --quiet` passed.
+- NextAction: implementation=true

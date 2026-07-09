@@ -348,10 +348,11 @@
       "AC-013"
     ],
     "verify_first": true,
-    "implementation": false,
+    "implementation": true,
     "qa": false,
     "integration": false,
-    "retries": 0
+    "retries": 0,
+    "verify_notes": "VERIFY-FIRST pass on existing code. Required scaffold present; mint dev --port 5180 served all 125 docs.json nav pages with HTTP 200/no parse markers/no rendered forbidden AC-024 patterns; AC-013 dependency spot checked across 81 API reference pages with HTTP 200 and title present. Exact AC-024 grep returned zero matches across 133 MDX files; INVARIANTS.md documents the same boundary; check-invariants.sh --quiet passed. No content/code changes required."
   },
   {
     "id": "WI-AC-017",

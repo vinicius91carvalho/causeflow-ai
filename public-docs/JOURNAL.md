@@ -4,6 +4,11 @@ Date: 2026-07-08
 Action: QA verification of AC-010 (nine Integrations pages)
 Result: PASS
 
+## 2026-07-09 — VERIFY-FIRST — WI-AC-024
+
+- AC-024 passed on existing code: `mint dev --port 5180` served 125 nav pages with HTTP 200/no parse markers/no rendered forbidden patterns; exact forbidden-pattern grep returned zero matches across 133 `.mdx` files; `check-invariants.sh --quiet` passed.
+- implementation=true; no content/code changes required.
+
 Pages tested (all HTTP 200, correct titles, no MDX parse errors):
 - /integrations/overview - Integrations overview
 - /integrations/monitoring - Monitoring integrations
