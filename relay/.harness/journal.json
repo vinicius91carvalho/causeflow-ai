@@ -239,6 +239,28 @@
         "driver_math_min_clamp": "passed",
         "sql_limit_appended": "passed"
       }
+    },
+    {
+      "id": "WI-AC-025",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T07:58:00Z",
+      "details": "Integrated Verification pass for AC-025 (postgres-driver limit clamping). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + postgres + mongo). 25/25 assertions pass via scripts/qa/ac025-test.mjs: (1) no explicit limit defaults to maxRows=1000, returns all 5 rows; (2) limit=3 clamped to 3 rows ids [1,2,3]; (3) limit=5 returns all 5 rows ids [1,2,3,4,5]; (4) limit=2000 exceeds maxRowsPerQuery=1000 rejected by policy engine with code -32600 and message \"Policy denied: Row limit 2000 exceeds maximum 1000\"; (5) limit=0 returns 0 rows; (6) limit=1000 (N===maxRows) returns all 5 rows. AC-038 cross-validated same policy clamp for both Postgres and Mongo (5/5 tests pass). Code inspection confirms: PolicyEngine.evaluate rejects when N > maxRowsPerQuery; PgDriver.execute uses Math.min((limit ?? maxRows), maxRows) defensive clamp and appends LIMIT <clamped>. npx tsc --noEmit passes. npm run build passes. No defects.",
+      "checks": {
+        "no_explicit_limit_defaults": "passed",
+        "limit_3_returns_3_rows": "passed",
+        "limit_5_returns_5_rows": "passed",
+        "limit_2000_rejected_by_policy": "passed",
+        "limit_0_returns_0_rows": "passed",
+        "limit_1000_N_equals_maxRows": "passed",
+        "policy_engine_rejection": "passed",
+        "driver_math_min_clamp": "passed",
+        "sql_limit_appended": "passed",
+        "npm_run_build": "passed",
+        "tsc_noEmit": "passed",
+        "ac038_cross_validation": "passed"
+      }
     }
   ]
 }
