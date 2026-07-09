@@ -148,3 +148,10 @@ Evidence:
 - Row count 11 (7 schema + 4 index) matches `rowCount`.
 - `executionTimeMs: 19` valid non-negative number.
 - No code changes required: the existing `MongoDriver.execute('describe_table')` implementation already satisfies AC-032 at the real WS+Mongo boundary.
+
+## 2026-07-09T12:41:00.837Z — Resumed
+
+- WorkItem: WI-AC-032
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
