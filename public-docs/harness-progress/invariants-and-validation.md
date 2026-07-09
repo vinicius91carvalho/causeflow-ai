@@ -602,3 +602,12 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Provider quota/rate limit; retry automatically after the quota window
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T01:48:47Z — Verification complete
+
+- WorkItem: WI-AC-023
+- AcceptanceChecks: AC-023
+- Outcome: PASS; implementation=true
+- Boundary: `mint dev --port 5180`; 125 `docs.json` navigation pages returned HTTP 200 and no rendered `"status": "dismissed"` or `"status": "failed"` values.
+- Evidence: 133 `.mdx` files audited; `rg -n '"status"\s*:\s*"(dismissed|failed)"' --glob '*.mdx' .` returned zero matches. `pending` appears only in remediation `steps[].status`, pending approval routes/text, or other approval-level contexts.
+- Scaffold: project spec-required docs/runtime files and directories are present.
