@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { incidentId } from '../../../shared/domain/value-objects.js';
+import { config } from '../../../shared/config/index.js';
 import { requireRole } from '../../../shared/infra/http/middleware/rbac.middleware.js';
 import { isStaffEmail } from '../../../shared/infra/http/middleware/staff.middleware.js';
 import type { AppEnv } from '../../../shared/infra/http/hono-types.js';
@@ -66,13 +67,44 @@ export function createIncidentRoutes(useCases: IncidentUseCases): Hono<AppEnv, i
             return c.json(sanitizeList(result));
         }
     });
+    // Create a new incident (bare POST, no /chat suffix).
+    // AC-040: authenticated request writes a row visible in Postgres.
+    // AC-040: authenticated users with admin or member role can create incidents.
+    app.post('/', requireRole('admin', 'member'), zValidator('json', createManualIncidentSchema), async (c) => {
+        const tenantId = c.get('tenantId');
+        const body = c.req.valid('json');
+        const userEmail = c.get('userEmail');
+        const actorUserId = c.get('userId');
+        const investigationMode = isStaffEmail(userEmail) ? body.investigationMode : undefined;
+        const incident = await useCases.createManualIncident.execute({
+            tenantId,
+            title: body.title,
+            description: body.description,
+            severity: body.severity,
+            suggestedAgents: body.suggestedAgents,
+            createdBy: userEmail ?? 'unknown',
+            actorUserId,
+            actorEmail: userEmail,
+            investigationMode,
+        });
+        return c.json({
+            incidentId: incident.incidentId,
+            status: incident.status,
+            message: incident.status === 'triaging'
+                ? 'Incident created and queued for investigation'
+                : 'Incident created and queued for triage',
+        }, 201);
+    });
+
     // Create incident via chat (must be before /:id to avoid path collision)
     app.post('/chat', requireRole('admin'), zValidator('json', createManualIncidentSchema), async (c) => {
         const tenantId = c.get('tenantId');
         const body = c.req.valid('json');
         const userEmail = c.get('userEmail');
         // Reserve investigation credit (atomic increment with quota check)
-        if (useCases.reserveInvestigation) {
+        // Skip billing check in OSS runtime (Stripe is not used; AC-043).
+        // The DynamoDB-backed BillingAccountRepository is not available in OSS.
+        if (useCases.reserveInvestigation && !config.isOss()) {
             const reservation = await useCases.reserveInvestigation.execute(tenantId);
             if (!reservation.reserved) {
                 return c.json({ error: 'QUOTA_EXCEEDED', message: 'Investigation limit reached' }, 402);

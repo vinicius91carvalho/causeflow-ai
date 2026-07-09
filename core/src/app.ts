@@ -148,8 +148,13 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
     app.route('/v1/signup', createSignupRoute(ctx.billingUseCases));
     // Integration routes (credential-based + unified list)
     app.route('/v1/integrations', createIntegrationRoutes(ctx.integrationUseCases));
-    // Auth routes (Clerk webhook + whoami)
-    app.route('/v1/auth', createAuthRoutes(ctx.authUseCases));
+    // Auth routes
+    if (config.isOss() && 'ossAuthRouter' in ctx) {
+      const ossAuthRouter = (ctx as any).ossAuthRouter;
+      app.route('/v1/auth', ossAuthRouter);
+    } else {
+      app.route('/v1/auth', createAuthRoutes(ctx.authUseCases));
+    }
     // Whoami — returns authenticated principal (user + tenant) from the
     // middleware context. Works with both Clerk JWTs and tenant API keys
     // (cflo_…), letting programmatic callers resolve their identity.

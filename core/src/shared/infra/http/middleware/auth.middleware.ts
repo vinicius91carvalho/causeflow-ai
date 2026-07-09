@@ -1,7 +1,5 @@
 import type { MiddlewareHandler } from 'hono';
-import { verifyToken } from '@clerk/backend';
-import { createHash, createSecretKey } from 'node:crypto';
-import { jwtVerify } from 'jose';
+import { createHash } from 'node:crypto';
 import { config } from '../../../config/index.js';
 import { UnauthorizedError } from '../../../domain/errors.js';
 import { tenantId } from '../../../domain/value-objects.js';
@@ -23,7 +21,8 @@ const PUBLIC_PATHS = [
   '/webhooks/',
   '/dashboard',
   '/v1/auth/clerk-webhook',
-  '/v1/auth/oss-login',
+  '/v1/auth/register',  // OSS register — no auth required
+  '/v1/auth/login',      // OSS login — no auth required
   '/v1/billing/webhook',
   '/v1/signup',
   '/v1/widget/',
@@ -75,67 +74,44 @@ export const authMiddleware: MiddlewareHandler<AppEnv> = async (c, next) => {
     }
   }
 
-  // Try local JWT verification first (dev/OSS mode with JWT_SECRET)
-  if (config.auth.jwtSecret) {
+  // OSS runtime: verify JWT locally with jose instead of calling Clerk.
+  // The JWT is signed with the server's JWT_SECRET (HS256) and carries
+  // custom claims (sub, email, tenant_id, roles).
+  if (config.isOss()) {
     try {
-      const secret = createSecretKey(Buffer.from(config.auth.jwtSecret, 'utf-8'));
+      const { jwtVerify } = await import('jose');
+      const secret = new TextEncoder().encode(
+        process.env['JWT_SECRET'] ?? 'dev-secret-DO-NOT-USE-IN-PRODUCTION',
+      );
       const { payload } = await jwtVerify(token, secret, {
-        issuer: config.auth.jwtIssuer,
+        issuer: 'causeflow',
+        audience: 'causeflow-api',
       });
 
-      const userId = payload.sub ?? 'anonymous';
-      const email = (payload.email as string) ?? '';
-      const orgId = (payload.tenantId as string) ?? (payload.org_id as string);
-      const orgRole = payload.org_role as string | undefined;
+      const userId = payload.sub;
+      const email = (payload as Record<string, unknown>).email as string ?? '';
+      const tid = (payload as Record<string, unknown>).tenant_id as string;
+      const roles = (payload as Record<string, unknown>).roles as string[] ?? [];
 
-      const roles: string[] = [];
-      if (orgRole) {
-        if (orgRole === 'admin') roles.push('admin');
-        else roles.push('member');
-      }
-
-      c.set('userId', userId);
+      c.set('userId', userId ?? '');
       c.set('userEmail', email);
       c.set('userRoles', roles);
 
-      if (orgId) {
-        c.set('tenantId', tenantId(orgId));
+      if (tid) {
+        c.set('tenantId', tenantId(tid));
+      } else if (!isProvisioningPath(path, c.req.method)) {
+        throw new UnauthorizedError('No tenant in token');
       }
 
       return next();
-    } catch {
-      // Local JWT failed — fall through to Clerk verification if configured
-      if (!config.clerk.secretKey) {
-        throw new UnauthorizedError('Invalid or expired token');
-      }
+    } catch (err) {
+      if (err instanceof UnauthorizedError) throw err;
+      throw new UnauthorizedError('Invalid or expired token');
     }
   }
 
   try {
-    // When Clerk is not configured (empty secretKey in dev/test), fall back to
-    // local JWT verification using the configured JWT_SECRET. This allows
-    // testing protected endpoints without a live Clerk instance.
-    if (!config.clerk.secretKey) {
-      const secret = new TextEncoder().encode(config.auth.jwtSecret);
-      const { payload } = await jwtVerify(token, secret, {
-        issuer: config.auth.jwtIssuer,
-        audience: config.auth.jwtAudience,
-      });
-      const orgId = (payload as Record<string, unknown>).tenant_id as string | undefined;
-      const userId = payload.sub ?? '';
-      const email = (payload as Record<string, unknown>).email as string ?? '';
-      const roles = (payload as Record<string, unknown>).roles as string[] ?? [];
-      c.set('userId', userId);
-      c.set('userEmail', email);
-      c.set('userRoles', roles);
-      if (orgId) {
-        c.set('tenantId', tenantId(orgId));
-      } else if (!isProvisioningPath(path, c.req.method)) {
-        throw new UnauthorizedError('No organization selected. Please select an organization.');
-      }
-      return next();
-    }
-
+    const { verifyToken } = await import('@clerk/backend');
     const payload = await verifyToken(token, {
       secretKey: config.clerk.secretKey,
       // Networkless verification when CLERK_JWT_KEY (PEM) is configured; falls
