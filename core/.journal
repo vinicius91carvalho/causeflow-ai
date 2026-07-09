@@ -745,3 +745,139 @@ None.
 
 ## Verdict
 integration=true, implementation=true, qa=true
+
+---
+
+# QA Journal - WI-AC-033 (VAPID web push subscription + push on incident change)
+
+## Test Date
+2026-07-09
+
+## Work Item
+WI-AC-033
+
+## Environment
+- OSS runtime with Postgres, Redis, running in Docker (core-causeflow-api-1)
+- PORT mapped: 3099 (host) → 5171 (container)
+- VAPID keys: configured (VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY)
+- Auth: OSS login (JWT via /v1/auth/register + /v1/auth/login)
+- Push subscription repo: PgPushSubscriptionRepository (Postgres-backed)
+
+## Acceptance Check
+AC-033: "Subscribe a browser to VAPID web push: POST /api/v1/notifications/subscribe with the endpoint + keys. On any incident severity change, the subscriber receives a push with the incident title and a deep link to /dashboard/incidents/:id. Revoking the subscription via DELETE removes the push record."
+
+## Verification Results
+
+### 1. POST /v1/notifications/subscribe — PASS
+- Returns 200 `{"ok":true}` with valid endpoint + keys
+- Returns 400 when endpoint is missing
+- Returns 400 when keys.p256dh is missing
+- Returns 400 when keys.auth is missing
+- Returns 501 when push subscription repo is not configured (code path check)
+- Returns 401 without valid auth token
+- Repository `upsert` is called with correct data (validated via unit test)
+- Real HTTP test against running server confirmed all above behaviors
+
+### 2. Push notification fires on incident status change — PASS (partial)
+- Event handler wired in bootstrap.ts for `incident.status_changed`
+- Push is attempted to all tenant subscribers (confirmed via server logs)
+- Deep link URL is correct: `/dashboard/incidents/{incidentId}`
+- Tenant isolation holds: only the correct tenant's subscribers get push
+- Unit tests validate push payload structure
+
+### 3. Push notification contains incident title — FAIL
+- The `incident.status_changed` event payload does NOT include the incident `title`
+- All four emission sites only send `{ incidentId, from, to, actorUserId, actorEmail }`
+- Handler falls back to "Incident updated" string
+- AC-033 requires "the subscriber receives a push with the incident title"
+
+### 4. DELETE /v1/notifications/subscribe — PASS
+- Returns 200 `{"ok":true}` when endpoint exists
+- Returns 200 `{"ok":true}` for non-existent endpoint (idempotent)
+- Supports endpoint in request body or query parameter
+- Returns 400 when no endpoint provided
+- Returns 501 when push subscription repo is not configured
+- Repository `delete` is called with correct endpoint
+
+## Defects
+
+### Defect 1: Push notification payload missing incident title
+- Severity: medium
+- Expected: Push contains the actual incident title (e.g. "CPU spike detected")
+- Observed: Push says "Incident updated" (generic fallback)
+- Root cause: All four `incident.status_changed` event emitters omit the `title` field
+- Evidence: Code audit of all 4 emission sites + bootstrap.ts handler logic
+- Fix: Add `title` to the event payload at all 4 emission sites, or fetch incident from repo in the push handler
+
+### Defect 2: Push triggered on status change, not severity change
+- Severity: low
+- Expected: "On any incident severity change" per AC-033
+- Observed: Triggered on `incident.status_changed` (status lifecycle events)
+- Note: There is no separate "severity change" mechanism in the current architecture; severity is set at creation
+
+
+---
+
+# QA Journal - WI-AC-033 (VAPID web push) — Re-verification after defect fixes
+
+## Test Date
+2026-07-09
+
+## Work Item
+WI-AC-033
+
+## Environment
+- OSS runtime with Postgres, Redis, running in Docker (core-causeflow-api-1)
+- PORT: 3099
+- VAPID keys: configured (in container env)
+- Auth: OSS JWT via POST /v1/auth/register + /v1/auth/login
+- Push subscription repo: PgPushSubscriptionRepository (Postgres-backed)
+
+## Previous QA Verdict (2026-07-09, commit 9a54877a)
+qa=true implementation=false
+Defects:
+1. Push notification missing incident title (falls back to "Incident updated")
+2. Push triggered on status change, not severity change (per AC-033)
+
+## Fixes Applied (commits 69213f63 + 5fba77ca)
+1. Added `title` field to `IncidentSeverityChangedEvent` payload interface
+2. All 4 emission sites now include `title` in `severity_changed` events
+3. New `incident.severity_changed` event type replaces `status_changed` for push trigger
+4. Bootstrap handler subscribes to `severity_changed` with explicit comment that status transitions do not send pushes
+5. WebPushAdapter uses dynamic import for better CJS/ESM interop
+6. PushSubscriptionEntity added to ElectroDB entity registry
+7. PgPushSubscriptionRepository handles upsert/list/delete/deleteAllByTenant
+8. POST and DELETE /v1/notifications/subscribe routes with validation
+
+## Verification Results
+
+### 1. POST /v1/notifications/subscribe — PASS
+- 200 with valid endpoint + keys
+- 400 for missing endpoint, keys.p256dh, keys.auth
+- 501 when push repo not configured
+- 401 without auth token
+- Subscription persisted in `causeflow.push_subscriptions` table
+- Tenant-isolated storage
+
+### 2. DELETE /v1/notifications/subscribe — PASS
+- 200 on successful deletion
+- 200 idempotent for non-existent endpoint
+- Supports body and query param
+- 400 when no endpoint provided
+- Record removed from Postgres
+
+### 3. Push on incident.severity_changed — PASS
+- Server logs confirm push sending was attempted
+- Push payload includes `title` from event (not fallback)
+- Deep link: `/dashboard/incidents/{incidentId}` matches spec
+- Fires on severity change, not on every status transition
+
+### 4. Unit Tests — PASS
+- 15 tests in ac033-push-subscription.test.ts all pass
+- Type errors in test file fixed (body type annotations)
+
+## Defects
+None. Both previously reported defects have been resolved.
+
+## Verdict
+qa=true implementation=true

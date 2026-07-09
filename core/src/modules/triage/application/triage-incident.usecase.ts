@@ -148,11 +148,25 @@ export class TriageIncidentUseCase {
         catch (evidenceErr) {
             logger.warn({ incidentId, err: evidenceErr instanceof Error ? evidenceErr.message : String(evidenceErr) }, 'Failed to persist triage evidence — non-critical');
         }
+        // Fire severity_changed event when AI assigns a new severity (AC-033)
+        if (result.priority !== incident.severity) {
+            await this.eventBus.publish({
+                eventType: 'incident.severity_changed',
+                occurredAt: new Date().toISOString(),
+                tenantId,
+                payload: {
+                    incidentId,
+                    severity: result.priority,
+                    previousSeverity: incident.severity,
+                    title: incident.title,
+                },
+            });
+        }
         await this.eventBus.publish({
             eventType: 'incident.status_changed',
             occurredAt: new Date().toISOString(),
             tenantId,
-            payload: { incidentId, from: 'open', to: 'triaging' },
+            payload: { incidentId, from: 'open', to: 'triaging', title: incident.title, severity: result.priority },
         });
         const threshold = SEVERITY_RANK[this.minInvestigationSeverity] ?? 1;
         const resultRank = SEVERITY_RANK[result.priority] ?? 4;
@@ -183,7 +197,7 @@ export class TriageIncidentUseCase {
                     eventType: 'incident.status_changed',
                     occurredAt: new Date().toISOString(),
                     tenantId,
-                    payload: { incidentId, from: 'triaging', to: 'resolved' },
+                    payload: { incidentId, from: 'triaging', to: 'resolved', title: incident.title },
                 });
             }
         }

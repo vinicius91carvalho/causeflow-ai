@@ -29,6 +29,7 @@ import { IngestAlertUseCase } from './modules/ingestion/application/ingest-alert
 import { GetIncidentUseCase } from './modules/ingestion/application/get-incident.usecase.js';
 import { ListIncidentsUseCase } from './modules/ingestion/application/list-incidents.usecase.js';
 import { UpdateIncidentStatusUseCase } from './modules/ingestion/application/update-incident-status.usecase.js';
+import { UpdateIncidentSeverityUseCase } from './modules/ingestion/application/update-incident-severity.usecase.js';
 import { GetIncidentAnalyticsUseCase } from './modules/ingestion/application/get-incident-analytics.usecase.js';
 import { DatadogParser } from './modules/ingestion/infra/parsers/datadog.parser.js';
 import { GrafanaParser } from './modules/ingestion/infra/parsers/grafana.parser.js';
@@ -76,6 +77,8 @@ import { ListPendingApprovalsUseCase } from './modules/notification/application/
 import { RespondApprovalUseCase } from './modules/notification/application/respond-approval.usecase.js';
 import { MarkNotificationReadUseCase } from './modules/notification/application/mark-notification-read.usecase.js';
 import type { NotificationUseCases } from './modules/notification/infra/notification.routes.js';
+import { PgPushSubscriptionRepository } from './modules/notification/infra/pg-push-subscription.repository.js';
+import { WebPushAdapter } from './modules/widget/infra/web-push.adapter.js';
 import { startRemediationConsumer } from './modules/remediation/infra/remediation-consumer.js';
 import { startProgressConsumer } from './shared/infra/pubsub/progress-consumer.js';
 import { createObservabilityStack } from './shared/infra/observability/observability-factory.js';
@@ -411,6 +414,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     getIncident: new GetIncidentUseCase(incidentRepo),
     listIncidents: new ListIncidentsUseCase(incidentRepo),
     updateIncidentStatus: new UpdateIncidentStatusUseCase(incidentRepo, eventBus),
+    updateIncidentSeverity: new UpdateIncidentSeverityUseCase(incidentRepo, eventBus),
     createManualIncident,
     incidentRepo,
     reserveInvestigation,
@@ -805,6 +809,23 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   });
   const markNotificationRead = new MarkNotificationReadUseCase(notificationRepo);
 
+  // Push subscription repository and Web Push adapter (VAPID)
+  let pushSubscriptionRepo: import('./modules/notification/domain/push-subscription.repository.js').IPushSubscriptionRepository | undefined;
+  let pushAdapter: WebPushAdapter | undefined;
+
+  if (config.isOss()) {
+    // OSS runtime: use Postgres-based repository
+    pushSubscriptionRepo = new PgPushSubscriptionRepository();
+  }
+
+  if (config.webPush.keys.publicKey && config.webPush.keys.privateKey) {
+    pushAdapter = new WebPushAdapter(
+      config.webPush.keys.publicKey,
+      config.webPush.keys.privateKey,
+      config.webPush.subject,
+    );
+  }
+
   const notificationUseCases: NotificationUseCases = {
     listNotifications,
     listPendingApprovals,
@@ -812,7 +833,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     markNotificationRead,
     notificationRepo,
     sseManager,
+    pushSubscriptionRepo,
   };
+
 
   // === EventBus Wiring: Audit Trail ===
   eventBus.subscribe('incident.created', async (event) => {
@@ -827,6 +850,25 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       resourceId: (event.payload['incidentId'] as string) ?? '',
       changes: event.payload,
     });
+
+    // Fire severity_changed for initial severity assignment so push
+    // subscribers receive a notification at incident creation time (AC-033).
+    const incId = (event.payload['incidentId'] as string) ?? '';
+    const sev = (event.payload['severity'] as string) ?? '';
+    const title = (event.payload['title'] as string) ?? 'Incident';
+    if (incId && sev) {
+      await eventBus.publish({
+        eventType: 'incident.severity_changed',
+        occurredAt: new Date().toISOString(),
+        tenantId: event.tenantId,
+        payload: {
+          incidentId: incId,
+          severity: sev,
+          previousSeverity: 'unset',
+          title,
+        },
+      });
+    }
   });
 
   eventBus.subscribe('incident.status_changed', async (event) => {
@@ -841,6 +883,41 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       resourceId: (event.payload['incidentId'] as string) ?? '',
       changes: event.payload,
     });
+
+    // Note: push notifications are sent via the incident.severity_changed handler below.
+    // We intentionally do NOT send push on every status transition — only on severity changes.
+  });
+
+  // Push notification handler for incident severity changes (AC-033).
+  // Fires when an incident severity is explicitly changed or set at creation.
+  eventBus.subscribe('incident.severity_changed', async (event) => {
+    if (!pushSubscriptionRepo || !pushAdapter) return;
+    try {
+      const tid = tenantId(event.tenantId);
+      const payload = event.payload as Record<string, unknown>;
+      const incidentId = (payload['incidentId'] as string) ?? '';
+      const incidentTitle = (payload['title'] as string) ?? 'Incident updated';
+
+      const subscriptions = await pushSubscriptionRepo.listByTenant(tid);
+      if (subscriptions.length > 0) {
+        const pushPayload = {
+          title: incidentTitle,
+          body: `Incident severity changed: ${incidentTitle}`,
+          url: `/dashboard/incidents/${incidentId}`,
+          data: { incidentId, severity: payload['severity'], type: 'incident.severity_changed' },
+        };
+        for (const sub of subscriptions) {
+          pushAdapter.send(
+            { endpoint: sub.endpoint, keys: sub.keys },
+            pushPayload,
+          ).catch((err: unknown) => {
+            logger.error({ err, tenantId: tid, endpoint: sub.endpoint }, 'Failed to send push notification');
+          });
+        }
+      }
+    } catch (err) {
+      logger.error({ err, tenantId: event.tenantId }, 'Failed to send push notifications for incident.severity_changed');
+    }
   });
 
   eventBus.subscribe('investigation.completed', async (event) => {

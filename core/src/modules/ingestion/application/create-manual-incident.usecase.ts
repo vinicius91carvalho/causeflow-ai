@@ -107,6 +107,7 @@ export class CreateManualIncidentUseCase {
                     incidentId: created.incidentId,
                     from: 'open',
                     to: 'triaging',
+                    title: created.title,
                     actorUserId: input.actorUserId,
                     actorEmail: input.actorEmail,
                 },

@@ -9,6 +9,7 @@ import type { RespondApprovalUseCase } from '../application/respond-approval.use
 import type { MarkNotificationReadUseCase } from '../application/mark-notification-read.usecase.js';
 import type { INotificationRepository } from '../domain/notification.repository.js';
 import type { SSEManager } from '../../../shared/infra/chat/sse-manager.js';
+import type { IPushSubscriptionRepository } from '../domain/push-subscription.repository.js';
 
 export interface NotificationUseCases {
     listNotifications: ListNotificationsUseCase;
@@ -17,6 +18,7 @@ export interface NotificationUseCases {
     markNotificationRead: MarkNotificationReadUseCase;
     notificationRepo: INotificationRepository;
     sseManager: SSEManager;
+    pushSubscriptionRepo?: IPushSubscriptionRepository;
 }
 
 export function createNotificationRoutes(useCases: NotificationUseCases) {
@@ -90,5 +92,38 @@ export function createNotificationRoutes(useCases: NotificationUseCases) {
         });
         return c.json(result);
     });
+
+    // POST /v1/notifications/subscribe — subscribe to push notifications (VAPID)
+    app.post('/subscribe', async (c) => {
+        if (!useCases.pushSubscriptionRepo) {
+            return c.json({ error: 'Push notifications not configured' }, 501);
+        }
+        const tid = tenantId(c.get('tenantId'));
+        const body = await c.req.json();
+        if (!body.endpoint || !body.keys?.p256dh || !body.keys?.auth) {
+            return c.json({ error: 'endpoint, keys.p256dh, and keys.auth are required' }, 400);
+        }
+        await useCases.pushSubscriptionRepo.upsert(tid, body.endpoint, {
+            p256dh: body.keys.p256dh,
+            auth: body.keys.auth,
+        });
+        return c.json({ ok: true });
+    });
+
+    // DELETE /v1/notifications/subscribe — unsubscribe from push notifications
+    app.delete('/subscribe', async (c) => {
+        if (!useCases.pushSubscriptionRepo) {
+            return c.json({ error: 'Push notifications not configured' }, 501);
+        }
+        const tid = tenantId(c.get('tenantId'));
+        const body = await c.req.json().catch(() => ({}));
+        const endpoint = c.req.query('endpoint') || body.endpoint;
+        if (!endpoint) {
+            return c.json({ error: 'endpoint query parameter or body field is required' }, 400);
+        }
+        await useCases.pushSubscriptionRepo.delete(tid, endpoint);
+        return c.json({ ok: true });
+    });
+
     return app;
 }

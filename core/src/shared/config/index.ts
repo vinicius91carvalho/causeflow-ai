@@ -234,6 +234,14 @@ export const config = {
     securityGroupIds: (process.env['ECS_SECURITY_GROUP_IDS'] ?? '').split(',').filter(Boolean),
   },
 
+  webPush: {
+    keys: {
+      publicKey: process.env['VAPID_PUBLIC_KEY'] ?? '',
+      privateKey: process.env['VAPID_PRIVATE_KEY'] ?? '',
+    },
+    subject: env('VAPID_SUBJECT', 'mailto:push@causeflow.io'),
+  },
+
   hindsight: {
     baseUrl: env('HINDSIGHT_BASE_URL', ''),
     apiKey: process.env['HINDSIGHT_API_KEY'] ?? '',
