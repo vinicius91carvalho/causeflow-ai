@@ -503,10 +503,11 @@
       "AC-013"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "verify_notes": "Integrated Verification passed on main. Required scaffold present with 133 MDX files; AC-023 grep for dismissed/failed JSON statuses returned zero matches; pending occurrences are step-level or approval-level/invite text, not Incident.status; check-invariants.sh --quiet passed; mint dev --port 5180 served / and /api-reference/remediation/list-remediations with HTTP 200 and no parse markers."
   },
   {
     "id": "WI-AC-024",
