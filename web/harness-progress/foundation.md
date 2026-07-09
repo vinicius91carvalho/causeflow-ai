@@ -1085,3 +1085,10 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - WorkItem: WI-AC-005
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T12:20:43.577Z — Resumed
+
+- WorkItem: WI-AC-005
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
