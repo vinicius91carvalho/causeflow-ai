@@ -1099,3 +1099,12 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - WorkItem: WI-AC-005
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T12:22:51.080Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-005-1-integration_qa.log
+- NextAction: next Ready Work Item
