@@ -363,3 +363,10 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - WorkItem: WI-AC-025
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T10:52:02.534Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 3
+- NextAction: coding
