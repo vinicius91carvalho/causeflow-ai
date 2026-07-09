@@ -2,7 +2,7 @@
 
 ## WI-AC-042: Local auth replaces Clerk
 
-### Status: IMPLEMENTED
+### Status: IMPLEMENTED & VERIFIED (QA PASS)
 
 ### Changes
 - Verified `POST /api/v1/auth/register` returns 201 with `{ user, tenant, token }`
