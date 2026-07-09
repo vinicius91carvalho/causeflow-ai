@@ -501,3 +501,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - PreviousPhase: qa
 - Attempt: 2
 - NextAction: qa
+
+## 2026-07-09T17:18:00.152Z — Resumed
+
+- WorkItem: WI-AC-051
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
