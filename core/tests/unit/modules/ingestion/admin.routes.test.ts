@@ -42,11 +42,13 @@ import { createAdminRoutes } from '../../../../src/modules/ingestion/infra/admin
 import { TestErrorFiredError } from '../../../../src/shared/domain/errors.js';
 import type { IIncidentRepository } from '../../../../src/modules/ingestion/domain/incident.repository.js';
 import type { IngestAlertUseCase } from '../../../../src/modules/ingestion/application/ingest-alert.usecase.js';
+import type { CreateManualIncidentUseCase } from '../../../../src/modules/ingestion/application/create-manual-incident.usecase.js';
 
 const mockIncidentRepo = { findAll: vi.fn() } as unknown as IIncidentRepository;
 const mockIngestAlertExecute = vi.fn();
 const mockIngestAlert = { execute: mockIngestAlertExecute } as unknown as IngestAlertUseCase;
-const adminDeps = { incidentRepo: mockIncidentRepo, ingestAlert: mockIngestAlert };
+const mockCreateManualIncident = { execute: vi.fn() } as unknown as CreateManualIncidentUseCase;
+const adminDeps = { incidentRepo: mockIncidentRepo, ingestAlert: mockIngestAlert, createManualIncident: mockCreateManualIncident };
 const app = createTestApp(() => createAdminRoutes(adminDeps), {} as any, { userRoles: ['admin'] });
 
 describe('admin.routes', () => {

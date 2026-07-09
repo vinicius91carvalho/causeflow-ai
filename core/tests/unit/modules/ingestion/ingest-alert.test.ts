@@ -67,6 +67,7 @@ describe('IngestAlertUseCase', () => {
       title: 'Existing',
       sourceProvider: 'datadog',
       sourceAlertId: 'alert-123',
+      createdAt: new Date().toISOString(),
     } as unknown as Incident;
 
     vi.mocked(repo.findBySourceAlert).mockResolvedValueOnce(existingIncident);

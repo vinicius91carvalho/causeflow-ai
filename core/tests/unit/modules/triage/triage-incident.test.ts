@@ -162,19 +162,28 @@ describe('TriageIncidentUseCase', () => {
     ).rejects.toThrow(ConflictError);
   });
 
-  it('should throw TriageFailedError when LLM returns invalid response', async () => {
+  it('should fall back to default low-severity when LLM returns invalid response', async () => {
     vi.mocked(incidentRepo.findById).mockResolvedValueOnce(createMockIncident());
     vi.mocked(llmClient.complete).mockRejectedValueOnce(new Error('Invalid JSON response'));
 
-    await expect(
-      useCase.execute(tenantId('tenant-1'), incidentId('inc-123')),
-    ).rejects.toThrow('Triage failed');
-
-    // Status must be reverted to 'open' so incident can be retried
-    expect(incidentRepo.updateStatus).toHaveBeenCalledWith(
+    const result = await useCase.execute(
       tenantId('tenant-1'),
       incidentId('inc-123'),
-      'open',
+    );
+
+    // Fallback result should have low priority
+    expect(result.priority).toBe('low');
+    expect(result.confidence).toBe(0);
+    expect(result.category).toBe('unknown');
+    expect(result.investigationMode).toBe('orchestrator');
+
+    // Incident updated with fallback severity
+    expect(incidentRepo.update).toHaveBeenCalledWith(
+      tenantId('tenant-1'),
+      incidentId('inc-123'),
+      expect.objectContaining({
+        severity: 'low',
+      }),
     );
   });
 

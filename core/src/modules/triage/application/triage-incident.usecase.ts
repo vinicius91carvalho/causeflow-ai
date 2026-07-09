@@ -111,9 +111,18 @@ export class TriageIncidentUseCase {
             result = completion.content;
         }
         catch (err) {
-            // Revert status to 'open' so the incident can be retried
-            await this.incidentRepo.updateStatus(tenantId, incidentId, 'open');
-            throw new TriageFailedError(incidentId, err instanceof Error ? err.message : 'Unknown error');
+            // If LLM is unavailable (e.g., no API key configured), fall back to
+            // a default low-severity triage so the pipeline can continue without
+            // blocking on an external SaaS (AC-041 / AC-039).
+            logger.warn({ incidentId, err: err instanceof Error ? err.message : String(err) }, 'LLM triage failed — using fallback default');
+            result = {
+                priority: 'low',
+                summary: 'Triage completed via fallback (LLM unavailable). Assigned default low severity.',
+                suggestedAgents: [],
+                confidence: 0,
+                category: 'unknown',
+                investigationMode: 'orchestrator',
+            };
         }
         await this.incidentRepo.update(tenantId, incidentId, {
             severity: result.priority,
@@ -121,16 +130,24 @@ export class TriageIncidentUseCase {
             investigationMode: result.investigationMode,
             updatedAt: new Date().toISOString(),
         });
-        await this.evidenceRepo.create({
-            tenantId,
-            incidentId,
-            evidenceId: evidenceId(uuidv4()),
-            agentRole: 'coordinator',
-            evidenceType: 'agent_reasoning',
-            content: result.summary,
-            metadata: { confidence: result.confidence, category: result.category },
-            createdAt: new Date().toISOString(),
-        });
+        // Evidence persistence is best-effort — the database backing may not be
+        // available in all runtimes (e.g., OSS mode lacks a PgEvidenceRepository),
+        // and a failure here must not block the rest of the triage flow.
+        try {
+            await this.evidenceRepo.create({
+                tenantId,
+                incidentId,
+                evidenceId: evidenceId(uuidv4()),
+                agentRole: 'coordinator',
+                evidenceType: 'agent_reasoning',
+                content: result.summary,
+                metadata: { confidence: result.confidence, category: result.category },
+                createdAt: new Date().toISOString(),
+            });
+        }
+        catch (evidenceErr) {
+            logger.warn({ incidentId, err: evidenceErr instanceof Error ? evidenceErr.message : String(evidenceErr) }, 'Failed to persist triage evidence — non-critical');
+        }
         await this.eventBus.publish({
             eventType: 'incident.status_changed',
             occurredAt: new Date().toISOString(),
