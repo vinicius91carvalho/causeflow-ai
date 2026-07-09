@@ -516,3 +516,10 @@ No source code changes needed. No defects found.
 - Outcome: Integrated Verification failed after Attempt 3
 - Defects: Session terminated, killing shell... ...killed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T19:56:54.509Z — Explicit Resume
+
+- WorkItem: WI-AC-036
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Mongo-driver WI-AC-036 IV failed with shell killed mid-session. Retry integration QA for WI-AC-036 only; confirm pi session stays alive.
+- NextAction: Coding Attempt 1
