@@ -2313,3 +2313,10 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T21:55:58.739Z — Resumed
+
+- WorkItem: WI-AC-006
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
