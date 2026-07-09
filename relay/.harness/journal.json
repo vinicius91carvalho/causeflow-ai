@@ -154,15 +154,16 @@
       "qa": true,
       "implementation": true,
       "integration": true,
-      "timestamp": "2026-07-09T07:02:00Z",
-      "details": "Independent QA verification pass for AC-030 (postgres-sql-parser). Tested all three conditions: (1) validateQuery(\"WITH x AS (SELECT 1) SELECT * FROM x\") returns {valid:true}; (2) validateQuery(\"SELECT * FROM (SELECT pg_sleep(1)) s\") rejected: {valid:false, reason:\"Dangerous function detected: pg_sleep\"}; (3) validateQuery(\"EXPLAIN SELECT 1\") accepted: {valid:true} (parser throws on EXPLAIN, catch block fallback accepts via first-word check). PgDriver.validate() correctly delegates to validateQuery(). npx tsc --noEmit passes. npm run build passes. No defects.",
+      "timestamp": "2026-07-09T07:18:00Z",
+      "details": "Integrated Verification pass for AC-030 (postgres-sql-parser). Tested at compiled dist boundary. All three acceptance-check conditions verified: (1) validateQuery(\"WITH x AS (SELECT 1) SELECT * FROM x\") returns {valid:true} \u2014 parser.astify succeeds, stmt.type===\"select\", no dangerous functions found; (2) validateQuery(\"SELECT * FROM (SELECT pg_sleep(1)) s\") returns {valid:false, reason:\"Dangerous function detected: pg_sleep\"} \u2014 parser.astify succeeds, text scan catches pg_sleep; (3) validateQuery(\"EXPLAIN SELECT 1\") returns {valid:true} \u2014 parser throws on EXPLAIN, catch block fallback accepts via first-word EXPLAIN check. PgDriver.validate() delegates to validateQuery() for query/explain operations. npx tsc --noEmit passes. npm run build passes. No defect found.",
       "checks": {
         "with_cte_accepted": "passed",
         "pg_sleep_in_subquery_rejected": "passed",
         "explain_accepted": "passed",
         "driver_validate_wired": "passed",
         "npm_run_build": "passed",
-        "tsc_noEmit": "passed"
+        "tsc_noEmit": "passed",
+        "dist_boundary_verified": "passed"
       }
     }
   ]
