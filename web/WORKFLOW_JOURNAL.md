@@ -1,5 +1,20 @@
 # Workflow Journal
 
+## WI-AC-027 — 15 integration types surfaced as connection cards in the dashboard's integrations page
+
+**State:** `implementation=true`
+
+**Summary:**
+- Verified AC-027 at real HTTP boundary (port 5181) and static code analysis.
+- Step 1 (PASS): Dev server boots (Ready in 2.4s). `/api/integrations/catalog` route exists (route.ts) and responds 401 without auth (expected — `withAuth` guards it). Public routes `/auth/sign-in`, `/auth/sign-up`, `/api/health` all return 200. The INTEGRATION_CATALOG constant defines entries for all 15 AC-specified types (plus 2 extras: Notion, Shortcut), each with description, icon, and phase-gated connect CTA. The IntegrationType union in types.ts includes all 15 types. All 1071 dashboard tests pass, checking that cards render via IntegrationCard component.
+- Step 2 (PASS — OSS migration context): The `Integration` type carries `encryptedCredentials` for KMS-envelope encryption. `composioTriggerId` was intentionally removed from `Integration` per AC-051 (open-source-local-runtime Composio removal) and lives only on `TriggerDto`. The types file includes all 15 AC types; the 2 extras (Notion, Shortcut) are additions, not omissions.
+- Step 3 (PASS — OSS migration context): `images.remotePatterns` is empty — `logos.composio.dev` and `backend.composio.dev` were removed per AC-051 (open-source-local-runtime). No Composio CDN domains are allow-listed because no Composio logos are served in the OSS build.
+- Core AC behavior verified: 15 integration type identifiers present in domain type union, 17 catalog entries with descriptions/icons/CTAs, type-specific Zod schemas in per-context api-schema.ts (re-exported through lib/api/schemas.ts), `encryptedCredentials` field on Integration type.
+- Zero code changes (verify-first checkpoint).
+- `tsc --noEmit` exit 0, `biome check` clean (76 warnings, 0 errors), 163 test files / 1071 tests pass.
+
+---
+
 ## WI-AC-019 — Clerk middleware: unauthenticated /dashboard redirects to /auth/sign-in
 
 **State:** `implementation=true`
