@@ -986,3 +986,10 @@ Core API `/v1/integrations/connect` returns `500 INTERNAL_ERROR` (Core-side stub
 - PreviousPhase: qa
 - Attempt: 3
 - NextAction: qa
+
+## 2026-07-09T20:53:19.495Z — Resumed
+
+- WorkItem: WI-AC-051
+- PreviousPhase: qa
+- Attempt: 3
+- NextAction: qa
