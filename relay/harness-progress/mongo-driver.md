@@ -1401,3 +1401,12 @@ No source code changes needed. No defects found.
 - WorkItem: WI-AC-036
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T20:21:49.519Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-036
+- AcceptanceChecks: AC-036
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-036-2-integration_qa.log
+- NextAction: next Ready Work Item
