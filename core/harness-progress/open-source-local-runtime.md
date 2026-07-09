@@ -805,3 +805,20 @@ BullMQ on Redis replaces SQS in the open-source local runtime (AC-041).
 - PreviousPhase: repair_plan
 - Attempt: 2
 - NextAction: repair-plan
+
+## 2026-07-09T20:59:44.602Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-041
+- DefectReport: Verdict delivered. AC-041 BullMQ integration is verified as fully functional.
+
+**Summary of verification:**
+- The implementation correctly replaces SQS with BullMQ on Redis in OSS runtime
+- All 4 BullMQ queues (`causeflow-alerts`, `causeflow-triage`, `causeflow-investigation`, `causeflow-remediation`) are created and logged at startup
+- `GET /admin/queues` returns full queue visibility (depth, completed/failed counts, last 5 jobs)
+- End-to-end job flow works: incident creation enqueues triage job → worker picks up within 2 seconds → job completes → incident status updates in Postgres
+- Zero SQS endpoints are contacted (confirmed via boot log behavior and code path analysis)
+- Integration flag set to `true`, implementation `true`, no defects
+- RepairPlan: AC-041 (BullMQ on Redis replaces SQS) is functionally complete per QA verdict. Boot log lists 4 BullMQ queues with worker counts, GET /admin/queues returns queue depth/completed/failed/last-5-jobs, POST /api/v1/incidents enqueues a triage job, the in-process BullMQ worker picks it up within 2s, the job completes, and the incident row updates to status=triaged via PgIncidentRepository — all without any SQS endpoint being contacted. The DynamoDB client stub and config.isOss() guards prevent AWS SDK initialization in OSS mode. However, three cross-dependency defects violate the AC-039/AC-040/AC-053 contracts: (1) docker-compose.yml retains stale AWS env vars (AWS_REGION, DYNAMODB_ENDPOINT=http://172.18.0.3:4566, SQS_ENDPOINT=http://ministack:4566, KMS_ENDPOINT, SLACK_SIGNING_SECRET) referencing non-existent containers, (2) 5 repository implementations (Evidence, ToolCall, CodeKnowledge, ChatHistory, RunbookRegistry) still use DynamoDB stubs in OSS mode — their callers silently catch errors and fall back (evidence data is lost rather than persisted), (3) 23 top-level DynamoDB/SQS import lines in bootstrap.ts are resolved at module load even in OSS mode (the DynamoDB stub prevents SDK calls but the import graph is unnecessary).; Remove stale AWS env vars from docker-compose.yml causeflow-api service: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, DYNAMODB_ENDPOINT, DYNAMODB_TABLE_NAME, SQS_ENDPOINT, KMS_ENDPOINT, SLACK_SIGNING_SECRET — these contradict AC-039/AC-053 and reference a non-existent ministack container; Implement PgEvidenceRepository and wire it in bootstrap.ts OSS path (replacing DynamoEvidenceRepository with TODO); Implement PgToolCallRepository and wire it in bootstrap.ts OSS path (replacing DynamoToolCallRepository with TODO); Implement PgCodeKnowledgeRepository and wire it in bootstrap.ts OSS path; Implement PgChatHistoryRepository and wire it in bootstrap.ts OSS path (replacing DynamoChatHistoryRepository); Implement PgRunbookRegistryRepository and wire it in bootstrap.ts OSS path (replacing DynamoRunbookRegistryRepository); Convert top-level SQS/Dynamo imports in bootstrap.ts to dynamic imports under the AWS runtime branch to avoid unnecessary module resolution in OSS mode
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-041-2-integration_qa.log
+- NextAction: Coding Attempt 3
