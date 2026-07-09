@@ -19,7 +19,7 @@ services:
     image: causeflow-relay-control-plane-stub:local
     container_name: relay-control-plane-stub
     ports:
-      - "3000:3000"
+      - "5191:3000"
     environment:
       RELAY_TOKEN: ${RELAY_TOKEN:-harness-smoke-token}
       TENANT_ID: ${TENANT_ID:-harness-tenant}

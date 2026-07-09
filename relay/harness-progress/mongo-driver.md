@@ -133,3 +133,61 @@ NextAction: complete.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-031-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T12:48Z — Verify-first (coding agent)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+Boundary exercised at real WebSocket + MongoDB boundary: ran `test-ac032.mjs` which seeded MongoDB with an `orders` collection (documents with string, number, object, array, null, Date types + 3 indexes), connected to the running control-plane stub, sent a JSON-RPC 2.0 `execute` request with `{ resourceId: 'order-mongo', operation: 'describe_table', params: { tableName: 'orders' } }`, and captured the response.
+
+Evidence:
+- Schema inference: 7 fields detected (`_id`, `status`, `amount`, `customer`, `tags`, `notes`, `createdAt`). Each field's types correctly reflect the `typeof` values from sample docs.
+- `notes` correctly detected both `object` (null) and `string` ("Handle with care") types across the 2 documents.
+- `tags` properly typed as `object` (array), `customer` as `object` (nested doc), `createdAt` as `object` (Date).
+- Index rows: 4 indexes returned — `_id_`, `idx_status`, `idx_amount`, `customer_1_createdAt_-1` — each tagged `_type: 'index'` with `{ name, key }`.
+- Row count 11 (7 schema + 4 index) matches `rowCount`.
+- `executionTimeMs: 19` valid non-negative number.
+- No code changes required: the existing `MongoDriver.execute('describe_table')` implementation already satisfies AC-032 at the real WS+Mongo boundary.
+
+## 2026-07-09T12:41:00.837Z — Resumed
+
+- WorkItem: WI-AC-032
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T12:45:29.351Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-032
+- DefectReport: All verification checks passed. Here's a summary of what was tested:
+
+**AC-032: MongoDB `describe_table` schema inference**
+
+Tested at the real WebSocket boundary using the running docker-compose stack (relay + control-plane-stub + relay-postgres + relay-mongo).
+
+**Test procedure:**
+1. Seeded MongoDB `orders` collection with 2 documents containing varied types (string, number, object, array, null, Date)
+2. Created 3 indexes: `idx_status`, `idx_amount`, `customer_1_createdAt_-1` (compound)
+3. Connected to the control-plane stub on `ws://localhost:5191`
+4. Sent JSON-RPC 2.0 `execute` request with `operation: 'describe_table'`, `params: { tableName: 'orders' }` against resource `order-mongo`
+
+**Results - all 14 assertion groups passed:**
+- **JSON-RPC 2.0**: Response shape correct, no error
+- **7 schema rows**: `_id` (string), `status` (string), `amount` (number), `customer` (object), `tags` (object/array), `notes` (object,string - null+string), `createdAt` (object/Date)
+- **4 index rows**: All tagged `_type: 'index'` with `name` and `key` properties - `_id_`, `idx_status`, `idx_amount`, `customer_1_createdAt_-1`
+- **Response metadata**: `rowCount: 11` matches `rows.length`, `executionTimeMs: 31`, `masked: false`, `maskedFieldCount: 0`
+
+The implementation in `src/drivers/mongodb/mongo-driver.ts` correctly infers schema from up to 10 sample documents via `collection.find().limit(10).toArray()`, walks documents to record `typeof value` per field, and merges with `indexes()` output.
+
+**Defect**: None found. The docker-compose stub port was changed from 3000 to 5191 (this worktree's PORT) because port 3000 was occupied by another project's dev server - this is an infrastructure quirk, not a product defect.
+- RepairPlan: Work Item WI-AC-032 (MongoDB describe_table schema inference) — QA passed. All 14 assertion groups verified at the real WebSocket boundary against the running docker-compose stack (relay + control-plane-stub + relay-mongo). The implementation correctly infers schema from up to 10 sample documents via `collection.find().limit(10).toArray()`, walks documents to record `typeof value` per field, merges those rows with `indexes()` output (tagged `_type: 'index'` with `name` and `key`), and returns correct response metadata (`rowCount`, `executionTimeMs`, `masked`, `maskedFieldCount`). Repository scaffold required by project_specs.xml is present (src/drivers/mongodb/mongo-driver.ts, src/drivers/driver.port.ts, etc.). The only noted quirk — control-plane-stub port 5191 instead of 3000 due to port conflict on the host — is an infrastructure artifact, not a product defect.; No code changes needed — AC-032 is correctly implemented and verified.; No scaffold repairs needed — all required module files (driver port, Mongo driver, Postgres driver, config schemas, audit logger, policy engine, masking engine, health reporter, WS transport) exist and match the project_specs.xml structure.; If the port conflict (3000 occupied) recurs during subsequent work items, consider pinning the control-plane-stub to a dedicated port in docker-compose.yml or documenting the WORKDIR-specific PORT convention.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-032-1-qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-09T12:49:19.961Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-032
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
