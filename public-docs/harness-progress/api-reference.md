@@ -455,3 +455,18 @@ I verified the Authentication page at `api-reference/authentication.mdx` against
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-08T21:05:00.000Z — VERIFY-FIRST pass
+
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- Boundary evidence: `.harness-evidence/api-reference/WI-AC-015-errors-and-pagination-rendered.html`
+- Result: Errors and pagination renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and the cursor-pagination example with `items`, `cursor`, and `count`.
+- Verdict: implementation=true; no source changes.
+
+## 2026-07-09T00:13:46.143Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
