@@ -149,3 +149,12 @@ oss-dev-jwt-secret-change-me for tenant 32996af2-19ba-4d58-ba76-1cb7da13d540.
 - WorkItem: WI-AC-017
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T19:23:37.920Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-017
+- AcceptanceChecks: AC-017
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/triage/WI-AC-017-3-integration_qa.log
+- NextAction: next Ready Work Item
