@@ -7,7 +7,7 @@ const DANGEROUS_FUNCTIONS = [
   'pg_sleep', 'lo_import', 'lo_export', 'pg_read_file', 'pg_write_file',
   'pg_ls_dir', 'pg_stat_file', 'pg_read_binary_file', 'pg_terminate_backend',
   'pg_cancel_backend', 'pg_reload_conf', 'set_config', 'current_setting',
-  'dblink', 'dblink_exec',
+  'dblink_exec', 'dblink',
 ];
 
 export interface ParseResult {
