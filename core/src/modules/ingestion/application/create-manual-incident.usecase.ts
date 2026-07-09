@@ -24,6 +24,7 @@ export interface CreateManualIncidentInput {
      * case itself trusts its inputs.
      */
     investigationMode?: InvestigationMode;
+    sourceProvider?: string;
 }
 
 export class CreateManualIncidentUseCase {
