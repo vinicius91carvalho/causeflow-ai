@@ -107,6 +107,21 @@
         "tsc_noEmit": "passed",
         "pg_driver_integration": "passed"
       }
+    },
+    {
+      "id": "WI-AC-022",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T03:00:00Z",
+      "details": "Integrated Verification pass for AC-022 (postgres-driver list_tables). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + postgres + mongo). Sent JSON-RPC 2.0 execute request with operation:'list_tables' against resource 'order-pg' through the stub to the relay. Response rows: [{table_name:'orders', table_type:'BASE TABLE'}], rowCount: 1, fields: [{name:'table_name', type:'text'}, {name:'table_type', type:'text'}]. The query SELECT table_name, table_type FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name runs against the real relay-postgres container and returns exactly the expected shape. No defects.",
+      "checks": {
+        "response_has_rows_array": "passed",
+        "rows_contain_orders_table": "passed",
+        "fields_match_AC022_spec": "passed",
+        "rowCount_matches_rows_length": "passed",
+        "executionTimeMs_present": "passed"
+      }
     }
   ]
 }
