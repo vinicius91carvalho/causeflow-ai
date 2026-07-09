@@ -6,6 +6,8 @@ export interface CompletionParams {
     maxTokens: number;
     temperature?: number;
     responseSchema?: z.ZodType;
+    /** Optional attributes to tag the trace/span (e.g. tenantId, incidentId). */
+    attributes?: Record<string, string | number | boolean>;
 }
 export interface CompletionResult<T = string> {
     content: T;

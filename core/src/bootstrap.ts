@@ -428,6 +428,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     evidenceRepo,
     eventBus,
     llmClient,
+    tracer,
     messageQueue,
     investigationQueueUrl,
     minInvestigationSeverity: config.triage.minInvestigationSeverity,

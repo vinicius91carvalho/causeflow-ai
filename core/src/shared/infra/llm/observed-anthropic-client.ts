@@ -17,6 +17,7 @@ export class ObservedAnthropicClient {
         const span = this.tracer.startSpan('llm.complete', {
             maxTokens: params.maxTokens,
             hasSchema: params.responseSchema ? 'true' : 'false',
+            ...(params.attributes ?? {}),
         }, this.traceContext, 'generation');
         // OTel-Langfuse bridge: set the OTel trace ID as a Langfuse span attribute
         const otelTraceId = currentTraceId();
