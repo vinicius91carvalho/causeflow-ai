@@ -370,3 +370,10 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - PreviousPhase: coding
 - Attempt: 3
 - NextAction: coding
+
+## 2026-07-09T10:52:52.726Z — Resumed
+
+- WorkItem: WI-AC-026
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
