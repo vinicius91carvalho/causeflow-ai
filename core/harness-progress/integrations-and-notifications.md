@@ -1014,3 +1014,21 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
   - describe_resource → postgres, tables [customers, products] ✅
   - health_check → healthy ✅
 
+
+## 2026-07-09T21:45:00.000Z — VERIFY-FIRST: AC-032 re-verified (all boundary checks pass)
+
+- WorkItem: WI-AC-032
+- Implementation: true (zero-diff, all changes already committed in f4d17c54)
+- Verification results:
+  - API on :5185 healthy ✅
+  - Relay connected to `ws://172.18.0.1:5185/v1/relay/connect` ✅
+  - PG container `ac032-pg` in isolated network, no host port mapping ✅
+  - Host cannot reach isolated PG directly ✅
+  - WS boundary tests: 8/8 pass (valid auth, no auth, wrong token, tenant mismatch) ✅
+  - Relay RPC: `list_resources` returns test-pg resource ✅
+  - Relay RPC: `execute` SELECT returns 2 products (Gadget Plus, Widget Pro) ✅
+  - Relay query results match direct PostgreSQL query exactly ✅
+  - Direct query returns same product data as relay query ✅
+- Commit: f4d17c54 (feat(integrations): AC-032 relay query with DB analyst agent)
+- Working tree: clean (zero diff for AC-032 code changes)
+- Updated feature_list.json: implementation=true, status=implemented
