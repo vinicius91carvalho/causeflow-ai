@@ -120,6 +120,18 @@ The previous fix (formatting `feature_list.json` inline) regressed when the harn
 
 ---
 
+## WI-AC-010 — 9 EN routes + 9 PT-BR routes return 200 with localized content
+
+**State:** `implementation=true`
+
+**Summary:**
+- Created missing `/from-opsgenie` route: `apps/website/src/app/[locale]/from-opsgenie/page.tsx` (re-export) and `apps/website/src/contexts/marketing/presentation/pages/from-opsgenie-page.tsx` (page implementation using existing HeroSection, FeatureCard, CallToActionSection components and pre-existing i18n translations).
+- All 9 EN routes (/, /product, /security, /integrations, /pricing, /use-cases, /from-opsgenie, /privacy, /terms) return HTTP 200 directly.
+- All 9 PT-BR mirrored routes (/pt-br/, /pt-br/product, ... /pt-br/terms) return 200 after following Next.js core 308 trailing-slash redirect (standard framework behavior — `/pt-br/` normalizes to `/pt-br`).
+- PT-BR content confirmed: `/pt-br/pricing` contains "Preço" (Portuguese), `/pt-br/from-opsgenie` contains "Migrando do Opsgenie" (Portuguese).
+
+---
+
 ## WI-AC-046 — Local JWT auth replaces Clerk
 
 **State:** `implementation=true`
