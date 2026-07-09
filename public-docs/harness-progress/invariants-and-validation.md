@@ -887,3 +887,12 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Outcome: passed on integrated main
 - Evidence: required scaffold present with 133 `.mdx` files; `rg -n '"status"\s*:\s*"(dismissed|failed)"' -g '*.mdx' .` returned zero matches; every `pending` occurrence is step-level, approval-level, or invite text, not `Incident.status`; `bash check-invariants.sh --quiet` passed; `mint dev --port 5180` served `/` and `/api-reference/remediation/list-remediations` with HTTP 200 and no parse markers.
 - Verdict: implementation=true qa=true integration=true
+
+## 2026-07-09T12:32:48.539Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- AcceptanceChecks: AC-023
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/invariants-and-validation/WI-AC-023-1-integration_qa.log
+- NextAction: next Ready Work Item
