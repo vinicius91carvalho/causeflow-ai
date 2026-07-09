@@ -177,3 +177,38 @@ All acceptance criteria verified at real HTTP boundary (port 5173) — zero code
 4. **Accept-Language:** `GET /` with `Accept-Language: pt-BR,en;q=0.8` returns 307 to `/pt-br/`.
 
 5. **NEXT_LOCALE cookie:** `GET /` with `Cookie: NEXT_LOCALE=pt-br` returns 307 to `/pt-br/` with `Set-Cookie: NEXT_LOCALE=pt-br; Max-Age=31536000; SameSite=lax`. The max-age matches the documented 1-year value (31536000s = 365×24×60×60).
+
+---
+
+## QA Verification (WI-AC-012)
+
+**Run by:** qa-agent on 2026-07-09
+
+**Verdict:** `implementation=true, qa=true`
+
+**Checks performed (all PASS):**
+
+1. **Crawler detection** — PASS
+   - `curl -H 'User-Agent: Googlebot/2.1' http://127.0.0.1:5173/` returns 200 OK
+   - Response shows `x-middleware-rewrite: http://localhost:5173/en` (internal rewrite to EN canonical URL)
+   - No redirect; Set-Cookie: `NEXT_LOCALE=en` for subsequent visits
+
+2. **Staging auth** — PASS (verified with live staging server on port 5176)
+   - `NEXT_PUBLIC_DEPLOYMENT_STAGE=staging NEXT_PUBLIC_STAGING_PASSWORD=causeflow-staging-2026`
+   - Request to `/en` without cookie returns 307 to `/staging-auth`
+   - Request to `/staging-auth` returns 200 (bypass list)
+   - Request with valid cookie (`staging-authorized:<base64 of password>`) returns 200
+   - Request with invalid cookie returns 307 to `/staging-auth`
+
+3. **Geo-redirect** — PASS
+   - `curl -H 'CloudFront-Viewer-Country: BR' http://127.0.0.1:5173/` returns 307 to `/pt-br`
+   - Set-Cookie: `NEXT_LOCALE=pt-br; Max-Age=31536000`
+
+4. **Accept-Language** — PASS
+   - `curl -H 'Accept-Language: pt-BR,en;q=0.8' http://127.0.0.1:5173/` returns 307 to `/pt-br`
+   - Set-Cookie: `NEXT_LOCALE=pt-br; Max-Age=31536000`
+
+5. **NEXT_LOCALE cookie** — PASS
+   - `curl -H 'Cookie: NEXT_LOCALE=pt-br' http://127.0.0.1:5173/` returns 307 to `/pt-br`
+   - Set-Cookie: `NEXT_LOCALE=pt-br; Max-Age=31536000; SameSite=lax`
+   - Max-Age=31536000 equals 60×60×24×365 = 1 year (matches documented value)
