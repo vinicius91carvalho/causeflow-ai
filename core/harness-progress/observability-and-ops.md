@@ -340,3 +340,10 @@ Code paths verified by unit tests and real HTTP boundary assertions.
 - WorkItem: WI-AC-036
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T10:52:52.477Z — Resumed
+
+- WorkItem: WI-AC-036
+- PreviousPhase: integration_qa
+- Attempt: 3
+- NextAction: integration-qa
