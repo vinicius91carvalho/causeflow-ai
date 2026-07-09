@@ -175,3 +175,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Verified in the invariant journal and in the repo: AC-023 passes by source audit, and the earlier merge-conflict symptom was a stale integration artifact. Retry once the active worker slot frees up so the context can be re-run against the fixed harness.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T00:11:47.805Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
