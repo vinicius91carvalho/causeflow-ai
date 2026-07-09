@@ -94,14 +94,7 @@ awslocal secretsmanager create-secret \
   --secret-string "sk-ant-test-key" \
   --region "$REGION" 2>/dev/null || true
 
-echo "==> Creating KMS key for token encryption"
-awslocal kms create-alias \
-  --alias-name "alias/causeflow-token-encryption" \
-  --target-key-id "$(awslocal kms create-key --description 'CauseFlow token envelope encryption' --region "$REGION" --query 'KeyMetadata.KeyId' --output text)" \
-  --region "$REGION" 2>/dev/null || true
-
 echo "==> LocalStack init complete!"
 echo "  DynamoDB table: $TABLE_NAME (3 GSIs, PITR enabled)"
 echo "  SQS queues: alerts, triage, investigation, remediation (+ 4 DLQs)"
 echo "  Secrets: jwt-secret, anthropic-api-key"
-echo "  KMS: alias/causeflow-token-encryption"
