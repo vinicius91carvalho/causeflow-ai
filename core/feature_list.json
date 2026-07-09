@@ -880,10 +880,10 @@
     "acceptance_checks": ["AC-041"],
     "depends_on": ["AC-039"],
     "verify_first": false,
-    "implementation": true,
-    "qa": true,
-    "integration": true,
-    "retries": 1,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 2,
     "status": "done"
   },
   {
