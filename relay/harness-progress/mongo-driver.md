@@ -419,3 +419,20 @@ No source code changes needed — `collection.find(filter).explain('executionSta
 - WorkItem: WI-AC-035
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T19:00:00Z — Integrated Verification passed
+
+**Result: integration=true**
+
+Ran `test-ac035.mjs` against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo).
+All 3 scenarios pass at real WebSocket + MongoDB boundary:
+
+- **Test 1**: Explain without filter — response shape `{ rows: [explanation], rowCount: 1, executionTimeMs: 13 }` with explain fields present (queryPlanner, executionStats, serverInfo, explainVersion) ✓
+- **Test 2**: Explain with filter `{status:'active'}` — same shape, `rowCount: 1`, `executionTimeMs: 1` ✓
+- **Test 3**: Explain without collection — correctly rejected with error `Missing collection parameter` ✓
+
+The `explain` operation in `src/drivers/mongodb/mongo-driver.ts` (case `'explain'` at line 95) calls `collection.find(filter).explain('executionStats')` and returns `{ rows: [<explanation>], rowCount: 1, executionTimeMs }` — matches AC-035 exactly.
+
+No source code changes needed. No defects found.
+
+- NextAction: complete — integration=true
