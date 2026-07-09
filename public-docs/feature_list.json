@@ -325,11 +325,10 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": true,
-    "qa": true,
-    "integration": true,
-    "retries": 0,
-    "verify_notes": "VERIFY-FIRST pass at real HTTP boundary: `mint dev --port 5174` served `GET /api-reference/errors-and-pagination` with HTTP 200 (437 KB rendered HTML). Confirmed: (1) JSON error envelope example rendered (`{"error": "incident_not_found", "message": ...}`); (2) HTTP status-code table with all 8 required codes (400/401/403/404/409/429/500/503); (3) cursor-pagination example with `items`, `cursor`, and `count` fields present in rendered output. Evidence saved to `.harness-evidence/api-reference/WI-AC-015-errors-and-pagination-rendered.html`. Zero code diff (existing-codebase checkpoint)."
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 1
   },
   {
     "id": "WI-AC-016",
@@ -436,9 +435,9 @@
       "AC-019"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0
   },
   {

@@ -470,3 +470,11 @@ I verified the Authentication page at `api-reference/authentication.mdx` against
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T00:18:35.711Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent declined the Work Item
+- Defects: AC-015 content is already present in the existing rendered evidence artifact at `.harness-evidence/api-reference/WI-AC-015-errors-and-pagination-rendered.html` (error envelope, 400/401/403/404/409/429/500/503 table, items/cursor/count pagination). I could not stand up a new local HTTP listener in this sandbox (listen EPERM) and repo writes are blocked, so I could not update feature_list/journal or commit.
+- NextAction: User reviews evidence and explicitly resumes with guidance
