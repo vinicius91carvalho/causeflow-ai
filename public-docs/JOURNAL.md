@@ -504,3 +504,54 @@ placeholders follow the approved formats. No real-looking UUIDs or full JWTs
 appear in any example. Prior fix persists. Zero defects.
 
 implementation=true qa=true integration=true
+
+## 2026-07-09 — VERIFY-FIRST (coding-agent) — WI-AC-018
+
+- WorkItem: WI-AC-018
+- AcceptanceChecks: AC-018
+- context: api-reference
+- Mode: VERIFY-FIRST (existing codebase)
+- PORT: 5170
+- mint dev running on port 5170
+
+### Acceptance check
+
+AC-018: The Outbound events catalog (`api-reference/webhooks/outbound-events.mdx`)
+renders a table with exactly 20 distinct dot-namespaced events, and the
+introduction page's event count is reconciled to 20 (the event catalog is the
+single source of truth).
+
+### Pre-flight (source audit)
+
+- Outbound events catalog (`api-reference/webhooks/outbound-events.mdx`) table
+  contains exactly 20 rows of dot-namespaced events in the source, confirmed by
+  visual count and by unique `code` element extraction from rendered HTML.
+- Introduction page (`api-reference/introduction.mdx`) already states "20
+  real-time events" and "All 20 EventBus events" — no stale 21.
+- Stale "21 outbound events" found in
+  `api-reference/webhooks/subscribe.mdx` line 18. Fixed: changed "21" to "20"
+  to align with the single-source-of-truth catalog.
+
+### Boundary verification (real external HTTP boundary — port 5170)
+
+| Page | HTTP | Rendered count |
+| ---- | ---- | -------------- |
+| `/api-reference/webhooks/outbound-events` | 200 | 20 unique dot-namespaced events |
+| `/api-reference/introduction` | 200 | "20 real-time events", "All 20 EventBus" |
+| `/api-reference/webhooks/subscribe` | 200 | "all 20 outbound events" (fix applied) |
+
+### Defect found and fixed
+
+**File:** `api-reference/webhooks/subscribe.mdx`
+**Issue:** Stale "21 outbound events" reference directly contradicts the
+single-source-of-truth catalog (20 events).
+**Fix:** Changed "21 outbound events" to "20 outbound events" on line 18.
+
+### Verdict
+
+AC-018 passes at the real HTTP boundary. The outbound events catalog renders 20
+distinct dot-namespaced events. The introduction page correctly states 20. The
+subscribe page stale count is fixed. All event counts now align with the
+catalog.
+
+implementation=true qa=true integration=false
