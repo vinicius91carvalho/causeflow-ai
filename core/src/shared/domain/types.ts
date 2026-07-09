@@ -21,5 +21,5 @@ export type EdgeType = 'http' | 'grpc' | 'tcp' | 'event' | 'database' | 'cache' 
 export type ChangeType = 'deployment' | 'config_change' | 'scaling' | 'rollback' | 'infra_change' | 'secret_rotation';
 export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
 export type Criticality = 'critical' | 'high' | 'medium' | 'low';
-export type UsageType = 'investigation' | 'event';
+export type UsageType = 'investigation' | 'event' | 'daily_rollup';
 export type OveragePolicy = 'block' | 'auto_charge' | 'manual';

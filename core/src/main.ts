@@ -13,6 +13,9 @@ import { createApp } from './app.js';
 import { AppLifecycle } from './lifecycle.js';
 import { closeRedis } from './shared/infra/cache/redis-client.js';
 import { InProcessScheduler } from './shared/infra/scheduler/scheduler.js';
+import { redriveDLQ } from './shared/infra/queue/dlq-redriver.js';
+import { UsageRecordEntity } from './shared/infra/db/entities/UsageRecordEntity.js';
+import { TenantEntity } from './shared/infra/db/entities/TenantEntity.js';
 import { RelayRegistry } from './shared/infra/relay/relay-registry.js';
 import { WssRelayGateway } from './shared/infra/relay/relay-gateway.js';
 import { createRelayWSServer } from './shared/infra/relay/relay-ws-server.js';
@@ -73,6 +76,91 @@ async function main() {
       execute: () => {
         logger.info('Scheduled: timeout-stale-remediations (placeholder - requires tenant list)');
         return Promise.resolve();
+      },
+    },
+    // DLQ redrive job — redrive messages from DLQs back to source queues.
+    // Runs every 30 seconds so a manually pushed message is redriven within
+    // one tick (AC-037). Only active when DLQ URLs are configured.
+    {
+      name: 'dlq-redrive',
+      intervalMs: 30_000,
+      execute: async () => {
+        const pairs = [
+          { dlq: config.sqs.alertDlqUrl, target: config.sqs.alertQueueUrl, name: 'alerts' },
+          { dlq: config.sqs.investigationDlqUrl, target: config.sqs.investigationQueueUrl, name: 'investigation' },
+          { dlq: config.sqs.remediationDlqUrl, target: config.sqs.remediationQueueUrl, name: 'remediation' },
+        ];
+        for (const pair of pairs) {
+          if (pair.dlq && pair.target) {
+            try {
+              const result = await redriveDLQ(pair.dlq, pair.target, 5);
+              if (result.moved > 0 || result.failed > 0) {
+                logger.info({ queue: pair.name, moved: result.moved, failed: result.failed }, 'DLQ redrive completed');
+              }
+            } catch (err) {
+              logger.error({ err, queue: pair.name }, 'DLQ redrive failed');
+            }
+          }
+        }
+      },
+    },
+    // Cost rollup job — aggregates UsageRecordEntity into per-tenant daily
+    // totals and writes a UsageRecordEntity tagged type=daily_rollup (AC-037).
+    // Runs every hour. Scans tenants and rolls up records for the previous day.
+    {
+      name: 'cost-rollup',
+      intervalMs: 60 * 60 * 1000, // 1 hour
+      execute: async () => {
+        try {
+          const now = new Date();
+          const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+          const dayStart = new Date(Date.UTC(yesterday.getUTCFullYear(), yesterday.getUTCMonth(), yesterday.getUTCDate()));
+          const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+          const dayLabel = dayStart.toISOString().slice(0, 10);
+
+          // Fetch all tenants (scan) — limited in dev with few tenants
+          const tenantScan = await TenantEntity.scan.go({ limit: 100 });
+          const tenants = tenantScan.data;
+
+          for (const tenant of tenants) {
+            const tenantId = tenant.tenantId;
+            // Query usage records for this tenant (all types except existing rollups)
+            const usageScan = await UsageRecordEntity.query.byType({ tenantId, type: 'investigation' }).go();
+            const eventScan = await UsageRecordEntity.query.byType({ tenantId, type: 'event' }).go();
+            const records = [...usageScan.data, ...eventScan.data];
+
+            // Filter records within yesterday
+            const dayRecords = records.filter((r) => {
+              const created = new Date(r.createdAt);
+              return created >= dayStart && created < dayEnd;
+            });
+
+            if (dayRecords.length === 0) continue;
+
+            // Aggregate
+            const totalCostUsd = dayRecords.reduce((sum, r) => sum + (r.costUsd ?? 0), 0);
+
+            // Check if a daily_rollup already exists for this tenant+day
+            const existingRollup = await UsageRecordEntity.query.byType({ tenantId, type: 'daily_rollup' }).go();
+            const alreadyRolledUp = existingRollup.data.some((r) => r.createdAt.startsWith(dayLabel));
+            if (alreadyRolledUp) continue;
+
+            // Write the daily_rollup record
+            const allBreakdowns = dayRecords.flatMap((r) => r.agentBreakdown ?? []);
+            await UsageRecordEntity.create({
+              tenantId,
+              recordId: `daily_rollup_${tenantId}_${dayLabel}`,
+              type: 'daily_rollup' as const,
+              costUsd: totalCostUsd,
+              ...(allBreakdowns.length > 0 && { agentBreakdown: allBreakdowns }),
+              createdAt: dayStart.toISOString(),
+            }).go();
+
+            logger.info({ tenantId, day: dayLabel, totalCostUsd, recordCount: dayRecords.length }, 'Cost rollup written');
+          }
+        } catch (err) {
+          logger.error({ err }, 'Cost rollup job failed');
+        }
       },
     },
   ]);
