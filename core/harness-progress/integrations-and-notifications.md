@@ -816,3 +816,27 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - PreviousPhase: coding
 - Attempt: 3
 - NextAction: coding
+
+## 2026-07-09T17:19:00.000Z — Verified AC-030 (subscriber decryption fix)
+
+- WorkItem: WI-AC-030
+- Implementation: true
+- Changes:
+  - Inject `TokenEncryption` port into `SlackNotificationSubscriber` constructor (5th parameter)
+  - Add private `decryptToken(raw)` method that `JSON.parse`s and decrypts the payload, falling back to plaintext
+  - Replace `new WebClient(slackConfig.accessToken)` with `new WebClient(await decryptToken(...))` at all 3 call sites (incident created, investigation started, investigation completed)
+  - Update `bootstrap.ts` line ~931 to pass `tokenEncryption` to `SlackNotificationSubscriber`
+  - Update test to (a) mock `TokenEncryption` with `mockDecrypt` returning `'xoxb-decrypted-token'`, (b) use encrypted payload format in `makeSlackConfig()`, (c) verify `mockDecrypt` is called with parsed payload before `WebClient` construction
+- Boundary verification results (all pass against live API at :5185):
+  - POST /events url_verification returns challenge (200) ✅
+  - POST /events valid signature returns ok (200) ✅
+  - POST /events tampered body returns 401 ✅
+  - POST /events stale timestamp returns 401 ✅
+  - POST /events missing headers returns 401 ✅
+  - POST /install (authed) returns 200 + authUrl + state ✅
+  - POST /install (no auth) returns 401 ✅
+  - GET /config (authed) returns {"connected":false} (200) ✅
+  - GET /oauth/callback (no params) returns 400 ✅
+- Unit tests: 1065/1065 pass (162 files) ✅
+- Typecheck: no new type errors ✅
+- Invariants: 10/10 pass ✅

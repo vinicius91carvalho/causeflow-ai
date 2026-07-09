@@ -1,6 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+// ─── Mock TokenEncryption ────────────────────────────────────────────────────
+const mockDecrypt = vi.fn(async (payload: { ciphertext: string }) => 'xoxb-decrypted-token');
+const mockEncrypt = vi.fn(async (plaintext: string) => ({
+    ciphertext: plaintext,
+    encryptedDek: 'dek',
+    iv: 'iv',
+    tag: 'tag',
+}));
+
+vi.mock('@shared/application/ports/token-encryption.port.js', () => ({}));
+
 // ─── Mock @slack/web-api before importing subscriber ─────────────────────────
 const mockPostMessage = vi.fn(async () => ({ ok: true, ts: '1234567890.123456' }));
 const mockAuthTest = vi.fn(async () => ({ ok: true }));
@@ -57,7 +68,7 @@ function makeInvestigationEvent(overrides: Record<string, unknown> = {}) {
 
 function makeSlackConfig() {
     return {
-        accessToken: 'xoxb-test-token',
+        accessToken: JSON.stringify({ ciphertext: 'encrypted-token', encryptedDek: 'dek', iv: 'iv', tag: 'tag' }),
         channelId: 'C1234567890',
         channel: '#incidents',
         webhookUrl: 'https://hooks.slack.com/xxx',
@@ -65,6 +76,13 @@ function makeSlackConfig() {
         workspaceName: 'Acme Corp',
         installedAt: '2026-04-24T00:00:00.000Z',
     };
+}
+
+function makeTokenEncryption() {
+    return {
+        decrypt: mockDecrypt,
+        encrypt: mockEncrypt,
+    } as any;
 }
 
 function makeTenantRepo(slackConfig?: ReturnType<typeof makeSlackConfig>) {
@@ -103,6 +121,8 @@ function makeSlackNotificationRepo(existing?: Record<string, unknown>) {
 }
 
 function makeLogger() {
+    // verify decrypt is called with the parsed encrypted payload
+    mockDecrypt.mockClear();
     return {
         info: vi.fn(),
         warn: vi.fn(),
@@ -125,6 +145,7 @@ describe('SlackNotificationSubscriber', () => {
                 makeIncidentRepo(),
                 makeSlackNotificationRepo(),
                 makeLogger(),
+                makeTokenEncryption(),
             );
 
             await subscriber.onIncidentCreated(makeEvent({ severity: 'medium' }));
@@ -139,6 +160,7 @@ describe('SlackNotificationSubscriber', () => {
                 makeIncidentRepo(),
                 makeSlackNotificationRepo(),
                 logger,
+                makeTokenEncryption(),
             );
 
             await subscriber.onIncidentCreated(makeEvent({ severity: 'critical' }));
@@ -157,6 +179,7 @@ describe('SlackNotificationSubscriber', () => {
                 makeIncidentRepo(),
                 makeSlackNotificationRepo({ tenantId: 'tenant-001', incidentId: 'inc-001', type: 'alert', status: 'sent' }),
                 logger,
+                makeTokenEncryption(),
             );
 
             await subscriber.onIncidentCreated(makeEvent({ severity: 'critical' }));
@@ -175,11 +198,16 @@ describe('SlackNotificationSubscriber', () => {
                 makeIncidentRepo(),
                 notificationRepo,
                 makeLogger(),
+                makeTokenEncryption(),
             );
 
             await subscriber.onIncidentCreated(makeEvent({ severity: 'critical' }));
 
             expect(mockPostMessage).toHaveBeenCalledOnce();
+            // Verify decrypt was called with the parsed encrypted payload
+            expect(mockDecrypt).toHaveBeenCalledWith(
+                expect.objectContaining({ ciphertext: 'encrypted-token', encryptedDek: 'dek', iv: 'iv', tag: 'tag' }),
+            );
             expect(notificationRepo.saveNotification).toHaveBeenCalledWith(
                 expect.objectContaining({
                     tenantId: 'tenant-001',
@@ -199,6 +227,7 @@ describe('SlackNotificationSubscriber', () => {
                 makeIncidentRepo(),
                 makeSlackNotificationRepo(),
                 logger,
+                makeTokenEncryption(),
             );
 
             // Should not throw
@@ -230,6 +259,7 @@ describe('SlackNotificationSubscriber', () => {
                 makeIncidentRepo(incidentWithTs),
                 makeSlackNotificationRepo(),
                 makeLogger(),
+                makeTokenEncryption(),
             );
 
             await subscriber.onInvestigationCompleted(makeInvestigationEvent());
@@ -247,6 +277,7 @@ describe('SlackNotificationSubscriber', () => {
                 makeIncidentRepo(),
                 notificationRepo,
                 makeLogger(),
+                makeTokenEncryption(),
             );
 
             await subscriber.onInvestigationCompleted(makeInvestigationEvent());
@@ -263,6 +294,7 @@ describe('SlackNotificationSubscriber', () => {
                 makeIncidentRepo(),
                 makeSlackNotificationRepo(),
                 logger,
+                makeTokenEncryption(),
             );
 
             await subscriber.onInvestigationCompleted(makeInvestigationEvent());
@@ -276,6 +308,7 @@ describe('SlackNotificationSubscriber', () => {
                 makeIncidentRepo(),
                 makeSlackNotificationRepo({ tenantId: 'tenant-001', incidentId: 'inc-001', type: 'resolution', status: 'sent' }),
                 makeLogger(),
+                makeTokenEncryption(),
             );
 
             await subscriber.onInvestigationCompleted(makeInvestigationEvent());
@@ -292,6 +325,7 @@ describe('SlackNotificationSubscriber', () => {
                 makeIncidentRepo(),
                 makeSlackNotificationRepo(),
                 logger,
+                makeTokenEncryption(),
             );
 
             await expect(subscriber.onInvestigationCompleted(makeInvestigationEvent())).resolves.toBeUndefined();
