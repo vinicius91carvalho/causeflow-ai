@@ -481,3 +481,10 @@ fatal: Unable to write index.
 - Outcome: integration could not complete
 - Defects: merge conflict could not be resolved
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T19:56:54.493Z — Explicit Resume
+
+- WorkItem: WI-AC-021
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Protocol WI-AC-021 checkpoint-not-integrated. Retry merge/integration; no index.lock on shared monorepo.
+- NextAction: Coding Attempt 1
