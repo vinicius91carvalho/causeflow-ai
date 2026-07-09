@@ -1,3 +1,15 @@
+## 2026-07-09T00:00:00-03:00 — Integrated Verification (qa-agent)
+
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- context: api-reference
+- Branch: plan/opensource-docker
+- HEAD: 034004d
+- Scaffold check: required docs directories/files from `project_specs.xml` present; `rg --files -g '*.mdx' | wc -l` = 133.
+- Mapped check: `grep -rE 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx' .` returned no matches (exit 1).
+- Boundary smoke: `mint dev --no-open --port 5170`; `GET /`, `/api-reference/introduction`, and `/api-reference/authentication` all returned HTTP 200. Rendered API introduction showed `https://api.causeflow.ai`; rendered API introduction/authentication had no forbidden host matches.
+- Verdict: integration=true; implementation=true; qa=true; defects=none.
+
 # Workflow Journal — context: api-reference
 
 ## 2026-07-08T12:24:00.000Z — Integrated Verification passed
