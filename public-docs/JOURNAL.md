@@ -265,6 +265,16 @@ implementation=true qa=true integration=true
 - No MDX parse markers observed in the rendered body.
 - Outcome: implementation=true. No MDX/content changes; only harness metadata and journal updated.
 
+## 2026-07-09 QA — WI-AC-016
+
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- context: api-reference
+- Scaffold: `project_specs.xml` read; required top-level docs structures and files present, including `docs.json`, `INVARIANTS.md`, `README.md`, `Dockerfile`, `docker-compose.yml`, `.mintignore`, and all required docs directories.
+- Scope: 133 `.mdx` files present; 84 under `api-reference/`.
+- AC-016: `grep -rE 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx' .` exited 1 with no output, confirming no forbidden CauseFlow API hosts.
+- Verdict: implementation=true qa=true; defects=0.
+
 ## 2026-07-09 — INTEGRATED VERIFICATION — WI-AC-015
 
 - WorkItem: WI-AC-015
