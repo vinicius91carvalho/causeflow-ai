@@ -719,7 +719,7 @@
     "depends_on": ["AC-002"],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 1,
     "attempts": 0,
