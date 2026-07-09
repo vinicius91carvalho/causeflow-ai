@@ -782,3 +782,19 @@ BullMQ on Redis replaces SQS in the open-source local runtime (AC-041).
 - WorkItem: WI-AC-041
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T20:51:06.503Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-041
+- Defects: Verdict delivered. AC-041 BullMQ integration is verified as fully functional.
+
+**Summary of verification:**
+- The implementation correctly replaces SQS with BullMQ on Redis in OSS runtime
+- All 4 BullMQ queues (`causeflow-alerts`, `causeflow-triage`, `causeflow-investigation`, `causeflow-remediation`) are created and logged at startup
+- `GET /admin/queues` returns full queue visibility (depth, completed/failed counts, last 5 jobs)
+- End-to-end job flow works: incident creation enqueues triage job → worker picks up within 2 seconds → job completes → incident status updates in Postgres
+- Zero SQS endpoints are contacted (confirmed via boot log behavior and code path analysis)
+- Integration flag set to `true`, implementation `true`, no defects
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-041-2-integration_qa.log
+- NextAction: Repair Plan
