@@ -273,3 +273,52 @@ qa=true implementation=true integration=true
 
 feature_list.json updated: WI-AC-040 implementation=true, qa=true, integration=true, status="done".
 
+
+---
+
+# QA Journal - WI-AC-040 (open-source-local-runtime: Postgres-only persistence)
+
+## Test Date
+2026-07-09
+
+## Work Item
+WI-AC-040
+
+## Environment
+- API running on PORT=3099 (maps to causeflow-api container port 5171)
+- Env: OSS runtime (CAUSEFLOW_RUNTIME=oss)
+- Auth: Local JWT via /v1/auth/register + /v1/auth/login
+- Infrastructure: Docker compose with causeflow-postgres, redis, hindsight, causeflow-api, causeflow-worker
+- No ministack, no langfuse, no DynamoDB
+
+## Verification Results
+
+### Part 1: Postgres is the only persistence layer
+- Health endpoint returns `{"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}` — no dynamodb check registered
+- Boot logs show: "Using Postgres repositories (OSS runtime)", no DynamoDB reference
+- ✅ PASS
+
+### Part 2: 31 tables in causeflow schema
+- `psql` via docker exec against causeflow-postgres: `SELECT count(*) FROM information_schema.tables WHERE table_schema = 'causeflow'` returns 31
+- Table names: api_keys, approvals, audit_entries, billing_accounts, change_events, chat_messages, evidence, feedback, hypotheses, incidents, integrations, invites, notifications, oauth_tokens, package_dependencies, patterns, remediation, repo_nodes, repo_service_maps, runbook_registry, service_edges, service_nodes, slack_notifications, slack_oauth_states, tenants, tool_calls, triggers, usage_records, user_settings, users, widget_sessions
+- ✅ PASS
+
+### Part 3: POST /v1/incidents with auth writes to Postgres
+- Registered via POST /v1/auth/register: received JWT token
+- Created incident via POST /v1/incidents with `Authorization: Bearer <token>`: returned 201 with incidentId
+- Verified row in Postgres: `SELECT * FROM causeflow.incidents WHERE tenant_id = $1` shows the created incident with title, severity, description
+- Note: route is at `/v1/incidents` not `/api/v1/incidents` as documented in AC (minor documentation drift, no functional impact)
+- ✅ PASS
+
+### Part 4: No DynamoDBClient/DocumentClient instantiation at boot
+- In OSS mode, `getDynamoClient()` returns `createOssStubClient()` — a plain object without calling `new DynamoDBClient()`
+- The `new DynamoDBClient({})` path is in the `else` branch (AWS runtime) never reached in OSS mode
+- No `DocumentClient` usage anywhere in the codebase
+- DynamoDB health check is NOT registered in OSS mode
+- ✅ PASS
+
+## Defects
+None. All acceptance checks pass.
+
+## Verdict
+integration=true, implementation=true, qa=true
