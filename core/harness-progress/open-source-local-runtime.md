@@ -212,3 +212,10 @@ Here is a summary of what was verified:
 ```
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-040-2-integration_qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-09T17:54:22.069Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-040
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
