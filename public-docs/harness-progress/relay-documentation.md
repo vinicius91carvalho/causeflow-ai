@@ -184,3 +184,10 @@
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Harness worker fix installed: Codex now runs with --dangerously-bypass-approvals-and-sandbox, so the previous localhost/browser and repo-write sandbox objection should not apply. Retry the relay documentation context and verify AC-021 through the real boundary or existing rendered/source evidence.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T00:34:38.462Z — Verify-first audit
+
+- WorkItem: WI-AC-021
+- Outcome: implementation=true, zero source-content changes
+- Evidence: `mint dev --port 5170` served `http://localhost:5170/relay/overview` with HTTP 200. The rendered HTML includes the "What the Relay is not" section with `Not a proxy`, `Not a tunnel`, and `Not a replication agent`; source grep returned exactly 3 matches.
+- NextAction: Integrated Verification
