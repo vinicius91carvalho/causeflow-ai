@@ -441,3 +441,11 @@ DynamoDB, 1-minute dedup window).
 - WorkItem: WI-AC-015
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T20:00:08.756Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Defects: Integrated Verification failed
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/ingestion/WI-AC-015-1-integration_qa.log
+- NextAction: Repair Plan
