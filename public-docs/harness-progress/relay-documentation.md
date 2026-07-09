@@ -147,3 +147,10 @@
 - Outcome: coding agent declined the Work Item
 - Defects: `grep -E 'Not a (proxy|tunnel)|replication agent' relay/overview.mdx` returns all three matches, so the source text satisfies AC-021. I could not complete the requested real HTTP/browser boundary check in this sandbox: localhost socket access is blocked from shell, and the browser MCP calls were unavailable. No files were changed and no commit was made.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T00:05:40.919Z — Explicit Resume
+
+- WorkItem: WI-AC-021
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Verified the relay overview boundary directly on localhost:5179: the page renders, and the source text already contains the required Not a proxy / Not a tunnel / Not a replication agent contract. Retry so the context can be re-run with the confirmed evidence instead of the sandbox-only boundary complaint.
+- NextAction: Coding Attempt 1
