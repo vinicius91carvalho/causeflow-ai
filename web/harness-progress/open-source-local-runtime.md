@@ -1029,3 +1029,10 @@ Core API `/v1/integrations/connect` returns `500 INTERNAL_ERROR` (Core-side stub
 
 Defects 1-2 are in the dashboard's OSS auth integration code. Defects 3-4 are on the Core API side. Together they prevent the UI tests (steps 2 and 3) from completing. The static code changes for AC-051 are correct, but the acceptance check cannot be fully validated.Journal updated. The verdict has been printed above with the required JSON format wrapping.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T21:13:56.596Z — Explicit Resume
+
+- WorkItem: WI-AC-051
+- Outcome: user authorized a new Attempt cycle
+- Guidance: WI-AC-051 / open-source-local-runtime: Repair Plan — (1) dashboard with-auth: call Core /v1/whoami (not /v1/auth/me) and parse nested user/tenantId; (2) session-auth: accept JWT tenant_id snake_case as tenantId; (3) coordinate with Core stubs so billing/subscription returns free/active and integrations connect/credentials/list do not require Composio. Smallest diffs only; then re-QA AC-051 at HTTP/browser boundary.
+- NextAction: Coding Attempt 1
