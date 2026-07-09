@@ -1099,3 +1099,12 @@ Verified checks:
 5. PgPushSubscriptionRepository stores/deletes in causeflow.push_subscriptions table ✅
 6. Routes mounted at /v1/notifications in app.ts ✅
 7. Push published on creation (incident.created → severity_changed), triage severity change, and explicit severity update ✅
+
+## 2026-07-09T22:35:32.758Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-033
+- AcceptanceChecks: AC-033
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/integrations-and-notifications/WI-AC-033-2-integration_qa.log
+- NextAction: next Ready Work Item
