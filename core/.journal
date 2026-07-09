@@ -246,3 +246,30 @@ WI-AC-040
 
 ## Verdict
 qa=true implementation=true integration=true
+
+## 2026-07-09T17:55:00Z — AC-040 boundary verification (this worktree)
+
+**Result: implementation=true. All AC-040 requirements verified at the real HTTP boundary against the OSS docker-compose stack on PORT=5171 (published :3099).**
+
+### Boundary exercised against running stack
+
+1. **`docker compose up -d`** → causeflow-postgres:16-alpine, redis:7-alpine, hindsight, causeflow-api, causeflow-worker all healthy.
+2. **`GET /health`** → `{"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}` (AC-039/AC-040 shape).
+3. **`\dt causeflow.*`** → **31 rows** listed: api_keys, approvals, audit_entries, billing_accounts, change_events, chat_messages, evidence, feedback, hypotheses, incidents, integrations, invites, notifications, oauth_tokens, package_dependencies, patterns, remediation, repo_nodes, repo_service_maps, runbook_registry, service_edges, service_nodes, slack_notifications, slack_oauth_states, tenants, tool_calls, triggers, usage_records, user_settings, users, widget_sessions.
+4. **`POST /v1/auth/register`** → **201** with user, tenant, JWT token.
+5. **`GET /v1/whoami`** with JWT → **200** resolves user+tenant+role=admin.
+6. **`POST /v1/incidents`** with JWT → **201** `{incidentId, status:"triaging"}`.
+7. **`SELECT * FROM causeflow.incidents WHERE tenant_id = $1`** → **1 row** matching the created incident with correct title, tenant_id, entity_id.
+8. **Boot log grepped for DynamoDBClient/DocumentClient/dynamodb** → **0 matches**.
+
+### No code changes needed — all artefacts already present: 
+- Postgres migration SQL creates 31 tables (infra/postgres/migrations/)
+- pg-client.ts provides pool + migration runner
+- OSS runtime boot skips ensureTable(), skips DynamoDB client creation
+- client.ts returns stub in OSS mode (no `new DynamoDBClient()`)
+- Bootstrap selects Pg* repositories (pg-tenant, pg-user, pg-api-key, pg-audit, pg-incident)
+- Auth middleware verifies OSS JWT locally via jose
+- docker-compose.yml has correct OSS stack (no ministack/langfuse)
+
+feature_list.json updated: WI-AC-040 implementation=true, qa=true, integration=true, status="done".
+
