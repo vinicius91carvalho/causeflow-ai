@@ -874,3 +874,10 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/integrations-and-notifications/WI-AC-030-3-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T20:33:22.397Z — Resumed
+
+- WorkItem: WI-AC-031
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
