@@ -7,6 +7,7 @@ import type { ITenantRepository } from '../../../modules/tenant/domain/tenant.re
 import type { IIncidentRepository } from '../../../modules/ingestion/domain/incident.repository.js';
 import type { SlackNotificationRepository } from '../../../modules/integration/infra/slack-notification.repository.js';
 import type { Logger } from '../../infra/logger.js';
+import type { TokenEncryption, EncryptedPayload } from '../ports/token-encryption.port.js';
 
 /**
  * Subscribes to domain events and posts Slack notifications.
@@ -24,7 +25,21 @@ export class SlackNotificationSubscriber {
         private readonly incidentRepo: Pick<IIncidentRepository, 'findById' | 'update'>,
         private readonly slackNotificationRepo: SlackNotificationRepository,
         private readonly logger: Logger,
+        private readonly tokenEncryption: TokenEncryption,
     ) {}
+
+    /** Decrypt a stored Slack access token (handles both encrypted and legacy plaintext). */
+    private async decryptToken(raw: string): Promise<string> {
+        try {
+            const encrypted: EncryptedPayload = JSON.parse(raw);
+            if (encrypted.ciphertext && encrypted.encryptedDek) {
+                return await this.tokenEncryption.decrypt(encrypted);
+            }
+        } catch {
+            // Not JSON or not an EncryptedPayload — treat as legacy plaintext
+        }
+        return raw;
+    }
 
     async onIncidentCreated(event: DomainEvent): Promise<void> {
         try {
@@ -66,7 +81,8 @@ export class SlackNotificationSubscriber {
                 triggeredAt: event.occurredAt,
             });
 
-            const client = new WebClient(slackConfig.accessToken);
+            const plainToken = await this.decryptToken(slackConfig.accessToken);
+            const client = new WebClient(plainToken);
             const result = await client.chat.postMessage({
                 channel: slackConfig.channelId,
                 text: `[${incident.severity.toUpperCase()}] ${incident.title}`,
@@ -132,7 +148,8 @@ export class SlackNotificationSubscriber {
 
             const slackNotificationTs = incident.slackNotificationTs;
 
-            const client = new WebClient(slackConfig.accessToken);
+            const plainToken = await this.decryptToken(slackConfig.accessToken);
+            const client = new WebClient(plainToken);
             const result = await client.chat.postMessage({
                 channel: slackConfig.channelId,
                 text: `🔍 AI Investigation Started — ${incident.title}`,
@@ -202,7 +219,8 @@ export class SlackNotificationSubscriber {
 
             const slackNotificationTs = incident.slackNotificationTs;
 
-            const client = new WebClient(slackConfig.accessToken);
+            const plainToken = await this.decryptToken(slackConfig.accessToken);
+            const client = new WebClient(plainToken);
             const result = await client.chat.postMessage({
                 channel: slackConfig.channelId,
                 text: `✅ Incident Resolved — ${incident.title}`,

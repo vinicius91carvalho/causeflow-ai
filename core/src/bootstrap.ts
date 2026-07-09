@@ -988,6 +988,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     incidentRepo,
     slackNotificationRepo,
     logger,
+    tokenEncryption,
   );
   eventBus.subscribe('incident.created', async (event) => {
     await slackNotificationSubscriber.onIncidentCreated(event);
