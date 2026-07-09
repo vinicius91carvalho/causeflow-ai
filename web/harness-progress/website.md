@@ -170,3 +170,10 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Auto-retry: coding exhausted three attempts; apply smallest root-cause fix per Repair Plan.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T21:05:22.825Z — Resumed
+
+- WorkItem: WI-AC-012
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
