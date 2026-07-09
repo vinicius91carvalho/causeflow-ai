@@ -272,3 +272,10 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - RepairPlan: Code correctly implements AC-025 limit clamping (policy engine rejection + driver Math.min + LIMIT append), but QA failed to produce a verdict because the test execution infrastructure was unavailable. The evidence log contains only a route selection line with no QA result object.; Verify Postgres is running and reachable at 127.0.0.1:5432 with the orders table seeded; Verify WebSocket stub is listening on port 5190 before triggering QA; Add a pre-flight check in the QA runner that validates infrastructure availability and exits with a clear diagnostics message if prerequisites are missing; Add unit tests for policy-engine.ts evaluate() with limit clamping (zero, within-range, at-limit) and pg-driver.ts execute() query-command Math.min behavior so these can be verified without external Postgres; Re-run QA for WI-AC-025 after infrastructure is confirmed available
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/postgres-driver/WI-AC-025-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-09T02:39:17.215Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-025
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
