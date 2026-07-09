@@ -26,8 +26,8 @@ describe('SQS Integration', () => {
     } catch {
       // PurgeQueue may fail if recently purged
     }
-    // Wait for purge to take effect
-    await new Promise((r) => setTimeout(r, 1000));
+    // Wait for purge to take effect (ministack latency)
+    await new Promise((r) => setTimeout(r, 2000));
   });
 
   afterAll(() => {
