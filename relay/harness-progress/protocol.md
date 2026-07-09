@@ -1382,3 +1382,15 @@ fatal: Unable to write index.
   - Test 1: `{ resourceId: 'order-pg', operation: 'query', params: { sql: 'SELECT id, status FROM orders' } }` returns result shape `{ rows: Array(5), rowCount: 5, fields: [{name:'id',type:'int4'},{name:'status',type:'text'}], executionTimeMs: 7, masked: false, maskedFieldCount: 0 }`. All 11 contract checks pass: jsonrpc='2.0', id echoed, rows array, rowCount=5, fields contain id+status, executionTimeMs>=0, masked boolean, maskedFieldCount integer, masked===(maskedFieldCount>0).
   - Test 2: PII masking verified with `SELECT '123.456.789-00' AS cpf, 'plain text' AS plain` → CPF masked to '***.***.***-**', masked=true, maskedFieldCount=1, non-PII 'plain text' unchanged.
 - Source: `test-ac021.mjs` ran from host against port 5191 (control-plane-stub mapped port). Relay on gen/relay-protocol branch (zero-diff checkpoint).
+
+## 2026-07-09T20:27:00Z — Independent QA Verification
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- AcceptanceChecks: AC-021
+- Role: qa-agent
+- Outcome: pass — all 11 contract checks green on both tests
+- Details: Re-ran `test-ac021.mjs` against the running docker-compose stack.
+  - Test 1: `resourceId='order-pg'`, `operation='query'`, `sql='SELECT id, status FROM orders'` → result shape `{ rows: Array(5), rowCount: 5, fields: [{name:'id',type:'int4'},{name:'status',type:'text'}], executionTimeMs: 1, masked: false, maskedFieldCount: 0 }`. All shape requirements satisfied (rows array, rowCount number, fields array with name+type, executionTimeMs >=0, masked boolean, maskedFieldCount number, masked === (maskedFieldCount > 0)).
+  - Test 2: CPF PII masking → `'123.456.789-00'` masked to `'***.***.***-**'`, `masked: true`, `maskedFieldCount: 1`, non-PII `'plain text'` unchanged.
+- Defects: none
