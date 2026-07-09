@@ -403,3 +403,34 @@ No defects found. Implementation is correct across all four parser-specific code
   - Initial status is 'open' (IncidentStatus type has no 'received')
   - Third identical POST after window expiry creates a fresh incident with new ID
 - NextAction: none
+
+## QA Verification: AC-015 (2026-07-09)
+
+**Verdict: PASS** (qa=true, implementation=true)
+
+Tested using real HTTP API against the running docker-compose stack (ministack
+DynamoDB, 1-minute dedup window).
+
+### Tests performed
+
+1. **First POST**: Sent Datadog payload with `id=dedup-test-001` to
+   `/v1/webhooks/test-tenant/datadog`. Response `202` with
+   `incidentId=aa2990e1-3cbc-4848-ac60-df4950752530`. Duration 28ms (write).
+
+2. **Second POST (within window)**: Same payload sent immediately. Response
+   `202` with the **same** `incidentId=aa2990e1-...`. Duration 6ms (read-only
+   dedup shortcut, no write). DynamoDB query confirmed only 1 incident for
+   `sourceAlertId=dedup-test-001`.
+
+3. **Third POST (after window)**: Same payload sent 75s later (after the 1-min
+   dedup window elapsed). Response `202` with **new**
+   `incidentId=5ca855a8-c90a-4664-86d5-8b5bb75104be`. Duration 18ms (write).
+   DynamoDB now shows 2 incidents for `sourceAlertId=dedup-test-001`.
+
+### Evidence
+
+- Second call was 6ms vs 28ms/18ms for write calls, confirming no DynamoDB write
+- No duplicate triage message was enqueued (code path returns early from
+  IngestAlertUseCase.execute before eventBus.publish and messageQueue.send)
+- DynamoDB scan confirmed exactly 2 incidents with `sourceAlertId=dedup-test-001`,
+   not 3
