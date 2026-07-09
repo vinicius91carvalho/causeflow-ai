@@ -902,3 +902,10 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - Pre-existing limitation (not caused by this AC): DynamoDB-backed repositories (IntegrationEntity, DynamoTriggerRepository) fail in OSS runtime — same issue as the existing /v1/triggers/ route
 - Typecheck: pre-existing errors only (unrelated admin.routes.test.ts)
 - Build: clean
+
+## 2026-07-09T20:51:23.881Z — Resumed
+
+- WorkItem: WI-AC-031
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
