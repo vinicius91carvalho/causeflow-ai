@@ -218,3 +218,12 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - WorkItem: WI-AC-023
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T02:17:08.481Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- AcceptanceChecks: AC-023
+- Outcome: passed on integrated main
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/postgres-driver/WI-AC-023-1-integration_qa.log
+- NextAction: next Ready Work Item
