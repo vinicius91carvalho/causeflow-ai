@@ -1,3 +1,17 @@
+## 2026-07-09T17:26:08Z — Integrated Verification (qa-agent)
+
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- context: api-reference
+- Branch: plan/opensource-docker
+- HEAD: 35a472e
+- Scaffold check: required docs directories/files from `project_specs.xml` present; 133 `.mdx` files enumerated.
+- Mapped check: `grep -rE 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx' .` returned no matches (exit 1).
+- Boundary smoke: `mint dev --no-open --port 5170` started; `GET /`, `/api-reference/introduction`, `/api-reference/authentication`, `/api-reference/errors`, `/api-reference/incidents/list-incidents`, and `/api-reference/webhooks/outbound-events` all returned HTTP 200.
+- Rendered HTML: all pages use `https://api.causeflow.ai` exclusively; zero occurrences of `api.causeflow.io`, `api.causeflow.dev`, `api.causeflow.local`, or `api.causeflow.prod` in either source or rendered output.
+- Evidence saved to `.harness-evidence/api-reference/WI-AC-016-introduction-rendered.html` and `WI-AC-016-authentication-rendered.html`.
+- Verdict: integration=true; implementation=true; qa=true; defects=none.
+
 ## 2026-07-09T00:00:00-03:00 — Integrated Verification (qa-agent)
 
 - WorkItem: WI-AC-016
