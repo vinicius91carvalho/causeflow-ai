@@ -793,3 +793,35 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - WorkItem: WI-AC-027
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T17:51:00.000Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- AcceptanceChecks: AC-027
+- Outcome: passed on plan/opensource-docker
+- Result: integration=true, implementation=true — no defects found.
+
+**Verification at real external boundaries on port 5190:**
+
+1. **Direct PgDriver boundary tests** (10/10 passed):
+   - `healthCheck()` on working Postgres → returns `true` ✓
+   - `healthCheck()` on unreachable host (192.0.2.1) → returns `false`, does NOT throw ✓
+   - `close()` resolves without error on both working and failed drivers ✓
+   - `close()` prevents future connections (pool ended) ✓
+   - Source code inspection: `index.ts` has SIGTERM handler, calls `driver.close()`, errors caught with `.catch(() => {})` ✓
+
+2. **Full JSON-RPC health_check round-trip** via real relay + WS stub on port 5190 (14/14 passed):
+   - Relay starts, logs "Starting CauseFlow Relay..." and "Connected to control plane" ✓
+   - `resource_update` sent on connect with `relayId=<uuid> resources=1` ✓
+   - `health_check` request returns JSON-RPC 2.0 response ✓
+   - Response shaped as `[{ resourceId: 'order-pg', type: 'postgres', healthy: true, latencyMs: <N> }]` ✓
+   - `healthy` is boolean, `latencyMs` is number ✓
+   - `healthy: true` for working Postgres (actual SELECT 1 against relay-postgres) ✓
+
+3. **Graceful shutdown via SIGTERM**:
+   - Relay logs "Shutting down..." ✓
+   - Exit code 0 ✓
+   - WS client closed without reconnect; drivers closed ✓
+
+**Total: 24/24 assertions passed. No code changes needed.**
