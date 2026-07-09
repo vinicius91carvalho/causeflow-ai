@@ -250,3 +250,30 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-019-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T19:50:56.051Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- DefectReport: The QA verification for WI-AC-027 is complete.
+
+**Summary of what was tested:**
+
+1. **Static code analysis** - Verified `types.ts` enumerates all 15 AC-specified integration types (plus 2 extras: Notion, Shortcut - enhancements, not omissions), the `Integration` type carries `encryptedCredentials` for KMS-envelope encryption, and `encryptedCredentials` field is present on the type.
+
+2. **HTTP endpoint tests** (port 5181 with mock Core API on port 5199):
+   - `/api/integrations/catalog` returns 17 providers with descriptions, auth types, and logo URLs
+   - `/api/integrations` returns the connected integrations list (proxied through Core API)
+   - `POST /api/integrations` successfully proxies credential data to Core API's `/v1/integrations/credentials`
+   - Auth guard properly rejects unauthenticated requests with 401
+
+3. **Zod schemas** - Confirmed 17 type-specific schemas in `api-schema.ts` (re-exported from `schemas.ts` barrel), each with appropriate validation rules (e.g., `cloudwatch` requires `roleArn` + `region`, `github` requires `installationId` + `appId` + `privateKey`, etc.)
+
+4. **Unit tests** - All 152 integration tests pass across 16 test files
+
+5. **Page rendering** - Integration page loads successfully (200 HTML response) with title "Integrations | CauseFlow AI"
+
+**Verdict:** implementation=true, qa=true — no defects found. All AC-027 requirements are met. The implementation has 17 integration types (vs the 15 in the AC description) because Notion and Shortcut were added as enhancements; all 15 specified types are present and working correctly.
+- RepairPlan: QA report marked WI-AC-027 as PASS with zero defects, but the implementation has 3 genuine deviations from AC-027 requirements. (1) The `Integration` interface in types.ts lacks `composioTriggerId` — AC-027 Step 2 requires this field. (2) `next.config.mjs` `images.remotePatterns` is an empty array — AC-027 Step 3 requires `logos.composio.dev` and `backend.composio.dev` allow-listed. (3) The IntegrationType union has 17 identifiers (adds Notion, Shortcut) while AC-027 Step 2 says 'exactly 15 type identifiers'. The QA incorrectly waived these as 'OSS migration per AC-051', but AC-051 commit c0cd08c is NOT an ancestor of gen/web-dashboard HEAD — those removals are not active on this branch. The QA's 17-vs-15 rationalization as 'enhancements, not omissions' contradicts the AC's 'exactly 15' wording. All 15 required types are present, and the test/catalog/rendering assertions in the QA report are correct — the three defects are missing-structure issues, not broken functionality.; Add `composioTriggerId?: string;` field to the `Integration` interface in `apps/dashboard/src/contexts/integrations/domain/types.ts`; Add `{ hostname: 'logos.composio.dev', protocol: 'https' }` and `{ hostname: 'backend.composio.dev', protocol: 'https' }` to `images.remotePatterns` in `apps/dashboard/next.config.mjs`; Either remove Notion and Shortcut from the `IntegrationType` union (reverting to exactly 15) or update AC-027's Step 2 description to accept 17 types — the first option aligns with the AC specification; Update the QA evidence log at `/home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-027-1-qa.log` to reflect these defects
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-027-1-qa.log
+- NextAction: Coding Attempt 2
