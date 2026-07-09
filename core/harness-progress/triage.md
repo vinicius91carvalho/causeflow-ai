@@ -263,3 +263,21 @@ to create one trace, and then via `ObservedAnthropicClient` calls
 independent root trace. The generation trace is never parented under the
 triage trace. AC-018 requires a SINGLE trace containing both the triage
 metadata and the LLM prompt/completion/tokens/cost.
+
+## 2026-07-09T23:10:51.535Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-018
+- DefectReport: LangfuseTracer.startSpan() creates a new Langfuse root trace for every call via this.client.trace(), so child spans are never nested under the parent. The triage.incident trace (id=a008d709-646a-4a0d-bff0-043f8b0cd7a4) has tenant/incident tags and auditChainUpdated output, but the LLM prompt/completion/tokens/cost are on a SEPARATE root trace 'llm.complete' (id=39ee2d00-ff31-4a23-88ec-e9b7ec6696f6). AC-018 requires 'the trace contains the prompt, completion, token counts and cost' — a single unified trace. Verified against live Langfuse at http://localhost:3001 with LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY configured; incident 30f45a2f-7b67-4f8e-b210-1e3b6900f7da, tenant 97351ce0-1de7-4bbe-ba2d-d2a9f69f21a4.
+- RepairPlan: Repair planning did not return structured JSON; Now let me examine the evidence file and verify the remaining scaffold.Now I have a complete picture. Let me compose the verdict.**Diagnostic complete.** The verdict is printed above as the last output.
+
+In summary:
+
+| Aspect | Finding |
+|---|---|
+| **Defect confirmed** | Yes — two separate root traces instead of one nested trace |
+| **Root cause** | `LangfuseTracer.startSpan()` always calls `this.client.trace()` (new root), never `trace.span()`/`trace.generation()` (child under parent). No async context propagation of the active Langfuse trace. |
+| **Fix scope** | Single file: `langfuse-tracer.ts` — add `AsyncLocalStorage` to track the active Langfuse trace, making `startSpan()` create child spans when a parent trace is already active. |
+| **No bootstrap/port changes needed** | The same `tracer` instance is already shared between `TriageIncidentUseCase` and `ObservedAnthropicClient` via the composition root. |
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/triage/WI-AC-018-1-qa.log
+- NextAction: Coding Attempt 2
