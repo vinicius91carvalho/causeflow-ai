@@ -1108,3 +1108,10 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-005-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T17:17:59.837Z — Resumed
+
+- WorkItem: WI-AC-006
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
