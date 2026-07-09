@@ -632,6 +632,51 @@
         "response_shape_valid": "passed",
         "source_code_contract_match": "passed"
       }
+    },
+    {
+      "id": "WI-AC-034",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T18:45:41Z",
+      "details": "Verified AC-034 (mongo-driver aggregation pipeline validation) at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 execute requests with operation:query and pipeline params against resource order-mongo. Test 1: pipeline with $out stage \u2192 rejected with error code -32602 and message \"Validation failed: Aggregation stage $out is not allowed\". Test 2: pipeline with $merge stage \u2192 rejected with error code -32602 and message \"Validation failed: Aggregation stage $merge is not allowed\". Test 3: pipeline with $match/$group \u2192 accepted with result.rows = [] (no matching data). Test 4: pipeline with $match/$sort/$project/$limit \u2192 accepted with result.rows = []. All 4 tests passed. Implementation is correct \u2014 no code changes needed.",
+      "checks": [
+        "$out rejected",
+        "$merge rejected",
+        "$match/$group accepted",
+        "$match/$sort/$project/$limit accepted"
+      ]
+    },
+    {
+      "id": "WI-AC-034",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:50:00Z",
+      "details": "Independent QA verification pass for AC-034 (mongo-driver aggregation pipeline validation). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 execute requests with operation:query and pipeline params against resource order-mongo through stub to relay. Test 1: pipeline with $out stage -> rejected with error code -32602 and message \"Validation failed: Aggregation stage $out is not allowed\". Test 2: pipeline with $merge stage -> rejected with error code -32602 and message \"Validation failed: Aggregation stage $merge is not allowed\". Test 3: pipeline with $match + $group -> accepted with result.rows = [], rowCount = 0. Test 4: pipeline with $match + $sort + $project + $limit -> accepted with result.rows = [], rowCount = 0. All 4 tests pass at the real WebSocket boundary. Source code confirms BLOCKED_AGGREGATION_STAGES = [\"$out\", \"$merge\"] in mongo-driver.ts. npx tsc --noEmit clean. npm run build clean. No defects.",
+      "checks": {
+        "out_rejected": "passed",
+        "merge_rejected": "passed",
+        "match_group_accepted": "passed",
+        "match_sort_project_limit_accepted": "passed",
+        "tsc_noEmit_clean": "passed",
+        "npm_run_build_clean": "passed",
+        "source_code_verified": "passed"
+      }
+    },
+    {
+      "id": "WI-AC-034",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:59:00Z",
+      "details": "Fresh independent QA verification pass for AC-034 (mongo-driver aggregation pipeline validation). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 execute requests with operation:query and pipeline params against resource order-mongo through stub to relay. Test 1: pipeline with  stage -> rejected with error code -32602 and message \"Validation failed: Aggregation stage  is not allowed\". Test 2: pipeline with  stage -> rejected with error code -32602 and message \"Validation failed: Aggregation stage  is not allowed\". Test 3: pipeline with  +  -> accepted with result.rows = []. Test 4: pipeline with  +  +  +  -> accepted with result.rows = []. All 4 tests pass at the real WebSocket boundary. No defects.",
+      "checks": {
+        "out_rejected": "passed",
+        "merge_rejected": "passed",
+        "match_group_accepted": "passed",
+        "match_sort_project_limit_accepted": "passed"
+      }
     }
   ]
 }

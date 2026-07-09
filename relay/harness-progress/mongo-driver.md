@@ -1,5 +1,30 @@
 # mongo-driver workflow journal
 
+## 2026-07-09T23:45:00Z — Verify-first passed (WI-AC-034)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+Ran `test-ac034.mjs` against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo).
+All 4 scenarios pass at real WebSocket + MongoDB boundary:
+
+- **Test 1**: Pipeline `[{ $match }, { $out }]` rejected with error -32602, `Validation failed: Aggregation stage $out is not allowed` ✓
+- **Test 2**: Pipeline `[{ $match }, { $merge }]` rejected with error -32602, `Validation failed: Aggregation stage $merge is not allowed` ✓
+- **Test 3**: Pipeline `[{ $match }, { $group }]` accepted, `result.rows = []` ✓
+- **Test 4**: Pipeline `[{ $match }, { $sort }, { $project }, { $limit }]` accepted, `result.rows = []` ✓
+
+Additional verification:
+- `npx tsc --noEmit` clean
+- `npm run build` clean
+- Git worktree clean (no uncommitted changes)
+- `BLOCKED_AGGREGATION_STAGES = ['$out', '$merge']` at `src/drivers/mongodb/mongo-driver.ts:13`
+- `validate()` walks pipeline and rejects banned stages
+
+No source code changes needed — implementation already conforms to AC-034 spec.
+
+- NextAction: complete — implementation=true
+
+
+
 ## 2026-07-08T12:59:41.296Z — Blocked Work Item
 
 - Attempt: 1/3
@@ -324,3 +349,40 @@ Result rows are `Record<string, unknown>[]`. All assertions pass. No source code
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-033-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T18:48:04.397Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-034
+- DefectReport: Task complete. Here is a summary of the QA verification:
+
+**Work Item:** WI-AC-034 (MongoDB aggregation pipeline validation)
+
+**Method:** Real WebSocket boundary test via docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 `execute` requests with `operation: 'query'` and pipeline params against resource `order-mongo` through the control-plane stub to the relay.
+
+**Results (4/4 passed):**
+
+| Test | Pipeline | Expected | Observed | Verdict |
+|------|----------|----------|----------|---------|
+| 1 | `[{ $match }, { $out }]` | Error -32602, `$out is not allowed` | `{"code":-32602, "message":"Validation failed: Aggregation stage $out is not allowed"}` | ✓ |
+| 2 | `[{ $match }, { $merge }]` | Error -32602, `$merge is not allowed` | `{"code":-32602, "message":"Validation failed: Aggregation stage $merge is not allowed"}` | ✓ |
+| 3 | `[{ $match }, { $group }]` | Accepted, `result.rows = []` | `{"result":{"rows":[],"rowCount":0,"executionTimeMs":2}}` | ✓ |
+| 4 | `[{ $match }, { $sort }, { $project }, { $limit }]` | Accepted, `result.rows = []` | `{"result":{"rows":[],"rowCount":0,"executionTimeMs":1}}` | ✓ |
+
+**Additional verification:**
+- Source code confirms `BLOCKED_AGGREGATION_STAGES = ['$out', '$merge']` at `src/drivers/mongodb/mongo-driver.ts:13`
+- `npx tsc --noEmit` clean
+- `npm run build` clean
+- Git worktree clean (no uncommitted changes)
+
+**No defects found.** The implementation conforms perfectly to the AC-034 specification.
+- RepairPlan: QA verification for WI-AC-034 (MongoDB aggregation pipeline validation) passed 4/4 tests. All three required behaviors confirmed: $out is rejected, $merge is rejected, and a pipeline of only $match/$group/$sort/$project/$limit is accepted. The source code implements BLOCKED_AGGREGATION_STAGES = ['$out', '$merge'] in src/drivers/mongodb/mongo-driver.ts:13 with a validate() method that walks the pipeline and rejects banned stages. TypeScript compilation and build are clean. The repository contains every scaffold artifact required by project_specs.xml (25/25 files verified present). No defects found.; No repair actions required. WI-AC-034 implementation is complete and verified.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-034-1-qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-09T18:50:07.875Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-034
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
