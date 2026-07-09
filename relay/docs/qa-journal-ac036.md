@@ -36,8 +36,38 @@
 - `MongoDriver.close()` (lines 117-119): `await this.client.close()`
 - Constructor (lines 19-21): `new MongoClient(config.uri, { maxPoolSize: 5, serverSelectionTimeoutMS: 10000 })`
 
+## Independent QA Verification (2026-07-09)
+
+### Test script: `tests/ac-036.spec.ts`
+Used `npx tsx` to import the actual `MongoDriver` from `src/drivers/mongodb/mongo-driver.ts` and exercised against the live `relay-mongo` container on `mongodb://localhost:27017`.
+
+### Test 5: Direct healthCheck() on MongoDriver
+- Instantiated `MongoDriver` with `uri=mongodb://localhost:27017`, called `healthCheck()`
+- **Expected:** `true`
+- **Observed:** `true` (MongoDB ping succeeded)
+- **Result:** PASS
+
+### Test 6: healthCheck() returns false on unreachable host
+- Instantiated `MongoDriver` with `uri=mongodb://localhost:27018` (nothing listening), called `healthCheck()`
+- **Expected:** `false`
+- **Observed:** `false` after serverSelectionTimeout
+- **Result:** PASS
+
+### Test 7: close() resolves without error
+- Called `await driver.close()` on both drivers
+- **Expected:** resolves cleanly
+- **Observed:** no throw on either
+- **Result:** PASS
+
+### Test 8: Source code audit for construction params
+- **Expected:** `maxPoolSize: 5`, `serverSelectionTimeoutMS: 10000`
+- **Observed:** `new MongoClient(config.uri, { maxPoolSize: 5, serverSelectionTimeoutMS: 10000 })` (lines 23-25)
+- **Observed:** `healthCheck()` runs `this.db.admin().ping()` (line 121)
+- **Observed:** `close()` runs `await this.client.close()` (line 132)
+- **Result:** PASS
+
 ## Verdict
 
-- **qa:** true — all four test groups pass
+- **qa:** true — all test groups pass (4 original + 4 independent)
 - **implementation:** true — `src/drivers/mongodb/mongo-driver.ts` satisfies the full AC-036 contract
 - **Defects:** none

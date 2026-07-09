@@ -508,3 +508,25 @@ No source code changes needed. No defects found.
 - Defects: Session terminated, killing shell... ...killed.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-036-3-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-09T19:37:37.289Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- Outcome: Integrated Verification failed after Attempt 3
+- Defects: Session terminated, killing shell... ...killed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T19:56:54.509Z — Explicit Resume
+
+- WorkItem: WI-AC-036
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Mongo-driver WI-AC-036 IV failed with shell killed mid-session. Retry integration QA for WI-AC-036 only; confirm pi session stays alive.
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T19:59:33.638Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
