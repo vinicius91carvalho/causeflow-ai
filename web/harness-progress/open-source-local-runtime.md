@@ -524,3 +524,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - WorkItem: WI-AC-051
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T18:38:51.485Z — Resumed
+
+- WorkItem: WI-AC-051
+- PreviousPhase: qa
+- Attempt: 3
+- NextAction: qa
