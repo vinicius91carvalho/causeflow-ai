@@ -177,3 +177,10 @@
 - Outcome: coding agent declined the Work Item
 - Defects: Repo scaffold and project_specs.xml are present; relay/overview.mdx already contains the required Not a proxy / Not a tunnel / Not a replication agent lines. I could not re-run the live HTTP/browser boundary in this sandbox because localhost socket access is blocked and the browser MCP call was cancelled, so no files were changed and no commit was made.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T00:33:25.156Z — Explicit Resume
+
+- WorkItem: WI-AC-021
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Harness worker fix installed: Codex now runs with --dangerously-bypass-approvals-and-sandbox, so the previous localhost/browser and repo-write sandbox objection should not apply. Retry the relay documentation context and verify AC-021 through the real boundary or existing rendered/source evidence.
+- NextAction: Coding Attempt 1
