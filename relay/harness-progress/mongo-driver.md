@@ -306,3 +306,12 @@ Result rows are `Record<string, unknown>[]`. All assertions pass. No source code
 - WorkItem: WI-AC-033
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T23:35:00Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-033
+- AcceptanceChecks: AC-033
+- Outcome: passed at real WebSocket + MongoDB boundary
+- Evidence: Ran `.harness/test-ac033.mjs` against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Seeded test_ac033 collection with 8 documents (varied status/score/tags). Sent JSON-RPC 2.0 execute requests with operation:query against resource order-mongo through stub to relay. All 7 scenarios pass: (A) filter={status:active} returns 4 rows; (B) sql='{"status":"inactive"}' returns 3 rows when filter is absent; (C) no filter and no sql returns all 8 rows (fallback to {}); (D) limit=3 returns 3 rows, limit=0 returns 0 rows (special-cased), limit=2000 rejected by policy engine (-32600); (E) both filter and sql present, filter takes precedence. Result rows are Record<string, unknown>[]. All assertions passed.
+- NextAction: complete — integration=true

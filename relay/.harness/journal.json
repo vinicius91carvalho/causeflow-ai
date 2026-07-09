@@ -155,7 +155,7 @@
       "implementation": true,
       "integration": true,
       "timestamp": "2026-07-09T07:18:00Z",
-      "details": "Integrated Verification pass for AC-030 (postgres-sql-parser). Tested at compiled dist boundary. All three acceptance-check conditions verified: (1) validateQuery(\"WITH x AS (SELECT 1) SELECT * FROM x\") returns {valid:true} — parser.astify succeeds, stmt.type===\"select\", no dangerous functions found; (2) validateQuery(\"SELECT * FROM (SELECT pg_sleep(1)) s\") returns {valid:false, reason:\"Dangerous function detected: pg_sleep\"} — parser.astify succeeds, text scan catches pg_sleep; (3) validateQuery(\"EXPLAIN SELECT 1\") returns {valid:true} — parser throws on EXPLAIN, catch block fallback accepts via first-word EXPLAIN check. PgDriver.validate() delegates to validateQuery() for query/explain operations. npx tsc --noEmit passes. npm run build passes. No defect found.",
+      "details": "Integrated Verification pass for AC-030 (postgres-sql-parser). Tested at compiled dist boundary. All three acceptance-check conditions verified: (1) validateQuery(\"WITH x AS (SELECT 1) SELECT * FROM x\") returns {valid:true} \u2014 parser.astify succeeds, stmt.type===\"select\", no dangerous functions found; (2) validateQuery(\"SELECT * FROM (SELECT pg_sleep(1)) s\") returns {valid:false, reason:\"Dangerous function detected: pg_sleep\"} \u2014 parser.astify succeeds, text scan catches pg_sleep; (3) validateQuery(\"EXPLAIN SELECT 1\") returns {valid:true} \u2014 parser throws on EXPLAIN, catch block fallback accepts via first-word EXPLAIN check. PgDriver.validate() delegates to validateQuery() for query/explain operations. npx tsc --noEmit passes. npm run build passes. No defect found.",
       "checks": {
         "with_cte_accepted": "passed",
         "pg_sleep_in_subquery_rejected": "passed",
@@ -425,7 +425,7 @@
       "implementation": true,
       "integration": true,
       "timestamp": "2026-07-09T14:30:00Z",
-      "details": "Re-verification pass for AC-032 (mongo-driver describe_table). Re-ran black-box test at real WebSocket boundary (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Orders collection reseeded with 2 documents (varied types: string, number, object, array, null, Date) + 3 indexes. Sent JSON-RPC 2.0 execute: operation=describe_table, params={tableName:orders}, resourceId=order-mongo. Response: 7 schema rows with correct typeof inference (_id:string, status:string, amount:number, customer:object, tags:object, notes:[object,string], createdAt:object) + 4 index rows tagged _type:index with name+key (_id_, idx_status, idx_amount, customer_1_createdAt_-1). rowCount=11, executionTimeMs=4, masked=false, maskedFieldCount=0. All 14 assertion groups passed. No code changes needed — implementation already conforms to AC-032 spec.",
+      "details": "Re-verification pass for AC-032 (mongo-driver describe_table). Re-ran black-box test at real WebSocket boundary (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Orders collection reseeded with 2 documents (varied types: string, number, object, array, null, Date) + 3 indexes. Sent JSON-RPC 2.0 execute: operation=describe_table, params={tableName:orders}, resourceId=order-mongo. Response: 7 schema rows with correct typeof inference (_id:string, status:string, amount:number, customer:object, tags:object, notes:[object,string], createdAt:object) + 4 index rows tagged _type:index with name+key (_id_, idx_status, idx_amount, customer_1_createdAt_-1). rowCount=11, executionTimeMs=4, masked=false, maskedFieldCount=0. All 14 assertion groups passed. No code changes needed \u2014 implementation already conforms to AC-032 spec.",
       "checks": {
         "jsonrpc_2_0": "passed",
         "no_error_in_response": "passed",
@@ -600,6 +600,26 @@
       "integration": true,
       "timestamp": "2026-07-09T23:00:00Z",
       "details": "Independent QA Verification pass for AC-033 (mongo-driver query with filter/sql/fallback). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Seeded test_ac033 collection with 8 documents. Sent JSON-RPC 2.0 execute requests with operation:query against resource order-mongo through stub to relay. Verified: (A) filter={status:active} returns 4 rows; (B) sql='{\"status\":\"inactive\"}' returns 3 rows when filter is absent; (C) no filter and no sql returns all 8 rows (fallback to {}); (D) limit=3 returns 3 rows, limit=0 returns 0 rows, limit=2000 rejected by policy engine with -32600; (E) both filter and sql present, filter takes precedence (4 rows). Result rows are Record<string, unknown>[]. All assertions pass. No defects.",
+      "checks": {
+        "filter_direct": "passed",
+        "sql_as_json_filter": "passed",
+        "fallback_to_empty": "passed",
+        "limit_clamping_3": "passed",
+        "limit_zero": "passed",
+        "policy_rejects_over_limit": "passed",
+        "filter_takes_precedence": "passed",
+        "rows_are_objects": "passed",
+        "response_shape_valid": "passed",
+        "source_code_contract_match": "passed"
+      }
+    },
+    {
+      "id": "WI-AC-033",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:35:00Z",
+      "details": "Integrated Verification pass for AC-033 (mongo-driver query with filter/sql/fallback). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Seeded test_ac033 collection with 8 documents. Sent JSON-RPC 2.0 execute requests with operation:query against resource order-mongo through stub to relay. Verified: (A) filter={status:active} returns 4 rows; (B) sql={\"status\":\"inactive\"} returns 3 rows when filter is absent; (C) no filter and no sql returns all 8 rows (fallback to {}); (D) limit=3 returns 3 rows, limit=0 returns 0 rows (special-cased driver), limit=2000 rejected by policy engine with -32600; (E) both filter and sql present, filter takes precedence. Result rows are Record<string, unknown>[]. All assertions passed.",
       "checks": {
         "filter_direct": "passed",
         "sql_as_json_filter": "passed",
