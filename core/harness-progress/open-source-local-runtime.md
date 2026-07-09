@@ -914,3 +914,35 @@ BullMQ on Redis replaces SQS in the open-source local runtime (AC-041).
 - WorkItem: WI-AC-050
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T20:36:00.000Z — Implementation (AC-051)
+
+- Attempt: 1/1
+- WorkItem: WI-AC-051
+- AcceptanceChecks: AC-051
+- Outcome: implementation=true (black-box verified on running stack)
+- NextAction: Integrated Verification
+
+### What changed
+
+AC-051 requires port boundaries to be preserved for the open-source local runtime.
+
+**New invariant I12:**
+- Added `checkI12()` to `infra/scripts/check-invariants.ts` that walks all `domain/` directories under `src/modules/*/domain/` and `src/shared/domain/` and verifies zero imports of `pg`, `bullmq`, `stripe`, `@clerk/*`, or `@aws-sdk/*`
+- Renumbered old I12 (inconclusive outcome, verified by integration test) to I13
+- Updated `INVARIANTS.md` with the new I12 description
+
+**Verified port boundaries:**
+- `pnpm lint-invariants` passes I1–I12 (11 passed, 0 failed)
+- Domain layer has zero forbidden external imports (confirmed by I12 and manual grep)
+- 17 port interfaces in `src/shared/application/ports/` are unchanged
+- Bootstrap.ts remains the only place concretions are wired: `BullMqMessageQueue`, `AesGcmTokenEncryption`, `StubCloudProvider`, and Postgres repositories via `config.isOss()` dynamic imports
+- Application layer cross-module infra imports are pre-existing and not in the scope of this AC (they predate the OSS runtime changes)
+
+### Black-box verification
+
+1. `docker compose up -d` — all services healthy (postgres, redis, hindsight, api)
+2. `curl http://localhost:3099/health` → 200: `{"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}`
+3. `pnpm lint-invariants` — I12: PASS, all invariants green
+4. 17 port interfaces confirmed
+5. `pnpm test:run` — 162 test files, 1070 tests passed

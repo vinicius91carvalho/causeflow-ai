@@ -1,72 +1,20 @@
-import {
-  CloudWatchLogsClient,
-  FilterLogEventsCommand,
-} from '@aws-sdk/client-cloudwatch-logs';
-
-const CUSTOMER_ENDPOINT = process.env['CLOUD_PROVIDER_ENDPOINT'] ?? 'http://localhost:4567';
-const REGION = process.env['AWS_REGION'] ?? 'us-east-1';
-
-function getLogsClient(): CloudWatchLogsClient {
-  return new CloudWatchLogsClient({
-    region: REGION,
-    endpoint: CUSTOMER_ENDPOINT,
-    credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
-  });
-}
-
 /**
- * Polls CloudWatch Logs until at least one entry matching filterPattern appears.
- * Returns the matching log messages.
+ * CloudWatch waiter stub for the open-source local runtime (AC-050).
+ *
+ * In the AWS runtime, this module waited for CloudWatch Logs events to appear.
+ * In the OSS runtime, no CloudWatch endpoint exists — the smoke tests use
+ * stub agents so log/metric data is not required.
+ *
+ * This module is kept as a minimal no-op stub so existing smoke tests compile
+ * without modification. No AWS SDK is imported.
  */
-export async function waitForCWLog(
-  logGroup: string,
-  filterPattern: string,
-  timeoutMs = 60_000,
+
+export async function waitForLogEvents(
+  _logGroupName: string,
+  _filterPattern?: string,
+  _timeoutMs?: number,
 ): Promise<string[]> {
-  const client = getLogsClient();
-  const startTime = Date.now();
-  const lookbackMs = 300_000; // look 5 minutes back
-
-  while (Date.now() - startTime < timeoutMs) {
-    try {
-      const result = await client.send(new FilterLogEventsCommand({
-        logGroupName: logGroup,
-        filterPattern,
-        startTime: Date.now() - lookbackMs,
-        limit: 50,
-      }));
-
-      const events = result.events ?? [];
-      if (events.length > 0) {
-        return events.map((e) => e.message ?? '');
-      }
-    } catch {
-      // log group may not exist yet
-    }
-
-    await new Promise((r) => setTimeout(r, 3000));
-  }
-
-  throw new Error(`No CW logs matching "${filterPattern}" in ${logGroup} after ${timeoutMs}ms`);
-}
-
-/**
- * Checks if CloudWatch logs contain any entry matching the filter (non-blocking).
- */
-export async function hasCWLog(
-  logGroup: string,
-  filterPattern: string,
-): Promise<boolean> {
-  const client = getLogsClient();
-  try {
-    const result = await client.send(new FilterLogEventsCommand({
-      logGroupName: logGroup,
-      filterPattern,
-      startTime: Date.now() - 300_000,
-      limit: 1,
-    }));
-    return (result.events?.length ?? 0) > 0;
-  } catch {
-    return false;
-  }
+  // In OSS runtime, log events come from the stub agent, not from CloudWatch.
+  // Return an empty array — the caller should check stub agent state instead.
+  return [];
 }

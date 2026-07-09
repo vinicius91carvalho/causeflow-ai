@@ -20,6 +20,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-causeflow}
       POSTGRES_USER: ${POSTGRES_USER:-causeflow}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-causeflow}
+    ports:
+      - '5439:5432'
     volumes:
       - causeflow_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -31,6 +33,8 @@ services:
 
   redis:
     image: redis:7-alpine
+    ports:
+      - '6380:6379'
     volumes:
       - causeflow_redis_data:/data
     healthcheck:

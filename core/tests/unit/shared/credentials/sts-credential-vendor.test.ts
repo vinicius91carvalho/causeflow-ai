@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { STSClient } from '@aws-sdk/client-sts';
 import { STSCredentialVendor } from '../../../../src/shared/infra/credentials/sts-credential-vendor.js';
+
+// Local type to avoid importing @aws-sdk/client-sts (AC-050)
+interface MockSTSClient {
+  send: ReturnType<typeof vi.fn>;
+}
 
 // Mock config before import
 vi.mock('../../../../src/shared/config/index.js', () => ({
@@ -16,7 +20,7 @@ vi.mock('../../../../src/shared/infra/logger.js', () => ({
 
 describe('STSCredentialVendor', () => {
   const mockSend = vi.fn();
-  const mockSTSClient = { send: mockSend } as unknown as STSClient;
+  const mockSTSClient: MockSTSClient = { send: mockSend };
 
   beforeEach(() => {
     vi.clearAllMocks();
