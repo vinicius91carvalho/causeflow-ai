@@ -494,3 +494,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - PreviousPhase: qa
 - Attempt: 2
 - NextAction: qa
+
+## 2026-07-09T12:44:11.831Z — Resumed
+
+- WorkItem: WI-AC-051
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
