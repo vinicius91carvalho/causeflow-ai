@@ -199,3 +199,20 @@
 - `pnpm exec biome check` — clean.
 - Dev server on port 5193 serves sign-in (200); integrations page accessible with valid session cookie.
 - No code changes needed — all AC-051 modifications were already implemented and committed.
+
+---
+
+## WI-AC-051 Live Verification (2026-07-09)
+
+**State:** `implementation=true` (re-verified)
+
+**Summary:**
+- Step 1 (grep): Zero matches for `composio.dev`, `composioTriggerId`, `COMPOSIO_API_KEY` across all source files and env files.
+- Step 2 (live page): `/dashboard/integrations` returns HTTP 200 with all 15 integration names (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) present in rendered HTML.
+- Step 3 (Connect CTA): BFF handlers proxy to Core API (`POST /v1/integrations/connect` for OAuth, `POST /v1/integrations/credentials` for credential-based). No `composio.dev` or `backend.composio.dev` request originates from browser.
+- remotePatterns: `[]` (empty) in dashboard `next.config.mjs`.
+- CSP: No composio domains in any directive.
+- Integration unit tests: 152/152 pass.
+- Biome lint: clean (55 files).
+- Build: cached, exits 0.
+- Dev server (port 5194): sign-in works (200), integrations page authenticated via Core API JWT renders correctly.
