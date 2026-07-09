@@ -523,3 +523,10 @@ No source code changes needed. No defects found.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Mongo-driver WI-AC-036 IV failed with shell killed mid-session. Retry integration QA for WI-AC-036 only; confirm pi session stays alive.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T19:59:33.638Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
