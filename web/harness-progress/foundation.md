@@ -3097,3 +3097,19 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - PreviousPhase: repair_plan
 - Attempt: 1
 - NextAction: repair-plan
+
+## 2026-07-09T22:22:47.558Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- DefectReport: Session terminated, killing shell... ...killed.
+- RepairPlan: 
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-006-1-qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-09T22:22:50.858Z — Resumed
+
+- WorkItem: WI-AC-006
+- PreviousPhase: repair_plan
+- Attempt: 1
+- NextAction: repair-plan
