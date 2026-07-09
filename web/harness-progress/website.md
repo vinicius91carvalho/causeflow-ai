@@ -163,3 +163,10 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - Outcome: coding agent failed three times
 - Defects: Session terminated, killing shell... ...killed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T20:00:51.627Z — Explicit Resume
+
+- WorkItem: WI-AC-012
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: coding exhausted three attempts; apply smallest root-cause fix per Repair Plan.
+- NextAction: Coding Attempt 1
