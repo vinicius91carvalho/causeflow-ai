@@ -692,6 +692,28 @@
         "match_sort_project_limit_accepted": "passed",
         "npm_run_build": "passed"
       }
+    },
+    {
+      "id": "WI-AC-035",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:55:00Z",
+      "details": "Integrated Verification pass for AC-035 (mongo-driver explain). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 execute requests with operation:explain against resource order-mongo through stub to relay. Test 1: explain with filter={status:active} returns {rows:[<explanation with executionStats and queryPlanner>], rowCount:1, executionTimeMs:9}. Test 2: explain without filter returns same shape (rowCount:1). Test 3: explain on nonexistent collection succeeds gracefully (Mongo handles empty find explain). Response contains queryPlanner (namespace, parsedQuery, winningPlan, rejectedPlans) and executionStats (executionSuccess, nReturned, executionTimeMillis, totalDocsExamined, totalKeysExamined) as expected from collection.find(filter).explain('executionStats'). All 12 shape assertions passed. No code changes needed - implementation already conforms to AC-035 spec in mongo-driver.ts:90-100.",
+      "checks": {
+        "no_error": "passed",
+        "rows_is_array": "passed",
+        "rowCount_is_1": "passed",
+        "executionTimeMs_exists": "passed",
+        "explanation_has_executionStats": "passed",
+        "explanation_has_queryPlanner": "passed",
+        "executionStats_nReturned_exists": "passed",
+        "executionStats_totalDocsExamined_exists": "passed",
+        "executionStats_executionTimeMillis_exists": "passed",
+        "explain_no_filter_works": "passed",
+        "explain_nonexistent_collection_graceful": "passed",
+        "source_code_find_explain_executionStats": "passed"
+      }
     }
   ]
 }
