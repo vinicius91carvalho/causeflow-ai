@@ -264,3 +264,43 @@ implementation=true qa=true integration=true
 - Rendered HTML contains the JSON error envelope example, all required status codes (`400`, `401`, `403`, `404`, `409`, `429`, `500`, `503`), and cursor-pagination fields `items`, `cursor`, and `count`.
 - No MDX parse markers observed in the rendered body.
 - Outcome: implementation=true. No MDX/content changes; only harness metadata and journal updated.
+
+## 2026-07-09 — INTEGRATED VERIFICATION — WI-AC-015
+
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- Boundary: existing Mintlify preview on `http://localhost:5174`.
+- Scaffold: required top-level directories exist; 133 `.mdx` files present; `api-reference/errors-and-pagination` is listed in API reference navigation.
+- Smoke: `GET /` returned HTTP 200 and rendered `CauseFlow AI` plus `Quickstart`.
+- AC-015: `GET /api-reference/errors-and-pagination` returned HTTP 200 and rendered the JSON error envelope, all required status codes (`400`, `401`, `403`, `404`, `409`, `429`, `500`, `503`), and cursor-pagination fields `items`, `cursor`, and `count`.
+- Evidence: `.harness-evidence/api-reference/WI-AC-015-2026-07-09-errors-and-pagination-rendered.html`.
+- Verdict: implementation=true qa=true integration=true; defects=0.
+
+## 2026-07-09 Integrated Verification — WI-AC-005 (foundation)
+
+- WorkItem: WI-AC-005
+- AcceptanceChecks: AC-005
+- context: foundation
+- Mode: Integrated Verification on main
+- HEAD: 1bb75b0
+- WORKDIR: /home/vinicius/projects/causeflow-ai/web
+
+### Acceptance check
+
+AC-005: The root `vitest.config.ts` defines 7 projects (shared, forms, analytics, auth, ui, website, dashboard) using a forks pool with a maximum of 3 workers. `pnpm vitest run` executes the full suite, exits 0 when green, and prints per-project pass/fail counts. The dashboard project has a 15s per-test timeout; the others use the default.
+
+### Results
+
+| Check | Result |
+|-------|--------|
+| `pnpm vitest run` exit 0 | PASS (242 test files, 1508 tests, 12.73s) |
+| 7 projects declared (shared, forms, analytics, auth, ui, website, dashboard) | PASS |
+| Dashboard project has `testTimeout: 15000` (15s) | PASS |
+| Fork pool with `maxForks: 3` and `maxWorkers: 3` | PASS |
+| Per-project pass count visible in output | PASS (all 7 projects represented: auth 15, dashboard 600+, forms 14, shared 57, ui 34, website 179+, analytics 0 with passWithNoTests) |
+
+### Verdict
+
+All AC-005 criteria pass. `pnpm vitest run` exits 0 with all 242 test files and 1508 tests green across all 7 projects. The vitest config correctly defines all 7 projects, configures a forks pool with max 3 workers, and sets a 15s per-test timeout on the dashboard project. Vitest 4 deprecation warning about `poolOptions` is cosmetic and non-functional; `maxWorkers: 3` enforces the cap at runtime.
+
+implementation=true qa=true integration=true; defects=0.
