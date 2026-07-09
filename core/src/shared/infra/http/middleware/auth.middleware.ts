@@ -30,7 +30,7 @@ const PUBLIC_PATHS = [
   '/portal',
   '/admin/queues',        // AC-041: local-only admin queue visibility (no auth)
   '/v1/investigation/ws',  // WebSocket relay — uses its own JWT auth (not Clerk)
-  '/v1/relay/',             // DB relay — uses its own token auth
+  '/v1/relay/connect',       // DB relay WS — uses its own token auth during upgrade
   '/v1/integrations/slack/oauth/callback', // Slack OAuth browser redirect — no JWT available
   '/v1/integrations/slack/events', // Slack Events API — verified via signing secret, not Bearer
 ];

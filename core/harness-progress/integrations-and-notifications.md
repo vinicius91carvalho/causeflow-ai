@@ -974,3 +974,68 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - WorkItem: WI-AC-031
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T21:08:25.387Z — Resumed
+
+- WorkItem: WI-AC-031
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-09T21:18:23.223Z — Resumed
+
+- WorkItem: WI-AC-032
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T21:36:00.000Z — Verified AC-032 (boundary + relay query tests pass)
+
+- WorkItem: WI-AC-032
+- Implementation: true
+- Changes:
+  - Fix PUBLIC_PATHS: change '/v1/relay/' to '/v1/relay/connect' so HTTP relay
+    endpoints (status, tokens) require auth and get proper tenant context.
+    The WS endpoint stays public via server upgrade handler, not Hono middleware.
+  - Fix tenant middleware skip path similarly.
+  - Add ac032-boundary.mjs — boundary verification test
+  - Add ac032-relay-query-test.mjs — direct WS RPC protocol test
+- Boundary verification results (all pass against live API at :5185):
+  - Host CANNOT resolve or reach ac032-pg (DNS + TCP isolation) ✅
+  - Health returns 200 with dynamodb/redis/sqs ok ✅
+  - /v1/relay/status (authed) returns connected=true, test-pg resource ✅
+  - /v1/relay/status (no auth) returns 401 (UNAUTHORIZED) ✅
+  - Relay container logs: Connected to control plane, Driver initialized ✅
+  - Direct query from docker network returns testdb|42 ✅
+- Relay RPC protocol test (via ac032-relay-query-test.mjs):
+  - list_resources → test-pg resource listed ✅
+  - execute query SELECT current_database() → "testdb" (matches direct) ✅
+  - execute SELECT 42 AS answer, 'hello' AS greeting → answer=42 (matches direct) ✅
+  - describe_resource → postgres, tables [customers, products] ✅
+  - health_check → healthy ✅
+
+
+## 2026-07-09T21:45:00.000Z — VERIFY-FIRST: AC-032 re-verified (all boundary checks pass)
+
+- WorkItem: WI-AC-032
+- Implementation: true (zero-diff, all changes already committed in f4d17c54)
+- Verification results:
+  - API on :5185 healthy ✅
+  - Relay connected to `ws://172.18.0.1:5185/v1/relay/connect` ✅
+  - PG container `ac032-pg` in isolated network, no host port mapping ✅
+  - Host cannot reach isolated PG directly ✅
+  - WS boundary tests: 8/8 pass (valid auth, no auth, wrong token, tenant mismatch) ✅
+  - Relay RPC: `list_resources` returns test-pg resource ✅
+  - Relay RPC: `execute` SELECT returns 2 products (Gadget Plus, Widget Pro) ✅
+  - Relay query results match direct PostgreSQL query exactly ✅
+  - Direct query returns same product data as relay query ✅
+- Commit: f4d17c54 (feat(integrations): AC-032 relay query with DB analyst agent)
+- Working tree: clean (zero diff for AC-032 code changes)
+- Updated feature_list.json: implementation=true, status=implemented
+
+## 2026-07-09T21:44:34.771Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-032
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
