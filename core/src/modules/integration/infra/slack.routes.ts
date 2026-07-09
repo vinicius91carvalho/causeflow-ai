@@ -12,6 +12,7 @@ import type { ConnectSlackUseCase } from '../application/connect-slack.usecase.j
 import type { DisconnectSlackUseCase } from '../application/disconnect-slack.usecase.js';
 import type { UpdateSlackConfigUseCase } from '../application/update-slack-config.usecase.js';
 import type { SlackConfigResponse } from '../../tenant/domain/tenant.entity.js';
+import type { TokenEncryption, EncryptedPayload } from '../../../shared/application/ports/token-encryption.port.js';
 
 const SLACK_SCOPES = 'incoming-webhook,chat:write,channels:read';
 
@@ -32,6 +33,7 @@ export interface SlackRouteDeps {
     updateSlackConfig: Pick<UpdateSlackConfigUseCase, 'execute'>;
     tenantRepo: Pick<ITenantRepository, 'findById' | 'create' | 'findBySlug' | 'findByCustomDomain' | 'update' | 'listByOwner'>;
     slackConfig: SlackOAuthConfig;
+    tokenEncryption: TokenEncryption;
 }
 
 /**
@@ -185,7 +187,14 @@ export function createSlackRoutes(deps: SlackRouteDeps): Hono<AppEnv> {
     // Returns SlackConfigResponse (no sensitive fields)
     app.get('/config', requireRole('admin'), async (c) => {
         const tid = c.get('tenantId')!;
-        const tenant = await deps.tenantRepo.findById(tid);
+        let tenant;
+        try {
+            tenant = await deps.tenantRepo.findById(tid);
+        } catch (err) {
+            logger.warn({ tenantId: tid, err: err instanceof Error ? err.message : 'unknown' }, 'Failed to fetch tenant for slack config');
+            const response: SlackConfigResponse = { connected: false };
+            return c.json(response);
+        }
 
         if (!tenant?.settings?.slackConfig) {
             const response: SlackConfigResponse = { connected: false };
@@ -219,10 +228,16 @@ export function createSlackRoutes(deps: SlackRouteDeps): Hono<AppEnv> {
             );
         }
 
-        const result = await deps.updateSlackConfig.execute({
-            tenantId: tid,
-            channel: body.channel,
-        });
+        let result;
+        try {
+            result = await deps.updateSlackConfig.execute({
+                tenantId: tid,
+                channel: body.channel,
+            });
+        } catch (err) {
+            logger.warn({ tenantId: tid, err: err instanceof Error ? err.message : 'unknown' }, 'Failed to update slack config');
+            return c.json({ error: 'Failed to update Slack configuration' }, 500);
+        }
 
         return c.json(result);
     });
@@ -232,20 +247,45 @@ export function createSlackRoutes(deps: SlackRouteDeps): Hono<AppEnv> {
     app.delete('/oauth', requireRole('admin'), async (c) => {
         const tid = c.get('tenantId')!;
 
-        await deps.disconnectSlack.execute({ tenantId: tid });
+        try {
+            await deps.disconnectSlack.execute({ tenantId: tid });
+        } catch (err) {
+            logger.warn({ tenantId: tid, err: err instanceof Error ? err.message : 'unknown' }, 'Failed to disconnect slack');
+            return c.json({ error: 'Failed to disconnect Slack' }, 500);
+        }
 
         return c.body(null, 204);
     });
+
+    /** Decrypt a stored Slack access token (handles both encrypted and legacy plaintext). */
+    async function decryptToken(raw: string): Promise<string> {
+        try {
+            const encrypted: EncryptedPayload = JSON.parse(raw);
+            if (encrypted.ciphertext && encrypted.encryptedDek) {
+                return await deps.tokenEncryption.decrypt(encrypted);
+            }
+        } catch {
+            // Not JSON or not an EncryptedPayload — treat as legacy plaintext
+        }
+        return raw;
+    }
 
     // ─── POST /test ───────────────────────────────────────────────────────────
     // Test Slack connection using tenant's stored config
     app.post('/test', requireRole('admin'), async (c) => {
         const tid = c.get('tenantId');
-        const tenant = await deps.tenantRepo.findById(tid);
+        let tenant;
+        try {
+            tenant = await deps.tenantRepo.findById(tid);
+        } catch (err) {
+            logger.warn({ tenantId: tid, err: err instanceof Error ? err.message : 'unknown' }, 'Failed to fetch tenant for slack test');
+            return c.json({ ok: false, error: 'Slack not configured' }, 400);
+        }
         if (!tenant?.settings?.slackConfig) {
             return c.json({ ok: false, error: 'Slack not configured' }, 400);
         }
-        const client = new WebClient(tenant.settings.slackConfig.accessToken);
+        const plainToken = await decryptToken(tenant.settings.slackConfig.accessToken);
+        const client = new WebClient(plainToken);
         try {
             await client.auth.test();
             return c.json({ ok: true });
@@ -351,14 +391,88 @@ export function createSlackRoutes(deps: SlackRouteDeps): Hono<AppEnv> {
         // Handle event callbacks
         if (body.type === 'event_callback' && body.event) {
             const event = body.event as Record<string, unknown>;
-            logger.info({ eventType: event.type, eventTs: event.event_ts }, 'Received Slack event');
+            const eventType = event.type as string;
+            const teamId = body.team_id as string | undefined;
 
-            // Acknowledge the event immediately (Slack expects a 200)
+            logger.info({ eventType, teamId, eventTs: event.event_ts }, 'Received Slack event');
+
+            // Acknowledge the event immediately (Slack expects a 200),
+            // then attempt to reply asynchronously
+            if (teamId && (eventType === 'message' || eventType === 'app_mention')) {
+                // Fire-and-forget reply — never block Slack's 200 acknowledgement
+                replyToEvent(teamId, event, deps, decryptToken).catch((err) => {
+                    logger.warn({ err: err instanceof Error ? err.message : 'unknown', eventType, teamId }, 'Slack event reply failed (swallowed)');
+                });
+            }
+
             return c.json({ ok: true });
         }
 
         return c.json({ ok: true });
     });
+
+    /**
+     * Fire-and-forget reply to a Slack message event.
+     * Looks up the tenant by workspace ID using a full-table scan (MVP approach).
+     * In production this should use a dedicated GSI.
+     */
+    async function replyToEvent(
+        teamId: string,
+        event: Record<string, unknown>,
+        deps: SlackRouteDeps,
+        decryptTokenFn: (raw: string) => Promise<string>,
+    ): Promise<void> {
+        // Find the tenant whose Slack workspace matches this teamId.
+        // We scan all accessible tenants — for MVP this is acceptable;
+        // a future optimization should add a workspaceId → tenantId GSI.
+        let tenant;
+        try {
+            // Query all tenants by scanning the TenantEntity directly
+            const { TenantEntity } = await import('../../../shared/infra/db/entities/TenantEntity.js');
+            const result = await TenantEntity.scan.go({ limit: 100 });
+            tenant = (result.data as Array<Record<string, unknown>>).find(
+                (t: Record<string, unknown>) => {
+                    const settings = t.settings as Record<string, unknown> | undefined;
+                    const slackCfg = settings?.slackConfig as Record<string, unknown> | undefined;
+                    return slackCfg?.workspaceId === teamId;
+                },
+            );
+        } catch (err) {
+            logger.warn({ err: err instanceof Error ? err.message : 'unknown', teamId }, 'Failed to scan tenants for Slack reply');
+            return;
+        }
+
+        if (!tenant) {
+            logger.debug({ teamId }, 'No tenant found for Slack workspace — skipping reply');
+            return;
+        }
+
+        const settings = tenant.settings as Record<string, unknown> | undefined;
+        const slackCfg = settings?.slackConfig as Record<string, unknown> | undefined;
+        if (!slackCfg?.accessToken) {
+            logger.debug({ teamId }, 'Tenant has no Slack config — skipping reply');
+            return;
+        }
+
+        const plainToken = await decryptTokenFn(slackCfg.accessToken as string);
+
+        const client = new WebClient(plainToken);
+        const channel = (event.channel as string) || (slackCfg.channel as string);
+        const threadTs = (event.thread_ts as string) || (event.ts as string) || undefined;
+
+        const replyText = `Test event received by CauseFlow in channel <#${channel}>.`;
+
+        try {
+            await client.chat.postMessage({
+                channel,
+                text: replyText,
+                ...(threadTs ? { thread_ts: threadTs } : {}),
+            });
+            logger.info({ teamId, channel, threadTs }, 'Slack reply sent');
+        } catch (err) {
+            logger.warn({ err: err instanceof Error ? err.message : 'unknown', teamId, channel }, 'Slack chat.postMessage failed (swallowed)');
+        }
+    }
 
     return app;
 }

@@ -577,8 +577,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     clientSecret: config.slack.clientSecret,
     redirectUri: config.slack.redirectUri,
   };
-  const connectSlack = new ConnectSlackUseCase(tenantRepo, slackOAuthConfig);
-  const disconnectSlack = new DisconnectSlackUseCase(tenantRepo);
+  const connectSlack = new ConnectSlackUseCase(tenantRepo, slackOAuthConfig, tokenEncryption);
+  const disconnectSlack = new DisconnectSlackUseCase(tenantRepo, tokenEncryption);
   const updateSlackConfig = new UpdateSlackConfigUseCase(tenantRepo);
   const slackDeps = {
     connectSlack,
@@ -592,6 +592,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       stateSecret: config.slack.stateSecret,
       signingSecret: config.slack.signingSecret,
     },
+    tokenEncryption,
   };
 
   const finalizeConnection = new FinalizeConnectionUseCase(eventBus);

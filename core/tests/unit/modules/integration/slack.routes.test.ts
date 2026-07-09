@@ -42,6 +42,17 @@ function makeMockDeps(overrides: Partial<SlackRouteDeps> = {}): SlackRouteDeps {
             stateSecret: 'test-state-secret',
             signingSecret: 'test-signing-secret',
         },
+        tokenEncryption: {
+            encrypt: vi.fn(async (plaintext: string) => ({
+                ciphertext: Buffer.from(`encrypted:${plaintext}`).toString('base64'),
+                encryptedDek: Buffer.from('dek').toString('base64'),
+                iv: Buffer.from('iv').toString('base64'),
+                tag: Buffer.from('tag').toString('base64'),
+            })),
+            decrypt: vi.fn(async (payload) =>
+                Buffer.from(payload.ciphertext, 'base64').toString('utf8').replace('encrypted:', ''),
+            ),
+        },
         ...overrides,
     };
 }

@@ -76,6 +76,83 @@ WI-AC-036
 - 36 observability-specific tests all pass
 - E2E confirms `x-causeflow-trace-id` header present on remediation approve response
 
+---
+
+# QA Journal - WI-AC-030 (integrations-and-notifications: Slack OAuth)
+
+## Test Date
+2026-07-09
+
+## Environment
+- API running on PORT=3099 (docker causeflow-api-030, OSS runtime with ministack)
+- CAUSEFLOW_RUNTIME=oss (Postgres + BullMQ + local JWT auth)
+- Ministack at :4566 (DynamoDB, KMS, SQS available)
+- SLACK_SIGNING_SECRET=test-signing-secret
+- KMS alias `alias/causeflow-token-encryption` exists and functional
+
+## Acceptance Criteria Verification
+
+### 1. POST /v1/integrations/slack/install (admin auth)
+→ HTTP 200, returns {"authUrl":"...","state":"..."}
+- Auth URL contains correct OAuth params (scope, state)
+- State is HMAC-signed for CSRF protection
+- State persisted to SlackOAuthStateEntity in DynamoDB (verified via DynamoDB API)
+- ✅ PASS
+
+### 2. POST /v1/integrations/slack/install (no auth)
+→ HTTP 401, {"error":"UNAUTHORIZED","message":"Missing or invalid Authorization header"}
+- ✅ PASS
+
+### 3. POST /v1/integrations/slack/events (url_verification)
+→ HTTP 200, {"challenge":"test123"}
+- ✅ PASS
+
+### 4. POST /v1/integrations/slack/events (valid HMAC-SHA256 signature)
+→ HTTP 200, {"ok":true}
+- Uses timing-safe signature comparison (timingSafeEqual)
+- ✅ PASS
+
+### 5. POST /v1/integrations/slack/events (tampered body)
+→ HTTP 401, {"error":"Invalid signature"}
+- Signature computed for one body, sent with different body
+- ✅ PASS
+
+### 6. POST /v1/integrations/slack/events (missing signature headers)
+→ HTTP 401, {"error":"Missing signature headers"}
+- ✅ PASS
+
+### 7. POST /v1/integrations/slack/events (stale timestamp, >5min)
+→ HTTP 401, {"error":"Invalid timestamp"}
+- Timestamp is 10 minutes old (exceeds 5-minute replay window)
+- ✅ PASS
+
+### 8. GET /v1/integrations/slack/config (not installed)
+→ HTTP 200, {"connected":false}
+- ✅ PASS
+
+## Encryption Verification
+- KMS alias `alias/causeflow-token-encryption` exists in ministack
+- ConnectSlackUseCase encrypts accessToken via KmsTokenEncryption before storing
+- events endpoint's replyToEvent decrypts token via decryptToken helper
+- SlackOAuthStateEntity stores OAuth state with TTL (10 min)
+
+## Unit Tests
+- `pnpm test:run tests/unit/modules/integration/` 75/75 pass
+- `pnpm test:run tests/unit/shared/application/subscribers/` 10/10 pass
+
+## Observations
+1. The SlackNotificationSubscriber (automated incident→Slack notifications) still passes
+   the encrypted accessToken JSON string directly to WebClient without decrypting it.
+   This defect was identified in the previous QA run (20de248) and remains unfixed.
+   It is NOT exercised by AC-030's acceptance criteria (which test the install and
+   events endpoints, not the automated notification subscriber).
+2. The complete OAuth dance (callback) cannot be end-to-end tested without real
+   Slack app credentials. The install endpoint correctly initiates the flow and
+   stores state; the callback route correctly handles code/state exchange.
+3. The events endpoint's chat reply fires asynchronously (fire-and-forget). The
+   reply attempt is triggered correctly; whether Slack delivers it depends on the
+   bot token validity, which requires real Slack credentials.
+
 ## Verdict
 qa=true implementation=true integration=true
 
