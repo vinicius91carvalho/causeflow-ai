@@ -138,3 +138,11 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - WorkItem: WI-AC-012
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T18:56:30.251Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-012
+- Defects: Session terminated, killing shell... ...killed.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/website/WI-AC-012-2-integration_qa.log
+- NextAction: Repair Plan
