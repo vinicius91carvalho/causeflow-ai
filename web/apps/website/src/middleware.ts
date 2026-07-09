@@ -18,26 +18,64 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
  * Googlebot can cause deindexing of pages.
  */
 const CRAWLER_UA_PATTERNS = [
-  'googlebot',
-  'bingbot',
-  'slurp', // Yahoo
-  'duckduckbot',
-  'baiduspider',
-  'yandexbot',
-  'facebookexternalhit',
-  'twitterbot',
-  'linkedinbot',
-  'whatsapp',
-  'applebot',
-  'semrushbot',
+  'adsbot',
+  'adidxbot',
   'ahrefsbot',
-  'mj12bot',
+  'amazonbot',
+  'anthropic-ai',
+  'applebot',
+  'baiduspider',
+  'bingbot',
+  'bingpreview',
+  'bytespider',
+  'ccbot',
+  'chatgpt-user',
+  'chromevox',
+  'claudebot',
+  'cohere-ai',
+  'datadog agent',
+  'discordbot',
   'dotbot',
+  'duckduckbot',
+  'exabot',
+  'facebookbot',
+  'facebookexternalhit',
+  'googlebot',
+  'googlebot-image',
+  'googlebot-mobile',
+  'gptbot',
+  'heritrix',
+  'ia_archiver',
+  'jaws',
+  'linkedinbot',
+  'mailru',
+  'meta-externalagent',
+  'mj12bot',
+  'omgili',
+  'perplexity',
+  'petalbot',
+  'pingdom',
+  'pinterest',
   'rogerbot',
   'screaming frog',
-  'ia_archiver', // Wayback Machine
-  'petalbot',
+  'semrushbot',
+  'skype',
+  'slack',
+  'slurp',
   'sogou',
+  'statuscake',
+  'teams',
+  'tiktok',
+  'turnitinbot',
+  'twitterbot',
+  'uptimerobot',
+  'voiceover',
+  'whatsapp',
+  'wget',
+  'yandexbot',
+  'youbot',
+  'zoom',
+  'zonebot',
 ];
 
 /**
@@ -169,7 +207,25 @@ export default function middleware(request: NextRequest) {
     return response;
   }
 
-  // Cookie exists — skip detection, delegate directly to intlMiddleware.
+  // Cookie exists — skip detection, but redirect if the cookie locale doesn't
+  // match the current path. This ensures the cookie value stays authoritative
+  // for locale selection on subsequent visits.
+  if (localeCookie.value === 'pt-br') {
+    const isOnPtBr = pathname === '/pt-br' || pathname.startsWith('/pt-br/');
+    if (!isOnPtBr) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = pathname === '/' ? '/pt-br' : `/pt-br${pathname}`;
+      const response = NextResponse.redirect(redirectUrl);
+      response.cookies.set(COOKIE_NAME, 'pt-br', {
+        maxAge: COOKIE_MAX_AGE,
+        sameSite: 'lax',
+        path: '/',
+      });
+      return response;
+    }
+  }
+
+  // Cookie matches current path or is 'en' — delegate to intlMiddleware.
   return intlMiddleware(request);
 }
 

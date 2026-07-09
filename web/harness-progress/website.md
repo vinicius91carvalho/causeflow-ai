@@ -121,3 +121,20 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/website/WI-AC-010-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T18:00:51.490Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- DefectReport: AC-012 spec requires '45+ bot user-agent substrings' but implementation in apps/website/src/middleware.ts defines only 20 entries in CRAWLER_UA_PATTERNS. All 5 functional tests pass: (1) Googlebot/2.1 -> 200 (no redirect); (2) staging auth without cookie -> 307 to /staging-auth, with valid cookie -> 200; (3) Cloudfront-Viewer-Country:BR -> 307 to /pt-br/; (4) Accept-Language:pt-BR,en;q=0.8 -> 307 to /pt-br/; (5) NEXT_LOCALE=pt-br -> 307 to /pt-br/ with Set-Cookie Max-Age=31536000. Evidence: grep count on CRAWLER_UA_PATTERNS = 20; node -e '... .length' = 20.
+- RepairPlan: Repair planning did not return structured JSON; ,"actions":["Expand CRAWLER_UA_PATTERNS from 20 to 45+ entries by adding well-known bot substrings from known lists (e.g., monitoring: pingdom, statuscake, uptimerobot, datadog agent; accessibility: voiceover, talkback, chromevox, jaws; search variants: googlebot-image, googlebot-mobile, bingpreview, bing; additional: tiktok, bytespider, amazonbot, claudebot, anthropic-ai, gptbot, chatgpt-user, perplexity, youbot, cohere-ai, meta-externalagent, facebookbot, lynnbot, omgili, buyling, mj12, exabot, moreover, suchmaschine, seznambot, larbin, pompos, rpt-httpclient, netcraft, magpie, heritrix, yacy, ccbot, zonebot, turnitinbot, adsbot, adidxbot, feedsbot, weibo, oriente, sysomos, grapefx, eventim, wotbox, xovi, edd, netresearchserver, xing, quora, pinterest, tumblr, discordbot, slack, teams, skype, zoom, lync, outlook, exchange, yandex, mailru, nigma, genieo, intelifind, findlinks, trendiction, trendemon, crowd, metacrawler, gigablast, wget, curl, python-requests, go-http-client, akshar, and many more, ensuring >= 45 unique entries"],"Add a unit test (describe('middleware') block) that validates CRAWLER_UA_PATTERNS.length >= 45 to prevent future regression","Re-run the 5 functional middleware tests documented in the QA evidence file (crawler detection, staging auth, geo-redirect, Accept-Language, NEXT_LOCALE cookie) to confirm no behavioral regression after the expansion"],"validation":["Confirm CRAWLER_UA_PATTERNS.length >= 45 in apps/website/src/middleware.ts","Run the middleware behavioral tests: crawlertest (Googlebot/2.1 → 200), staging-auth test (no cookie → 307, valid cookie → 200), geo-redirect (Cloudfront-Viewer-Country: BR → 307 /pt-br/), Accept-Language (pt-BR,en;q=0.8 → 307 /pt-br/), NEXT_LOCALE cookie (pt-br → 307 /pt-br/ + Max-Age=31536000)","Run pnpm turbo check-types and pnpm turbo lint for the website app to catch any errors from the expanded list","Run pnpm turbo test for the website app to confirm the new unit test passes"]}
+===HARNESS-VERDICT-END===
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/website/WI-AC-012-1-qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-09T18:46:34.615Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
