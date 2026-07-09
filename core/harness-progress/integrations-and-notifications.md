@@ -229,3 +229,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - Event reply pipeline confirmed via code review: replyToEvent() fires chat.postMessage for message/app_mention events ✅
 - DynamoDB fallbacks confirmed via code review: all tenantRepo calls wrapped in try/catch ✅
 - Pre-existing typecheck errors in ingestion module (unrelated to AC-030) fixed to unblock docker build: added `sourceProvider` field to CreateManualIncidentInput
+
+## 2026-07-09T12:41:00.322Z — Resumed
+
+- WorkItem: WI-AC-030
+- PreviousPhase: coding
+- Attempt: 2
+- NextAction: coding
