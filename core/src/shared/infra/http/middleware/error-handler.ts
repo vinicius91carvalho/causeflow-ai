@@ -21,7 +21,7 @@ export const errorHandler: ErrorHandler = (err, c) => {
                 : logger.warn.bind(logger);
         logFn({ err: err.toJSON(), path, method, requestId, tenantId, userId }, 'Application error');
         if (err.statusCode >= 500) {
-            captureException(err, errorContext);
+            void captureException(err, errorContext);
         }
         return c.json(err.toJSON(), err.statusCode as import('hono/utils/http-status').ContentfulStatusCode);
     }
@@ -33,6 +33,6 @@ export const errorHandler: ErrorHandler = (err, c) => {
         },
         path, method, requestId, tenantId, userId,
     }, 'Unhandled error');
-    captureException(err, errorContext);
+    void captureException(err, errorContext);
     return c.json({ error: 'INTERNAL_ERROR', message: 'Internal server error' }, 500);
 };

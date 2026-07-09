@@ -456,6 +456,7 @@ export function createSlackRoutes(deps: SlackRouteDeps): Hono<AppEnv> {
 
         const plainToken = await decryptTokenFn(slackCfg.accessToken as string);
 
+        const { WebClient } = await import('@slack/web-api');
         const client = new WebClient(plainToken);
         const channel = (event.channel as string) || (slackCfg.channel as string);
         const threadTs = (event.thread_ts as string) || (event.ts as string) || undefined;

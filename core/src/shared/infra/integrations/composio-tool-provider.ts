@@ -158,7 +158,7 @@ export class ComposioToolProvider {
     toolPrefix = 'composio_';
 
     async getTools(tenantId: string, apps?: string[]): Promise<ToolDefinition[]> {
-        const client = getComposioClient();
+        const client = await getComposioClient();
         if (!client) return [];
 
         const requestedApps = (apps ?? []).filter((app) => COMPOSIO_PROVIDERS.has(app));
@@ -199,7 +199,7 @@ export class ComposioToolProvider {
     }
 
     async executeAction(tenantId: string, actionName: string, params: Record<string, unknown>): Promise<string> {
-        const client = getComposioClient();
+        const client = await getComposioClient();
         if (!client) return JSON.stringify({ error: 'Composio not configured' });
 
         const toolSlug = actionName.replace(this.toolPrefix, '');
@@ -231,7 +231,7 @@ export class ComposioToolProvider {
     }
 
     async initiateAuth(tenantId: string, provider: string, redirectUrl: string): Promise<string> {
-        const client = getComposioClient();
+        const client = await getComposioClient();
         if (!client) throw new Error('Composio not configured');
 
         const composioApp = COMPOSIO_APP_MAP[provider as keyof typeof COMPOSIO_APP_MAP];
@@ -250,7 +250,7 @@ export class ComposioToolProvider {
     }
 
     async getConnectionStatus(tenantId: string) {
-        const client = getComposioClient();
+        const client = await getComposioClient();
         if (!client) return [];
 
         try {
@@ -270,7 +270,7 @@ export class ComposioToolProvider {
                         createdAt: conn.createdAt,
                     };
                 })
-                .filter((conn) => conn.provider !== '');
+                .filter((conn: any) => conn.provider !== '');
         } catch (err) {
             logger.warn({ err: err instanceof Error ? err.message : err, tenantId }, 'Composio getConnectionStatus failed');
             return [];
@@ -278,7 +278,7 @@ export class ComposioToolProvider {
     }
 
     async revokeConnection(tenantId: string, provider: string): Promise<void> {
-        const client = getComposioClient();
+        const client = await getComposioClient();
         if (!client) return;
 
         const composioApp = COMPOSIO_APP_MAP[provider as keyof typeof COMPOSIO_APP_MAP];

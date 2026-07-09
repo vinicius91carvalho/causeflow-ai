@@ -159,7 +159,7 @@ export class ComposioTriggerService {
     async deleteTrigger(composioTriggerId: string): Promise<void> {
         // Webhook-only providers (sentry, pagerduty, datadog) have no Composio trigger to delete
         if (!composioTriggerId) return;
-        const client = getComposioClient();
+        const client = await getComposioClient();
         if (client) {
             try {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
