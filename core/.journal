@@ -61,3 +61,28 @@
 
 ## Verdict
 qa=true implementation=true
+
+## RE-VERIFICATION (2026-07-09)
+Re-exercised all AC-030 boundaries at real HTTP (port 3099, docker causeflow-api-030).
+
+### Boundary test results
+- POST /v1/integrations/slack/install (admin auth) → 200, returns authUrl + state
+- GET /v1/integrations/slack/oauth/authorize → 302 (redirect to Slack)
+- POST /v1/integrations/slack/events (url_verification) → 200, returns challenge
+- POST /v1/integrations/slack/events (valid HMAC-SHA256 signature) → 200, {"ok":true}
+- POST /v1/integrations/slack/events (tampered body) → 401, {"error":"Invalid signature"}
+- POST /v1/integrations/slack/events (missing signature headers) → 401, {"error":"Missing signature headers"}
+- POST /v1/integrations/slack/events (stale timestamp >5min) → 401, {"error":"Invalid timestamp"}
+- GET /v1/integrations/slack/config (no install) → 200, {"connected":false}
+
+### Unit tests
+1058/1058 pass (pnpm test:run)
+
+### Invariants
+10/10 pass (pnpm lint-invariants)
+
+### Conclusion
+All AC-030 criteria pass at the real HTTP boundary. No code changes needed.
+
+## Verdict
+qa=true implementation=true
