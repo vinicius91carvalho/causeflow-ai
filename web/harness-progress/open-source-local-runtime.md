@@ -939,3 +939,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: coding agent failed three times
 - Defects: Session terminated, killing shell... ...killed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T20:22:59.398Z — Explicit Resume
+
+- WorkItem: WI-AC-051
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: coding exhausted three attempts; apply smallest root-cause fix per Repair Plan.
+- NextAction: Coding Attempt 1
