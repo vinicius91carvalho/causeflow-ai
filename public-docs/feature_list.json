@@ -325,10 +325,11 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": false,
+    "implementation": true,
     "qa": false,
     "integration": false,
-    "retries": 0
+    "retries": 0,
+    "verify_notes": "VERIFY-FIRST PASS: mint dev requested on port 5174 and served on 5175 after reporting 5174 in use; GET /api-reference/errors-and-pagination returned HTTP 200. Rendered HTML contains the JSON error envelope example, all required status codes (400/401/403/404/409/429/500/503), and cursor-pagination fields items, cursor, and count. No MDX parse errors. No content changes."
   },
   {
     "id": "WI-AC-016",

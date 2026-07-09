@@ -1028,3 +1028,12 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T12:12:28Z — VERIFY-FIRST PASS
+
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- Boundary: Mintlify dev preview requested on port 5174; actual listener 5175 after 5174 was reported in use.
+- Result: `GET /api-reference/errors-and-pagination` returned HTTP 200 with rendered HTML containing the JSON error envelope, status-code table entries 400/401/403/404/409/429/500/503, and cursor-pagination fields `items`, `cursor`, and `count`.
+- Evidence: `.harness-evidence/api-reference/WI-AC-015-2026-07-09-errors-and-pagination-rendered.html`
+- Verdict: implementation=true; no MDX/content changes.
