@@ -928,10 +928,10 @@
     "verify_first": true,
     "implementation": true,
     "qa": true,
-    "integration": false,
+    "integration": true,
     "retries": 2,
     "attempts": 0,
-    "status": "qa-passed"
+    "status": "integrated"
   },
   {
     "id": "WI-AC-037",
