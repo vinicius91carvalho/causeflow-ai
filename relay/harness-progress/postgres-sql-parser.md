@@ -89,3 +89,10 @@ Conditions verified:
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/postgres-sql-parser/WI-AC-028-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T06:00:00.000Z — Independent QA Verification (WI-AC-029)
+
+- WorkItem: WI-AC-029
+- AcceptanceChecks: AC-029
+- Outcome: passed (zero-diff checkpoint, no code changes)
+- Details: Independently verified AC-029 (dangerous function detection) at compiled dist boundary. All acceptance criteria pass: validateQuery('SELECT pg_sleep(10)') => {valid:false, reason:'Dangerous function detected: pg_sleep'}; validateQuery("SELECT * FROM pg_proc WHERE proname = 'pg_read_file'") => {valid:false, reason:'Dangerous function detected: pg_read_file'}; all 15 documented dangerous functions correctly rejected; safe queries (SELECT 1, SELECT * FROM orders) accepted; substring overlap edge cases (dblink/dblink_exec) handled correctly. npm run build and tsc --noEmit pass. PgDriver.validate() correctly wires validateQuery. No defects.
