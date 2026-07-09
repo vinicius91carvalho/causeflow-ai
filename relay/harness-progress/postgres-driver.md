@@ -169,6 +169,28 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 
 ## 2026-07-09T02:07:05.000Z — AC-022 verified at real boundary, implementation=true (zero-diff)
 
+## 2026-07-08T23:37:00.000Z — Independent QA re-verification (qa-agent)
+
+- WorkItem: WI-AC-022
+- Result: qa=true, implementation=true — no defects found.
+- Verification: Executed `scripts/qa/ac022-qa.mts` against real `relay-postgres` container
+  (postgres:16-alpine, `127.0.0.1:5432`, `relay`/`relay`, seeded `orders` table). Used
+  `PgDriver.execute({ operation: 'list_tables', params: {} })` via the compiled
+  `dist/drivers/postgres/pg-driver.js`. All 13 assertions passed:
+  - health check ✓
+  - rows is array, contains `orders` table ✓
+  - rowCount is number ✓
+  - executionTimeMs is number ✓
+  - fields is array, includes `table_name` and `table_type` ✓
+  - `table_name` type is `text` ✓
+  - `table_type` type is `text` ✓
+  - every row has `table_name` and `table_type` properties ✓
+  - orders table_type is `BASE TABLE` ✓
+- The exact AC-022 query `SELECT table_name, table_type FROM information_schema.tables
+  WHERE table_schema = 'public' ORDER BY table_name` was confirmed via the PgDriver source
+  code at `src/drivers/postgres/pg-driver.ts` (line ~53-59).
+- Evidence: `scripts/qa/ac022-qa.mts` committed.
+
 - WorkItem: WI-AC-022
 - Attempt: 1/3
 - Result: implementation=true — no code changes needed.
