@@ -142,3 +142,10 @@ oss-dev-jwt-secret-change-me for tenant 32996af2-19ba-4d58-ba76-1cb7da13d540.
 - RepairPlan: The integration QA step for WI-AC-017 (triage) was terminated by the harness shell before completing (Session terminated, killing shell... ...killed). When run manually with docker services up (ministack:4566, redis:6379), the integration test suite runs in ~13s but produces 6 pre-existing failures across 3 test files: user-locale-settings (4 fails), audit-actor-threading (1 fail), SQS (1 flaky fail). None of the failures are in the triage module or related to AC-017 changes. The AC-017 triage code changes (status revert on LLM failure, investigationMode plumbing) are correct: all 1065 unit tests pass, the two original QA defects are resolved.; Add `isOss: () => false` to the mocked config in `tests/integration/user-locale-settings.integration.test.ts` so the auth middleware does not crash during PATCH/GET /v1/users/:userId/settings tests; Add `isOss: () => false` to the mocked config in `tests/integration/audit-actor-threading.integration.test.ts` so the auth middleware does not crash during the audit threading test; Increase the SQS batch test receive attempts or add a brief pre-wait for ministack to stabilize the flaky `should send multiple messages and receive in batch` test
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/triage/WI-AC-017-2-integration_qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-09T19:04:19.243Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-017
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
