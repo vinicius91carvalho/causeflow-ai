@@ -1130,3 +1130,10 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Auto-retry: coding exhausted three attempts; apply smallest root-cause fix per Repair Plan.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T20:00:56.517Z — Resumed
+
+- WorkItem: WI-AC-006
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
