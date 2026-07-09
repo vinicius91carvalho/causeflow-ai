@@ -923,3 +923,24 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T20:57:00.000Z — Verified AC-031 (all boundary checks pass)
+
+- WorkItem: WI-AC-031
+- Implementation: true
+- Changes: none (zero-diff checkpoint, working tree clean)
+- Verification results (against live API at :5185):
+  - GET /v1/integrations/composio/tools (authed) returns 200 with tools list ✅
+  - GET /v1/integrations/composio/tools (no auth) returns 401 ✅
+  - POST /v1/integrations/composio/triggers (missing fields) returns 400 ✅
+  - POST /v1/integrations/composio/triggers (unconnected provider) returns 400 with clear error ✅
+  - POST /v1/integrations/composio/triggers (no auth) returns 401 ✅
+  - POST /webhooks/composio (invalid signature) returns invalid_signature ✅
+  - POST /webhooks/composio (valid signature, unknown trigger) returns trigger_not_found ✅
+  - GET /v1/triggers/available returns trigger catalog ✅
+  - GET /v1/triggers (list) returns empty list ✅
+  - GET /v1/integrations/catalog returns provider catalog ✅
+- Unit tests: 75/75 integration module, 26/26 composio/trigger tests pass ✅
+- Routes mounted at /v1/integrations/composio/tools and /v1/integrations/composio/triggers ✅
+- Trigger webhook pipeline feeds into triage queue via ingestAlert ✅
+- Git working tree: clean (zero diff)
