@@ -5,7 +5,7 @@ import { GetTenantUseCase } from './modules/tenant/application/get-tenant.usecas
 import { UpdateTenantUseCase } from './modules/tenant/application/update-tenant.usecase.js';
 import { ListTenantsUseCase } from './modules/tenant/application/list-tenants.usecase.js';
 import { DynamoAuditRepository } from './modules/audit/infra/dynamo-audit.repository.js';
-import { ClerkUserEmailResolver } from './modules/audit/infra/clerk-user-email-resolver.js';
+
 import { CreateAuditEntryUseCase } from './modules/audit/application/create-audit-entry.usecase.js';
 import { DeleteAuditEntryUseCase } from './modules/audit/application/delete-audit-entry.usecase.js';
 import { VerifyHashChainUseCase } from './modules/audit/application/verify-hash-chain.usecase.js';
@@ -162,14 +162,14 @@ import { CancelSubscriptionUseCase } from './modules/billing/application/cancel-
 import { CreateSubscriptionUseCase } from './modules/billing/application/create-subscription.usecase.js';
 import { ReactivateSubscriptionUseCase } from './modules/billing/application/reactivate-subscription.usecase.js';
 import { ListInvoicesUseCase } from './modules/billing/application/list-invoices.usecase.js';
-import { HandleClerkWebhookUseCase } from './modules/auth/application/handle-clerk-webhook.usecase.js';
+import type { HandleClerkWebhookUseCase } from './modules/auth/application/handle-clerk-webhook.usecase.js';
 import { DynamoUserRepository } from './modules/user/infra/dynamo-user.repository.js';
 import { DynamoInviteRepository } from './modules/user/infra/dynamo-invite.repository.js';
 import { CreateUserUseCase } from './modules/user/application/create-user.usecase.js';
 import { ListUsersUseCase } from './modules/user/application/list-users.usecase.js';
 import { UpdateUserUseCase } from './modules/user/application/update-user.usecase.js';
 import { DeleteUserUseCase } from './modules/user/application/delete-user.usecase.js';
-import { CreateInviteUseCase } from './modules/user/application/create-invite.usecase.js';
+import type { CreateInviteUseCase } from './modules/user/application/create-invite.usecase.js';
 import { ListInvitesUseCase } from './modules/user/application/list-invites.usecase.js';
 import { RevokeInviteUseCase } from './modules/user/application/revoke-invite.usecase.js';
 import { GetSettingsUseCase } from './modules/user/application/get-settings.usecase.js';
@@ -373,7 +373,11 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // Audit Use Cases
   const createAuditEntry = new CreateAuditEntryUseCase(auditRepo);
-  const userEmailResolver = new ClerkUserEmailResolver();
+  // In OSS mode, the user email resolver is not needed (no Clerk).
+  // The ListAuditEntriesUseCase handles undefined resolver gracefully.
+  const userEmailResolver = config.isOss()
+    ? undefined
+    : new (await import('./modules/audit/infra/clerk-user-email-resolver.js')).ClerkUserEmailResolver();
   const auditUseCases: AuditUseCases = {
     listAuditEntries: new ListAuditEntriesUseCase(auditRepo, userEmailResolver),
     verifyHashChain: new VerifyHashChainUseCase(auditRepo),
@@ -716,24 +720,36 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     const { PgUserRepository } = await import('./modules/user/infra/pg-user.repository.js');
     userRepo = new PgUserRepository();
     inviteRepo = new DynamoInviteRepository(); // Not yet implemented as Postgres
+    // In OSS mode, the Clerk webhook handler is never invoked (ossAuthRouter
+    // replaces auth.routes entirely). We provide a no-op stub that satisfies
+    // the AuthUseCases type without importing @clerk/backend at boot time.
     authUseCases = {
-      handleClerkWebhook: new HandleClerkWebhookUseCase(tenantRepo, userRepo, stripeCustomerService, planCatalog, billingAccountRepo),
+      handleClerkWebhook: {
+        execute: async (_body: string, _headers: Record<string, string>) => {
+          // Clerk webhook disabled in OSS runtime
+        },
+      } as unknown as HandleClerkWebhookUseCase,
     };
   } else {
     userRepo = new DynamoUserRepository();
     inviteRepo = new DynamoInviteRepository();
+    const { HandleClerkWebhookUseCase: HCW } = await import('./modules/auth/application/handle-clerk-webhook.usecase.js');
     authUseCases = {
-      handleClerkWebhook: new HandleClerkWebhookUseCase(tenantRepo, userRepo, stripeCustomerService, planCatalog, billingAccountRepo),
+      handleClerkWebhook: new HCW(tenantRepo, userRepo, stripeCustomerService, planCatalog, billingAccountRepo),
     };
   }
 
   // User Use Cases
+  // CreateInviteUseCase dynamically imported to avoid pulling in @clerk/backend
+  // at module evaluation time in OSS mode (even though the route is not mounted,
+  // the static import would still load clerk-client.ts -> @clerk/backend).
+  const { CreateInviteUseCase: CInv } = await import('./modules/user/application/create-invite.usecase.js');
   const userUseCases: UserUseCases = {
     createUser: new CreateUserUseCase(userRepo, eventBus),
     listUsers: new ListUsersUseCase(userRepo),
     updateUser: new UpdateUserUseCase(userRepo, eventBus),
     deleteUser: new DeleteUserUseCase(userRepo, eventBus),
-    createInvite: new CreateInviteUseCase(inviteRepo, eventBus),
+    createInvite: new CInv(inviteRepo, eventBus),
     listInvites: new ListInvitesUseCase(inviteRepo),
     revokeInvite: new RevokeInviteUseCase(inviteRepo, eventBus),
     getSettings: new GetSettingsUseCase(userRepo, tenantRepo),
