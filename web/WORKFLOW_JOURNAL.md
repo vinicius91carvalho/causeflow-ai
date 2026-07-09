@@ -501,3 +501,9 @@ All acceptance criteria verified at real HTTP boundary (port 5173) — zero code
 - Step 3: Live HTTP on assigned port 5193 — `/dashboard` returns 307 to `/auth/sign-in` (no lvh.me rewrite needed); `/auth/sign-in` returns 200; `/auth/sign-up` returns 200; `/accept-invitation` returns 200.
 - Build cached, exits 0. All 8 billing API test files pass (22 tests). Biome clean.
 - No `lvh.me` host appears anywhere in the dashboard's source.
+
+### QA Verdict (WI-AC-052)
+- **Step 1 (grep):** `grep -E 'loops\.so|app\.loops\.so' apps/website/next.config.mjs apps/website/.env.example` → zero matches. PASS
+- **Step 2 (grep):** `grep -rE 'lvh\.me' apps/dashboard/src apps/dashboard/next.config.mjs` → zero matches. PASS
+- **Step 3 (HTTP):** `/dashboard` returns 307 → `/auth/sign-in?redirect_url=%2Fdashboard` (no lvh.me rewrite). PASS
+- **qa=true, implementation=true**
