@@ -611,3 +611,41 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Boundary: `mint dev --port 5180`; 125 `docs.json` navigation pages returned HTTP 200 and no rendered `"status": "dismissed"` or `"status": "failed"` values.
 - Evidence: 133 `.mdx` files audited; `rg -n '"status"\s*:\s*"(dismissed|failed)"' --glob '*.mdx' .` returned zero matches. `pending` appears only in remediation `steps[].status`, pending approval routes/text, or other approval-level contexts.
 - Scaffold: project spec-required docs/runtime files and directories are present.
+
+## 2026-07-09T01:52:39.513Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: QA agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-invariants-and-validation/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f4493-a81b-7c43-90e0-0c313b014f59
+--------
+user
+You are the qa-agent. Independently test exactly this Work Item in its isolated worktree.
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-invariants-and-validation/public-docs
+PORT=5180
+Work Item id=WI-AC-023 context=invariants-and-validation
+Acceptance Checks=AC-023
+Description=Audit: no `Incident.status` value of `dismissed` or `failed` appears in any `.mdx`; `pending` appears only for step-level or approval-level status.
+Use a real browser for UI or real HTTP for API behavior. On pass set qa=true. On any defect set implementation=false and qa=false. Update the journal concisely and commit. Return only JSON: {"id":"...","qa":true|false,"implementation":true|false,"defects":["expected ...; observed ...; evidence ..."]}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-invariants-and-validation/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
