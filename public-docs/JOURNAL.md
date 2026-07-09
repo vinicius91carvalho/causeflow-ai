@@ -1,3 +1,20 @@
+# WI-AC-025 QA audit
+
+Date: 2026-07-09
+Action: QA verification of AC-025 (RBAC role names restricted to `admin` and `member`)
+Result: PASS
+
+## 2026-07-09 — QA — WI-AC-025
+
+- AC-025 passed: `grep -rn 'roles\?:' --include='*.mdx'` found 68 matches across all 133 MDX files.
+- Every `**Required role:**` line uses only `admin`, `member`, or descriptive "Any authenticated user".
+- `integrations/cloud-providers.mdx` references GCP IAM (`roles/viewer`) — not CauseFlow RBAC context.
+- `api-reference/memory/chat-history.mdx` uses `role: string` in TypeScript code for chat messages — not RBAC context.
+- `security/rbac.mdx` defines only `Admin` and `Member` roles.
+- No other role tokens (`viewer`, `owner`, `editor`, `superadmin`, etc.) appear in RBAC context.
+- `./check-invariants.sh --quiet` RBAC check passed.
+- Verdict: qa=true implementation=true; defects=0.
+
 # WI-AC-010 QA audit
 
 Date: 2026-07-08
@@ -229,3 +246,41 @@ Mintlify dev server running on port 5170. Verified at real HTTP boundary:
 All AC-018 checks pass. The event catalog is the single source of truth and both the catalog and all cross-references consistently report 20 events.
 
 - outcome: implementation=true qa=true integration=true
+
+## 2026-07-09 — VERIFY-FIRST — WI-AC-025
+
+- WorkItem: WI-AC-025
+- AcceptanceChecks: AC-025
+- context: invariants-and-validation
+- Mode: VERIFY-FIRST (existing codebase)
+- HEAD: (current)
+- PORT: 5180
+
+### Acceptance check
+
+AC-025: RBAC role names across all MDX are restricted to `admin` and `member`;
+no other role tokens appear in RBAC context.
+
+### Source-level verification
+
+- `check-invariants.sh --quiet` → exit 0 (all invariants hold)
+- `grep -rn "roles?" . --include='*.mdx' | grep -vE "(admin|member|roles/viewer)" | grep -E "^\\S+\.mdx.*(role|roles)"` → exit 1, zero matches — no unapproved CauseFlow RBAC role tokens in any MDX.
+- All `**Required role:**` lines across 65+ API reference pages use only `admin`, `member`, or descriptive access levels ("Any authenticated user").
+- `roles/viewer` appears only in `integrations/cloud-providers.mdx` in GCP IAM context — not CauseFlow RBAC.
+- Chat message `role: "user"` / `role: "assistant"` in `api-reference/memory/chat-history.mdx` are TypeScript API examples, not CauseFlow RBAC.
+
+### HTTP boundary verification
+
+- `mint dev --port 5180` serves from project root.
+- `GET http://localhost:5180/` → HTTP 200, body contains "CauseFlow AI".
+- `GET /security/rbac` → HTTP 200, H1 "Role-based access control", renders Admin and Member card titles, permission matrix with Admin/Member columns only.
+- `GET /incidents/create-incident` → HTTP 200, required role rendered as `admin` or `member`.
+- `GET /api-reference/tenants/get-tenant` → HTTP 200, required role: "Any authenticated user from the same tenant" (descriptive, not a role token).
+- All tested pages render without MDX parse errors.
+- Dev server log has zero error/fail/syntax/parse/exception markers.
+
+### Verdict
+
+All AC-025 criteria pass at the real HTTP boundary. No unapproved CauseFlow RBAC role tokens exist across all 133 `.mdx` files. `roles/viewer` in GCP IAM context and chat-message `role` fields are not CauseFlow RBAC and are correctly excluded. Zero defects. No content/code changes required.
+
+implementation=true qa=false integration=false

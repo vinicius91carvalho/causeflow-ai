@@ -988,3 +988,661 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/invariants-and-validation/WI-AC-024-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T20:00:46.822Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:01:00.600Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:01:04.866Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:01:09.164Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:01:34.716Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:01:39.032Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:01:43.275Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:02:00.538Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:02:13.355Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:02:17.588Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:02:21.991Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:02:26.463Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:02:34.998Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:02:47.869Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:03:17.948Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:03:22.266Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:03:26.702Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:03:31.323Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:03:44.198Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:03:48.491Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:03:52.995Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:04:01.531Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:04:23.011Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:04:27.331Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:04:48.787Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:05:01.715Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:05:06.003Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:05:10.303Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:05:27.558Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:05:31.897Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:05:36.187Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:05:40.796Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:05:45.089Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:06:02.323Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:06:06.789Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:06:11.314Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:06:19.926Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:06:24.278Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:06:32.880Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:06:41.510Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:06:45.825Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:06:58.930Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:07:03.281Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:07:07.597Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:07:11.948Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:07:16.422Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:07:25.015Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:07:42.543Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:07:46.845Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:07:51.176Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:07:59.867Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:08:04.141Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:08:08.754Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:08:13.081Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:08:44.196Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:08:52.868Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:09:23.596Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:09:32.343Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:09:41.043Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:09:49.758Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:09:54.126Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:09:58.648Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:10:07.355Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:10:11.695Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:10:16.215Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:10:20.611Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:10:29.344Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:10:33.760Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:10:42.433Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:10:46.887Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:10:55.527Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:11:04.221Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:11:13.141Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:11:34.890Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:11:39.236Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:11:43.568Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:11:48.152Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:11:56.841Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:12:01.245Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:12:06.072Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:12:10.429Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:12:14.753Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:12:28.345Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:12:35.920Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:51:23.770Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:53:57.389Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:55:26.413Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:58:29.853Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T20:59:19.004Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T20:59:58.918Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T21:01:42.962Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T21:02:36.251Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T21:03:47.976Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T21:04:47.402Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-025
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
