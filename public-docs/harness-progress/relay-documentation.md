@@ -191,3 +191,11 @@
 - Outcome: implementation=true, zero source-content changes
 - Evidence: `mint dev --port 5170` served `http://localhost:5170/relay/overview` with HTTP 200. The rendered HTML includes the "What the Relay is not" section with `Not a proxy`, `Not a tunnel`, and `Not a replication agent`; source grep returned exactly 3 matches.
 - NextAction: Integrated Verification
+
+## 2026-07-09T00:36:37.647Z — Isolated QA passed
+
+- WorkItem: WI-AC-021
+- AcceptanceChecks: AC-021
+- Outcome: qa=true, implementation=true
+- Evidence: required scaffold present; `mint dev --port 5170` served `/relay/overview` with HTTP 200; rendered HTML includes `What the Relay is not`, `Not a proxy`, `Not a tunnel`, and `Not a replication agent`; `grep -E 'Not a (proxy|tunnel)|replication agent' relay/overview.mdx` returned all three matches.
+- NextAction: Integrated Verification
