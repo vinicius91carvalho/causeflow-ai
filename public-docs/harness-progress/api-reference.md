@@ -1236,3 +1236,10 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Boundary: Mintlify dev preview on port 5170 plus source invariant grep.
 - Result: `grep -rE 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx' .` returned zero matches; all 84 `api-reference` MDX routes returned HTTP 200 and rendered HTML contained no forbidden host matches.
 - Verdict: implementation=true; no MDX/content changes.
+
+## 2026-07-09T12:44:12.026Z — Resumed
+
+- WorkItem: WI-AC-016
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
