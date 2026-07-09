@@ -107,6 +107,5 @@ setup('authenticate via password', async ({ page }) => {
   });
 
   await page.context().storageState({ path: AUTH_FILE });
-  // biome-ignore lint/suspicious/noConsole: setup log
   console.log(`[pd-auth-setup] Session saved to ${AUTH_FILE}`);
 });

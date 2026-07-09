@@ -40,6 +40,27 @@
 
 ---
 
+## WI-AC-004 — Biome 2.4.4 lint+format check exits 0
+
+**State:** `implementation=true`
+
+**Summary (repair 2 — durable fix):**
+The previous fix (formatting `feature_list.json` inline) regressed when the harness regenerated the file with multi-line arrays at commit 16733d9. This second repair adds a Biome override that excludes `feature_list.json` from both linter and formatter, making the fix durable against future harness regenerations.
+
+**Root cause:** `feature_list.json` is a harness-generated work-tracking file with 53+ single-element arrays (`["AC-001"]`) written as multi-line (`[\n  "AC-001"\n]`). Biome 2.4.4 JSON formatter requires inline single-element arrays. Since the file is a generated artifact (not source code), the correct approach is to exclude it from Biome checking.
+
+**Change:**
+- `web/biome.json` — added override entry for `feature_list.json` that disables linter and formatter (9 lines added). This uses the same pattern as the existing `docs/redesign-review/**` override.
+
+**Verification:**
+- `pnpm exec biome check .` exits 0 (76 warnings at `warn` severity, 0 errors)
+- `pnpm exec biome check --write .` produces no changes
+- Malformed import triggers `assist/source/organizeImports` exit 1
+- `--write` auto-fixes malformed imports and exits 0
+- No ESLint/Prettier configs exist
+
+---
+
 ## WI-AC-050 — SST removed; Dockerfiles; CI workflows updated for open-source-local-runtime
 
 **State:** `implementation=true`

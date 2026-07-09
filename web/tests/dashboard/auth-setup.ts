@@ -127,6 +127,5 @@ setup('authenticate via Clerk sign-in token', async ({ page }) => {
   // 7. Save state (cookies + localStorage)
   await page.context().storageState({ path: AUTH_FILE });
 
-  // biome-ignore lint/suspicious/noConsole: setup logs are intentional
   console.log(`[auth-setup] Clerk session saved to ${AUTH_FILE} (user: ${TEST_EMAIL})`);
 });
