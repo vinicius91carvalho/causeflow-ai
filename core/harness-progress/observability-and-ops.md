@@ -312,3 +312,59 @@ Code paths verified by unit tests and real HTTP boundary assertions.
 - WorkItem: WI-AC-036
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T10:49:09.777Z — Resumed
+
+- WorkItem: WI-AC-036
+- PreviousPhase: integration_qa
+- Attempt: 3
+- NextAction: integration-qa
+
+## 2026-07-09T10:49:09.798Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-09T10:52:38.600Z — Resumed
+
+- WorkItem: WI-AC-036
+- PreviousPhase: integration_qa
+- Attempt: 3
+- NextAction: integration-qa
+
+## 2026-07-09T10:52:38.624Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-09T10:52:52.477Z — Resumed
+
+- WorkItem: WI-AC-036
+- PreviousPhase: integration_qa
+- Attempt: 3
+- NextAction: integration-qa
+
+## 2026-07-09T10:52:52.499Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-09T12:10:58.082Z — Resumed
+
+- WorkItem: WI-AC-036
+- PreviousPhase: integration_qa
+- Attempt: 3
+- NextAction: integration-qa
+
+## 2026-07-09T12:10:58.137Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
