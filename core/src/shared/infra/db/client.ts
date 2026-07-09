@@ -1,21 +1,53 @@
+/**
+ * DynamoDB / ElectroDB client.
+ *
+ * In the AWS runtime, this provides a real DynamoDBClient from the SDK.
+ * In the OSS runtime (CAUSEFLOW_RUNTIME=oss), it returns a Duck-typed stub
+ * with a `send` method so ElectroDB Entity registration succeeds, but no
+ * `new DynamoDBClient()` is ever called — the stub throws a descriptive
+ * error if any code path attempts to make a DynamoDB call.
+ *
+ * AC-040: "no DynamoDBClient instantiation at boot" — satisfied because
+ * the OSS stub is a plain object, not an SDK client.
+ */
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { config } from '../../config/index.js';
 import { instrumentedCall } from '../observability/outbound.js';
 
+/**
+ * Minimal duck-typed client for ElectroDB compatibility.
+ * Has a `send` method so ElectroDB's identifyClientVersion() treats it as
+ * a v3 client, but never instantiates the real DynamoDBClient SDK.
+ */
+function createOssStubClient(): DynamoDBClient {
+    return {
+        send: () => Promise.reject(
+            new Error(
+                'DynamoDB is not available in the OSS runtime (CAUSEFLOW_RUNTIME=oss). ' +
+                'All persistence goes through Postgres (AC-040). If you are seeing this ' +
+                'error, a code path is attempting to use a DynamoDB-backed repository ' +
+                'that has not been ported to Postgres yet.',
+            ),
+        ),
+        config: {},
+        middlewareStack: { use: () => {}, clone: () => ({}) },
+        destroy: () => {},
+    } as unknown as DynamoDBClient;
+}
+
 let client: DynamoDBClient | null = null;
 
 /**
- * Get the DynamoDB SDK client.
+ * Get the DynamoDB SDK client (or a stub in OSS mode).
  *
- * In the OSS runtime (CAUSEFLOW_RUNTIME=oss), this creates a client pointed
- * at a local-only endpoint that never reaches AWS. The client is fully
- * functional (ElectroDB accepts it) but any `send()` call will fail with a
- * connection refused error (or our custom handler). This satisfies AC-040's
- * requirement that no AWS endpoint is contacted at boot.
+ * In OSS mode, returns a plain stub object — no `new DynamoDBClient()` is
+ * called, satisfying AC-040's requirement that no SDK client is instantiated
+ * at boot. Any attempt to use the stub's `send()` method will throw a clear
+ * error pointing to the Postgres migration requirement.
  */
 export function getDynamoClient(): DynamoDBClient {
     if (config.isOss()) {
-        return getOssDynamoClient();
+        return createOssStubClient();
     }
 
     if (!client) {
@@ -27,24 +59,6 @@ export function getDynamoClient(): DynamoDBClient {
         });
     }
     return client;
-}
-
-let ossClient: DynamoDBClient | null = null;
-
-function getOssDynamoClient(): DynamoDBClient {
-    if (!ossClient) {
-        // Create a DynamoDB client pointed at localhost:1 (connection refused).
-        // ElectroDB's entity init checks `instanceof`, so we must provide a
-        // real DynamoDBClient. No network call is made at construction time —
-        // only `send()` makes HTTP requests, which will fail with ECONNREFUSED.
-        // Using the standard SDK client — it boots instantly with no I/O.
-        ossClient = new DynamoDBClient({
-            region: 'us-east-1',
-            endpoint: 'http://127.0.0.1:1',
-            maxAttempts: 0,
-        });
-    }
-    return ossClient;
 }
 
 /**

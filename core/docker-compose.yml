@@ -81,6 +81,7 @@ services:
       HINDSIGHT_BASE_URL: http://hindsight:8888
       HINDSIGHT_API_KEY: ${HINDSIGHT_API_KEY:-}
       JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}
+      TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-oss-dev-webhook-secret}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:

@@ -67,6 +67,35 @@ export function createIncidentRoutes(useCases: IncidentUseCases): Hono<AppEnv, i
             return c.json(sanitizeList(result));
         }
     });
+    // Create a new incident (bare POST, no /chat suffix).
+    // AC-040: authenticated request writes a row visible in Postgres.
+    // AC-040: authenticated users with admin or member role can create incidents.
+    app.post('/', requireRole('admin', 'member'), zValidator('json', createManualIncidentSchema), async (c) => {
+        const tenantId = c.get('tenantId');
+        const body = c.req.valid('json');
+        const userEmail = c.get('userEmail');
+        const actorUserId = c.get('userId');
+        const investigationMode = isStaffEmail(userEmail) ? body.investigationMode : undefined;
+        const incident = await useCases.createManualIncident.execute({
+            tenantId,
+            title: body.title,
+            description: body.description,
+            severity: body.severity,
+            suggestedAgents: body.suggestedAgents,
+            createdBy: userEmail ?? 'unknown',
+            actorUserId,
+            actorEmail: userEmail,
+            investigationMode,
+        });
+        return c.json({
+            incidentId: incident.incidentId,
+            status: incident.status,
+            message: incident.status === 'triaging'
+                ? 'Incident created and queued for investigation'
+                : 'Incident created and queued for triage',
+        }, 201);
+    });
+
     // Create incident via chat (must be before /:id to avoid path collision)
     app.post('/chat', requireRole('admin'), zValidator('json', createManualIncidentSchema), async (c) => {
         const tenantId = c.get('tenantId');

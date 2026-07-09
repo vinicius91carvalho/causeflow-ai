@@ -313,11 +313,15 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const llmClient = new ObservedAnthropicClient(rawLlmClient, tracer, metrics);
   const agentRunner = new ObservedAgentRunner(rawAgentRunner, tracer, metrics);
 
-  // Token Encryption (KMS envelope encryption — used by credential-based integrations)
-  const tokenEncryption = new KmsTokenEncryption(config.kms.tokenEncryptionKeyId, {
-    endpoint: config.kms.endpoint,
-    region: config.aws.region,
-  });
+  // Token Encryption — KMS envelope encryption (AWS) or AES-256-GCM (OSS).
+  // AC-044: In the OSS runtime, use Node's built-in crypto instead of KMS.
+  // AC-040: No AWS SDK client is instantiated at boot in OSS mode.
+  const tokenEncryption = config.isOss()
+    ? new (await import('./shared/infra/credentials/aes-gcm-token-encryption.js')).AesGcmTokenEncryption()
+    : new KmsTokenEncryption(config.kms.tokenEncryptionKeyId, {
+        endpoint: config.kms.endpoint,
+        region: config.aws.region,
+      });
 
   // Sentry Integration Repository + Use Cases (envelope-encrypted Client Secret)
   const sentryIntegrationRepo = new DynamoSentryIntegrationRepository(tokenEncryption);
@@ -329,7 +333,11 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     ? new AWSCloudProvider()
     : new StubCloudProvider();
   providerRegistry.registerCloudProvider('aws', cloudProvider);
-  providerRegistry.registerCloudProvider('azure', new AzureCloudProviderStub());
+  // AC-040: Skip Azure stub in OSS runtime — no cloud provider registrations
+  // that imply a non-local runtime are added when running in OSS mode.
+  if (!config.isOss()) {
+    providerRegistry.registerCloudProvider('azure', new AzureCloudProviderStub());
+  }
 
   // Credential Vendor (STS in prod, Stub in dev)
   const getCloudIntegration = new GetCloudIntegrationUseCase(tokenEncryption);
