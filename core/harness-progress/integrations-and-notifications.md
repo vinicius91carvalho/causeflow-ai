@@ -1084,3 +1084,18 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - WorkItem: WI-AC-033
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+## 2026-07-09T22:35:05.000Z — Integrated Verification
+
+- Attempt: 3/3
+- WorkItem: WI-AC-033
+- Outcome: PASS — all acceptance checks verified
+- Verdict: integration=true
+
+Verified checks:
+1. POST /api/v1/notifications/subscribe — HTTP 200 with endpoint+keys, 400 on missing fields ✅
+2. DELETE /api/v1/notifications/subscribe — HTTP 200 with endpoint param, 400 on missing endpoint ✅
+3. Push notification sent on incident severity change — incident.severity_changed handler iterates subscriptions, sends payload with title + deep link /dashboard/incidents/:id ✅
+4. VAPID keys configured in docker-compose, WebPushAdapter dynamically imports web-push ✅
+5. PgPushSubscriptionRepository stores/deletes in causeflow.push_subscriptions table ✅
+6. Routes mounted at /v1/notifications in app.ts ✅
+7. Push published on creation (incident.created → severity_changed), triage severity change, and explicit severity update ✅
