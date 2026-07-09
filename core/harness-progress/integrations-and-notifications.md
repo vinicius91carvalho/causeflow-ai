@@ -840,3 +840,21 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - Unit tests: 1065/1065 pass (162 files) ✅
 - Typecheck: no new type errors ✅
 - Invariants: 10/10 pass ✅
+
+## 2026-07-09T20:26:00.000Z — VERIFY-FIRST: zero-diff checkpoint
+
+- WorkItem: WI-AC-030
+- Implementation: true (no changes needed)
+- Boundary verification (against live API at :3099, OSS runtime):
+  - POST /install (authed) → 200 + authUrl + state ✅
+  - POST /install (no auth) → 401 ✅
+  - POST /events url_verification → 200 + challenge ✅
+  - POST /events valid signature → 200 ✅
+  - POST /events tampered body → 401 ✅
+  - POST /events stale timestamp → 401 ✅
+  - POST /events missing headers → 401 ✅
+  - GET /config (authed) → 200 {"connected":false} ✅
+- Unit tests: 75/75 integration, 10/10 slack-notification.subscriber ✅
+- Invariants: 10/10 pass ✅
+- Typecheck: pre-existing errors in admin.routes.test.ts (unrelated to AC-030)
+- Working tree: clean (zero diff)
