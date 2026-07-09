@@ -1050,3 +1050,10 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-09T10:52:52.256Z — Resumed
+
+- WorkItem: WI-AC-004
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
