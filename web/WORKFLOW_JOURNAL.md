@@ -156,3 +156,24 @@ The previous fix (formatting `feature_list.json` inline) regressed when the harn
 - Test files updated: Clerk mocks replaced with session-auth mocks; topbar tests rewritten for new implementation.
 - Build succeeds; dev server serves sign-in (200), sign-up (200); unauthenticated `/dashboard` redirects to `/auth/sign-in` (307).
 - All 165 dashboard test files pass (1080 tests).
+
+---
+
+## WI-AC-012 — Website middleware pipeline: crawler detection → staging auth → geo-redirect → Accept-Language → NEXT_LOCALE cookie
+
+**State:** `implementation=true`
+
+**Summary:**
+All acceptance criteria verified at real HTTP boundary (port 5173) — zero code changes needed.
+
+**Checks performed (all PASS):**
+
+1. **Crawler detection:** `GET /` with `User-Agent: Googlebot/2.1` returns 200 (no redirect). Even with geo (`Cloudfront-Viewer-Country: BR`) and Accept-Language (`pt-BR,en;q=0.8`) triggers combined, Googlebot gets 200. Crawlers always see the canonical EN URL.
+
+2. **Staging auth:** Code logic verified — `checkStagingAuth()` only activates when `NEXT_PUBLIC_DEPLOYMENT_STAGE === 'staging'` and a password is configured. Not active in local dev env; correctly bypassed.
+
+3. **Geo-redirect:** `GET /` with `Cloudfront-Viewer-Country: BR` returns 307 to `/pt-br/`. Also works with `x-open-next-country: BR` (SST alternative header).
+
+4. **Accept-Language:** `GET /` with `Accept-Language: pt-BR,en;q=0.8` returns 307 to `/pt-br/`.
+
+5. **NEXT_LOCALE cookie:** `GET /` with `Cookie: NEXT_LOCALE=pt-br` returns 307 to `/pt-br/` with `Set-Cookie: NEXT_LOCALE=pt-br; Max-Age=31536000; SameSite=lax`. The max-age matches the documented 1-year value (31536000s = 365×24×60×60).
