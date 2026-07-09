@@ -52,3 +52,15 @@
 - `apps/website/src/contexts/marketing/presentation/components/structured-data.tsx` — exports Organization, WebSite, and FAQPage schemas; Organization + WebSite injected via root layout
 
 ### Verdict: PASS — All three AC-016 acceptance checks pass. No defects found.
+
+## Re-verification (2026-07-09)
+
+### Checks performed (black-box HTTP tests at PORT=5173):
+
+1. **robots.txt — non-staging** ✅ — `GET /robots.txt` returns `User-Agent: *\nAllow: /\nSitemap: https://causeflow.ai/sitemap.xml`. Code path confirmed: when `NEXT_PUBLIC_DEPLOYMENT_STAGE=staging`, returns `Disallow: /`.
+
+2. **sitemap.xml** ✅ — `GET /sitemap.xml` returns XML with 24 `<loc>` entries (12 EN routes + 12 /pt-br/ routes). Routes covered: /, /product, /security, /integrations, /pricing, /about, /use-cases, /use-cases/stale-pricing, /use-cases/broken-images, /use-cases/cascading-500, /privacy, /terms.
+
+3. **JSON-LD on homepage** ✅ — Two `<script type="application/ld+json">` blocks found in `GET /` response. First contains `@type: Organization` (Organization schema). Second contains `@type: WebSite` (WebSite schema). Verified via curl + grep.
+
+### Verdict: PASS — All three AC-016 acceptance checks pass. No code changes needed.
