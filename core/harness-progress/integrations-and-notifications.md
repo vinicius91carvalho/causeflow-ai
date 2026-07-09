@@ -1077,3 +1077,10 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - RepairPlan: Two confirmed defects in WI-AC-033 (VAPID web push subscription). Defect 1: push payload always shows 'Incident updated' instead of the real incident title because the IncidentStatusChangedEvent type and all 4 emission sites omit the title field. Defect 2: push fires on incident.status_changed (status lifecycle transitions) instead of severity changes — there is no independent severity change event or mechanism in the system.; Add 'title' field to the IncidentStatusChangedEvent payload type in src/shared/domain/events.ts; Update all 4 emission sites to include the incident title: create-manual-incident.usecase.ts, triage-incident.usecase.ts, update-incident-status.usecase.ts, add-investigation-context.usecase.ts — each needs access to the incident title at publish time; Add a dedicated 'incident.severity_changed' event type in events.ts with payload {incidentId, severity, previousSeverity, ...}; Add a use case or route to independently update incident severity (e.g. PATCH /api/v1/incidents/:id/severity) that publishes the new event; Move the push notification handler from subscribing to 'incident.status_changed' to subscribing to the new 'incident.severity_changed' event in bootstrap.ts; Update the unit test (ac033-push-subscription.test.ts) to reflect the corrected push payload source and trigger event; Optionally also fire the severity_changed event from incident.created for the initial severity assignment, so push happens at creation time too
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/integrations-and-notifications/WI-AC-033-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-09T22:24:58.790Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-033
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
