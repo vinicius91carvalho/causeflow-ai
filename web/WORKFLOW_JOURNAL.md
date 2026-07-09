@@ -216,3 +216,19 @@
 - Biome lint: clean (55 files).
 - Build: cached, exits 0.
 - Dev server (port 5194): sign-in works (200), integrations page authenticated via Core API JWT renders correctly.
+
+---
+
+## WI-AC-051 Live Verification (2026-07-09) — Re-Verification on assigned port 5193
+
+**State:** `implementation=true`
+
+**Summary:**
+- Re-verified all AC-051 checks against the current repository code with dashboard running on port 5193.
+- Static grep: `composio.dev`, `composioTriggerId`, `COMPOSIO_API_KEY` return zero matches across all source files, env files, and config files.
+- `apps/dashboard/next.config.mjs` has `remotePatterns: []` (empty). CSP has no composio domain entries.
+- `Integration` interface has no `composioTriggerId` field. All 15 canonical integration type identifiers present.
+- Live HTTP test: `/dashboard/integrations` returns 200 (91KB HTML). Zero `composio` references found in rendered DOM.
+- All 15 canonical integration names (Slack, GitHub, Jira, CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) present in rendered HTML.
+- No code changes needed — already implemented and committed.
+- Investigation feed composio references (feed-constants.ts, group-feed-items.ts, tool-call cards) confirmed outside AC-051 scope per Repair Plan.
