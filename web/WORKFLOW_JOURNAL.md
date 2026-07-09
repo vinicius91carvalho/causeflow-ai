@@ -536,3 +536,17 @@ All acceptance criteria verified at real HTTP boundary (port 5173) — zero code
 - Step 2 (PASS): `GET /pt-br/get-started` → 308 `Location: https://dashboard-staging.causeflow.ai/auth/sign-up`.
 - Step 3 (PASS): `apps/website/next.config.mjs` contains `redirects()` entries keyed on `/get-started` and `/:locale(pt-br)/get-started`.
 - Biome lint: clean. TypeScript check: clean (exit 0).
+
+## WI-AC-014 Live Verification (2026-07-09) — Re-Verification on assigned port 5173
+
+**State:** `implementation=true`
+
+**Summary:**
+All acceptance criteria verified at real HTTP boundary (port 5173) — zero code changes needed.
+
+**Checks performed (all PASS):**
+
+1. **Step 1 (PASS):** `GET /get-started` → 308 `Location: https://dashboard-staging.causeflow.ai/auth/sign-up`.
+2. **Step 2 (PASS):** `GET /pt-br/get-started` → 308 `Location: https://dashboard-staging.causeflow.ai/auth/sign-up`.
+3. **Step 3 (PASS):** `apps/website/next.config.mjs` contains `redirects()` entries keyed on `/get-started` and `/:locale(pt-br)/get-started`. DASHBOARD_URL logic correctly resolves to staging URL (`https://dashboard-staging.causeflow.ai`) in dev and to production URL (`https://dashboard.causeflow.ai`) when `NEXT_PUBLIC_DEPLOYMENT_STAGE=production`. Both entries append `/auth/sign-up`.
+4. **Zero-diff checkpoint:** No tracked files changed. Git status clean.
