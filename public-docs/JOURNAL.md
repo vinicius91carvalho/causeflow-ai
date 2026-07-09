@@ -4,6 +4,18 @@ Date: 2026-07-08
 Action: QA verification of AC-010 (nine Integrations pages)
 Result: PASS
 
+## 2026-07-09 — VERIFY-FIRST — WI-AC-024
+
+- AC-024 passed on existing code: `mint dev --port 5180` served 125 nav pages with HTTP 200/no parse markers/no rendered forbidden patterns; exact forbidden-pattern grep returned zero matches across 133 `.mdx` files; `check-invariants.sh --quiet` passed.
+- implementation=true; no content/code changes required.
+
+## 2026-07-09 — QA — WI-AC-024
+
+- Scaffold check passed: required docs structure, runtime files, invariants files, journal/progress files, assets, and 133 `.mdx` files are present.
+- Real HTTP check passed: `mint dev --port 5180` served all 125 `docs.json` navigation pages with HTTP 200 and no MDX compile markers.
+- AC-024 source audit passed: exact forbidden-pattern grep returned zero matches across all `.mdx`; `./check-invariants.sh --quiet` passed; `INVARIANTS.md` documents the same boundary.
+- Verdict: qa=true implementation=true; defects=0.
+
 Pages tested (all HTTP 200, correct titles, no MDX parse errors):
 - /integrations/overview - Integrations overview
 - /integrations/monitoring - Monitoring integrations
