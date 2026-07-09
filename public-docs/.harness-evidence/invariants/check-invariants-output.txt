@@ -1,0 +1,15 @@
+=== CauseFlow Docs - Content Invariants ===
+
+  o Severity enum (no emergency|urgent|notice|debug|warn) ... PASS
+  o Status enum (no "dismissed"|"failed") ... PASS
+  o API base URL (no api.causeflow.io|dev|local|prod) ... PASS
+  o No AWS ARN / .internal / SQS URL / 12-digit account ID ... PASS
+  o No KMS key / LangFuse / Hindsight / causeflow-staging|production / /ecs/causeflow ... PASS
+  o RBAC roles (no unapproved roles on role definition lines) ... PASS
+  o Placeholder formats (no non-EXAMPLE ten_ or cflo_live_sk_ patterns) ... PASS
+  o Frontmatter title present on all .mdx ... PASS
+  o Frontmatter description present on all .mdx ... PASS
+  o Description length <= 160 chars ... PASS
+
+All invariants hold.
+exit=0
