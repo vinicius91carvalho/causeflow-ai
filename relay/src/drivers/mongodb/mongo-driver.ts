@@ -107,7 +107,10 @@ export class MongoDriver implements IReadOnlyDriver {
           }
         }
 
-        const rows = await collection.find(query).limit(limit).toArray();
+        // MongoDB interprets .limit(0) as "no limit", so we special-case it.
+        const rows = limit === 0
+          ? []
+          : await collection.find(query).limit(limit).toArray();
 
         return {
           rows: rows as Record<string, unknown>[],
