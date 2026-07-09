@@ -652,6 +652,28 @@
         "unreachable_host_returns_false_no_throw": "passed",
         "all_test_groups_pass_0_failures": "passed"
       }
+    },
+    {
+      "id": "WI-AC-036",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T20:20:13Z",
+      "details": "Independent QA verification for AC-036 (MongoDriver healthCheck/close/construction). Verified at source code level (mongo-driver.ts): constructor uses maxPoolSize:5 and serverSelectionTimeoutMS:10000 (lines 20-23); healthCheck() runs db.admin().ping() returning true on success / false on error (lines 103-110); close() awaits client.close() (line 115). Runtime tested against live docker-compose stack: MongoClient db.admin().ping() returns {ok:1}; close() resolves cleanly; unreachable host returns false without throwing. End-to-end health_check RPC via WebSocket returns healthy:true for order-mongo (latencyMs=1). All assertions pass.",
+      "checks": {
+        "source_constructor_maxPoolSize_5": "passed",
+        "source_constructor_serverSelectionTimeoutMS_10000": "passed",
+        "source_healthCheck_uses_db_admin_ping": "passed",
+        "source_healthCheck_returns_true_on_success": "passed",
+        "source_healthCheck_returns_false_on_error": "passed",
+        "source_close_awaits_client_close": "passed",
+        "runtime_db_admin_ping_returns_ok": "passed",
+        "runtime_client_close_resolves": "passed",
+        "runtime_unreachable_host_graceful_failure": "passed",
+        "rpc_health_check_healthy_true": "passed",
+        "tsc_noEmit_clean": "passed",
+        "npm_run_build_clean": "passed"
+      }
     }
   ]
 }
