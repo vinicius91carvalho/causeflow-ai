@@ -40,3 +40,33 @@ boundary on PORT=5179 (docker-compose causeflow-api at :3099).
 ### App state
 - docker-compose causeflow-api running on :3099
 - Health: postgres=ok, redis=ok, anthropic=skipped, queues=ok
+
+## 2026-07-09 — Re-verification (zero-diff checkpoint)
+
+**Result: implementation=true (no code changes — all endpoints pass).**
+
+Re-verified AC-017 against the running docker-compose API on PORT=3099.
+Billing account seeded in DynamoDB (investigationsLimit=-1). JWT signed with
+oss-dev-jwt-secret-change-me for tenant 32996af2-19ba-4d58-ba76-1cb7da13d540.
+
+### Black-box HTTP tests (4/4 passed)
+
+1. ✅ `GET /v1/triage` — returns `{"items":[...]}` with both incidents;
+   each incident has `severity` field set. HTTP 200.
+2. ✅ `GET /v1/triage/:existing-id` — returns incident detail with
+   `severity`, `status`, `title`, etc. HTTP 200.
+3. ✅ `GET /v1/triage/:nonexistent-id` — returns `{"error":"Incident not found"}`.
+   HTTP 404.
+4. ✅ `POST /v1/incidents/chat` — creates incident with status=triaging
+   when severity provided, or status=open when none. HTTP 201.
+
+### Triage pipeline
+- In-process EventBus fallback active (no SQS configured).
+- Triage skips Anthropic call when `ANTHROPIC_API_KEY` is empty (expected;
+  the in-process pipeline has `if (!config.anthropic.apiKey) return;`).
+- Incidents created with a `severity` field skip triage and go directly to
+  `triaging` status — valid per AC (severity is already set).
+
+### Working tree
+- Clean: no tracked files changed since ec89657.
+- Docker image rebuilt (includes ec89657 triage routes).
