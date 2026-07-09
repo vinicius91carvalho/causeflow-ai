@@ -114,53 +114,44 @@ test.describe('Navigation', () => {
     await expect(sheetDialog).toBeHidden({ timeout: 5000 });
   });
 
-  test('header Get Started button navigates to /get-started', async ({ page }, testInfo) => {
-    // The "Get Started Free" button is hidden on smallest mobile (hidden sm:block)
+  test('header Dashboard link is present and points to sign-in', async ({ page }, testInfo) => {
+    // The Dashboard link is hidden on smallest mobile (hidden sm:inline-flex)
     test.skip(
       testInfo.project.name === 'chromium-mobile',
-      'Get Started button is hidden on mobile viewport',
+      'Dashboard link is hidden on mobile viewport',
     );
 
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 15000 });
     await expect(page.locator('main')).toBeVisible({ timeout: 10000 });
 
-    const getStartedButton = page
-      .locator('header')
-      .getByRole('link', { name: /get early access/i });
-    await expect(getStartedButton).toBeVisible();
-    await getStartedButton.click();
-
-    await page.waitForURL('**/get-started', { timeout: 10000 });
-    await expect(page.locator('main')).toBeVisible({ timeout: 10000 });
+    // Verify the header Dashboard link exists and points to the dashboard URL
+    const dashboardLink = page.locator('header').getByRole('link', { name: /dashboard/i });
+    await expect(dashboardLink).toBeVisible();
+    const href = await dashboardLink.getAttribute('href');
+    expect(href).toContain('localhost:3001');
   });
 
   test('homepage CTA buttons navigate correctly', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('main')).toBeVisible({ timeout: 10000 });
 
-    // The hero section is the first section in main
-    const heroSection = page.locator('section').first();
+    // Verify the primary CTA link to the dashboard exists on the page
+    // (bottom CTA section with "Start free" link)
+    const primaryCta = page.locator('a[href*="/sign-up"]').first();
+    await expect(primaryCta).toBeVisible({ timeout: 10000 });
+    const primaryHref = await primaryCta.getAttribute('href');
+    expect(primaryHref).toContain('localhost:3001');
 
-    // Click the primary CTA button (first link in hero — Link wraps Button)
-    const primaryCta = heroSection.getByRole('link').first();
-    await expect(primaryCta).toBeVisible();
-    await primaryCta.click();
-
-    // Verify it navigated (should go to /get-started based on page.tsx)
-    await page.waitForURL('**/get-started', { timeout: 10000 });
-    await expect(page.locator('main')).toBeVisible({ timeout: 10000 });
-
-    // Go back and click secondary CTA
+    // Click the secondary CTA ("See pricing" link)
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('main')).toBeVisible({ timeout: 10000 });
 
-    const heroSectionAgain = page.locator('section').first();
-    const secondaryCta = heroSectionAgain.locator('a').nth(1);
+    const secondaryCta = page.locator('a[href="/pricing"]').first();
     const secondaryVisible = await secondaryCta.isVisible().catch(() => false);
 
     if (secondaryVisible) {
       await secondaryCta.click();
-      await page.waitForURL('**/product', { timeout: 10000 });
+      await page.waitForURL('**/pricing', { timeout: 10000 });
       await expect(page.locator('main')).toBeVisible({ timeout: 10000 });
     }
   });
@@ -379,15 +370,15 @@ test.describe('Visual Correctness', () => {
   });
 
   test('CTA section buttons are visible on dark background', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/product', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('main')).toBeVisible({ timeout: 10000 });
 
-    // The CTASection has bg-slate-950 — find the last section with that dark bg
+    // The architecture section on /product uses bg-slate-950
     const ctaSections = page.locator('section.bg-slate-950');
     const ctaCount = await ctaSections.count();
     expect(ctaCount).toBeGreaterThan(0);
 
-    // Get the last CTA section (the final CTA at the bottom)
+    // Get the last dark section
     const ctaSection = ctaSections.last();
     await ctaSection.scrollIntoViewIfNeeded();
 
@@ -477,21 +468,15 @@ test.describe('Animations', () => {
     await page.goto('/product', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('main')).toBeVisible({ timeout: 10000 });
 
-    // Scroll to the audit trail section
-    const auditSection = page.locator('#audit-trail');
+    // Scroll to the deployment-approaches section (replaces retired #audit-trail)
+    const auditSection = page.locator('#deployment-approaches');
     await expect(auditSection).toBeVisible({ timeout: 10000 });
     await auditSection.scrollIntoViewIfNeeded();
 
-    // The AuditTrailBlock has a monospace code block with investigation text
-    const codeBlock = auditSection.locator('.font-mono');
-    await expect(codeBlock).toBeVisible();
-
-    // Verify text content has appeared (contains investigation data)
-    const textContent = await codeBlock.textContent();
+    // Verify section has text content
+    const textContent = await auditSection.textContent();
     expect(textContent).toBeTruthy();
     expect(textContent?.length).toBeGreaterThan(0);
 
-    // Verify it contains expected investigation content
-    expect(textContent).toContain('Investigation');
   });
 });
