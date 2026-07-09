@@ -457,3 +457,50 @@ All AC-017 criteria pass:
 All AC-017 criteria pass on integrated branch. Conflict resolved cleanly.
 
 implementation=true qa=true integration=true
+
+## 2026-07-09 Re-verification — WI-AC-017 (Integrated Verification)
+
+- WorkItem: WI-AC-017
+- AcceptanceChecks: AC-017
+- context: api-reference
+- Mode: Integrated Verification on plan/opensource-docker
+- HEAD: 041df01
+- PORT: 5170
+
+### Acceptance check
+
+AC-017: Every tenant-ID placeholder in api-reference examples matches
+`ten_EXAMPLE_…`, every API-key placeholder matches `cflo_live_sk_EXAMPLE_…`,
+and no real-looking UUIDs or full JWTs appear in any example.
+
+### Source audit (grep verification)
+
+**Tenant-ID and API-key placeholder format:**
+`grep -rE '(ten_[a-zA-Z0-9]{16,})|(cflo_live_sk_[a-zA-Z0-9]{16,})' --include='*.mdx' . | grep -v EXAMPLE`
+→ exit 1, zero matches. All `ten_` occurrences use `ten_EXAMPLE_…`; all
+`cflo_live_sk_` occurrences use `cflo_live_sk_EXAMPLE_…`.
+
+**Full JWT audit:**
+`grep -rnE 'eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]+' --include='*.mdx' . | grep -v "eyJhbGc\|\.\.\."`
+→ zero matches. Only truncated `eyJhbGc…` JWT placeholders exist.
+
+**UUID audit:**
+The only UUID-like pattern across 133 MDX files is `a1b2c3d4-e5f6-7890-abcd-ef1234567890`
+in `api-reference/webhooks/payload-formats.mdx` — a clearly dummy value, not a
+real-looking UUID.
+
+### Boundary verification (real external HTTP boundary — port 5170)
+
+- `mint dev` running on port 5170, confirmed HTTP 200 on `/`.
+- Rendered tenant IDs (get-tenant page): `ten_EXAMPLE_01HX9VTPQR3KF8MZ` ✓
+- Rendered API keys (auth page): `cflo_live_sk_EXAMPLE_01HX9VTPQR3KF8MZ` ✓
+- Rendered API keys (create-key page): `cflo_live_sk_EXAMPLE_01HX9VTPQR3KF8MZ` ✓
+- Prior defect (non-EXAMPLE key in create-key.mdx) remains fixed ✓
+
+### Verdict
+
+All AC-017 criteria pass at the real HTTP boundary. All tenant-ID and API-key
+placeholders follow the approved formats. No real-looking UUIDs or full JWTs
+appear in any example. Prior fix persists. Zero defects.
+
+implementation=true qa=true integration=true
