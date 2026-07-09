@@ -185,6 +185,15 @@ The implementation in `src/drivers/mongodb/mongo-driver.ts` correctly infers sch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-032-1-qa.log
 - NextAction: Coding Attempt 2
 
+## 2026-07-09T14:40:00Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-032
+- AcceptanceChecks: AC-032
+- Outcome: passed at real WebSocket + MongoDB boundary
+- Evidence: `test-ac032.mjs` against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Seeded orders collection, sent describe_table request, verified 7 schema rows + 4 index rows = rowCount=11, all type inferences and index metadata correct.
+- NextAction: complete — integration=true
+
 ## 2026-07-09T12:49:19.961Z — Checkpoint ready
 
 - Attempt: 2/3
