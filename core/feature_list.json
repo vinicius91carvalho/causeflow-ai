@@ -930,7 +930,7 @@
     "depends_on": ["AC-039"],
     "verify_first": false,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 0
   },
