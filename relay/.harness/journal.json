@@ -372,6 +372,30 @@
         "executionTimeMs_valid": "passed",
         "masked_and_maskedFieldCount_present": "passed"
       }
+    },
+    {
+      "id": "WI-AC-032",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T14:30:00Z",
+      "details": "Re-verification pass for AC-032 (mongo-driver describe_table). Re-ran black-box test at real WebSocket boundary (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Orders collection reseeded with 2 documents (varied types: string, number, object, array, null, Date) + 3 indexes. Sent JSON-RPC 2.0 execute: operation=describe_table, params={tableName:orders}, resourceId=order-mongo. Response: 7 schema rows with correct typeof inference (_id:string, status:string, amount:number, customer:object, tags:object, notes:[object,string], createdAt:object) + 4 index rows tagged _type:index with name+key (_id_, idx_status, idx_amount, customer_1_createdAt_-1). rowCount=11, executionTimeMs=4, masked=false, maskedFieldCount=0. All 14 assertion groups passed. No code changes needed — implementation already conforms to AC-032 spec.",
+      "checks": {
+        "jsonrpc_2_0": "passed",
+        "no_error_in_response": "passed",
+        "rows_is_array": "passed",
+        "rowCount_matches": "passed",
+        "schema_rows_have_field_types": "passed",
+        "all_expected_fields_present": "passed",
+        "type_inference_correct": "passed",
+        "notes_shows_both_object_and_string": "passed",
+        "index_rows_tagged_with_type_index": "passed",
+        "index_rows_have_name_and_key": "passed",
+        "named_indexes_found": "passed",
+        "compound_index_found": "passed",
+        "executionTimeMs_valid": "passed",
+        "masked_and_maskedFieldCount_present": "passed"
+      }
     }
   ]
 }
