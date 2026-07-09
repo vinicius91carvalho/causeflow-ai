@@ -6,7 +6,7 @@ export const UsageRecordEntity = new Entity({
     attributes: {
         tenantId: { type: 'string', required: true },
         recordId: { type: 'string', required: true },
-        type: { type: ['investigation', 'event'], required: true },
+        type: { type: ['investigation', 'event', 'daily_rollup'], required: true },
         incidentId: { type: 'string' },
         costUsd: { type: 'number' },
         agentBreakdown: { type: 'any' },

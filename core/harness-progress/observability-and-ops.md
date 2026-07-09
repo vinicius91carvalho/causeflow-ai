@@ -377,3 +377,24 @@ Code paths verified by unit tests and real HTTP boundary assertions.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/observability-and-ops/WI-AC-036-3-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T12:29:14.180Z — Resumed
+
+- WorkItem: WI-AC-037
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T12:44:12.277Z — Resumed
+
+- WorkItem: WI-AC-037
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T12:54:45.528Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-037
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
