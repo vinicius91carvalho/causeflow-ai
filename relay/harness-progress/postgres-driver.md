@@ -243,3 +243,23 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/postgres-driver/WI-AC-024-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T02:30:01.000Z — AC-025 verified at real boundary, implementation=true (zero-diff)
+
+- WorkItem: WI-AC-025
+- Attempt: 1/3
+- Result: implementation=true -- no code changes needed.
+- Details: Exercised AC-025 end-to-end against real Postgres (`127.0.0.1:5432`, `relay`/`relay`, seeded `orders` table) via a real relay process (built from `src/`) and a real WebSocket control-plane stub on port 5190. Config: `maxRowsPerQuery: 3`. Five test cases:
+  1. `limit=2` (N < maxRows) → success, rowCount=2 (clamped to min(2,3)=2) ✓
+  2. `limit=200` (N > maxRows) → policy engine rejects with -32600 "Row limit 200 exceeds maximum 3" ✓
+  3. no limit (defaults to maxRows) → success, rowCount=3 ✓
+  4. `limit=3` (N == maxRows) → success, rowCount=3 ✓
+  5. `limit=0` (edge case) → success, rowCount=0 ✓
+- Both enforcement layers verified: policy engine rejects N > maxRowsPerQuery; driver clamps to `min(N, this.maxRows)` defensively. SQL `LIMIT <clamped>` confirmed via row counts matching the clamped value (not the full 5-row table). All 12 assertions passed. No tracked files changed.
+
+## 2026-07-09T02:30:01.000Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-025
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
