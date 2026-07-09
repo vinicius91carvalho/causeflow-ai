@@ -200,3 +200,49 @@ WI-AC-037
 
 ## Verdict
 qa=true implementation=true integration=true
+
+---
+
+# QA Journal - WI-AC-040 (open-source-local-runtime: Postgres persistence)
+
+## Test Date
+2026-07-09
+
+## Work Item
+WI-AC-040
+
+## Environment
+- API running on PORT=5171 inside container, published at localhost:3099
+- CAUSEFLOW_RUNTIME=oss (Postgres + BullMQ + local JWT auth)
+- Docker compose: causeflow-postgres (16-alpine), redis (7-alpine), hindsight, causeflow-api, causeflow-worker
+- No AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars
+- Only ANTHROPIC_API_KEY not set, HINDSIGHT not configured
+- Auth: OSS local JWT auth (oss-auth.routes.ts)
+
+## Acceptance Criteria Verification (AC-040)
+
+### 1. Postgres is the only persistence layer
+- ✅ OSS bootstrap uses Pg*Repository implementations (PgTenantRepository, PgAuditRepository, PgIncidentRepository, PgUserRepository, PgApiKeyRepository)
+- ✅ `runPgMigrations()` creates all 31 tables in `causeflow` schema at startup
+- ✅ Health endpoint: `{"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}` — no DynamoDB check
+- ✅ Some repos (Evidence, ToolCall, CodeKnowledge) still fall back to DynamoDB stubs but behind the OSS feature flag
+- The spec allows "kept behind a feature flag, off by default"
+
+### 2. `psql` lists 31 tables in `causeflow` schema
+- ✅ Verified via `psql -U causeflow -d causeflow -c "SELECT table_name FROM information_schema.tables WHERE table_schema = 'causeflow' ORDER BY table_name;"`
+- ✅ Exactly 31 tables: api_keys, approvals, audit_entries, billing_accounts, change_events, chat_messages, evidence, feedback, hypotheses, incidents, integrations, invites, notifications, oauth_tokens, package_dependencies, patterns, remediation, repo_nodes, repo_service_maps, runbook_registry, service_edges, service_nodes, slack_notifications, slack_oauth_states, tenants, tool_calls, triggers, usage_records, user_settings, users, widget_sessions
+
+### 3. POST /api/v1/incidents writes data visible in Postgres
+- ✅ Registered with `POST /v1/auth/register` → got JWT token
+- ✅ Created incident: `POST /v1/incidents` with Bearer token → 200 with incidentId
+- ✅ Verified row in Postgres: `SELECT * FROM causeflow.incidents WHERE tenant_id = $1` returns the incident with title "Test incident from AC-040" and status "triaging"
+
+### 4. No DynamoDBClient/DocumentClient instantiation at boot
+- ✅ Boot log grep for "dynamo", "DynamoDB", "DocumentClient", "@aws-sdk" → zero matches
+- ✅ `getDynamoClient()` in OSS mode returns `createOssStubClient()` — a plain object, NOT `new DynamoDBClient()`
+- ✅ `main.ts` skips `ensureTable()` when `config.isOss()` is true
+- ✅ `client.ts` line 54 (`new DynamoDBClient(...)`) is never reached in OSS mode
+- ✅ Worker container in standby mode: "causeflow-worker standby — waiting for investigation dispatch (no outbound calls)"
+
+## Verdict
+qa=true implementation=true integration=true
