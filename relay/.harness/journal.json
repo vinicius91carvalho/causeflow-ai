@@ -185,6 +185,22 @@
         "client_released_in_finally": "passed",
         "error_ROLLBACK_best_effort": "passed"
       }
+    },
+    {
+      "id": "WI-AC-024",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T07:55:00Z",
+      "details": "Integrated Verification pass for AC-024 (postgres-driver query). Tested at real Postgres external boundary (relay-postgres:5432) via the compiled PgDriver class. All 5 PgDriver E2E tests pass: (1) SELECT 1 AS one, hello AS greeting returns rows, fields [{name:one,type:int4},{name:greeting,type:text}]; (2) orders table returns 5 rows with correct fields; (3) LIMIT clamping: maxRows=3 restricts to 3 rows; (4) bad SQL throws error with ROLLBACK; (5) INSERT rejected by READ ONLY. Code inspection confirms: BEGIN READ ONLY, SET statement_timeout=30s, LIMIT, COMMIT, dedicated client released in finally, best-effort ROLLBACK on error. No defects.",
+      "checks": {
+        "basic_select_fields": "passed",
+        "orders_table_query": "passed",
+        "limit_clamping": "passed",
+        "error_rollback": "passed",
+        "read_only_enforcement": "passed",
+        "pg_driver_e2e": "passed"
+      }
     }
   ]
 }
