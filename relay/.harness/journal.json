@@ -324,6 +324,30 @@
         "named_indexes_found": "passed",
         "compound_index_found": "passed"
       }
+    },
+    {
+      "id": "WI-AC-032",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T13:35:00Z",
+      "details": "Independent QA verification for AC-032 (mongo-driver describe_table). Re-tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + relay-postgres + relay-mongo). Seeded orders collection with documents of varied types (string, number, object, array, null, Date) and 3 indexes (idx_status, idx_amount, compound customer_1_createdAt_-1). Sent JSON-RPC 2.0 execute request with operation:describe_table, params:{tableName:orders} against resource order-mongo through stub to relay. Response matched spec: 7 schema rows with field+types (_id:string, status:string, amount:number, customer:object, tags:object, notes:[object,string], createdAt:object), 4 index rows tagged _type:index with name+key (including _id_, idx_status, idx_amount, customer_1_createdAt_-1). rowCount=11 matches rows.length, executionTimeMs=31, masked=false, maskedFieldCount=0. All 14 assertion groups passed.",
+      "checks": {
+        "jsonrpc_2_0": "passed",
+        "no_error_in_response": "passed",
+        "rows_is_array": "passed",
+        "rowCount_matches_rows_length": "passed",
+        "executionTimeMs_valid": "passed",
+        "schema_rows_have_field_types": "passed",
+        "all_expected_fields_present": "passed",
+        "type_inference_correct": "passed",
+        "notes_correctly_shows_both_types": "passed",
+        "index_rows_tagged_with_type": "passed",
+        "index_rows_have_name_and_key": "passed",
+        "named_indexes_found": "passed",
+        "compound_index_found": "passed",
+        "masked_and_maskedFieldCount_present": "passed"
+      }
     }
   ]
 }

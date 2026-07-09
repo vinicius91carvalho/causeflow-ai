@@ -17,7 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const MONGO_URI = 'mongodb://localhost:27017';
 const DATABASE = 'relay';
-const STUB_URL = 'ws://localhost:3000/v1/relay/connect?token=harness-smoke-token&tenantId=harness-tenant';
+const STUB_URL = 'ws://localhost:5191/v1/relay/connect?token=harness-smoke-token&tenantId=harness-tenant';
 
 // ---------------------------------------------------------------------------
 // Helper: send a JSON-RPC 2.0 request and wait for a matching response
