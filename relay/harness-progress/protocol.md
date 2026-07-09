@@ -352,3 +352,46 @@ fatal: Unable to write index.
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/protocol/WI-AC-020-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T23:00Z — Independent QA passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- AcceptanceChecks: AC-021
+- Outcome: passed on integrated main
+- Evidence: test-ac021.mjs ran against docker-compose stack with all 4 services Up
+- Details:
+  - Relay container running, connected to control-plane-stub at ws://127.0.0.1:3000/v1/relay/connect
+  - Forged client connection from test script as health_check/list_resources/execute consumer
+  - Test 1: `execute` with `resourceId: 'order-pg', operation: 'query', params: { sql: 'SELECT id, status FROM orders' }`
+    - Response shape: `{ rows, rowCount: 5, fields: [id(int4), status(text)], executionTimeMs: 6, masked: false, maskedFieldCount: 0 }`
+    - All 5 rows correctly returned with id (number) and status (string)
+    - masked === (maskedFieldCount > 0) holds (both false for no-PII data)
+    - Order of response metadata intact: rowCount, fields, executionTimeMs all present and typed correctly
+  - Test 2: `SELECT '123.456.789-00' AS cpf, 'plain text' AS plain`
+    - Response: `{ masked: true, maskedFieldCount: 1, rows: [{ cpf: '***.***.***-**', plain: 'plain text' }] }`
+    - CPF properly masked, non-PII field unchanged
+    - masked === (maskedFieldCount > 0) holds (both true for PII data)
+- Verdict: All 14 checks green. Response shape exactly matches AC-021 contract. No defects.
+- NextAction: Integrated Verification (completed)
+
+## 2026-07-08T21:40:42.386Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-09T10:49:09.666Z — Resumed
+
+- WorkItem: WI-AC-021
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T10:49:09.690Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
