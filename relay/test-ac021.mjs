@@ -13,7 +13,8 @@ import WebSocket from 'ws';
 import { randomUUID } from 'node:crypto';
 import { execSync } from 'node:child_process';
 
-const STUB_URL = 'ws://127.0.0.1:3000/v1/relay/connect?token=harness-smoke-token&tenantId=harness-tenant';
+const STUB_PORT = parseInt(process.env.STUB_PORT || '5191', 10);
+const STUB_URL = `ws://127.0.0.1:${STUB_PORT}/v1/relay/connect?token=harness-smoke-token&tenantId=harness-tenant`;
 const COMPOSE_PROJECT = 'relay';
 const RELAY_CONTAINER = 'relay';
 const TIMEOUT_MS = 15000;
