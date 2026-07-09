@@ -1,0 +1,19 @@
+{
+  "workItemId": "WI-AC-041",
+  "qa": false,
+  "implementation": false,
+  "tested": "2026-07-09T19:02:00-03:00",
+  "verification": {
+    "bootLogQueues": "pass",
+    "adminQueuesEndpoint": "pass",
+    "enqueueBullMq": "pass",
+    "workerPickup": "fail — no ANTHROPIC_API_KEY, workers disabled",
+    "jobCompleted": "fail — no worker to process jobs",
+    "incidentTriaged": "fail — no triage worker running",
+    "noSqsCalled": "pass"
+  },
+  "defects": [
+    "BullMQ workers for consuming triage/alert/investigation jobs are gated on config.anthropic.apiKey being set (non-empty). Without ANTHROPIC_API_KEY configured, workers do not start — jobs enqueued via BullMQ sit waiting indefinitely in Redis queues. AC-041 requires 'the worker picks it up within 2 seconds, the job moves to completed, and the incident row updates to status=triaged' — none of these can happen without an external Anthropic API key, contradicting the AC-039 principle of 'zero paid/external SaaS credentials configured'. Evidence: startup log shows '[STARTUP] BullMQ triage worker disabled — ANTHROPIC_API_KEY not set'; jobs pile up in bull:causeflow-alerts:wait (LLEN=2); /admin/queues shows depth=2 in causeflow-alerts but depth=0 in causeflow-triage because no worker processes them.",
+    "The causeflow-triage BullMQ queue has a worker defined in bootstrap but nothing in the codebase enqueues jobs to it. All triage-bound jobs (webhooks, manual incidents without severity) are enqueued to causeflow-alerts instead. The causeflow-triage queue is effectively unused. Evidence: grep confirms only causeflow-alerts and causeflow-investigation are used as enqueue targets; causeflow-triage only appears in queue name definitions and worker setup."
+  ]
+}
