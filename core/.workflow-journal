@@ -1,0 +1,28 @@
+# Workflow Journal
+
+## WI-AC-042: Local auth replaces Clerk
+
+### Status: IMPLEMENTED & VERIFIED (QA PASS)
+
+### Changes
+- Verified `POST /api/v1/auth/register` returns 201 with `{ user, tenant, token }`
+- Verified `POST /api/v1/auth/login` with correct credentials returns 200 + JWT
+- Verified `POST /api/v1/auth/login` with wrong password returns 401
+- Verified `GET /api/v1/whoami` with `Authorization: Bearer <token>` returns user + tenant
+- Verified Clerk webhook endpoint returns 404 (removed from code path)
+- Verified tenant isolation holds for local JWT tokens
+- Fixed `oss-auth.routes.ts` to use `config.auth.jwtSecret` instead of `process.env['JWT_SECRET']` with fallback strings
+- Fixed `auth.middleware.ts` OSS path to use `config.auth.jwtSecret` consistently
+- Prevented dev-mode fallback auth branch from running in OSS mode (double-handled)
+- All 16 black-box scenarios pass end-to-end
+
+### Running code path (OSS mode)
+- `src/modules/auth/infra/oss-auth.routes.ts` — register + login + whoami
+- `src/shared/infra/http/middleware/auth.middleware.ts` — OSS branch verifies JWT via `jose`
+- `src/app.ts` — mounts ossAuthRouter at `/v1/auth` in OSS mode
+
+### Clerk code removed from running path
+- Clerk webhook endpoint `/v1/auth/clerk-webhook` — 404
+- `clerk-client.ts` — not imported in OSS boot path
+- `ClerkUserEmailResolver` — `undefined` in OSS mode (bootstrap.ts)
+- `handle-clerk-webhook.usecase.ts` — dynamically imported only in non-OSS mode

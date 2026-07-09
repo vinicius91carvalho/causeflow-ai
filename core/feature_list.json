@@ -897,8 +897,8 @@
     "acceptance_checks": ["AC-042"],
     "depends_on": ["AC-039", "AC-007"],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
+    "implementation": true,
+    "qa": true,
     "integration": false,
     "retries": 0
   },

@@ -81,9 +81,7 @@ export const authMiddleware: MiddlewareHandler<AppEnv> = async (c, next) => {
   if (config.isOss()) {
     try {
       const { jwtVerify } = await import('jose');
-      const secret = new TextEncoder().encode(
-        process.env['JWT_SECRET'] ?? 'dev-secret-DO-NOT-USE-IN-PRODUCTION',
-      );
+      const secret = new TextEncoder().encode(config.auth.jwtSecret);
       const { payload } = await jwtVerify(token, secret, {
         issuer: 'causeflow',
         audience: 'causeflow-api',
@@ -114,7 +112,7 @@ export const authMiddleware: MiddlewareHandler<AppEnv> = async (c, next) => {
   // Dev/Test fallback: when Clerk is not configured (empty secretKey), verify
   // JWTs locally using JWT_SECRET. This allows testing protected endpoints
   // without a live Clerk instance. Only active in non-production environments.
-  if (!config.clerk.secretKey && config.isDev()) {
+  if (!config.clerk.secretKey && config.isDev() && !config.isOss()) {
     try {
       const { jwtVerify } = await import('jose');
       const secret = new TextEncoder().encode(config.auth.jwtSecret);
