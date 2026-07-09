@@ -508,3 +508,12 @@ Use /login to log into a provider via OAuth or API key. See:
 - PreviousPhase: qa
 - Attempt: 2
 - NextAction: qa
+
+## 2026-07-09T17:34:20.690Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-051
+- DefectReport: Session terminated, killing shell... ...killed.
+- RepairPlan: AC-051 QA Attempt 2 was killed by shell termination before any verification work occurred. The evidence log contains only a routing header and a stderr kill message; zero QA checks were executed. This is NOT a code defect — it is an execution infrastructure failure (OOM/timeout/session kill). Attempt 1 successfully verified all AC-051 checks as PASS with zero defects, and the current repository code is confirmed clean.; Accept AC-051 as passed — Attempt 1 + coding confirm correct implementation; Attempt 2 QA failure is infrastructure-related, not a code defect.; Optionally re-run QA with an explicit timeout increase or lower resource profile to prevent shell OOM on re-verification.; File a separate follow-up WI to clean up orphaned composio references in the investigation feed context (feed-constants.ts, tool-call-card.tsx, tool-error-card.tsx, evidence-card.tsx, group-feed-items.ts, tool-call-group.tsx, and the E2E test tests/dashboard/integrations-composio.spec.ts) — all confirmed outside AC-051 scope but represent lingering tech debt.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-051-2-qa.log
+- NextAction: Coding Attempt 3
