@@ -223,3 +223,12 @@ The implementation in `src/drivers/mongodb/mongo-driver.ts` correctly infers sch
 - WorkItem: WI-AC-032
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T17:35:00Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-032
+- AcceptanceChecks: AC-032
+- Outcome: passed at real WebSocket + MongoDB boundary
+- Evidence: Ran `test-ac032.mjs` against docker-compose stack (relay + control-plane-stub on port 5191 + relay-mongo + relay-postgres). Seeded orders collection with 2 documents (varied types) + 3 indexes. Sent describe_table request. Response: 7 schema rows with correct typeof inference + 4 index rows tagged _type:index. rowCount=11, executionTimeMs=1ms, masked=false.
+- NextAction: complete — integration=true
