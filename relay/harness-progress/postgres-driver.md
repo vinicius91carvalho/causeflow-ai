@@ -825,3 +825,12 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
    - WS client closed without reconnect; drivers closed ✓
 
 **Total: 24/24 assertions passed. No code changes needed.**
+
+## 2026-07-09T17:58:05.186Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- AcceptanceChecks: AC-027
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/postgres-driver/WI-AC-027-1-integration_qa.log
+- NextAction: next Ready Work Item
