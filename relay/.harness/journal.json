@@ -222,6 +222,23 @@
         "npm_run_build": "passed",
         "tsc_noEmit": "passed"
       }
+    },
+    {
+      "id": "WI-AC-025",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T07:58:00Z",
+      "details": "QA pass for AC-025 (postgres-driver limit clamping). E2E test at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + relay-postgres + relay-mongo). 23/23 assertions pass: (1) Policy engine rejects limit=5000 (>1000) with -32600 error 'Policy denied: Row limit 5000 exceeds maximum 1000'; (2) Policy engine rejects boundary limit=1001 (>1000) with -32600; (3) limit=3 returns exactly 3 rows (ids [1,2,3]) proving LIMIT 3 appended to SQL and min(3,1000)=3 clamp; (4) limit=0 returns 0 rows (min(0,1000)=0); (5) no explicit limit returns all 5 rows (maxRows=1000 default). Code inspection confirms PgDriver.execute uses Math.min((limit ?? maxRows), maxRows) for the defensive clamp and appends LIMIT <clamped>. No defects.",
+      "checks": {
+        "policy_rejects_excessive_5000": "passed",
+        "policy_rejects_boundary_1001": "passed",
+        "limit_3_returns_3_rows": "passed",
+        "limit_0_returns_0_rows": "passed",
+        "no_limit_returns_all_rows": "passed",
+        "driver_math_min_clamp": "passed",
+        "sql_limit_appended": "passed"
+      }
     }
   ]
 }
