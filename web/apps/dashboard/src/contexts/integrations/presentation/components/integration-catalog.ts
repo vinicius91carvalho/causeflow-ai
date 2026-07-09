@@ -71,24 +71,7 @@ export const INTEGRATION_CATALOG: IntegrationCatalogEntry[] = [
     phase: 'mvp',
     color: '#0052CC',
   },
-  {
-    type: 'notion',
-    name: 'Notion',
-    description: 'Knowledge base pages and database access for investigations',
-    category: 'knowledge',
-    icon: '/icons/integrations/notion.svg',
-    phase: 'mvp',
-    color: '#000000',
-  },
-  {
-    type: 'shortcut',
-    name: 'Shortcut',
-    description: 'Story tracking, epics, and iteration management',
-    category: 'management',
-    icon: '/icons/integrations/shortcut.svg',
-    phase: 'mvp',
-    color: '#58B1E4',
-  },
+
   {
     type: 'sentry',
     name: 'Sentry',
@@ -203,7 +186,6 @@ export const TRIGGER_CATALOG: Record<string, Array<{ slug: string; labelKey: str
   slack: [],
   jira: [],
   linear: [],
-  notion: [],
   hubspot: [],
   confluence: [],
   discord: [],

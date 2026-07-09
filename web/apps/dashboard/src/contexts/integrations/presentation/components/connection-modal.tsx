@@ -400,22 +400,8 @@ export function ConnectionModal({
               </div>
             )}
 
-            {/* OAuth UI — all integrations except AWS use Composio OAuth */}
             {isOAuth ? (
               <div className="space-y-4">
-                {/* Composio security badge */}
-                <div className="flex items-start gap-3 rounded-lg border border-success/60/20 bg-success/50/5 px-4 py-3">
-                  <Shield className="h-5 w-5 mt-0.5 shrink-0 text-success" aria-hidden="true" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-foreground">
-                      {t('composioSecurity.title')}
-                    </p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {t('composioSecurity.description')}
-                    </p>
-                  </div>
-                </div>
-
                 <div className="flex flex-col items-center gap-4 py-2">
                   <Button
                     type="button"

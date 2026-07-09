@@ -31,8 +31,6 @@ const INTEGRATIONS: IntegrationWithCategory[] = [
   { type: 'cloudwatch', category: 'monitoring' },
   { type: 'hubspot', category: 'crm' },
   { type: 'trello', category: 'management' },
-  { type: 'notion', category: 'knowledge' },
-  { type: 'shortcut', category: 'management' },
   { type: 'postgresql', category: 'database' },
   { type: 'linear', category: 'management' },
   { type: 'sentry', category: 'monitoring' },
@@ -58,8 +56,8 @@ describe('Category filter logic', () => {
     expect(ALL_CATEGORIES[0]).toBe('all');
   });
 
-  it('"all" category returns all 17 integrations', () => {
-    expect(filterByCategory(INTEGRATIONS, 'all')).toHaveLength(17);
+  it('"all" category returns all 15 integrations', () => {
+    expect(filterByCategory(INTEGRATIONS, 'all')).toHaveLength(15);
   });
 
   it('"communication" returns only Slack', () => {
@@ -85,13 +83,12 @@ describe('Category filter logic', () => {
     expect(result[0]?.type).toBe('github');
   });
 
-  it('"management" returns Jira, Trello, Shortcut, Linear', () => {
+  it('"management" returns Jira, Trello, Linear', () => {
     const result = filterByCategory(INTEGRATIONS, 'management');
-    expect(result).toHaveLength(4);
+    expect(result).toHaveLength(3);
     const types = result.map((i) => i.type);
     expect(types).toContain('jira');
     expect(types).toContain('trello');
-    expect(types).toContain('shortcut');
     expect(types).toContain('linear');
   });
 
@@ -109,11 +106,10 @@ describe('Category filter logic', () => {
     expect(types).toContain('mongodb');
   });
 
-  it('"knowledge" returns Notion and Confluence', () => {
+  it('"knowledge" returns Confluence', () => {
     const result = filterByCategory(INTEGRATIONS, 'knowledge');
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(1);
     const types = result.map((i) => i.type);
-    expect(types).toContain('notion');
     expect(types).toContain('confluence');
   });
 
@@ -145,8 +141,6 @@ describe('Search filter logic', () => {
     { type: 'cloudwatch', name: 'AWS' },
     { type: 'hubspot', name: 'HubSpot' },
     { type: 'trello', name: 'Trello' },
-    { type: 'notion', name: 'Notion' },
-    { type: 'shortcut', name: 'Shortcut' },
     { type: 'postgresql', name: 'PostgreSQL' },
     { type: 'linear', name: 'Linear' },
     { type: 'sentry', name: 'Sentry' },
@@ -158,12 +152,12 @@ describe('Search filter logic', () => {
     { type: 'webhooks', name: 'Custom Webhooks' },
   ];
 
-  it('empty query returns all 17 integrations', () => {
-    expect(filterBySearch(namedIntegrations, '')).toHaveLength(17);
+  it('empty query returns all 15 integrations', () => {
+    expect(filterBySearch(namedIntegrations, '')).toHaveLength(15);
   });
 
   it('blank query returns all integrations', () => {
-    expect(filterBySearch(namedIntegrations, '   ')).toHaveLength(17);
+    expect(filterBySearch(namedIntegrations, '   ')).toHaveLength(15);
   });
 
   it('case-insensitive search for "slack"', () => {

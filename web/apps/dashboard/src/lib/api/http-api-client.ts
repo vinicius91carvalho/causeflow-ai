@@ -167,7 +167,7 @@ export class HttpApiClient implements ICoreApiClient {
   }
 
   async getMe(): Promise<AuthUser> {
-    return this.request<AuthUser>('/v1/auth/me');
+    return this.request<AuthUser>('/v1/whoami');
   }
 
   async listIncidents(params?: ListIncidentsParams): Promise<PaginatedResponse<Incident>> {

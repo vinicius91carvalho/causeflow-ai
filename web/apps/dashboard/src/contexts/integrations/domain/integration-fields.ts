@@ -91,7 +91,7 @@ export const INTEGRATION_FIELDS: Partial<Record<IntegrationType, FieldDef[]>> = 
       required: true,
     },
   ],
-  // All other integrations (GitHub, Slack, Jira, Notion, etc.) use Composio OAuth — no fields.
+  // All other integrations (GitHub, Slack, Jira, etc.) use OAuth — no fields.
 };
 
 export function buildValidationSchema(type: IntegrationType, errorMsg: string) {

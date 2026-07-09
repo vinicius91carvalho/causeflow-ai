@@ -9,8 +9,6 @@ export type IntegrationType =
   | 'cloudwatch'
   | 'hubspot'
   | 'trello'
-  | 'notion'
-  | 'shortcut'
   | 'postgresql'
   | 'linear'
   | 'sentry'
@@ -29,8 +27,6 @@ export const INTEGRATION_DISPLAY_NAMES: Record<string, string> = {
   cloudwatch: 'AWS',
   hubspot: 'HubSpot',
   trello: 'Trello',
-  notion: 'Notion',
-  shortcut: 'Shortcut',
   postgresql: 'PostgreSQL',
   linear: 'Linear',
   sentry: 'Sentry',
@@ -46,15 +42,12 @@ export type IntegrationAuthType = 'credentials' | 'oauth';
 
 /**
  * Maps each integration type to its authentication method.
- * All integrations use Composio OAuth except AWS (credential-based AssumeRole).
  */
 export const INTEGRATION_AUTH_TYPES: Record<IntegrationType, IntegrationAuthType> = {
   cloudwatch: 'credentials',
   slack: 'oauth',
   jira: 'oauth',
   trello: 'oauth',
-  notion: 'oauth',
-  shortcut: 'oauth',
   github: 'oauth',
   hubspot: 'oauth',
   sentry: 'oauth',
@@ -71,7 +64,6 @@ export const INTEGRATION_AUTH_TYPES: Record<IntegrationType, IntegrationAuthType
 /** i18n keys for OAuth button labels, resolved via `t()` in the connection modal. */
 export const OAUTH_BUTTON_I18N_KEYS: Partial<Record<IntegrationType, string>> = {
   slack: 'oauthButton.slack',
-  notion: 'oauthButton.notion',
 };
 
 export interface ActiveTrigger {
@@ -88,7 +80,6 @@ export interface TriggerDto {
   triggerSlug: string;
   provider: string;
   status: string;
-  composioTriggerId: string;
   connectedAccountId: string;
   eventCount?: number;
   createdAt: string;

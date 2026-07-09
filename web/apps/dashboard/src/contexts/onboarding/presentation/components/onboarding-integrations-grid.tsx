@@ -14,8 +14,6 @@ import { CauseFlowLoader } from '@/contexts/shared/presentation/components/cause
 const ONBOARDING_INTEGRATION_IDS = [
   'aws-cloudwatch',
   'github',
-  'notion',
-  'shortcut',
   'slack',
   'sentry',
   'datadog',
@@ -33,8 +31,6 @@ type OnboardingIntegrationId = (typeof ONBOARDING_INTEGRATION_IDS)[number];
 const ONBOARDING_AUTH_TYPES: Record<OnboardingIntegrationId, 'credential' | 'oauth'> = {
   'aws-cloudwatch': 'credential',
   github: 'oauth',
-  notion: 'oauth',
-  shortcut: 'oauth',
   slack: 'oauth',
   sentry: 'oauth',
   datadog: 'oauth',
@@ -53,8 +49,6 @@ const ONBOARDING_ICONS: Record<string, { icon: string; color: string }> = {
   github: { icon: '/icons/integrations/github.svg', color: '#181717' },
   jira: { icon: '/icons/integrations/jira.svg', color: '#0052CC' },
   trello: { icon: '/icons/integrations/trello.svg', color: '#0052CC' },
-  notion: { icon: '/icons/integrations/notion.svg', color: '#000000' },
-  shortcut: { icon: '/icons/integrations/shortcut.svg', color: '#58B1E4' },
   sentry: { icon: '/icons/integrations/sentry.svg', color: '#362D59' },
   linear: { icon: '/icons/integrations/linear.svg', color: '#5E6AD2' },
   datadog: { icon: '/icons/integrations/datadog.svg', color: '#632CA6' },

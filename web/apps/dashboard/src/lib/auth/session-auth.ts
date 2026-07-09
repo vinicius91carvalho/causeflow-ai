@@ -41,6 +41,8 @@ export interface SessionClaims {
   name?: string;
   /** Tenant / organization id */
   tenantId?: string;
+  /** Snake_case variant used by Core API JWTs */
+  tenant_id?: string;
   /** Role inside the tenant */
   role?: 'admin' | 'member';
   /** Legacy alias — Core JWT may use "orgId" instead of "tenantId" */
@@ -101,7 +103,7 @@ export { SESSION_COOKIE };
 export function claimsToAuthContext(claims: SessionClaims): AuthContext {
   return {
     userId: claims.sub ?? String(claims.userId ?? ''),
-    tenantId: claims.tenantId ?? claims.orgId ?? String(claims.userId ?? ''),
+    tenantId: claims.tenantId ?? claims.tenant_id ?? claims.orgId ?? String(claims.userId ?? ''),
     email: claims.email ?? '',
     name: claims.name ?? '',
     role: (claims.role ?? claims.orgRole ?? 'member') as 'admin' | 'member',
