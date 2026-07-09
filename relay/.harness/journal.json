@@ -714,6 +714,23 @@
         "explain_nonexistent_collection_graceful": "passed",
         "source_code_find_explain_executionStats": "passed"
       }
+    },
+    {
+      "id": "WI-AC-036",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:59:00Z",
+      "details": "Integrated Verification pass for AC-036 (MongoDriver healthCheck + close + construction params). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). All 4 tests pass: (1) health_check RPC returns order-mongo healthy=true; (2) source code confirms maxPoolSize:5 and serverSelectionTimeoutMS:10000 in constructor; (3) direct MongoClient test confirms db.admin().ping() works and client.close() resolves; (4) unreachable host returns false gracefully. No code changes to implementation.",
+      "checks": {
+        "health_check_rpc_mongo_healthy": "passed",
+        "maxPoolSize_5": "passed",
+        "serverSelectionTimeoutMS_10000": "passed",
+        "db_admin_ping_returns_true": "passed",
+        "client_close_resolves": "passed",
+        "healthCheck_returns_false_on_error": "passed",
+        "close_on_failed_client_graceful": "passed"
+      }
     }
   ]
 }
