@@ -512,3 +512,12 @@ DynamoDB, 1-minute dedup window).
 - WorkItem: WI-AC-015
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T22:50:26.002Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/ingestion/WI-AC-015-2-integration_qa.log
+- NextAction: next Ready Work Item
