@@ -1000,3 +1000,32 @@ Core API `/v1/integrations/connect` returns `500 INTERNAL_ERROR` (Core-side stub
 - PreviousPhase: qa
 - Attempt: 3
 - NextAction: qa
+
+## 2026-07-09T21:05:17.431Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-051
+- Outcome: QA failed after Attempt 3
+- Defects: rdict based on all findings.Here is my final verdict.
+
+**Summary of findings for AC-051:**
+
+**Static code checks (all pass):**
+- `remotePatterns` in `next.config.mjs` is empty `[]` — no composio.dev domains
+- No composio domains in any CSP allow-list in either app
+- `composioTriggerId` field removed from `Integration` domain type
+- All 15 integration type identifiers (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks) present
+- No `COMPOSIO_API_KEY` env var referenced anywhere
+
+**Defects found (preventing end-to-end validation):**
+
+1. **Defect 1 — Wrong whoami endpoint in `with-auth.ts`**: `resolveWhoami()` calls `${coreUrl}/v1/auth/me` which returns 404; the Core API's working endpoint is `/v1/whoami`. Response parsing also expects flat fields but Core returns nested `{ user: { id, email }, tenantId }`.
+
+2. **Defect 2 — JWT claim name mismatch in `session-auth.ts`**: `SessionClaims.tenantId` (camelCase) does not match the Core JWT's `tenant_id` (snake_case), causing the JWT fallback path to lose tenant context entirely.
+
+3. **Defect 3 — Core billing subscription returns 500**: `/v1/billing/subscription` returns HTTP 500 for new tenants instead of `{ plan: 'free', status: 'active' }`, triggering the plan-gate redirect and blocking access to all dashboard pages including integrations.
+
+4. **Defect 4 — Core integration stubs broken**: `POST /v1/integrations/connect` returns `"Composio not configured"`, `POST /v1/integrations/credentials` and `GET /v1/integrations` return HTTP 500, instead of 200 with deterministic empty data.
+
+Defects 1-2 are in the dashboard's OSS auth integration code. Defects 3-4 are on the Core API side. Together they prevent the UI tests (steps 2 and 3) from completing. The static code changes for AC-051 are correct, but the acceptance check cannot be fully validated.Journal updated. The verdict has been printed above with the required JSON format wrapping.
+- NextAction: User reviews evidence and explicitly resumes with guidance
