@@ -682,6 +682,28 @@
         "tsc_noEmit_clean": "passed",
         "npm_run_build_clean": "passed"
       }
+    },
+    {
+      "id": "WI-AC-036",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T23:59:59Z",
+      "details": "Integrated Verification pass for AC-036 (MongoDriver healthCheck/close/construction). Verified at source code level: constructor uses maxPoolSize:5 and serverSelectionTimeoutMS:10000; healthCheck() calls db.admin().ping() returning true on success / false on any error; close() awaits client.close(). Runtime tested via test-ac036.mjs against live docker-compose stack (relay + relay-mongo + relay-postgres + control-plane-stub). All 4 test groups pass: (1) maxPoolSize===5, serverSelectionTimeoutMS===10000; (2) db.admin().ping() returns {ok:1}; (3) unreachable host returns false without throwing; (4) close() resolves cleanly. npx tsc --noEmit clean. npm run build clean. No defects.",
+      "checks": {
+        "source_maxPoolSize_5": "passed",
+        "source_serverSelectionTimeoutMS_10000": "passed",
+        "source_healthCheck_db_admin_ping": "passed",
+        "source_healthCheck_true_on_success": "passed",
+        "source_healthCheck_false_on_error": "passed",
+        "source_close_awaits_client_close": "passed",
+        "runtime_constructor_options": "passed",
+        "runtime_ping_returns_ok": "passed",
+        "runtime_unreachable_returns_false": "passed",
+        "runtime_close_resolves": "passed",
+        "tsc_noEmit_clean": "passed",
+        "npm_run_build_clean": "passed"
+      }
     }
   ]
 }
