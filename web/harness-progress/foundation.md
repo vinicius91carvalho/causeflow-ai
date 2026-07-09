@@ -4912,3 +4912,28 @@ The previous QA journal erroneously claimed a defect — `pnpm exec biome check 
 - PreviousPhase: repair_plan
 - Attempt: 1
 - NextAction: repair-plan
+
+## 2026-07-09T23:12:44.337Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- DefectReport: Session terminated, killing shell... ...killed.
+- RepairPlan: Repair planning did not return structured JSON; ave enough to diagnose. The evidence is conclusive.
+## Diagnosis
+**The QA log is not an assertion failure — it's a resource/session kill.** The full log body is:
+```
+Build exists for both apps. Let me kill existing servers and run the E2E suite.
+--- stderr ---
+Session terminated, killing shell... ...killed.
+```
+The agent died the moment it launched `pnpm exec playwright test tests/`. Three compounding causes:
+1. **Memory exhaustion in the PRoot container.** `free -h` shows 14Gi total / **948Mi free**, 9.2Gi swap already in use. Launching two `next start` production servers (website:3000 + dashboard:3001) plus 3 parallel chromium workers pushes it into OOM → the shell is killed.
+2. **Wrong run scope.** AC-006 covers only `tests/audit.spec.ts` + `tests/visual-functional.spec.ts` (website, 4 viewport projects). But `playwright test tests/` also pulls in the heavyweight `dashboard-setup`, `dashboard-authed`, `e2e-dashboard-authed`, and `dashboard-review` projects — which require a running dashboard + Clerk auth. In this OSS-local-runtime build Clerk is removed, so those projects can only hang or fail, multiplying server/browser processes before the kill.
+3. **`webServer` block starts the dashboard needlessly** (`playwright.config.ts:177-183`) even for website-only specs, doubling the memory footprint.
+**The AC-006 deliverable itself is correct** — `playwright.config.ts` satisfies every clause of the acceptance check (chromium-only, 4 viewports at the exact dimensions, `workers: 3`, `fullyParallel: true`, trace/video/screenshot `off`, webServer auto-start on 3000, analytics/tracker blocking confirmed in both specs' `beforeEach`). No product code needs changing. The defect is a **QA execution/environment failure**, not an implementation defect.
+The repair is in how QA runs the check, not in the code under test.
+===HARNESS-VERDICT-BEGIN===
+===HARNESS-VERDICT-END===
+[?1006l[?1003l[?1002l[?1000l(B[>4m[<u[?1004l[?2031l[?2004l[?25h7[r8]0;[?25h
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/foundation/WI-AC-006-1-qa.log
+- NextAction: Coding Attempt 2
