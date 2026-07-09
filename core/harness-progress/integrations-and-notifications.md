@@ -192,3 +192,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - PreviousPhase: coding
 - Attempt: 2
 - NextAction: coding
+
+## 2026-07-09T12:08:42.065Z — Resumed
+
+- WorkItem: WI-AC-030
+- PreviousPhase: coding
+- Attempt: 2
+- NextAction: coding
