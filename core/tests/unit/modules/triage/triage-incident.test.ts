@@ -16,6 +16,7 @@ const MOCK_TRIAGE_RESULT: TriageResult = {
   suggestedAgents: ['log_analyst', 'metric_analyst'],
   summary: 'High CPU usage detected on production API server',
   confidence: 0.85,
+  investigationMode: 'orchestrator',
 };
 
 function createMockIncident(overrides?: Partial<Incident>): Incident {
@@ -116,6 +117,7 @@ describe('TriageIncidentUseCase', () => {
       expect.objectContaining({
         severity: 'high',
         assignedAgents: ['log_analyst', 'metric_analyst'],
+        investigationMode: 'orchestrator',
       }),
     );
     expect(evidenceRepo.create).toHaveBeenCalledWith(
@@ -167,6 +169,13 @@ describe('TriageIncidentUseCase', () => {
     await expect(
       useCase.execute(tenantId('tenant-1'), incidentId('inc-123')),
     ).rejects.toThrow('Triage failed');
+
+    // Status must be reverted to 'open' so incident can be retried
+    expect(incidentRepo.updateStatus).toHaveBeenCalledWith(
+      tenantId('tenant-1'),
+      incidentId('inc-123'),
+      'open',
+    );
   });
 
   it('should enqueue to investigation queue when priority is critical', async () => {
@@ -186,6 +195,7 @@ describe('TriageIncidentUseCase', () => {
         incidentId: 'inc-123',
         tenantId: 'tenant-1',
         severity: 'critical',
+        investigationMode: 'orchestrator',
       }),
     );
   });

@@ -29,6 +29,7 @@ const LOW_PRIORITY_RESULT: TriageResult = {
   suggestedAgents: [],
   summary: 'manual test',
   confidence: 0.9,
+  investigationMode: 'orchestrator',
 };
 
 const CRITICAL_PRIORITY_RESULT: TriageResult = {
@@ -37,6 +38,7 @@ const CRITICAL_PRIORITY_RESULT: TriageResult = {
   suggestedAgents: ['log_analyst'],
   summary: 'Critical CPU spike detected',
   confidence: 0.95,
+  investigationMode: 'orchestrator',
 };
 
 function createMockIncident(overrides?: Partial<Incident>): Incident {
@@ -187,6 +189,7 @@ describe('TriageIncidentUseCase — terminal (low/medium/info) path', () => {
         incidentId: 'inc-123',
         tenantId: 'tenant-1',
         severity: 'critical',
+        investigationMode: 'orchestrator',
       }),
     );
 

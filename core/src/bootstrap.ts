@@ -415,6 +415,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const triageUseCases: TriageUseCases = {
     triageIncident,
     evidenceRepo,
+    incidentRepo,
   };
 
 

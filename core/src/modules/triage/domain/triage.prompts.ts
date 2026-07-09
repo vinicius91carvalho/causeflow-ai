@@ -5,6 +5,7 @@ export const triageResultSchema = z.object({
     suggestedAgents: z.array(z.string()),
     summary: z.string(),
     confidence: z.number().min(0).max(1),
+    investigationMode: z.enum(['orchestrator', 'hypothesis', 'debate']),
 });
 const AGENT_CATALOG = [
     { name: 'log_analyst', description: 'Analyzes CloudWatch logs', requires: 'AWS' },
@@ -90,8 +91,14 @@ Respond in JSON format:
   "category": "infrastructure|application|deployment|third_party|database|unknown",
   "suggestedAgents": ["agent_role1", "agent_role2"],
   "summary": "Brief analysis of the incident",
-  "confidence": 0.85
-}`;
+  "confidence": 0.85,
+  "investigationMode": "orchestrator|hypothesis|debate"
+}
+
+Choose investigationMode based on the incident complexity:
+- "orchestrator": Standard multi-agent investigation with coordinator (default)
+- "hypothesis": Generate and test multiple competing hypotheses
+- "debate": Multiple agents debate to find root cause (best for ambiguous incidents)`;
 }
 /** @deprecated Use buildTriagePrompt() instead. Kept for backward compatibility. */
 export const TRIAGE_SYSTEM_PROMPT = buildTriagePrompt([]);

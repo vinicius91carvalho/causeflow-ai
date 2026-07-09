@@ -111,11 +111,14 @@ export class TriageIncidentUseCase {
             result = completion.content;
         }
         catch (err) {
+            // Revert status to 'open' so the incident can be retried
+            await this.incidentRepo.updateStatus(tenantId, incidentId, 'open');
             throw new TriageFailedError(incidentId, err instanceof Error ? err.message : 'Unknown error');
         }
         await this.incidentRepo.update(tenantId, incidentId, {
             severity: result.priority,
             assignedAgents: result.suggestedAgents,
+            investigationMode: result.investigationMode,
             updatedAt: new Date().toISOString(),
         });
         await this.evidenceRepo.create({
@@ -144,6 +147,7 @@ export class TriageIncidentUseCase {
                     tenantId,
                     severity: result.priority,
                     suggestedAgents: result.suggestedAgents,
+                    investigationMode: result.investigationMode,
                 });
             }
         } else {

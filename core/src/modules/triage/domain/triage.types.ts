@@ -1,4 +1,4 @@
-import type { Incident } from '../../ingestion/domain/incident.entity.js';
+import type { Incident, InvestigationMode } from '../../ingestion/domain/incident.entity.js';
 import type { Severity } from '../../../shared/domain/types.js';
 export type IncidentCategory = 'infrastructure' | 'application' | 'deployment' | 'third_party' | 'database' | 'unknown';
 export interface TriageResult {
@@ -7,6 +7,7 @@ export interface TriageResult {
     suggestedAgents: string[];
     summary: string;
     confidence: number;
+    investigationMode: InvestigationMode;
 }
 export interface TriageInput {
     incident: Incident;
