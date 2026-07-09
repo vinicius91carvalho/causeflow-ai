@@ -232,6 +232,8 @@ export interface AppContext {
   authUseCases: AuthUseCases;
   userUseCases: UserUseCases;
   memoryUseCases: MemoryUseCases;
+  /** OSS runtime auth router (register + login), undefined in AWS runtime */
+  ossAuthRouter?: Hono<AppEnv>;
 }
 
 export interface BootstrapOverrides {
@@ -259,15 +261,47 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   providerRegistry.registerAlertParser(cloudwatchParser.source, cloudwatchParser);
   providerRegistry.registerAlertParser(sentryParser.source, sentryParser);
 
-  // Repositories
-  const tenantRepo = new DynamoTenantRepository();
-  const auditRepo = new DynamoAuditRepository();
-  const incidentRepo = new DynamoIncidentRepository();
-  const evidenceRepo = new DynamoEvidenceRepository();
-  const toolCallRepo = new DynamoToolCallRepository();
+  // === Repositories (runtime-aware) ===
+  //
+  // OSS runtime (CAUSEFLOW_RUNTIME=oss): Postgres repositories with JSONB
+  // storage (AC-040). No DynamoDBClient is instantiated.
+  //
+  // AWS runtime: original ElectroDB / DynamoDB repositories (unchanged).
+  //
+  // Variables typed as interfaces so dynamic import works cleanly.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let tenantRepo: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let auditRepo: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let incidentRepo: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let evidenceRepo: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let toolCallRepo: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let codeKnowledgeRepo: any;
 
-  // Code Intelligence Repository
-  const codeKnowledgeRepo = new DynamoCodeKnowledgeRepository();
+  if (config.isOss()) {
+    logger.info('Bootstrap: using Postgres repositories (OSS runtime)');
+    const { PgTenantRepository } = await import('./modules/tenant/infra/pg-tenant.repository.js');
+    const { PgAuditRepository } = await import('./modules/audit/infra/pg-audit.repository.js');
+    const { PgIncidentRepository } = await import('./modules/ingestion/infra/pg-incident.repository.js');
+    tenantRepo = new PgTenantRepository();
+    auditRepo = new PgAuditRepository();
+    incidentRepo = new PgIncidentRepository();
+    evidenceRepo = new DynamoEvidenceRepository(); // TODO: implement PgEvidenceRepository
+    toolCallRepo = new DynamoToolCallRepository(); // TODO: implement PgToolCallRepository
+    codeKnowledgeRepo = new DynamoCodeKnowledgeRepository(); // TODO: implement PgCodeKnowledgeRepository
+  } else {
+    logger.info('Bootstrap: using DynamoDB repositories (AWS runtime)');
+    tenantRepo = new DynamoTenantRepository();
+    auditRepo = new DynamoAuditRepository();
+    incidentRepo = new DynamoIncidentRepository();
+    evidenceRepo = new DynamoEvidenceRepository();
+    toolCallRepo = new DynamoToolCallRepository();
+    codeKnowledgeRepo = new DynamoCodeKnowledgeRepository();
+  }
 
   // Observability Stack
   const { tracer, metrics } = await createObservabilityStack();
@@ -628,14 +662,30 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     createSubscription: new CreateSubscriptionUseCase(tenantRepo, planCatalog),
   };
 
-  // Auth Use Cases (Clerk webhook)
-  const userRepo = new DynamoUserRepository();
-  const authUseCases: AuthUseCases = {
-    handleClerkWebhook: new HandleClerkWebhookUseCase(tenantRepo, userRepo, stripeCustomerService, planCatalog, billingAccountRepo),
-  };
+  // Auth Use Cases
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let userRepo: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let inviteRepo: any;
+  let authUseCases: AuthUseCases;
+  let ossAuthRouter: Hono<AppEnv> | undefined;
+
+  if (config.isOss()) {
+    const { PgUserRepository } = await import('./modules/user/infra/pg-user.repository.js');
+    userRepo = new PgUserRepository();
+    inviteRepo = new DynamoInviteRepository(); // Not yet implemented as Postgres
+    authUseCases = {
+      handleClerkWebhook: new HandleClerkWebhookUseCase(tenantRepo, userRepo, stripeCustomerService, planCatalog, billingAccountRepo),
+    };
+  } else {
+    userRepo = new DynamoUserRepository();
+    inviteRepo = new DynamoInviteRepository();
+    authUseCases = {
+      handleClerkWebhook: new HandleClerkWebhookUseCase(tenantRepo, userRepo, stripeCustomerService, planCatalog, billingAccountRepo),
+    };
+  }
 
   // User Use Cases
-  const inviteRepo = new DynamoInviteRepository();
   const userUseCases: UserUseCases = {
     createUser: new CreateUserUseCase(userRepo, eventBus),
     listUsers: new ListUsersUseCase(userRepo),
@@ -968,8 +1018,15 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     getIncidentAnalytics: new GetIncidentAnalyticsUseCase(incidentRepo),
   };
 
-  // API Key Use Cases
-  const apiKeyRepo = new DynamoApiKeyRepository();
+  // API Key Use Cases (runtime-aware: Dynamo in AWS, Postgres in OSS)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let apiKeyRepo: any;
+  if (config.isOss()) {
+    const { PgApiKeyRepository } = await import('./modules/tenant/infra/pg-api-key.repository.js');
+    apiKeyRepo = new PgApiKeyRepository();
+  } else {
+    apiKeyRepo = new DynamoApiKeyRepository();
+  }
   // Wire the API-key resolver into the auth middleware so `cflo_…` Bearer
   // tokens resolve to their tenant + creator identity on every request.
   configureAuthApiKeyRepo(apiKeyRepo);
@@ -1178,6 +1235,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       });
   }
 
+  // OSS auth router (register + login) — defined only in OSS runtime
+  if (config.isOss()) {
+    const { createOssAuthRoutes } = await import('./modules/auth/infra/oss-auth.routes.js');
+    ossAuthRouter = createOssAuthRoutes({ tenantRepo, userRepo });
+  }
+
   return {
     eventBus,
     providerRegistry,
@@ -1206,5 +1269,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     authUseCases,
     userUseCases,
     memoryUseCases,
+    ossAuthRouter,
   };
 }

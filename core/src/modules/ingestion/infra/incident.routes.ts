@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { incidentId } from '../../../shared/domain/value-objects.js';
+import { config } from '../../../shared/config/index.js';
 import { requireRole } from '../../../shared/infra/http/middleware/rbac.middleware.js';
 import { isStaffEmail } from '../../../shared/infra/http/middleware/staff.middleware.js';
 import type { AppEnv } from '../../../shared/infra/http/hono-types.js';
@@ -72,7 +73,9 @@ export function createIncidentRoutes(useCases: IncidentUseCases): Hono<AppEnv, i
         const body = c.req.valid('json');
         const userEmail = c.get('userEmail');
         // Reserve investigation credit (atomic increment with quota check)
-        if (useCases.reserveInvestigation) {
+        // Skip billing check in OSS runtime (Stripe is not used; AC-043).
+        // The DynamoDB-backed BillingAccountRepository is not available in OSS.
+        if (useCases.reserveInvestigation && !config.isOss()) {
             const reservation = await useCases.reserveInvestigation.execute(tenantId);
             if (!reservation.reserved) {
                 return c.json({ error: 'QUOTA_EXCEEDED', message: 'Investigation limit reached' }, 402);

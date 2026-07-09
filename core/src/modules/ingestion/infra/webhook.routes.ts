@@ -49,8 +49,8 @@ export function createWebhookRoutes(useCases: WebhookUseCases): Hono<AppEnv, imp
             await useCases.sentryIntegrationRepo!.markEventReceived(String(tid));
             // Lazily mark verified on first successful authenticated hit
             await useCases.sentryIntegrationRepo!.markVerified(String(tid));
-            // Reserve investigation credit
-            if (useCases.reserveInvestigation) {
+            // Reserve investigation credit — skipped in OSS runtime (AC-043)
+            if (useCases.reserveInvestigation && !config.isOss()) {
                 const reservation = await useCases.reserveInvestigation.execute(tid);
                 if (!reservation.reserved) {
                     return c.json({ error: 'QUOTA_EXCEEDED', message: 'Investigation limit reached' }, 402);
@@ -78,8 +78,8 @@ export function createWebhookRoutes(useCases: WebhookUseCases): Hono<AppEnv, imp
         const tid = tenantId(c.req.param('tenantId'));
         const provider = c.req.param('provider');
         const payload = await c.req.json();
-        // Reserve investigation credit (atomic increment with quota check)
-        if (useCases.reserveInvestigation) {
+        // Reserve investigation credit — skipped in OSS runtime (AC-043)
+        if (useCases.reserveInvestigation && !config.isOss()) {
             const reservation = await useCases.reserveInvestigation.execute(tid);
             if (!reservation.reserved) {
                 return c.json({ error: 'QUOTA_EXCEEDED', message: 'Investigation limit reached' }, 402);

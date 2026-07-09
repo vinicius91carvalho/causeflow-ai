@@ -21,6 +21,13 @@ import { InvestigationRelayRegistry, createInvestigationRelayServer } from './sh
 async function main() {
   logger.info({ env: config.env, runtime: config.runtime }, 'Starting CauseFlow...');
 
+  // OSS runtime: run Postgres schema migrations to ensure all 31 tables exist
+  // in the causeflow schema (AC-040).
+  if (config.isOss()) {
+    const { runPgMigrations } = await import('./shared/infra/db/pg-client.js');
+    await runPgMigrations();
+  }
+
   // Ensure DynamoDB table exists (dev/LocalStack only) — skipped in the OSS
   // local runtime where Postgres replaces DynamoDB (AC-039/AC-040). Calling
   // DescribeTable here would contact the AWS endpoint, which the OSS boot path
