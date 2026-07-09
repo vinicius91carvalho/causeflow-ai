@@ -473,3 +473,11 @@ fatal: Unable to write index.
 - WorkItem: WI-AC-021
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T17:50:27.176Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: integration could not complete
+- Defects: merge conflict could not be resolved
+- NextAction: User reviews evidence and explicitly resumes with guidance
