@@ -15,6 +15,43 @@
 
 ---
 
+## QA Verification (WI-AC-019)
+
+**Run by:** qa-agent on 2026-07-09
+
+**Verdict:** `implementation=true, qa=false`
+
+**Checks performed:**
+
+1. **Non-public route redirect (Step 1)** — PASS
+   - `GET /dashboard` → 307 `/auth/sign-in?redirect_url=%2Fdashboard`
+   - `GET /dashboard/analyses` → 307 `/auth/sign-in?redirect_url=%2Fdashboard%2Fanalyses`
+   - `GET /dashboard/billing` → 307 `/auth/sign-in?redirect_url=%2Fdashboard%2Fbilling`
+   - `GET /dashboard/settings` → 307 `/auth/sign-in?redirect_url=%2Fdashboard%2Fsettings`
+
+2. **Public API route (Step 3)** — PASS
+   - `GET /api/health/detailed` → 200 `{"status":"degraded",...}` (no auth required)
+   - `GET /api/health` → 200 (public, no auth required)
+
+3. **Public page routes** — PASS
+   - `GET /auth/sign-in` → 200 (public, no redirect)
+
+4. **Code quality** — PASS
+   - `tsc --noEmit` exit 0 (12 tasks)
+   - Biome lint clean
+   - All 163 dashboard test files pass (1071 tests)
+   - Dev server runs without errors on port 5181
+
+**Defects found:**
+
+- The sign-in page (`sign-in-page.tsx`) does not consume the `redirect_url` query parameter passed by the middleware. After a successful sign-in, `router.replace('/dashboard')` always redirects to `/dashboard` regardless of the original URL the user was trying to reach. The middleware correctly attaches `?redirect_url=%2F<path>` to the 307, but the sign-in form ignores it. Expected: after sign-in, the user should be redirected to the originally requested URL (e.g., `/dashboard/settings`). Observed: always `/dashboard`. Evidence: line 37 of `sign-in-page.tsx` hard-codes `router.replace('/dashboard')`.
+
+- The middleware uses local JWT auth (`__session` cookie, `decodeJwtPayload`) instead of `clerkMiddleware()` from `@clerk/nextjs/server`. This is an expected consequence of the AC-046 open-source-local-runtime migration and is documented in the project spec as preserving AC-019's redirect behavior. Not counted as a defect.
+
+- `/api/billing/webhook` does not exist in this version of the codebase (no `route.ts` file under `apps/dashboard/src/app/api/billing/webhook/`). The middleware's public-route matcher includes `/api/ingestion/webhook` instead. All `/api/*` routes are skipped by middleware auth anyway, with handler-level auth via `withAuth`. Not counted as a defect.
+
+---
+
 # Workflow Journal
 
 ## WI-AC-045 — `.env.example` cleanup for open-source-local-runtime
