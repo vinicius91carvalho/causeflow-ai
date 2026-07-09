@@ -1,53 +1,111 @@
-import { DynamoDBClient, DescribeTableCommand } from '@aws-sdk/client-dynamodb';
-import { CloudWatchLogsClient, DescribeLogGroupsCommand } from '@aws-sdk/client-cloudwatch-logs';
+/**
+ * E2E test setup for the open-source local runtime (AC-050).
+ *
+ * Waits for the OSS stack services: Postgres and Redis.
+ * No ministack / LocalStack, no CloudWatch, no DynamoDB.
+ *
+ * The E2E harness (e2e-test-harness.ts) calls bootstrap() directly with
+ * stubbed LLM/agent runners, so the test infrastructure only needs the
+ * persistence layer to be available.
+ *
+ * Default env vars for the OSS runtime are set here so E2E tests can run
+ * without requiring a .env.e2e file.
+ */
+import { Pool } from 'pg';
 import Redis from 'ioredis';
 
-const DYNAMODB_ENDPOINT = process.env['DYNAMODB_ENDPOINT'] ?? 'http://localhost:4566';
-const CUSTOMER_ENDPOINT = process.env['CLOUD_PROVIDER_ENDPOINT'] ?? 'http://localhost:4567';
-const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
-const AWS_REGION = process.env['AWS_REGION'] ?? 'us-east-1';
-const TABLE_NAME = process.env['DYNAMODB_TABLE_NAME'] ?? 'causeflow';
+// Set default env vars for OSS runtime if not already set
+process.env['CAUSEFLOW_RUNTIME'] ??= 'oss';
+process.env['NODE_ENV'] ??= 'test';
+process.env['JWT_SECRET'] ??= 'e2e-test-jwt-secret';
+process.env['TOKEN_ENCRYPTION_KEY'] ??= '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+process.env['WEBHOOK_SECRET'] ??= 'e2e-webhook-secret';
+process.env['HINDSIGHT_BASE_URL'] ??= 'http://localhost:8888';
+process.env['DATABASE_URL'] ??= 'postgresql://causeflow:causeflow@localhost:5439/causeflow';
+process.env['REDIS_URL'] ??= 'redis://localhost:6380';
 
-async function waitForCauseFlowLocalStack(retries = 20): Promise<void> {
-  const client = new DynamoDBClient({
-    region: AWS_REGION,
-    endpoint: DYNAMODB_ENDPOINT,
-    credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
+const DATABASE_URL = process.env['DATABASE_URL'];
+const REDIS_URL = process.env['REDIS_URL'];
+
+export async function setup(): Promise<void> {
+  console.log('[E2E Setup] Waiting for OSS infrastructure...');
+  await Promise.all([
+    waitForPostgres(),
+    waitForRedis(),
+  ]);
+  // Flush any stale BullMQ queue data from previous test runs
+  await flushBullMQQueues();
+  console.log('[E2E Setup] All OSS infrastructure ready!');
+}
+
+/**
+ * Flush all BullMQ-related Redis keys to prevent stale jobs from previous
+ * test runs interfering with the current test.
+ */
+async function flushBullMQQueues(): Promise<void> {
+  const redis = new Redis(REDIS_URL, {
+    maxRetriesPerRequest: 1,
+    lazyConnect: true,
+    connectTimeout: 5000,
   });
-
-  for (let i = 0; i < retries; i++) {
-    try {
-      await client.send(new DescribeTableCommand({ TableName: TABLE_NAME }));
-      console.log('[E2E Setup] CauseFlow LocalStack (DynamoDB) ready');
-      return;
-    } catch {
-      if (i === retries - 1) throw new Error(`CauseFlow LocalStack DynamoDB table not ready after ${retries} retries`);
-      await new Promise((r) => setTimeout(r, 2000));
+  try {
+    await redis.connect();
+    // Scan for BullMQ keys
+    let cursor = '0';
+    let deleted = 0;
+    do {
+      const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', 'bull:*', 'COUNT', 100);
+      cursor = nextCursor;
+      if (keys.length > 0) {
+        await redis.del(...keys);
+        deleted += keys.length;
+      }
+    } while (cursor !== '0');
+    if (deleted > 0) {
+      console.log(`[E2E Setup] Flushed ${deleted} stale BullMQ keys from Redis`);
     }
+  } finally {
+    await redis.quit().catch(() => {});
   }
 }
 
-async function waitForCustomerLocalStack(retries = 20): Promise<void> {
-  const client = new CloudWatchLogsClient({
-    region: AWS_REGION,
-    endpoint: CUSTOMER_ENDPOINT,
-    credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
+async function waitForPostgres(retries = 15): Promise<void> {
+  const pool = new Pool({
+    connectionString: DATABASE_URL,
+    max: 1,
+    connectionTimeoutMillis: 5000,
   });
 
+  let ready = false;
   for (let i = 0; i < retries; i++) {
     try {
-      await client.send(new DescribeLogGroupsCommand({ limit: 1 }));
-      console.log('[E2E Setup] Customer LocalStack (CloudWatch Logs) ready');
-      return;
+      await pool.query('SELECT 1');
+      console.log('[E2E Setup] Postgres ready');
+      ready = true;
+      break;
     } catch {
-      if (i === retries - 1) throw new Error(`Customer LocalStack not ready after ${retries} retries`);
+      if (i === retries - 1) {
+        await pool.end();
+        throw new Error(`Postgres not ready after ${retries} retries`);
+      }
       await new Promise((r) => setTimeout(r, 2000));
     }
   }
+
+  if (!ready) {
+    await pool.end();
+    throw new Error(`Postgres not ready after ${retries} retries`);
+  }
+
+  await pool.end();
 }
 
-async function waitForRedis(retries = 10): Promise<void> {
-  const redis = new Redis(REDIS_URL, { maxRetriesPerRequest: 1, lazyConnect: true, connectTimeout: 5000 });
+async function waitForRedis(retries = 15): Promise<void> {
+  const redis = new Redis(REDIS_URL, {
+    maxRetriesPerRequest: 1,
+    lazyConnect: true,
+    connectTimeout: 5000,
+  });
 
   try {
     await redis.connect();
@@ -66,14 +124,4 @@ async function waitForRedis(retries = 10): Promise<void> {
   } finally {
     await redis.quit().catch(() => {});
   }
-}
-
-export async function setup(): Promise<void> {
-  console.log('[E2E Setup] Waiting for infrastructure...');
-  await Promise.all([
-    waitForCauseFlowLocalStack(),
-    waitForCustomerLocalStack(),
-    waitForRedis(),
-  ]);
-  console.log('[E2E Setup] All infrastructure ready!');
 }

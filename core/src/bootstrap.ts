@@ -385,7 +385,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   };
 
   // Reserve/Refund — needed by ingestion routes (created early, before billing block)
-  const billingAccountRepoEarly = new DynamoBillingAccountRepository();
+  const billingAccountRepoEarly = config.isOss()
+    ? new (await import('./modules/billing/infra/pg-billing-account.repository.js')).PgBillingAccountRepository()
+    : new DynamoBillingAccountRepository();
   const stripeMeterServiceEarly = config.stripe.secretKey ? new StripeMeterEventService() : undefined;
   const reserveInvestigation = new ReserveInvestigationUseCase(billingAccountRepoEarly, stripeMeterServiceEarly, tenantRepo);
 
@@ -577,16 +579,21 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     incidentRepo,
   };
 
-  // Notification Module
-  const notificationRepo = new DynamoNotificationRepository();
+  // Notification Module — uses Postgres stubs in OSS mode to avoid DynamoDB
+  // In the AWS runtime, uses the original DynamoDB-backed repositories.
+  const notificationRepo = config.isOss()
+    ? new (await import('./modules/notification/infra/pg-notification.repository.js')).PgNotificationRepository()
+    : new DynamoNotificationRepository();
   const approvalRepo = new DynamoApprovalRepository();
   const sseManager = new SSEManager();
 
   // Chat Platform (Web Portal replaces Stub)
   const chatPlatform = new WebPortalChatPlatform(notificationRepo, approvalRepo, sseManager);
 
-  // Remediation Use Cases
-  const remediationRepo = new DynamoRemediationRepository();
+  // Remediation Use Cases — OSS runtime uses Postgres, AWS runtime uses DynamoDB
+  const remediationRepo = config.isOss()
+    ? new (await import('./modules/remediation/infra/pg-remediation.repository.js')).PgRemediationRepository()
+    : new DynamoRemediationRepository();
 
   const proposeRemediation = new ProposeRemediationUseCase(
     remediationRepo,
@@ -685,7 +692,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // Billing Use Cases (reuse early billing repo)
   const billingAccountRepo = billingAccountRepoEarly;
-  const usageRecordRepo = new DynamoUsageRecordRepository();
+  const usageRecordRepo = config.isOss()
+    ? new (await import('./modules/billing/infra/pg-usage-record.repository.js')).PgUsageRecordRepository()
+    : new DynamoUsageRecordRepository();
   const planCatalog = new StripePlanCatalogService();
   const stripeCustomerService = config.stripe.secretKey ? new StripeCustomerService() : undefined;
 

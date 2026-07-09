@@ -43,19 +43,22 @@ describe('E2E Pipeline: Config Regression with Code Analysis', () => {
     // Configure synthesis mentioning config regression
     harness.stubLLM.setScenario({
       triage: {
-        severity: 'critical',
+        priority: 'critical',
         suggestedAgents: ['log_analyst', 'metric_analyst', 'infra_inspector', 'change_detector'],
         summary: 'Payment service experiencing high latency and timeout errors after recent deployment',
+        confidence: 0.95,
+        category: 'application',
+        investigationMode: 'orchestrator',
       },
       synthesis: {
-        rootCause: 'Configuration regression — requestTimeoutMs changed from 30000 to 3000 (typo) in commit cr02bbbb, causing all requests longer than 3s to timeout',
+        potentialRootCause: 'Configuration regression — requestTimeoutMs changed from 30000 to 3000 (typo) in commit cr02bbbb, causing all requests longer than 3s to timeout',
         recommendedActions: [
           { action: 'restart_service', params: { service: 'payment-service', cluster: 'production' } },
         ],
         findings: [
-          'Commit cr02bbbb changed REQUEST_TIMEOUT_MS default from 30000 to 3000',
-          'This is a typo: 3s timeout instead of 30s',
-          'All database queries > 3s now fail with timeout error',
+          { text: 'Commit cr02bbbb changed REQUEST_TIMEOUT_MS default from 30000 to 3000', evidenceIds: ['ev-1'] },
+          { text: 'This is a typo: 3s timeout instead of 30s', evidenceIds: ['ev-2'] },
+          { text: 'All database queries > 3s now fail with timeout error', evidenceIds: ['ev-3'] },
         ],
       },
     });

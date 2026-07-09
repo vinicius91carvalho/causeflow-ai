@@ -27,20 +27,23 @@ describe('E2E Pipeline: Latency Spike Scenario', () => {
     // Configure stubs for latency scenario
     harness.stubLLM.setScenario({
       triage: {
-        severity: 'critical',
+        priority: 'critical',
         suggestedAgents: ['log_analyst', 'metric_analyst', 'infra_inspector'],
         summary: 'High latency with database connection timeouts',
+        confidence: 0.95,
+        category: 'database',
+        investigationMode: 'orchestrator',
       },
       synthesis: {
-        rootCause: 'Database connection timeout — connection pool exhausted due to slow queries',
+        potentialRootCause: 'Database connection timeout — connection pool exhausted due to slow queries',
         recommendedActions: [
           { action: 'restart_service', params: { service: 'api-gateway', cluster: 'production' } },
           { action: 'scale_service', params: { service: 'api-gateway', cluster: 'production', desiredCount: 5 } },
         ],
         findings: [
-          'Request latency spiked from 120ms to 1200ms',
-          'Database connection timeout errors in logs',
-          'Circuit breaker triggered after 3 failed retries',
+          { text: 'Request latency spiked from 120ms to 1200ms', evidenceIds: ['ev-1'] },
+          { text: 'Database connection timeout errors in logs', evidenceIds: ['ev-2'] },
+          { text: 'Circuit breaker triggered after 3 failed retries', evidenceIds: ['ev-3'] },
         ],
       },
     });

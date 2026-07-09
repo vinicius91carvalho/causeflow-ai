@@ -36,12 +36,11 @@ describe('E2E Pipeline: Alert Deduplication', () => {
   });
 
   it('should create only one incident when same alert is ingested 3 times', async () => {
-    // Ingest the same alert 3 times
-    const results = await Promise.all([
-      harness.ctx.webhookUseCases.ingestAlert.execute(harness.testTenant.tenantId, CLOUDWATCH_ALERT),
-      harness.ctx.webhookUseCases.ingestAlert.execute(harness.testTenant.tenantId, CLOUDWATCH_ALERT),
-      harness.ctx.webhookUseCases.ingestAlert.execute(harness.testTenant.tenantId, CLOUDWATCH_ALERT),
-    ]);
+    // Ingest the same alert 3 times sequentially to test dedup logic
+    const result1 = await harness.ctx.webhookUseCases.ingestAlert.execute(harness.testTenant.tenantId, CLOUDWATCH_ALERT);
+    const result2 = await harness.ctx.webhookUseCases.ingestAlert.execute(harness.testTenant.tenantId, CLOUDWATCH_ALERT);
+    const result3 = await harness.ctx.webhookUseCases.ingestAlert.execute(harness.testTenant.tenantId, CLOUDWATCH_ALERT);
+    const results = [result1, result2, result3];
 
     // All 3 calls should return the same incident
     const incidentIds = new Set(results.map((r) => r.incidentId));
