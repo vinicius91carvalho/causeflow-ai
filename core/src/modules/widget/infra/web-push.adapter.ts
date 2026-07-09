@@ -23,8 +23,10 @@ export class WebPushAdapter {
         }
 
         try {
-            // Dynamic import to avoid requiring web-push as a hard dependency
-            const webPush = await import('web-push');
+            // Dynamic import to avoid requiring web-push as a hard dependency.
+            // ESM dynamic import wraps CJS modules under .default.
+            const webPushMod = await import('web-push');
+            const webPush = (webPushMod.default ?? webPushMod) as typeof import('web-push');
             webPush.setVapidDetails(this.vapidSubject, this.vapidPublicKey, this.vapidPrivateKey);
 
             await webPush.sendNotification(

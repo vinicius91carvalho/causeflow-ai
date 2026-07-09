@@ -78,6 +78,8 @@ import { ListPendingApprovalsUseCase } from './modules/notification/application/
 import { RespondApprovalUseCase } from './modules/notification/application/respond-approval.usecase.js';
 import { MarkNotificationReadUseCase } from './modules/notification/application/mark-notification-read.usecase.js';
 import type { NotificationUseCases } from './modules/notification/infra/notification.routes.js';
+import { PgPushSubscriptionRepository } from './modules/notification/infra/pg-push-subscription.repository.js';
+import { WebPushAdapter } from './modules/widget/infra/web-push.adapter.js';
 import { startRemediationConsumer } from './modules/remediation/infra/remediation-consumer.js';
 import { startProgressConsumer } from './shared/infra/pubsub/progress-consumer.js';
 import { createObservabilityStack } from './shared/infra/observability/observability-factory.js';
@@ -766,6 +768,23 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   });
   const markNotificationRead = new MarkNotificationReadUseCase(notificationRepo);
 
+  // Push subscription repository and Web Push adapter (VAPID)
+  let pushSubscriptionRepo: import('./modules/notification/domain/push-subscription.repository.js').IPushSubscriptionRepository | undefined;
+  let pushAdapter: WebPushAdapter | undefined;
+
+  if (config.isOss()) {
+    // OSS runtime: use Postgres-based repository
+    pushSubscriptionRepo = new PgPushSubscriptionRepository();
+  }
+
+  if (config.webPush.keys.publicKey && config.webPush.keys.privateKey) {
+    pushAdapter = new WebPushAdapter(
+      config.webPush.keys.publicKey,
+      config.webPush.keys.privateKey,
+      config.webPush.subject,
+    );
+  }
+
   const notificationUseCases: NotificationUseCases = {
     listNotifications,
     listPendingApprovals,
@@ -773,7 +792,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     markNotificationRead,
     notificationRepo,
     sseManager,
+    pushSubscriptionRepo,
   };
+
 
   // === EventBus Wiring: Audit Trail ===
   eventBus.subscribe('incident.created', async (event) => {
@@ -802,6 +823,36 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       resourceId: (event.payload['incidentId'] as string) ?? '',
       changes: event.payload,
     });
+
+    // Send push notification to all subscribers of this tenant
+    if (pushSubscriptionRepo && pushAdapter) {
+      try {
+        const tid = tenantId(event.tenantId);
+        const payload = event.payload as Record<string, unknown>;
+        const incidentId = (payload['incidentId'] as string) ?? '';
+        const incidentTitle = (payload['title'] as string) ?? (payload['status'] as string) ?? 'Incident updated';
+
+        const subscriptions = await pushSubscriptionRepo.listByTenant(tid);
+        if (subscriptions.length > 0) {
+          const pushPayload = {
+            title: incidentTitle,
+            body: `Incident severity changed: ${incidentTitle}`,
+            url: `/dashboard/incidents/${incidentId}`,
+            data: { incidentId, type: 'incident.status_changed' },
+          };
+          for (const sub of subscriptions) {
+            pushAdapter.send(
+              { endpoint: sub.endpoint, keys: sub.keys },
+              pushPayload,
+            ).catch((err: unknown) => {
+              logger.error({ err, tenantId: tid, endpoint: sub.endpoint }, 'Failed to send push notification');
+            });
+          }
+        }
+      } catch (err) {
+        logger.error({ err, tenantId: event.tenantId }, 'Failed to send push notifications for incident.status_changed');
+      }
+    }
   });
 
   eventBus.subscribe('investigation.completed', async (event) => {
