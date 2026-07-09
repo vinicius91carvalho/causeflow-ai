@@ -1,5 +1,22 @@
 # Workflow Journal
 
+## WI-AC-019 — Clerk middleware: unauthenticated /dashboard redirects to /auth/sign-in
+
+**State:** `implementation=true`
+
+**Summary:**
+- Verified AC-019 behavior at real HTTP boundary on port 5181.
+- Step 1 (PASS): `GET /dashboard` without session returns 307 to `/auth/sign-in?redirect_url=%2Fdashboard`.
+- Step 2 (PASS): Same redirect behavior for `/dashboard/analyses`, `/dashboard/billing`, `/dashboard/integrations` — all return 307 with `redirect_url` preserving the original path.
+- Step 3 (PASS): `GET /api/health/detailed` returns 200 without a session (previously returned 401 because the handler used `withAuth`).
+- **Fix:** Removed `withAuth` wrapper from `health-detailed-handler.ts` — the handler is now a plain `async function GET()` like the basic `/api/health` handler. The middleware already skips all `/api/` routes, so no middleware change was needed. The handler gracefully degrades to 200 with `{ status: 'degraded', ... }` when the Core API is unavailable.
+- Post-fix: `tsc --noEmit` exit 0, `biome check` clean, all 163 dashboard test files pass (1071 tests).
+- Black-box: `GET /dashboard` → 307 `/auth/sign-in?redirect_url=%2Fdashboard`; `GET /api/health/detailed` → 200.
+
+---
+
+# Workflow Journal
+
 ## WI-AC-045 — `.env.example` cleanup for open-source-local-runtime
 
 **State:** `implementation=true`
