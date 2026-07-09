@@ -102,3 +102,24 @@ Performed by qa-agent against plan/opensource-docker branch at PORT=5193.
 - `logos.composio.dev` still referenced in `investigation/presentation/lib/feed-constants.ts` (outside AC-051 scope, as noted in prior QA).
 - Core API `/v1/integrations/connect` returns 500 instead of the expected 200 — this is a Core-side stub issue, not a web-repo defect. The web-repo correctly proxies all connect requests through the Core API with zero direct composio.dev calls.
 - `logos.composio.dev` logo URLs in Core API `/v1/integrations/catalog` response are Core-side data; the web repo does not control them. The IntegrationCard uses `unoptimized` images and local SVG fallbacks via `PROVIDER_ICONS` map for all 15 MVP providers.
+
+---
+
+## Verification — WI-AC-013 (website security headers)
+
+### Verdict: PASS (with fix)
+
+### Checks performed:
+
+1. **X-Frame-Options: DENY** ✅ — Present on both EN (/) and PT-BR (/pt-br) routes.
+2. **Content-Security-Policy** ✅ — CSP allow-lists `self`, GA4 (`https://www.googletagmanager.com` in `script-src`, `https://www.google-analytics.com` in `connect-src`), Microsoft Clarity (`https://*.clarity.ms` in both `script-src` and `connect-src`), and Loops (`https://app.loops.so` in `connect-src`).
+3. **Strict-Transport-Security** ✅ — `max-age=63072000; includeSubDomains; preload` on both routes.
+4. **Referrer-Policy** ✅ — `strict-origin-when-cross-origin` on both routes.
+5. **Permissions-Policy** ✅ — `camera=(), microphone=(), geolocation=()` on both routes.
+6. **Defined in next.config.mjs** ✅ — All headers in the `headers()` async block under `source: '/(.*)'`.
+7. **PT-BR identical** ✅ — `/pt-br` returns identical header set.
+
+### Fix applied:
+- Added `https://app.loops.so` to the `connect-src` CSP directive (was missing from the original config). All other AC-013 headers were already present.
+
+### implementation=true
