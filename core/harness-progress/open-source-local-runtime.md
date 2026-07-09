@@ -868,3 +868,12 @@ BullMQ on Redis replaces SQS in the open-source local runtime (AC-041).
 - WorkItem: WI-AC-044
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T21:41:45.883Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-044
+- AcceptanceChecks: AC-044
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-044-1-integration_qa.log
+- NextAction: next Ready Work Item
