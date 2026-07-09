@@ -34,7 +34,13 @@ export default function SignInPage() {
         setSubmitting(false);
         return;
       }
-      router.replace('/dashboard');
+      // Read redirect_url from the URL query params (set by middleware)
+      // to preserve the original route the user was trying to access.
+      const redirectUrl =
+        typeof window !== 'undefined'
+          ? new URLSearchParams(window.location.search).get('redirect_url')
+          : null;
+      router.replace(redirectUrl ?? '/dashboard');
     } catch {
       setError('Unable to reach the server. Please try again.');
       setSubmitting(false);
