@@ -212,3 +212,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: integration could not complete
 - Defects: merge conflict could not be resolved
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T00:38:52.011Z — Explicit Resume
+
+- WorkItem: WI-AC-023
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Harness worker fix installed: Codex now runs with --dangerously-bypass-approvals-and-sandbox. Retry AC-023 against the fixed workflow; the source audit already passed and the previous merge-conflict symptom should be rechecked through the normal integration path.
+- NextAction: Coding Attempt 1
