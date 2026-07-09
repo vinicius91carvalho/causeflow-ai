@@ -619,3 +619,32 @@ No content changes needed — the existing codebase already satisfies AC-024.
 
 implementation=true qa=true integration=false (integration flag untouched;
 this is VERIFY-FIRST, not integration QA).
+
+## 2026-07-09 Integrated Verification — WI-AC-024
+
+- WorkItem: WI-AC-024
+- AcceptanceChecks: AC-024
+- context: invariants-and-validation
+- Mode: Integrated Verification on plan/opensource-docker
+- HEAD: 34e4abf
+
+### Acceptance check
+
+AC-024: No MDX references AWS ARNs, `.internal` hostnames,
+`sqs.<region>.amazonaws.com` URLs, 12-digit account IDs adjacent to
+'account'/'arn', KMS key IDs, LangFuse/Hindsight URLs, internal DynamoDB
+table names, or ECS cluster/task-definition names.
+
+### Source-level verification
+
+- `check-invariants.sh --quiet` → exit 0 (all invariants hold)
+- `grep -rEi '(arn:aws:|\.internal[^a-z]|sqs\.[a-z0-9-]+\.amazonaws\.com|[0-9]{12}.*(account|arn)|kms:key/[a-f0-9-]{36}|langfuse|hindsight\.[a-z]+|causeflow-(staging|production)[- ]|/ecs/causeflow)' --include='*.mdx' .` → exit 1, zero matches across 133 MDX files
+- Supplementary edge-case checks: `hindsight` bare word, 12+ digit numbers anywhere — all zero matches
+- Evidence: `.harness-evidence/invariants/AC-024-audit.txt`
+
+### Verdict
+
+All AC-024 criteria pass on the integrated branch. Zero forbidden patterns
+across all 133 `.mdx` files. Zero defects.
+
+implementation=true qa=true integration=true

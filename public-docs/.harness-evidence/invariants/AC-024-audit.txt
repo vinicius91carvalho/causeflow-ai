@@ -1,0 +1,54 @@
+=== AC-024 Source Audit ===
+Date: 2026-07-09T18:49:01Z
+Work Item: WI-AC-024
+Branch: plan/opensource-docker
+HEAD: 34e4abfed2454a10550aa6fb781f67399b2858d1
+
+--- Pattern 1: AWS ARNs (arn:aws:) ---
+exit=1 (no matches)
+
+--- Pattern 2: .internal hostnames ---
+exit=1 (no matches)
+
+--- Pattern 3: SQS URLs (sqs.<region>.amazonaws.com) ---
+exit=1 (no matches)
+
+--- Pattern 4: 12-digit account IDs near account/arn ---
+exit=1 (no matches)
+
+--- Pattern 5: KMS key IDs ---
+exit=1 (no matches)
+
+--- Pattern 6: LangFuse (case-insensitive) ---
+exit=1 (no matches)
+
+--- Pattern 7: Hindsight URLs (hindsight.<tld>) ---
+exit=1 (no matches)
+
+--- Pattern 8: Internal DynamoDB table names ---
+exit=1 (no matches)
+
+--- Pattern 9: ECS cluster/task-definition ---
+exit=1 (no matches)
+
+--- Extra: 'hindsight' bare word ---
+exit=1 (no matches)
+
+--- Extra: 12-digit numbers anywhere ---
+exit=1 (no matches)
+
+--- Combined pattern (full AC-024) ---
+exit=1 (no matches)
+
+=== check-invariants.sh result ===
+PASS (all invariant groups including AC-024 held)
+
+=== MDX file count ===
+133
+
+=== Verdict ===
+AC-024 PASSES. No .mdx file contains AWS ARNs, .internal hostnames,
+sqs.<region>.amazonaws.com URLs, 12-digit account IDs adjacent to
+account/arn, KMS key IDs, LangFuse URLs, Hindsight URLs, internal
+DynamoDB table names, or ECS cluster/task-definition names.
+Integration: true

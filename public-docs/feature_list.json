@@ -529,9 +529,9 @@
     "verify_first": true,
     "implementation": true,
     "qa": true,
-    "integration": false,
+    "integration": true,
     "retries": 1,
-    "verify_notes": "VERIFY-FIRST pass at real HTTP boundary: mint dev --port 5180 serves / with HTTP 200 (CauseFlow AI x4, Quickstart x3); AC-024 grep zero matches across 133 MDX; check-invariants.sh --quiet exit 0; rendered cloud-providers page has no forbidden patterns. Zero-diff checkpoint (existing codebase satisfies AC-024)."
+    "verify_notes": "Integrated Verification PASS 2026-07-09: AC-024 audit grep returned zero matches across 133 MDX files for all forbidden patterns (AWS ARNs, .internal hostnames, SQS URLs, 12-digit account IDs, KMS key IDs, LangFuse URLs, Hindsight URLs, internal DynamoDB table names, ECS cluster/task-definition names); check-invariants.sh --quiet exit 0. Zero defects."
   },
   {
     "id": "WI-AC-025",
