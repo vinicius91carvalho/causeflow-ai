@@ -86,6 +86,18 @@ Real browser (curl/HTTP) verification of all acceptance steps.
 
 ### Verdict: PASS — All web-repo acceptance checks pass. No web-repo defects found.
 
+## Independent QA Verification — WI-AC-052 (2026-07-09)
+
+Performed by qa-agent against plan/opensource-docker branch at PORT=5193.
+
+### Checks performed (AC-052):
+
+1. **Loops.so CSP removed** ✅ — `grep -E 'loops\.so|app\.loops\.so' apps/website/next.config.mjs apps/website/.env.example` returns zero matches. The `connect-src` CSP entry for `https://app.loops.so` is gone from `next.config.mjs`. `LOOPS_API_KEY` is gone from `.env.example`.
+2. **lvh.me removed from dashboard source** ✅ — `grep -rnE 'lvh\.me' apps/dashboard/src apps/dashboard/next.config.mjs` returns zero matches. No `lvh.me` → `localhost` rewrite in middleware.ts. No inverse `localhost` → `lvh.me` rewrite in checkout/portal handlers. No `lvh.me` reference anywhere in dashboard source.
+3. **HTTP redirect works without lvh.me** ✅ — `curl http://localhost:5193/dashboard` returns `307 -> http://localhost:5193/auth/sign-in?redirect_url=%2Fdashboard`. The unauthenticated redirect works correctly without any lvh.me rewrite involved. `GET /auth/sign-in` returns 200.
+
+### Verdict: PASS — All three AC-052 acceptance checks pass. No defects found. integration=true
+
 ### Notes:
 - `logos.composio.dev` still referenced in `investigation/presentation/lib/feed-constants.ts` (outside AC-051 scope, as noted in prior QA).
 - Core API `/v1/integrations/connect` returns 500 instead of the expected 200 — this is a Core-side stub issue, not a web-repo defect. The web-repo correctly proxies all connect requests through the Core API with zero direct composio.dev calls.
