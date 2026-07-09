@@ -33,7 +33,7 @@ import { OrchestratorToolsetAdapter } from '../modules/investigation/application
 import { InvestigationModeRegistry } from '../modules/investigation/application/modes/registry.js';
 import { DynamoHypothesisRepository } from '../modules/investigation/infra/dynamo-hypothesis.repository.js';
 import { GetCloudIntegrationUseCase } from '../modules/integration/application/get-cloud-integration.usecase.js';
-import { KmsTokenEncryption } from '../shared/infra/credentials/kms-token-encryption.js';
+import { AesGcmTokenEncryption } from '../shared/infra/credentials/aes-gcm-token-encryption.js';
 import { createToolHandler, incidentDetailsTool } from '../modules/investigation/infra/investigation-tools.js';
 import { AWS_API_CALL_TOOL } from '../modules/investigation/infra/aws-api-tool.js';
 import { MEMORY_TOOLS } from '../modules/investigation/infra/memory-tools.js';
@@ -156,10 +156,7 @@ async function workerBootstrap() {
         : new StubCloudProvider();
     providerRegistry.registerCloudProvider('aws', cloudProvider);
     // Credential Vendor
-    const tokenEncryption = new KmsTokenEncryption(config.kms.tokenEncryptionKeyId, {
-        endpoint: config.kms.endpoint,
-        region: config.aws.region,
-    });
+    const tokenEncryption = new AesGcmTokenEncryption();
     const getCloudIntegration = new GetCloudIntegrationUseCase(tokenEncryption);
     const credentialVendor = config.isDev() || config.isTest()
         ? new StubCredentialVendor()

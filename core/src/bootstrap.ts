@@ -37,7 +37,7 @@ import { SentryParser } from './modules/ingestion/infra/parsers/sentry.parser.js
 import { AnthropicClient } from './shared/infra/llm/anthropic-client.js';
 import { AnthropicAgentRunner } from './shared/infra/llm/anthropic-agent-runner.js';
 import { AnthropicPTCAgentRunner } from './shared/infra/llm/anthropic-ptc-agent-runner.js';
-import { KmsTokenEncryption } from './shared/infra/credentials/kms-token-encryption.js';
+import { AesGcmTokenEncryption } from './shared/infra/credentials/aes-gcm-token-encryption.js';
 import { StubCloudProvider } from './shared/infra/cloud/stub-cloud-provider.js';
 import { AWSCloudProvider } from './shared/infra/cloud/aws-cloud-provider.js';
 import { AzureCloudProviderStub } from './shared/infra/cloud/azure-cloud-provider-stub.js';
@@ -333,12 +333,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // Token Encryption — KMS envelope encryption (AWS) or AES-256-GCM (OSS).
   // AC-044: In the OSS runtime, use Node's built-in crypto instead of KMS.
   // AC-040: No AWS SDK client is instantiated at boot in OSS mode.
-  const tokenEncryption = config.isOss()
-    ? new (await import('./shared/infra/credentials/aes-gcm-token-encryption.js')).AesGcmTokenEncryption()
-    : new KmsTokenEncryption(config.kms.tokenEncryptionKeyId, {
-        endpoint: config.kms.endpoint,
-        region: config.aws.region,
-      });
+  const tokenEncryption = new AesGcmTokenEncryption();
 
   // Sentry Integration Repository + Use Cases (envelope-encrypted Client Secret)
   const sentryIntegrationRepo = new DynamoSentryIntegrationRepository(tokenEncryption);
