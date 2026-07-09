@@ -375,9 +375,31 @@ No defects found. Implementation is correct across all four parser-specific code
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/ingestion/WI-AC-016-3-integration_qa.log
 - NextAction: next Ready Work Item
 
-## 2026-07-09T19:23:53.080Z — Resumed
+## 2026-07-09T19:33:15.000Z — AC-015 verified
 
 - WorkItem: WI-AC-015
-- PreviousPhase: claimed
-- Attempt: 1
-- NextAction: start-orchestrator
+- AcceptanceChecks: AC-015
+- implementation: true
+- Test: Black-box HTTP against API on PORT=5175 with ministack (DynamoDB port 4566)
+  + Redis. Seeded billing account (investigationsLimit=-1) for test tenant.
+  Webhook auth uses X-Webhook-Signature HMAC-SHA256 with dev-webhook-secret.
+- Verdict: AC-015 passes all boundary conditions:
+  1. First POST same Datadog payload to /v1/webhooks/{tenant}/datadog → 202 Accepted;
+     incident created with new incidentId, sourceProvider=datadog, status=open.
+  2. Second POST (identical, within 3s dedup window) → 202 Accepted;
+     returns SAME incidentId (dedup works, no duplicate).
+  3. Third POST (identical, after 4s wait, window=0.05min=3s) → 202 Accepted;
+     returns DIFFERENT incidentId (new incident created after window expiry).
+  4. Fourth POST (immediate, within window against new incident) → 202 Accepted;
+     returns SAME incidentId as third (dedup against new incident).
+- Code changes (3 files):
+  - src/shared/config/index.ts: Added ingestion.dedupWindowMinutes (env DEDUP_WINDOW_MINUTES, default 60)
+  - src/modules/ingestion/application/ingest-alert.usecase.ts: Added dedup window check on existing incident createdAt
+  - docker-compose.yml: Added DEDUP_WINDOW_MINUTES env passthrough (default 60)
+- Observations:
+  - DEDUP_WINDOW_MINUTES defaults to 60; set to 0.05 (3s) for testing
+  - Dedup uses sourceProvider + sourceAlertId (externalId from payload.id for Datadog) + createdAt time window
+  - Route is /v1/webhooks/:tenantId/:provider (mounted at /v1/webhooks, not /api/v1/webhooks)
+  - Initial status is 'open' (IncidentStatus type has no 'received')
+  - Third identical POST after window expiry creates a fresh incident with new ID
+- NextAction: none

@@ -109,6 +109,10 @@ export const config = {
     secret: env('WEBHOOK_SECRET', 'dev-webhook-secret'),
   },
 
+  ingestion: {
+    dedupWindowMinutes: Number(env('DEDUP_WINDOW_MINUTES', '60')),
+  },
+
   sts: {
     roleArn: process.env['AWS_ROLE_ARN'],
     stsEndpoint: process.env['STS_ENDPOINT'],
