@@ -64,6 +64,10 @@ export class MaskingEngine {
       }
 
       if (value !== null && typeof value === 'object') {
+        // Pass through non-plain objects (Date, Buffer, etc.) without modification.
+        if (value.constructor !== Object) {
+          return value;
+        }
         const result: Record<string, unknown> = {};
         for (const [key, val] of Object.entries(value)) {
           result[key] = maskValue(val);

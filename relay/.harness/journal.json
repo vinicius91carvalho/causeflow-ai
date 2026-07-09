@@ -165,6 +165,26 @@
         "tsc_noEmit": "passed",
         "dist_boundary_verified": "passed"
       }
+    },
+    {
+      "id": "WI-AC-024",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T02:21:55Z",
+      "details": "QA pass for AC-024 (postgres-driver query). E2E test at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + relay-postgres + relay-mongo). 53/53 assertions pass: SELECT specific columns from orders returns 5 rows with correct fields (id:int4, status:text, customer:text, total_cents:int4, created_at:timestamptz), rowCount=5, executionTimeMs>0, fields each have name+type from pg dataTypeID via OID_MAP. SELECT with explicit LIMIT 1 returns 1 row. Bad SQL error returns -32603 with driver error propagated. SELECT 1 AS one returns rows=[{one:1}], field one:int4. Code inspection confirms: transaction wrapped in BEGIN READ ONLY + SET statement_timeout=30s + LIMIT + COMMIT; dedicated client from pool released in finally; error triggers ROLLBACK best-effort before throw. No defects.",
+      "checks": {
+        "select_all_columns": "passed",
+        "fields_name_and_type_from_dataTypeID": "passed",
+        "rowCount_matches_rows_length": "passed",
+        "executionTimeMs_present_and_positive": "passed",
+        "explicit_limit_1": "passed",
+        "bad_sql_error_minus_32603": "passed",
+        "select_1_as_one": "passed",
+        "BEGIN_READ_ONLY_transaction": "passed",
+        "client_released_in_finally": "passed",
+        "error_ROLLBACK_best_effort": "passed"
+      }
     }
   ]
 }
