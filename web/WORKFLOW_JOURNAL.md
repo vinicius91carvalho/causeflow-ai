@@ -550,3 +550,19 @@ All acceptance criteria verified at real HTTP boundary (port 5173) — zero code
 2. **Step 2 (PASS):** `GET /pt-br/get-started` → 308 `Location: https://dashboard-staging.causeflow.ai/auth/sign-up`.
 3. **Step 3 (PASS):** `apps/website/next.config.mjs` contains `redirects()` entries keyed on `/get-started` and `/:locale(pt-br)/get-started`. DASHBOARD_URL logic correctly resolves to staging URL (`https://dashboard-staging.causeflow.ai`) in dev and to production URL (`https://dashboard.causeflow.ai`) when `NEXT_PUBLIC_DEPLOYMENT_STAGE=production`. Both entries append `/auth/sign-up`.
 4. **Zero-diff checkpoint:** No tracked files changed. Git status clean.
+
+---
+
+## QA Verification (WI-AC-014) — Independent re-verification on PORT=5173
+
+**Run by:** qa-agent on 2026-07-09
+
+**Verdict:** `implementation=true, qa=true`
+
+**Checks performed (all PASS):**
+
+1. **Step 1 (PASS):** `curl -I http://localhost:5173/get-started` → 308 Permanent Redirect, `Location: https://dashboard-staging.causeflow.ai/auth/sign-up`.
+2. **Step 2 (PASS):** `curl -I http://localhost:5173/pt-br/get-started` → 308 Permanent Redirect, `Location: https://dashboard-staging.causeflow.ai/auth/sign-up`.
+3. **Step 3 (PASS):** `apps/website/next.config.mjs` contains `redirects()` entries for `/get-started` (source: `/get-started`) and `/:locale(pt-br)/get-started`. Both use `permanent: true` (308) and append `/auth/sign-up` to `DASHBOARD_URL`. The DASHBOARD_URL logic resolves correctly: staging URL when dep stage is not 'production', production URL when it is.
+
+**Defects found:** None.
