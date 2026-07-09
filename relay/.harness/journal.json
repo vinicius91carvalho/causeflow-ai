@@ -89,8 +89,7 @@
         "valid_request_works_after_error": "passed",
         "non_error_throw_fallback": "passed"
       }
-    }
-  },
+    },
     {
       "id": "WI-AC-021",
       "qa": true,
