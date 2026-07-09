@@ -234,3 +234,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - RepairPlan: WI-AC-019 partially passes: middleware redirects correctly with `redirect_url` parameter, but the sign-in page ignores it. Defect confirmed - users are always sent to `/dashboard` regardless of the page they originally requested.; Edit `sign-in-page.tsx`: import `useSearchParams` from `next/navigation`; Read `redirect_url` from the search params with a fallback to `/dashboard` if absent; Pass the resolved URL to `router.replace(...)` instead of the hard-coded string; Also ensure `Suspense` boundary wraps the component (since `useSearchParams` requires it in Next.js App Router), or wrap the search-params reading in a client child component; Check `sign-up-page.tsx` for the same defect pattern (hard-coded redirect); Run `pnpm turbo check-types` and `pnpm turbo lint` after the fix; Run `pnpm turbo test` to ensure existing tests pass; Write or update a Playwright spec that signs in and verifies the post-login URL matches the original `redirect_url`
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-019-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-09T19:08:21.677Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
