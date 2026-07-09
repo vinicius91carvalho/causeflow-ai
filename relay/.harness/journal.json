@@ -127,14 +127,8 @@
       "qa": true,
       "implementation": true,
       "integration": true,
-      "timestamp": "2026-07-09T05:00:00Z",
-      "details": "Integrated Verification pass for AC-029 (postgres-sql-parser dangerous functions). validateQuery tested at compiled dist boundary. All 18 test cases pass: validateQuery('SELECT pg_sleep(10)') => {valid:false, reason:'Dangerous function detected: pg_sleep'}; validateQuery(\"SELECT * FROM pg_proc WHERE proname = 'pg_read_file'\") => {valid:false, reason:'Dangerous function detected: pg_read_file'}; and all 15 documented dangerous functions (pg_sleep, lo_import, lo_export, pg_read_file, pg_write_file, pg_read_binary_file, pg_ls_dir, pg_stat_file, pg_terminate_backend, pg_cancel_backend, pg_reload_conf, set_config, current_setting, dblink, dblink_exec) are correctly rejected when their name appears anywhere in the lowercased query text. Safe query 'SELECT 1' still returns {valid:true}. Project builds cleanly (npm run build -> dist/). tsc --noEmit passes. No code changes needed - implementation was already complete. No defects.",
-      "independent_qa_verification": {
-        "timestamp": "2026-07-09T06:00:00Z",
-        "qa": true,
-        "implementation": true,
-        "details": "Independent re-verification of AC-029. Ran validateQuery at compiled dist boundary with 18 test cases including both exact spec examples (SELECT pg_sleep(10), SELECT * FROM pg_proc WHERE proname='pg_read_file'), all 15 documented dangerous functions, substring edge cases (dblink/dblink_exec overlap, xyz_set_config), and safe queries (SELECT 1, SELECT * FROM orders). All pass: dangerous queries rejected with correct reason, safe queries accepted. npm run build -> dist/, tsc --noEmit clean. PgDriver.validate() correctly wires validateQuery for query/explain operations. No defects."
-      }
+      "timestamp": "2026-07-09T06:30:00Z",
+      "details": "Integrated Verification pass for AC-029 (postgres-sql-parser dangerous functions). validateQuery tested at compiled dist boundary. All 19 test cases pass: (1) validateQuery('SELECT pg_sleep(10)') => {valid:false, reason:'Dangerous function detected: pg_sleep'}; (2) validateQuery(\"SELECT * FROM pg_proc WHERE proname = 'pg_read_file'\") => {valid:false, reason:'Dangerous function detected: pg_read_file'}; (3) all 15 documented dangerous functions (pg_sleep, lo_import, lo_export, pg_read_file, pg_write_file, pg_read_binary_file, pg_ls_dir, pg_stat_file, pg_terminate_backend, pg_cancel_backend, pg_reload_conf, set_config, current_setting, dblink, dblink_exec) are correctly rejected when their name appears anywhere in the lowercased query text, with the exact function name in the reason; (4) uppercase PG_SLEEP is also caught via lowercased text check; (5) dblink_exec has priority over dblink for correct function name; (6) safe query 'SELECT 1' still returns {valid:true}. Project builds cleanly (npm run build -> dist/). tsc --noEmit passes. PgDriver.validate() correctly wires validateQuery for query/explain operations. No defects."
     }
   ]
 }
