@@ -118,3 +118,10 @@ oss-dev-jwt-secret-change-me for tenant 32996af2-19ba-4d58-ba76-1cb7da13d540.
 - `tests/unit/modules/triage/triage-incident-terminal.test.ts`
 - `harness-progress/triage.md`
 - `WORKFLOW_JOURNAL.md` (new)
+
+## 2026-07-09T18:30:50.858Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-017
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
