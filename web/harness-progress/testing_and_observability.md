@@ -905,3 +905,11 @@ Merge with strategy ort failed.
 - WorkItem: WI-AC-043
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T19:39:46.549Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-043
+- Defects: expected apps/dashboard/.env.staging exists with STAGING_TEST_USER and STAGING_TEST_PASSWORD for Playwright-only login; observed the file does not exist anywhere in the repository and has never been committed; evidence: ls -la apps/dashboard/.env.staging returns 'No such file or directory', find . -name '.env.staging' returns no results, git log --all -- apps/dashboard/.env.staging returns no commits; expected apps/dashboard/.gitignore does not exclude .env.staging (the file is intentionally tracked for Playwright); observed root .gitignore contains '.env' and '.env.*' patterns that exclude .env.staging with only '.env.example' exempted, and no apps/dashboard/.gitignore overrides this; evidence: root .gitignore lines 16-18: '.env', '.env.*', '!.env.example'
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/testing_and_observability/WI-AC-043-1-integration_qa.log
+- NextAction: Repair Plan
