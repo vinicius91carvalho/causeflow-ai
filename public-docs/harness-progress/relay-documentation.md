@@ -162,3 +162,10 @@
 - Outcome: coding agent declined the Work Item
 - Defects: project_specs.xml and required repo structure are present; relay/overview.mdx already contains the three required anti-pattern lines, but I could not re-run the live HTTP/browser boundary in this sandbox because shell localhost sockets are blocked and the Playwright MCP browser calls were cancelled. No files were changed, so I could not update the journal or commit.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T00:23:35.498Z — Explicit Resume
+
+- WorkItem: WI-AC-021
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Confirmed the relay boundary directly on localhost:5179: the page renders, and relay/overview.mdx already contains the required Not a proxy / Not a tunnel / Not a replication agent contract. Retry so the context can re-run with the verified evidence instead of the sandbox-only browser complaint.
+- NextAction: Coding Attempt 1
