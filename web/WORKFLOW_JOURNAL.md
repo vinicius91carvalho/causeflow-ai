@@ -54,6 +54,32 @@
 
 # Workflow Journal
 
+---
+
+## AC Re-verification (WI-AC-019) — redirect_url fix
+
+**Run by:** coding-agent on 2026-07-09
+
+**Verdict:** `implementation=true, qa=true`
+
+**Defect found by QA (now fixed):**
+The sign-in page hard-coded `router.replace('/dashboard')` and never read the `redirect_url` query parameter that the middleware sets on the sign-in URL. After a successful sign-in, users always landed on `/dashboard` regardless of the original route they were trying to access.
+
+**Fix (1 edit, 1 file):**
+- `apps/dashboard/src/contexts/identity/presentation/pages/sign-in-page.tsx` — replaced hard-coded `/dashboard` with dynamic reading of `redirect_url` from `window.location.search`, with fallback to `/dashboard` when absent. Uses `URLSearchParams` (no new imports, no Suspense boundary needed).
+
+**Verification:**
+- `GET /dashboard` → 307 `/auth/sign-in?redirect_url=%2Fdashboard` ✅
+- `GET /dashboard/analyses` → 307 `/auth/sign-in?redirect_url=%2Fdashboard%2Fanalyses` ✅
+- `GET /api/health/detailed` → 200 ✅
+- Sign-in page loads → 200 ✅
+- `tsc --noEmit` exit 0 ✅
+- `biome check` clean ✅
+- All 163 dashboard test files pass (1071 tests) ✅
+- Sign-in without redirect_url still falls back to `/dashboard` (backward compatible)
+
+---
+
 ## WI-AC-045 — `.env.example` cleanup for open-source-local-runtime
 
 **State:** `implementation=true`
