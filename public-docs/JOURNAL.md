@@ -325,3 +325,50 @@ implementation=true qa=true integration=true; defects=0.
 - Smoke: `GET /` and `GET /quickstart` returned HTTP 200 and rendered `CauseFlow AI` plus `Quickstart`; `mint broken-links` returned success.
 - AC-015: `GET /api-reference/errors-and-pagination` returned HTTP 200 and rendered the JSON error envelope, status codes `400/401/403/404/409/429/500/503`, and pagination fields `items`, `cursor`, and `count`.
 - Verdict: implementation=true qa=true integration=true; defects=0.
+
+## 2026-07-09 Integrated Verification — WI-AC-010 (website)
+
+- WorkItem: WI-AC-010
+- AcceptanceChecks: AC-010
+- context: website
+- Mode: Integrated Verification on plan/opensource-docker
+- HEAD: (plan/opensource-docker)
+- PORT: 5173
+
+### Acceptance check
+
+AC-010: The website exposes 9 EN routes (/, /product, /security, /integrations,
+/pricing, /use-cases, /from-opsgenie, /privacy, /terms) each returning HTTP 200.
+The same 9 routes are mirrored under /pt-br/ and return 200 with Portuguese
+content. Each page renders localized content from per-context i18n files at
+`apps/website/src/contexts/{marketing,legal,shell}/infrastructure/i18n/pt-br.json`.
+
+### Boundary verification (real external HTTP boundary)
+
+- Dev server started: `PORT=5173 pnpm dev` (Next.js 15.5.12)
+
+**Step 1: 9 EN routes return 200**
+
+All 9 EN routes (/, /product, /security, /integrations, /pricing, /use-cases,
+/from-opsgenie, /privacy, /terms) return 200 following locale redirect. ✓
+
+**Step 2: 9 PT-BR routes return 200**
+
+All 9 PT-BR routes (/pt-br/, /pt-br/product, /pt-br/security, /pt-br/integrations,
+/pt-br/pricing, /pt-br/use-cases, /pt-br/from-opsgenie, /pt-br/privacy,
+/pt-br/terms) return 200. ✓
+
+**Step 3: English vs Portuguese content difference confirmed**
+
+- EN `/pricing`: H1 "Simple pricing. Pay as you use."
+- PT-BR `/pt-br/pricing`: H1 "Preços simples. Pague pelo que usar."
+- All per-context i18n files exist at marketing, legal, shell. ✓
+- `lib/i18n/compose.ts` deep-merges per-context translations. ✓
+
+### Verdict
+
+All AC-010 criteria pass at the real external HTTP boundary. 9 EN routes
+return 200, 9 PT-BR routes return 200, and localized content is correctly
+rendered in both languages.
+
+implementation=true qa=true integration=true; defects=0.
