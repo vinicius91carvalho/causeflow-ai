@@ -1,3 +1,20 @@
+# WI-AC-025 QA audit
+
+Date: 2026-07-09
+Action: QA verification of AC-025 (RBAC role names restricted to `admin` and `member`)
+Result: PASS
+
+## 2026-07-09 — QA — WI-AC-025
+
+- AC-025 passed: `grep -rn 'roles\?:' --include='*.mdx'` found 68 matches across all 133 MDX files.
+- Every `**Required role:**` line uses only `admin`, `member`, or descriptive "Any authenticated user".
+- `integrations/cloud-providers.mdx` references GCP IAM (`roles/viewer`) — not CauseFlow RBAC context.
+- `api-reference/memory/chat-history.mdx` uses `role: string` in TypeScript code for chat messages — not RBAC context.
+- `security/rbac.mdx` defines only `Admin` and `Member` roles.
+- No other role tokens (`viewer`, `owner`, `editor`, `superadmin`, etc.) appear in RBAC context.
+- `./check-invariants.sh --quiet` RBAC check passed.
+- Verdict: qa=true implementation=true; defects=0.
+
 # WI-AC-010 QA audit
 
 Date: 2026-07-08
