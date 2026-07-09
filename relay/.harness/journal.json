@@ -261,6 +261,25 @@
         "tsc_noEmit": "passed",
         "ac038_cross_validation": "passed"
       }
+    },
+    {
+      "id": "WI-AC-027",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T08:30:00Z",
+      "details": "Integrated Verification pass for AC-027 (pg-driver healthCheck + close). Tested at real Postgres external boundary (relay-postgres:5432) via PgDriver class. healthCheck on working connection returns true (SELECT 1). healthCheck on unreachable host returns false (does NOT throw). close resolves without error on working and failed drivers. index.ts shutdown handler calls driver.close with error swallowing. E2E health_check RPC via WebSocket confirms both drivers report healthy:true. Source confirms healthCheck uses try/catch with no re-throw; close awaits pool.end. 10/10 assertions pass. No code changes to tracked files.",
+      "checks": {
+        "healthCheck_working_returns_true": "passed",
+        "healthCheck_unreachable_returns_false_no_throw": "passed",
+        "close_resolves_without_error": "passed",
+        "close_on_failed_driver_no_throw": "passed",
+        "shutdown_handler_calls_driver_close": "passed",
+        "shutdown_handler_swallows_close_error": "passed",
+        "health_check_rpc_via_ws": "passed",
+        "npm_run_build": "passed",
+        "tsc_noEmit": "passed"
+      }
     }
   ]
 }
