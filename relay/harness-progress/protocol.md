@@ -1371,3 +1371,14 @@ fatal: Unable to write index.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T20:17:00Z — Integrated Verification Pass
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- AcceptanceChecks: AC-021
+- Outcome: Integrated Verification pass at real WebSocket boundary
+- Details: Verified on running docker-compose stack (relay + control-plane-stub + postgres + mongo). Sent JSON-RPC 2.0 execute request through stub to relay via port 5191.
+  - Test 1: `{ resourceId: 'order-pg', operation: 'query', params: { sql: 'SELECT id, status FROM orders' } }` returns result shape `{ rows: Array(5), rowCount: 5, fields: [{name:'id',type:'int4'},{name:'status',type:'text'}], executionTimeMs: 7, masked: false, maskedFieldCount: 0 }`. All 11 contract checks pass: jsonrpc='2.0', id echoed, rows array, rowCount=5, fields contain id+status, executionTimeMs>=0, masked boolean, maskedFieldCount integer, masked===(maskedFieldCount>0).
+  - Test 2: PII masking verified with `SELECT '123.456.789-00' AS cpf, 'plain text' AS plain` → CPF masked to '***.***.***-**', masked=true, maskedFieldCount=1, non-PII 'plain text' unchanged.
+- Source: `test-ac021.mjs` ran from host against port 5191 (control-plane-stub mapped port). Relay on gen/relay-protocol branch (zero-diff checkpoint).
