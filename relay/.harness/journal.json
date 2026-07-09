@@ -535,6 +535,25 @@
         "rows_are_objects": "passed",
         "response_shape_valid": "passed"
       }
+    },
+    {
+      "id": "WI-AC-033",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T19:00:00Z",
+      "details": "Re-verification pass for AC-033 (mongo-driver query with filter/sql/fallback). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Re-seeded test_ac033 collection with 8 documents. Sent JSON-RPC 2.0 execute requests with operation:query against resource order-mongo through stub to relay. All 5 scenarios verified: (A) filter={status:active} returns 4 rows; (B) sql='{status:inactive}' returns 3 rows when filter is absent; (C) no filter and no sql returns all 8 rows (fallback to {}); (D) limit=3 returns 3 rows, limit=0 returns 0 rows, limit=2000 rejected by policy engine; (E) both filter and sql present, filter takes precedence. Result rows are Record<string, unknown>[]. All assertions pass. Zero code changes needed, worktree clean.",
+      "checks": {
+        "filter_direct": "passed",
+        "sql_as_json_filter": "passed",
+        "fallback_to_empty": "passed",
+        "limit_clamping_3": "passed",
+        "limit_zero": "passed",
+        "policy_rejects_over_limit": "passed",
+        "filter_takes_precedence": "passed",
+        "rows_are_objects": "passed",
+        "response_shape_valid": "passed"
+      }
     }
   ]
 }
