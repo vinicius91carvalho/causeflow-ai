@@ -285,6 +285,24 @@
         "audit_log_success": "passed",
         "audit_log_denied": "passed"
       }
+    },
+    {
+      "id": "WI-AC-031",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T12:50:00Z",
+      "details": "Integrated Verification pass for AC-031 (mongo-driver list_tables). Tested at real WebSocket boundary via running docker-compose stack (relay + control-plane-stub + postgres + mongo). Seeded 3 test collections (ac031_verify_*, ac031_products, ac031_users) in relay-mongo. Connected to control-plane-stub, sent JSON-RPC 2.0 execute request with operation:'list_tables', resourceId:'order-mongo' through the stub to the relay. Response: rows=[{name:'...',type:'collection'},{name:'...',type:'collection'},{name:'...',type:'collection'}], rowCount=3, executionTimeMs=6. All 7 shape checks pass: rows is array, every row has {name:string,type:string}, rowCount matches rows.length, executionTimeMs >=0, masked boolean present, maskedFieldCount present, masked consistent with maskedFieldCount>0. Driver source (mongo-driver.ts:49-52) confirms db.listCollections().toArray() and maps to {name,type}[]. No defects.",
+      "checks": {
+        "rows_is_array": "passed",
+        "all_rows_have_name_type": "passed",
+        "rowCount_matches_rows_length": "passed",
+        "executionTimeMs_valid": "passed",
+        "masked_boolean_present": "passed",
+        "maskedFieldCount_present": "passed",
+        "masked_consistency": "passed",
+        "driver_source_confirms_contract": "passed"
+      }
     }
   ]
 }
