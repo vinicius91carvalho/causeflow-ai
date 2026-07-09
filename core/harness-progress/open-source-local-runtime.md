@@ -147,3 +147,27 @@ Here is a summary of what was verified:
 - WorkItem: WI-AC-040
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T17:48:44.606Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-040
+- Defects: ## Summary
+
+**AC-040 Integrated Verification — PASS** ✅
+
+### Verified Criteria:
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | Postgres is the only persistence layer (OSS mode) | ✅ OSS bootstrap uses `Pg*Repository` implementations, migrations create all tables at startup, health endpoint shows `postgres: ok` without DynamoDB |
+| 2 | `psql` lists **31 tables** in `causeflow` schema | ✅ All 31 entity tables created (api_keys, approvals, audit_entries, ... widget_sessions) |
+| 3 | `POST /api/v1/incidents` with auth writes row visible in Postgres | ✅ Created incident via API, verified with `SELECT * FROM causeflow.incidents WHERE tenant_id = $1` |
+| 4 | No `DynamoDBClient`/`DocumentClient` instantiation at boot | ✅ Zero DynamoDB references in boot log; `getDynamoClient()` returns stub plain object in OSS mode; `ensureTable()` skipped |
+
+### Verdict:
+- **integration**: `true`
+- **implementation**: `true`
+- **defects**: `[]`
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-040-2-integration_qa.log
+- NextAction: Repair Plan

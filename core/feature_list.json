@@ -863,10 +863,10 @@
     "acceptance_checks": ["AC-040"],
     "depends_on": ["AC-039"],
     "verify_first": false,
-    "implementation": true,
-    "qa": true,
+    "implementation": false,
+    "qa": false,
     "integration": false,
-    "retries": 1,
+    "retries": 2,
     "status": "implemented"
   },
   {
