@@ -396,6 +396,32 @@
         "executionTimeMs_valid": "passed",
         "masked_and_maskedFieldCount_present": "passed"
       }
+    },
+    {
+      "id": "WI-AC-032",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T12:49:00Z",
+      "details": "Independent QA verification pass for AC-032 (mongo-driver describe_table). Full black-box test at real WebSocket boundary through docker-compose stack (relay + control-plane-stub on port 5191 + relay-mongo + relay-postgres). Orders collection reseeded with 2 documents covering varied types (string, number, object, array, null, Date) + 3 named indexes. Sent JSON-RPC 2.0 execute: operation=describe_table, params={tableName:orders}, resourceId=order-mongo. Response verified: jsonrpc=2.0, no error, rows array with 7 schema rows + 4 index rows = rowCount=11. Schema inference correct: _id=string, status=string, amount=number, customer=object, tags=object, notes=[object,string], createdAt=object. All index rows tagged _type=index with name+key (_id_, idx_status, idx_amount, customer_1_createdAt_-1). Compound index on customer+createdAt found. executionTimeMs=2ms, masked=false, maskedFieldCount=0. All 21 assertions passed. No defects found.",
+      "checks": {
+        "jsonrpc_2_0": "passed",
+        "no_error_in_response": "passed",
+        "rows_is_array": "passed",
+        "rowCount_matches": "passed",
+        "schema_rows_have_field_types": "passed",
+        "all_expected_fields_present": "passed",
+        "type_inference_correct": "passed",
+        "notes_shows_both_object_and_string": "passed",
+        "tags_field_present": "passed",
+        "index_rows_tagged_with_type_index": "passed",
+        "index_rows_have_name_and_key": "passed",
+        "named_indexes_found": "passed",
+        "compound_index_found": "passed",
+        "executionTimeMs_valid": "passed",
+        "masked_and_maskedFieldCount_present": "passed",
+        "masked_consistency": "passed"
+      }
     }
   ]
 }
