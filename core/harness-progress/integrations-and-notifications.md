@@ -273,3 +273,33 @@ Use /login to log into a provider via OAuth or API key. See:
   - **Critical: SlackNotificationSubscriber does not decrypt encrypted accessToken** — The subscriber (src/shared/application/subscribers/slack-notification.subscriber.ts, lines 69, 135, 205) passes `slackConfig.accessToken` directly to `new WebClient()`, but ConnectSlackUseCase now stores the token as `JSON.stringify(encryptedPayload)` (KMS envelope encryption). The WebClient receives an encrypted JSON string instead of a valid Slack token, causing all automated notifications (incident created, investigation started/completed) to fail silently. Tests use plaintext `'xoxb-test-token'` stub and don't catch this. Fix: inject TokenEncryption into SlackNotificationSubscriber and decrypt before use.
 - Evidence: source review confirms subscriber uses raw accessToken; tests mock with plaintext token; e45c27b fix committed encryption without updating subscriber
 - NextAction: Repair Plan
+
+## 2026-07-09T12:56:49.062Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-030
+- DefectReport: QA complete for WI-AC-030. Here's a summary of my independent verification:
+
+**What I tested:**
+1. **HTTP API verification** against the live API at `:3099` — all AC-030 endpoints work correctly:
+   - `POST /install` (authed) → 200 + authUrl + state ✅
+   - `POST /events url_verification` → 200 + challenge ✅
+   - `POST /events` valid Slack signing secret → 200 `{ok:true}` ✅
+   - `POST /events` tampered body → 401 ✅
+   - `POST /events` stale timestamp → 401 ✅
+   - `POST /events` missing headers → 401 ✅
+   - `GET /config` → 200 `{connected:false}` ✅
+
+2. **Code review** — confirmed:
+   - Bot token encrypted via `KmsTokenEncryption` in `ConnectSlackUseCase` ✅
+   - Token decryption in `DisconnectSlackUseCase` and `replyToEvent()` ✅
+   - Event reply pipeline calls `chat.postMessage` with decrypted token ✅
+   - 21/21 unit tests pass ✅
+
+**Critical defect found:**
+The `SlackNotificationSubscriber` was never updated to handle the encrypted token format. It passes `slackConfig.accessToken` (now a KMS-encrypted JSON string like `{"ciphertext":"...","encryptedDek":"..."}`) directly to `new WebClient()` at 3 call sites (lines 69, 135, 205). This causes all automated Slack notifications (incident created, investigation started/completed) to fail silently. Tests use `accessToken: 'xoxb-test-token'` (plaintext) so they don't catch it.
+
+**Verdict:** `implementation=false, qa=false` due to this regression defect.
+- RepairPlan: QA defect confirmed: `SlackNotificationSubscriber` passes the raw encrypted token (`JSON.stringify({ciphertext, encryptedDek, iv, tag})`) directly to `new WebClient()` at 3 call sites (lines 69, 135, 205) without decrypting it first. This breaks all automated Slack notifications (incident created, investigation started/completed) in production. Tests pass because they use `accessToken: 'xoxb-test-token'` (plaintext), never exercising the encrypted path.; Inject `TokenEncryption` port into `SlackNotificationSubscriber` constructor (adds `tokenEncryption: TokenEncryption` parameter).; Add a private `decryptToken(raw: string): Promise<string>` method that `JSON.parse`s and decrypts the payload, falling back to plaintext if parsing fails (matching the pattern in `DisconnectSlackUseCase`).; Replace `new WebClient(slackConfig.accessToken)` with `new WebClient(await this.decryptToken(slackConfig.accessToken))` at lines 69, 135, and 205 in `slack-notification.subscriber.ts`.; Update `bootstrap.ts` line ~931 to pass `kmsTokenEncryption` (or the wired `TokenEncryption` instance) to the `SlackNotificationSubscriber` constructor.; Update `slack-notification.subscriber.test.ts` to (a) mock a `TokenEncryption` with a `decrypt` that returns `'xoxb-decrypted-token'`, (b) update `makeSlackConfig()` to return `accessToken: JSON.stringify({ciphertext:'...', encryptedDek:'...', iv:'...', tag:'...'})` (encrypted payload format), and (c) add a test that verifies `decrypt` is called with the parsed payload before `WebClient` is constructed.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/integrations-and-notifications/WI-AC-030-2-qa.log
+- NextAction: Coding Attempt 3
