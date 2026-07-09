@@ -401,3 +401,10 @@ No defects found. `git diff` is empty (throwaway stub removed before commit).
   - `src/drivers/postgres/pg-driver.ts` patched (explain case: `result.rowCount ?? 0` → `result.rows.length`).
   - feature_list.json updated: implementation=true, qa=true, integration=true.
 - NextAction: completed
+
+## 2026-07-09T12:10:58.591Z — Resumed
+
+- WorkItem: WI-AC-026
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
