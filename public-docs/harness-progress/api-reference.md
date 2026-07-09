@@ -1252,3 +1252,10 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Scaffold: `project_specs.xml` read; required top-level files/directories present.
 - Evidence: 133 `.mdx` files total; 84 under `api-reference/`; exact AC grep `grep -rE 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx' .` exited 1 with no output.
 - Verdict: implementation=true; qa=true; defects=none.
+
+## 2026-07-09T12:45:31.658Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
