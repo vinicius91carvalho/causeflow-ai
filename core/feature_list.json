@@ -1041,10 +1041,10 @@
     "acceptance_checks": ["AC-051"],
     "depends_on": ["AC-039"],
     "verify_first": false,
-    "implementation": true,
+    "implementation": false,
     "qa": false,
     "integration": false,
-    "retries": 0,
+    "retries": 1,
     "status": "implemented"
   },
   {
