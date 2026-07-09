@@ -944,3 +944,26 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - Routes mounted at /v1/integrations/composio/tools and /v1/integrations/composio/triggers ✅
 - Trigger webhook pipeline feeds into triage queue via ingestAlert ✅
 - Git working tree: clean (zero diff)
+
+## 2026-07-09T21:05:00.000Z — Re-verified AC-031 (boundary tests pass, zero-diff)
+
+- WorkItem: WI-AC-031
+- Implementation: true
+- Changes: none (zero-diff re-verification, working tree clean)
+- Verification results (against live API at :5185):
+  - GET /v1/integrations/composio/tools (authed) returns 200 with tools list ✅
+  - GET /v1/integrations/composio/tools (no auth) returns 401 ✅
+  - POST /v1/integrations/composio/triggers (missing fields) returns 400 ✅
+  - POST /v1/integrations/composio/triggers (valid sentry) returns 201 and creates TriggerEntity ✅
+  - POST /v1/integrations/composio/triggers (valid pagerduty) returns 201 and creates TriggerEntity ✅
+  - POST /v1/integrations/composio/triggers (duplicate) returns 409 ✅
+  - POST /v1/integrations/composio/triggers (no auth) returns 401 ✅
+  - POST /webhooks/composio (invalid signature) returns invalid_signature ✅
+  - POST /webhooks/composio (non-trigger event type) returns ignored_event_type ✅
+  - GET /v1/triggers lists 2 triggers (sentry + pagerduty) ✅
+  - GET /v1/triggers/available returns trigger catalog ✅
+  - GET /v1/integrations/catalog returns provider catalog ✅
+  - TriggerEntity persisted in DynamoDB (confirmed via scan) ✅
+  - Webhook pipeline feeds into triage queue via ingestAlert (code path wired) ✅
+- Unit tests: all pass ✅
+- Git working tree: clean (zero diff)
