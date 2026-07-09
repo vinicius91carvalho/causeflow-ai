@@ -222,3 +222,44 @@ and the trace output will include audit chain info.
 - ✅ `pnpm typecheck` — clean
 - ✅ `pnpm lint` — no new lint errors (pre-existing 141 errors unchanged)
 - ✅ Boundary check: triage HTTP flow still works; audit entries created
+
+## 2026-07-09 — Independent QA (real Langfuse boundary)
+
+**Result: implementation=false — defect found in trace nesting.**
+
+Exercised AC-018 against a LIVE Langfuse instance at http://localhost:3001.
+Started the API on PORT=5170 with LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY
+set to credentials from the local Langfuse project (both keys configured).
+Triggered a full triage flow via POST /v1/incidents → automatic EventBus
+pipeline → triage executed with LLM fallback.
+
+### Langfuse API verification (live)
+
+Verified via GET /api/public/traces on Langfuse (port 3001, Basic auth with
+pk-lf-054e9a5c-0a92-448c-9006-1ad01ed1ec8f:sk-lf-01942dd9-bf62-4a84-b4db-61ffd758db5e).
+
+1. ✅ **Trace exists** — `triage.incident` trace found (id=a008d709-646a-4a0d-bff0-043f8b0cd7a4)
+   for tenant=97351ce0-1de7-4bbe-ba2d-d2a9f69f21a4, incident=30f45a2f-7b67-4f8e-b210-1e3b6900f7da
+2. ✅ **Tagged with tenant ID and incident ID** — metadata on the trace
+   contains `{"tenantId":"97351ce0-...", "incidentId":"30f45a2f-..."}`
+3. ✅ **Output has audit chain info** — trace observation output includes
+   `{"auditChainUpdated": true}`
+4. ❌ **DEFECT: prompt/completion/tokens/cost are NOT on the same trace**
+   — The triage.incident trace has exactly 1 observation (its own SPAN) with
+   no LLM input/output/usage/model data. The LLM prompt DOES exist in Langfuse
+   but it is on a SEPARATE root trace (`llm.complete`, id=39ee2d00-ff31-4a23-
+   88ec-e9b7ec6696f6) with the same tenant/incident metadata. The
+   LangfuseTracer.startSpan() always calls `this.client.trace()`, creating a
+   new root trace for every span — child spans are never nested under the
+   parent trace.
+
+### Root cause
+
+`LangfuseTracer.startSpan()` in `src/shared/infra/observability/langfuse-tracer.ts`
+creates a new Langfuse trace (`this.client.trace()`) on every invocation,
+regardless of context. The triage use case calls `startSpan('triage.incident', ...)`
+to create one trace, and then via `ObservedAnthropicClient` calls
+`startSpan('llm.complete', ..., 'generation')` which creates a second,
+independent root trace. The generation trace is never parented under the
+triage trace. AC-018 requires a SINGLE trace containing both the triage
+metadata and the LLM prompt/completion/tokens/cost.
