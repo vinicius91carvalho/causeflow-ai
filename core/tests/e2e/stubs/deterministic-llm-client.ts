@@ -2,14 +2,18 @@ import type { LLMClient, CompletionParams, CompletionResult } from '../../../src
 
 export interface ScenarioResponse {
   triage?: {
-    severity: string;
+    priority: string;
     suggestedAgents: string[];
     summary: string;
+    investigationMode?: string;
+    confidence?: number;
+    category?: string;
   };
   synthesis?: {
-    rootCause: string;
-    recommendedActions: Array<{ action: string; params: Record<string, unknown> }>;
-    findings: string[];
+    potentialRootCause: string;
+    recommendedActions: Array<{ action: string; label?: string; description?: string; rationale?: string; riskLevel?: string; estimatedDuration?: string; automated?: boolean; params: Record<string, unknown> }>;
+    findings: Array<{ text: string; evidenceIds: string[] }>;
+    customerExplanation?: { summary: string; impact: string; resolution: string; eta?: string };
   };
   extraction?: {
     rootCause: { description: string; category: string };
@@ -18,23 +22,31 @@ export interface ScenarioResponse {
   };
 }
 
-const DEFAULT_TRIAGE = {
-  severity: 'critical',
+const DEFAULT_TRIAGE: Record<string, unknown> = {
+  priority: 'critical',
   suggestedAgents: ['log_analyst', 'metric_analyst', 'infra_inspector'],
   summary: 'Service experiencing critical issues requiring immediate investigation',
+  investigationMode: 'orchestrator',
+  confidence: 0.95,
+  category: 'performance',
 };
 
-const DEFAULT_SYNTHESIS = {
-  rootCause: 'OOM memory exceeded — container killed by kernel OOM killer',
+const DEFAULT_SYNTHESIS: Record<string, unknown> = {
+  potentialRootCause: 'OOM memory exceeded — container killed by kernel OOM killer',
   recommendedActions: [
-    { action: 'restart_service', params: { service: 'payment-service', cluster: 'production' } },
-    { action: 'scale_service', params: { service: 'payment-service', cluster: 'production', desiredCount: 3 } },
+    { action: 'restart_service', label: 'Restart Payment Service', description: 'Restart the payment-service ECS service', rationale: 'Container was OOM-killed and needs restart', riskLevel: 'low', estimatedDuration: '2 minutes', automated: true, params: { service: 'payment-service', cluster: 'production' } },
+    { action: 'scale_service', label: 'Scale Payment Service', description: 'Increase desired count for payment-service', rationale: 'Scaling provides redundancy after OOM incident', riskLevel: 'low', estimatedDuration: '1 minute', automated: true, params: { service: 'payment-service', cluster: 'production', desiredCount: 3 } },
   ],
   findings: [
-    'Memory utilization reached 95% before OOM kill',
-    'Container was restarted by ECS task manager',
-    'GC pause times exceeded 5 seconds before crash',
+    { text: 'Memory utilization reached 95% before OOM kill', evidenceIds: ['ev-1'] },
+    { text: 'Container was restarted by ECS task manager', evidenceIds: ['ev-2'] },
+    { text: 'GC pause times exceeded 5 seconds before crash', evidenceIds: ['ev-3'] },
   ],
+  customerExplanation: {
+    summary: 'Memory leak caused OOM kill',
+    impact: 'Payment service was unavailable for 2 minutes',
+    resolution: 'Service was restarted and memory limits increased',
+  },
 };
 
 const DEFAULT_EXTRACTION = {

@@ -1041,10 +1041,11 @@
     "acceptance_checks": ["AC-051"],
     "depends_on": ["AC-039"],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
+    "implementation": true,
+    "qa": true,
     "integration": false,
-    "retries": 0
+    "retries": 1,
+    "status": "implemented"
   },
   {
     "id": "WI-AC-052",

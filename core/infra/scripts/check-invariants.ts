@@ -2,9 +2,9 @@
 /**
  * check-invariants.ts — machine-verifiable contract checks for CauseFlow.
  *
- * Checks invariants I1–I11 as defined in INVARIANTS.md.
+ * Checks invariants I1–I12 as defined in INVARIANTS.md.
  * I5 is skipped here (verified by unit tests).
- * I12 (inconclusive outcome) is verified by integration test, not here.
+ * I13 (inconclusive outcome) is verified by integration test, not here.
  *
  * Exit codes:
  *   0 — all invariants pass
@@ -433,6 +433,65 @@ function checkI11(): void {
 }
 
 // ---------------------------------------------------------------------------
+// I12 — No forbidden external imports in domain/ layers
+// ---------------------------------------------------------------------------
+// The `domain/` layer must stay pure — zero imports of `pg`, `bullmq`,
+// `stripe`, `@clerk/*`, or `@aws-sdk/*`. This preserves the Clean
+// Architecture dependency rule (Infra → Application → Domain).
+// AC-051 / open-source-local-runtime.
+//
+// NOTE: Patterns match only actual import statements (lines starting with
+// `import` or `from`) to avoid false-positives from comments, variable
+// names, or string literals. This is more precise than a file-wide word
+// boundary match.
+// ---------------------------------------------------------------------------
+const FORBIDDEN_DOMAIN_IMPORT_RE = [
+  /^import[^'"`]*['"][^'"`]*\bpg\b[^'"`]*['"]/m,
+  /^import[^'"`]*['"][^'"`]*\bbullmq\b[^'"`]*['"]/m,
+  /^import[^'"`]*['"][^'"`]*\bstripe\b[^'"`]*['"]/m,
+  /^import[^'"`]*['"][^'"`]*@clerk\/[^'"`]*['"]/m,
+  /^import[^'"`]*['"][^'"`]*@aws-sdk\/[^'"`]*['"]/m,
+];
+
+function checkI12(): void {
+  const id = 'I12';
+  const description = 'domain/ has zero pg, bullmq, stripe, @clerk/*, @aws-sdk/* imports';
+  const violations: string[] = [];
+
+  const domainDirs = [
+    join(ROOT, 'src', 'shared', 'domain'),
+    ...readdirSync(MODULES_DIR, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => join(MODULES_DIR, e.name, 'domain')),
+  ];
+
+  for (const dir of domainDirs) {
+    let files: string[];
+    try {
+      files = walkTsFiles(dir);
+    } catch {
+      continue; // dir may not exist (some modules have no domain/ yet)
+    }
+    for (const file of files) {
+      const content = readFileSync(file, 'utf8');
+      const rel = relative(ROOT, file);
+      for (const pattern of FORBIDDEN_DOMAIN_IMPORT_RE) {
+        const match = content.match(pattern);
+        if (match) {
+          violations.push(rel + ' — matches /' + pattern.source + '/ ("' + match[0].slice(0, 80) + '")');
+        }
+      }
+    }
+  }
+
+  if (violations.length === 0) {
+    pass(id, description);
+  } else {
+    fail(id, description, violations.join('\n        '));
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Run all checks
 // ---------------------------------------------------------------------------
 console.log('Running invariant checks...\n');
@@ -448,6 +507,7 @@ checkI8();
 checkI9();
 checkI10();
 checkI11();
+checkI12();
 
 const failed = results.filter((r) => !r.passed);
 const passed = results.filter((r) => r.passed);

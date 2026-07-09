@@ -1,63 +1,58 @@
-import { DynamoDBClient, DescribeTableCommand } from '@aws-sdk/client-dynamodb';
-import { SQSClient, GetQueueUrlCommand } from '@aws-sdk/client-sqs';
+/**
+ * Integration test setup for the open-source local runtime (AC-050).
+ *
+ * Connects to `causeflow-postgres` and `redis` — the same services that
+ * `docker compose up -d` provides. No ministack, no DynamoDB, no SQS.
+ *
+ * Exports helpers for Postgres queries and Redis/BullMQ operations.
+ */
+import { Pool } from 'pg';
 import Redis from 'ioredis';
 
-const DYNAMODB_ENDPOINT = process.env['DYNAMODB_ENDPOINT'] ?? 'http://localhost:4566';
-const SQS_ENDPOINT = process.env['SQS_ENDPOINT'] ?? 'http://localhost:4566';
-const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
-const AWS_REGION = process.env['AWS_REGION'] ?? 'us-east-1';
-const TABLE_NAME = process.env['DYNAMODB_TABLE_NAME'] ?? 'causeflow';
+const DATABASE_URL = process.env['DATABASE_URL'] ?? 'postgresql://causeflow:causeflow@localhost:5439/causeflow';
+const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6380';
 
-export function getDynamoClient(): DynamoDBClient {
-  return new DynamoDBClient({
-    region: AWS_REGION,
-    endpoint: DYNAMODB_ENDPOINT,
-    credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
-  });
-}
+let pgPool: Pool | null = null;
+let redisClient: Redis | null = null;
 
-export function getSQSClient(): SQSClient {
-  return new SQSClient({
-    region: AWS_REGION,
-    endpoint: SQS_ENDPOINT,
-    credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
-  });
+export function getPgPool(): Pool {
+  if (!pgPool) {
+    pgPool = new Pool({
+      connectionString: DATABASE_URL,
+      max: 5,
+      idleTimeoutMillis: 5000,
+      connectionTimeoutMillis: 5000,
+    });
+  }
+  return pgPool;
 }
 
 export function getRedisClient(): Redis {
-  return new Redis(REDIS_URL, {
-    maxRetriesPerRequest: 1,
-    lazyConnect: true,
-    connectTimeout: 5000,
-  });
+  if (!redisClient) {
+    redisClient = new Redis(REDIS_URL, {
+      maxRetriesPerRequest: 1,
+      lazyConnect: true,
+      connectTimeout: 5000,
+    });
+  }
+  return redisClient;
 }
 
-export async function waitForDynamoDB(client: DynamoDBClient, retries = 10): Promise<void> {
+export async function waitForPostgres(retries = 15): Promise<void> {
+  const pool = getPgPool();
   for (let i = 0; i < retries; i++) {
     try {
-      await client.send(new DescribeTableCommand({ TableName: TABLE_NAME }));
+      await pool.query('SELECT 1');
       return;
     } catch {
-      if (i === retries - 1) throw new Error(`DynamoDB table ${TABLE_NAME} not ready after ${retries} retries`);
+      if (i === retries - 1) throw new Error(`Postgres not ready after ${retries} retries`);
       await new Promise((r) => setTimeout(r, 1000));
     }
   }
 }
 
-export async function waitForSQS(client: SQSClient, queueName: string, retries = 10): Promise<string> {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const result = await client.send(new GetQueueUrlCommand({ QueueName: queueName }));
-      return result.QueueUrl!;
-    } catch {
-      if (i === retries - 1) throw new Error(`SQS queue ${queueName} not ready after ${retries} retries`);
-      await new Promise((r) => setTimeout(r, 1000));
-    }
-  }
-  throw new Error('Unreachable');
-}
-
-export async function waitForRedis(redis: Redis, retries = 10): Promise<void> {
+export async function waitForRedis(retries = 15): Promise<void> {
+  const redis = getRedisClient();
   await redis.connect();
   for (let i = 0; i < retries; i++) {
     try {
@@ -70,4 +65,15 @@ export async function waitForRedis(redis: Redis, retries = 10): Promise<void> {
   }
 }
 
-export { TABLE_NAME, AWS_REGION, DYNAMODB_ENDPOINT, SQS_ENDPOINT, REDIS_URL };
+export async function closeConnections(): Promise<void> {
+  if (pgPool) {
+    await pgPool.end();
+    pgPool = null;
+  }
+  if (redisClient) {
+    await redisClient.quit().catch(() => {});
+    redisClient = null;
+  }
+}
+
+export { DATABASE_URL, REDIS_URL };

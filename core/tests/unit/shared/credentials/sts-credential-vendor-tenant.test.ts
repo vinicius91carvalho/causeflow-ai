@@ -1,9 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { STSClient } from '@aws-sdk/client-sts';
 import { STSCredentialVendor } from '../../../../src/shared/infra/credentials/sts-credential-vendor.js';
 import type { ITenantRepository } from '../../../../src/modules/tenant/domain/tenant.repository.js';
 import type { Tenant } from '../../../../src/modules/tenant/domain/tenant.entity.js';
 import { tenantId } from '../../../../src/shared/domain/value-objects.js';
+
+// Local type to avoid importing @aws-sdk/client-sts (AC-050)
+interface MockSTSClient {
+  send: ReturnType<typeof vi.fn>;
+}
 
 vi.mock('../../../../src/shared/config/index.js', () => ({
   config: {
@@ -59,7 +63,7 @@ const STS_RESPONSE = {
 
 describe('STSCredentialVendor (tenant-aware)', () => {
   const mockSend = vi.fn();
-  const mockSTSClient = { send: mockSend } as unknown as STSClient;
+  const mockSTSClient: MockSTSClient = { send: mockSend };
   let tenantRepo: ITenantRepository;
 
   beforeEach(() => {

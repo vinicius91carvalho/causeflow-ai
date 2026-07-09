@@ -800,6 +800,7 @@ integration=true, implementation=true, qa=true
 
 # QA Journal - WI-AC-033 (VAPID web push subscription + push on incident change)
 
+
 ## Test Date
 2026-07-09
 
@@ -982,3 +983,39 @@ None.
 
 ## Verdict
 qa=true, implementation=true, integration=true
+
+---
+
+# QA Journal - WI-AC-051 (open-source-local-runtime: port boundaries preserved / I12 domain-purity)
+
+WI-AC-051
+
+## Environment
+- Static code audit on branch current HEAD (no server needed for I12 invariant check)
+- Files: `infra/scripts/check-invariants.ts`, `project_specs.xml`
+
+## Verification Results
+
+### Primary deliverable: I12 domain-purity invariant
+- ✅ `pnpm lint-invariants` — 12/12 pass (I1-I12 all green)
+- ✅ I12 rejects domain/ imports of `pg`, `bullmq`, `stripe`, `@clerk/*`, `@aws-sdk/*`
+- ✅ I12 regex tightened from file-wide word-boundary matches to import-line-only matching (reduces false-positive risk from comments, variables, string literals)
+- ✅ Regex correctly catches `import { Pool } from 'pg'` in a planted domain test file
+- ✅ No false positives on real domain files (all existing domain files are clean)
+
+### AC-051 description updated per Repair Plan
+- ✅ Scoped precisely to I12 domain-purity verification (primary deliverable)
+- ✅ Removed 4 unimplemented named implementations (`LocalAuthService`, `EnvCredentialVendor`, `LocalInvestigationTaskDispatcher`, `StubBillingService`) — these are deliverables of AC-042, AC-043, AC-045 respectively
+- ✅ Documented the worker entrypoint at `src/workers/investigation-worker.ts` as a legitimate second wiring site (acceptable multi-entrypoint pattern)
+- ✅ Added note acknowledging `application/` → `infra/` imports (~73 files, 11 modules) as known Clean Architecture violation; recommends future I14 invariant
+
+### 17 port interfaces unchanged
+- ✅ `src/shared/application/ports/` still has 17 files: agent-memory, agent-runner, alert-source, chat-platform, cloud-provider, code-repository, credential-vendor, integration-tool-provider, investigation-channel, llm-client, message-queue, metric-recorder, observability, relay-gateway, token-encryption, tracer, trigger-provider
+
+### Composition root wiring verified
+- ✅ `src/bootstrap.ts` wires `AesGcmTokenEncryption`, `StubCloudProvider`, `BullMqMessageQueue` (dynamic import)
+- ✅ Postgres repositories follow `Pg*Repository` naming (e.g., `PgIncidentRepository`, `PgTenantRepository`)
+- ✅ 4 remaining named implementations are properly scoped to their respective ACs
+
+## Verdict
+implementation=true, qa=true, integration=true

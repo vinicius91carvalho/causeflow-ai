@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Message } from '@aws-sdk/client-sqs';
+
+// Local SQS Message type to avoid importing @aws-sdk/client-sqs (AC-050)
+interface Message {
+  MessageId?: string;
+  Body?: string;
+  ReceiptHandle?: string;
+  MessageAttributes?: Record<string, { StringValue?: string }>;
+}
 
 // ---------------------------------------------------------------------------
 // Mock @opentelemetry/api — context.with must execute the callback

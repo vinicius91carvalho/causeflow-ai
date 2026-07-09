@@ -75,7 +75,13 @@ Machine-verifiable contracts enforced in CI via `pnpm lint-invariants`.
 - **Verify:** `infra/scripts/check-invariants.ts` walks `src/modules/**`*.ts` and fails on any non-type-only import whose target resolves into another module's `application/` (both `@modules/<mod>/application/...` and relative `../../<mod>/application/...` forms). Run: `pnpm lint-invariants`.
 - **Fix:** replace the direct import with an EventBus event/subscription, or inject the dependency through the composition root; if only the type is needed, use `import type ...`.
 
-## I12 — Inconclusive outcome is persisted and emitted
+## I12 — Domain layer has zero external SDK imports
+- **Owner:** platform / architecture
+- **Invariant:** No file under `src/modules/*/domain/` or `src/shared/domain/` imports `pg`, `bullmq`, `stripe`, `@clerk/*`, or `@aws-sdk/*`. The domain layer must remain pure TypeScript types with zero external dependencies (Clean Architecture dependency rule: Infra → Application → Domain).
+- **Verify:** `infra/scripts/check-invariants.ts` walks `src/modules/*/domain/**/*.ts` and `src/shared/domain/**/*.ts` and fails if any import matches the forbidden package patterns. Run: `pnpm lint-invariants`.
+- **Fix:** Move the import to the `infra/` layer and inject the dependency through the composition root; if only the type is needed, define it in the domain layer.
+
+## I13 — Inconclusive outcome is persisted and emitted
 - **Owner:** core / investigation module (`src/modules/investigation/application/investigate-incident.usecase.ts`, `src/workers/investigation-worker.ts`)
 - **Preconditions:** The use case has decided to terminate as inconclusive (zero evidences after re-invocation, OR exhausted-citation retries).
 - **Postconditions:** The incident DB record is updated with `status='inconclusive'` and `resolution` starting with `'inconclusive:'`. The EventBus publishes `investigation.inconclusive`, which the worker forwards to the progress SQS queue.
