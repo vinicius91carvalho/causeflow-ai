@@ -677,6 +677,21 @@
         "match_group_accepted": "passed",
         "match_sort_project_limit_accepted": "passed"
       }
+    },
+    {
+      "id": "WI-AC-034",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T20:10:00Z",
+      "details": "Integrated Verification pass for AC-034 (mongo-driver aggregation pipeline validation). Tested at real WebSocket + MongoDB boundary via running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo). Sent JSON-RPC 2.0 execute requests with operation:query and pipeline params against resource order-mongo through stub to relay. (1) Pipeline with $out -> rejected -32602 \"Validation failed: Aggregation stage $out is not allowed\". (2) Pipeline with $merge -> rejected -32602 \"Validation failed: Aggregation stage $merge is not allowed\". (3) Pipeline with $match/$group -> accepted (rows=[], rowCount=0). (4) Pipeline with $match/$sort/$project/$limit -> accepted (rows=[], rowCount=0). All 4 tests pass at the real external boundary. Source: BLOCKED_AGGREGATION_STAGES=[\"$out\",\"$merge\"] in mongo-driver.ts. No defects.",
+      "checks": {
+        "out_rejected": "passed",
+        "merge_rejected": "passed",
+        "match_group_accepted": "passed",
+        "match_sort_project_limit_accepted": "passed",
+        "npm_run_build": "passed"
+      }
     }
   ]
 }
