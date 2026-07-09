@@ -1,3 +1,64 @@
+# QA Journal - WI-AC-017 (triage: severity classification + investigation mode)
+
+## Test Date
+2026-07-09
+
+## Work Item
+WI-AC-017
+
+## Environment
+- API running on PORT=5179 as OSS runtime with ministack (DynamoDB, SQS, KMS)
+- Auth: OSS login (JWT with admin role via oss-login)
+- Anthropic: stub key (ANTHROPIC_API_KEY=stub-api-key-for-e2e)
+- Infrastructure: Docker compose with ministers, postgres, redis
+
+## Verification Results
+
+### AC-017: Triage severity classification + investigation mode
+
+**What was tested:**
+1. Webhook ingestion via POST /v1/webhooks/:tenantId/datadog with HMAC signature
+2. In-process triage trigger via EventBus subscribe to incident.created
+3. Anthropic API call with ANTHROPIC_TRIAGE_MODEL (default claude-sonnet-4-6)
+4. GET /v1/triage incident list
+5. GET /v1/triage/:id incident detail
+6. POST /v1/triage/:id manual triage trigger (admin)
+
+**Results:**
+- Webhook ingestion: PASS (incident created in 'open' status)
+- Triage triggers within 30 seconds: PASS (in-process fallback fires on incident.created)
+- Anthropic API called with claude-sonnet-4-6: PASS (confirmed in server logs)
+- GET /v1/triage list: PASS (returns incident items)
+- GET /v1/triage/:id detail: PASS (returns incident fields)
+- Triage updates incident severity: FAIL (Anthropic stub key returns 401, incident stuck in 'triaging')
+- Suggested investigation mode stored: FAIL (not implemented in code)
+- Manual retry after failure: FAIL (stuck in 'triaging', 409 Conflict on retry)
+
+## Defects
+
+### Defect 1: Incident stuck in 'triaging' when Anthropic API fails
+- Severity: medium
+- The triage use case transitions status to 'triaging' before calling the Anthropic API
+- When the API call fails (invalid key, timeout, etc.), the incident remains permanently stuck in 'triaging'
+- No fallback: the incident never receives a triaged severity
+- No retry: POST /v1/triage/:id returns 409 Conflict because status !== 'open'
+- Evidence: `TriageFailedError` caught in bootstrap.ts line 1051 without reverting status
+
+### Defect 2: Missing 'suggestedInvestigationMode' in triage output
+- Severity: high
+- AC-017 requires setting a "suggested investigation mode" (orchestrator|hypothesis|debate)
+- TriageResult type has no investigationMode field
+- triageResultSchema (Zod) has no investigationMode field
+- Anthropic prompt does not ask AI for investigation mode
+- TriageIncidentUseCase.execute() never sets investigationMode on the incident
+- Only assignedAgents is stored, which is a different concept
+- Evidence: grep confirms zero references to investigationMode in triage domain/types/prompts/usecase
+
+## Verdict
+qa=false, implementation=false
+
+---
+
 # QA Journal - WI-AC-036 (observability-and-ops: OTel-Langfuse correlation + Sentry)
 
 ## Test Date
