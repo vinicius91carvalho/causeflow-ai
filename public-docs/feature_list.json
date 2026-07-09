@@ -326,10 +326,10 @@
     ],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
-    "integration": false,
+    "qa": true,
+    "integration": true,
     "retries": 0,
-    "verify_notes": "VERIFY-FIRST PASS: mint dev requested on port 5174 and served on 5175 after reporting 5174 in use; GET /api-reference/errors-and-pagination returned HTTP 200. Rendered HTML contains the JSON error envelope example, all required status codes (400/401/403/404/409/429/500/503), and cursor-pagination fields items, cursor, and count. No MDX parse errors. No content changes."
+    "verify_notes": "INTEGRATED VERIFICATION PASS 2026-07-09: required scaffold exists (133 MDX files and required top-level directories); existing Mintlify preview on port 5174 returned HTTP 200 for / and /api-reference/errors-and-pagination. Rendered target page contains the JSON error envelope, all required status codes (400/401/403/404/409/429/500/503), and cursor-pagination fields items, cursor, and count. Evidence: .harness-evidence/api-reference/WI-AC-015-2026-07-09-errors-and-pagination-rendered.html. Zero defects."
   },
   {
     "id": "WI-AC-016",

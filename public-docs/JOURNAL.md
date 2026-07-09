@@ -304,3 +304,14 @@ AC-005: The root `vitest.config.ts` defines 7 projects (shared, forms, analytics
 All AC-005 criteria pass. `pnpm vitest run` exits 0 with all 242 test files and 1508 tests green across all 7 projects. The vitest config correctly defines all 7 projects, configures a forks pool with max 3 workers, and sets a 15s per-test timeout on the dashboard project. Vitest 4 deprecation warning about `poolOptions` is cosmetic and non-functional; `maxWorkers: 3` enforces the cap at runtime.
 
 implementation=true qa=true integration=true; defects=0.
+
+## 2026-07-09 Integrated Verification — WI-AC-015
+
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- context: api-reference
+- Boundary: existing Mintlify preview on `http://localhost:5174`.
+- Scaffold: `project_specs.xml` read; required docs directories and `api-reference/errors-and-pagination.mdx` present.
+- Smoke: `GET /` and `GET /quickstart` returned HTTP 200 and rendered `CauseFlow AI` plus `Quickstart`; `mint broken-links` returned success.
+- AC-015: `GET /api-reference/errors-and-pagination` returned HTTP 200 and rendered the JSON error envelope, status codes `400/401/403/404/409/429/500/503`, and pagination fields `items`, `cursor`, and `count`.
+- Verdict: implementation=true qa=true integration=true; defects=0.
