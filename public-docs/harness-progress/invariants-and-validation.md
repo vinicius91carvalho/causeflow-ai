@@ -656,3 +656,43 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Provider quota/rate limit; retry automatically after the quota window
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T02:00:33.123Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-invariants-and-validation/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f449a-e1fb-7451-9fe2-b00c077c8852
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-invariants-and-validation/public-docs
+PORT=5180
+Work Item id=WI-AC-023 context=invariants-and-validation
+Acceptance Checks=AC-023
+Description=Audit: no `Incident.status` value of `dismissed` or `failed` appears in any `.mdx`; `pending` appears only for step-level or approval-level status.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota/rate limit; retry automatically after the quota window"],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-invariants-and-validation/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
