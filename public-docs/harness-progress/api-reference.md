@@ -1243,3 +1243,12 @@ ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/
 - PreviousPhase: qa
 - Attempt: 1
 - NextAction: qa
+
+## 2026-07-09T13:10:00Z — Independent QA passed
+
+- Role: qa-agent
+- WorkItem: WI-AC-016
+- AcceptanceChecks: AC-016
+- Scaffold: `project_specs.xml` read; required top-level files/directories present.
+- Evidence: 133 `.mdx` files total; 84 under `api-reference/`; exact AC grep `grep -rE 'api\.causeflow\.(io|dev|local|prod)' --include='*.mdx' .` exited 1 with no output.
+- Verdict: implementation=true; qa=true; defects=none.
