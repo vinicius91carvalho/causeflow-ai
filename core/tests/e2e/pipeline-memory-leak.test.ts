@@ -43,15 +43,15 @@ describe('E2E Pipeline: Memory Leak with Code Analysis', () => {
     // Configure synthesis to mention memory leak + cache
     harness.stubLLM.setScenario({
       synthesis: {
-        rootCause: 'OOM memory leak caused by unbounded paymentCache Map in payment.service.ts — grows without eviction',
+        potentialRootCause: 'OOM memory leak caused by unbounded paymentCache Map in payment.service.ts — grows without eviction',
         recommendedActions: [
           { action: 'restart_service', params: { service: 'payment-service', cluster: 'production' } },
           { action: 'scale_service', params: { service: 'payment-service', cluster: 'production', desiredCount: 3 } },
         ],
         findings: [
-          'Memory utilization reached 95% before OOM kill',
-          'Commit e5f6g7h8 introduced unbounded paymentCache Map',
-          'Cache grows with every payment read — no TTL or max size',
+          { text: 'Memory utilization reached 95% before OOM kill', evidenceIds: ['ev-1'] },
+          { text: 'Commit e5f6g7h8 introduced unbounded paymentCache Map', evidenceIds: ['ev-2'] },
+          { text: 'Cache grows with every payment read — no TTL or max size', evidenceIds: ['ev-3'] },
         ],
       },
     });

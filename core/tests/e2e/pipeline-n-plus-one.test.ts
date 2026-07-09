@@ -42,14 +42,14 @@ describe('E2E Pipeline: N+1 Query with Code Analysis', () => {
     // Configure synthesis mentioning N+1 query
     harness.stubLLM.setScenario({
       synthesis: {
-        rootCause: 'N+1 query in findPaymentsWithOrders — individual SELECT per payment instead of batch query or JOIN',
+        potentialRootCause: 'N+1 query in findPaymentsWithOrders — individual SELECT per payment instead of batch query or JOIN',
         recommendedActions: [
           { action: 'restart_service', params: { service: 'payment-service', cluster: 'production' } },
         ],
         findings: [
-          'Commit nq01aaaa introduced N+1 query pattern in payment repository',
-          'Each request to /payments/with-orders issues 1 + N database queries',
-          'With 50 payments, this causes 51 queries per request',
+          { text: 'Commit nq01aaaa introduced N+1 query pattern in payment repository', evidenceIds: ['ev-1'] },
+          { text: 'Each request to /payments/with-orders issues 1 + N database queries', evidenceIds: ['ev-2'] },
+          { text: 'With 50 payments, this causes 51 queries per request', evidenceIds: ['ev-3'] },
         ],
       },
     });

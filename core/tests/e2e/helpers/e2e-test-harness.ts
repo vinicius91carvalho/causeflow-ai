@@ -4,6 +4,35 @@ import type { DomainEvent } from '../../../src/shared/domain/events.js';
 import { DeterministicLLMClient } from '../stubs/deterministic-llm-client.js';
 import { DeterministicAgentRunner } from '../stubs/deterministic-agent-runner.js';
 import type { Tenant } from '../../../src/modules/tenant/domain/tenant.entity.js';
+import Redis from 'ioredis';
+
+/**
+ * Flush all BullMQ-related Redis keys to prevent stale jobs from previous
+ * test files interfering with the current test.
+ */
+async function flushBullMQQueues(): Promise<void> {
+  const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6380';
+  const redis = new Redis(REDIS_URL, {
+    maxRetriesPerRequest: 1,
+    lazyConnect: true,
+    connectTimeout: 5000,
+  });
+  try {
+    await redis.connect();
+    let cursor = '0';
+    let deleted = 0;
+    do {
+      const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', 'bull:*', 'COUNT', 100);
+      cursor = nextCursor;
+      if (keys.length > 0) {
+        await redis.del(...keys);
+        deleted += keys.length;
+      }
+    } while (cursor !== '0');
+  } finally {
+    await redis.quit().catch(() => {});
+  }
+}
 
 export type E2EHarnessOptions = Record<string, unknown>;
 
@@ -17,6 +46,9 @@ export interface E2EHarness {
 }
 
 export async function createE2EHarness(_opts?: E2EHarnessOptions): Promise<E2EHarness> {
+  // Flush any stale BullMQ jobs from previous test files
+  await flushBullMQQueues();
+
   const stubLLM = new DeterministicLLMClient();
   const stubAgent = new DeterministicAgentRunner();
 

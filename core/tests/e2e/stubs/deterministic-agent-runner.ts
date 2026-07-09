@@ -74,10 +74,19 @@ export class DeterministicAgentRunner implements AgentRunner {
   }
 
   async run(config: AgentRunConfig): Promise<AgentRunResult> {
-    const role = this.inferRole(config.systemPrompt);
+    // Infer role from systemPrompt, staticSystemPrompt, userPrompt, or tools
+    const combinedPrompt = config.systemPrompt + ' ' + ((config as Record<string, unknown>)['staticSystemPrompt'] as string ?? '') + ' ' + config.userPrompt;
+    const role = this.inferRole(combinedPrompt);
     const override = this.overrides.get(role);
 
+    // Make tool calls based on the tools available in the config
     const toolCallsToMake = override?.toolCallsToMake ?? DEFAULT_TOOL_CALLS[role] ?? [];
+    // If we have tool definitions but no default tool calls, create one per tool
+    if (toolCallsToMake.length === 0 && config.tools.length > 0) {
+      for (const tool of config.tools) {
+        toolCallsToMake.push({ name: tool.name, input: {} });
+      }
+    }
     const response = override?.response ?? DEFAULT_RESPONSES[role] ?? `Analysis complete for role: ${role}`;
 
     // Actually call the tool handler to exercise the real CloudProvider integration
@@ -106,10 +115,11 @@ export class DeterministicAgentRunner implements AgentRunner {
 
   private inferRole(systemPrompt: string): string {
     const lower = systemPrompt.toLowerCase();
-    if (lower.includes('log') && lower.includes('analy')) return 'log_analyst';
+    // Check more specific patterns first to avoid false matches
+    if (lower.includes('change') && lower.includes('detect')) return 'change_detector';
     if (lower.includes('metric') && lower.includes('analy')) return 'metric_analyst';
     if (lower.includes('infra') && lower.includes('inspect')) return 'infra_inspector';
-    if (lower.includes('change') && lower.includes('detect')) return 'change_detector';
+    if (lower.includes('log') && lower.includes('analy')) return 'log_analyst';
     return 'unknown';
   }
 }
