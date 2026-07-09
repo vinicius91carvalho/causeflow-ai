@@ -500,3 +500,11 @@ No source code changes needed. No defects found.
 - WorkItem: WI-AC-036
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-09T19:37:37.238Z — Integrated Verification defect
+
+- Attempt: 3/3
+- WorkItem: WI-AC-036
+- Defects: Session terminated, killing shell... ...killed.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/mongo-driver/WI-AC-036-3-integration_qa.log
+- NextAction: Repair Plan
