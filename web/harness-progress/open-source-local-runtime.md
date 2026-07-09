@@ -459,3 +459,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - RepairPlan: AC-051 passes with zero defects. All three acceptance steps verified clean: (1) grep for composio.dev/composioTriggerId in next.config.mjs, integrations/domain/types.ts, and .env.example returns zero matches; (2) IntegrationType union has all 15 required identifiers (+ Notion/Shortcut extras); (3) Connect CTA calls POST /v1/integrations/connect via initiateOAuthConnect to Core stub. Config files (next.config.mjs has remotePatterns: [], CSP has no composio domains), domain type (no composioTriggerId), env files (no COMPOSIO_API_KEY), and integration card surface all clean.; Accept AC-051 as passed — zero defects.; File follow-up WI to clean up orphaned composio references in investigation feed context: remove `COMPOSIO_DISPLAY_NAMES`, `parseComposioToolName`, hardcoded `logos.composio.dev` URLs from feed-constants.ts; remove `composio_` prefix branching from group-feed-items.ts and tool-call-group.tsx; simplify tool-call-card.tsx, tool-error-card.tsx, evidence-card.tsx to remove composioInfo parsing.; Remove or skip-compat the Clerk-dependent E2E test at tests/dashboard/integrations-composio.spec.ts.; Update session-learnings.md: note that AC-051 scope is limited to integrations context + config files; investigation feed composio code is outside scope but should be tracked separately.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-051-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-09T10:51:17.182Z — Resumed
+
+- WorkItem: WI-AC-051
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
