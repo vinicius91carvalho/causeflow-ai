@@ -546,3 +546,10 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: integration could not complete
 - Defects: merge conflict could not be resolved
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T20:00:46.859Z — Explicit Resume
+
+- WorkItem: WI-AC-051
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+- NextAction: Coding Attempt 1
