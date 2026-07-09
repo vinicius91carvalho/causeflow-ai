@@ -219,3 +219,12 @@ Use /login to log into a provider via OAuth or API key. See:
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Harness worker fix installed: Codex now runs with --dangerously-bypass-approvals-and-sandbox. Retry AC-023 against the fixed workflow; the source audit already passed and the previous merge-conflict symptom should be rechecked through the normal integration path.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T00:45:00Z — Verification complete
+
+- WorkItem: WI-AC-023
+- AcceptanceChecks: AC-023
+- Outcome: PASS
+- Boundary: `mint dev --port 5180`; 125 navigated pages returned HTTP 200 and no rendered `"status": "dismissed"` or `"status": "failed"` values.
+- Evidence: 133 `.mdx` files audited; `rg -n '"status"\s*:\s*"(dismissed|failed)"' --glob '*.mdx' .` returned zero matches. `pending` occurrences are approval text, pending-approvals routes, or remediation step-level status examples.
+- NextAction: implementation=true
