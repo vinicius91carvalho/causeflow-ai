@@ -89,8 +89,7 @@
         "valid_request_works_after_error": "passed",
         "non_error_throw_fallback": "passed"
       }
-    }
-  },
+    },
     {
       "id": "WI-AC-028",
       "qa": true,
@@ -106,6 +105,22 @@
         "npm_run_build": "passed",
         "tsc_noEmit": "passed",
         "pg_driver_integration": "passed"
+      }
+    },
+    {
+      "id": "WI-AC-029",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T05:00:00Z",
+      "details": "Integrated Verification pass for AC-029 (postgres-sql-parser dangerous functions). validateQuery tested at compiled dist boundary. All 18 test cases pass: validateQuery('SELECT pg_sleep(10)') => {valid:false, reason:'Dangerous function detected: pg_sleep'}; validateQuery(\"SELECT * FROM pg_proc WHERE proname = 'pg_read_file'\") => {valid:false, reason:'Dangerous function detected: pg_read_file'}; and all 15 documented dangerous functions (pg_sleep, lo_import, lo_export, pg_read_file, pg_write_file, pg_read_binary_file, pg_ls_dir, pg_stat_file, pg_terminate_backend, pg_cancel_backend, pg_reload_conf, set_config, current_setting, dblink, dblink_exec) are correctly rejected when their name appears anywhere in the lowercased query text. Safe query 'SELECT 1' still returns {valid:true}. Project builds cleanly (npm run build -> dist/). tsc --noEmit passes. No code changes needed - implementation was already complete. No defects.",
+      "checks": {
+        "select_pg_sleep_rejected": "passed",
+        "pg_read_file_substring_detected": "passed",
+        "all_15_dangerous_functions_rejected": "passed",
+        "safe_query_unchanged": "passed",
+        "npm_run_build": "passed",
+        "tsc_noEmit": "passed"
       }
     }
   ]
