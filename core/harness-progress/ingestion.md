@@ -477,3 +477,12 @@ DynamoDB, 1-minute dedup window).
 - PreviousPhase: repair_plan
 - Attempt: 1
 - NextAction: repair-plan
+
+## 2026-07-09T22:38:10.594Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- DefectReport: Integrated Verification failed
+- RepairPlan: AC-015 Integrated Verification failed because the unit test `ingest-alert.test.ts` — specifically the "should return existing incident when duplicate alert (idempotent)" test — provides a mock `existingIncident` that lacks a `createdAt` field. The use case's dedup window check (`new Date(existing.createdAt).getTime()`) evaluates to `NaN`, making the comparison `NaN < dedupWindowMs` always `false`, so the code never returns the existing incident and instead creates a new one. The test expects `result === existingIncident` and `repo.create` not called, both of which fail. 7 additional pre-existing auth middleware test failures (500 instead of 200/401, Clerk vs local-auth conflict) also contribute to the 8-failure tally but are unrelated to AC-015.; In `tests/unit/modules/ingestion/ingest-alert.test.ts`, add a `createdAt` field with a recent ISO timestamp to the `existingIncident` mock in the 'should return existing incident when duplicate alert (idempotent)' test (around line 66-72); Add a second test case for window-expiry behavior: mock `existingIncident` with a `createdAt` older than the dedup window, and assert that a new incident IS created (dedup bypassed after window elapses); Address the 7 pre-existing auth middleware failures in `tests/unit/shared/middleware/auth.middleware.test.ts` (500 instead of 401/200, Clerk verifyToken not called) — these are not caused by AC-015 but must be fixed before `pnpm test:run` passes cleanly
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/ingestion/WI-AC-015-1-integration_qa.log
+- NextAction: Coding Attempt 2
