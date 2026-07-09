@@ -261,3 +261,18 @@ WI-AC-037
 
 ## Verdict
 qa=true implementation=true integration=true
+
+---
+
+## 2026-07-09T18:35:00Z — Fix defects and verify at HTTP boundary
+
+**Result: implementation=true (defects fixed).**
+
+### Defect 1 Fixed — Status revert on triage failure
+- Added `updateStatus(tenantId, incidentId, 'open')` in catch block before rethrowing
+- Verified at HTTP boundary: POST /v1/triage/:id with stub API key fails (500), status stays `"open"`, retry succeeds (no 409)
+- Updated test: asserts `updateStatus` called with `'open'` after LLM failure
+
+### Defect 2 Fixed — investigationMode added to triage output
+- Added `investigationMode: InvestigationMode` to TriageResult interface, Zod schema, prompt, use case update, and queue dispatch
+- 1065/1065 unit tests pass

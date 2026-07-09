@@ -79,3 +79,42 @@ oss-dev-jwt-secret-change-me for tenant 32996af2-19ba-4d58-ba76-1cb7da13d540.
 - RepairPlan: Two defects in AC-017 triage module: (1) incident status is permanently stuck at 'triaging' when the Anthropic API call fails because the catch block in TriageIncidentUseCase.execute() throws TriageFailedError without reverting the status, and the retry endpoint checks for 'open' status only; (2) the triage output completely lacks the required 'suggestedInvestigationMode' field — TriageResult type, Zod schema, Anthropic prompt, and the use case update call all omit it, even though the incident entity already supports investigationMode at the persistence layer.; In triage-incident.usecase.ts catch block: revert incident status to 'open' via this.incidentRepo.updateStatus() before rethrowing TriageFailedError, so the incident can be retried; In triage.types.ts: add investigationMode: InvestigationMode field to the TriageResult interface; In triage.prompts.ts: add investigationMode: z.enum(['orchestrator', 'hypothesis', 'debate']) to triageResultSchema and add the investigation mode instruction to the prompt JSON format example and instructions; In triage-incident.usecase.ts execute() at the this.incidentRepo.update() call: add investigationMode: result.investigationMode alongside severity and assignedAgents; In triage-incident.usecase.ts execute() at the this.messageQueue.send() call: add investigationMode to the dispatched payload so the investigation worker can use it; Update tests/tests/unit/modules/triage/triage-incident.test.ts MOCK_TRIAGE_RESULT and the 'should throw TriageFailedError when LLM returns invalid response' test to assert status is reverted to 'open'; Update tests/tests/unit/modules/triage/triage-incident-terminal.test.ts test fixtures to include investigationMode; Verify the DynamoDB incident repository patch already handles investigationMode (it does via IncidentEntity.patch().set() - no change needed there)
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/triage/WI-AC-017-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-09T18:35:00Z — Fix defects (Defect 1: status revert, Defect 2: investigationMode)
+
+**Result: implementation=true (defects fixed, all tests pass, HTTP boundary verified).**
+
+### Changes
+
+**Defect 1 — Incident stuck in 'triaging' after Anthropic API failure:**
+- `src/modules/triage/application/triage-incident.usecase.ts`: Added `await this.incidentRepo.updateStatus(tenantId, incidentId, 'open')` in the catch block of `execute()` to revert status before rethrowing `TriageFailedError`.
+- `tests/unit/modules/triage/triage-incident.test.ts`: Added assertion that `updateStatus` is called with `'open'` after LLM failure.
+
+**Defect 2 — Missing `investigationMode` in triage output:**
+- `src/modules/triage/domain/triage.types.ts`: Added `investigationMode: InvestigationMode` to `TriageResult` interface.
+- `src/modules/triage/domain/triage.prompts.ts`: Added `investigationMode: z.enum(['orchestrator','hypothesis','debate'])` to `triageResultSchema`; added investigation mode instructions to prompt template.
+- `src/modules/triage/application/triage-incident.usecase.ts`: Added `investigationMode: result.investigationMode` to `incidentRepo.update()` call and `messageQueue.send()` dispatch payload.
+- `tests/unit/modules/triage/triage-incident.test.ts`: Updated `MOCK_TRIAGE_RESULT` and assertions for `investigationMode`.
+- `tests/unit/modules/triage/triage-incident-terminal.test.ts`: Updated fixtures to include `investigationMode`.
+
+### Black-box HTTP verification (PORT=5179, ministack + stub API key)
+
+1. ✅ `GET /v1/triage` — returns `{"items":[...]}` with incidents.
+2. ✅ `GET /v1/triage/:existing-id` — returns incident detail, status=`open`.
+3. ✅ `POST /v1/triage/:id` (initial attempt) — returns 500 `TRIAGE_FAILED` (expected with stub key).
+4. ✅ `GET /v1/triage/:id` after failure — status is `"open"` (was reverted, not stuck in `"triaging"`).
+5. ✅ `POST /v1/triage/:id` (retry) — returns 500 `TRIAGE_FAILED` (not 409 Conflict — retry is possible).
+6. ✅ `GET /v1/triage/:id` after retry — status is `"open"`. App is still healthy.
+
+### Regression
+- ✅ 1065/1065 unit tests pass across 162 test files (including 24 triage-specific tests).
+- ✅ All existing HTTP endpoints verified functional (health, incidents list).
+
+### Files changed
+- `src/modules/triage/domain/triage.types.ts`
+- `src/modules/triage/domain/triage.prompts.ts`
+- `src/modules/triage/application/triage-incident.usecase.ts`
+- `tests/unit/modules/triage/triage-incident.test.ts`
+- `tests/unit/modules/triage/triage-incident-terminal.test.ts`
+- `harness-progress/triage.md`
+- `WORKFLOW_JOURNAL.md` (new)
