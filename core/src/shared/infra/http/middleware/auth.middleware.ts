@@ -110,6 +110,40 @@ export const authMiddleware: MiddlewareHandler<AppEnv> = async (c, next) => {
     }
   }
 
+  // Dev/Test fallback: when Clerk is not configured (empty secretKey), verify
+  // JWTs locally using JWT_SECRET. This allows testing protected endpoints
+  // without a live Clerk instance. Only active in non-production environments.
+  if (!config.clerk.secretKey && config.isDev()) {
+    try {
+      const { jwtVerify } = await import('jose');
+      const secret = new TextEncoder().encode(config.auth.jwtSecret);
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: config.auth.jwtIssuer,
+        audience: config.auth.jwtAudience,
+      });
+
+      const tid = (payload as Record<string, unknown>).tenant_id as string | undefined;
+      const userId = payload.sub ?? '';
+      const email = (payload as Record<string, unknown>).email as string ?? '';
+      const roles = (payload as Record<string, unknown>).roles as string[] ?? [];
+
+      c.set('userId', userId);
+      c.set('userEmail', email);
+      c.set('userRoles', roles);
+
+      if (tid) {
+        c.set('tenantId', tenantId(tid));
+      } else if (!isProvisioningPath(path, c.req.method)) {
+        throw new UnauthorizedError('No tenant in token');
+      }
+
+      return next();
+    } catch (err) {
+      if (err instanceof UnauthorizedError) throw err;
+      throw new UnauthorizedError('Invalid or expired token');
+    }
+  }
+
   try {
     const { verifyToken } = await import('@clerk/backend');
     const payload = await verifyToken(token, {

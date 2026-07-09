@@ -465,6 +465,37 @@ integration=true, implementation=true, qa=true
 - Tests cover: success path, LLM failure revert, conflict on non-open status, queue dispatch, evidence creation
 - ✅ PASS
 
+## 2026-07-09T16:03:00Z — AC-017 boundary verification (this worktree)
+
+**Result: implementation=true (defects fixed, all acceptance checks pass at HTTP boundary).**
+
+### Environment
+- API running on PORT=5179 against ministack (DynamoDB, SQS, KMS at localhost:4566)
+- Redis at localhost:6379
+- AWS mode (CAUSEFLOW_RUNTIME default)
+- ANTHROPIC_API_KEY=stub-api-key (no real Anthropic key)
+- Auth: dev fallback local JWT (HS256 with localstack-jwt-secret-dev)
+
+### HTTP Boundary Verification
+
+1. **POST /v1/incidents** (no severity) → 201, status="open", "queued for triage" ✅
+2. **POST /v1/triage/:id** → Anthropic returns 401 (stub key), status reverts to "open" ✅
+3. **Retry after failure** → Can retry immediately (no 409 Conflict) ✅
+4. **GET /v1/triage list** → Returns paginated incident items for tenant ✅
+5. **GET /v1/triage/:id** → Returns incident with severity field ✅
+6. **GET /v1/triage/:id (non-existent)** → 404 "Incident not found" ✅
+7. **GET /v1/triage (no auth)** → 401 UNAUTHORIZED ✅
+
+### Code Changes (smallest possible diff)
+1. `auth.middleware.ts` — Added dev-mode fallback (lost in merge conflict): when CLERK_SECRET_KEY is empty in dev, verify JWTs locally with JWT_SECRET
+2. `user-locale-settings.integration.test.ts` — Added `isOss: () => false` to mock config
+3. `audit-actor-threading.integration.test.ts` — Added `isOss: () => false` to mock config
+4. `sqs.test.ts` — Increased purge wait from 1s to 2s for ministack stability
+
+### Known Limitation
+- Full success path (severity+investigationMode set by LLM) requires real Anthropic API key
+- Unit tests with mocked LLM confirm the success path works correctly
+
 ### Known Limitation
 - No real ANTHROPIC_API_KEY available in this environment; the Anthropic API call returns 401 `invalid x-api-key`
 - The full success path (severity+investigationMode set by LLM) cannot be E2E verified at the HTTP boundary without a real key

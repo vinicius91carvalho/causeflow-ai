@@ -37,6 +37,7 @@ vi.mock('../../src/shared/config/index.js', () => ({
     isDev: () => false,
     isProd: () => false,
     isTest: () => true,
+    isOss: () => false,
   },
 }));
 
