@@ -320,3 +320,10 @@ BullMQ on Redis replaces SQS in the open-source local runtime (AC-041).
 - PreviousPhase: blocked
 - Attempt: 2
 - NextAction: user-guidance
+
+## 2026-07-09T20:01:33.470Z — Resumed
+
+- WorkItem: WI-AC-041
+- PreviousPhase: coding
+- Attempt: 2
+- NextAction: coding
