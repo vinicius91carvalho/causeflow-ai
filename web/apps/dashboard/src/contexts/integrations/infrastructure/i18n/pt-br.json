@@ -71,7 +71,6 @@
         "oauthDescription": "Você será redirecionado ao {name} para autorizar o acesso. Sem necessidade de tokens manuais.",
         "oauthButton": {
           "slack": "Adicionar ao Slack",
-          "notion": "Conectar Notion",
           "default": "Conectar {name}"
         },
         "awsSetupInfo": "Use esses valores ao criar a trust policy da IAM role:",
@@ -164,29 +163,6 @@
               "3": "Vá para a seção API Key e gere sua Chave de API.",
               "4": "Clique no link \"Token\" ao lado da sua chave para gerar um token somente leitura.",
               "5": "Copie tanto a Chave de API quanto o Token."
-            }
-          },
-          "notion": {
-            "title": "Configuração da Integração Notion",
-            "scopes": "Ler páginas, bancos de dados",
-            "docsUrl": "https://developers.notion.com/docs/create-a-notion-integration",
-            "steps": {
-              "1": "Vá para notion.so/my-integrations e clique em \"Nova integração\".",
-              "2": "Nomeie (ex: CauseFlow) e selecione o workspace.",
-              "3": "Em Capacidades, selecione apenas \"Ler conteúdo\" (escrita não necessária).",
-              "4": "Copie o Token de Integração Interna (começa com secret_).",
-              "5": "No Notion, compartilhe as páginas/bancos de dados que deseja conectar com esta integração."
-            }
-          },
-          "shortcut": {
-            "title": "Configuração do Token de API do Shortcut",
-            "scopes": "Ler stories, epics, iterações",
-            "docsUrl": "https://developer.shortcut.com/api/rest/v3",
-            "steps": {
-              "1": "Vá para app.shortcut.com e clique no seu avatar no canto inferior esquerdo.",
-              "2": "Selecione \"Configurações\" e depois \"Tokens de API\".",
-              "3": "Clique em \"Gerar Token\" e dê um nome descritivo.",
-              "4": "Copie o token de API gerado."
             }
           },
           "github": {
@@ -362,16 +338,6 @@
         "trello": {
           "name": "Trello",
           "description": "Quadros visuais de incidentes e rastreamento de tarefas",
-          "category": "Gestão"
-        },
-        "notion": {
-          "name": "Notion",
-          "description": "Acesso a páginas e bancos de dados para investigações",
-          "category": "Conhecimento"
-        },
-        "shortcut": {
-          "name": "Shortcut",
-          "description": "Rastreamento de stories, epics e gerenciamento de iterações",
           "category": "Gestão"
         },
         "postgresql": {

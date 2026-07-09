@@ -34,9 +34,9 @@ describe('oauth-callback-handler', () => {
   describe('error param', () => {
     it('returns popup failure HTML on error param', async () => {
       const req = makeRequest(
-        'http://localhost/api/integrations/oauth/notion/callback?error=access_denied',
+        'http://localhost/api/integrations/oauth/trello/callback?error=access_denied',
       );
-      const res = await GET(req as any, { params: Promise.resolve({ provider: 'notion' }) });
+      const res = await GET(req as any, { params: Promise.resolve({ provider: 'trello' }) });
       expect(res.headers.get('Content-Type')).toContain('text/html');
       const body = await res.text();
       expect(body).toContain('Authorization denied');
@@ -74,21 +74,21 @@ describe('oauth-callback-handler', () => {
     it('redirects to /dashboard/integrations?connected=<provider> on success', async () => {
       mockFinalizeComposioConnection.mockResolvedValueOnce(undefined);
       const req = makeRequest(
-        'http://localhost/api/integrations/oauth/notion/callback?connected_account_id=acc_123&status=success',
+        'http://localhost/api/integrations/oauth/trello/callback?connected_account_id=acc_123&status=success',
       );
-      const res = await GET(req as any, { params: Promise.resolve({ provider: 'notion' }) });
+      const res = await GET(req as any, { params: Promise.resolve({ provider: 'trello' }) });
       expect(res.status).toBe(307);
       const location = res.headers.get('location') ?? '';
       expect(location).toContain('/dashboard/integrations');
-      expect(location).toContain('connected=notion');
+      expect(location).toContain('connected=trello');
     });
 
     it('redirects with connect_error on finalizeComposioConnection failure', async () => {
       mockFinalizeComposioConnection.mockRejectedValueOnce(new Error('Core API error'));
       const req = makeRequest(
-        'http://localhost/api/integrations/oauth/notion/callback?connected_account_id=acc_bad',
+        'http://localhost/api/integrations/oauth/trello/callback?connected_account_id=acc_bad',
       );
-      const res = await GET(req as any, { params: Promise.resolve({ provider: 'notion' }) });
+      const res = await GET(req as any, { params: Promise.resolve({ provider: 'trello' }) });
       expect(res.status).toBe(307);
       const location = res.headers.get('location') ?? '';
       expect(location).toContain('/dashboard/integrations');
@@ -110,19 +110,19 @@ describe('oauth-callback-handler', () => {
     it('handles status=success alone (no connected_account_id)', async () => {
       mockFinalizeComposioConnection.mockResolvedValueOnce(undefined);
       const req = makeRequest(
-        'http://localhost/api/integrations/oauth/notion/callback?status=success',
+        'http://localhost/api/integrations/oauth/trello/callback?status=success',
       );
-      const res = await GET(req as any, { params: Promise.resolve({ provider: 'notion' }) });
+      const res = await GET(req as any, { params: Promise.resolve({ provider: 'trello' }) });
       expect(res.status).toBe(307);
       const location = res.headers.get('location') ?? '';
-      expect(location).toContain('connected=notion');
+      expect(location).toContain('connected=trello');
     });
   });
 
   describe('fallback — missing code and no Composio params', () => {
     it('returns popup failure HTML for missing authorization code', async () => {
-      const req = makeRequest('http://localhost/api/integrations/oauth/notion/callback');
-      const res = await GET(req as any, { params: Promise.resolve({ provider: 'notion' }) });
+      const req = makeRequest('http://localhost/api/integrations/oauth/trello/callback');
+      const res = await GET(req as any, { params: Promise.resolve({ provider: 'trello' }) });
       const body = await res.text();
       expect(body).toContain('Missing authorization code');
       expect(body).toContain('window.opener.postMessage');

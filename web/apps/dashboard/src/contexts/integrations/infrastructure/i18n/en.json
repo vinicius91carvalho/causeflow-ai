@@ -71,7 +71,6 @@
         "oauthDescription": "You will be redirected to {name} to authorize access. No manual tokens needed.",
         "oauthButton": {
           "slack": "Add to Slack",
-          "notion": "Connect Notion",
           "default": "Connect {name}"
         },
         "awsSetupInfo": "Use these values when creating the IAM role trust policy:",
@@ -164,29 +163,6 @@
               "3": "Go to the API Key section and generate your API Key.",
               "4": "Click the \"Token\" link next to your API key to generate a read-only token.",
               "5": "Copy both the API Key and Token."
-            }
-          },
-          "notion": {
-            "title": "Notion Integration Setup",
-            "scopes": "Read pages, databases",
-            "docsUrl": "https://developers.notion.com/docs/create-a-notion-integration",
-            "steps": {
-              "1": "Go to notion.so/my-integrations and click \"New integration\".",
-              "2": "Name it (e.g. CauseFlow) and select the workspace.",
-              "3": "Under Capabilities, select only \"Read content\" (no write needed).",
-              "4": "Copy the Internal Integration Token (starts with secret_).",
-              "5": "In Notion, share the pages/databases you want to connect with this integration."
-            }
-          },
-          "shortcut": {
-            "title": "Shortcut API Token Setup",
-            "scopes": "Read stories, epics, iterations",
-            "docsUrl": "https://developer.shortcut.com/api/rest/v3",
-            "steps": {
-              "1": "Go to app.shortcut.com and click your avatar in the bottom-left.",
-              "2": "Select \"Settings\" then \"API Tokens\".",
-              "3": "Click \"Generate Token\" and give it a descriptive name.",
-              "4": "Copy the generated API token."
             }
           },
           "github": {
@@ -362,16 +338,6 @@
         "trello": {
           "name": "Trello",
           "description": "Visual incident boards and task tracking",
-          "category": "Management"
-        },
-        "notion": {
-          "name": "Notion",
-          "description": "Knowledge base pages and database access for investigations",
-          "category": "Knowledge"
-        },
-        "shortcut": {
-          "name": "Shortcut",
-          "description": "Story tracking, epics, and iteration management",
           "category": "Management"
         },
         "postgresql": {

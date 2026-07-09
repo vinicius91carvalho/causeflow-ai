@@ -9,8 +9,6 @@ export type IntegrationType =
   | 'cloudwatch'
   | 'hubspot'
   | 'trello'
-  | 'notion'
-  | 'shortcut'
   | 'postgresql'
   | 'linear'
   | 'sentry'
@@ -29,8 +27,6 @@ export const INTEGRATION_DISPLAY_NAMES: Record<string, string> = {
   cloudwatch: 'AWS',
   hubspot: 'HubSpot',
   trello: 'Trello',
-  notion: 'Notion',
-  shortcut: 'Shortcut',
   postgresql: 'PostgreSQL',
   linear: 'Linear',
   sentry: 'Sentry',
@@ -52,8 +48,6 @@ export const INTEGRATION_AUTH_TYPES: Record<IntegrationType, IntegrationAuthType
   slack: 'oauth',
   jira: 'oauth',
   trello: 'oauth',
-  notion: 'oauth',
-  shortcut: 'oauth',
   github: 'oauth',
   hubspot: 'oauth',
   sentry: 'oauth',
@@ -70,7 +64,6 @@ export const INTEGRATION_AUTH_TYPES: Record<IntegrationType, IntegrationAuthType
 /** i18n keys for OAuth button labels, resolved via `t()` in the connection modal. */
 export const OAUTH_BUTTON_I18N_KEYS: Partial<Record<IntegrationType, string>> = {
   slack: 'oauthButton.slack',
-  notion: 'oauthButton.notion',
 };
 
 export interface ActiveTrigger {

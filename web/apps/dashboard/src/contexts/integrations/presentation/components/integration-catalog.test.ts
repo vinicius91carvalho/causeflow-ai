@@ -36,10 +36,6 @@ describe('TRIGGER_CATALOG', () => {
     expect(TRIGGER_CATALOG.linear).toEqual([]);
   });
 
-  it('does NOT include notion triggers (not in active mapper)', () => {
-    expect(TRIGGER_CATALOG.notion).toEqual([]);
-  });
-
   it('does NOT include discord triggers (not in active mapper)', () => {
     expect(TRIGGER_CATALOG.discord).toEqual([]);
   });

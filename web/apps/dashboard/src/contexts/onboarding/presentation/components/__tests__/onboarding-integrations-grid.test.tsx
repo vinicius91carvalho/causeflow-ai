@@ -23,7 +23,7 @@ describe('OnboardingIntegrationsGrid', () => {
     expect(typeof mod.default).toBe('function');
   });
 
-  it('defines exactly 14 curated integration IDs', async () => {
+  it('defines exactly 12 curated integration IDs', async () => {
     const fs = await import('node:fs');
     const source = fs.readFileSync(
       new URL('../onboarding-integrations-grid.tsx', import.meta.url),
@@ -34,7 +34,7 @@ describe('OnboardingIntegrationsGrid', () => {
     const idsMatch = source.match(/ONBOARDING_INTEGRATION_IDS\s*=\s*\[([\s\S]*?)\]/);
     expect(idsMatch).toBeTruthy();
     const ids = idsMatch?.[1].match(/'[^']+'/g);
-    expect(ids).toHaveLength(14);
+    expect(ids).toHaveLength(12);
   });
 
   it('includes all required integration IDs in order', async () => {
@@ -46,8 +46,6 @@ describe('OnboardingIntegrationsGrid', () => {
     const expectedOrder = [
       'aws-cloudwatch',
       'github',
-      'notion',
-      'shortcut',
       'slack',
       'sentry',
       'datadog',
