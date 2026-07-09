@@ -387,6 +387,23 @@ Result rows are `Record<string, unknown>[]`. All assertions pass. No source code
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
 
+## 2026-07-09T23:45:00Z — Verify-first passed (WI-AC-035)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes)**
+
+Ran `test-ac035.mjs` against running docker-compose stack (relay + control-plane-stub on port 5191 + relay-postgres + relay-mongo).
+Seeded `orders` collection with 4 documents. All 3 scenarios pass at real WebSocket + MongoDB boundary:
+
+- **Test 1**: Explain without filter — response shape `{ rows: [explanation], rowCount: 1, executionTimeMs: 3 }` with explain fields present (queryPlanner, executionStats, serverInfo, explainVersion) ✓
+- **Test 2**: Explain with filter `{status:'active'}` — same shape, `rowCount: 1`, `executionTimeMs: 1` ✓
+- **Test 3**: Explain without collection — correctly rejected with error `Missing collection parameter` ✓
+
+Response metadata correct: `masked: false`, `maskedFieldCount: 0`.
+No source code changes needed — `collection.find(filter).explain('executionStats')` already implemented in `src/drivers/mongodb/mongo-driver.ts` case `'explain'` at line 95.
+
+- NextAction: complete — implementation=true
+
+
 ## 2026-07-09T18:57:35.987Z — Integrated Verification passed
 
 - Attempt: 2/3
