@@ -157,4 +157,68 @@ oss-dev-jwt-secret-change-me for tenant 32996af2-19ba-4d58-ba76-1cb7da13d540.
 - AcceptanceChecks: AC-017
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/triage/WI-AC-017-3-integration_qa.log
-- NextAction: next Ready Work Item
+- NextAction: WI-AC-018
+
+## 2026-07-09 — Verify-first with code changes (AC-018)
+
+**Result: implementation=true (added trace tagging + tracer wiring).**
+
+Exercised AC-018 (Langfuse trace for triage call) against the EXISTING code
+at a real HTTP boundary on PORT=3099 (docker-compose causeflow-api + postgres
++ redis, OSS runtime).
+
+### Black-box HTTP boundary (5/5 passed)
+
+1. ✅ `POST /v1/auth/register` — 201 with JWT token
+2. ✅ `POST /v1/incidents` (no severity) — 201 with status=open
+3. ✅ `POST /v1/triage/:id` — triggers triage flow (500 TRIAGE_FAILED as
+expected — no Anthropic key configured; LLM fallback activates)
+4. ✅ `GET /v1/incidents/:id` — status=open after triage revert (not stuck)
+5. ✅ `GET /v1/triage` — returns incident list; `GET /v1/audit` shows
+incident.created audit entry
+
+### Code changes for AC-018
+
+**Root cause:** The `TriageIncidentUseCase` did not create a trace/span with
+tenant ID and incident ID metadata for the triage operation. The
+`ObservedAnthropicClient` created an LLM-generation span with prompt,
+completion, tokens and cost but lacked tenant/incident context. The trace
+output did not include audit chain info.
+
+**Changes (smallest possible diff):**
+
+1. `src/shared/application/ports/llm-client.port.ts` — Added optional
+   `attributes?: Record<string, string | number | boolean>` to
+   `CompletionParams` so callers can pass tenant/incident IDs as trace tags.
+
+2. `src/shared/infra/llm/observed-anthropic-client.ts` — Merged
+   `params.attributes` into the span metadata when creating the LLM-generation
+   trace.
+
+3. `src/modules/triage/application/triage-incident.usecase.ts` —
+   - Imported `Tracer` and `Span` port types from `shared/application/ports/`.
+   - Added `tracer` to `TriageIncidentDeps` (optional, defaults to inline noop
+     to avoid infra imports from the application layer).
+   - In `execute()`: starts a `triage.incident` span with `tenantId` and
+     `incidentId` as span attributes and `userId`/`sessionId` as trace context;
+     passes `{ tenantId, incidentId }` as attributes on the LLM `complete()`
+     call so the LLM-generation span inherits the same tags; sets span output
+     to include triage result and `auditChainUpdated: true`.
+   - Removed unused `TriageFailedError` import.
+
+4. `src/bootstrap.ts` — Passed `tracer` (from `createObservabilityStack()`) to
+   the `TriageIncidentUseCase` deps object.
+
+### Langfuse verification
+
+Langfuse is not running in the OSS runtime (no LANGFUSE_* keys configured per
+AC-049). The NoopTracer is used. When Langfuse IS enabled (LANGFUSE_PUBLIC_KEY
++ LANGFUSE_SECRET_KEY set), the triage.incident span will be tagged with
+tenant ID and incident ID, the LLM generation span will carry the same tags,
+and the trace output will include audit chain info.
+
+### Regression checks
+- ✅ `pnpm test:run` — 164 files, 1089 tests pass (no regression)
+- ✅ `pnpm typecheck` — clean
+- ✅ `pnpm lint` — no new lint errors (pre-existing 141 errors unchanged)
+- ✅ Boundary check: triage HTTP flow still works; audit entries created
