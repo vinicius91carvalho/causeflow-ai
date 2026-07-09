@@ -448,3 +448,606 @@ I verified the Authentication page at `api-reference/authentication.mdx` against
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/api-reference/WI-AC-014-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-08T23:56:59.539Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-08T21:05:00.000Z — VERIFY-FIRST pass
+
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- Boundary evidence: `.harness-evidence/api-reference/WI-AC-015-errors-and-pagination-rendered.html`
+- Result: Errors and pagination renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and the cursor-pagination example with `items`, `cursor`, and `count`.
+- Verdict: implementation=true; no source changes.
+
+## 2026-07-09T00:13:46.143Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T00:18:35.711Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent declined the Work Item
+- Defects: AC-015 content is already present in the existing rendered evidence artifact at `.harness-evidence/api-reference/WI-AC-015-errors-and-pagination-rendered.html` (error envelope, 400/401/403/404/409/429/500/503 table, items/cursor/count pagination). I could not stand up a new local HTTP listener in this sandbox (listen EPERM) and repo writes are blocked, so I could not update feature_list/journal or commit.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T00:29:30.509Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: AC-015 is already satisfied by the existing rendered evidence artifact at .harness-evidence/api-reference/WI-AC-015-errors-and-pagination-rendered.html (error envelope plus pagination coverage). Retry so the context can accept the existing artifact instead of trying to stand up a new listener or rewrite the repo in this sandbox.
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T00:42:20.589Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T00:45:20.911Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: QA agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f4456-07d9-7e81-bd09-994590ae9656
+--------
+user
+You are the qa-agent. Independently test exactly this Work Item in its isolated worktree.
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Use a real browser for UI or real HTTP for API behavior. On pass set qa=true. On any defect set implementation=false and qa=false. Update the journal concisely and commit. Return only JSON: {"id":"...","qa":true|false,"implementation":true|false,"defects":["expected ...; observed ...; evidence ..."]}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T00:50:21.296Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota only: Codex reported usage limit during QA, not a product defect. Harness now classifies usage-limit text as provider quota/rate-limit and pauses worker admission. Retry after the quota window with the refreshed scripts.
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T00:53:11.700Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f445d-3623-7413-a734-0f9675e3e588
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota only: Codex reported usage limit during QA, not a product defect. Harness now classifies usage-limit text as provider quota/rate-limit and pauses worker admission. Retry after the quota window with the refreshed scripts."],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T00:58:13.192Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota only: Codex reported usage limit during coding, not a product defect. Fixed supervisor now auto-pauses and retry-queues provider quota/rate-limit closures instead of raising Input Requests.
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T01:01:03.621Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f4464-6a3b-7c33-895a-43efe07e47e7
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota only: Codex reported usage limit during coding, not a product defect. Fixed supervisor now auto-pauses and retry-queues provider quota/rate-limit closures instead of raising Input Requests."],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T01:06:12.546Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota/rate limit; retry automatically after the quota window
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T01:09:08.607Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f446b-d194-78e1-b13a-bf2c95c578c2
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota/rate limit; retry automatically after the quota window"],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T01:14:10.073Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota/rate limit; retry automatically after the quota window
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T01:17:07.576Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f4473-1f91-7552-b10a-766f1b557ecc
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota/rate limit; retry automatically after the quota window"],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T01:22:07.732Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota/rate limit; retry automatically after the quota window
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T01:25:08.171Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f447a-7559-7f61-bc33-1b243d4ef0a4
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota/rate limit; retry automatically after the quota window"],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T01:30:09.141Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota/rate limit; retry automatically after the quota window
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T01:33:02.453Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f4481-b238-78b1-855d-98c1bcde1da9
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota/rate limit; retry automatically after the quota window"],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T01:38:10.554Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota/rate limit; retry automatically after the quota window
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T01:41:10.251Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f4489-23ce-7ea3-9dfa-e166b48bc225
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota/rate limit; retry automatically after the quota window"],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T01:46:11.974Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota/rate limit; retry automatically after the quota window
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T01:49:01.781Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f4490-55ef-7d42-8407-aaf20f612170
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota/rate limit; retry automatically after the quota window"],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T01:57:39.555Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota/rate limit; retry automatically after the quota window
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T02:00:34.223Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f449a-e64a-76c1-af7a-148bb614c1cc
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota/rate limit; retry automatically after the quota window"],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T02:05:35.130Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota/rate limit; retry automatically after the quota window
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T02:08:28.042Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: coding agent failed three times
+- Defects: Reading additional input from stdin...
+OpenAI Codex v0.142.5
+--------
+workdir: /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f44a2-2179-7e32-92b8-ec9fbf5934f3
+--------
+user
+You are the coding-agent in VERIFY-FIRST mode (existing codebase). First exercise every mapped Acceptance Check against the EXISTING code at a real external boundary (HTTP or browser). If all pass, set implementation=true and make NO code changes (a zero-diff checkpoint is valid; commit only if you intentionally changed tracked files). If any check fails, fix only the root cause with the smallest possible diff — do not refactor, restructure, or rewrite working code. The bar is "the AC passes at a real boundary," not "the code is idiomatic."
+WORKDIR=/home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs
+PORT=5174
+Work Item id=WI-AC-015 context=api-reference
+Acceptance Checks=AC-015
+Description=Audit: the Errors and pagination page renders the JSON error envelope example, the HTTP status-code table (400/401/403/404/409/429/500/503), and a cursor-pagination example with `items`, `cursor`, and `count` fields.
+Follow this Repair Plan from the orchestrator:
+{"summary":"User guidance","rootCause":"user-directed","actions":["Provider quota/rate limit; retry automatically after the quota window"],"validation":[]}
+Read the exact queue entry and Workflow Journal. Bring up the app on the assigned ports, run black-box behavior tests, set only this item implementation=true after success, update the journal concisely, and commit. Return one JSON object: {"id":"...","implementation":true|false,"notes":"..."}. Emit that JSON as the very last thing you print, on its own lines, wrapped exactly:
+===HARNESS-VERDICT-BEGIN===
+{...}
+===HARNESS-VERDICT-END===
+
+Before acting, read /home/vinicius/projects/causeflow-ai-wt-public-docs-api-reference/public-docs/project_specs.xml and verify that the repository contains every structure and file it requires. Handle missing scaffold artifacts according to your role.
+hook: SessionStart
+hook: SessionStart Completed
+hook: UserPromptSubmit
+hook: UserPromptSubmit Completed
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+ERROR: You've hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/codex/settings/usage to purchase more credits or try again at Jul 9th, 2026 12:17 AM.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-09T10:49:10.097Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Provider quota/rate limit; retry automatically after the quota window
+- NextAction: Coding Attempt 1
+
+## 2026-07-09T10:51:56.078Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T10:52:52.358Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T12:10:58.191Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T12:12:28Z — VERIFY-FIRST PASS
+
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- Boundary: Mintlify dev preview requested on port 5174; actual listener 5175 after 5174 was reported in use.
+- Result: `GET /api-reference/errors-and-pagination` returned HTTP 200 with rendered HTML containing the JSON error envelope, status-code table entries 400/401/403/404/409/429/500/503, and cursor-pagination fields `items`, `cursor`, and `count`.
+- Evidence: `.harness-evidence/api-reference/WI-AC-015-2026-07-09-errors-and-pagination-rendered.html`
+- Verdict: implementation=true; no MDX/content changes.
+
+## 2026-07-09T12:16:50.562Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-09T12:16:50.596Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-015
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

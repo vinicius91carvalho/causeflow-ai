@@ -216,3 +216,51 @@ the prior VERIFY-FIRST pass — the gen/public-docs-api-reference merge touched 
 files under api-reference/. Zero defects.
 
 implementation=true qa=true integration=true
+
+## 2026-07-08 — VERIFY-FIRST (coding-agent) — WI-AC-015
+
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- context: api-reference
+- HEAD: 5e19425
+- PORT: 5174
+
+### Acceptance check
+
+AC-015: The Errors and pagination page renders the JSON error envelope example,
+the HTTP status-code table (400/401/403/404/409/429/500/503), and a
+cursor-pagination example with `items`, `cursor`, and `count` fields.
+
+### Boundary verification (real external boundary — HTTP)
+
+- `mint dev` running on port 5174, confirmed serving HTTP 200.
+- `GET /api-reference/errors-and-pagination` → HTTP 200 (437 KB rendered HTML).
+- JSON error envelope example rendered: `{"error": "incident_not_found", ...}`.
+- HTTP status-code table rendered with all 8 codes (400/401/403/404/409/429/500/503).
+- Cursor-pagination example with `items` (17 matches), `cursor` (21 matches), and `count` (3 matches) fields present.
+- No MDX parse errors in dev log.
+
+### Evidence
+
+- `.harness-evidence/api-reference/WI-AC-015-errors-and-pagination-rendered.html` (437 KB)
+
+### Verdict
+
+All AC-015 criteria pass at the real HTTP boundary. The Errors and pagination page
+renders the JSON error envelope, complete HTTP status-code table, and cursor-pagination
+example with all three required fields. Zero defects.
+
+implementation=true qa=true integration=true
+
+## 2026-07-09 — VERIFY-FIRST resume — WI-AC-015
+
+- WorkItem: WI-AC-015
+- AcceptanceChecks: AC-015
+- context: api-reference
+- HEAD: 37768bf
+- Requested PORT: 5174; actual Mintlify listener: 5175 after `mint dev` reported 5174 in use.
+- Scaffold check: required top-level directories exist; all 125 pages listed in `docs.json` resolve to `.mdx` files; `api-reference/errors-and-pagination` is in API reference navigation.
+- Boundary verification: `GET http://localhost:5175/api-reference/errors-and-pagination` returned HTTP 200 (436760 bytes).
+- Rendered HTML contains the JSON error envelope example, all required status codes (`400`, `401`, `403`, `404`, `409`, `429`, `500`, `503`), and cursor-pagination fields `items`, `cursor`, and `count`.
+- No MDX parse markers observed in the rendered body.
+- Outcome: implementation=true. No MDX/content changes; only harness metadata and journal updated.
