@@ -1046,3 +1046,25 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - PreviousPhase: integration_qa
 - Attempt: 1
 - NextAction: integration-qa
+
+## 2026-07-09T21:58:00.000Z — Verified AC-033 (VAPID web push)
+
+- WorkItem: WI-AC-033
+- Implementation: true
+- Changes:
+  - Added POST /api/v1/notifications/subscribe and DELETE /api/v1/notifications/subscribe routes
+  - Added PushSubscriptionEntity (DynamoDB) + Postgres push_subscriptions table
+  - Added VAPID web push config and WebPushAdapter wiring in bootstrap
+  - Added incident.status_changed event subscriber that sends push notifications
+  - Fixed WebPushAdapter ESM dynamic import (CJS .default wrapping)
+- Boundary verification results (all pass against live API at :3099):
+  - POST /subscribe (valid) returns 200 {ok:true} ✅
+  - POST /subscribe (missing keys) returns 400 ✅
+  - POST /subscribe (no auth) returns 401 ✅
+  - Subscription persisted in Postgres ✅
+  - DELETE /subscribe (valid) returns 200 {ok:true} ✅
+  - DELETE /subscribe (no endpoint) returns 400 ✅
+  - Subscription removed from Postgres after DELETE ✅
+  - Incident severity change triggers push notification (push attempted) ✅
+- Push notification payload: incident title + deep link /dashboard/incidents/:id
+- Commit: 69213f63
