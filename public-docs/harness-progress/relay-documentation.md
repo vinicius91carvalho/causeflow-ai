@@ -199,3 +199,10 @@
 - Outcome: qa=true, implementation=true
 - Evidence: required scaffold present; `mint dev --port 5170` served `/relay/overview` with HTTP 200; rendered HTML includes `What the Relay is not`, `Not a proxy`, `Not a tunnel`, and `Not a replication agent`; `grep -E 'Not a (proxy|tunnel)|replication agent' relay/overview.mdx` returned all three matches.
 - NextAction: Integrated Verification
+
+## 2026-07-09T00:37:05.702Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-021
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
