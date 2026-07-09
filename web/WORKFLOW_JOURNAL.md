@@ -347,3 +347,21 @@ All acceptance criteria verified at real HTTP boundary (port 5173) — zero code
 - Step 1 (CLAUDE.md protocol): Unchanged at HEAD — 4-step verification protocol already documented. PASS.
 - Step 2 (.env.staging exists): File in HEAD contains `STAGING_TEST_USER=placeholder@causeflow.ai`, `STAGING_TEST_PASSWORD=placeholder-password`, header states "NOT loaded by the runtime". PASS.
 - Step 3 (.gitignore exclusion): `git check-ignore web/apps/dashboard/.env.staging` returns exit code 1 (not ignored). `git ls-files` shows file tracked. PASS.
+
+---
+
+## WI-AC-049 — Optional SaaS integrations are no-op when env vars empty
+
+**State:** `implementation=true`
+
+**Summary:**
+- Made all 6 optional SaaS integrations use dynamic imports so their SDKs are never loaded at module level when env vars are empty.
+- **Sentry** (`SENTRY_DSN`): `@sentry/node` dynamically imported; `initSentry()`/`captureException()` now async, return immediately when DSN unset.
+- **Langfuse** (`LANGFUSE_*`): Already gated via `observability-factory.ts` — noop tracer/metric recorder returned when keys absent.
+- **Svix** (`SVIX_API_KEY`): Created `OutboundWebhookService` that uses Svix SDK when configured, falls back to direct `fetch` POST without retry library.
+- **Slack** (`SLACK_*`): `@slack/web-api` dynamically imported per-call in slack routes and notification subscriber; routes return "Slack not configured" sentinel (400) when env vars empty.
+- **Composio** (`COMPOSIO_API_KEY`): `@composio/core` dynamically imported; `getComposioClient()` returns `null` promise; tool provider returns empty tool list.
+- **Mastra** (`MASTRA_ENABLED`): `MastraAgentRunner` dynamically imported in investigation-worker.ts only when `MASTRA_ENABLED=true`.
+- Files changed: 13 files (238 insertions, 45 deletions). New file: `outbound-webhook.service.ts`.
+- All 1070 unit tests pass. TypeScript compilation clean.
+- App starts successfully with all SaaS env vars empty — only error is Postgres connectivity when run outside docker compose (expected).
