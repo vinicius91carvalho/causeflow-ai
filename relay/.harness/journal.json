@@ -328,6 +328,27 @@
         "masked_consistency": "passed",
         "driver_source_confirms_contract": "passed"
       }
+    },
+    {
+      "id": "WI-AC-027",
+      "qa": true,
+      "implementation": true,
+      "integration": true,
+      "timestamp": "2026-07-09T08:30:00Z",
+      "details": "Integrated Verification pass for AC-027 (PgDriver.healthCheck + close). Tested at real Postgres external boundary (relay-postgres:5432). All 4 E2E tests pass on the actual PgDriver class: (1) healthCheck() returns true on reachable Postgres, runs SELECT 1 against pool; (2) close() awaits pool.end() and completes without throwing; (3) healthCheck() returns false (no re-throw) on unreachable host (192.0.2.1:5432, connectionTimeoutMillis=2000); (4) healthCheck() after close() returns false gracefully (catch block still works). Graceful-shutdown path in src/index.ts confirmed: SIGTERM/SIGINT handler calls wsClient.close() then iterates drivers with await driver.close().catch(() => {}). Source code confirms PgDriver.healthCheck uses try/catch with no re-throw, and close() awaits this.pool.end(). IReadOnlyDriver port declares both methods. npx tsc --noEmit clean. npm run build clean. No defects.",
+      "checks": {
+        "healthCheck_working_returns_true": "passed",
+        "healthCheck_unreachable_returns_false_no_throw": "passed",
+        "close_awaits_pool_end": "passed",
+        "close_completes_without_throwing": "passed",
+        "healthCheck_after_close_graceful": "passed",
+        "graceful_shutdown_calls_driver_close": "passed",
+        "graceful_shutdown_swallows_errors": "passed",
+        "port_contract_healthCheck": "passed",
+        "port_contract_close": "passed",
+        "tsc_noEmit_clean": "passed",
+        "npm_run_build_clean": "passed"
+      }
     }
   ]
 }
