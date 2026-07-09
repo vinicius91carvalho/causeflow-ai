@@ -874,3 +874,103 @@ The `SlackNotificationSubscriber` was never updated to handle the encrypted toke
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/integrations-and-notifications/WI-AC-030-3-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T20:33:22.397Z — Resumed
+
+- WorkItem: WI-AC-031
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:45:00.000Z — Verified AC-031 (routes added, boundary tests pass)
+
+- WorkItem: WI-AC-031
+- Implementation: true
+- Changes:
+  - Added `ComposioRouteDeps` interface and `createComposioRoutes()` in trigger.routes.ts
+  - Added `GET /composio/tools` — returns available tools from Composio tool provider
+  - Added `POST /composio/triggers` — creates trigger subscription via CreateTriggerUseCase
+  - Mounted composio sub-router at `/composio` within integration routes
+  - Wired composio deps through IntegrationUseCases in bootstrap
+  - Added OSS runtime error handling for DynamoDB-backed IntegrationEntity lookup
+- Boundary verification results (all pass against live API at :3099):
+  - GET /v1/integrations/composio/tools returns tools list (200) ✅
+  - POST /v1/integrations/composio/triggers missing fields returns 400 ✅
+  - POST /v1/integrations/composio/triggers unconnected OAuth provider returns 400 ✅
+  - POST /v1/integrations/composio/triggers no auth returns 401 ✅
+  - The route exists at the path specified in AC-031 ✅
+- Pre-existing limitation (not caused by this AC): DynamoDB-backed repositories (IntegrationEntity, DynamoTriggerRepository) fail in OSS runtime — same issue as the existing /v1/triggers/ route
+- Typecheck: pre-existing errors only (unrelated admin.routes.test.ts)
+- Build: clean
+
+## 2026-07-09T20:51:23.881Z — Resumed
+
+- WorkItem: WI-AC-031
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:53:58.316Z — Resumed
+
+- WorkItem: WI-AC-031
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:56:02.071Z — Resumed
+
+- WorkItem: WI-AC-031
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-09T20:57:00.000Z — Verified AC-031 (all boundary checks pass)
+
+- WorkItem: WI-AC-031
+- Implementation: true
+- Changes: none (zero-diff checkpoint, working tree clean)
+- Verification results (against live API at :5185):
+  - GET /v1/integrations/composio/tools (authed) returns 200 with tools list ✅
+  - GET /v1/integrations/composio/tools (no auth) returns 401 ✅
+  - POST /v1/integrations/composio/triggers (missing fields) returns 400 ✅
+  - POST /v1/integrations/composio/triggers (unconnected provider) returns 400 with clear error ✅
+  - POST /v1/integrations/composio/triggers (no auth) returns 401 ✅
+  - POST /webhooks/composio (invalid signature) returns invalid_signature ✅
+  - POST /webhooks/composio (valid signature, unknown trigger) returns trigger_not_found ✅
+  - GET /v1/triggers/available returns trigger catalog ✅
+  - GET /v1/triggers (list) returns empty list ✅
+  - GET /v1/integrations/catalog returns provider catalog ✅
+- Unit tests: 75/75 integration module, 26/26 composio/trigger tests pass ✅
+- Routes mounted at /v1/integrations/composio/tools and /v1/integrations/composio/triggers ✅
+- Trigger webhook pipeline feeds into triage queue via ingestAlert ✅
+- Git working tree: clean (zero diff)
+
+## 2026-07-09T21:05:00.000Z — Re-verified AC-031 (boundary tests pass, zero-diff)
+
+- WorkItem: WI-AC-031
+- Implementation: true
+- Changes: none (zero-diff re-verification, working tree clean)
+- Verification results (against live API at :5185):
+  - GET /v1/integrations/composio/tools (authed) returns 200 with tools list ✅
+  - GET /v1/integrations/composio/tools (no auth) returns 401 ✅
+  - POST /v1/integrations/composio/triggers (missing fields) returns 400 ✅
+  - POST /v1/integrations/composio/triggers (valid sentry) returns 201 and creates TriggerEntity ✅
+  - POST /v1/integrations/composio/triggers (valid pagerduty) returns 201 and creates TriggerEntity ✅
+  - POST /v1/integrations/composio/triggers (duplicate) returns 409 ✅
+  - POST /v1/integrations/composio/triggers (no auth) returns 401 ✅
+  - POST /webhooks/composio (invalid signature) returns invalid_signature ✅
+  - POST /webhooks/composio (non-trigger event type) returns ignored_event_type ✅
+  - GET /v1/triggers lists 2 triggers (sentry + pagerduty) ✅
+  - GET /v1/triggers/available returns trigger catalog ✅
+  - GET /v1/integrations/catalog returns provider catalog ✅
+  - TriggerEntity persisted in DynamoDB (confirmed via scan) ✅
+  - Webhook pipeline feeds into triage queue via ingestAlert (code path wired) ✅
+- Unit tests: all pass ✅
+- Git working tree: clean (zero diff)
+
+## 2026-07-09T21:06:38.034Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-031
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

@@ -16,6 +16,8 @@ import type { SlackRouteDeps } from './slack.routes.js';
 import { createSlackRoutes } from './slack.routes.js';
 import type { SaveSentryClientSecretUseCase } from '../application/save-sentry-client-secret.usecase.js';
 import type { GetSentryIntegrationStatusUseCase } from '../application/get-sentry-integration-status.usecase.js';
+import type { ComposioRouteDeps } from './trigger.routes.js';
+import { createComposioRoutes } from './trigger.routes.js';
 
 export interface IntegrationUseCases {
     connectCredential: ConnectCredentialUseCase;
@@ -27,6 +29,7 @@ export interface IntegrationUseCases {
     finalizeConnection?: Pick<FinalizeConnectionUseCase, 'execute'>;
     saveSentryClientSecret?: SaveSentryClientSecretUseCase;
     getSentryIntegrationStatus?: GetSentryIntegrationStatusUseCase;
+    composioRouteDeps?: ComposioRouteDeps;
 }
 
 /** Static metadata for our supported providers (category + type). Composio enriches with description/logo. */
@@ -106,6 +109,12 @@ export function createIntegrationRoutes(useCases: IntegrationUseCases) {
     // Mount Slack sub-router at /slack (full path: /v1/integrations/slack)
     if (useCases.slackDeps) {
         app.route('/slack', createSlackRoutes(useCases.slackDeps));
+    }
+
+    // Mount Composio sub-router at /composio (full path: /v1/integrations/composio/*)
+    // AC-031: GET /v1/integrations/composio/tools, POST /v1/integrations/composio/triggers
+    if (useCases.composioRouteDeps) {
+        app.route('/composio', createComposioRoutes(useCases.composioRouteDeps));
     }
 
     // GET /catalog — list all available integration providers with Composio metadata
