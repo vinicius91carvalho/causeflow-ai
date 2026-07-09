@@ -95,3 +95,25 @@ AC-031 contract checks (all pass):
 - Returns mapped `{ name, type }[]` rows — `result.rows` contains objects with `name` and `type` properties.
 - No code changes required: the existing implementation already satisfies AC-031 at the real WS+Mongo boundary.
 - All previous failures were infrastructure/config issues (API credit exhaustion, rate limits, missing provider keys), not relay code defects.
+
+## 2026-07-09T12:31Z — QA Agent Verification
+
+**Result: qa=true, implementation=true**
+
+Test: `scripts/qa/ac031-test.mts` — direct MongoDriver integration test against live relay-mongo container.
+
+Procedure:
+1. Connected to `mongodb://localhost:27017` (relay-mongo from docker-compose).
+2. Seeded two test collections (`ac031_customers`, `ac031_orders`) with sample documents.
+3. Instantiated `MongoDriver` with same config as relay-config.docker.yaml (`uri: mongodb://localhost:27017`, `database: relay`).
+4. Called `driver.execute({ operation: 'list_tables', params: {} })`.
+5. Verified response shape: `rows` is array, every element has `{ name: string, type: string }`, `rowCount` matches `rows.length`, `executionTimeMs` is non-negative, seeded collections present in results.
+6. Cleaned up seeded collections.
+
+Evidence:
+- Driver source `src/drivers/mongodb/mongo-driver.ts` line 39: `const collections = await this.db.listCollections().toArray()` — matches contract exactly.
+- Return mapping at line 41: `collections.map((c) => ({ name: c.name, type: c.type }))` — produces `{ name, type }[]` as specified.
+- All verification checks passed.
+
+Defects: none.
+NextAction: complete.
