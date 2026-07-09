@@ -922,3 +922,10 @@ Merge with strategy ort failed.
 - RepairPlan: QA defect report for WI-AC-043 identified two missing scaffold artifacts at HEAD commit `5897d7c`: (1) `apps/dashboard/.env.staging` did not exist, and (2) `web/.gitignore` had no exception for `.env.staging` under the `.env.*` pattern. Both artifacts have been created in the working tree but neither is committed yet. The `.env.staging` file contains `STAGING_TEST_USER` and `STAGING_TEST_PASSWORD` with placeholder values (real creds from shared password manager). The `.gitignore` now has `!apps/dashboard/.env.staging` on line 19. `apps/dashboard/CLAUDE.md` already documents the four-step verification protocol per AC-043 Step 1.; Stage and commit `web/apps/dashboard/.env.staging` (tracked file with placeholder creds); Stage and commit the `web/.gitignore` modification (`!apps/dashboard/.env.staging` exception)
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/testing_and_observability/WI-AC-043-1-integration_qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-09T19:43:59.755Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-043
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
