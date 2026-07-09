@@ -1036,3 +1036,10 @@ Defects 1-2 are in the dashboard's OSS auth integration code. Defects 3-4 are on
 - Outcome: user authorized a new Attempt cycle
 - Guidance: WI-AC-051 / open-source-local-runtime: Repair Plan — (1) dashboard with-auth: call Core /v1/whoami (not /v1/auth/me) and parse nested user/tenantId; (2) session-auth: accept JWT tenant_id snake_case as tenantId; (3) coordinate with Core stubs so billing/subscription returns free/active and integrations connect/credentials/list do not require Composio. Smallest diffs only; then re-QA AC-051 at HTTP/browser boundary.
 - NextAction: Coding Attempt 1
+
+## 2026-07-09T21:18:19.047Z — Resumed
+
+- WorkItem: WI-AC-051
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
