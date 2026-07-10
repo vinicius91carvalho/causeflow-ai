@@ -6,9 +6,9 @@
   "integration": true,
   "implementation": true,
   "qa": true,
-  "verifiedAt": "2026-07-10T17:24:13Z",
+  "verifiedAt": "2026-07-10T17:28:23Z",
   "verifiedBy": "qa-agent",
-  "tested": "2026-07-10T17:24:13Z",
+  "tested": "2026-07-10T17:28:23Z",
   "verification": {
     "getProposalReturnsPlanWithActions": "pass",
     "postApproveReturns200AndCreatesApprovalEntity": "pass",
@@ -17,9 +17,9 @@
   "evidence": [
     "Scaffold verified: init.sh, feature_list.json, project_specs.xml, bootstrap.ts present.",
     "API healthy at http://127.0.0.1:3099 (container PORT=5171, OSS runtime).",
-    "POST /v1/auth/register → 201. POST /v1/admin/incidents → 201. POST /api/v1/remediation → 201 remediationId=f94b2661-5d67-41dd-83f5-b8e28a9bbd74 with ecs.updateService + ecs.forceNewDeployment steps.",
-    "GET /api/v1/remediation/f94b2661-5d67-41dd-83f5-b8e28a9bbd74/proposal → HTTP 200, steps_count=2, actions=ecs.updateService,ecs.forceNewDeployment.",
-    "POST /api/v1/remediation/:id/approve with admin JWT → HTTP 200, status=approved, approvedBy=qa-ac023-1783704251@example.com.",
+    "POST /v1/auth/register → 201. POST /v1/admin/incidents → 201. POST /api/v1/remediation → 201 remediationId=7f470dde-f311-487d-acfa-91433234dca9 with ecs.updateService + ecs.forceNewDeployment steps.",
+    "GET /api/v1/remediation/7f470dde-f311-487d-acfa-91433234dca9/proposal → HTTP 200, steps_count=2, actions=ecs.updateService,ecs.forceNewDeployment.",
+    "POST /api/v1/remediation/:id/approve with admin JWT → HTTP 200, status=approved, approvedBy=qa-ac023-1783704487@example.com.",
     "Second POST /api/v1/remediation/:id/approve → HTTP 409 CONFLICT (status completed after auto-execute).",
     "ApprovalEntity creation confirmed via code audit: ApproveRemediationUseCase calls approvalRepo.create() (approve-remediation.usecase.ts:39-59), wired with PgApprovalRepository in bootstrap.ts."
   ],
