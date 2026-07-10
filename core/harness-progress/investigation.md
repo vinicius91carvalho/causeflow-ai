@@ -4945,3 +4945,10 @@ Scaffold audit: all required AC-019 structures present. Exercised AC-019 at real
 **Result: implementation=true (zero-diff checkpoint — no code changes).**
 
 Scaffold audit: `project_specs.xml` and required AC-019 structures present. Real HTTP/SSE boundary on PORT=5175. Incident `5910a026-4d4e-4d07-8244-c3b42b034c38`: `GET /api/v1/investigation/:id` observed `status=running` at t=0ms then `status=succeeded`; SSE `/api/v1/investigation/:id/stream` emitted 24 events with per-agent `investigation_progress` for all 6 agents; `finalSynthesis` stored.
+
+## 2026-07-10T17:20:45.101Z â€” Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
