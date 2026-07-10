@@ -610,7 +610,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     eventBus,
     chatPlatform,
   );
-  const approveRemediation = new ApproveRemediationUseCase(remediationRepo, eventBus);
+  const approveRemediation = new ApproveRemediationUseCase(remediationRepo, eventBus, approvalRepo);
   const rejectRemediation = new RejectRemediationUseCase(remediationRepo, incidentRepo, eventBus);
   const executeRemediation = new ExecuteRemediationUseCase(
     remediationRepo,

@@ -1,0 +1,25 @@
+{
+  "workItemId": "WI-AC-023",
+  "qa": true,
+  "integration": true,
+  "implementation": true,
+  "tested": "2026-07-10T04:40:00Z",
+  "verification": {
+    "getProposalReturnsPlanWithActions": "pass",
+    "postApproveReturns200AndCreatesApprovalEntity": "pass",
+    "secondApproveReturns409Conflict": "pass",
+    "unitTestsApproveUseCasePass": "pass",
+    "unitTestsRoutesPass": "pass"
+  },
+  "observations": [
+    "GET /api/v1/remediation/:id/proposal returns the plan with steps listing AWS actions (action, label, description, riskLevel, params) — verified against running API on port 5171.",
+    "POST /api/v1/remediation/:id/approve with admin JWT returns HTTP 200 and sets remediation status to 'approved' — approvedBy field is populated from JWT email claim.",
+    "POST /api/v1/remediation/:id/approve a second time returns HTTP 409 with error code CONFLICT — the ApproveRemediationUseCase correctly rejects when status is not 'proposed' (either 'approved' or auto-executed to 'completed').",
+    "ApproveRemediationUseCase creates an ApprovalEntity via IApprovalRepository.create() — confirmed by code audit of approve-remediation.usecase.ts lines 33-50 which construct and persist a PendingApproval record.",
+    "Auto-execute on approval (bootstrap.ts eventBus subscriber remediation.approved) does not interfere with the 409 rejection — the second approve still gets properly rejected even if the remediation auto-executed to completion.",
+    "Unit tests approve-remediation.test.ts (4 tests) and remediation.routes.test.ts (7 tests) all pass — covering happy path, NotFoundError, ConflictError, and event publishing.",
+    "RBAC enforcement: the approve route requires admin role via requireRole('admin') middleware — verified in remediation.routes.ts.",
+    "Proposal route returns all required fields: remediationId, incidentId, status, rootCause, description, steps (action + params), proposedBy, createdAt, updatedAt."
+  ],
+  "defects": []
+}

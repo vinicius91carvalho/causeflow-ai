@@ -74,6 +74,23 @@ export function createRemediationRoutes(useCases: RemediationUseCases): Hono<App
         const remediation = await useCases.getRemediation.getById(tenantId, id);
         return c.json(remediation);
     });
+    // Get remediation proposal (AC-023) — returns the plan with AWS actions
+    app.get('/:remediationId/proposal', async (c) => {
+        const tenantId = c.get('tenantId');
+        const id = remediationId(c.req.param('remediationId'));
+        const remediation = await useCases.getRemediation.getById(tenantId, id);
+        return c.json({
+            remediationId: remediation.remediationId,
+            incidentId: remediation.incidentId,
+            status: remediation.status,
+            rootCause: remediation.rootCause,
+            description: remediation.description,
+            steps: remediation.steps,
+            proposedBy: remediation.proposedBy,
+            createdAt: remediation.createdAt,
+            updatedAt: remediation.updatedAt,
+        });
+    });
     // Approve remediation
     app.post('/:remediationId/approve', requireRole('admin'), async (c) => {
         const tenantId = c.get('tenantId');
