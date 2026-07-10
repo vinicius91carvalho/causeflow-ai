@@ -913,7 +913,7 @@
     "acceptance_checks": ["AC-043"],
     "depends_on": ["AC-042", "AC-011"],
     "verify_first": false,
-    "implementation": false,
+    "implementation": true,
     "qa": false,
     "integration": false,
     "retries": 0
