@@ -35,6 +35,32 @@
 
 ## 2026-07-10T01:56:00.000Z — Verify-First: AC-034 confirmed at browser boundary + CORS fix
 
+## 2026-07-09T23:03:00.000Z — VERIFY-FIRST: AC-034 re-verified at HTTP boundary (zero-diff checkpoint)
+
+- Attempt: re-verification (current worktree)
+- WorkItem: WI-AC-034
+- Environment: API running on PORT=5171 (OSS runtime, Postgres:5439, Redis:6380)
+- Auth: Local JWT via POST /v1/auth/register, widget API key via POST /v1/api-keys
+- All code already implemented from previous attempt — working tree clean
+
+### HTTP Boundary Verification (12 checks)
+
+1. ✅ `GET /widget/widget.js` → 200, Content-Type: application/javascript, 32085 bytes
+2. ✅ `GET /v1/widget/config` (valid cflo_ API key) → 200, branding config returned
+3. ✅ `GET /v1/widget/incidents` (valid key) → 200, incidents with severity/title/status/summary/createdAt
+4. ✅ `POST /v1/widget/sessions` (valid key) → 201 with sessionId
+5. ✅ `GET /v1/widget/incidents` (invalid key) → 401 Unauthorized
+6. ✅ `GET /v1/widget/incidents` (no key) → 401 Unauthorized
+7. ✅ Multiple incidents visible — created new incident, appears in widget incidents list
+8. ✅ portal-shell.html self-hosts `/widget/widget.js`, zero CDN references
+9. ✅ Dockerfile has `pnpm --filter @causeflow/widget build` stage + copies dist to runtime
+10. ✅ package.json has `"build:widget": "pnpm --filter @causeflow/widget build"` script
+11. ✅ Widget bundle contains incident panel code (severity badges, unauthorized state, loading, etc.)
+12. ✅ Widget bundle contains zero chat references
+
+### Verdict
+implementation=true — zero-diff checkpoint, no code changes needed
+
 - Attempt: 3/3
 - Browser verification (Playwright + Chrome):
   - ✅ Widget bundle /widget/widget.js → 200 (application/javascript, 32KB)
