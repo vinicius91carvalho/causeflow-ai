@@ -17,6 +17,7 @@ function toDomain(raw: Record<string, unknown>): Hypothesis {
         status: (raw['status'] as HypothesisStatus | undefined) ?? 'pending',
         finalScore: raw['finalScore'] as number | undefined,
         rejectedReason: raw['rejectedReason'] as string | undefined,
+        parentId: raw['parentId'] as string | undefined,
         createdAt: raw['createdAt'] as string,
         updatedAt: raw['updatedAt'] as string,
     };
@@ -37,6 +38,7 @@ export class DynamoHypothesisRepository implements IHypothesisRepository {
             status: hypothesis.status,
             finalScore: hypothesis.finalScore,
             rejectedReason: hypothesis.rejectedReason,
+            parentId: hypothesis.parentId,
         }).go();
         return toDomain(result.data as unknown as Record<string, unknown>);
     }

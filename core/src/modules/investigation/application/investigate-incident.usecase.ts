@@ -32,6 +32,8 @@ import type { SelectSkillsUseCase } from '../../skills/application/select-skills
 import type { IncidentId, TenantId } from '../../../shared/domain/value-objects.js';
 import type { SubAgentResult, SubAgentConfig, TenantCapabilities, Finding } from '../domain/investigation.types.js';
 import type { Evidence } from '../../triage/domain/evidence.repository.js';
+import type { IHypothesisRepository } from '../domain/hypothesis.repository.js';
+import { createPendingHypothesis } from '../domain/hypothesis.entity.js';
 import type { AgentRunResult, ToolCallRecord, ToolDefinition } from '../../../shared/application/ports/agent-runner.port.js';
 import type { Incident } from '../../ingestion/domain/incident.entity.js';
 
@@ -65,6 +67,7 @@ export interface InvestigateIncidentDeps {
     integrationToolProvider?: IntegrationToolProvider;
     agentMemory?: AgentMemory;
     selectSkills?: SelectSkillsUseCase;
+    hypothesisRepo?: IHypothesisRepository;
 }
 
 /**
@@ -314,6 +317,7 @@ export class InvestigateIncidentUseCase {
     integrationToolProvider;
     agentMemory;
     selectSkills;
+    hypothesisRepo;
     constructor(deps: InvestigateIncidentDeps) {
         this.incidentRepo = deps.incidentRepo;
         this.evidenceRepo = deps.evidenceRepo;
@@ -332,6 +336,102 @@ export class InvestigateIncidentUseCase {
         this.integrationToolProvider = deps.integrationToolProvider;
         this.agentMemory = deps.agentMemory;
         this.selectSkills = deps.selectSkills;
+        this.hypothesisRepo = deps.hypothesisRepo;
+    }
+
+    private async persistInvestigationArtifacts(params: {
+        tenantId: TenantId;
+        incidentId: IncidentId;
+        agentRoles: string[];
+        rootCause: string;
+        agentDetails?: Array<{ role: string; content: string; confidence: number }>;
+    }): Promise<void> {
+        const { tenantId, incidentId, agentRoles, rootCause, agentDetails } = params;
+        const now = new Date().toISOString();
+        for (const role of agentRoles) {
+            const detail = agentDetails?.find((d) => d.role === role);
+            await this.evidenceRepo.create({
+                tenantId,
+                incidentId,
+                evidenceId: evidenceId(uuidv4()),
+                agentRole: role as SubAgentResult['agentRole'],
+                evidenceType: 'agent_reasoning',
+                content: detail?.content ?? `Agent ${role} completed investigation`,
+                metadata: { confidence: detail?.confidence ?? 0 },
+                createdAt: now,
+            });
+        }
+        await this.evidenceRepo.create({
+            tenantId,
+            incidentId,
+            evidenceId: evidenceId(uuidv4()),
+            agentRole: 'coordinator',
+            evidenceType: 'agent_reasoning',
+            content: rootCause,
+            metadata: { source: 'synthesis', confidence: 0 },
+            createdAt: now,
+        });
+        if (!this.hypothesisRepo) return;
+        const rootHypothesisId = uuidv4();
+        await this.hypothesisRepo.create({
+            ...createPendingHypothesis({
+                hypothesisId: rootHypothesisId,
+                tenantId,
+                incidentId,
+                statement: rootCause,
+                confidence: 0.5,
+                rationale: 'Synthesized root cause',
+            }),
+            status: 'confirmed',
+            finalScore: 50,
+        });
+        for (const role of agentRoles) {
+            const detail = agentDetails?.find((d) => d.role === role);
+            await this.hypothesisRepo.create(createPendingHypothesis({
+                hypothesisId: uuidv4(),
+                tenantId,
+                incidentId,
+                statement: detail?.content ?? `Contributing factor from ${role}`,
+                confidence: detail?.confidence ?? 0,
+                parentId: rootHypothesisId,
+                rationale: `Agent ${role} finding`,
+            }));
+        }
+    }
+
+    private async persistHypothesisTree(params: {
+        tenantId: TenantId;
+        incidentId: IncidentId;
+        rootCause: string;
+        agentResults: SubAgentResult[];
+    }): Promise<void> {
+        if (!this.hypothesisRepo) return;
+        const { tenantId, incidentId, rootCause, agentResults } = params;
+        const rootHypothesisId = uuidv4();
+        await this.hypothesisRepo.create({
+            ...createPendingHypothesis({
+                hypothesisId: rootHypothesisId,
+                tenantId,
+                incidentId,
+                statement: rootCause,
+                confidence: 0.8,
+                rationale: 'Synthesized root cause',
+            }),
+            status: 'confirmed',
+            finalScore: 80,
+        });
+        for (const agentResult of agentResults) {
+            const statement = agentResult.findings.join('\n') || `Finding from ${agentResult.agentRole}`;
+            await this.hypothesisRepo.create(createPendingHypothesis({
+                hypothesisId: uuidv4(),
+                tenantId,
+                incidentId,
+                statement,
+                confidence: agentResult.confidence,
+                parentId: rootHypothesisId,
+                rationale: `Agent ${agentResult.agentRole} finding`,
+            }));
+        }
     }
     /**
      * Query tenant integrations to determine what the tenant has connected.
@@ -759,6 +859,13 @@ export class InvestigateIncidentUseCase {
                     tenantId,
                     payload: { incidentId, rootCause: stubRootCause, recommendedActions: [], totalCostUsd: 0, investigationDurationMs: Date.now() - investigationStartMs },
                 });
+                const stubRoles = suggestedAgents.filter((r) => r in AGENT_CONFIG_MAP);
+                await this.persistInvestigationArtifacts({
+                    tenantId,
+                    incidentId,
+                    agentRoles: stubRoles.length > 0 ? stubRoles : ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
+                    rootCause: stubRootCause,
+                });
                 return {
                     findings: [{ text: 'Investigation completed without agent findings (LLM unavailable)', evidenceIds: [] }],
                     potentialRootCause: stubRootCause,
@@ -974,6 +1081,17 @@ export class InvestigateIncidentUseCase {
                     investigationDurationMs,
                 },
             });
+            await this.persistInvestigationArtifacts({
+                tenantId,
+                incidentId,
+                agentRoles: failedAgents.map((a) => a.role),
+                rootCause: stubRootCause,
+                agentDetails: failedAgents.map((a) => ({
+                    role: a.role,
+                    content: a.error || `Agent ${a.role} failed (LLM unavailable)`,
+                    confidence: 0,
+                })),
+            });
             return {
                 findings: [{ text: 'Investigation completed without agent findings (LLM unavailable)', evidenceIds: [] }],
                 potentialRootCause: stubRootCause,
@@ -1120,6 +1238,12 @@ ${findingsSummary}`;
             content: investigationResult.potentialRootCause,
             metadata: { source: 'synthesis' },
             createdAt: new Date().toISOString(),
+        });
+        await this.persistHypothesisTree({
+            tenantId,
+            incidentId,
+            rootCause: investigationResult.potentialRootCause,
+            agentResults: successfulResults,
         });
         // 8. Calculate costs, duration, and update incident
         const wave0CostUsd = successfulResults.filter((r) => r.wave === 0).reduce((sum, r) => sum + r.costUsd, 0);

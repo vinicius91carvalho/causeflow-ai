@@ -1,5 +1,31 @@
 # Workflow Journal
 
+## 2026-07-10T19:20:00Z — VERIFY-FIRST boundary pass (WI-AC-020, this worktree)
+
+**Result: implementation=true (minimal fix — evidence route + stub-path artifact persistence).**
+
+Exercised AC-020 against the EXISTING code at real HTTP boundaries on the running OSS stack
+(PORT=3099 host → container 5171, Postgres :5439, Redis :6380).
+
+### Root causes fixed
+1. `GET /api/v1/investigation/:id/evidence` returned 404 — route was missing from investigation.routes.ts
+2. Stub fallback (all agents failed, LLM unavailable) completed investigation without persisting EvidenceEntity or HypothesisEntity
+3. Hypothesis tree lacked `parentId` links for parent/child structure in orchestrator mode
+
+### Changes
+- Added `GET /:incidentId/evidence` returning `{ evidenceByAgent }` with `metadata.confidence` per item
+- `persistInvestigationArtifacts()` in stub/orchestrator-fallback paths: one EvidenceEntity per active agent + coordinator + hypothesis tree (root + children via `parentId`)
+- `persistHypothesisTree()` after successful synthesis path
+- Added optional `parentId` on Hypothesis entity + PG/Dynamo repos
+- Wired `hypothesisRepo` into InvestigateIncidentUseCase (bootstrap + worker)
+
+### AC-020 boundary checks (all passed)
+1. ✅ Finished investigation has EvidenceEntity per active agent (6 agents + coordinator)
+2. ✅ `GET /api/v1/investigation/:id/evidence` → 200, grouped by agent, confidence scores present
+3. ✅ `GET /api/v1/investigation/:id/hypotheses` → 7 hypotheses (1 root, 6 children with parentId links)
+
+Incident `da69f246-38e1-428f-b0fc-6799036593b0` — `.harness/ac020-verify.sh` PASS
+
 ## 2026-07-10T06:15:00Z — VERIFY-FIRST boundary pass (WI-AC-026, this worktree)
 
 **Result: implementation=true (zero-diff checkpoint — no code changes).**

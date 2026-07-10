@@ -27,6 +27,7 @@ function toDomain(row: any): Hypothesis {
         status: (row.data['status'] as HypothesisStatus | undefined) ?? 'pending',
         finalScore: row.data['finalScore'] as number | undefined,
         rejectedReason: row.data['rejectedReason'] as string | undefined,
+        parentId: row.data['parentId'] as string | undefined,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
     };
@@ -44,6 +45,7 @@ function toData(hypothesis: Hypothesis): Record<string, unknown> {
         status: hypothesis.status,
         finalScore: hypothesis.finalScore,
         rejectedReason: hypothesis.rejectedReason,
+        parentId: hypothesis.parentId,
     };
 }
 

@@ -215,6 +215,7 @@ async function workerBootstrap(ossMode?: boolean) {
         integrationToolProvider: integrationToolProvider as IntegrationToolProvider | undefined,
         agentMemory: new HindsightAgentMemory({ baseUrl: config.hindsight.baseUrl, apiKey: config.hindsight.apiKey }),
         selectSkills,
+        hypothesisRepo,
     });
     // Billing — refund on failure
     // billingAccountRepo is already set in the OSS-aware block above

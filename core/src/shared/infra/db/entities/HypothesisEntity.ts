@@ -28,6 +28,7 @@ export const HypothesisEntity = new Entity({
         status: { type: ['pending', 'confirmed', 'rejected'], required: true, default: 'pending' },
         finalScore: { type: 'number' },
         rejectedReason: { type: 'string' },
+        parentId: { type: 'string' },
         createdAt: { type: 'string', required: true, default: () => new Date().toISOString(), readOnly: true },
         updatedAt: { type: 'string', required: true, default: () => new Date().toISOString(), watch: '*', set: () => new Date().toISOString() },
     },

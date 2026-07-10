@@ -69,6 +69,8 @@ export interface Hypothesis {
     finalScore?: number;
     /** Populated when status = 'rejected'. Explains why. */
     rejectedReason?: string;
+    /** Parent hypothesis id for tree links (root hypotheses omit this). */
+    parentId?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -84,6 +86,7 @@ export function createPendingHypothesis(params: {
     confidence: number;
     rationale?: string;
     informedBy?: string[];
+    parentId?: string;
     now?: Date;
 }): Hypothesis {
     const now = (params.now ?? new Date()).toISOString();
@@ -95,6 +98,7 @@ export function createPendingHypothesis(params: {
         rationale: params.rationale,
         informedBy: params.informedBy,
         confidence: params.confidence,
+        parentId: params.parentId,
         evidenceFor: [],
         evidenceAgainst: [],
         status: 'pending',

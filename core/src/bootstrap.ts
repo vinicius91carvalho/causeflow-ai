@@ -489,6 +489,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   })();
   const selectSkills = new SelectSkillsUseCase(skillRepo, llmClient);
 
+  const hypothesisRepo = config.isOss()
+    ? new (await import('./modules/investigation/infra/pg-hypothesis.repository.js')).PgHypothesisRepository()
+    : new DynamoHypothesisRepository();
+
   // Investigation Use Cases
   const investigateIncident = new InvestigateIncidentUseCase({
     incidentRepo,
@@ -508,6 +512,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     integrationToolProvider: composioToolProvider,
     agentMemory,
     selectSkills,
+    hypothesisRepo,
   });
   const getInvestigation = new GetInvestigationUseCase(incidentRepo, evidenceRepo);
   const addInvestigationContext = new AddInvestigationContextUseCase({
@@ -521,9 +526,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // Orchestrator is default; hypothesis-driven mode is available for staff
   // to toggle via the admin endpoint without a deploy.
   const orchestratorMode = new OrchestratorMode(investigateIncident);
-  const hypothesisRepo = config.isOss()
-    ? new (await import('./modules/investigation/infra/pg-hypothesis.repository.js')).PgHypothesisRepository()
-    : new DynamoHypothesisRepository();
   const toolsetAdapter = new OrchestratorToolsetAdapter(investigateIncident);
   const hypothesisMode = new HypothesisMode({
     toolset: toolsetAdapter,

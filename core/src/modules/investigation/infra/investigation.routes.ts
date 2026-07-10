@@ -234,6 +234,21 @@ export function createInvestigationRoutes(useCases: InvestigationUseCases): Hono
         const relayUrl = process.env['INVESTIGATION_RELAY_URL'] ?? '';
         return c.json({ token, relayUrl, expiresIn: 900 });
     });
+    // Get investigation evidence grouped by agent (AC-020)
+    app.get('/:incidentId/evidence', async (c) => {
+        const tenantId = c.get('tenantId');
+        const id = incidentId(c.req.param('incidentId'));
+        const allEvidence = await useCases.evidenceRepo.findByIncident(tenantId, id);
+        const evidenceByAgent: Record<string, typeof allEvidence> = {};
+        for (const ev of allEvidence) {
+            const role = ev.agentRole;
+            if (!evidenceByAgent[role]) {
+                evidenceByAgent[role] = [];
+            }
+            evidenceByAgent[role].push(ev);
+        }
+        return c.json({ evidenceByAgent });
+    });
     // Get investigation result + evidence by agent
     app.get('/:incidentId', async (c) => {
         const tenantId = c.get('tenantId');
