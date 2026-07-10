@@ -1105,17 +1105,17 @@ Scaffold audit pass. Real HTTP/SSE on `PORT=5175`: incident `fe2daada-b028-4252-
 
 Scaffold audit pass. Real HTTP/SSE on `PORT=5175`: incident `51bb76eb-e0b6-4f44-91a9-ec85d0cae26d` -> `status=running`, SSE per-agent events for all 6 agents, final `status=succeeded` with `finalSynthesis` stored. `.harness/ac019-integrated-verify.sh` exit 0.
 
-## 2026-07-10T17:11:00Z — Integrated verification for WI-AC-019
-
-**Result: integration=true, implementation=true.**
-
-Scaffold audit pass. Real HTTP/SSE on `PORT=5175`: incident `68a6716f-3537-466a-8ddc-9d9f2da91bb8` -> `status=running`, SSE per-agent events for all 6 agents, final `status=succeeded` with `finalSynthesis` stored. `.harness/ac019-integrated-verify.sh` exit 0.
-
 ## 2026-07-10T17:05:13Z — Integrated verification for WI-AC-023
 
 **Result: integration=true, implementation=true.**
 
 Scaffold audit pass. Real HTTP on port 3099 (container PORT=5171): remediationId `3ac6d8eb-27b0-4541-9ae5-bf0f038d3c78` — GET proposal 200 with 2 AWS action steps; POST approve 200 status=approved; second POST approve 409 CONFLICT.
+
+## 2026-07-10T17:11:00Z — Integrated verification for WI-AC-019
+
+**Result: integration=true, implementation=true.**
+
+Scaffold audit pass. Real HTTP/SSE on `PORT=5175`: incident `68a6716f-3537-466a-8ddc-9d9f2da91bb8` -> `status=running`, SSE per-agent events for all 6 agents, final `status=succeeded` with `finalSynthesis` stored. `.harness/ac019-integrated-verify.sh` exit 0.
 
 ## 2026-07-10T17:19:29Z — Integrated verification for WI-AC-023
 
@@ -1129,6 +1129,21 @@ Scaffold audit pass. Real HTTP on port 3099 (container PORT=5171): remediationId
 
 Scaffold audit pass. Real HTTP on port 3099 (container PORT=5171): remediationId `f94b2661-5d67-41dd-83f5-b8e28a9bbd74` — GET proposal 200 with ecs.updateService/ecs.forceNewDeployment; POST approve 200 status=approved; second POST approve 409 CONFLICT.
 
+## 2026-07-10T17:26:12Z — QA verdict for WI-AC-019
+
+**Result: qa=true, implementation=true.**
+
+Scaffold audit: `project_specs.xml` present; required AC-019 structures verified.
+
+Real HTTP/SSE boundary on `PORT=5175`:
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `dc1dd21a-1e54-49a7-a2e3-0bc65efd7304`.
+- `GET /api/v1/investigation/:id` poll -> `status=running`, then `status=succeeded`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 24 events with per-agent progress for all 6 agents, then `investigation_completed`.
+- Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+No defects found for AC-019.
+
 ## 2026-07-10T17:28:23Z — Integrated verification for WI-AC-023
 
 **Result: integration=true, implementation=true.**
@@ -1140,3 +1155,9 @@ Scaffold audit pass. Real HTTP on port 3099 (container PORT=5171): remediationId
 **Result: integration=true, implementation=true.**
 
 Scaffold audit pass. Real HTTP on port 3099 (container PORT=5171): remediationId `28c63b9b-4fde-4d15-a65f-4fd4b94bc19f` — GET proposal 200 with ecs.updateService/ecs.forceNewDeployment; POST approve 200 status=approved; second POST approve 409 CONFLICT.
+
+## 2026-07-10T17:35:37Z — Integrated verification for WI-AC-019
+
+**Result: integration=true, implementation=true.**
+
+Scaffold audit pass. Real HTTP/SSE on `PORT=5175`: incident `67036498-4c93-46bd-b5b3-70fb22db89b2` -> `status=running`, SSE per-agent events for all 6 agents, final `status=succeeded` with `finalSynthesis` stored. `.harness/ac019-integrated-verify.sh` exit 0.
