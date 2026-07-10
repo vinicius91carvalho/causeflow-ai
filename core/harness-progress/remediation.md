@@ -1180,3 +1180,10 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/6a2134d5-5da9-4824-81be-115512f35449/remediation/WI-AC-024-1-integration_qa-63fa2bf549e6524f.log
 - NextAction: next Ready Work Item
+
+## 2026-07-10T21:01:24.656Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: claimed
+- Attempt: 1
+- NextAction: start-orchestrator
