@@ -465,3 +465,10 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
 - NextAction: Coding Attempt 1
+
+## 2026-07-10T17:11:28Z — Verify-first pass (coding-agent, attempt 1)
+
+- WorkItem: WI-AC-023
+- Outcome: AC-023 passes at HTTP boundary (zero-diff)
+- Evidence: localhost:3099 (container PORT=5171); GET /api/v1/remediation/:id/proposal → 200 with ecs.updateService + ssm.runCommand; POST approve → 200 status=approved; second POST approve → 409 CONFLICT
+- NextAction: integration merge

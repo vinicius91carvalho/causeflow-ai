@@ -3,7 +3,7 @@
   "qa": true,
   "integration": true,
   "implementation": true,
-  "tested": "2026-07-10T16:42:00Z",
+  "tested": "2026-07-10T17:11:28Z",
   "verification": {
     "getProposalReturnsPlanWithActions": "pass",
     "postApproveReturns200AndCreatesApprovalEntity": "pass",
@@ -20,7 +20,8 @@
     "Proposal route returns all required fields: remediationId, incidentId, status, rootCause, description, steps (action + params), proposedBy, createdAt, updatedAt.",
     "RE-VERIFIED at HTTP boundary on port 5171 (OSS runtime). Created incident, proposed remediation, called GET /api/v1/remediation/:id/proposal → plan with AWS actions, POST /api/v1/remediation/:id/approve with admin JWT → 200 + status=approved + approvedBy populated, second approve → HTTP 409 CONFLICT. All three AC-023 checks pass against real API.",
     "Attempt 3 verify-first (coding-agent): API healthy at host :3099 (container PORT=5171). Zero-diff re-verification — GET proposal 200 with ecs.updateService/ssm.runCommand steps, POST approve 200 approvedBy=admin@causeflow.ai, second POST approve 409 CONFLICT (status completed after auto-execute). implementation=true.",
-    "QA agent independent re-run (2026-07-10): scaffold verified (init.sh, feature_list.json, project_specs.xml, bootstrap.ts). HTTP on localhost:3099 (container PORT=5171): GET /api/v1/remediation/:id/proposal → 200 with ecs.updateService + ssm.runCommand steps; POST approve → 200 status=approved approvedBy=admin@causeflow.ai; second POST approve → 409 CONFLICT. ApprovalEntity creation confirmed via code audit (approve-remediation.usecase.ts calls approvalRepo.create, wired in bootstrap.ts)."
+    "QA agent independent re-run (2026-07-10): scaffold verified (init.sh, feature_list.json, project_specs.xml, bootstrap.ts). HTTP on localhost:3099 (container PORT=5171): GET /api/v1/remediation/:id/proposal → 200 with ecs.updateService + ssm.runCommand steps; POST approve → 200 status=approved approvedBy=admin@causeflow.ai; second POST approve → 409 CONFLICT. ApprovalEntity creation confirmed via code audit (approve-remediation.usecase.ts calls approvalRepo.create, wired in bootstrap.ts).",
+    "Attempt 4 verify-first (coding-agent, 2026-07-10T17:11:28Z): integration merge retry. Scaffold verified. HTTP on localhost:3099 (container PORT=5171). Fresh tenant register → incident → propose → GET proposal 200 (ecs.updateService + ssm.runCommand steps), POST approve 200 approvedBy populated, second POST approve 409 CONFLICT. Zero code changes; implementation=true."
   ],
   "defects": []
 }
