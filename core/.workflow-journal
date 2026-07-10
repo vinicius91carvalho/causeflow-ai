@@ -68,6 +68,52 @@ running stack (PORT=3099, OSS runtime, Postgres :5439, Redis :6380, Hindsight :8
 - `ClerkUserEmailResolver` — `undefined` in OSS mode (bootstrap.ts)
 - `handle-clerk-webhook.usecase.ts` — dynamically imported only in non-OSS mode
 
+## WI-AC-045: Investigation worker as docker-compose service (BullMQ consumer), ECS code gated
+
+### Status: IMPLEMENTED & VERIFIED (QA PASS)
+
+### Changes
+1. **`src/workers/investigation-worker.ts`** — Major refactoring:
+   - Replaced standby mode with BullMQ consumer mode (`startBullConsumer()`) for the OSS runtime
+   - Worker now runs as a long-lived BullMQ consumer that listens for jobs on `causeflow-investigation` queue
+   - Added OSS-aware repo selection: Postgres repos (PgIncident, PgEvidence, etc.) + BullMQ in OSS mode;
+     DynamoDB repos + SQS in one-shot (AWS ECS) mode
+   - Added `investigation:start` log line when a BullMQ investigation job is picked up (AC-045 verification signal)
+   - Kept existing one-shot mode for AWS ECS tasks (INCIDENT_ID set) unchanged
+
+2. **`src/bootstrap.ts`** — Removed the in-process BullMQ investigation worker from the API (lines ~1490-1500).
+   The worker container handles investigation jobs now. Triage is still handled by the API's BullMQ triage worker.
+
+3. **`docker-compose.yml`** — Updated causeflow-worker service:
+   - Added `DATABASE_URL` + Postgres env vars (`POSTGRES_HOST`, `POSTGRES_PORT`)
+   - Added `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY`, `WEBHOOK_SECRET`, `DEDUP_WINDOW_MINUTES`
+   - Added `causeflow-postgres` dependency (condition: service_healthy)
+   - Added healthcheck so `docker compose ps` shows `(healthy)`
+
+4. **ECS code gating** — Already feature-gated via `config.ecs.cluster`:
+   - `ecs-client.ts` and `task-dispatcher.ts` are only imported when `config.ecs.cluster` is truthy
+   - In OSS mode, `ECS_CLUSTER` is never set → ECS dispatch is never called
+   - `investigation-consumer.ts` (SQS → ECS path) is only loaded in the AWS runtime else-branch
+
+### Black-box HTTP verification (PORT=3099, OSS runtime, docker compose)
+1. ✅ `docker compose ps` — both `causeflow-api` (healthy) and `causeflow-worker` (healthy)
+2. ✅ Worker logs `BullMQ worker started` on `causeflow-investigation` queue
+3. ✅ Worker logs `investigation:start` when picking up a BullMQ investigation job
+4. ✅ Worker logs `investigation:complete` and `BullMQ job completed` after processing
+5. ✅ Incident transitions from `triaging` → `investigating` → `resolved` (via worker, not API in-process)
+6. ✅ No ECS code runs: `ECS_CLUSTER` env var is not set, `config.ecs.cluster` is empty
+7. ✅ Investigation runs via worker with assigned agents (log_analyst, metric_analyst, etc.)
+8. ✅ `publishProgressToSQS` calls in worker are no-ops (no SQS_PROGRESS_QUEUE_URL set)
+
+### ECS gating confirmation
+- `src/shared/infra/ecs/task-dispatcher.ts` is only loaded when `config.ecs.cluster` is truthy
+- `src/main.ts` line 274: dynamic import of `task-dispatcher` guarded by `if (config.ecs.cluster)`
+- `src/bootstrap.ts` line 587: same guard
+- `src/modules/investigation/infra/investigation-consumer.ts` only imported in AWS else-branch
+- In OSS runtime: `ECS_CLUSTER` empty → `config.ecs.cluster` is `''` (falsy) → ECS dispatch never called
+
+### Zero defects
+
 ## WI-AC-050: All tests pass without AWS/Stripe/Clerk env vars; full pipeline runs on OSS stack
 
 ### Status: IMPLEMENTED

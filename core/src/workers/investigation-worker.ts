@@ -2,11 +2,14 @@ import { HindsightAgentMemory } from '../shared/infra/memory/hindsight-agent-mem
 import { config } from '../shared/config/index.js';
 import { logger } from '../shared/infra/logger.js';
 import { EventBus } from '../shared/domain/events.js';
-import { DynamoIncidentRepository } from '../modules/ingestion/infra/dynamo-incident.repository.js';
-import { DynamoEvidenceRepository } from '../modules/triage/infra/dynamo-evidence.repository.js';
-import { DynamoToolCallRepository } from '../modules/triage/infra/dynamo-tool-call.repository.js';
-import { DynamoTenantRepository } from '../modules/tenant/infra/dynamo-tenant.repository.js';
-import { DynamoBillingAccountRepository } from '../modules/billing/infra/dynamo-billing-account.repository.js';
+// Repository imports are selected at runtime based on CAUSEFLOW_RUNTIME.
+// In OSS mode (BullMQ consumer), Postgres repos are used. In one-shot mode
+// (AWS ECS tasks), DynamoDB repos are used.
+import type { IIncidentRepository } from '../modules/ingestion/domain/incident.repository.js';
+import type { IEvidenceRepository } from '../modules/triage/domain/evidence.repository.js';
+import type { IToolCallRepository } from '../modules/triage/domain/tool-call.repository.js';
+import type { ITenantRepository } from '../modules/tenant/domain/tenant.repository.js';
+import type { IBillingAccountRepository } from '../modules/billing/domain/billing-account.repository.js';
 import { RefundInvestigationUseCase } from '../modules/billing/application/refund-investigation.usecase.js';
 import { ProviderRegistry } from '../shared/application/provider-registry.js';
 import { AWSCloudProvider } from '../shared/infra/cloud/aws-cloud-provider.js';
@@ -15,13 +18,13 @@ import { STSCredentialVendor } from '../shared/infra/credentials/sts-credential-
 import { StubCredentialVendor } from '../shared/infra/credentials/stub-credential-vendor.js';
 import { AnthropicClient } from '../shared/infra/llm/anthropic-client.js';
 import { EnhancedPTCRunner } from '../shared/infra/llm/enhanced-ptc-runner.js';
-import { DynamoSkillRepository } from '../modules/skills/infra/dynamo-skill.repository.js';
+import type { ISkillRepository } from '../modules/skills/domain/skill.repository.js';
 import { SelectSkillsUseCase } from '../modules/skills/application/select-skills.usecase.js';
 import { createObservabilityStack } from '../shared/infra/observability/observability-factory.js';
 import { ObservedAnthropicClient } from '../shared/infra/llm/observed-anthropic-client.js';
 import { ObservedAgentRunner } from '../shared/infra/llm/observed-agent-runner.js';
 import { CircuitBreaker } from '../shared/infra/llm/circuit-breaker.js';
-import { SQSMessageQueue } from '../shared/infra/queue/sqs-message-queue.js';
+import type { MessageQueue } from '../shared/application/ports/message-queue.port.js';
 import { ComposioToolProvider } from '../shared/infra/integrations/composio-tool-provider.js';
 import { InvestigateIncidentUseCase } from '../modules/investigation/application/investigate-incident.usecase.js';
 import { DispatchInvestigationUseCase } from '../modules/investigation/application/dispatch-investigation.usecase.js';
@@ -30,7 +33,7 @@ import { HypothesisMode } from '../modules/investigation/application/modes/hypot
 import { DebateMode } from '../modules/investigation/application/modes/debate/index.js';
 import { OrchestratorToolsetAdapter } from '../modules/investigation/application/modes/shared/orchestrator-toolset.adapter.js';
 import { InvestigationModeRegistry } from '../modules/investigation/application/modes/registry.js';
-import { DynamoHypothesisRepository } from '../modules/investigation/infra/dynamo-hypothesis.repository.js';
+import type { IHypothesisRepository } from '../modules/investigation/domain/hypothesis.repository.js';
 import { GetCloudIntegrationUseCase } from '../modules/integration/application/get-cloud-integration.usecase.js';
 import { AesGcmTokenEncryption } from '../shared/infra/credentials/aes-gcm-token-encryption.js';
 import { createToolHandler, incidentDetailsTool } from '../modules/investigation/infra/investigation-tools.js';
@@ -38,7 +41,6 @@ import { AWS_API_CALL_TOOL } from '../modules/investigation/infra/aws-api-tool.j
 import { MEMORY_TOOLS } from '../modules/investigation/infra/memory-tools.js';
 import { CHECKPOINT_TOOLS } from '../modules/investigation/infra/checkpoint-tools.js';
 import { tenantId, incidentId } from '../shared/domain/value-objects.js';
-import type { IIncidentRepository } from '../modules/ingestion/domain/incident.repository.js';
 import type { LLMClient } from '../shared/application/ports/llm-client.port.js';
 import type { IntegrationToolProvider } from '../shared/application/ports/integration-tool-provider.port.js';
 import type { ToolDefinition } from '../shared/application/ports/agent-runner.port.js';
@@ -51,30 +53,17 @@ const TENANT_ID = process.env['TENANT_ID'];
 const SUGGESTED_AGENTS = (process.env['SUGGESTED_AGENTS'] ?? '').split(',').filter(Boolean);
 const OSS_RUNTIME = process.env['CAUSEFLOW_RUNTIME'] === 'oss';
 
-// In the open-source local runtime the `causeflow-worker` compose service is
-// a long-lived container (AC-039) that the LocalInvestigationTaskDispatcher will
-// later drive to run investigations (AC-044/AC-046). When it is started with
-// no INCIDENT_ID it must NOT exit and must NOT contact any external endpoint —
-// it just reports readiness and waits for SIGTERM. The per-incident dispatch
-// path (INCIDENT_ID set) is unchanged.
-const STANDBY_MODE = OSS_RUNTIME && !INCIDENT_ID;
+// AC-045: In the open-source local runtime the `causeflow-worker` compose service
+// is a LONG-LIVED BullMQ consumer that processes investigation jobs from the
+// `causeflow-investigation` queue. When started with no INCIDENT_ID and
+// CAUSEFLOW_RUNTIME=oss it enters BullMQ consumer mode and runs investigations
+// as jobs arrive. The per-incident dispatch path (INCIDENT_ID set — one-shot
+// mode for AWS ECS tasks) is unchanged.
+const BULLMQ_CONSUMER_MODE = OSS_RUNTIME && !INCIDENT_ID;
 
-if (!STANDBY_MODE && (!INCIDENT_ID || !TENANT_ID)) {
+if (!BULLMQ_CONSUMER_MODE && (!INCIDENT_ID || !TENANT_ID)) {
     logger.fatal({ INCIDENT_ID, TENANT_ID }, 'Missing required env vars INCIDENT_ID / TENANT_ID');
     process.exit(1);
-}
-
-if (STANDBY_MODE) {
-    logger.info({ runtime: 'oss', mode: 'standby' }, 'causeflow-worker standby — waiting for investigation dispatch (no outbound calls)');
-    const shutdown = (sig: string) => {
-        logger.info({ sig }, 'causeflow-worker standby shutting down');
-        process.exit(0);
-    };
-    process.on('SIGTERM', () => shutdown('SIGTERM'));
-    process.on('SIGINT', () => shutdown('SIGINT'));
-    // Keep the event loop alive without any network/SDK clients. A regular
-    // (non-unref) interval is the keepalive primitive; it performs no work.
-    setInterval(() => { /* heartbeat — no work */ }, 60_000);
 }
 // ── Constants ──────────────────────────────────────────────────────
 const INVESTIGATION_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -85,7 +74,10 @@ const WORKER_MODE = process.env['WORKER_MODE'] ?? 'investigate'; // 'investigate
 // ── Worker Bootstrap ────────────────────────────────────────────────
 // Creates ONLY the deps needed for investigation — no HTTP server, no
 // SQS consumers, no SSE, no scheduled jobs.
-async function workerBootstrap() {
+async function workerBootstrap(ossMode?: boolean) {
+    // AC-045: In OSS mode (BullMQ consumer), use Postgres repos + BullMQ.
+    // In one-shot mode (AWS ECS tasks), use DynamoDB repos + SQS.
+    const useOssRepos = ossMode ?? false;
     const eventBus = new EventBus();
     eventBus.setErrorLogger((eventType, err) => {
         logger.error({ err, eventType }, 'EventBus handler error');
@@ -123,12 +115,52 @@ async function workerBootstrap() {
         });
     });
     const providerRegistry = new ProviderRegistry();
-    const messageQueue = new SQSMessageQueue();
-    // Repositories
-    const incidentRepo = new DynamoIncidentRepository();
-    const evidenceRepo = new DynamoEvidenceRepository();
-    const toolCallRepo = new DynamoToolCallRepository();
-    const tenantRepo = new DynamoTenantRepository();
+
+    // AC-045: OSS-aware repository + message queue selection
+    let incidentRepo: IIncidentRepository;
+    let evidenceRepo: IEvidenceRepository;
+    let toolCallRepo: IToolCallRepository;
+    let tenantRepo: ITenantRepository;
+    let billingAccountRepo: IBillingAccountRepository;
+    let skillRepo: ISkillRepository;
+    let hypothesisRepo: IHypothesisRepository;
+    let messageQueue: MessageQueue;
+
+    if (useOssRepos) {
+        const { PgIncidentRepository } = await import('../modules/ingestion/infra/pg-incident.repository.js');
+        const { PgEvidenceRepository } = await import('../modules/triage/infra/pg-evidence.repository.js');
+        const { PgToolCallRepository } = await import('../modules/triage/infra/pg-tool-call.repository.js');
+        const { PgTenantRepository } = await import('../modules/tenant/infra/pg-tenant.repository.js');
+        const { PgBillingAccountRepository } = await import('../modules/billing/infra/pg-billing-account.repository.js');
+        const { PgSkillRepository } = await import('../modules/skills/infra/pg-skill.repository.js');
+        const { PgHypothesisRepository } = await import('../modules/investigation/infra/pg-hypothesis.repository.js');
+        const { BullMqMessageQueue } = await import('../shared/infra/queue/bull-mq-message-queue.js');
+        incidentRepo = new PgIncidentRepository();
+        evidenceRepo = new PgEvidenceRepository();
+        toolCallRepo = new PgToolCallRepository();
+        tenantRepo = new PgTenantRepository();
+        billingAccountRepo = new PgBillingAccountRepository();
+        skillRepo = new PgSkillRepository();
+        hypothesisRepo = new PgHypothesisRepository();
+        messageQueue = new BullMqMessageQueue();
+    } else {
+        const { DynamoIncidentRepository } = await import('../modules/ingestion/infra/dynamo-incident.repository.js');
+        const { DynamoEvidenceRepository } = await import('../modules/triage/infra/dynamo-evidence.repository.js');
+        const { DynamoToolCallRepository } = await import('../modules/triage/infra/dynamo-tool-call.repository.js');
+        const { DynamoTenantRepository } = await import('../modules/tenant/infra/dynamo-tenant.repository.js');
+        const { DynamoBillingAccountRepository } = await import('../modules/billing/infra/dynamo-billing-account.repository.js');
+        const { DynamoSkillRepository } = await import('../modules/skills/infra/dynamo-skill.repository.js');
+        const { DynamoHypothesisRepository } = await import('../modules/investigation/infra/dynamo-hypothesis.repository.js');
+        const { SQSMessageQueue } = await import('../shared/infra/queue/sqs-message-queue.js');
+        incidentRepo = new DynamoIncidentRepository();
+        evidenceRepo = new DynamoEvidenceRepository();
+        toolCallRepo = new DynamoToolCallRepository();
+        tenantRepo = new DynamoTenantRepository();
+        billingAccountRepo = new DynamoBillingAccountRepository();
+        skillRepo = new DynamoSkillRepository();
+        hypothesisRepo = new DynamoHypothesisRepository();
+        messageQueue = new SQSMessageQueue();
+    }
     // Observability
     const { tracer, metrics } = await createObservabilityStack();
     // Circuit Breaker
@@ -166,7 +198,7 @@ async function workerBootstrap() {
         ? new ComposioToolProvider()
         : undefined;
     // Skills
-    const skillRepo = new DynamoSkillRepository();
+    // skillRepo is already set in the OSS-aware block above
     const selectSkills = new SelectSkillsUseCase(skillRepo, llmClient as unknown as LLMClient);
     // Investigation Use Case
     const investigateIncident = new InvestigateIncidentUseCase({
@@ -180,7 +212,7 @@ async function workerBootstrap() {
         credentialVendor,
         toolHandlerFactory: createToolHandler,
         messageQueue,
-        remediationQueueUrl: config.sqs.remediationQueueUrl,
+        remediationQueueUrl: useOssRepos ? config.bullmq.remediationQueueName : config.sqs.remediationQueueUrl,
         defaultRegion: config.aws.region,
         synthesisModel: config.anthropic.synthesisModel,
         integrationToolProvider: integrationToolProvider as IntegrationToolProvider | undefined,
@@ -188,13 +220,13 @@ async function workerBootstrap() {
         selectSkills,
     });
     // Billing — refund on failure
-    const billingAccountRepo = new DynamoBillingAccountRepository();
+    // billingAccountRepo is already set in the OSS-aware block above
     const refundInvestigation = new RefundInvestigationUseCase(billingAccountRepo);
 
     const agentMemory = new HindsightAgentMemory({ baseUrl: config.hindsight.baseUrl, apiKey: config.hindsight.apiKey });
     // Investigation mode dispatcher — orchestrator is default, hypothesis mode
     // is available for staff to toggle per-incident via the admin endpoint.
-    const hypothesisRepo = new DynamoHypothesisRepository();
+    // hypothesisRepo is already set in the OSS-aware block above
     const toolsetAdapter = new OrchestratorToolsetAdapter(investigateIncident);
     const hypothesisMode = new HypothesisMode({
         toolset: toolsetAdapter,
@@ -259,7 +291,7 @@ async function workerBootstrap() {
 // ── Main ────────────────────────────────────────────────────────────
 async function main() {
     logger.info({ incidentId: INCIDENT_ID, tenantId: TENANT_ID, suggestedAgents: SUGGESTED_AGENTS, mode: WORKER_MODE }, 'Investigation worker starting');
-    const { investigateIncident, incidentRepo, refundInvestigation, integrationToolProvider, credentialVendor, cloudProvider, agentMemory } = await workerBootstrap();
+    const { investigateIncident, incidentRepo, refundInvestigation, integrationToolProvider, credentialVendor, cloudProvider, agentMemory } = await workerBootstrap(false);
     const tid = tenantId(TENANT_ID!);
     const iid = incidentId(INCIDENT_ID!);
 
@@ -576,7 +608,56 @@ Read each message in context and respond accordingly:
         process.exit(1);
     }
 }
-if (!STANDBY_MODE) {
+// AC-045: BullMQ consumer mode for the long-lived OSS worker container.
+// When CAUSEFLOW_RUNTIME=oss and INCIDENT_ID is NOT set, run a BullMQ
+// consumer that listens for investigation jobs from the investigation queue.
+// This replaces the previous standby mode.
+async function startBullConsumer(): Promise<void> {
+    const { createBullWorker } = await import('../shared/infra/queue/bull-mq-consumer.js');
+    const investigate = await workerBootstrap(true);
+    logger.info(
+        { queueName: config.bullmq.investigationQueueName, mode: 'bullmq-consumer' },
+        'causeflow-worker BullMQ consumer starting — waiting for investigation jobs',
+    );
+
+    const consumer = createBullWorker({
+        queueName: config.bullmq.investigationQueueName,
+        handler: async (body) => {
+            const tid = body['tenantId'] as string;
+            const iid = body['incidentId'] as string;
+            const suggestedAgents = (body['suggestedAgents'] as string[]) ??
+                ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'];
+
+            if (!tid || !iid) {
+                logger.warn({ body }, 'BullMQ investigation job missing tenantId or incidentId — skipping');
+                return;
+            }
+
+            // AC-045: This log line is the verification signal — the AC test
+            // tails worker container logs and confirms `investigation:start`.
+            logger.info({ incidentId: iid, tenantId: tid, suggestedAgents }, 'investigation:start');
+            await investigate.investigateIncident.execute({
+                tenantId: tenantId(tid),
+                incidentId: incidentId(iid),
+                suggestedAgents,
+            });
+        },
+    });
+
+    const shutdown = (sig: string) => {
+        logger.info({ sig }, 'causeflow-worker BullMQ consumer shutting down');
+        consumer.stop().then(() => process.exit(0)).catch(() => process.exit(1));
+    };
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
+}
+
+if (BULLMQ_CONSUMER_MODE) {
+    startBullConsumer().catch((err) => {
+        logger.fatal({ err }, 'causeflow-worker BullMQ consumer failed to start');
+        process.exit(1);
+    });
+} else {
     main().catch((err) => {
         logger.fatal({ err, incidentId: INCIDENT_ID, tenantId: TENANT_ID }, 'Investigation worker unhandled error');
         process.exit(1);

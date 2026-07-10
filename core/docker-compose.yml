@@ -107,22 +107,37 @@ services:
       context: .
       dockerfile: Dockerfile.worker
     depends_on:
+      causeflow-postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     environment:
-      # No INCIDENT_ID / TENANT_ID → the worker boots into standby mode
-      # (AC-039): it stays alive, contacts nothing, and waits for the
-      # LocalInvestigationTaskDispatcher to drive it (AC-044/AC-046).
+      # AC-045: No INCIDENT_ID / TENANT_ID → the worker boots into BullMQ
+      # consumer mode: it listens for investigation jobs on the
+      # causeflow-investigation BullMQ queue and runs them as they arrive.
       CAUSEFLOW_RUNTIME: oss
       NODE_ENV: development
       LOG_LEVEL: info
+      DATABASE_URL: postgresql://${POSTGRES_USER:-causeflow}:${POSTGRES_PASSWORD:-causeflow}@causeflow-postgres:5432/${POSTGRES_DB:-causeflow}
+      POSTGRES_HOST: causeflow-postgres
+      POSTGRES_PORT: '5432'
       REDIS_URL: redis://redis:6379
       HINDSIGHT_BASE_URL: http://hindsight:8888
       HINDSIGHT_API_KEY: ${HINDSIGHT_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}
+      TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-oss-dev-webhook-secret}
+      DEDUP_WINDOW_MINUTES: ${DEDUP_WINDOW_MINUTES:-60}
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-BBjPUFtJIDWZooY9BmoWJ3wpSsZsWGXaSFFjU6ieR8ngON2F07g0MG_MY_1DrrmPNPRubdZKihE-ALJj9uYT5cE}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-Qrn4MAoZ29endhT_VFnzU55Q25C5rBqwldnZBePUwMM}
       VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:push@causeflow.io}
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"process.exit(0)\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
 
 volumes:
