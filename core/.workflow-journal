@@ -152,3 +152,14 @@
 6. `POST /v1/billing/webhook` → 404 (not mounted in OSS) ✅
 7. `GET /v1/billing/subscription` without auth → 401 ✅
 8. No `stripe.com` calls at boot (zero Stripe references in boot log, no `stripe` module loaded) ✅
+
+### 2026-07-10T01:35:00Z — Re-verified against running OSS stack
+- All black-box HTTP tests pass (PORT=3099, CAUSEFLOW_RUNTIME=oss, docker compose stack)
+- `GET /v1/billing/subscription` → `{"plan":"free","status":"active"}`
+- `GET /v1/billing/usage` → 200 with paginated records, quotas from env defaults (limit=10)
+- `POST /v1/billing/checkout-session` → 410 "Billing is disabled in the OSS build"
+- `POST /v1/billing/checkout` → 410
+- `POST /v1/billing/portal` → 410
+- `POST /v1/billing/webhook` → 404 (not mounted)
+- No auth → 401 all protected endpoints
+- Zero `stripe` references in boot log

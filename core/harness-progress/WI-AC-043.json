@@ -4,7 +4,7 @@
   "implementation": true,
   "qa": true,
   "integration": true,
-  "verifiedAt": "2026-07-09T22:30:00Z",
+  "verifiedAt": "2026-07-10T01:35:00Z",
   "verification": {
     "subscriptionEndpoint": "GET /v1/billing/subscription returns {\"plan\":\"free\",\"status\":\"active\"}",
     "usageEndpoint": "GET /v1/billing/usage returns paginated usage records with env-supplied quotas",
