@@ -80,3 +80,12 @@
 - WorkItem: WI-AC-027
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T07:04:28.825Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- AcceptanceChecks: AC-027
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/memory-and-skills/WI-AC-027-1-integration_qa.log
+- NextAction: next Ready Work Item
