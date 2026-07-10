@@ -96,7 +96,6 @@ import { SQSHealthCheck } from './shared/infra/health/checks/sqs-check.js';
 import { AnthropicHealthCheck } from './shared/infra/health/checks/anthropic-check.js';
 import { CircuitBreaker } from './shared/infra/llm/circuit-breaker.js';
 import { PostgresHealthCheck } from './shared/infra/health/checks/postgres-check.js';
-import { OssAnthropicHealthCheck } from './shared/infra/health/checks/oss-anthropic-check.js';
 import { QueuesHealthCheck } from './shared/infra/health/checks/queues-check.js';
 import { getRedisClient } from './shared/infra/cache/redis-client.js';
 import { DynamoApiKeyRepository } from './modules/tenant/infra/dynamo-api-key.repository.js';
@@ -334,8 +333,17 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // Observability Stack
   const { tracer, metrics } = await createObservabilityStack();
 
+  // AC-022: Shared circuit breaker for Anthropic health + LLM calls in OSS runtime.
+  const anthropicCircuitBreaker = new CircuitBreaker(
+    config.isOss() ? { failureThreshold: 1, resetTimeoutMs: 60_000 } : { failureThreshold: 5, resetTimeoutMs: 60_000 },
+  );
+
   // LLM Client + Agent Runner (wrapped with observability decorators)
-  const rawLlmClient = overrides?.llmClient ?? new AnthropicClient();
+  const rawLlmClient = overrides?.llmClient ?? (() => {
+    const client = new AnthropicClient();
+    client.setCircuitBreaker(anthropicCircuitBreaker);
+    return client;
+  })();
   const rawAgentRunner = overrides?.agentRunner
     ?? (config.ptc.enabled ? new AnthropicPTCAgentRunner() : new AnthropicAgentRunner());
   const llmClient = new ObservedAnthropicClient(rawLlmClient, tracer, metrics);
@@ -1331,13 +1339,13 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   if (config.isOss()) {
     healthChecker.register(new PostgresHealthCheck());
     healthChecker.register(new RedisHealthCheck(() => getRedisClient()));
-    healthChecker.register(new OssAnthropicHealthCheck());
+    healthChecker.register(new AnthropicHealthCheck(anthropicCircuitBreaker));
     healthChecker.register(new QueuesHealthCheck(() => getRedisClient()));
   } else {
     healthChecker.register(new DynamoDBHealthCheck());
     healthChecker.register(new RedisHealthCheck(() => getRedisClient()));
     healthChecker.register(new SQSHealthCheck([config.sqs.alertQueueUrl, config.sqs.investigationQueueUrl, config.sqs.remediationQueueUrl]));
-    healthChecker.register(new AnthropicHealthCheck(new CircuitBreaker()));
+    healthChecker.register(new AnthropicHealthCheck(anthropicCircuitBreaker));
   }
 
   // === In-Process Fallback (dev without SQS) ===

@@ -1,5 +1,29 @@
 # Workflow Journal
 
+## 2026-07-10T19:43:00Z — Verify-first implementation (WI-AC-022, this worktree)
+
+**Result: implementation=true after fixes. AC-022 verified e2e on PORT=3099.**
+
+Baseline failed: OssAnthropicHealthCheck reported `ok` with invalid key; investigation stub-fallback resolved instead of circuit-breaker failure.
+
+Fixes: shared CircuitBreaker + AnthropicHealthCheck in OSS bootstrap; triage passes `model` to Langfuse span; investigation fails when breaker open (no stub); worker records `rootCause` on failure; docker-compose env passthrough; `.harness/ac022-verify.sh`.
+
+Evidence: health `anthropic=degraded`; investigation `status=failed` with circuit-breaker message; Langfuse trace `claude-haiku-4-5`.
+
+## 2026-07-10T19:36:00Z — Integrated Verification pass (WI-AC-021, this worktree)
+
+**Result: integration=true, implementation=true, qa=true. Zero defects.**
+
+Exercised AC-021 via real HTTP on PORT=3099 (host → container 5171), OSS docker-compose stack
+(Postgres :5439, Redis :6380, worker healthy).
+
+### AC-021 boundary checks (all passed)
+1. ✅ `POST /api/v1/investigation/:id/chat` → 200 with `response`, `chatId`, `action=question_answered`
+2. ✅ `GET /api/v1/investigation/:id/chat` → user + assistant `ChatMessageEntity` rows persisted
+3. ✅ Assistant message carries `slackThreadId` from chat-platform mirror (Slack-equivalent when Slack not installed)
+
+Incident `e310cf23-3d12-4075-8604-dd2e70f59ba3` — `.harness/ac021-verify.sh` PASS (poll 2 status=succeeded)
+
 ## 2026-07-10T19:35:00Z — Independent QA pass (WI-AC-021, this worktree)
 
 **Result: qa=true, implementation=true. Zero defects.**

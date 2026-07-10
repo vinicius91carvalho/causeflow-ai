@@ -4,6 +4,7 @@ import { logger } from '../../../shared/infra/logger.js';
 import { evidenceId, toolCallId as toToolCallId } from '../../../shared/domain/value-objects.js';
 import { NotFoundError } from '../../../shared/domain/errors.js';
 import { InvestigationFailedError, IncidentNotInvestigatableError } from '../domain/investigation.errors.js';
+import { CircuitBreakerOpenError, type CircuitState } from '../../../shared/infra/llm/circuit-breaker.js';
 import { AGENT_CONFIG_MAP, ORCHESTRATOR_CONFIG } from './agent-configs.js';
 import { AWS_API_CALL_TOOL } from '../infra/aws-api-tool.js';
 import { config } from '../../../shared/config/index.js';
@@ -68,6 +69,7 @@ export interface InvestigateIncidentDeps {
     agentMemory?: AgentMemory;
     selectSkills?: SelectSkillsUseCase;
     hypothesisRepo?: IHypothesisRepository;
+    circuitBreaker?: { getState(): CircuitState; onFailure(): void };
 }
 
 /**
@@ -318,6 +320,7 @@ export class InvestigateIncidentUseCase {
     agentMemory;
     selectSkills;
     hypothesisRepo;
+    circuitBreaker;
     constructor(deps: InvestigateIncidentDeps) {
         this.incidentRepo = deps.incidentRepo;
         this.evidenceRepo = deps.evidenceRepo;
@@ -337,6 +340,21 @@ export class InvestigateIncidentUseCase {
         this.agentMemory = deps.agentMemory;
         this.selectSkills = deps.selectSkills;
         this.hypothesisRepo = deps.hypothesisRepo;
+        this.circuitBreaker = deps.circuitBreaker;
+    }
+
+    private isCircuitBreakerFailure(err: unknown): boolean {
+        return err instanceof CircuitBreakerOpenError
+            || (err instanceof Error && err.name === 'CircuitBreakerOpenError');
+    }
+
+    private failIfCircuitBreakerOpen(incidentId: IncidentId): void {
+        if (this.circuitBreaker?.getState() === 'open') {
+            throw new InvestigationFailedError(
+                String(incidentId),
+                'Circuit breaker is open. LLM service unavailable.',
+            );
+        }
     }
 
     private async persistInvestigationArtifacts(params: {
@@ -844,6 +862,13 @@ export class InvestigateIncidentUseCase {
             try {
                 return await this.executeOrchestrator(input, incident, investigationStartMs);
             } catch (err) {
+                if (this.isCircuitBreakerFailure(err)) {
+                    throw new InvestigationFailedError(
+                        String(incidentId),
+                        err instanceof Error ? err.message : 'Circuit breaker is open',
+                    );
+                }
+                this.failIfCircuitBreakerOpen(incidentId);
                 logger.warn({ err, incidentId, tenantId }, 'Orchestrator execution failed — producing stub result');
                 // Fallback: produce stub result so pipeline continues (AC-019)
                 const stubRootCause = 'Unable to determine root cause (LLM service unavailable)';
@@ -1058,6 +1083,11 @@ export class InvestigateIncidentUseCase {
         }
         // 4. If all agents failed, produce stub result so pipeline continues (AC-019)
         if (successfulResults.length === 0) {
+            this.failIfCircuitBreakerOpen(incidentId);
+            const circuitErr = failedAgents.find((a) => a.error.includes('Circuit breaker is open'));
+            if (circuitErr) {
+                throw new InvestigationFailedError(String(incidentId), circuitErr.error);
+            }
             logger.warn({ incidentId, tenantId, failedAgents }, 'All sub-agents failed — completing with stub result');
             const stubRootCause = 'Unable to determine root cause (LLM service unavailable)';
             const investigationDurationMs = Date.now() - investigationStartMs;
@@ -2059,6 +2089,7 @@ Analyze and report your findings.${memoryContext}${repoContext}${priorFindings ?
                 const error = rawReason instanceof Error ? rawReason.message : (typeof rawReason === 'string' ? rawReason : 'Unknown error');
                 const stack = rawReason instanceof Error ? rawReason.stack?.split('\n').slice(0, 3).join('\n') : undefined;
                 logger.error({ role, error, stack, incidentId, tenantId }, 'Sub-agent failed during investigation');
+                this.circuitBreaker?.onFailure();
                 failed.push({ role, error });
                 await this.eventBus.publish({
                     eventType: 'investigation.progress',

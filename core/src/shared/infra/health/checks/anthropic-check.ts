@@ -22,7 +22,7 @@ export class AnthropicHealthCheck {
         const state = this.circuitBreaker.getState();
         return {
             name: this.name,
-            status: state === 'closed' ? 'ok' : state === 'half_open' ? 'degraded' : 'down',
+            status: state === 'closed' ? 'ok' : 'degraded',
             latencyMs: Date.now() - start,
             details: { circuitState: state },
         };

@@ -161,7 +161,9 @@ async function workerBootstrap(ossMode?: boolean) {
     // Observability
     const { tracer, metrics } = await createObservabilityStack();
     // Circuit Breaker
-    const anthropicCircuitBreaker = new CircuitBreaker({ failureThreshold: 5, resetTimeoutMs: 60_000 }, (from, to) => {
+    const anthropicCircuitBreaker = new CircuitBreaker(
+        { failureThreshold: 1, resetTimeoutMs: 60_000 },
+        (from, to) => {
         if (to === 'open') {
             eventBus.publish({ eventType: 'ai.unavailable', occurredAt: new Date().toISOString(), tenantId: 'system', payload: { from, to } }).catch(() => { });
         }
@@ -216,6 +218,7 @@ async function workerBootstrap(ossMode?: boolean) {
         agentMemory: new HindsightAgentMemory({ baseUrl: config.hindsight.baseUrl, apiKey: config.hindsight.apiKey }),
         selectSkills,
         hypothesisRepo,
+        circuitBreaker: anthropicCircuitBreaker,
     });
     // Billing — refund on failure
     // billingAccountRepo is already set in the OSS-aware block above
@@ -635,11 +638,26 @@ async function startBullConsumer(): Promise<void> {
             // AC-045: This log line is the verification signal — the AC test
             // tails worker container logs and confirms `investigation:start`.
             logger.info({ incidentId: iid, tenantId: tid, suggestedAgents }, 'investigation:start');
-            await investigate.investigateIncident.execute({
-                tenantId: tenantId(tid),
-                incidentId: incidentId(iid),
-                suggestedAgents,
-            });
+            try {
+                await investigate.investigateIncident.execute({
+                    tenantId: tenantId(tid),
+                    incidentId: incidentId(iid),
+                    suggestedAgents,
+                });
+            } catch (err) {
+                const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+                logger.error({ err, incidentId: iid, tenantId: tid }, 'Investigation job failed');
+                try {
+                    await investigate.incidentRepo.update(tenantId(tid), incidentId(iid), {
+                        rootCause: errorMsg,
+                        updatedAt: new Date().toISOString(),
+                    });
+                    await investigate.incidentRepo.updateStatus(tenantId(tid), incidentId(iid), 'failed');
+                } catch (statusErr) {
+                    logger.error({ err: statusErr, incidentId: iid }, 'Failed to mark investigation as failed');
+                }
+                throw new Error(errorMsg);
+            }
         },
     });
 

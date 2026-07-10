@@ -4,6 +4,7 @@ import { NotFoundError } from '../../../shared/domain/errors.js';
 import { IncidentAlreadyTriagedError } from '../domain/triage.errors.js';
 import { triageResultSchema, buildTriagePrompt, TRIAGE_SYSTEM_PROMPT } from '../domain/triage.prompts.js';
 import { logger } from '../../../shared/infra/logger.js';
+import { config } from '../../../shared/config/index.js';
 import type { IIncidentRepository } from '../../ingestion/domain/incident.repository.js';
 import type { IEvidenceRepository } from '../domain/evidence.repository.js';
 import type { IEventBus } from '../../../shared/domain/events.js';
@@ -136,6 +137,7 @@ export class TriageIncidentUseCase {
                 const completion = await this.llmClient.complete<TriageResult>({
                     systemPrompt,
                     userPrompt: buildUserPrompt(incident),
+                    model: config.anthropic.triageModel,
                     maxTokens: 512,
                     temperature: 0,
                     responseSchema: triageResultSchema,
