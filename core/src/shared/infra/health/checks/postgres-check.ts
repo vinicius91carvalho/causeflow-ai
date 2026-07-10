@@ -38,8 +38,15 @@ export class PostgresHealthCheck {
 function resolvePostgresHost(): string {
     const url = config.postgres.url;
     if (url) {
-        const m = url.match(/postgres(?:ql)?:\/\/[^@/:]*@([^:/]+)(?::(\d+))?/i);
+        // Accept both postgresql://user@host and postgresql://user:pass@host:port/db
+        const m = url.match(/postgres(?:ql)?:\/\/(?:[^@/?#]+)@([^:/]+)(?::(\d+))?/i);
         if (m?.[1]) return m[1];
+        try {
+            const parsed = new URL(url);
+            if (parsed.hostname) return parsed.hostname;
+        } catch {
+            /* fall through */
+        }
     }
     return config.postgres.host;
 }
@@ -47,8 +54,14 @@ function resolvePostgresHost(): string {
 function resolvePostgresPort(): number {
     const url = config.postgres.url;
     if (url) {
-        const m = url.match(/postgres(?:ql)?:\/\/[^@/:]*@[^:/]+:(\d+)/i);
+        const m = url.match(/postgres(?:ql)?:\/\/(?:[^@/?#]+)@[^:/]+:(\d+)/i);
         if (m?.[1]) return parseInt(m[1], 10);
+        try {
+            const parsed = new URL(url);
+            if (parsed.port) return parseInt(parsed.port, 10);
+        } catch {
+            /* fall through */
+        }
     }
     return config.postgres.port;
 }
