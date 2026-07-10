@@ -71,3 +71,12 @@ by the existing code.
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-10T02:40:54Z — AC-019 implementation verification
+
+- WorkItem: WI-AC-019
+- Result: implementation=true after smallest-diff fixes.
+- Boundary: API on PORT=5175 with Postgres :5439, Redis :6380, Hindsight :8888; authenticated HTTP/SSE at `/api/v1/investigation/:id`.
+- Verification: fresh tenant + triaged incident returned `status=running` with 6 assigned agents, SSE emitted `connected`, `started`, per-agent `agent_failed` events for log/metric/change/code/infra/db, wave completion events, and `investigation_completed`; final detail returned `status=succeeded`, incident `status=resolved`, and stored `finalSynthesis`/`rootCause`.
+- Fixes: mounted investigation routes at `/api/v1/investigation`; added run-style status/final synthesis to investigation detail; skipped response-body logging for `text/event-stream`; replaced the stream endpoint with a native event-stream response; emitted per-agent failure progress events; allowed retry/resume from `investigating` status.
+- Typecheck: `pnpm typecheck` still fails in pre-existing unrelated files; no typecheck output references the touched AC-019 files.

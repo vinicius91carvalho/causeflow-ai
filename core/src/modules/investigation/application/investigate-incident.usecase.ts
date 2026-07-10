@@ -612,7 +612,7 @@ export class InvestigateIncidentUseCase {
         if (!incident) {
             throw new NotFoundError('Incident', incidentId);
         }
-        if (incident.status !== 'triaging') {
+        if (incident.status !== 'triaging' && incident.status !== 'investigating') {
             throw new IncidentNotInvestigatableError(incidentId, incident.status);
         }
         // 2. Pre-investigation memory check — use reflect() to check for known solutions
@@ -1912,6 +1912,17 @@ Analyze and report your findings.${memoryContext}${repoContext}${priorFindings ?
                 const stack = rawReason instanceof Error ? rawReason.stack?.split('\n').slice(0, 3).join('\n') : undefined;
                 logger.error({ role, error, stack, incidentId, tenantId }, 'Sub-agent failed during investigation');
                 failed.push({ role, error });
+                await this.eventBus.publish({
+                    eventType: 'investigation.progress',
+                    occurredAt: new Date().toISOString(),
+                    tenantId,
+                    payload: {
+                        incidentId,
+                        stage: 'agent_failed',
+                        agentRole: role,
+                        message: `Agent ${role} failed: ${error}`,
+                    },
+                });
             }
         }
         return { successful, failed };
