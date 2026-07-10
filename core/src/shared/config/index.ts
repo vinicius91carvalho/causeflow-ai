@@ -259,7 +259,7 @@ export const config = {
   enhancedRunner: {
     enabled: env('ENHANCED_RUNNER_ENABLED', 'false') === 'true',
     scoutAgent: env('ENHANCED_RUNNER_SCOUT_AGENT', 'false') === 'true',
-    tenantSkills: env('ENHANCED_RUNNER_TENANT_SKILLS', 'false') === 'true',
+    tenantSkills: env('ENHANCED_RUNNER_TENANT_SKILLS', 'true') === 'true',
     verificationAgent: env('ENHANCED_RUNNER_VERIFICATION_AGENT', 'false') === 'true',
     orchestratorMode: env('ORCHESTRATOR_MODE_ENABLED', 'false') === 'true',
     mastra: env('MASTRA_ENABLED', 'false') === 'true',

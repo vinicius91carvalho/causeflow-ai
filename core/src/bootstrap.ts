@@ -201,6 +201,9 @@ import type { IntegrationUseCases } from './modules/integration/infra/integratio
 import type { AuthUseCases } from './modules/auth/infra/auth.routes.js';
 import type { UserUseCases } from './modules/user/infra/user.routes.js';
 import type { MemoryUseCases } from './modules/memory/infra/memory.routes.js';
+import { CreateSkillUseCase, ListSkillsUseCase, GetSkillUseCase, UpdateSkillUseCase, DeleteSkillUseCase } from './modules/skills/application/crud-skills.usecase.js';
+import { SelectSkillsUseCase } from './modules/skills/application/select-skills.usecase.js';
+import { createSkillRoutes } from './modules/skills/infra/skill.routes.js';
 import type { Hono } from 'hono';
 import type { AppEnv } from './shared/infra/http/hono-types.js';
 
@@ -474,6 +477,18 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   })();
   const agentMemory = new HindsightAgentMemory({ baseUrl: config.hindsight.baseUrl, apiKey: config.hindsight.apiKey });
 
+  // Skills (per-tenant investigation runbooks / escalation paths)
+  // AC-027: PgSkillRepository in OSS runtime, Dynamo in AWS runtime
+  const skillRepo = await (async () => {
+    if (config.isOss()) {
+      const { PgSkillRepository } = await import('./modules/skills/infra/pg-skill.repository.js');
+      return new PgSkillRepository();
+    }
+    const { DynamoSkillRepository } = await import('./modules/skills/infra/dynamo-skill.repository.js');
+    return new DynamoSkillRepository();
+  })();
+  const selectSkills = new SelectSkillsUseCase(skillRepo, llmClient);
+
   // Investigation Use Cases
   const investigateIncident = new InvestigateIncidentUseCase({
     incidentRepo,
@@ -492,6 +507,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     relayGateway: overrides?.relayGateway,
     integrationToolProvider: composioToolProvider,
     agentMemory,
+    selectSkills,
   });
   const getInvestigation = new GetInvestigationUseCase(incidentRepo, evidenceRepo);
   const addInvestigationContext = new AddInvestigationContextUseCase({
@@ -1545,6 +1561,20 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     ossAuthRouter = createOssAuthRoutes({ tenantRepo, userRepo });
   }
 
+  // Skills routes (per-tenant investigation skills) — AC-027
+  const createSkill = new CreateSkillUseCase(skillRepo);
+  const listSkills = new ListSkillsUseCase(skillRepo);
+  const getSkill = new GetSkillUseCase(skillRepo);
+  const updateSkill = new UpdateSkillUseCase(skillRepo);
+  const deleteSkill = new DeleteSkillUseCase(skillRepo);
+  const skillRoutes = createSkillRoutes({
+    createSkill,
+    listSkills,
+    getSkill,
+    updateSkill,
+    deleteSkill,
+  });
+
   return {
     eventBus,
     providerRegistry,
@@ -1573,6 +1603,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     authUseCases,
     userUseCases,
     memoryUseCases,
+    skillRoutes,
     widgetUseCases,
     ossAuthRouter,
   };
