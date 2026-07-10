@@ -6,9 +6,9 @@
   "integration": true,
   "implementation": true,
   "qa": true,
-  "verifiedAt": "2026-07-10T16:45:31Z",
+  "verifiedAt": "2026-07-10T16:48:41Z",
   "verifiedBy": "qa-agent",
-  "tested": "2026-07-10T16:45:31Z",
+  "tested": "2026-07-10T16:48:41Z",
   "verification": {
     "getProposalReturnsPlanWithActions": "pass",
     "postApproveReturns200AndCreatesApprovalEntity": "pass",
@@ -16,12 +16,12 @@
   },
   "evidence": [
     "OSS API healthy at http://127.0.0.1:3099 (container PORT=5171). Scaffold verified: init.sh, feature_list.json, project_specs.xml, bootstrap.ts.",
-    "POST /v1/auth/register → 201. POST /v1/admin/incidents → 201 incidentId=48b00aa9-8592-4650-a978-532730c68a2b. POST /api/v1/remediation → 201 remediationId=516eed74-4456-4162-8c5c-ef12840030ea with ecs.updateService + ecs.forceNewDeployment steps.",
-    "GET /api/v1/remediation/516eed74-4456-4162-8c5c-ef12840030ea/proposal → HTTP 200, steps_count=2, actions=ecs.updateService,ecs.forceNewDeployment.",
-    "POST /api/v1/remediation/:id/approve with admin JWT → HTTP 200, status=approved, approvedBy=qa-ac023-1783701931@example.com.",
+    "POST /v1/auth/register → 201. POST /v1/admin/incidents → 201 incidentId=4a8d45e4-73e8-4331-acb7-a15413e9324a. POST /api/v1/remediation → 201 remediationId=404ef4c6-e20a-4bb7-a430-1c992af96ceb with ecs.updateService + ecs.forceNewDeployment steps.",
+    "GET /api/v1/remediation/404ef4c6-e20a-4bb7-a430-1c992af96ceb/proposal → HTTP 200, steps_count=2, actions=ecs.updateService,ecs.forceNewDeployment.",
+    "POST /api/v1/remediation/:id/approve with admin JWT → HTTP 200, status=approved, approvedBy=qa-ac023-1783702121@example.com.",
     "Second POST /api/v1/remediation/:id/approve → HTTP 409 CONFLICT (status completed after auto-execute).",
     "ApprovalEntity creation confirmed via code audit: ApproveRemediationUseCase calls approvalRepo.create() (approve-remediation.usecase.ts:39-59), wired with PgApprovalRepository in bootstrap.ts:638.",
-    "Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783701931-integration_qa.log"
+    "Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783702121-integration_qa.log"
   ],
   "defects": []
 }

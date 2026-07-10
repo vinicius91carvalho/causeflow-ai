@@ -460,3 +460,11 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: merge conflict in harness-progress/remediation.md resolved (append-only); AC-023 passes at HTTP boundary on port 3099 (container PORT=5171)
 - Evidence: GET /api/v1/remediation/:id/proposal → 200 with ecs.updateService + ecs.forceNewDeployment; POST approve → 200 status=approved; second POST → 409 CONFLICT
 - integration=true
+
+## 2026-07-10T16:48:41Z — Integrated Verification PASS
+
+- WorkItem: WI-AC-023
+- AC: AC-023
+- Outcome: AC-023 passes at HTTP boundary on port 3099 (container PORT=5171)
+- Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783702121-integration_qa.log
+- integration=true
