@@ -300,3 +300,11 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - WorkItem: WI-AC-023
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T16:34:31.562Z — Blocked Work Item
+
+- Attempt: 2/3
+- WorkItem: WI-AC-023
+- Outcome: integration could not complete
+- Defects: Checkpoint was not integrated into the integration branch
+- NextAction: User reviews evidence and explicitly resumes with guidance
