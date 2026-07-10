@@ -1,0 +1,19 @@
+{
+  "id": "WI-AC-043",
+  "status": "done",
+  "implementation": true,
+  "qa": true,
+  "integration": true,
+  "verifiedAt": "2026-07-10T01:35:00Z",
+  "verification": {
+    "subscriptionEndpoint": "GET /v1/billing/subscription returns {\"plan\":\"free\",\"status\":\"active\"}",
+    "usageEndpoint": "GET /v1/billing/usage returns paginated usage records with env-supplied quotas",
+    "checkoutEndpoint": "POST /v1/billing/checkout returns 410 Gone with OSS message",
+    "checkoutSessionEndpoint": "POST /v1/billing/checkout-session returns 410 Gone with OSS message",
+    "portalEndpoint": "POST /v1/billing/portal returns 410 Gone with OSS message",
+    "webhookEndpoint": "POST /v1/billing/webhook returns 404 (not mounted in OSS)",
+    "noAuth": "GET /v1/billing/subscription without auth returns 401",
+    "noStripeCalls": "No stripe.com calls at boot (zero Stripe references in boot log)",
+    "quotaFromEnv": "Quotas enforced from MAX_PARALLEL_INVESTIGATIONS=5, MAX_AGENTS_PER_RUN=8 env vars"
+  }
+}

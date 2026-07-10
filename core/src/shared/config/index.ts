@@ -234,6 +234,11 @@ export const config = {
     securityGroupIds: (process.env['ECS_SECURITY_GROUP_IDS'] ?? '').split(',').filter(Boolean),
   },
 
+  billing: {
+    maxParallelInvestigations: envInt('MAX_PARALLEL_INVESTIGATIONS', 10),
+    maxAgentsPerRun: envInt('MAX_AGENTS_PER_RUN', 10),
+  },
+
   webPush: {
     keys: {
       publicKey: process.env['VAPID_PUBLIC_KEY'] ?? '',

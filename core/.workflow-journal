@@ -124,3 +124,42 @@
 - Health endpoint: `{"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}`
 - Boot log shows zero SaaS initialization messages (no Sentry init, no Langfuse connect, no Svix, no Slack, no Composio, no Mastra)
 - Integration endpoints return proper "not configured" responses
+
+---
+
+## WI-AC-043: Stub billing replaces Stripe
+
+### Status: IMPLEMENTED & VERIFIED (QA PASS)
+
+### Changes
+- Made all fields in `BillingUseCases` interface optional so OSS mode can omit Stripe-dependent use cases
+- `bootstrap.ts`: In OSS mode, only `getUsage` is created; Stripe-dependent use cases (`createCheckout`, `createPortal`, `getSubscription`, `handleWebhook`, etc.) are omitted entirely — no `StripePlanCatalogService`, no `StripeCustomerService`, no `getStripeClient()` call ever happens
+- `billing.routes.ts`:
+  - `GET /v1/billing/subscription` returns `{"plan":"free","status":"active"}` when no `getSubscription` use case
+  - `POST /v1/billing/checkout` and `POST /v1/billing/checkout-session` return 410 Gone with "Billing is disabled in the OSS build"
+  - `POST /v1/billing/portal` returns 410 Gone with "Billing is disabled in the OSS build"
+  - `POST /v1/billing/webhook` returns 410 Gone when no `handleWebhook` use case
+- `app.ts`: In OSS mode, the billing webhook and signup routes are not mounted (404)
+- `PgBillingAccountRepository`: Quota limits come from `config.billing.maxParallelInvestigations` (env `MAX_PARALLEL_INVESTIGATIONS`, default 10) and `config.billing.maxAgentsPerRun` (env `MAX_AGENTS_PER_RUN`, default 10)
+- `src/shared/config/index.ts`: Added `billing` section with `maxParallelInvestigations` and `maxAgentsPerRun`
+
+### Black-box HTTP verification (PORT=5170, CAUSEFLOW_RUNTIME=oss)
+1. `GET /v1/billing/subscription` → `{"plan":"free","status":"active"}` ✅
+2. `GET /v1/billing/usage` → paginated usage records with env-supplied quota limits (investigationsLimit=5, eventsLimit=8) ✅
+3. `POST /v1/billing/checkout` → 410 Gone ✅
+4. `POST /v1/billing/checkout-session` → 410 Gone ✅
+5. `POST /v1/billing/portal` → 410 Gone ✅
+6. `POST /v1/billing/webhook` → 404 (not mounted in OSS) ✅
+7. `GET /v1/billing/subscription` without auth → 401 ✅
+8. No `stripe.com` calls at boot (zero Stripe references in boot log, no `stripe` module loaded) ✅
+
+### 2026-07-10T01:35:00Z — Re-verified against running OSS stack
+- All black-box HTTP tests pass (PORT=3099, CAUSEFLOW_RUNTIME=oss, docker compose stack)
+- `GET /v1/billing/subscription` → `{"plan":"free","status":"active"}`
+- `GET /v1/billing/usage` → 200 with paginated records, quotas from env defaults (limit=10)
+- `POST /v1/billing/checkout-session` → 410 "Billing is disabled in the OSS build"
+- `POST /v1/billing/checkout` → 410
+- `POST /v1/billing/portal` → 410
+- `POST /v1/billing/webhook` → 404 (not mounted)
+- No auth → 401 all protected endpoints
+- Zero `stripe` references in boot log

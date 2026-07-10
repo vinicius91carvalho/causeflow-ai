@@ -19,11 +19,17 @@ import type { CancelSubscriptionUseCase } from '../application/cancel-subscripti
 import type { ReactivateSubscriptionUseCase } from '../application/reactivate-subscription.usecase.js';
 import type { CreateSubscriptionUseCase } from '../application/create-subscription.usecase.js';
 
+/**
+ * BillingUseCases — all fields are optional so the open-source local runtime
+ * (AC-043) can omit Stripe-dependent use cases without importing Stripe.
+ * Routes guard against missing use cases and return 410 Gone with a clear
+ * message when the billing feature is disabled in the OSS build.
+ */
 export interface BillingUseCases {
-    createCheckout: CreateCheckoutUseCase;
-    createPortal: CreatePortalUseCase;
-    getSubscription: GetSubscriptionUseCase;
-    handleWebhook: HandleWebhookUseCase;
+    createCheckout?: CreateCheckoutUseCase;
+    createPortal?: CreatePortalUseCase;
+    getSubscription?: GetSubscriptionUseCase;
+    handleWebhook?: HandleWebhookUseCase;
     getUsage?: GetUsageUseCase;
     getCredits?: GetCreditsUseCase;
     signup?: SignupUseCase;
@@ -66,8 +72,12 @@ export function createBillingRoutes(useCases: BillingUseCases) {
             return c.json(result);
         });
     }
-    // POST /v1/billing/checkout — create Stripe Checkout session (admin only)
+    // POST /v1/billing/checkout — create Checkout session (admin only)
+    // In the OSS runtime (AC-043), billing is disabled — returns 410 Gone.
     app.post('/checkout', requireRole('admin'), zValidator('json', checkoutSchema), async (c) => {
+        if (!useCases.createCheckout) {
+            return c.json({ error: 'Billing is disabled in the OSS build. Checkout is not available.' }, 410);
+        }
         const tenantId = c.get('tenantId');
         const input = c.req.valid('json');
         const result = await useCases.createCheckout.execute({
@@ -78,8 +88,27 @@ export function createBillingRoutes(useCases: BillingUseCases) {
         });
         return c.json(result);
     });
-    // POST /v1/billing/portal — create Stripe Billing Portal session (admin only)
+    // POST /v1/billing/checkout-session — alias for /checkout (AC-043 canonical path)
+    app.post('/checkout-session', requireRole('admin'), zValidator('json', checkoutSchema), async (c) => {
+        if (!useCases.createCheckout) {
+            return c.json({ error: 'Billing is disabled in the OSS build. Checkout is not available.' }, 410);
+        }
+        const tenantId = c.get('tenantId');
+        const input = c.req.valid('json');
+        const result = await useCases.createCheckout.execute({
+            tenantId,
+            planKey: input.planKey,
+            successUrl: input.successUrl,
+            cancelUrl: input.cancelUrl,
+        });
+        return c.json(result);
+    });
+    // POST /v1/billing/portal — create Billing Portal session (admin only)
+    // In the OSS runtime (AC-043), billing is disabled — returns 410 Gone.
     app.post('/portal', requireRole('admin'), zValidator('json', portalSchema), async (c) => {
+        if (!useCases.createPortal) {
+            return c.json({ error: 'Billing is disabled in the OSS build. Portal is not available.' }, 410);
+        }
         const tenantId = c.get('tenantId');
         const input = c.req.valid('json');
         const result = await useCases.createPortal.execute({
@@ -89,7 +118,11 @@ export function createBillingRoutes(useCases: BillingUseCases) {
         return c.json(result);
     });
     // GET /v1/billing/subscription — get current subscription info (any authenticated role)
+    // In the OSS runtime (AC-043), returns {"plan":"free","status":"active"} for every tenant.
     app.get('/subscription', async (c) => {
+        if (!useCases.getSubscription) {
+            return c.json({ plan: 'free', status: 'active' });
+        }
         const tenantId = c.get('tenantId');
         const result = await useCases.getSubscription.execute(tenantId);
         return c.json(result);
@@ -205,7 +238,11 @@ export function createSignupRoute(useCases: BillingUseCases) {
 export function createBillingWebhookRoute(useCases: BillingUseCases) {
     const app = new Hono();
     // POST /v1/billing/webhook — Stripe webhook (NO auth, signature verified internally)
+    // In the OSS runtime (AC-043), billing is disabled — returns 410 Gone.
     app.post('/webhook', async (c) => {
+        if (!useCases.handleWebhook) {
+            return c.json({ error: 'Billing is disabled in the OSS build. Webhooks are not accepted.' }, 410);
+        }
         const rawBody = await c.req.text();
         const signature = c.req.header('stripe-signature') ?? '';
         await useCases.handleWebhook.execute(rawBody, signature);

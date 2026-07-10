@@ -149,10 +149,15 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
     const { users: userRoutes, invites: inviteRoutes } = createUserRoutes(ctx.userUseCases);
     app.route('/v1/users', userRoutes);
     app.route('/v1/invites', inviteRoutes);
-    // Billing routes (authenticated endpoints + public webhook + public signup)
+    // Billing routes (authenticated endpoints + optional webhook + optional signup)
+    // In the OSS runtime (AC-043), Stripe-dependent routes (webhook, signup) are
+    // not mounted. The billing routes themselves handle OSS mode internally by
+    // returning 410 Gone for disabled features and stub data for subscription/usage.
     app.route('/v1/billing', createBillingRoutes(ctx.billingUseCases));
-    app.route('/v1/billing', createBillingWebhookRoute(ctx.billingUseCases));
-    app.route('/v1/signup', createSignupRoute(ctx.billingUseCases));
+    if (!config.isOss()) {
+      app.route('/v1/billing', createBillingWebhookRoute(ctx.billingUseCases));
+      app.route('/v1/signup', createSignupRoute(ctx.billingUseCases));
+    }
     // Integration routes (credential-based + unified list)
     app.route('/v1/integrations', createIntegrationRoutes(ctx.integrationUseCases));
     // Auth routes
