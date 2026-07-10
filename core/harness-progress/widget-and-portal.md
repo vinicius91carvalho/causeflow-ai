@@ -273,3 +273,10 @@ index 54666309eaaed3868da8b50f871b7f75b842cb72..ba501b6019df4c302408c9feb62569e5
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-10T03:45:00.000Z — Isolated QA passed
+
+- WorkItem: WI-AC-035
+- AcceptanceChecks: AC-035
+- Outcome: qa=true, implementation=true
+- Evidence: real browser boundary on PORT=5170 (Chrome via Playwright). `/dashboard` first load shows tenant `QA Tenant AC035`, sidebar incident `AC035 checkout latency spike`, `New investigation`, and SSE connected via `/v1/notifications/stream` 200. Clicking the incident opens detail with Evidence, Hypotheses, Chat Panel, and Remediation Pending Approval; `GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses` returns 200 (prior 500 defect resolved).
