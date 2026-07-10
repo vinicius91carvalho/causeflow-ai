@@ -43,3 +43,11 @@
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/memory-and-skills/WI-AC-026-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-10T06:45:45.000Z — WI-AC-027 verified
+
+- WorkItem: WI-AC-027
+- AcceptanceChecks: AC-027
+- Outcome: passed — all checks pass at real HTTP boundary on port 5176
+- Evidence: POST /api/v1/skills returns 201 with full skill object; GET /api/v1/skills returns skill for tenant, empty for other tenant; cross-tenant GET by id returns 404; PATCH updates correctly; skill injection code path confirmed in investigate-incident.usecase.ts (AGENT_CONFIG_MAP with staticSystemPrompt)
+- NextAction: none (implementation=true, zero-diff checkpoint)
