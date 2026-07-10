@@ -8,6 +8,7 @@ import type { ProposeRemediationUseCase } from '../application/propose-remediati
 import type { ApproveRemediationUseCase } from '../application/approve-remediation.usecase.js';
 import type { RejectRemediationUseCase } from '../application/reject-remediation.usecase.js';
 import type { ExecuteRemediationUseCase } from '../application/execute-remediation.usecase.js';
+import type { RollbackRemediationUseCase } from '../application/rollback-remediation.usecase.js';
 import type { GetRemediationUseCase } from '../application/get-remediation.usecase.js';
 import type { RecordRemediationFeedbackUseCase } from '../application/record-remediation-feedback.usecase.js';
 
@@ -16,6 +17,7 @@ export interface RemediationUseCases {
     approveRemediation: ApproveRemediationUseCase;
     rejectRemediation: RejectRemediationUseCase;
     executeRemediation: ExecuteRemediationUseCase;
+    rollbackRemediation: RollbackRemediationUseCase;
     getRemediation: GetRemediationUseCase;
     recordRemediationFeedback?: RecordRemediationFeedbackUseCase;
 }
@@ -136,6 +138,18 @@ export function createRemediationRoutes(useCases: RemediationUseCases): Hono<App
             actorEmail,
         });
         return c.json(remediation);
+    });
+    // Rollback remediation
+    app.post('/:remediationId/rollback', requireRole('admin'), async (c) => {
+        const tenantId = c.get('tenantId');
+        const id = remediationId(c.req.param('remediationId'));
+        const actorEmail = c.get('userEmail');
+        const remediation = await useCases.rollbackRemediation.execute({
+            tenantId,
+            remediationId: id,
+            actorEmail,
+        });
+        return c.json(remediation, 201);
     });
     // Record remediation feedback
     app.post('/:remediationId/feedback', zValidator('json', remediationFeedbackSchema), async (c) => {

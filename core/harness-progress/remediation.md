@@ -751,3 +751,87 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: AC-023 black-box HTTP checks pass on port 3099 (container PORT=5171)
 - remediationId: 1d14548e-545d-4558-aef4-ee8671afe708
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783705789-integration_qa.log
+
+## 2026-07-10T20:05:00.000Z — WI-AC-024 QA verified
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: qa=true, implementation=true; zero defects
+- Evidence: `.harness/ac024-verify.sh` PASS on PORT=5170
+- remediationId: a40375fa-8afb-4a93-a5a4-4ef7f720cb62
+- NextAction: WI-AC-025
+
+## 2026-07-10T19:51:00.000Z — WI-AC-024 VERIFY-FIRST re-verified
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: implementation=true; zero-diff checkpoint (no code changes)
+- Evidence: `.harness/ac024-verify.sh` PASS on PORT=5170
+- remediationId: 0c5237fc-8521-4532-b8e1-c293459a7059
+- NextAction: WI-AC-025
+
+## 2026-07-10T19:46:00.000Z — WI-AC-024 QA verified
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: qa=true, implementation=true; zero defects
+- Evidence: `.harness/ac024-verify.sh` PASS on PORT=5170
+- remediationId: 7ceb8325-036a-4f63-a1be-2b2809f82353
+- NextAction: integration verification
+
+## 2026-07-10T19:41:00.000Z — WI-AC-024 implemented
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: implementation=true; black-box verify passed on PORT=5170
+- Evidence: `.harness/ac024-verify.sh` (steps status=succeeded, beforeState/afterState, rollback 201, audit chain)
+- NextAction: QA / integration verification
+
+## 2026-07-10T19:41:56.191Z — Resumed
+
+- WorkItem: WI-AC-024
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T19:44:40.632Z — Resumed
+
+- WorkItem: WI-AC-024
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T19:52:23.652Z — Resumed
+
+- WorkItem: WI-AC-024
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:56:05.661Z — Resumed
+
+- WorkItem: WI-AC-024
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T20:00:03.834Z — Resumed
+
+- WorkItem: WI-AC-024
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T20:02:14.714Z — Resumed
+
+- WorkItem: WI-AC-024
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T20:02:14.754Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

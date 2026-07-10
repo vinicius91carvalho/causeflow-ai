@@ -1,4 +1,29 @@
 import type { CloudProvider, CloudCredentials, LogQuery, LogEntry, MetricQuery, MetricDataPoint, ServiceInfo, ResourceAction } from '../../application/ports/cloud-provider.port.js';
+
+const resourceStates = new Map<string, Record<string, unknown>>();
+
+const DEFAULT_STATE: Record<string, unknown> = {
+    desiredCount: 3,
+    replicas: 1,
+    status: 'running',
+};
+
+function resourceKey(resourceId: string, params?: Record<string, unknown>): string {
+    const service = (params?.service as string | undefined) ?? 'default';
+    return `${resourceId}:${service}`;
+}
+
+function applyParamsToState(current: Record<string, unknown>, params?: Record<string, unknown>): Record<string, unknown> {
+    const next = { ...current };
+    for (const [key, value] of Object.entries(params ?? {})) {
+        if (key === 'service' || key === 'proposedFix') {
+            continue;
+        }
+        next[key] = value;
+    }
+    return next;
+}
+
 export class StubCloudProvider {
     name = 'stub';
     async queryLogs(_creds: CloudCredentials, query: LogQuery): Promise<LogEntry[]> {
@@ -85,11 +110,23 @@ export class StubCloudProvider {
             },
         };
     }
-    async executeAction(_creds: CloudCredentials, action: ResourceAction): Promise<{ success: boolean; output?: string }> {
+    async executeAction(_creds: CloudCredentials, action: ResourceAction): Promise<{
+        success: boolean;
+        output?: string;
+        beforeState?: Record<string, unknown>;
+        afterState?: Record<string, unknown>;
+    }> {
         await sleep(500);
+        const key = resourceKey(action.resourceId, action.params);
+        const current = resourceStates.get(key) ?? { ...DEFAULT_STATE };
+        const beforeState = { ...current };
+        const afterState = applyParamsToState(current, action.params);
+        resourceStates.set(key, afterState);
         return {
             success: true,
             output: `Action '${action.action}' executed on '${action.resourceId}' successfully`,
+            beforeState,
+            afterState,
         };
     }
     async testConnection(_creds: CloudCredentials): Promise<boolean> {

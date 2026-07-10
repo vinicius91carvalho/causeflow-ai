@@ -51,6 +51,8 @@ export interface CloudProvider {
     executeAction(creds: CloudCredentials, action: ResourceAction): Promise<{
         success: boolean;
         output?: string;
+        beforeState?: Record<string, unknown>;
+        afterState?: Record<string, unknown>;
     }>;
     testConnection(creds: CloudCredentials): Promise<boolean>;
 }

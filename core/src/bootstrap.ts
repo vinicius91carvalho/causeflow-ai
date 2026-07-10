@@ -67,6 +67,7 @@ import { ProposeRemediationUseCase } from './modules/remediation/application/pro
 import { ApproveRemediationUseCase } from './modules/remediation/application/approve-remediation.usecase.js';
 import { RejectRemediationUseCase } from './modules/remediation/application/reject-remediation.usecase.js';
 import { ExecuteRemediationUseCase } from './modules/remediation/application/execute-remediation.usecase.js';
+import { RollbackRemediationUseCase } from './modules/remediation/application/rollback-remediation.usecase.js';
 import { GetRemediationUseCase } from './modules/remediation/application/get-remediation.usecase.js';
 import { WebPortalChatPlatform } from './shared/infra/chat/web-portal-chat-platform.js';
 import { SSEManager } from './shared/infra/chat/sse-manager.js';
@@ -657,6 +658,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     cloudProvider,
     credentialVendor,
   );
+  const rollbackRemediation = new RollbackRemediationUseCase(remediationRepo, eventBus);
   const getRemediation = new GetRemediationUseCase(remediationRepo);
 
   const recordRemediationFeedback = new RecordRemediationFeedbackUseCase(eventBus, agentMemory);
@@ -665,6 +667,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     approveRemediation,
     rejectRemediation,
     executeRemediation,
+    rollbackRemediation,
     getRemediation,
     recordRemediationFeedback,
   };

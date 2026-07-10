@@ -8,6 +8,7 @@ function toDomain(raw: Record<string, any>) {
         remediationId: remediationId(raw['remediationId']),
         tenantId: raw['tenantId'],
         incidentId: raw['incidentId'],
+        rollbackOf: raw['rollbackOf'] ? remediationId(raw['rollbackOf']) : undefined,
         status: raw['status'],
         description: raw['description'],
         rootCause: raw['rootCause'],
@@ -33,6 +34,7 @@ export class DynamoRemediationRepository {
             rootCause: remediation.rootCause,
             steps: remediation.steps,
             proposedBy: remediation.proposedBy,
+            rollbackOf: remediation.rollbackOf,
         }).go();
         return toDomain(result.data);
     }

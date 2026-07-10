@@ -20,6 +20,9 @@ const mockUseCases = {
   executeRemediation: {
     execute: vi.fn().mockResolvedValue({ status: 'executing' }),
   },
+  rollbackRemediation: {
+    execute: vi.fn().mockResolvedValue({ remediationId: 'rem-rollback', status: 'proposed', rollbackOf: 'rem-1' }),
+  },
   getRemediation: {
     listByIncident: vi.fn().mockResolvedValue([]),
     getById: vi.fn().mockResolvedValue({ remediationId: 'rem-1' }),
@@ -38,6 +41,7 @@ describe('remediation.routes', () => {
     mockUseCases.approveRemediation.execute.mockResolvedValue({ status: 'approved' });
     mockUseCases.rejectRemediation.execute.mockResolvedValue({ status: 'rejected' });
     mockUseCases.executeRemediation.execute.mockResolvedValue({ status: 'executing' });
+    mockUseCases.rollbackRemediation.execute.mockResolvedValue({ remediationId: 'rem-rollback', status: 'proposed', rollbackOf: 'rem-1' });
     mockUseCases.getRemediation.listByIncident.mockResolvedValue([]);
     mockUseCases.getRemediation.getById.mockResolvedValue({ remediationId: 'rem-1' });
   });
@@ -109,6 +113,18 @@ describe('remediation.routes', () => {
     expect(mockUseCases.executeRemediation.execute).toHaveBeenCalledOnce();
     const body = await res.json();
     expect(body).toHaveProperty('status', 'executing');
+  });
+
+  it('POST /test/:remediationId/rollback returns 201', async () => {
+    const res = await app.request('/test/rem-1/rollback', {
+      method: 'POST',
+    });
+
+    expect(res.status).toBe(201);
+    expect(mockUseCases.rollbackRemediation.execute).toHaveBeenCalledOnce();
+    const body = await res.json();
+    expect(body).toHaveProperty('remediationId', 'rem-rollback');
+    expect(body).toHaveProperty('rollbackOf', 'rem-1');
   });
 
   it('POST /test with invalid body (missing fields) returns 400', async () => {

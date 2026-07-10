@@ -1,6 +1,6 @@
 import type { RemediationId, TenantId, IncidentId } from '../../../shared/domain/value-objects.js';
 export type RemediationStatus = 'proposed' | 'approved' | 'rejected' | 'executing' | 'completed' | 'failed';
-export type RemediationStepStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+export type RemediationStepStatus = 'pending' | 'running' | 'completed' | 'succeeded' | 'failed' | 'skipped';
 export interface PullRequestInfo {
     repoFullName: string;
     prNumber: number;
@@ -17,6 +17,8 @@ export interface RemediationStep {
     automated: boolean;
     params: Record<string, unknown>;
     status: RemediationStepStatus;
+    beforeState?: Record<string, unknown>;
+    afterState?: Record<string, unknown>;
     output?: string;
     costUsd?: number;
     durationMs?: number;
@@ -27,6 +29,7 @@ export interface Remediation {
     remediationId: RemediationId;
     tenantId: TenantId;
     incidentId: IncidentId;
+    rollbackOf?: RemediationId;
     status: RemediationStatus;
     description: string;
     rootCause: string;
