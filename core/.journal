@@ -535,3 +535,50 @@ No defects found for AC-019.
 ### Verdict
 - qa=true
 - implementation=true
+
+---
+
+## QA Integrated Verification — WI-AC-045 (AC-045)
+
+### Test Date
+2026-07-10
+
+### Verifier
+qa-agent (integrated verification)
+
+### Checks performed
+
+**1. Worker service (same image, different entrypoint)** (grep/file audit)
+- `docker-compose.yml` defines `causeflow-worker` service with `dockerfile: Dockerfile.worker`
+- `Dockerfile` CMD: `node dist/main.js` (API)
+- `Dockerfile.worker` CMD: `node dist/workers/investigation-worker.js`
+- Both base on `node:22-alpine`, same build stages
+- `docker compose images` confirms both are 128MB, distinct IMAGE IDs (92c514bfa806 API vs a14a1e732d02 worker)
+- PASS
+
+**2. docker compose ps — both healthy** (CLI)
+- `docker compose ps --format "table {{.Service}}\t{{.Status}}\t{{.Health}}"`:
+  - `causeflow-api` — Up 22 minutes (healthy)
+  - `causeflow-worker` — Up 22 minutes (healthy)
+- PASS
+
+**3. investigation:start log line** (real container logs)
+- Worker boot: `causeflow-worker BullMQ consumer starting — waiting for investigation jobs` at 09:20:59
+- Worker boot: `BullMQ worker started` at 09:20:59
+- `investigation:start` confirmed at `[09:21:49.694]`
+- Followed by: `Dispatching investigation`, 6 sub-agent startup logs (log_analyst, metric_analyst, change_detector, code_analyzer, infra_inspector, db_analyst), `BullMQ job completed`
+- PASS
+
+**4. No ECS / ecs/ directory removed / no AWS credentials** (grep/file audit + container env)
+- `src/shared/infra/ecs/` directory does not exist (removed)
+- `ecs-task-dispatcher.ts` at `src/shared/infra/investigation/ecs-task-dispatcher.ts` is behind `config.ecs.cluster` dynamic import — never reached in OSS mode
+- OSS runtime uses `local-task-dispatcher.ts` (BullMQ-based, no ECS)
+- Worker env: `CAUSEFLOW_RUNTIME=oss`, zero `AWS_*` env vars present
+- Worker uses `StubCloudProvider` + `StubCredentialVendor` in OSS mode (provider: "stub" for all sub-agents)
+- PASS
+
+### Verdict
+All 4 acceptance criteria pass. Worker runs as docker-compose service, picks up BullMQ investigation jobs, logs investigation:start, uses no ECS/AWS.
+- qa=true
+- implementation=true
+- integration=true
