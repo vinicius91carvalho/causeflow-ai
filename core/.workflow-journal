@@ -1,5 +1,33 @@
 # Workflow Journal
 
+## 2026-07-10T06:15:00Z — VERIFY-FIRST boundary pass (WI-AC-026, this worktree)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes).**
+
+Exercised AC-026 against the EXISTING code at a real external boundary on the
+running stack (PORT=3099, OSS runtime, Postgres :5439, Redis :6380, Hindsight :8888).
+
+### Hindsight health (3/3 passed)
+1. ✅ `curl http://localhost:8888/health` → 200 `{"status":"healthy","database":"connected"}`
+2. ✅ Bank creation via `PUT /v1/default/banks/{bank_id}` succeeds
+3. ✅ Memory retain via `POST /v1/default/banks/{bank_id}/memories` with investigation summary returns `{"success":true,"items_count":1}`
+
+### Memory write → recall (4/4 passed)
+1. ✅ Retained investigation summary includes hypothesis + runbook with tags investigation, remediation, root_cause
+2. ✅ Recall with similar query 'database connection pool exhaustion high CPU order-service runbook' returns the stored memory with full runbook text
+3. ✅ Recall with 'high cpu order-service' (similar alert fingerprint) surfaces the prior runbook
+4. ✅ Recall with 'database pool runbook' also surfaces the prior runbook
+
+### Application-layer integration (3/3 passed)
+1. ✅ `GET /v1/memory/insights` returns stored investigation memory via HindsightAgentMemory.recall()
+2. ✅ `GET /v1/memory/runbooks` returns empty list (no runbook registry entries — expected)
+3. ✅ `GET /v1/memory/summary` works (empty reflect due to LLM provider=none)
+
+### Regression
+- `git status` clean — zero tracked files modified
+- Code paths wired: retainInvestigationSummary() → agentMemory.retain() writes after successful investigation; agentMemory.recall() reads prior runbooks for new investigations
+- HindsightAgentMemory wired in bootstrap.ts to InvestigateIncidentUseCase, HypothesisMode, DebateMode, ChatInvestigationUseCase, RecordInvestigationFeedbackUseCase
+
 ## WI-AC-044: AES-256-GCM token encryption replaces KMS
 
 ### Status: IMPLEMENTED & VERIFIED (QA PASS)
