@@ -1192,3 +1192,24 @@ Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d
 - Outcome: integration=true, implementation=true
 - Evidence: merge conflict resolved (append-only journal); incident `4bb61118-2d41-4905-85f9-fa3ec6855c11`; running -> succeeded; 6 SSE agent roles; finalSynthesis stored; `.harness/ac019-integrated-verify.sh` exit 0
 - NextAction: done
+
+## 2026-07-10T10:50:19.927Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T10:50:19.956Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T10:52:30Z — Integration conflict resolution for WI-AC-019
+
+- WorkItem: WI-AC-019
+- Outcome: integration=true, implementation=true
+- Evidence: resolved harness-progress/investigation.md merge (append-only, deduped gen/core-investigation duplicates); incident `f363af44-b0c4-42a8-a824-9b6cc157849a`; running -> succeeded; 6 SSE agent roles; finalSynthesis stored; `.harness/ac019-integrated-verify.sh` exit 0
+- NextAction: done
