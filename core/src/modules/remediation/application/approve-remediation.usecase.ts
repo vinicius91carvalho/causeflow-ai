@@ -4,6 +4,7 @@ import type { IRemediationRepository } from '../domain/remediation.repository.js
 import type { Remediation } from '../domain/remediation.entity.js';
 import type { IEventBus } from '../../../shared/domain/events.js';
 import type { TenantId, RemediationId } from '../../../shared/domain/value-objects.js';
+import { approvalId, notificationId } from '../../../shared/domain/value-objects.js';
 import type { IApprovalRepository } from '../../notification/domain/approval.repository.js';
 
 export interface ApproveRemediationInput {
@@ -40,9 +41,9 @@ export class ApproveRemediationUseCase {
             const now = new Date();
             const expiresAt = new Date(now.getTime() + 30 * 60 * 1000);
             await this.approvalRepo.create({
-                approvalId: `apr_${randomUUID()}`,
+                approvalId: approvalId(`apr_${randomUUID()}`),
                 tenantId,
-                notificationId: `notif_${randomUUID()}`,
+                notificationId: notificationId(`notif_${randomUUID()}`),
                 incidentId: remediation.incidentId,
                 remediationId,
                 title: `Remediation approval: ${remediation.description.slice(0, 80)}`,
