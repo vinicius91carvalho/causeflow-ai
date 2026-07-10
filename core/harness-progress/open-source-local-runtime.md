@@ -1104,3 +1104,10 @@ AC-051 requires port boundaries to be preserved for the open-source local runtim
 - RepairPlan: AC-045 is fully implemented with no blocking defects. All 4 requirements pass: `causeflow-worker` docker-compose service exists with distinct entrypoint (Dockerfile.worker → `node dist/workers/investigation-worker.js`), both services have healthchecks, the worker logs `investigation:start` inside the BullMQ consumer handler, and the `ecs/` directory is removed with `ecs-task-dispatcher.ts` correctly feature-flagged behind `config.ecs.cluster`. One minor code quality concern: static import of `AWSCloudProvider` at worker line 15 causes `@aws-sdk/*` modules to be evaluated at boot even in OSS mode (though never instantiated). Root cause is that the import uses static `import` instead of dynamic `import()` like `ecs-task-dispatcher.ts` does. All scaffold artifacts required by project_specs.xml for AC-045 are present.; Convert the `AWSCloudProvider` static import at `src/workers/investigation-worker.ts:15` to a dynamic `import()` used only when `config.isProd() || config.sts.roleArn` is truthy, matching the pattern at `ecs-task-dispatcher.ts` and the repo/queue dynamic imports in `workerBootstrap`; Remove unused static `AWSCloudProvider` import (line 15) and `AWS_API_CALL_TOOL` import (line 40) from the worker's top-level imports — both are only referenced conditionally inside `workerBootstrap` and should be dynamically loaded; Verify the fix by tailing worker logs in OSS mode and confirming no `@aws-sdk/*` requires/imports appear in a startup trace (e.g. `node --trace-require dist/workers/investigation-worker.js | grep aws-sdk`)
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-045-2-integration_qa.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-10T09:53:05.243Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-045
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
