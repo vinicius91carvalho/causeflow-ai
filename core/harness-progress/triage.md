@@ -309,3 +309,26 @@ In summary:
 - WorkItem: WI-AC-018
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T01:08:42.871Z — Resumed
+
+- WorkItem: WI-AC-018
+- PreviousPhase: integration_qa
+- Attempt: 2
+- NextAction: integration-qa
+
+## 2026-07-10T01:08:42.963Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-018
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T01:20:55.452Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-018
+- AcceptanceChecks: AC-018
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/triage/WI-AC-018-2-integration_qa.log
+- NextAction: next Ready Work Item
