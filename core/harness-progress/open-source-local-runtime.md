@@ -1481,3 +1481,10 @@ No defects found. integration=true set in feature_list.json.
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-10T21:45:00.000Z — Attempt 1 complete
+
+- WorkItem: WI-AC-046
+- Outcome: Replaced in-process bootstrap e2e with HTTP black-box test; finalized init.sh (tsx stable PID, CAUSEFLOW_RUNTIME=oss).
+- Evidence: tests/e2e/pipeline-local-only-regression.test.ts, init.sh, tests/e2e/setup.ts (no global BullMQ flush).
+- NextAction: Orchestrator boots host-dev and runs black-box verify / e2e.

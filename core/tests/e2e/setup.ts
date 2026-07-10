@@ -33,40 +33,9 @@ export async function setup(): Promise<void> {
     waitForPostgres(),
     waitForRedis(),
   ]);
-  // Flush any stale BullMQ queue data from previous test runs
-  await flushBullMQQueues();
+  // Queue flush runs in createE2EHarness() for in-process tests only. Black-box
+  // tests (AC-046) hit a running API and must not delete its BullMQ keys.
   console.log('[E2E Setup] All OSS infrastructure ready!');
-}
-
-/**
- * Flush all BullMQ-related Redis keys to prevent stale jobs from previous
- * test runs interfering with the current test.
- */
-async function flushBullMQQueues(): Promise<void> {
-  const redis = new Redis(REDIS_URL, {
-    maxRetriesPerRequest: 1,
-    lazyConnect: true,
-    connectTimeout: 5000,
-  });
-  try {
-    await redis.connect();
-    // Scan for BullMQ keys
-    let cursor = '0';
-    let deleted = 0;
-    do {
-      const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', 'bull:*', 'COUNT', 100);
-      cursor = nextCursor;
-      if (keys.length > 0) {
-        await redis.del(...keys);
-        deleted += keys.length;
-      }
-    } while (cursor !== '0');
-    if (deleted > 0) {
-      console.log(`[E2E Setup] Flushed ${deleted} stale BullMQ keys from Redis`);
-    }
-  } finally {
-    await redis.quit().catch(() => {});
-  }
 }
 
 async function waitForPostgres(retries = 15): Promise<void> {

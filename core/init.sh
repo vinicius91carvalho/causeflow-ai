@@ -9,6 +9,8 @@
 
 set -euo pipefail
 
+export CAUSEFLOW_RUNTIME="${CAUSEFLOW_RUNTIME:-oss}"
+
 PORT="${PORT:-3099}"
 HEALTH_URL="http://127.0.0.1:${PORT}/health"
 LOG_FILE="dev.log"
@@ -74,7 +76,9 @@ if [ "$EXISTING_CODE" = "200" ] || [ "$EXISTING_CODE" = "503" ]; then
   echo "API already up at http://localhost:${PORT}"
 else
   export PORT
-  nohup pnpm dev >"$LOG_FILE" 2>&1 &
+  export CAUSEFLOW_RUNTIME="${CAUSEFLOW_RUNTIME:-oss}"
+  # Use tsx directly (not `pnpm dev` / tsx watch) so nohup keeps a stable PID.
+  nohup pnpm exec tsx --env-file=.env.dev src/main.ts >"$LOG_FILE" 2>&1 &
   echo $! >"$APP_PID_FILE"
 
   for _ in $(seq 1 60); do
