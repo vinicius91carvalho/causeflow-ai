@@ -84,3 +84,37 @@
 - Defects: Let me read the core files to understand what's already implemented and what might be missing.Let me do one more clean test to confirm everything works end-to-end.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1-integration_qa.log
 - NextAction: Repair Plan
+
+## 2026-07-10T05:41:55.545Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- DefectReport: Let me read the core files to understand what's already implemented and what might be missing.Let me do one more clean test to confirm everything works end-to-end.
+- RepairPlan: Repair planning did not return structured JSON;  ✅ exists and calls `ApproveRemediationUseCase`
+- ApprovalEntity creation ✅ in `approve-remediation.usecase.ts` — calls `this.approvalRepo.create({...})` with status='approved'
+- Double-approve rejection ✅ — checks `remediation.status === 'approved'` → throws `ConflictError` → mapped to 409
+- Wiring ✅ — `approvalRepo` constructed in bootstrap.ts (line 596-600), passed to `ApproveRemediationUseCase` (line 613)
+- Routes mounted at both `/v1/remediation` and `/api/v1/remediation` in app.ts (lines 142-143)
+
+**Evidence log assessment:** The `integration_qa.log` contains only 1 line — the route metadata and two truncated sentences — no actual QA evaluation. The `coding.log` and `qa.log` both confirm all checks pass with 0 defects. The 3 failing tests are pre-existing investigation-consumer unrelated failures.
+
+**Root cause:** The integration_qa agent's output was truncated/incomplete — it didn't perform an evaluation. The code correctly implements AC-023.A diagnosis completa está no JSON acima. Em resumo:
+
+**Nenhum defeito de código encontrado.** O AC-023 está implementado corretamente:
+
+1. **GET `/api/v1/remediation/:id/proposal`** — rota existente em `remediation.routes.ts:52` que retorna o remediation com steps (ações AWS)
+2. **POST `/api/v1/remediation/:id/approve`** — rota existente que chama `ApproveRemediationUseCase`, que cria `ApprovalEntity` via `approvalRepo.create()` com status `approved`
+3. **Segundo approve retorna 409** — `if (remediation.status === 'approved') throw new ConflictError(...)` no use case
+
+O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` para o `ApproveRemediationUseCase`. As rotas estão montadas em `app.ts` (linhas 142-143). 57/57 testes de remediation passam.
+
+**A causa raiz do "defeito" reportado** é que o agente integration_qa produziu um log truncado com apenas 1 linha — duas frases incompletas ("Let me read the core files... Let me do one more clean test...") — sem uma avaliação real. O código está correto.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1-integration_qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-10T05:47:47.426Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
