@@ -8463,10 +8463,25 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
 
-## 2026-07-10T18:01:00.000Z � Integrated Verification passed
+## 2026-07-10T18:01:00.000Z — Integrated Verification passed
 
 - WorkItem: WI-AC-035
 - AcceptanceChecks: AC-035
 - Outcome: integration=true, implementation=true, qa=true
 - Evidence: real browser boundary on PORT=5170 (Playwright, CAUSEFLOW_RUNTIME=oss, Postgres :5439, Redis :6380). `.harness/ac035-integrated-verify.mjs` exit 0, 10/10 PASS: `/dashboard` 200, tenant `QA Tenant AC035`, `New investigation`, incident `AC035 checkout latency spike`, detail panels (Evidence, Hypotheses, Chat, Remediation), hypotheses API 200, SSE `/v1/notifications/stream` 200.
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/widget-and-portal/WI-AC-035-integrated-qa.log
+
+## 2026-07-10T18:01:40.763Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T18:01:40.818Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
