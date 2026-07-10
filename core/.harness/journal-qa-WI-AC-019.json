@@ -5,8 +5,8 @@
   "result": "PASS",
   "evidence": [
     "Scaffold audit: project_specs.xml and required AC-019 structures present.",
-    "Real HTTP/SSE on PORT=5175.",
-    "Incident 57272182-811b-4275-8fa9-89a3a87e3b97 immediate GET status=running.",
+    "Real HTTP/SSE on PORT=5175 (integrated branch plan/opensource-docker).",
+    "Incident 8216cc2b-4d60-4170-8ba3-6f71ba977daf immediate GET status=running.",
     "SSE stream emitted per-agent agentRole events for all 6 agents plus investigation_completed.",
     "Final GET status=succeeded with finalSynthesis stored and 6 assignedAgents.",
     ".harness/ac019-integrated-verify.sh exit 0."
@@ -14,6 +14,6 @@
   "integration": true,
   "implementation": true,
   "qa": true,
-  "verifiedAt": "2026-07-10T15:12:00Z",
+  "verifiedAt": "2026-07-10T16:41:13Z",
   "verifiedBy": "qa-agent"
 }
