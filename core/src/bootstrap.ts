@@ -578,12 +578,28 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const abortInvestigation = new AbortInvestigationUseCase(incidentRepo, eventBus, investigationRegistry);
   const respondKnownSolution = new RespondKnownSolutionUseCase(incidentRepo, eventBus, runbookRegistry);
   const recordInvestigationFeedback = new RecordInvestigationFeedbackUseCase(eventBus, agentMemory, runbookRegistry);
+
+  // Notification + chat platform (needed by investigation chat mirroring — AC-021)
+  const sseManager = new SSEManager();
+  const notificationRepo = config.isOss()
+    ? new (await import('./modules/notification/infra/pg-notification.repository.js')).PgNotificationRepository()
+    : new DynamoNotificationRepository();
+  const approvalRepo = config.isOss()
+    ? new (await import('./modules/notification/infra/pg-approval.repository.js')).PgApprovalRepository()
+    : new DynamoApprovalRepository();
+  const chatPlatform = new WebPortalChatPlatform(notificationRepo, approvalRepo, sseManager);
+  const slackNotificationRepo = new SlackNotificationRepository();
+
   const chatInvestigation = new ChatInvestigationUseCase({
     incidentRepo, evidenceRepo, agentRunner, agentMemory,
     llmClient: llmClient as unknown as LLMClient,
     chatHistory: config.isOss()
       ? new (await import('./modules/memory/infra/pg-chat-history.repository.js')).PgChatHistoryRepository()
       : new (await import('./modules/memory/infra/dynamo-chat-history.repository.js')).DynamoChatHistoryRepository(),
+    chatPlatform,
+    tenantRepo,
+    tokenEncryption,
+    slackNotificationRepo,
     addInvestigationContext,
     dispatchFollowupWorker: config.ecs.cluster
       ? async (iid, tid) => {
@@ -598,7 +614,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
         : undefined,
   });
   const listHypotheses = new ListHypothesesUseCase(hypothesisRepo);
-  const sseManager = new SSEManager();
   const investigationUseCases: InvestigationUseCases = {
     investigateIncident: dispatchInvestigation,
     getInvestigation,
@@ -613,18 +628,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     incidentRepo,
     sseManager,
   };
-
-  // Notification Module — uses Postgres stubs in OSS mode to avoid DynamoDB
-  // In the AWS runtime, uses the original DynamoDB-backed repositories.
-  const notificationRepo = config.isOss()
-    ? new (await import('./modules/notification/infra/pg-notification.repository.js')).PgNotificationRepository()
-    : new DynamoNotificationRepository();
-  const approvalRepo = config.isOss()
-    ? new (await import('./modules/notification/infra/pg-approval.repository.js')).PgApprovalRepository()
-    : new DynamoApprovalRepository();
-
-  // Chat Platform (Web Portal replaces Stub)
-  const chatPlatform = new WebPortalChatPlatform(notificationRepo, approvalRepo, sseManager);
 
   // Remediation Use Cases — OSS runtime uses Postgres, AWS runtime uses DynamoDB
   const remediationRepo = config.isOss()
@@ -686,7 +689,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const listAllIntegrations = new ListAllIntegrationsUseCase();
 
   // Slack integration
-  const slackNotificationRepo = new SlackNotificationRepository();
   const slackOAuthConfig = {
     clientId: config.slack.clientId,
     clientSecret: config.slack.clientSecret,

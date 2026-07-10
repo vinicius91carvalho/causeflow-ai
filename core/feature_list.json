@@ -436,8 +436,8 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "attempts": 0,
-    "status": "qa-pass"
+    "attempts": 1,
+    "status": "integrated"
   },
   {
     "id": "WI-AC-021",
@@ -454,7 +454,7 @@
     ],
     "depends_on": ["AC-019"],
     "verify_first": true,
-    "implementation": false,
+    "implementation": true,
     "qa": false,
     "integration": false,
     "retries": 0,

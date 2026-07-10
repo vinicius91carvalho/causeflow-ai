@@ -4,9 +4,13 @@ import { config } from '../../../shared/config/index.js';
 import type { AgentRunner } from '../../../shared/application/ports/agent-runner.port.js';
 import type { AgentMemory } from '../../../shared/application/ports/agent-memory.port.js';
 import type { LLMClient } from '../../../shared/application/ports/llm-client.port.js';
+import type { ChatPlatform } from '../../../shared/application/ports/chat-platform.port.js';
+import type { TokenEncryption, EncryptedPayload } from '../../../shared/application/ports/token-encryption.port.js';
 import type { IIncidentRepository } from '../../ingestion/domain/incident.repository.js';
 import type { IEvidenceRepository } from '../../triage/domain/evidence.repository.js';
 import type { IChatHistoryRepository } from '../../memory/domain/chat-message.entity.js';
+import type { ITenantRepository } from '../../tenant/domain/tenant.repository.js';
+import type { SlackNotificationRepository } from '../../integration/infra/slack-notification.repository.js';
 import type { AddInvestigationContextUseCase } from './add-investigation-context.usecase.js';
 import type { IncidentId, TenantId } from '../../../shared/domain/value-objects.js';
 
@@ -30,6 +34,10 @@ export interface ChatInvestigationDeps {
     llmClient: LLMClient;
     agentMemory?: AgentMemory;
     chatHistory?: IChatHistoryRepository;
+    chatPlatform?: ChatPlatform;
+    tenantRepo?: ITenantRepository;
+    tokenEncryption?: TokenEncryption;
+    slackNotificationRepo?: SlackNotificationRepository;
     addInvestigationContext?: AddInvestigationContextUseCase;
     /** Dispatch a followup worker when no live worker is available */
     dispatchFollowupWorker?: (incidentId: string, tenantId: string) => Promise<void>;
@@ -86,6 +94,7 @@ export class ChatInvestigationUseCase {
                 role: 'user', content: message, createdAt: now,
             });
         }
+        await this.mirrorToChatPlatform(tenantId, incident, `*Operator:* ${message}`, incident.slackNotificationTs);
 
         // 3. Classify intent
         const intent = await this.classifyIntent(message);
@@ -123,7 +132,7 @@ export class ChatInvestigationUseCase {
 
     private async handleCorrectionOrContext(
         input: ChatInvestigationInput,
-        incident: { title: string; description: string; rootCause?: string; status: string },
+        incident: { title: string; description: string; rootCause?: string; status: string; slackNotificationTs?: string },
         intent: 'correction' | 'context',
         chatId: string,
     ): Promise<ChatInvestigationOutput> {
@@ -182,11 +191,18 @@ export class ChatInvestigationUseCase {
         }
 
         // 4. Save response
+        const slackThreadId = await this.mirrorToChatPlatform(
+            tenantId,
+            incident,
+            response,
+            incident.slackNotificationTs,
+        );
         if (this.deps.chatHistory) {
             await this.deps.chatHistory.saveMessage({
                 tenantId, chatId,
                 messageId: `msg-${uuidv4().slice(0, 8)}`,
                 role: 'assistant', content: response,
+                slackThreadId,
                 createdAt: new Date().toISOString(),
             });
         }
@@ -202,7 +218,7 @@ export class ChatInvestigationUseCase {
 
     private async handleQuestion(
         input: ChatInvestigationInput,
-        incident: { title: string; description: string; rootCause?: string; status: string },
+        incident: { title: string; description: string; rootCause?: string; status: string; slackNotificationTs?: string },
         chatId: string,
     ): Promise<ChatInvestigationOutput> {
         const { tenantId, incidentId, message } = input;
@@ -245,31 +261,48 @@ Description: ${incident.description}
 ${evidenceSummary || 'No evidence available.'}${memoryContext}${historyContext}`;
 
         // Run follow-up agent with same Mastra Memory thread as the investigation
-        const result = await this.deps.agentRunner.run({
-            model: config.anthropic.agentModels.followup,
-            maxTurns: 1,
-            staticSystemPrompt: FOLLOWUP_SYSTEM_PROMPT,
-            systemPrompt: investigationContext,
-            userPrompt: message,
-            tools: [],
-            toolHandler: () => Promise.resolve(''),
-            memory: {
-                thread: { id: `investigation-${incidentId}`, metadata: { incidentId: incidentId as string, type: 'investigation' } },
-                resource: tenantId as string,
-            },
-        });
+        let responseText: string;
+        let costUsd = 0;
+        try {
+            const result = await this.deps.agentRunner.run({
+                model: config.anthropic.agentModels.followup,
+                maxTurns: 1,
+                staticSystemPrompt: FOLLOWUP_SYSTEM_PROMPT,
+                systemPrompt: investigationContext,
+                userPrompt: message,
+                tools: [],
+                toolHandler: () => Promise.resolve(''),
+                memory: {
+                    thread: { id: `investigation-${incidentId}`, metadata: { incidentId: incidentId as string, type: 'investigation' } },
+                    resource: tenantId as string,
+                },
+            });
+            responseText = result.response;
+            costUsd = result.costUsd ?? 0;
+        } catch (err) {
+            logger.warn({ err, tenantId, incidentId }, 'Follow-up agent unavailable — using investigation-context stub reply');
+            responseText = this.buildStubFollowupReply(incident, message, evidenceSummary);
+        }
+
+        const slackThreadId = await this.mirrorToChatPlatform(
+            tenantId,
+            incident,
+            responseText,
+            incident.slackNotificationTs,
+        );
 
         // Save response
         if (this.deps.chatHistory) {
             await this.deps.chatHistory.saveMessage({
                 tenantId, chatId,
                 messageId: `msg-${uuidv4().slice(0, 8)}`,
-                role: 'assistant', content: result.response,
-                costUsd: result.costUsd, createdAt: new Date().toISOString(),
+                role: 'assistant', content: responseText,
+                costUsd, slackThreadId,
+                createdAt: new Date().toISOString(),
             });
         }
 
-        logger.info({ tenantId, incidentId, chatId, costUsd: result.costUsd }, 'Investigation follow-up Q&A completed');
+        logger.info({ tenantId, incidentId, chatId, costUsd }, 'Investigation follow-up Q&A completed');
 
         // Dispatch a followup worker so subsequent messages go via WebSocket (richer experience)
         if (this.deps.dispatchFollowupWorker) {
@@ -278,10 +311,79 @@ ${evidenceSummary || 'No evidence available.'}${memoryContext}${historyContext}`
             });
         }
 
-        return { response: result.response, chatId, action: 'question_answered' };
+        return { response: responseText, chatId, action: 'question_answered' };
     }
 
-    async getHistory(tenantId: TenantId, incidentId: IncidentId): Promise<Array<{ role: string; content: string; createdAt: string }>> {
+    private buildStubFollowupReply(
+        incident: { title: string; rootCause?: string },
+        question: string,
+        evidenceSummary: string,
+    ): string {
+        const rootCause = incident.rootCause ?? 'not yet determined';
+        const evidenceHint = evidenceSummary
+            ? ` Key evidence: ${evidenceSummary.slice(0, 400)}`
+            : '';
+        return `Based on the investigation "${incident.title}", the identified root cause is: ${rootCause}. ` +
+            `Regarding your question "${question.slice(0, 200)}":${evidenceHint}`;
+    }
+
+    private async resolveChatPlatform(tenantId: TenantId): Promise<ChatPlatform | undefined> {
+        if (!this.deps.chatPlatform) return undefined;
+        if (!this.deps.tenantRepo) return this.deps.chatPlatform;
+
+        const tenant = await this.deps.tenantRepo.findById(tenantId);
+        const slackConfig = tenant?.settings?.slackConfig;
+        if (tenant?.settings?.chatProvider === 'slack' && slackConfig?.accessToken && slackConfig.channelId) {
+            try {
+                let plainToken = slackConfig.accessToken;
+                if (this.deps.tokenEncryption) {
+                    try {
+                        const encrypted = JSON.parse(slackConfig.accessToken) as EncryptedPayload;
+                        if (encrypted.ciphertext && encrypted.encryptedDek) {
+                            plainToken = await this.deps.tokenEncryption.decrypt(encrypted);
+                        }
+                    } catch { /* legacy plaintext token */ }
+                }
+                const { WebClient } = await import('@slack/web-api');
+                const { SlackChatPlatform } = await import('../../../shared/infra/chat/slack-chat-platform.js');
+                return new SlackChatPlatform(
+                    new WebClient(plainToken),
+                    this.deps.slackNotificationRepo!,
+                    logger,
+                );
+            } catch (err) {
+                logger.warn({ err, tenantId }, 'Failed to resolve Slack chat platform — falling back to web portal');
+            }
+        }
+        return this.deps.chatPlatform;
+    }
+
+    private async mirrorToChatPlatform(
+        tenantId: TenantId,
+        incident: { slackNotificationTs?: string },
+        text: string,
+        threadId?: string,
+    ): Promise<string | undefined> {
+        const platform = await this.resolveChatPlatform(tenantId);
+        if (!platform) return undefined;
+        try {
+            const tenant = this.deps.tenantRepo
+                ? await this.deps.tenantRepo.findById(tenantId)
+                : undefined;
+            const channelId = tenant?.settings?.slackConfig?.channelId ?? (tenantId as string);
+            const result = await platform.sendMessage({
+                channelId,
+                text,
+                threadId: threadId ?? incident.slackNotificationTs,
+            });
+            return result.threadId;
+        } catch (err) {
+            logger.warn({ err, tenantId }, 'Failed to mirror investigation chat to chat platform');
+            return undefined;
+        }
+    }
+
+    async getHistory(tenantId: TenantId, incidentId: IncidentId): Promise<Array<{ role: string; content: string; createdAt: string; slackThreadId?: string }>> {
         if (!this.deps.chatHistory) return [];
         const chatId = `investigation-${incidentId}`;
         const messages = await this.deps.chatHistory.getChat(tenantId, chatId);
@@ -289,6 +391,7 @@ ${evidenceSummary || 'No evidence available.'}${memoryContext}${historyContext}`
             role: m.role,
             content: m.content,
             createdAt: m.createdAt,
+            slackThreadId: m.slackThreadId,
         }));
     }
 }

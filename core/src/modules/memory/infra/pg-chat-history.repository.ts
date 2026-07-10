@@ -22,6 +22,7 @@ function toDomain(row: any): ChatMessage {
         costUsd: row.data['costUsd'] as number | undefined,
         liveDataChecked: row.data['liveDataChecked'] as boolean | undefined,
         toolCallsCount: row.data['toolCallsCount'] as number | undefined,
+        slackThreadId: row.data['slackThreadId'] as string | undefined,
         createdAt: row.created_at,
     };
 }
@@ -37,6 +38,7 @@ export class PgChatHistoryRepository implements IChatHistoryRepository {
             costUsd: msg.costUsd,
             liveDataChecked: msg.liveDataChecked,
             toolCallsCount: msg.toolCallsCount,
+            slackThreadId: msg.slackThreadId,
         };
         await pgInsert(TABLE, msg.tenantId, msg.messageId, data);
     }
