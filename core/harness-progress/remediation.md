@@ -1180,3 +1180,220 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/6a2134d5-5da9-4824-81be-115512f35449/remediation/WI-AC-024-1-integration_qa-63fa2bf549e6524f.log
 - NextAction: next Ready Work Item
+
+## 2026-07-10T21:01:24.656Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: claimed
+- Attempt: 1
+- NextAction: start-orchestrator
+
+## 2026-07-10T21:15:12.852Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T21:25:46.982Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T21:31:36.368Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T21:44:28.092Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T21:57:55.188Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:00:35.045Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:08:20.374Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:14:27.859Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:20:52.021Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:33:30.998Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:39:49.772Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:42:43.529Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:48:20.442Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:52:11.426Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:56:06.361Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:59:01.037Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T23:03:54.590Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T23:07:54.959Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T23:12:49.605Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T23:18:27.721Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T23:24:26.333Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T23:30:36.397Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T23:35:00.289Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T23:38:47.824Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T23:43:13.375Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T23:45:52.955Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T23:49:53.753Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T23:53:52.477Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T23:56:19.190Z — Resumed
+
+- WorkItem: WI-AC-025
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T23:59:02.073Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-025
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
