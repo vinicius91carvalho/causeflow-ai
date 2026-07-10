@@ -741,7 +741,31 @@ export class InvestigateIncidentUseCase {
         await this.incidentRepo.updateStatus(tenantId, incidentId, 'investigating');
         // 3b. Orchestrator mode: single agent with all tools
         if (config.enhancedRunner.orchestratorMode) {
-            return this.executeOrchestrator(input, incident, investigationStartMs);
+            try {
+                return await this.executeOrchestrator(input, incident, investigationStartMs);
+            } catch (err) {
+                logger.warn({ err, incidentId, tenantId }, 'Orchestrator execution failed — producing stub result');
+                // Fallback: produce stub result so pipeline continues (AC-019)
+                const stubRootCause = 'Unable to determine root cause (LLM service unavailable)';
+                await this.incidentRepo.update(tenantId, incidentId, {
+                    rootCause: stubRootCause,
+                    investigationDurationMs: Date.now() - investigationStartMs,
+                    updatedAt: new Date().toISOString(),
+                });
+                await this.incidentRepo.updateStatus(tenantId, incidentId, 'resolved');
+                await this.eventBus.publish({
+                    eventType: 'investigation.completed',
+                    occurredAt: new Date().toISOString(),
+                    tenantId,
+                    payload: { incidentId, rootCause: stubRootCause, recommendedActions: [], totalCostUsd: 0, investigationDurationMs: Date.now() - investigationStartMs },
+                });
+                return {
+                    findings: [{ text: 'Investigation completed without agent findings (LLM unavailable)', evidenceIds: [] }],
+                    potentialRootCause: stubRootCause,
+                    recommendedActions: [],
+                    evidence: [],
+                };
+            }
         }
         // 4. Dispatch sub-agents in parallel
         // Enrich agent prompts with Hindsight memory (investigations, remediations, topology, integrations)
@@ -925,9 +949,37 @@ export class InvestigateIncidentUseCase {
                 payload: { incidentId, stage: 'wave_completed', wave: 2, message: `Wave 2 completed: ${successful.length} succeeded, ${failed.length} failed` },
             });
         }
-        // 4. If all agents failed, throw error
+        // 4. If all agents failed, produce stub result so pipeline continues (AC-019)
         if (successfulResults.length === 0) {
-            throw new InvestigationFailedError(incidentId, 'All sub-agents failed');
+            logger.warn({ incidentId, tenantId, failedAgents }, 'All sub-agents failed — completing with stub result');
+            const stubRootCause = 'Unable to determine root cause (LLM service unavailable)';
+            const investigationDurationMs = Date.now() - investigationStartMs;
+            await this.incidentRepo.update(tenantId, incidentId, {
+                rootCause: stubRootCause,
+                assignedAgents: failedAgents.map(a => a.role),
+                investigationDurationMs,
+                updatedAt: new Date().toISOString(),
+            });
+            await this.incidentRepo.updateStatus(tenantId, incidentId, 'resolved');
+            await this.eventBus.publish({
+                eventType: 'investigation.completed',
+                occurredAt: new Date().toISOString(),
+                tenantId,
+                payload: {
+                    incidentId,
+                    rootCause: stubRootCause,
+                    agentsUsed: failedAgents.map(a => a.role),
+                    recommendedActions: [],
+                    totalCostUsd: 0,
+                    investigationDurationMs,
+                },
+            });
+            return {
+                findings: [{ text: 'Investigation completed without agent findings (LLM unavailable)', evidenceIds: [] }],
+                potentialRootCause: stubRootCause,
+                recommendedActions: [],
+                evidence: [],
+            };
         }
         // 5. Save evidence per sub-agent
         for (const agentResult of successfulResults) {

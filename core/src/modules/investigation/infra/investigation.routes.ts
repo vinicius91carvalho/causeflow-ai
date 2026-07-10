@@ -1,4 +1,6 @@
 import { Hono } from 'hono';
+import { streamSSE } from 'hono/streaming';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { incidentId } from '../../../shared/domain/value-objects.js';
@@ -18,6 +20,7 @@ import type { ChatInvestigationUseCase } from '../application/chat-investigation
 import type { ListHypothesesUseCase } from '../application/list-hypotheses.usecase.js';
 import type { IEvidenceRepository } from '../../triage/domain/evidence.repository.js';
 import type { IToolCallRepository } from '../../triage/domain/tool-call.repository.js';
+import type { SSEManager } from '../../../shared/infra/chat/sse-manager.js';
 import { toolCallId as toToolCallId } from '../../../shared/domain/value-objects.js';
 
 export interface InvestigationUseCases {
@@ -50,6 +53,10 @@ export interface InvestigationUseCases {
      * missing.
      */
     incidentRepo?: IIncidentRepository;
+    /**
+     * SSE manager for streaming investigation progress events.
+     */
+    sseManager?: SSEManager;
 }
 
 const addContextSchema = z.object({
@@ -93,7 +100,7 @@ export function createInvestigationRoutes(useCases: InvestigationUseCases): Hono
         const result = await useCases.investigateIncident.execute({
             tenantId,
             incidentId: id,
-            suggestedAgents: ['log_analyst', 'metric_analyst', 'infra_inspector'],
+            suggestedAgents: ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
         });
         return c.json(result);
     });
@@ -123,7 +130,10 @@ export function createInvestigationRoutes(useCases: InvestigationUseCases): Hono
             suggestedAgents: body.suggestedAgents ?? [
                 'log_analyst',
                 'metric_analyst',
+                'change_detector',
+                'code_analyzer',
                 'infra_inspector',
+                'db_analyst',
             ],
         });
         return c.json({ mode: body.mode, shadowMode: body.shadowMode, result });
@@ -250,6 +260,29 @@ export function createInvestigationRoutes(useCases: InvestigationUseCases): Hono
         const id = incidentId(c.req.param('incidentId'));
         const hypotheses = await useCases.listHypotheses.execute(tenantId, id);
         return c.json({ hypotheses });
+    });
+    // SSE stream — per-agent investigation progress events (AC-019)
+    app.get('/:incidentId/stream', (c) => {
+        const tid = c.get('tenantId');
+        const clientId = randomUUID();
+        return streamSSE(c, async (stream) => {
+            useCases.sseManager?.addClient(tid, clientId, stream);
+            await stream.writeSSE({
+                event: 'connected',
+                data: JSON.stringify({ clientId, tenantId: tid, incidentId: c.req.param('incidentId') }),
+            });
+            stream.onAbort(() => {
+                useCases.sseManager?.removeClient(tid, clientId);
+            });
+            while (true) {
+                await new Promise((resolve) => setTimeout(resolve, 30_000));
+                try {
+                    await stream.writeSSE({ event: 'heartbeat', data: '' });
+                } catch {
+                    break;
+                }
+            }
+        });
     });
     return app;
 }

@@ -566,6 +566,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     } : undefined,
   });
   const listHypotheses = new ListHypothesesUseCase(hypothesisRepo);
+  const sseManager = new SSEManager();
   const investigationUseCases: InvestigationUseCases = {
     investigateIncident: dispatchInvestigation,
     getInvestigation,
@@ -578,6 +579,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     evidenceRepo,
     toolCallRepo,
     incidentRepo,
+    sseManager,
   };
 
   // Notification Module — uses Postgres stubs in OSS mode to avoid DynamoDB
@@ -586,7 +588,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     ? new (await import('./modules/notification/infra/pg-notification.repository.js')).PgNotificationRepository()
     : new DynamoNotificationRepository();
   const approvalRepo = new DynamoApprovalRepository();
-  const sseManager = new SSEManager();
 
   // Chat Platform (Web Portal replaces Stub)
   const chatPlatform = new WebPortalChatPlatform(notificationRepo, approvalRepo, sseManager);
@@ -1266,7 +1267,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
         await dispatchInvestigation.execute({
           tenantId: tenantId(event.tenantId),
           incidentId: incidentId(iid),
-          suggestedAgents: incident.assignedAgents ?? ['log_analyst', 'metric_analyst', 'infra_inspector'],
+          suggestedAgents: incident.assignedAgents ?? ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
         });
       } catch (err) {
         logger.error({ err, event }, 'In-process investigation failed');
@@ -1399,7 +1400,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
           const tid = tenantId(body['tenantId'] as string);
           const iid = incidentId(body['incidentId'] as string);
           const suggestedAgents = (body['suggestedAgents'] as string[]) ??
-            ['log_analyst', 'metric_analyst', 'infra_inspector'];
+            ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'];
           await dispatchInvestigation.execute({ tenantId: tid, incidentId: iid, suggestedAgents });
         },
       });
