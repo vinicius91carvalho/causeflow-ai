@@ -81,11 +81,11 @@
 
 ## WI-AC-019: Investigation with 6+ agents, SSE stream, status=succeeded
 
-### Status: IMPLEMENTED & VERIFIED (2026-07-10T13:42:00Z verify-first pass)
+### Status: IMPLEMENTED & VERIFIED (2026-07-10T18:06:00Z verify-first pass, integration retry)
 
 ### Latest boundary verification (PORT=5175, zero-diff)
-- Incident `8c95b230-36f4-4ad3-97c5-5e7c57a42418`: polls 1-15 `status=running`, then `status=succeeded`
-- SSE: connected + investigation_progress (all 6 agents) + investigation_completed
+- Incident `83b81b63-c490-4ccd-819c-e1254eaa6c17`: poll `status=running`, then `status=succeeded`
+- SSE: connected + 11 investigation_progress (all 6 agents) + investigation_completed
 - `finalSynthesis` stored; no source code changes
 
 ### Status: IMPLEMENTED & VERIFIED (2026-07-10T10:33:00Z verify-first pass)
