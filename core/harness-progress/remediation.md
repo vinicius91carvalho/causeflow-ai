@@ -947,3 +947,17 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - WorkItem: WI-AC-024
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T20:23:12.648Z — Resumed
+
+- WorkItem: WI-AC-024
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T20:23:12.692Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
