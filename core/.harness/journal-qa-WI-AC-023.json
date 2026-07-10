@@ -6,7 +6,7 @@
   "integration": true,
   "implementation": true,
   "qa": true,
-  "verifiedAt": "2026-07-10T16:12:56Z",
+  "verifiedAt": "2026-07-10T16:16:23Z",
   "verifiedBy": "qa-agent",
   "verification": {
     "getProposalReturnsPlanWithActions": "pass",
@@ -15,8 +15,8 @@
   },
   "evidence": [
     "OSS API healthy on http://127.0.0.1:3099 (container PORT=5171). Registered tenant via POST /v1/auth/register, created incident via POST /v1/admin/incidents, proposed remediation via POST /api/v1/remediation with ecs.updateService + ecs.forceNewDeployment actions.",
-    "GET /api/v1/remediation/e7505f4b-13d5-4a68-8b0e-ecc5a23de2b8/proposal → HTTP 200 with steps[] listing AWS actions (ecs.updateService, ecs.forceNewDeployment).",
-    "POST /api/v1/remediation/:id/approve with admin JWT → HTTP 200, status=approved, approvedBy=qa-ac023-1783699976@example.com.",
+    "GET /api/v1/remediation/ebef44cd-6eb9-458f-845f-3c1b62302338/proposal → HTTP 200 with steps[] listing AWS actions (ecs.updateService, ecs.forceNewDeployment).",
+    "POST /api/v1/remediation/:id/approve with admin JWT → HTTP 200, status=approved, approvedBy=qa-ac023-1783700183@example.com.",
     "Second POST /api/v1/remediation/:id/approve → HTTP 409 CONFLICT (status completed before second call; duplicate approval rejected)."
   ],
   "defects": []
