@@ -752,6 +752,15 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - remediationId: 1d14548e-545d-4558-aef4-ee8671afe708
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783705789-integration_qa.log
 
+## 2026-07-10T19:51:00.000Z — WI-AC-024 VERIFY-FIRST re-verified
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: implementation=true; zero-diff checkpoint (no code changes)
+- Evidence: `.harness/ac024-verify.sh` PASS on PORT=5170
+- remediationId: 0c5237fc-8521-4532-b8e1-c293459a7059
+- NextAction: WI-AC-025
+
 ## 2026-07-10T19:46:00.000Z — WI-AC-024 QA verified
 
 - Attempt: 1/3

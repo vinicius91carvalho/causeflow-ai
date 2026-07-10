@@ -454,12 +454,12 @@
     ],
     "depends_on": ["AC-019"],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
-    "attempts": 0,
-    "status": "verify-first"
+    "attempts": 1,
+    "status": "integrated"
   },
   {
     "id": "WI-AC-022",
@@ -521,14 +521,14 @@
     "depends_on": ["AC-023"],
     "verify_first": true,
     "implementation": true,
-    "qa": true,
+    "qa": false,
     "integration": false,
     "retries": 0,
     "attempts": 1,
-    "status": "done"
+    "status": "implemented"
   },
   {
-    "id": "WI-AC-025"
+    "id": "WI-AC-025",
     "acceptance_check_id": "AC-025",
     "acceptance_checks": ["AC-025"],
     "context": "remediation",
