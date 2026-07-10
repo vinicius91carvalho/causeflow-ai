@@ -315,3 +315,11 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
 - NextAction: Coding Attempt 1
+
+## 2026-07-10T16:37:00.000Z — Verify-first checkpoint (Attempt 3)
+
+- WorkItem: WI-AC-023
+- Outcome: AC-023 passes at HTTP boundary (zero-diff)
+- Evidence: GET /api/v1/remediation/:id/proposal → 200 with AWS action steps; POST approve → 200 status=approved; second approve → 409 CONFLICT
+- API: http://localhost:3099 (docker maps host 3099 → container PORT=5171)
+- NextAction: Integrated Verification
