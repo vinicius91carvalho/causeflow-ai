@@ -26,8 +26,17 @@ export function widgetCorsMiddleware(
     return async (c, next) => {
         const origin = c.req.header('Origin');
 
-        // No origin = server-to-server, allow
-        if (!origin) {
+        // No origin or null origin = server-to-server / local file, allow
+        if (!origin || origin === 'null') {
+            c.header('Access-Control-Allow-Origin', '*');
+            c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key, X-Widget-Agent-Id, X-Widget-Agent-Name, X-Request-Id');
+            c.header('Access-Control-Expose-Headers', 'X-RateLimit-Limit, X-RateLimit-Remaining, X-Request-Id');
+            c.header('Access-Control-Max-Age', '600');
+            c.header('Vary', 'Origin');
+            if (c.req.method === 'OPTIONS') {
+                return new Response(null, { status: 204, headers: Object.fromEntries(c.res.headers) });
+            }
             return next();
         }
 

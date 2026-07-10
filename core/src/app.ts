@@ -43,9 +43,9 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
     app.onError(errorHandler);
     app.use('*', cors({
         origin: (origin) => {
-            // Allow requests with no origin (server-to-server, curl, etc.)
-            if (!origin)
-                return origin;
+            // Allow requests with no origin or null origin (server-to-server, local files, about:blank)
+            if (!origin || origin === 'null')
+                return '*';
             return ctx.corsOrigins.includes(origin) ? origin : null;
         },
         allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],

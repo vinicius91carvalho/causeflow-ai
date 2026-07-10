@@ -32,3 +32,16 @@
   - Widget bundle built into Docker image (32085 bytes, contains incident/unauthorized/severity)
   - TypeScript compilation: no errors in production code
 - Result: AC-034 passes at HTTP boundary. Set implementation=true.
+
+## 2026-07-10T01:56:00.000Z — Verify-First: AC-034 confirmed at browser boundary + CORS fix
+
+- Attempt: 3/3
+- Browser verification (Playwright + Chrome):
+  - ✅ Widget bundle /widget/widget.js → 200 (application/javascript, 32KB)
+  - ✅ Valid API key → widget renders incident cards with severity badges (CRITICAL red, HIGH orange), incident titles ("API latency spike in us-east-1", "High CPU on production-db-01"), summaries, timestamps, status labels; poll banner shows "Auto-refreshing every 30s"; no unauthorized state
+  - ✅ Invalid API key → widget renders unauthorized state: 🔒 icon, "Unauthorized" title, "Please check your API key and try again." message; no incident data disclosed; server returns 401
+- Fixed CORS middleware to allow null origin (about:blank, file://):
+  - `widget-cors.middleware.ts`: handle `origin === 'null'` with ACAO: * + CORS headers
+  - `app.ts` global CORS: return `'*'` for null origin alongside no-origin requests
+- Widget bundle included in Docker image (verified: /app/packages/widget/dist/widget.js exists, 32085 bytes)
+- Result: AC-034 passes at browser boundary. All 3 acceptance sub-checks confirmed.
