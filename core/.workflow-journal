@@ -1,5 +1,18 @@
 # Workflow Journal
 
+## 2026-07-10T19:42:00Z — VERIFY-FIRST boundary pass (WI-AC-024, this worktree)
+
+**Result: implementation=true (minimal fix — rollback route, step before/after state, succeeded status).**
+
+Exercised AC-024 at real HTTP boundary on PORT=5170 (OSS runtime, Postgres :5439, Redis :6380).
+
+### AC-024 boundary checks (all passed)
+1. ✅ Approve auto-executes plan via StubCloudProvider; steps record `status=succeeded` with `beforeState`/`afterState` diff
+2. ✅ `POST /api/v1/remediation/:id/rollback` → 201 follow-up plan with inverse actions and `rollbackOf`
+3. ✅ Approve+execute rollback reverts state (`desiredCount` 5→3); audit chain records `remediation.proposed`, `remediation.approved`, `remediation.executed`
+
+`.harness/ac024-verify.sh` PASS; 62 remediation unit tests pass.
+
 ## 2026-07-10T19:25:00Z — Integrated Verification pass (WI-AC-020, this worktree)
 
 **Result: integration=true, implementation=true, qa=true. Zero defects.**
