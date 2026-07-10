@@ -563,10 +563,10 @@
     ],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 0,
-    "attempts": 0,
+    "attempts": 1,
     "status": "verify-first"
   },
   {
