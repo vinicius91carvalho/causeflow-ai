@@ -3,6 +3,8 @@ import { MEMORY_TOOLS } from '../infra/memory-tools.js';
 import { CHECKPOINT_TOOLS } from '../infra/checkpoint-tools.js';
 import { config } from '../../../shared/config/index.js';
 import type { SubAgentConfig } from '../domain/investigation.types.js';
+import { CODE_ANALYZER_CONFIG } from './code-analyzer-config.js';
+import { DB_ANALYST_CONFIG } from './db-analyst-config.js';
 
 // --- Shared prompt fragments ---
 
@@ -526,6 +528,22 @@ export const AGENT_CONFIG_MAP: Record<string, SubAgentConfig> = {
     metric_analyst: METRIC_ANALYZER_CONFIG,
     infra_inspector: INFRA_INSPECTOR_CONFIG,
     change_detector: CHANGE_DETECTOR_CONFIG,
+    code_analyzer: {
+        ...CODE_ANALYZER_CONFIG,
+        agentRole: 'code_analyzer' as const,
+        wave: 2,
+        minToolCalls: 2,
+        staticSystemPrompt: CODE_ANALYZER_CONFIG.systemPrompt,
+        systemPrompt: '',
+    },
+    db_analyst: {
+        ...DB_ANALYST_CONFIG,
+        agentRole: 'db_analyst' as const,
+        wave: 2,
+        minToolCalls: 2,
+        staticSystemPrompt: DB_ANALYST_CONFIG.systemPrompt,
+        systemPrompt: '',
+    },
     issue_correlator: ISSUE_CORRELATOR_CONFIG,
     apm_analyst: APM_ANALYST_CONFIG,
     notification_sender: NOTIFICATION_SENDER_CONFIG,

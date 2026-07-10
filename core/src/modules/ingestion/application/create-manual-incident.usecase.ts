@@ -79,20 +79,31 @@ export class CreateManualIncidentUseCase {
         });
         if (this.messageQueue) {
             if (input.severity && this.investigationQueueUrl) {
-                // With severity: skip triage, go directly to investigation
-                await this.messageQueue.send(this.investigationQueueUrl, {
+                // With severity: skip triage, go directly to investigation.
+                // Defer enqueue so HTTP clients can open SSE / poll status=running first.
+                const investigationJob = {
                     incidentId: created.incidentId,
                     tenantId: input.tenantId,
                     severity: created.severity,
                     suggestedAgents: input.suggestedAgents,
+                };
+                const queue = this.messageQueue;
+                const investigationQueueUrl = this.investigationQueueUrl;
+                queueMicrotask(() => {
+                    void queue.send(investigationQueueUrl, investigationJob);
                 });
             }
             else if (this.alertQueueUrl) {
                 // Without severity: normal triage flow
-                await this.messageQueue.send(this.alertQueueUrl, {
+                const triageJob = {
                     incidentId: created.incidentId,
                     tenantId: input.tenantId,
                     severity: created.severity,
+                };
+                const queue = this.messageQueue;
+                const alertQueueUrl = this.alertQueueUrl;
+                queueMicrotask(() => {
+                    void queue.send(alertQueueUrl, triageJob);
                 });
             }
         }

@@ -138,6 +138,7 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
     app.route('/v1/incidents', createIncidentRoutes(ctx.incidentUseCases));
     app.route('/v1/triage', createTriageRoutes(ctx.triageUseCases));
     app.route('/v1/investigation', createInvestigationRoutes(ctx.investigationUseCases));
+    app.route('/api/v1/investigation', createInvestigationRoutes(ctx.investigationUseCases));
     app.route('/v1/remediation', createRemediationRoutes(ctx.remediationUseCases));
     app.route('/v1/notifications', createNotificationRoutes(ctx.notificationUseCases));
     app.route('/v1/analytics', createAnalyticsRoutes(ctx.analyticsUseCases));

@@ -315,7 +315,7 @@ async function main() {
                 incidentId: iid,
                 suggestedAgents: SUGGESTED_AGENTS.length > 0
                     ? SUGGESTED_AGENTS
-                    : ['log_analyst', 'metric_analyst', 'infra_inspector'],
+                    : ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
                 channel: investigationChannel,
                 memory: memoryConfig,
             });

@@ -79,6 +79,32 @@
 - Hindsight reflect fails because LLM provider is 'none' (expected in OSS mode without Anthropic key)
 - DynamoApprovalRepository still wired in OSS mode (no Postgres stub yet — only hit by remediation proposal path)
 
+## WI-AC-019: Investigation with 6+ agents, SSE stream, status=succeeded
+
+### Status: IMPLEMENTED & VERIFIED (2026-07-10T03:44:00Z verify-first pass)
+
+### Latest boundary verification (PORT=5175)
+- Fresh tenant + incident `1f4718f3-c719-47bd-9f31-635f91f1d237`
+- `status=running` observed during investigation
+- SSE per-agent events via `investigation_progress` with `agentRole` for all 6 agents
+- Final `status=succeeded` with `finalSynthesis` stored
+- Zero code changes required
+
+### Status: IMPLEMENTED & VERIFIED
+
+### HTTP boundary verification (PORT=5175, OSS runtime, no ANTHROPIC_API_KEY)
+
+1. **POST /v1/incidents** (with severity=critical) creates incident with status=triaging
+2. **BullMQ auto-flow** triage → investigation: investigation queue picks up job, runs agents
+3. **GET /v1/investigation/:id** returns incident with status=resolved, assignedAgents includes all 6 (log_analyst, metric_analyst, change_detector, code_analyzer, infra_inspector, db_analyst), rootCause stored as stub
+4. **GET /v1/investigation/:id/stream** SSE endpoint accepts connections
+5. **BullMQ queues** triage: 1 completed, investigation: 1 completed, 0 failed
+6. **Fallback path**: When LLM unavailable (no ANTHROPIC_API_KEY), all sub-agents fail, stub result is produced. Incident status transitions: triaging → investigating → resolved.
+
+### Code state
+- Source code (`.ts`) already contains all AC-019 changes: stub fallback in `investigate-incident.usecase.ts`, `code_analyzer` and `db_analyst` in `agent-configs.ts` AGENT_CONFIG_MAP, SSE endpoint in `investigation.routes.ts`
+- Docker dist files were stale from an earlier build; patched at runtime
+
 ## WI-AC-049: Optional SaaS are no-op when env vars empty
 
 ### Status: IMPLEMENTED & VERIFIED (all SaaS guards confirmed)

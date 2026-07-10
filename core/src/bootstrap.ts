@@ -571,6 +571,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     } : undefined,
   });
   const listHypotheses = new ListHypothesesUseCase(hypothesisRepo);
+  const sseManager = new SSEManager();
   const investigationUseCases: InvestigationUseCases = {
     investigateIncident: dispatchInvestigation,
     getInvestigation,
@@ -583,6 +584,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     evidenceRepo,
     toolCallRepo,
     incidentRepo,
+    sseManager,
   };
 
   // Notification Module — uses Postgres stubs in OSS mode to avoid DynamoDB
@@ -593,7 +595,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const approvalRepo = config.isOss()
     ? new (await import('./modules/notification/infra/pg-approval.repository.js')).PgApprovalRepository()
     : new DynamoApprovalRepository();
-  const sseManager = new SSEManager();
 
   // Chat Platform (Web Portal replaces Stub)
   const chatPlatform = new WebPortalChatPlatform(notificationRepo, approvalRepo, sseManager);
@@ -1083,10 +1084,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   });
 
   eventBus.subscribe('investigation.completed', async (event) => {
-    await sseManager.broadcast(event.tenantId, {
-      event: 'investigation_completed',
-      data: event.payload,
-    });
+    const incidentIdForSse = (event.payload['incidentId'] as string) ?? '';
+    const sseEvent = { event: 'investigation_completed', data: event.payload };
+    if (incidentIdForSse) {
+      sseManager.recordIncidentEvent(event.tenantId, incidentIdForSse, sseEvent);
+    }
+    await sseManager.broadcast(event.tenantId, sseEvent);
   });
 
   // === EventBus Wiring: Usage Record on Investigation Completion (AC-012) ===
@@ -1135,10 +1138,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // === EventBus Wiring: Investigation Progress SSE ===
   eventBus.subscribe('investigation.progress', async (event) => {
-    await sseManager.broadcast(event.tenantId, {
-      event: 'investigation_progress',
-      data: event.payload,
-    });
+    const incidentIdForSse = (event.payload['incidentId'] as string) ?? '';
+    const sseEvent = { event: 'investigation_progress', data: event.payload };
+    if (incidentIdForSse) {
+      sseManager.recordIncidentEvent(event.tenantId, incidentIdForSse, sseEvent);
+    }
+    await sseManager.broadcast(event.tenantId, sseEvent);
   });
 
   // === EventBus Wiring: Slack Notifications ===
@@ -1343,7 +1348,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
         await dispatchInvestigation.execute({
           tenantId: tenantId(event.tenantId),
           incidentId: incidentId(iid),
-          suggestedAgents: incident.assignedAgents ?? ['log_analyst', 'metric_analyst', 'infra_inspector'],
+          suggestedAgents: incident.assignedAgents ?? ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
         });
       } catch (err) {
         logger.error({ err, event }, 'In-process investigation failed');
@@ -1476,7 +1481,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
           const tid = tenantId(body['tenantId'] as string);
           const iid = incidentId(body['incidentId'] as string);
           const suggestedAgents = (body['suggestedAgents'] as string[]) ??
-            ['log_analyst', 'metric_analyst', 'infra_inspector'];
+            ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'];
           await dispatchInvestigation.execute({ tenantId: tid, incidentId: iid, suggestedAgents });
         },
       });

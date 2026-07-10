@@ -1,4 +1,6 @@
 import { Hono } from 'hono';
+import type { SSEStreamingApi } from 'hono/streaming';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { incidentId } from '../../../shared/domain/value-objects.js';
@@ -18,6 +20,7 @@ import type { ChatInvestigationUseCase } from '../application/chat-investigation
 import type { ListHypothesesUseCase } from '../application/list-hypotheses.usecase.js';
 import type { IEvidenceRepository } from '../../triage/domain/evidence.repository.js';
 import type { IToolCallRepository } from '../../triage/domain/tool-call.repository.js';
+import type { SSEManager } from '../../../shared/infra/chat/sse-manager.js';
 import { toolCallId as toToolCallId } from '../../../shared/domain/value-objects.js';
 
 export interface InvestigationUseCases {
@@ -50,6 +53,10 @@ export interface InvestigationUseCases {
      * missing.
      */
     incidentRepo?: IIncidentRepository;
+    /**
+     * SSE manager for streaming investigation progress events.
+     */
+    sseManager?: SSEManager;
 }
 
 const addContextSchema = z.object({
@@ -68,6 +75,13 @@ const investigationFeedbackSchema = z.object({
         quality: z.number().min(1).max(5),
     })).optional(),
 });
+
+function runStatusFromIncident(status: string): 'running' | 'succeeded' | 'failed' {
+    if (status === 'resolved' || status === 'awaiting_approval') return 'succeeded';
+    if (status === 'failed' || status === 'aborted' || status === 'inconclusive') return 'failed';
+    return 'running';
+}
+
 export function createInvestigationRoutes(useCases: InvestigationUseCases): Hono<AppEnv, import("hono/types").BlankSchema, "/"> {
     const app = new Hono<AppEnv>();
     // Add context to an existing investigation
@@ -93,7 +107,7 @@ export function createInvestigationRoutes(useCases: InvestigationUseCases): Hono
         const result = await useCases.investigateIncident.execute({
             tenantId,
             incidentId: id,
-            suggestedAgents: ['log_analyst', 'metric_analyst', 'infra_inspector'],
+            suggestedAgents: ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
         });
         return c.json(result);
     });
@@ -123,7 +137,10 @@ export function createInvestigationRoutes(useCases: InvestigationUseCases): Hono
             suggestedAgents: body.suggestedAgents ?? [
                 'log_analyst',
                 'metric_analyst',
+                'change_detector',
+                'code_analyzer',
                 'infra_inspector',
+                'db_analyst',
             ],
         });
         return c.json({ mode: body.mode, shadowMode: body.shadowMode, result });
@@ -223,6 +240,8 @@ export function createInvestigationRoutes(useCases: InvestigationUseCases): Hono
         const id = incidentId(c.req.param('incidentId'));
         const detail = await useCases.getInvestigation.execute(tenantId, id);
         return c.json({
+            status: runStatusFromIncident(detail.incident.status),
+            finalSynthesis: detail.incident.rootCause,
             ...detail,
             incident: sanitizeIncidentForTenant(detail.incident),
         });
@@ -250,6 +269,48 @@ export function createInvestigationRoutes(useCases: InvestigationUseCases): Hono
         const id = incidentId(c.req.param('incidentId'));
         const hypotheses = await useCases.listHypotheses.execute(tenantId, id);
         return c.json({ hypotheses });
+    });
+    // SSE stream — per-agent investigation progress events (AC-019)
+    app.get('/:incidentId/stream', (c) => {
+        const tid = c.get('tenantId');
+        const incidentIdParam = c.req.param('incidentId');
+        const clientId = randomUUID();
+        const encoder = new TextEncoder();
+        let heartbeat: ReturnType<typeof setInterval> | undefined;
+        const body = new ReadableStream<Uint8Array>({
+            start(controller) {
+                const writeSSE = (event: string, data: string, id?: string) => {
+                    const idLine = id ? `id: ${id}\n` : '';
+                    controller.enqueue(encoder.encode(`${idLine}event: ${event}\ndata: ${data}\n\n`));
+                };
+                const stream = {
+                    writeSSE: async (event: { event: string; data: string; id?: string }) => {
+                        writeSSE(event.event, event.data, event.id);
+                    },
+                };
+                useCases.sseManager?.addClient(tid, clientId, stream as SSEStreamingApi);
+                writeSSE('connected', JSON.stringify({ clientId, tenantId: tid, incidentId: incidentIdParam }));
+                for (const replay of useCases.sseManager?.getIncidentReplayEvents(tid, incidentIdParam) ?? []) {
+                    writeSSE(replay.event, JSON.stringify(replay.data), replay.id);
+                }
+                heartbeat = setInterval(() => writeSSE('heartbeat', ''), 30_000);
+                c.req.raw.signal.addEventListener('abort', () => {
+                    if (heartbeat) clearInterval(heartbeat);
+                    useCases.sseManager?.removeClient(tid, clientId);
+                });
+            },
+            cancel() {
+                if (heartbeat) clearInterval(heartbeat);
+                useCases.sseManager?.removeClient(tid, clientId);
+            },
+        });
+        return new Response(body, {
+            headers: {
+                'Content-Type': 'text/event-stream; charset=utf-8',
+                'Cache-Control': 'no-cache, no-transform',
+                Connection: 'keep-alive',
+            },
+        });
     });
     return app;
 }

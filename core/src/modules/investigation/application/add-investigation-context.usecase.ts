@@ -82,7 +82,7 @@ export class AddInvestigationContextUseCase {
                         incidentId: input.incidentId,
                         tenantId: input.tenantId,
                         severity: incident.severity,
-                        suggestedAgents: input.suggestedAgents ?? incident.assignedAgents ?? ['log_analyst', 'metric_analyst', 'infra_inspector'],
+                        suggestedAgents: input.suggestedAgents ?? incident.assignedAgents ?? ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
                     });
                     getLogger().info({
                         event: 'investigation.enqueued',

@@ -88,7 +88,8 @@ export const requestLoggerMiddleware = createMiddleware<AppEnv>(async (c, next) 
         };
 
         // Log response body at info level for all non-sensitive, non-silent paths
-        if (!sensitive && !silent) {
+        const contentType = c.res.headers.get('content-type') ?? '';
+        if (!sensitive && !silent && !contentType.includes('text/event-stream')) {
             const resText = await c.res.clone().text().catch(() => '');
             if (resText) {
                 log.info({ resBody: tryParseJson(resText.slice(0, MAX_BODY_LOG_BYTES)), status }, 'http.response.body');

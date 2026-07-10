@@ -13,7 +13,7 @@ export function startInvestigationConsumer(queueUrl: string) {
                     await dispatchInvestigation({
                         tenantId: b.tenantId,
                         incidentId: b.incidentId,
-                        suggestedAgents: b.suggestedAgents ?? ['log_analyst', 'metric_analyst', 'infra_inspector'],
+                        suggestedAgents: b.suggestedAgents ?? ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
                     });
                 },
                 {

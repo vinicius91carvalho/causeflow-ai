@@ -16,8 +16,23 @@ export interface SSEEvent {
 export class SSEManager {
     clients = new Map();
     heartbeatInterval: ReturnType<typeof setInterval> | null = null;
+    private incidentReplayBuffers = new Map<string, SSEEvent[]>();
+    private static readonly INCIDENT_REPLAY_MAX = 64;
     constructor() {
         this.startHeartbeat();
+    }
+    recordIncidentEvent(tenantId: string, incidentId: string, event: SSEEvent): void {
+        if (!incidentId) return;
+        const key = `${tenantId}:${incidentId}`;
+        const buf = this.incidentReplayBuffers.get(key) ?? [];
+        buf.push(event);
+        if (buf.length > SSEManager.INCIDENT_REPLAY_MAX) {
+            buf.shift();
+        }
+        this.incidentReplayBuffers.set(key, buf);
+    }
+    getIncidentReplayEvents(tenantId: string, incidentId: string): readonly SSEEvent[] {
+        return this.incidentReplayBuffers.get(`${tenantId}:${incidentId}`) ?? [];
     }
     addClient(tenantId: string, clientId: string, stream: SSEStreamingApi): void {
         if (!this.clients.has(tenantId)) {
