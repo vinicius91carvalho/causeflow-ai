@@ -502,7 +502,7 @@
     "qa": true,
     "integration": true,
     "retries": 1,
-    "attempts": 0,
+    "attempts": 1,
     "status": "done"
   },
   {

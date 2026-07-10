@@ -350,3 +350,69 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - integration: true
 - Evidence: HTTP boundary on port 3099 (container PORT=5171). GET /api/v1/remediation/:id/proposal → 200 with AWS action steps; POST approve → 200 status=approved; second POST → 409 CONFLICT.
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783700936-integration_qa.log
+
+## 2026-07-10T16:29:27.536Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: integration_qa
+- Attempt: 2
+- NextAction: integration-qa
+
+## 2026-07-10T16:29:27.572Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T16:34:31.562Z — Blocked Work Item
+
+- Attempt: 2/3
+- WorkItem: WI-AC-023
+- Outcome: integration could not complete
+- Defects: Checkpoint was not integrated into the integration branch
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-10T16:34:41.909Z — Explicit Resume
+
+- WorkItem: WI-AC-023
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+- NextAction: Coding Attempt 1
+
+## 2026-07-10T16:37:00.000Z — Verify-first checkpoint (Attempt 3)
+
+- WorkItem: WI-AC-023
+- Outcome: AC-023 passes at HTTP boundary (zero-diff)
+- Evidence: GET /api/v1/remediation/:id/proposal → 200 with AWS action steps; POST approve → 200 status=approved; second approve → 409 CONFLICT
+- API: http://localhost:3099 (docker maps host 3099 → container PORT=5171)
+- NextAction: Integrated Verification
+
+## 2026-07-10T16:38:37.579Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T16:42:00Z — QA pass (independent)
+
+- WorkItem: WI-AC-023
+- Outcome: AC-023 passes at HTTP boundary
+- Evidence: GET /api/v1/remediation/:id/proposal → 200 (ecs.updateService, ssm.runCommand); POST approve → 200 approved; second approve → 409 CONFLICT; ApprovalEntity via approvalRepo.create in approve-remediation.usecase.ts
+- API: http://localhost:3099 (host maps to container PORT=5171)
+- qa=true, implementation=true
+
+## 2026-07-10T16:42:01.293Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T16:42:01.313Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
