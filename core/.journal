@@ -66,3 +66,18 @@ qa=true implementation=true integration=true
 4. **GET /v1/investigation/:id/stream** → SSE endpoint accepts connections (logs "SSE client connected"), events flow through EventBus → SSEManager
 5. **BullMQ investigation queue** → Jobs complete (completed count increments)
 6. **Fallback path** → When LLM unavailable, stub result produced; investigation completes successfully
+
+## 2026-07-10T02:45:35Z — QA verdict for WI-AC-019
+
+**Result: qa=true, implementation=true.**
+
+Verified repository scaffold required by `project_specs.xml` is present for this check: `package.json`, `src/main.ts`, `src/bootstrap.ts`, `src/modules/investigation/`, `src/workers/investigation-worker.ts`, `src/shared/infra/chat/sse-manager.ts`, env files, Docker compose, and test tree.
+
+Real HTTP/SSE boundary on `PORT=5175`:
+- Registered OSS tenant via `POST /v1/auth/register` -> 201.
+- Created severity-bearing incident via `POST /v1/admin/incidents` -> 201, incident `d8b72ef7-9b2a-44e7-abc9-40b2c392247e`.
+- Opened `/api/v1/investigation/:id/stream` before incident creation and observed `connected`, 11 `investigation_progress` events, and `investigation_completed`.
+- Observed per-agent SSE events for all required agents: `log_analyst`, `metric_analyst`, `change_detector`, `code_analyzer`, `infra_inspector`, `db_analyst`.
+- Polled `GET /api/v1/investigation/:id`: first returned `status=running` with incident `status=investigating`; final returned `status=succeeded`, incident `status=resolved`, all 6 assigned agents, and stored `finalSynthesis="Unable to determine root cause (LLM service unavailable)"`.
+
+No defects found for AC-019.
