@@ -798,3 +798,10 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-10T19:56:05.661Z — Resumed
+
+- WorkItem: WI-AC-024
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
