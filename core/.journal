@@ -405,3 +405,43 @@ No defects found for AC-035.
 Scaffold audit: required harness artifacts present. Real browser boundary on PORT=5170 (CAUSEFLOW_RUNTIME=oss, Postgres :5439, Redis :6380): `.harness/ac035-integrated-verify.mjs` exit 0, 10/10 PASS.
 
 No defects found for AC-035.
+
+## QA Verdict — AC-045 (WI-AC-045)
+
+### Checks performed
+
+**1. Worker service definition** (grep/file audit)
+- `docker-compose.yml` line 105+ defines `causeflow-worker` service with `dockerfile: Dockerfile.worker`
+- API `Dockerfile` uses `CMD ["node", "dist/main.js"]`
+- Worker `Dockerfile.worker` uses `CMD ["node", "dist/workers/investigation-worker.js"]`
+- Both build from `FROM node:22-alpine`, same build stages (deps → build → runtime)
+- Both produce 128MB images (different IMAGE IDs per `docker compose images`)
+- PASS
+
+**2. docker compose ps healthy** (CLI exit code)
+- `docker inspect core-causeflow-worker-1` → `"healthy"`
+- `docker inspect core-causeflow-api-1` → `"healthy"`
+- `docker compose ps` confirms both Up + healthy
+- PASS
+
+**3. investigation:start log line** (real container logs)
+- Worker boot log: `causeflow-worker BullMQ consumer starting — waiting for investigation jobs` at 09:18:20
+- Worker boot log: `BullMQ worker started` at 09:18:20
+- Three `investigation:start` log lines confirmed in worker logs:
+  - `[09:18:38.023]` for incident 2675901b-2627-448d-bd84-3f61fb1e37a8
+  - `[09:19:05.765]` for second incident
+  - `[09:21:49.694]` for incident be05636c-6825-421c-b123-557c5a1e509f (6 sub-agents dispatched)
+- Worker source at line 637-638 emits this exact log line in `startBullConsumer()` handler
+- PASS
+
+**4. No ECS / ecs/ directory removed** (grep/file audit)
+- `src/shared/infra/ecs/` does not exist (directory removed)
+- `ecs-task-dispatcher.ts` remains at `src/shared/infra/investigation/ecs-task-dispatcher.ts` but is behind a dynamic import guarded by `config.ecs.cluster` — never executes in OSS mode (per its own JSDoc)
+- OSS worker uses `LocalInvestigationTaskDispatcher` (BullMQ-based, no ECS) at `src/shared/infra/investigation/local-task-dispatcher.ts`
+- Worker OSS mode (`CAUSEFLOW_RUNTIME=oss`) uses `StubCloudProvider` + `StubCredentialVendor`, no AWS credentials loaded
+- Worker logs show `provider: "stub"` for all sub-agents
+- PASS
+
+### Verdict
+- qa=true
+- implementation=true
