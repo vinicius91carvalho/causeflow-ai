@@ -1,0 +1,18 @@
+{
+  "workItemId": "WI-AC-026",
+  "ac": "AC-026",
+  "context": "memory-and-skills",
+  "result": "PASS",
+  "evidence": [
+    "Hindsight health endpoint returns 200: curl http://localhost:8888/health → {\"status\":\"healthy\",\"database\":\"connected\"}",
+    "Hindsight banks contain investigation results with runbook info: causeflow-2100cd93... has entry for INC-2026-001 (connection pool exhaustion) with tags database, remediation, investigation, root_cause",
+    "Hindsight dashboard accessible at port 9999 (returns 307 redirect)",
+    "Recall query for similar fingerprint returns prior runbook: POST /v1/default/banks/{bank_id}/memories/recall with query 'order-service high CPU slow queries cloudwatch' returns the connection pool exhaustion entry",
+    "Code paths verified: retainInvestigationSummary() at line 1144 of investigate-incident.usecase.ts, agentMemory.recall() at line 773-776, HindsightAgentMemory correctly wired in bootstrap.ts"
+  ],
+  "integration": true,
+  "implementation": true,
+  "qa": true,
+  "verifiedAt": "2026-07-10T06:30:00Z",
+  "verifiedBy": "qa-agent"
+}
