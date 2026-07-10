@@ -1319,6 +1319,27 @@ Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
 
+## 2026-07-10T11:12:00Z — Integrated verification for WI-AC-019
+
+- WorkItem: WI-AC-019
+- Outcome: integration=true, implementation=true
+- Evidence: incident `481c831a-849c-4a84-ab27-73e4bf2457b3`; immediate GET status=running; SSE 11 investigation_progress events with 6 agentRole values; final status=succeeded with finalSynthesis; `.harness/ac019-integrated-verify.sh` exit 0
+- NextAction: done
+
+## 2026-07-10T11:13:43.295Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T11:13:43.339Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
 ## 2026-07-10T11:14:00Z — Integration conflict resolution for WI-AC-019
 
 - WorkItem: WI-AC-019
@@ -1326,9 +1347,10 @@ Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d
 - Evidence: append-only merge of harness-progress/investigation.md (HEAD + gen/core-investigation); incident `b901cb7d-21af-439b-8173-65e48b2c11de`; running -> succeeded; 6 SSE agent roles; finalSynthesis stored; `.harness/ac019-integrated-verify.sh` exit 0
 - NextAction: done
 
-## 2026-07-10T11:12:00Z � Integrated verification for WI-AC-019
+## 2026-07-10T11:16:00Z — Integration conflict resolution for WI-AC-019
 
 - WorkItem: WI-AC-019
 - Outcome: integration=true, implementation=true
-- Evidence: incident `481c831a-849c-4a84-ab27-73e4bf2457b3`; immediate GET status=running; SSE 11 investigation_progress events with 6 agentRole values; final status=succeeded with finalSynthesis; `.harness/ac019-integrated-verify.sh` exit 0
+- Evidence: append-only merge of harness-progress/investigation.md (HEAD + gen/core-investigation); incident `487af3c4-e64f-4ba2-a8f8-51d260cfcf77`; running -> succeeded; 6 SSE agent roles; finalSynthesis stored; `.harness/ac019-integrated-verify.sh` exit 0
 - NextAction: done
+
