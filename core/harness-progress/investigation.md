@@ -2034,6 +2034,27 @@ Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
 
+## 2026-07-10T12:47:00Z - Integrated verification for WI-AC-019
+
+- WorkItem: WI-AC-019
+- Outcome: integration=true, implementation=true
+- Evidence: scaffold audit pass; incident `eddd4508-3a4a-4e46-b787-ced088c0a30b`; immediate GET `status=running`; SSE 11 `investigation_progress` events with all 6 agent roles; final GET `status=succeeded` with `finalSynthesis` stored; `.harness/ac019-integrated-verify.sh` exit 0
+- NextAction: done
+
+## 2026-07-10T12:49:52.308Z - Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T12:49:52.368Z - Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
 ## 2026-07-10T12:50:00Z - Integration conflict resolution for WI-AC-019
 
 - WorkItem: WI-AC-019
@@ -2041,10 +2062,10 @@ Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d
 - Evidence: append-only merge of harness-progress/investigation.md (HEAD + gen/core-investigation); incident `a0c2de4a-c49d-4759-9fff-d55ab29d3637`; immediate GET `status=running`; SSE 11 `investigation_progress` events with all 6 agent roles; final GET `status=succeeded` with `finalSynthesis` stored; `.harness/ac019-integrated-verify.sh` exit 0
 - NextAction: done
 
-## 2026-07-10T12:47:00Z - Integrated verification for WI-AC-019
+## 2026-07-10T12:52:00Z - Integration conflict resolution for WI-AC-019
 
 - WorkItem: WI-AC-019
 - Outcome: integration=true, implementation=true
-- Evidence: scaffold audit pass; incident `eddd4508-3a4a-4e46-b787-ced088c0a30b`; immediate GET `status=running`; SSE 11 `investigation_progress` events with all 6 agent roles; final GET `status=succeeded` with `finalSynthesis` stored; `.harness/ac019-integrated-verify.sh` exit 0
+- Evidence: append-only merge of harness-progress/investigation.md (HEAD + gen/core-investigation); incident `47effa5f-a9da-4b22-b8b0-5feb92bcbf22`; immediate GET `status=running`; SSE 11 `investigation_progress` events with all 6 agent roles; final GET `status=succeeded` with `finalSynthesis` stored; `.harness/ac019-integrated-verify.sh` exit 0
 - NextAction: done
 
