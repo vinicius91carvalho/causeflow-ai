@@ -1,0 +1,25 @@
+{
+  "workItemId": "WI-AC-048",
+  "qa": true,
+  "integration": true,
+  "implementation": true,
+  "tested": "2026-07-10T01:55:00Z",
+  "verification": {
+    "viewerGetAuditReturns200": "pass",
+    "viewerDeleteAuditReturns403": "pass",
+    "adminDeleteAuditReturns200": "pass",
+    "auditChainAdvancesOnDelete": "pass",
+    "rbacRolesFromUserEntity": "pass"
+  },
+  "observations": [
+    "GET /v1/audit returns 200 for any authenticated user (viewer, admin, etc.) — no RBAC gating on read, as designed.",
+    "DELETE /v1/audit/:id returns 403 with 'Insufficient permissions. Required: admin' for viewer users — requireRole('admin') middleware correctly denies non-admin roles.",
+    "DELETE /v1/audit/:id returns 200 for admin users — the delete use case appends an audit.entry.deleted entry with previousHash set to the prior tip, then hard-deletes the target entry.",
+    "The audit hash chain advances: each new audit.entry.deleted entry references the prior tip's entryHash as its previousHash field, maintaining chain integrity.",
+    "Roles are read from UserEntity.role: the login endpoint reads user.role from the DB and includes it as `roles: [user.role]` in the JWT. Auth middleware extracts `roles` from the JWT. RBAC middleware checks `c.get('userRoles')`. Verified by changing a user's role from admin to viewer in Postgres, logging in, and confirming the viewer RBAC behavior.",
+    "UserRole type expanded from 'admin' | 'member' to 'owner' | 'admin' | 'member' | 'viewer' to match database CHECK constraint and project spec. Zod validation schemas and invite entity type updated accordingly.",
+    "The RBAC middleware (`requireRole`) is role-agnostic — it checks against whatever roles the JWT carries, not a hardcoded list.",
+    "All unit tests pass (1079 tests, 2 pre-existing failures in verify-deploy and wait-services-stable due to missing aws-sdk-client-mock)."
+  ],
+  "defects": []
+}

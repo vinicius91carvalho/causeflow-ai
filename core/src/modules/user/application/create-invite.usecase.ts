@@ -10,7 +10,7 @@ export interface CreateInviteInput {
     tenantId: TenantId;
     email: string;
     invitedBy: string;
-    role?: 'admin' | 'member';
+    role?: 'owner' | 'admin' | 'member' | 'viewer';
 }
 
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days

@@ -33,11 +33,11 @@ const createUserSchema = z.object({
     userId: z.string().min(1),
     email: z.string().email(),
     name: z.string().min(1),
-    role: z.enum(['admin', 'member']).optional(),
+    role: z.enum(['owner', 'admin', 'member', 'viewer']).optional(),
 });
 const updateUserSchema = z.object({
     name: z.string().min(1).optional(),
-    role: z.enum(['admin', 'member']).optional(),
+    role: z.enum(['owner', 'admin', 'member', 'viewer']).optional(),
     profileComplete: z.boolean().optional(),
     termsAcceptedAt: z.string().optional(),
 });
@@ -55,7 +55,7 @@ const updateSettingsSchema = z.object({
 });
 const createInviteSchema = z.object({
     email: z.string().email(),
-    role: z.enum(['admin', 'member']).optional(),
+    role: z.enum(['owner', 'admin', 'member', 'viewer']).optional(),
 });
 export function createUserRoutes(useCases: UserUseCases) {
     const users = new Hono<AppEnv>();

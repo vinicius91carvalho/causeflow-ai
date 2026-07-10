@@ -1,5 +1,5 @@
 import type { TenantId } from '../../../shared/domain/value-objects.js';
-export type UserRole = 'admin' | 'member';
+export type UserRole = 'owner' | 'admin' | 'member' | 'viewer';
 export interface User {
     tenantId: TenantId;
     userId: string;

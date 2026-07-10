@@ -4,7 +4,7 @@ export interface Invite {
     tenantId: TenantId;
     email: string;
     invitedBy: string;
-    role: 'admin' | 'member';
+    role: 'owner' | 'admin' | 'member' | 'viewer';
     status: InviteStatus;
     expiresAt: string;
     createdAt: string;
