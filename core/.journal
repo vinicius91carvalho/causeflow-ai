@@ -453,3 +453,33 @@ Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres + Redis healthy):
 - Final `GET /api/v1/investigation/:id` -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
 
 No defects found for AC-019.
+
+## 2026-07-10T09:20:00Z — VERIFY-FIRST AC-019 boundary pass
+
+**Result: implementation=true. Zero-diff checkpoint — no source changes.**
+
+Scaffold audit: `project_specs.xml` and required structures verified on PORT=5175.
+
+Real HTTP/SSE boundary (OSS runtime, Postgres + Redis healthy):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `9cf5214e-13f6-40fc-854a-8824ebebe3d6`.
+- Fast poll `GET /api/v1/investigation/:id` -> poll 1 `status=running`, poll 2 `status=succeeded`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 11 `investigation_progress` events for all 6 agents, then `investigation_completed`.
+- Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+No defects found for AC-019.
+
+## 2026-07-10T09:23:00Z — QA verdict for WI-AC-019
+
+**Result: qa=true, implementation=true.**
+
+Scaffold audit: `project_specs.xml` present; required structures verified (`src/main.ts`, `src/bootstrap.ts`, `src/app.ts`, `src/workers/investigation-worker.ts`, `src/modules/investigation/`, `src/shared/infra/chat/sse-manager.ts`, `docker-compose.yml`, `.env.dev`).
+
+Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres + Redis healthy):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `cfc80d3b-4789-48ac-8293-936a6ea0552c`.
+- `GET /api/v1/investigation/:id` poll 0 -> `status=running`; poll 2 -> `status=succeeded`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 11 `investigation_progress` events with per-agent `agentRole` for all 6 agents, then `investigation_completed`.
+- Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+No defects found for AC-019.

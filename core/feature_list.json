@@ -414,8 +414,8 @@
     "qa": true,
     "integration": true,
     "retries": 1,
-    "attempts": 0,
-    "status": "implemented"
+    "attempts": 1,
+    "status": "integrated"
   },
   {
     "id": "WI-AC-020",
