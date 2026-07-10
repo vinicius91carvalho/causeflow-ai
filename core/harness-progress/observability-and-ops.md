@@ -467,3 +467,10 @@ Code paths verified by unit tests and real HTTP boundary assertions.
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-10T07:30:22.703Z — Resumed
+
+- WorkItem: WI-AC-038
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
