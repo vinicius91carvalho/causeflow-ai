@@ -19,13 +19,12 @@ function key(tenantId: string, id: string): string {
 
 export class PgNotificationRepository implements INotificationRepository {
   async create(notification: Notification): Promise<Notification> {
-    const id = notification.id ?? uuid();
     const stored: Notification = {
       ...notification,
-      id: id as NotificationId,
       createdAt: notification.createdAt ?? new Date().toISOString(),
+      updatedAt: notification.updatedAt ?? new Date().toISOString(),
     };
-    store.set(key(notification.tenantId, id), stored);
+    store.set(key(notification.tenantId, stored.notificationId), stored);
     return stored;
   }
 
@@ -33,21 +32,31 @@ export class PgNotificationRepository implements INotificationRepository {
     return store.get(key(tenantId, notificationId)) ?? null;
   }
 
-  async findByTenant(tenantId: TenantId): Promise<Notification[]> {
+  async listByTenant(tenantId: TenantId, options?: {
+        cursor?: string;
+        limit?: number;
+    }): Promise<{
+        items: Notification[];
+        cursor?: string;
+    }> {
     const result: Notification[] = [];
     for (const [k, v] of store) {
       if (k.startsWith(tenantId + '::')) {
         result.push(v);
       }
     }
-    return result.sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
+    result.sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
+    const limit = options?.limit ?? 100;
+    const items = result.slice(0, limit);
+    const cursor = result.length > limit ? result[limit]?.notificationId : undefined;
+    return { items, cursor };
   }
 
-  async update(tenantId: TenantId, notificationId: NotificationId, data: Partial<Notification>): Promise<Notification> {
-    const existing = store.get(key(tenantId, notificationId));
-    if (!existing) throw new Error(`Notification not found: ${notificationId}`);
+  async update(tenantId: TenantId, nid: NotificationId, data: Partial<Notification>): Promise<Notification> {
+    const existing = store.get(key(tenantId, nid));
+    if (!existing) throw new Error(`Notification not found: ${nid}`);
     const updated = { ...existing, ...data, updatedAt: new Date().toISOString() };
-    store.set(key(tenantId, notificationId), updated);
+    store.set(key(tenantId, nid), updated);
     return updated;
   }
 
