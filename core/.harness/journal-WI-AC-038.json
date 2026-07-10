@@ -1,0 +1,22 @@
+{
+    "workItemId": "WI-AC-038",
+    "ac": "AC-038",
+    "context": "observability-and-ops",
+    "result": "PASS",
+    "evidence": [
+        "Cost calculation in src/shared/domain/cost.ts verified via unit tests (12 tests, green).",
+        "Langfuse metric recorder publishes agent.cost_usd histogram via observed-agent-runner.ts.",
+        "INVESTIGATION_MAX_COST_USD env var added to config (default 0 = no ceiling).",
+        "cost_exceeded status added to IncidentStatus type, ElectroDB entity, and status transition map.",
+        "Cost ceiling check implemented in all 3 investigation modes: wave-based (InvestigateIncidentUseCase), orchestrator, hypothesis, debate.",
+        "GET /api/v1/investigation/:id returns cost_exceeded status mapped to 'failed' display status.",
+        "API started on PORT=5177 with INVESTIGATION_MAX_COST_USD=1; health check passes.",
+        "pnpm typecheck: only pre-existing test-file errors (0 new errors).",
+        "pnpm test:run: all 12 cost-tracking tests pass. Pre-existing 3 failures unchanged."
+    ],
+    "integration": true,
+    "implementation": true,
+    "qa": true,
+    "verifiedAt": "2026-07-10T04:16:00Z",
+    "verifiedBy": "coding-agent"
+}
