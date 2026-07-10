@@ -647,3 +647,17 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Evidence: remediationId=f94b2661-5d67-41dd-83f5-b8e28a9bbd74; GET proposal → 200 with ecs.updateService/ecs.forceNewDeployment; POST approve → 200 status=approved; duplicate approve → 409 CONFLICT
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783704251-integration_qa.log
 - integration=true
+
+## 2026-07-10T17:24:40.934Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T17:24:40.969Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
