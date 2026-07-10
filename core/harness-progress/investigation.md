@@ -806,7 +806,7 @@ index 4438113f180e5b168f1372a48451fcb900c81a17..851d7f68bd0431a7fb0c7bb5dd5e481d
 - Attempt: 1
 - NextAction: coding
 
-## 2026-07-10T09:10:00Z — QA verdict for WI-AC-019
+## 2026-07-10T09:10:00Z ï¿½ QA verdict for WI-AC-019
 
 - WorkItem: WI-AC-019
 - Result: qa=true, implementation=true
@@ -857,7 +857,7 @@ index 4438113f180e5b168f1372a48451fcb900c81a17..851d7f68bd0431a7fb0c7bb5dd5e481d
 - Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
 - NextAction: Coding Attempt 1
 
-## 2026-07-10T09:20:00Z — VERIFY-FIRST implementation checkpoint
+## 2026-07-10T09:20:00Z ï¿½ VERIFY-FIRST implementation checkpoint
 
 - WorkItem: WI-AC-019
 - Outcome: implementation=true (zero-diff)
@@ -922,11 +922,13 @@ index 4438113f180e5b168f1372a48451fcb900c81a17..851d7f68bd0431a7fb0c7bb5dd5e481d
 - Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
 - NextAction: Coding Attempt 1
 
-## 2026-07-10T09:37:00Z — VERIFY-FIRST AC-019 boundary pass
+## 2026-07-10T09:37:00Z ï¿½ VERIFY-FIRST AC-019 boundary pass
 
-**Result: implementation=true (zero-diff checkpoint — no code changes).**
+**Result: implementation=true (zero-diff checkpoint ï¿½ no code changes).**
 
 Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d-40bb-b747-3a7210d1b377`: status sequence `running` -> `succeeded`; SSE emitted per-agent events for all 6 agents; `finalSynthesis` stored.
+
+
 
 ## 2026-07-10T09:38:34.920Z â€” Resumed
 
@@ -1055,7 +1057,7 @@ Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
 
-## 2026-07-10T10:12:00Z — Integrated verification for WI-AC-019
+## 2026-07-10T10:12:00Z ï¿½ Integrated verification for WI-AC-019
 
 - WorkItem: WI-AC-019
 - Outcome: integration=true, implementation=true
@@ -1092,6 +1094,56 @@ Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d
 - NextAction: qa
 
 ## 2026-07-10T10:21:52.674Z â€” Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T10:27:12.604Z â€” Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T10:27:12.649Z â€” Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T10:28:48.701Z â€” Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: integration could not complete
+- Defects: Checkpoint was not integrated into the integration branch
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-10T10:28:54.060Z â€” Explicit Resume
+
+- WorkItem: WI-AC-019
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+- NextAction: Coding Attempt 1
+
+## 2026-07-10T10:33:45.012Z â€” Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T10:36:57.308Z â€” Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T10:36:57.342Z â€” Checkpoint ready
 
 - Attempt: 1/3
 - WorkItem: WI-AC-019
