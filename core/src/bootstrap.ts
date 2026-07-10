@@ -692,30 +692,50 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   };
 
   // Billing Use Cases (reuse early billing repo)
+  // AC-043: In the OSS runtime, Stripe-dependent use cases are omitted entirely
+  // so no Stripe SDK is loaded, no stripe.com call is ever made, and routes that
+  // depend on them return 410 Gone. The plan catalog is not instantiated to avoid
+  // pulling in the Stripe SDK at module evaluation time.
   const billingAccountRepo = billingAccountRepoEarly;
   const usageRecordRepo = config.isOss()
     ? new (await import('./modules/billing/infra/pg-usage-record.repository.js')).PgUsageRecordRepository()
     : new DynamoUsageRecordRepository();
-  const planCatalog = new StripePlanCatalogService();
-  const stripeCustomerService = config.stripe.secretKey ? new StripeCustomerService() : undefined;
 
-  const billingUseCases: BillingUseCases = {
-    createCheckout: new CreateCheckoutUseCase(tenantRepo, planCatalog),
-    createPortal: new CreatePortalUseCase(tenantRepo),
-    getSubscription: new GetSubscriptionUseCase(tenantRepo, billingAccountRepo, planCatalog),
-    handleWebhook: new HandleBillingWebhookUseCase(tenantRepo, planCatalog, billingAccountRepo),
-    getUsage: new GetUsageUseCase(billingAccountRepo, usageRecordRepo),
-    getCredits: new GetCreditsUseCase(billingAccountRepo),
-    signup: new SignupUseCase(tenantRepo, billingAccountRepo, eventBus, planCatalog),
-    purchaseQuotaPack: new PurchaseQuotaPackUseCase(billingAccountRepo, tenantRepo, planCatalog),
-    updateBillingSettings: new UpdateBillingSettingsUseCase(billingAccountRepo),
-    listPlans: new ListPlansUseCase(planCatalog),
-    upgradeSubscription: new UpgradeSubscriptionUseCase(tenantRepo, planCatalog, billingAccountRepo),
-    listInvoices: new ListInvoicesUseCase(tenantRepo),
-    cancelSubscription: new CancelSubscriptionUseCase(tenantRepo),
-    reactivateSubscription: new ReactivateSubscriptionUseCase(tenantRepo),
-    createSubscription: new CreateSubscriptionUseCase(tenantRepo, planCatalog),
-  };
+  let billingUseCases: BillingUseCases;
+
+  if (config.isOss()) {
+    // OSS runtime: only usage records are supported (no Stripe dependency).
+    // The routes handle missing use cases gracefully:
+    // - GET /v1/billing/subscription  → { plan:'free', status:'active' }
+    // - POST /v1/billing/checkout     → 410 Gone
+    // - POST /v1/billing/portal       → 410 Gone
+    // - GET /v1/billing/usage         → works (uses PgUsageRecordRepository)
+    // - POST /v1/billing/webhook      → not mounted (skipped in app.ts for OSS)
+    billingUseCases = {
+      getUsage: new GetUsageUseCase(billingAccountRepo, usageRecordRepo),
+    };
+  } else {
+    const planCatalog = new StripePlanCatalogService();
+    const stripeCustomerService = config.stripe.secretKey ? new StripeCustomerService() : undefined;
+
+    billingUseCases = {
+      createCheckout: new CreateCheckoutUseCase(tenantRepo, planCatalog),
+      createPortal: new CreatePortalUseCase(tenantRepo),
+      getSubscription: new GetSubscriptionUseCase(tenantRepo, billingAccountRepo, planCatalog),
+      handleWebhook: new HandleBillingWebhookUseCase(tenantRepo, planCatalog, billingAccountRepo),
+      getUsage: new GetUsageUseCase(billingAccountRepo, usageRecordRepo),
+      getCredits: new GetCreditsUseCase(billingAccountRepo),
+      signup: new SignupUseCase(tenantRepo, billingAccountRepo, eventBus, planCatalog),
+      purchaseQuotaPack: new PurchaseQuotaPackUseCase(billingAccountRepo, tenantRepo, planCatalog),
+      updateBillingSettings: new UpdateBillingSettingsUseCase(billingAccountRepo),
+      listPlans: new ListPlansUseCase(planCatalog),
+      upgradeSubscription: new UpgradeSubscriptionUseCase(tenantRepo, planCatalog, billingAccountRepo),
+      listInvoices: new ListInvoicesUseCase(tenantRepo),
+      cancelSubscription: new CancelSubscriptionUseCase(tenantRepo),
+      reactivateSubscription: new ReactivateSubscriptionUseCase(tenantRepo),
+      createSubscription: new CreateSubscriptionUseCase(tenantRepo, planCatalog),
+    };
+  }
 
   // Auth Use Cases
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -743,8 +763,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     userRepo = new DynamoUserRepository();
     inviteRepo = new DynamoInviteRepository();
     const { HandleClerkWebhookUseCase: HCW } = await import('./modules/auth/application/handle-clerk-webhook.usecase.js');
+    // Use statically-imported Stripe classes (already loaded at top of file).
+    // These are only used in the non-OSS branch where Stripe is configured.
+    const clerkPlanCatalog = new StripePlanCatalogService();
+    const clerkStripeCustomer = config.stripe.secretKey ? new StripeCustomerService() : undefined;
     authUseCases = {
-      handleClerkWebhook: new HCW(tenantRepo, userRepo, stripeCustomerService, planCatalog, billingAccountRepo),
+      handleClerkWebhook: new HCW(tenantRepo, userRepo, clerkStripeCustomer, clerkPlanCatalog, billingAccountRepo),
     };
   }
 

@@ -1,11 +1,13 @@
 /**
- * Postgres Billing Account repository for the OSS runtime (AC-050).
- * Implements a simple stub that always returns a free-plan account.
+ * Postgres Billing Account repository for the OSS runtime (AC-043/AC-050).
+ * Returns a free-plan account with quotas enforced from env-supplied limits.
+ * Never calls Stripe — quota values come from config.billing.
  */
 import type { IBillingAccountRepository } from '../domain/billing-account.repository.js';
 import type { BillingAccount } from '../domain/billing-account.entity.js';
 import type { TenantId } from '../../../shared/domain/value-objects.js';
 import type { UsageType } from '../../../shared/domain/types.js';
+import { config } from '../../../shared/config/index.js';
 
 export class PgBillingAccountRepository implements IBillingAccountRepository {
     async create(account: BillingAccount): Promise<BillingAccount> {
@@ -15,9 +17,9 @@ export class PgBillingAccountRepository implements IBillingAccountRepository {
     async findByTenantId(tenantId: TenantId): Promise<BillingAccount | null> {
         return {
             tenantId,
-            investigationsLimit: -1,
+            investigationsLimit: config.billing.maxParallelInvestigations,
             investigationsUsed: 0,
-            eventsLimit: -1,
+            eventsLimit: config.billing.maxAgentsPerRun,
             eventsUsed: 0,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
