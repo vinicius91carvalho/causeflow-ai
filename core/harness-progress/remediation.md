@@ -219,3 +219,11 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Evidence: HTTP boundary on port 3099 (OSS runtime, container PORT=5171). GET /api/v1/remediation/:id/proposal returns steps[] with AWS actions; POST approve returns 200 status=approved; second POST returns 409 CONFLICT.
 - NextAction: WI-AC-024
 
+## 2026-07-10T16:00:12.000Z — Integrated Verification passed (attempt 2 re-run)
+
+- Attempt: 2/3
+- WorkItem: WI-AC-023
+- Outcome: integration=true
+- Evidence: curl against http://127.0.0.1:3099 (container PORT=5171). Registered tenant, created incident cf8149c9-f5ff-4917-a0f9-2a691f0116c1, proposed remediation 5cb63cc9-98d9-4b7b-b916-96701d1e84bd with ecs.updateService + ecs.forceNewDeployment. GET /api/v1/remediation/:id/proposal → 200 with 2 AWS action steps. POST approve → 200 status=approved approvedBy=admin JWT email. Second POST approve → 409 CONFLICT.
+- NextAction: WI-AC-024
+
