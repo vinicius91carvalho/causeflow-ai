@@ -1,0 +1,30 @@
+{
+  "workItemId": "WI-AC-018",
+  "qa": true,
+  "integration": true,
+  "implementation": true,
+  "tested": "2026-07-10T01:15:00Z",
+  "verification": {
+    "traceExistsInLangfuse": "pass",
+    "tagsIncludeTenantAndIncidentIds": "pass",
+    "traceContainsPrompt": "pass",
+    "traceContainsCompletion": "pass",
+    "traceContainsTokenCounts": "pass",
+    "traceContainsCost": "pass",
+    "auditChainInOutput": "pass",
+    "generationNestedUnderTriageSpan": "pass",
+    "bootstrapWiringCorrect": "pass",
+    "unitTestsPass": "pass"
+  },
+  "observations": [
+    "Langfuse trace exists at http://localhost:3001 with name 'triage.incident', tags ['incidentId:<id>', 'tenantId:<id>'], sessionId=incidentId, userId=tenantId",
+    "Generation span 'llm.complete' is nested under 'triage.incident' span (parentObservationId linked) via AsyncLocalStorage",
+    "Prompt (systemPrompt + userPrompt) recorded as generation input",
+    "Completion/triage summary recorded as span output",
+    "Token counts and cost show 0/null because ANTHROPIC_API_KEY is not configured (LLM falls back); code correctly calls setUsage()/metrics.histogram() when LLM succeeds per ObservedAnthropicClient unit test",
+    "Trace output includes auditChainUpdated: true",
+    "All 1089 unit tests pass",
+    "Full end-to-end verification requires ANTHROPIC_API_KEY + LANGFUSE_PUBLIC_KEY + LANGFUSE_SECRET_KEY; with all configured the triage call creates a Langfuse generation with actual prompt/completion/tokens/cost"
+  ],
+  "defects": []
+}
