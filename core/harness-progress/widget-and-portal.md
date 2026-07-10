@@ -143,3 +143,34 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - Outcome: qa=false, implementation=false
 - Evidence: real HTTP/browser boundary on PORT=5170. `/dashboard` returned 200 and first load rendered tenant `QA Tenant AC035`, recent incident `AC035 checkout latency spike`, `New investigation`, and SSE `/v1/notifications/stream` 200 `text/event-stream`. Clicking the incident opened the investigation view with evidence, hypotheses, chat, and remediation panel chrome, but the browser request `GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses` returned 500.
 - Defect: expected the dashboard incident detail hypotheses panel to load without an internal server error; observed hypotheses request failed with `INTERNAL_ERROR` because the OSS runtime hit a DynamoDB-backed hypotheses repository path (`DynamoDB is not available in the OSS runtime`).
+
+## 2026-07-10T02:53:16.556Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- DefectReport: gation`, and SSE `/v1/notifications/stream` 200 `text/event-stream`. Clicking the incident opened the investigation view with evidence, hypotheses, chat, and remediation panel chrome, but the browser request `GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses` returned 500.
++- Defect: expected the dashboard incident detail hypotheses panel to load without an internal server error; observed hypotheses request failed with `INTERNAL_ERROR` because the OSS runtime hit a DynamoDB-backed hypotheses repository path (`DynamoDB is not available in the OSS runtime`).
+[35m[3mcodex[0m[0m
+===HARNESS-VERDICT-BEGIN===
+===HARNESS-VERDICT-END===
+diff --git a/core/harness-progress/widget-and-portal.md b/core/harness-progress/widget-and-portal.md
+index 54666309eaaed3868da8b50f871b7f75b842cb72..ba501b6019df4c302408c9feb62569e566c2489e
+--- a/core/harness-progress/widget-and-portal.md
++++ b/core/harness-progress/widget-and-portal.md
+@@ -135,3 +135,11 @@
+ - PreviousPhase: coding
+ - Attempt: 1
+ - NextAction: coding
++
++## 2026-07-10T02:52:00.000Z — Isolated QA failed
++
++- WorkItem: WI-AC-035
++- AcceptanceChecks: AC-035
++- Outcome: qa=false, implementation=false
++- Evidence: real HTTP/browser boundary on PORT=5170. `/dashboard` returned 200 and first load rendered tenant `QA Tenant AC035`, recent incident `AC035 checkout latency spike`, `New investigation`, and SSE `/v1/notifications/stream` 200 `text/event-stream`. Clicking the incident opened the investigation view with evidence, hypotheses, chat, and remediation panel chrome, but the browser request `GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses` returned 500.
++- Defect: expected the dashboard incident detail hypotheses panel to load without an internal server error; observed hypotheses request failed with `INTERNAL_ERROR` because the OSS runtime hit a DynamoDB-backed hypotheses repository path (`DynamoDB is not available in the OSS runtime`).
+[2mtokens used[0m
+177,037
+- RepairPlan: 
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/widget-and-portal/WI-AC-035-1-qa.log
+- NextAction: Coding Attempt 2
