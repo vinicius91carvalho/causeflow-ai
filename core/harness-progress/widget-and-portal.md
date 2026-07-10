@@ -2438,3 +2438,101 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - WorkItem: WI-AC-035
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T12:22:01.248Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T12:22:01.278Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T12:27:48.847Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T12:27:48.996Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T12:32:36.026Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T12:32:36.078Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T12:32:47.770Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T12:32:47.805Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T12:32:55.042Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T12:32:55.070Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T12:33:02.547Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T12:33:02.579Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T12:38:08.692Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T12:38:08.745Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
