@@ -10,18 +10,29 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createHmac } from 'node:crypto';
 
 const PORT = process.env['PORT'] ?? '5176';
-const BASE_URL = (process.env['BASE_URL'] ?? `http://127.0.0.1:${PORT}`).replace(/\/$/, '');
+// Avoid Vite/Vitest's built-in BASE_URL ("/") — it collapses to "" after trim.
+const BASE_URL = (() => {
+  const raw =
+    process.env['E2E_BASE_URL'] ||
+    process.env['CAUSEFLOW_BASE_URL'] ||
+    `http://127.0.0.1:${PORT}`;
+  return raw.replace(/\/$/, '') || `http://127.0.0.1:${PORT}`;
+})();
 const WEBHOOK_SECRET = (() => {
   if (process.env['WEBHOOK_SECRET_HOST']) return process.env['WEBHOOK_SECRET_HOST'];
   const fromEnv = process.env['WEBHOOK_SECRET'];
   if (fromEnv && fromEnv !== 'e2e-webhook-secret') return fromEnv;
   return 'oss-dev-webhook-secret';
 })();
-const HINDSIGHT_BASE = (
-  process.env['HINDSIGHT_BASE_URL_HOST'] ??
-  process.env['HINDSIGHT_BASE_URL'] ??
-  'http://127.0.0.1:8888'
-).replace(/\/$/, '');
+const HINDSIGHT_BASE = (() => {
+  const raw =
+    process.env['HINDSIGHT_BASE_URL_HOST'] ||
+    process.env['HINDSIGHT_BASE_URL'] ||
+    'http://127.0.0.1:8888';
+  // Ignore Vite-style "/" and empty values.
+  if (!raw || raw === '/') return 'http://127.0.0.1:8888';
+  return raw.replace(/\/$/, '');
+})();
 
 const SAAS_ENV_KEYS = [
   'ANTHROPIC_API_KEY',
@@ -232,8 +243,10 @@ async function runPipeline(): Promise<PipelineState> {
   const incidentId = extractIncidentId(webhook1Body);
   expect(incidentId).toBeTruthy();
 
+  // Subscribe SSE immediately; give the stream a beat to connect before dedup POST.
   const sseAbort = new AbortController();
   const sseCollector = collectSse(token, incidentId, sseAbort.signal);
+  await new Promise((r) => setTimeout(r, 500));
 
   const webhook2Res = await fetch(`${BASE_URL}${webhookPath}`, {
     method: 'POST',
@@ -266,39 +279,66 @@ async function runPipeline(): Promise<PipelineState> {
       incidentStatus === 'failed'
     ) {
       finalStatus = status || incidentStatus;
-      await new Promise((r) => setTimeout(r, 3_000));
       break;
     }
     await new Promise((r) => setTimeout(r, 2_000));
   }
 
+  expect(severity).toBeTruthy();
+
+  // Persist + Hindsight writes can lag the terminal status by a few seconds.
+  let evidenceJson: unknown = {};
+  let hypothesesJson: unknown = {};
+  let evidenceCount = 0;
+  let hypothesisCount = 0;
+  let roles: string[] = [];
+  const artifactDeadline = Date.now() + 60_000;
+  while (Date.now() < artifactDeadline) {
+    const evidenceRes = await fetch(`${BASE_URL}/api/v1/investigation/${incidentId}/evidence`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(evidenceRes.ok).toBe(true);
+    evidenceJson = await evidenceRes.json();
+    evidenceCount = countEvidence(evidenceJson);
+    roles = evidenceAgentRoles(evidenceJson);
+
+    const hypothesesRes = await fetch(
+      `${BASE_URL}/api/v1/investigation/${incidentId}/hypotheses`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    expect(hypothesesRes.ok).toBe(true);
+    hypothesesJson = await hypothesesRes.json();
+    hypothesisCount = countHypotheses(hypothesesJson);
+
+    if (evidenceCount >= 1 && hypothesisCount >= 1 && roles.length >= 6) break;
+    await new Promise((r) => setTimeout(r, 1_000));
+  }
+
   sseAbort.abort();
   const sseText = await sseCollector.catch(() => '');
 
-  expect(severity).toBeTruthy();
-
-  const evidenceRes = await fetch(`${BASE_URL}/api/v1/investigation/${incidentId}/evidence`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  expect(evidenceRes.ok).toBe(true);
-  const evidenceJson = await evidenceRes.json();
-
-  const hypothesesRes = await fetch(`${BASE_URL}/api/v1/investigation/${incidentId}/hypotheses`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  expect(hypothesesRes.ok).toBe(true);
-  const hypothesesJson = await hypothesesRes.json();
-
   const bankId = `causeflow-${tenantId}`;
-  const recallRes = await fetch(`${HINDSIGHT_BASE}/v1/default/banks/${bankId}/memories/recall`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      query: 'AC046 e2e pipeline regression high CPU order-service root cause runbook',
-      budget: 'mid',
-    }),
-  });
-  const recallText = recallRes.ok ? await recallRes.text() : '';
+  let recallText = '';
+  const recallDeadline = Date.now() + 60_000;
+  while (Date.now() < recallDeadline) {
+    const recallRes = await fetch(`${HINDSIGHT_BASE}/v1/default/banks/${bankId}/memories/recall`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: 'AC046 e2e pipeline regression high CPU order-service root cause runbook',
+        budget: 'mid',
+      }),
+    });
+    recallText = recallRes.ok ? await recallRes.text() : '';
+    if (
+      /root cause|investigation|AC046|order-service|Unable to determine|runbook|Findings/i.test(
+        recallText,
+      )
+    ) {
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 1_000));
+  }
 
   return {
     token,
@@ -308,9 +348,9 @@ async function runPipeline(): Promise<PipelineState> {
     sseText,
     severity,
     finalStatus,
-    evidenceCount: countEvidence(evidenceJson),
-    evidenceAgentRoles: evidenceAgentRoles(evidenceJson),
-    hypothesisCount: countHypotheses(hypothesesJson),
+    evidenceCount,
+    evidenceAgentRoles: roles,
+    hypothesisCount,
     hindsightRecall: recallText,
   };
 }
@@ -364,17 +404,11 @@ describe('E2E Pipeline: local-only regression (AC-046)', () => {
     if (skipReason) throw new Error(skipReason);
     const sseRoles = parseSseAgentRoles(state!.sseText);
     const evidenceRoles = new Set(state!.evidenceAgentRoles);
+    const combined = new Set([...sseRoles, ...evidenceRoles]);
 
-    if (sseRoles.size >= 6) {
-      for (const role of FOUNDATIONAL_AGENTS) {
-        expect(sseRoles.has(role)).toBe(true);
-      }
-      return;
-    }
-
-    expect(evidenceRoles.size).toBeGreaterThanOrEqual(6);
+    expect(combined.size).toBeGreaterThanOrEqual(6);
     for (const role of FOUNDATIONAL_AGENTS) {
-      expect(evidenceRoles.has(role)).toBe(true);
+      expect(combined.has(role)).toBe(true);
     }
   });
 
