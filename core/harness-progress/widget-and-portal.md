@@ -816,3 +816,17 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - Outcome: integration=true, implementation=true, qa=true
 - Evidence: real browser boundary on PORT=5170 (Playwright) against OSS runtime on plan/opensource-docker. `/dashboard` 200; sidebar shows `QA Tenant AC035`, `AC035 checkout latency spike`, `New investigation`; SSE `/v1/notifications/stream` 200; incident detail shows Evidence, Hypotheses, Chat, Remediation; `GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses` returns 200.
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/widget-and-portal/WI-AC-035-integrated-qa.log
+
+## 2026-07-10T08:51:58.780Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T08:51:58.811Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
