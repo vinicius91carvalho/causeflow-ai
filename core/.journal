@@ -105,3 +105,18 @@ Fresh HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres :5439, Redis :6380
 - `GET /api/v1/investigation/:id` first returned `status=running` with incident `status=investigating`.
 - SSE at `/api/v1/investigation/:id/stream` emitted `connected`, 11 `investigation_progress` events (per-agent `agent_failed` for log_analyst, metric_analyst, change_detector, code_analyzer, infra_inspector, db_analyst), and `investigation_completed`.
 - Final `GET /api/v1/investigation/:id` returned `status=succeeded`, all 6 assigned agents, and stored `finalSynthesis`.
+
+## 2026-07-10T04:12:00Z — QA verdict for WI-AC-019
+
+**Result: qa=true, implementation=true.**
+
+Scaffold audit: `project_specs.xml` present; 16 module dirs, 17 ports, `src/main.ts`, `src/bootstrap.ts`, `src/workers/investigation-worker.ts`, `src/modules/investigation/`, `src/shared/infra/chat/sse-manager.ts`, `dashboard/`, `packages/widget/`, `relay/`, env files, Docker compose. No missing artifact.
+
+Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres :5439, Redis :6380):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `827dfe33-4418-4efb-a6bf-78f6204b78fb`.
+- `GET /api/v1/investigation/:id` poll 1 -> `status=running`, incident `status=investigating`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 11 `investigation_progress` events with per-agent `agentRole` for all 6 agents, then `investigation_completed`.
+- Final `GET /api/v1/investigation/:id` -> `status=succeeded`, `incident.assignedAgents` has 6 agents, `finalSynthesis` stored.
+
+No defects found for AC-019.
