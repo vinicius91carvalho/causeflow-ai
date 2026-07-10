@@ -500,10 +500,10 @@
     "verify_first": true,
     "implementation": true,
     "qa": true,
-    "integration": false,
+    "integration": true,
     "retries": 1,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "done"
   },
   {
     "id": "WI-AC-024",
