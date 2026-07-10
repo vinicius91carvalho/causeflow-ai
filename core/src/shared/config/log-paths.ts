@@ -26,7 +26,7 @@ export function isSensitivePath(path: string): boolean {
     return false;
 }
 
-export const silentLogPaths = ['/health', '/health/detailed', '/', '/favicon.ico'] as const;
+export const silentLogPaths = ['/health', '/health/detailed', '/', '/favicon.ico', '/v1/notifications/stream'] as const;
 
 export function isSilentPath(path: string): boolean {
     return silentLogPaths.some(p => path === p);

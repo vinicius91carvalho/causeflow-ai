@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { streamSSE } from 'hono/streaming';
+import { stream, type SSEStreamingApi } from 'hono/streaming';
 import { randomUUID } from 'node:crypto';
 import { tenantId, notificationId, approvalId } from '../../../shared/domain/value-objects.js';
 import type { AppEnv } from '../../../shared/infra/http/hono-types.js';
@@ -27,25 +27,19 @@ export function createNotificationRoutes(useCases: NotificationUseCases) {
     app.get('/stream', (c) => {
         const tid = c.get('tenantId');
         const clientId = randomUUID();
-        return streamSSE(c, async (stream) => {
-            useCases.sseManager.addClient(tid, clientId, stream);
-            await stream.writeSSE({
-                event: 'connected',
-                data: JSON.stringify({ clientId, tenantId: tid }),
-            });
-            stream.onAbort(() => {
-                useCases.sseManager.removeClient(tid, clientId);
-            });
-            // Keep alive until client disconnects
-            while (true) {
-                await new Promise((resolve) => setTimeout(resolve, 30_000));
-                try {
-                    await stream.writeSSE({ event: 'heartbeat', data: '' });
-                }
-                catch {
-                    break;
-                }
-            }
+        c.header('Content-Type', 'text/event-stream');
+        c.header('Cache-Control', 'no-cache');
+        c.header('Connection', 'keep-alive');
+        return stream(c, async (s) => {
+            const clientStream = {
+                writeSSE: async ({ event, data, id }: { event?: string; data?: string; id?: string }) => {
+                    await s.write(`${id ? `id: ${id}\n` : ''}${event ? `event: ${event}\n` : ''}data: ${data ?? ''}\n\n`);
+                },
+            };
+            useCases.sseManager.addClient(tid, clientId, clientStream as SSEStreamingApi);
+            s.onAbort(() => useCases.sseManager.removeClient(tid, clientId));
+            await clientStream.writeSSE({ event: 'connected', data: JSON.stringify({ clientId, tenantId: tid }) });
+            await new Promise(() => {});
         });
     });
     // GET /v1/notifications/ — list notifications

@@ -120,3 +120,11 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-10T02:39:00.000Z — Implementation verified
+
+- WorkItem: WI-AC-035
+- AcceptanceChecks: AC-035
+- Outcome: implementation=true
+- Evidence: real HTTP/browser boundary on PORT=5170. `/dashboard` first load shows tenant name, recent incidents, and New investigation; incident click opens evidence, hypotheses, chat, and remediation panels; `/v1/notifications/stream` emits SSE `connected` and dashboard stays SSE-connected.
+- Notes: fixed dashboard JWT generation to avoid CDN dependency, added missing sidebar/detail panels, and prevented request logging from consuming the SSE stream.
