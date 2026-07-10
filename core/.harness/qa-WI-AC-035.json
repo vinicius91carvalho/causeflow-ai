@@ -1,7 +1,7 @@
 {
   "workItemId": "WI-AC-035",
   "qa": true,
-  "integration": false,
+  "integration": true,
   "implementation": true,
   "tested": "2026-07-10T17:05:02.000Z",
   "verification": {
