@@ -1587,3 +1587,10 @@ No defects found. integration=true set in feature_list.json.
 - RepairPlan: AC-046 falha porque o investigation worker (e bootstrap) sempre instancia AnthropicClient/EnhancedPTCRunner com ANTHROPIC_API_KEY vazio; provider=stub cobre só cloud/credenciais AWS. Os 6 agentes emitem agent_failed (auth SDK), o run fica failed e hipóteses/Hindsight não são verificados. Scaffold OSS principal presente; gaps menores da spec (docker-entrypoint-initdb.d, EnvCredentialVendor) não causam este defeito.; Extrair/promover stubs determinísticos de tests/e2e/stubs para src/shared/infra/llm (stub-llm-client + stub-agent-runner) que nunca importam @anthropic-ai/sdk; Em investigation-worker.ts e bootstrap.ts: se isOss() && !config.anthropic.apiKey, wire StubLlmClient + StubAgentRunner em vez de AnthropicClient/EnhancedPTCRunner/Mastra; Opcional: em InvestigateIncidentUseCase/EnhancedPTCRunner, short-circuit sem apiKey para evitar agent_failed antes do fallback; Garantir persistInvestigationArtifacts (HypothesisEntity + Hindsight retain) no caminho stub de sucesso; Ajustar ac046-verify.sh para não abortar em status=failed transitório se o contrato exigir esperar resolved/succeeded + hypotheses + recall
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/501f164b-582d-4ec4-8627-f4b7f8971cc4/open-source-local-runtime/WI-AC-046-1-integration_qa-042b5f63edd7f302.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-10T22:53:35.133Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 2
+- NextAction: coding
