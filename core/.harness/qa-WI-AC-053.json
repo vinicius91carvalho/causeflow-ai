@@ -1,0 +1,30 @@
+{
+  "workItemId": "WI-AC-053",
+  "qa": true,
+  "integration": true,
+  "implementation": true,
+  "tested": "2026-07-10T00:30:00Z",
+  "verification": {
+    "noMinistackInCompose": "pass",
+    "noLangfuseInCompose": "pass",
+    "noLangfuseWorkerInCompose": "pass",
+    "noLocalstackInitScript": "pass",
+    "dotEnvExampleOnlyAllowedVars": "pass",
+    "noForbiddenAwsStripeClerkVars": "pass",
+    "dockerComposeUpHealthy": "pass",
+    "healthEndpoint200": "pass",
+    "webhookIngestCreatesIncident": "pass",
+    "dedupReturnsSameIncidentId": "pass",
+    "triageFallbackCompletes": "pass",
+    "bullMqQueuesOperational": "pass",
+    "causeflowWorkerStandby": "pass",
+    "hindsightHealthy": "pass"
+  },
+  "observations": [
+    "Full AI pipeline (investigation agents, evidence, hypothesis, Hindsight write) requires ANTHROPIC_API_KEY which is documented as optional in .env.example; without it the triage falls back to low severity and resolves without investigation",
+    "docker-compose.yml references only causeflow-postgres, redis, hindsight, causeflow-api, causeflow-worker — no ministack, langfuse, or localstack-init",
+    ".env.example contains only PORT, DATABASE_URL, REDIS_URL, JWT_SECRET, TOKEN_ENCRYPTION_KEY, HINDSIGHT_BASE_URL, HINDSIGHT_API_KEY, ANTHROPIC_API_KEY (optional), VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY — no AWS_*, STRIPE_*, CLERK_*, SENTRY_*, LANGFUSE_*, SVIX_*, SLACK_*, COMPOSIO_*, MASTRA_* vars",
+    "Spec mentions HINDSIGHT_API_URL but implementation uses HINDSIGHT_BASE_URL — .env.example correctly matches the implementation"
+  ],
+  "defects": []
+}
