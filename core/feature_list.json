@@ -762,12 +762,12 @@
     ],
     "depends_on": ["AC-034"],
     "verify_first": true,
-    "implementation": true,
-    "qa": true,
+    "implementation": false,
+    "qa": false,
     "integration": false,
     "retries": 1,
     "attempts": 1,
-    "status": "qa-passed"
+    "status": "integration-failed"
   },
   {
     "id": "WI-AC-036",
