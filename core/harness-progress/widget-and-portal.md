@@ -1855,12 +1855,12 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
 - NextAction: Coding Attempt 1
 
-## 2026-07-10T10:06:00.000Z — Implementation verified
+## 2026-07-10T10:06:00.000Z ï¿½ Implementation verified
 
 - WorkItem: WI-AC-035
 - AcceptanceChecks: AC-035
 - Outcome: implementation=true
-- Evidence: Playwright black-box on PORT=5170 — `/dashboard` shows tenant `QA Tenant AC035`, incident `AC035 checkout latency spike`, `New investigation`; detail view has evidence, hypotheses, chat, remediation panels; `GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses` 200; SSE `/v1/notifications/stream` 200.
+- Evidence: Playwright black-box on PORT=5170 ï¿½ `/dashboard` shows tenant `QA Tenant AC035`, incident `AC035 checkout latency spike`, `New investigation`; detail view has evidence, hypotheses, chat, remediation panels; `GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses` 200; SSE `/v1/notifications/stream` 200.
 - Notes: OSS runtime uses PgHypothesisRepository (fixes prior DynamoDB 500 on hypotheses endpoint).
 
 ## 2026-07-10T10:06:29.451Z â€” Resumed
@@ -1997,3 +1997,16 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
 
+## 2026-07-10T10:23:01.228Z â€” Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T10:23:01.261Z â€” Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
