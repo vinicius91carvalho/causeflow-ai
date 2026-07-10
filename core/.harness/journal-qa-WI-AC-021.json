@@ -5,15 +5,16 @@
   "result": "PASS",
   "implementation": true,
   "qa": true,
-  "verifiedAt": "2026-07-10T19:35:00Z",
+  "integration": true,
+  "verifiedAt": "2026-07-10T19:36:00Z",
   "verifiedBy": "qa-agent",
   "evidence": [
     "Scaffold audit: project_specs.xml, feature_list.json, init.sh, bootstrap.ts, docker-compose.yml, .harness/ac021-verify.sh present.",
     "Real HTTP on PORT=3099 (host → container 5171), OSS docker-compose stack healthy.",
-    "Incident 8716315d-a286-4dbb-b7f4-bfc1b820db2c: investigation status=succeeded before chat.",
+    "Incident e310cf23-3d12-4075-8604-dd2e70f59ba3: investigation status=succeeded before chat.",
     "POST /api/v1/investigation/:id/chat → HTTP 200 with response, chatId, action=question_answered.",
     "GET /api/v1/investigation/:id/chat → user + assistant ChatMessageEntity rows persisted.",
-    "Assistant message carries slackThreadId=83a12ac0-7868-4271-976a-aa27ffb8827d (web-portal chat platform mirror).",
+    "Assistant message carries slackThreadId=a755929e-96fc-468f-955d-e5b169b4155b (web-portal chat platform mirror).",
     ".harness/ac021-verify.sh exit 0."
   ],
   "defects": []
