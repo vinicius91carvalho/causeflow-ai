@@ -690,3 +690,33 @@ Scaffold audit: `project_specs.xml` and required AC-019 structures present. Real
 - `.harness/ac019-integrated-verify.sh` exit 0 (PASS).
 
 No defects found for AC-019.
+
+## 2026-07-10T10:14:00Z — VERIFY-FIRST AC-019 boundary pass
+
+**Result: implementation=true. Zero-diff checkpoint — no source changes.**
+
+Scaffold audit: `project_specs.xml` and required structures verified on PORT=5175.
+
+Real HTTP/SSE boundary (OSS runtime, Postgres + Redis healthy):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `bd0d47d1-ff29-49c4-96f6-db3f05b453f1`.
+- Fast poll `GET /api/v1/investigation/:id` -> poll 1 `status=running`, poll 2 `status=succeeded`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 11 `investigation_progress` events with per-agent `agentRole` for all 6 agents, then `investigation_completed`.
+- Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+No defects found for AC-019.
+
+## 2026-07-10T10:20:00Z — QA verdict for WI-AC-019
+
+**Result: qa=true, implementation=true.**
+
+Scaffold audit: `project_specs.xml` present; required structures verified (`package.json`, `src/main.ts`, `src/bootstrap.ts`, `src/app.ts`, `src/workers/investigation-worker.ts`, `src/modules/investigation/`, `src/shared/infra/chat/sse-manager.ts`, `docker-compose.yml`, `.env.dev`, `init.sh`).
+
+Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres + Redis healthy):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `89c89f2d-707c-426d-8dbb-c7193a9094eb`.
+- `GET /api/v1/investigation/:id` poll -> `status=running` then `status=succeeded`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 24 events including `investigation_progress` with per-agent `agentRole` for all 6 agents, then `investigation_completed`.
+- Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+No defects found for AC-019.
