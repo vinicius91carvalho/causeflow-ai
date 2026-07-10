@@ -1,5 +1,19 @@
 # Workflow Journal
 
+## 2026-07-10T19:50:00Z — Integrated Verification pass (WI-AC-022, this worktree)
+
+**Result: integration=true, implementation=true, qa=true. Zero defects.**
+
+Exercised AC-022 via real HTTP on PORT=3099 (host → container 5171), OSS docker-compose stack healthy.
+Container env: ANTHROPIC_API_KEY=invalid, ANTHROPIC_TRIAGE_MODEL=claude-haiku-4-5.
+
+### AC-022 boundary checks (all passed)
+1. ✅ `GET /health` → `anthropic=degraded` after invalid-key triage LLM failure
+2. ✅ Investigation `28284d9c-1501-44da-a411-c8a415b22d9c` → `status=failed` with circuit-breaker error (poll 2)
+3. ✅ Langfuse trace shows configured triage model `claude-haiku-4-5`
+
+`.harness/ac022-verify.sh` PASS
+
 ## 2026-07-10T19:48:00Z — Independent QA pass (WI-AC-022, this worktree)
 
 **Result: qa=true, implementation=true. Zero defects.**

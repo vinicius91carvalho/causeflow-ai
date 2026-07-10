@@ -5,14 +5,15 @@
   "result": "PASS",
   "implementation": true,
   "qa": true,
-  "verifiedAt": "2026-07-10T19:48:00Z",
+  "integration": true,
+  "verifiedAt": "2026-07-10T19:50:00Z",
   "verifiedBy": "qa-agent",
   "evidence": [
     "Scaffold audit: project_specs.xml, feature_list.json, init.sh, bootstrap.ts, docker-compose.yml, .harness/ac022-verify.sh present.",
     "Real HTTP on PORT=3099 (host → container 5171), OSS docker-compose stack healthy.",
     "ANTHROPIC_API_KEY=invalid, ANTHROPIC_TRIAGE_MODEL=claude-haiku-4-5 in container env.",
     "GET /health → anthropic=degraded after triage LLM failure.",
-    "Incident 925c5dbe-a8e2-49f8-bb17-0765054e44c3: investigation status=failed with circuit-breaker message.",
+    "Incident 28284d9c-1501-44da-a411-c8a415b22d9c: investigation status=failed with circuit-breaker message (poll 2).",
     "Langfuse trace contains configured triage model claude-haiku-4-5.",
     ".harness/ac022-verify.sh exit 0."
   ],
