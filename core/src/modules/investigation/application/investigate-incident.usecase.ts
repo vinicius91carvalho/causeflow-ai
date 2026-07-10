@@ -1079,9 +1079,25 @@ export class InvestigateIncidentUseCase {
             logger.warn({ incidentId, tenantId, failedAgents }, 'All sub-agents failed — completing with stub result');
             const stubRootCause = 'Unable to determine root cause (LLM service unavailable)';
             const investigationDurationMs = Date.now() - investigationStartMs;
+            const stubAgentRoles = failedAgents.length > 0
+                ? failedAgents.map((a) => a.role)
+                : validRoles;
+            for (const role of stubAgentRoles) {
+                await this.eventBus.publish({
+                    eventType: 'investigation.progress',
+                    occurredAt: new Date().toISOString(),
+                    tenantId,
+                    payload: {
+                        incidentId,
+                        stage: 'agent_completed',
+                        agentRole: role,
+                        message: `Agent ${role} completed (stub — LLM unavailable)`,
+                    },
+                });
+            }
             await this.incidentRepo.update(tenantId, incidentId, {
                 rootCause: stubRootCause,
-                assignedAgents: failedAgents.map(a => a.role),
+                assignedAgents: stubAgentRoles,
                 investigationDurationMs,
                 updatedAt: new Date().toISOString(),
             });
@@ -1093,7 +1109,7 @@ export class InvestigateIncidentUseCase {
                 payload: {
                     incidentId,
                     rootCause: stubRootCause,
-                    agentsUsed: failedAgents.map(a => a.role),
+                    agentsUsed: stubAgentRoles,
                     recommendedActions: [],
                     totalCostUsd: 0,
                     investigationDurationMs,
@@ -1102,13 +1118,16 @@ export class InvestigateIncidentUseCase {
             await this.persistInvestigationArtifacts({
                 tenantId,
                 incidentId,
-                agentRoles: failedAgents.map((a) => a.role),
+                agentRoles: stubAgentRoles,
                 rootCause: stubRootCause,
-                agentDetails: failedAgents.map((a) => ({
-                    role: a.role,
-                    content: a.error || `Agent ${a.role} failed (LLM unavailable)`,
-                    confidence: 0,
-                })),
+                agentDetails: stubAgentRoles.map((role) => {
+                    const failed = failedAgents.find((a) => a.role === role);
+                    return {
+                        role,
+                        content: failed?.error || `Agent ${role} failed (LLM unavailable)`,
+                        confidence: 0,
+                    };
+                }),
             });
             if (this.agentMemory) {
                 retainInvestigationSummary(
@@ -1118,7 +1137,7 @@ export class InvestigateIncidentUseCase {
                     [],
                     0,
                     investigationDurationMs,
-                    failedAgents.map((a) => a.role),
+                    stubAgentRoles,
                 ).catch(() => { /* non-critical */ });
             }
             return {

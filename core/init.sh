@@ -41,7 +41,7 @@ start_worker() {
   export PORT
   export CAUSEFLOW_RUNTIME="${CAUSEFLOW_RUNTIME:-oss}"
   # Host-dev worker shares .env.dev (Postgres/Redis on published ports).
-  nohup pnpm exec tsx --env-file=.env.dev src/workers/investigation-worker.ts \
+  setsid nohup pnpm exec tsx --env-file=.env.dev src/workers/investigation-worker.ts \
     >"$WORKER_LOG_FILE" 2>&1 &
   echo $! >"$WORKER_PID_FILE"
   echo "Started investigation worker pid=$(cat "$WORKER_PID_FILE") (logs: $WORKER_LOG_FILE)"
@@ -78,7 +78,7 @@ else
   export PORT
   export CAUSEFLOW_RUNTIME="${CAUSEFLOW_RUNTIME:-oss}"
   # Use tsx directly (not `pnpm dev` / tsx watch) so nohup keeps a stable PID.
-  nohup pnpm exec tsx --env-file=.env.dev src/main.ts >"$LOG_FILE" 2>&1 &
+  setsid nohup pnpm exec tsx --env-file=.env.dev src/main.ts >"$LOG_FILE" 2>&1 &
   echo $! >"$APP_PID_FILE"
 
   for _ in $(seq 1 60); do

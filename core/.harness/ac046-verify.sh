@@ -91,6 +91,7 @@ log "incidentId=$INCIDENT_ID"
 
 # Subscribe SSE immediately after incident exists (before dedup + polling)
 start_sse
+sleep 1
 
 # 3. Identical POST within dedup window → same incident (AC-015)
 WH2=$(curl -sS -w '\n%{http_code}' -X POST "$BASE/v1/webhooks/${TENANT_ID}/datadog" \
