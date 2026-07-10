@@ -323,3 +323,10 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Evidence: GET /api/v1/remediation/:id/proposal → 200 with AWS action steps; POST approve → 200 status=approved; second approve → 409 CONFLICT
 - API: http://localhost:3099 (docker maps host 3099 → container PORT=5171)
 - NextAction: Integrated Verification
+
+## 2026-07-10T16:38:37.579Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
