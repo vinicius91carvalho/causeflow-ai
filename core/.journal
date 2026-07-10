@@ -81,3 +81,16 @@ Real HTTP/SSE boundary on `PORT=5175`:
 - Polled `GET /api/v1/investigation/:id`: first returned `status=running` with incident `status=investigating`; final returned `status=succeeded`, incident `status=resolved`, all 6 assigned agents, and stored `finalSynthesis="Unable to determine root cause (LLM service unavailable)"`.
 
 No defects found for AC-019.
+
+## 2026-07-10T02:50:00Z — VERIFY-FIRST AC-019 boundary re-check
+
+**Result: implementation=true. No code changes required.**
+
+Read `project_specs.xml`, the exact `WI-AC-019` queue entry in `feature_list.json`, `.journal`, and `.workflow-journal`. Verified required scaffold for this check exists: 15 module directories, 17 shared application ports, `src/main.ts`, `src/bootstrap.ts`, `src/workers/investigation-worker.ts`, `src/modules/investigation/`, `src/shared/infra/chat/sse-manager.ts`, `dashboard/`, `packages/widget/`, `relay/`, env files, and Docker Compose.
+
+Fresh real HTTP/SSE boundary on `PORT=5175`:
+- Registered OSS tenant via `POST /v1/auth/register` -> 201.
+- Opened `/api/v1/investigation/:id/stream`, then created incident `31e13361-f887-4435-8ebe-7517c1a0c276` via `POST /v1/incidents` -> 201.
+- `GET /api/v1/investigation/:id` first returned `status=running` with incident `status=investigating`.
+- SSE emitted `connected`, `investigation_progress`, and `investigation_completed`; per-agent events included `log_analyst`, `metric_analyst`, `change_detector`, `code_analyzer`, `infra_inspector`, and `db_analyst`.
+- Final `GET /api/v1/investigation/:id` returned `status=succeeded`, incident `status=resolved`, all 6 assigned agents, and stored `finalSynthesis="Unable to determine root cause (LLM service unavailable)"`.
