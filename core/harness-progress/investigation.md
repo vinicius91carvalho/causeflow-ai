@@ -64,3 +64,10 @@ hindsight (:8888). Fresh boot of `npx tsx --env-file=.env.dev src/main.ts`.
 ### Zero-diff checkpoint
 No tracked files were changed. All AC-019 criteria are structurally met
 by the existing code.
+
+## 2026-07-10T02:21:48.967Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
