@@ -1,27 +1,22 @@
 {
   "workItemId": "WI-AC-023",
   "qa": true,
-  "integration": true,
+  "integration": false,
   "implementation": true,
-  "tested": "2026-07-10T17:11:28Z",
+  "tested": "2026-07-10T17:14:35Z",
   "verification": {
     "getProposalReturnsPlanWithActions": "pass",
     "postApproveReturns200AndCreatesApprovalEntity": "pass",
     "secondApproveReturns409Conflict": "pass"
   },
   "observations": [
-    "GET /v1/remediation/:id/proposal returns HTTP 200 with the plan listing AWS actions (steps with action, label, description, riskLevel, params) — verified against running API on port 3099 (mapped from container port 5171).",
-    "POST /v1/remediation/:id/approve with admin JWT returns HTTP 200 and sets remediation status to 'approved' — approvedBy field is populated from JWT email claim.",
-    "POST /v1/remediation/:id/approve a second time returns HTTP 409 with error code CONFLICT — the ApproveRemediationUseCase correctly rejects when status is not 'proposed'.",
-    "ApproveRemediationUseCase creates an ApprovalEntity via IApprovalRepository.create() — confirmed by code audit of approve-remediation.usecase.ts which constructs and persists a PendingApproval record (stored in-memory via PgApprovalRepository in OSS runtime).",
-    "The dist image was stale (built from commit 87cb2602 before the AC-023 routes and approve logic). Rebuilt locally and copied into the running container. The running dist now matches HEAD.",
-    "A TypeScript build error in approve-remediation.usecase.ts was fixed: plain string assignments to ApprovalId and NotificationId branded types were replaced with approvalId() and notificationId() helper calls.",
-    "RBAC enforcement: the approve route requires admin role via requireRole('admin') middleware.",
-    "Proposal route returns all required fields: remediationId, incidentId, status, rootCause, description, steps (action + params), proposedBy, createdAt, updatedAt.",
-    "RE-VERIFIED at HTTP boundary on port 5171 (OSS runtime). Created incident, proposed remediation, called GET /api/v1/remediation/:id/proposal → plan with AWS actions, POST /api/v1/remediation/:id/approve with admin JWT → 200 + status=approved + approvedBy populated, second approve → HTTP 409 CONFLICT. All three AC-023 checks pass against real API.",
-    "Attempt 3 verify-first (coding-agent): API healthy at host :3099 (container PORT=5171). Zero-diff re-verification — GET proposal 200 with ecs.updateService/ssm.runCommand steps, POST approve 200 approvedBy=admin@causeflow.ai, second POST approve 409 CONFLICT (status completed after auto-execute). implementation=true.",
-    "QA agent independent re-run (2026-07-10): scaffold verified (init.sh, feature_list.json, project_specs.xml, bootstrap.ts). HTTP on localhost:3099 (container PORT=5171): GET /api/v1/remediation/:id/proposal → 200 with ecs.updateService + ssm.runCommand steps; POST approve → 200 status=approved approvedBy=admin@causeflow.ai; second POST approve → 409 CONFLICT. ApprovalEntity creation confirmed via code audit (approve-remediation.usecase.ts calls approvalRepo.create, wired in bootstrap.ts).",
-    "Attempt 4 verify-first (coding-agent, 2026-07-10T17:11:28Z): integration merge retry. Scaffold verified. HTTP on localhost:3099 (container PORT=5171). Fresh tenant register → incident → propose → GET proposal 200 (ecs.updateService + ssm.runCommand steps), POST approve 200 approvedBy populated, second POST approve 409 CONFLICT. Zero code changes; implementation=true."
+    "Scaffold verified: init.sh, feature_list.json, project_specs.xml, bootstrap.ts present.",
+    "API healthy at localhost:3099 (container PORT=5171, OSS runtime).",
+    "Fresh tenant via POST /v1/auth/register → 201; incident via POST /v1/incidents → 201; remediation via POST /api/v1/remediation → 201.",
+    "GET /api/v1/remediation/d5c39b9e-2233-477d-b125-6d551243dc2c/proposal → HTTP 200 with steps ecs.updateService + ssm.runCommand (2 AWS actions).",
+    "POST /api/v1/remediation/:id/approve with admin JWT → HTTP 200, status=approved, approvedBy=qa-ac023-*@example.com.",
+    "Second POST /api/v1/remediation/:id/approve → HTTP 409 CONFLICT (status completed after auto-execute; duplicate approval rejected).",
+    "ApprovalEntity creation confirmed via code audit: approve-remediation.usecase.ts calls approvalRepo.create(); bootstrap.ts wires PgApprovalRepository into ApproveRemediationUseCase."
   ],
   "defects": []
 }

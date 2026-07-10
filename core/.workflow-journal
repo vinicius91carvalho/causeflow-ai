@@ -237,7 +237,7 @@ qa=false, implementation=false — core auth flow and bundle serving work, but A
 
 ## WI-AC-023: Remediation proposal, approval, and duplicate-prevention
 
-### Status: IMPLEMENTED & VERIFIED (2026-07-10T17:11:28Z verify-first pass, zero-diff)
+### Status: QA VERIFIED (2026-07-10T17:14:35Z independent QA pass, zero-diff)
 
 ### HTTP boundary verification (PORT=5171 container → localhost:3099, OSS runtime)
 
