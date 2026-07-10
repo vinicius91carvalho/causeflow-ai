@@ -2114,3 +2114,10 @@ Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d
 - Outcome: integration could not complete
 - Defects: Checkpoint was not integrated into the integration branch
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-10T13:40:36.375Z — Explicit Resume
+
+- WorkItem: WI-AC-019
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+- NextAction: Coding Attempt 1
