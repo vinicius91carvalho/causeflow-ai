@@ -460,3 +460,10 @@ Code paths verified by unit tests and real HTTP boundary assertions.
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/observability-and-ops/WI-AC-037-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-10T07:16:30.487Z — Resumed
+
+- WorkItem: WI-AC-038
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
