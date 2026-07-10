@@ -5,3 +5,10 @@
 **Outcome:** implementation=true after minimal fixes; `.harness/ac022-verify.sh` PASS on PORT=3099.
 
 **Evidence:** `health anthropic=degraded` after triage LLM failure with invalid key; investigation `status=failed` rootCause circuit-breaker message; Langfuse model `claude-haiku-4-5`.
+
+## 2026-07-10T19:44:37.809Z — Resumed
+
+- WorkItem: WI-AC-022
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
