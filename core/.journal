@@ -353,3 +353,15 @@ Scaffold audit: `project_specs.xml` and required AC-019 structures present. Real
 - `.harness/ac019-integrated-verify.sh` exit 0 (PASS).
 
 No defects found for AC-019.
+
+## 2026-07-10T08:19:00Z — Integrated verification for WI-AC-019
+
+**Result: integration=true, implementation=true.**
+
+Scaffold audit: `project_specs.xml` and required AC-019 structures present. Real HTTP/SSE on `PORT=5175` (CAUSEFLOW_RUNTIME=oss, Postgres :5439, dedicated Redis :6395; docker `causeflow-worker` stopped):
+- Incident `b2683bad-284d-4d1d-aa60-dc87fa6f0f94`; immediate GET -> `status=running`.
+- SSE `/api/v1/investigation/:id/stream` -> 11 `investigation_progress` events with per-agent `agentRole` for all 6 agents, then `investigation_completed`.
+- Final GET -> `status=succeeded`, 6 `assignedAgents`, `finalSynthesis` stored.
+- `.harness/ac019-integrated-verify.sh` exit 0 (PASS).
+
+No defects found for AC-019.
