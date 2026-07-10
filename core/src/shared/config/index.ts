@@ -237,6 +237,13 @@ export const config = {
   billing: {
     maxParallelInvestigations: envInt('MAX_PARALLEL_INVESTIGATIONS', 10),
     maxAgentsPerRun: envInt('MAX_AGENTS_PER_RUN', 10),
+    /**
+     * Per-investigation cost ceiling in USD (AC-038).
+     * When set > 0, a run that exceeds this ceiling is aborted and the
+     * incident is marked status=cost_exceeded.
+     * Default: 0 (no ceiling).
+     */
+    maxCostUsd: envInt('INVESTIGATION_MAX_COST_USD', 0),
   },
 
   webPush: {

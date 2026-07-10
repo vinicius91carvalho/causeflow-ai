@@ -9,7 +9,7 @@ export const IncidentEntity = new Entity({
         title: { type: 'string', required: true },
         description: { type: 'string' },
         severity: { type: ['critical', 'high', 'medium', 'low', 'info'], required: true },
-        status: { type: ['open', 'triaging', 'investigating', 'awaiting_approval', 'remediating', 'resolved', 'closed', 'aborted', 'failed', 'inconclusive'], required: true, default: 'open' },
+        status: { type: ['open', 'triaging', 'investigating', 'awaiting_approval', 'remediating', 'resolved', 'closed', 'aborted', 'cost_exceeded', 'failed', 'inconclusive'], required: true, default: 'open' },
         sourceProvider: { type: 'string', required: true },
         sourceAlertId: { type: 'string' },
         assignedAgents: { type: 'list', items: { type: 'string' } },

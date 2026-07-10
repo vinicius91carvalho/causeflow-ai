@@ -7,12 +7,13 @@ import type { IncidentStatus } from '../../../shared/domain/types.js';
 const VALID_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
     open: ['triaging', 'closed'],
     triaging: ['investigating', 'closed', 'resolved'],
-    investigating: ['awaiting_approval', 'resolved', 'closed', 'failed'],
+    investigating: ['awaiting_approval', 'resolved', 'closed', 'failed', 'cost_exceeded'],
     awaiting_approval: ['remediating', 'investigating'],
     remediating: ['resolved', 'closed'],
     resolved: ['closed'],
     closed: [],
     aborted: [],
+    cost_exceeded: [],
     failed: ['investigating', 'closed'],
     // inconclusive is a terminal state — no valid transitions out
     inconclusive: [],

@@ -1149,7 +1149,19 @@ ${findingsSummary}`;
                 investigationDurationMs, successfulResults.map(r => r.agentRole),
             ).catch(() => { /* non-critical */ });
         }
-        // 9. Update incident status — awaiting_approval if remediation proposed, resolved otherwise
+        // 9. Check cost ceiling (AC-038). If the total cost exceeds the configured
+        //    per-investigation ceiling, abort the run and mark cost_exceeded.
+        const ceiling = config.billing.maxCostUsd;
+        if (ceiling > 0 && totalCostUsd > ceiling) {
+            logger.warn(
+                { incidentId, totalCostUsd, ceiling },
+                'Investigation cost exceeded ceiling — aborting',
+            );
+            await this.incidentRepo.updateStatus(tenantId, incidentId, 'cost_exceeded');
+            return { ...investigationResult, failedAgents: failedAgents.length > 0 ? failedAgents : undefined };
+        }
+
+        // 9b. Update incident status — awaiting_approval if remediation proposed, resolved otherwise
         const nextStatus = investigationResult.recommendedActions.length > 0 ? 'awaiting_approval' : 'resolved';
         await this.incidentRepo.updateStatus(tenantId, incidentId, nextStatus);
 
@@ -1705,7 +1717,19 @@ ${buildAgentSummary(result.response, result.toolCalls)}`;
             ).catch(() => { /* non-critical */ });
         }
 
-        // 17. Update status + publish completion
+        // 17. Check cost ceiling (AC-038). If the total cost exceeds the configured
+        //    per-investigation ceiling, abort the run and mark cost_exceeded.
+        const ceiling = config.billing.maxCostUsd;
+        if (ceiling > 0 && totalCostUsd > ceiling) {
+            logger.warn(
+                { incidentId, totalCostUsd, ceiling },
+                'Orchestrator investigation cost exceeded ceiling — aborting',
+            );
+            await this.incidentRepo.updateStatus(tenantId, incidentId, 'cost_exceeded');
+            return { ...investigationResult, failedAgents: undefined };
+        }
+
+        // 18. Update status + publish completion
         const nextStatus = investigationResult.recommendedActions.length > 0 ? 'awaiting_approval' : 'resolved';
         await this.incidentRepo.updateStatus(tenantId, incidentId, nextStatus);
 

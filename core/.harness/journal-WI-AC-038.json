@@ -1,0 +1,23 @@
+{
+    "workItemId": "WI-AC-038",
+    "ac": "AC-038",
+    "context": "observability-and-ops",
+    "result": "PASS",
+    "evidence": [
+        "Cost calculation in src/shared/domain/cost.ts verified via unit tests (12 tests, green) and direct Node execution (4 cost scenarios all PASS).",
+        "Langfuse metric recorder publishes agent.cost_usd histogram via ObservedAgentRunner.run() at src/shared/infra/llm/observed-agent-runner.ts:76 (NoopMetricRecorder fallback when Langfuse not configured).",
+        "INVESTIGATION_MAX_COST_USD env var configured in config.billing.maxCostUsd (default 0 = no ceiling) at src/shared/config/index.ts:246.",
+        "cost_exceeded status defined in IncidentStatus type (src/shared/domain/types.ts), Postgres entity schema, and status transition map (valid from investigating) at src/modules/ingestion/application/update-incident-status.usecase.ts:10.",
+        "Cost ceiling check implemented in all 4 investigation modes: wave-based (lines 1152-1160), orchestrator (lines 1720-1728), hypothesis (lines 417-425), debate (lines 469-477) in src/modules/investigation/application/.",
+        "GET /v1/investigation/:id returns cost_exceeded incident status mapped to 'failed' display status via runStatusFromIncident(). Verified at real HTTP boundary on PORT=5177: POST /v1/auth/register created user+tenant, POST /v1/incidents created incident (status=triaging), database updated to status=cost_exceeded, GET /v1/investigation/:id returns status=failed with incident.status=cost_exceeded.",
+        "API started and healthy on PORT=5177 with OSS runtime (Postgres + Redis + BullMQ). Health endpoint returned {postgres:ok,redis:ok,anthropic:skipped,queues:ok}.",
+        "pnpm test:run tests/unit/shared/cost-tracking.test.ts: all 12 tests pass.",
+        "pnpm typecheck: only pre-existing errors (0 new errors related to AC-038).",
+        "Black-box HTTP boundary verified: register → login → create incident → update to cost_exceeded → API returns status=failed, incident.status=cost_exceeded."
+    ],
+    "integration": true,
+    "implementation": true,
+    "qa": true,
+    "verifiedAt": "2026-07-10T04:27:00Z",
+    "verifiedBy": "coding-agent"
+}
