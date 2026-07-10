@@ -1571,3 +1571,11 @@ No defects found. integration=true set in feature_list.json.
 - WorkItem: WI-AC-046
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T22:46:01.772Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-046
+- Defects: expected investigation agents to complete under zero SaaS credentials (stub/fallback) and persist HypothesisEntity + Hindsight runbook; observed 6 agents emit SSE agent_failed with Anthropic auth error ('Could not resolve authentication method'), run status=failed, hypotheses_api={"hypotheses":[]}, verify aborted before Hindsight recall; evidence=/tmp/wi-ac046-integration.log incidentId=2c46aadc-9de1-4a66-a82d-aae9bee370fd worker.log provider=stub still hits @anthropic-ai/sdk
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/501f164b-582d-4ec4-8627-f4b7f8971cc4/open-source-local-runtime/WI-AC-046-1-integration_qa-042b5f63edd7f302.log
+- NextAction: Repair Plan
