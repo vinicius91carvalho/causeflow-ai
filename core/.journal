@@ -582,3 +582,25 @@ All 4 acceptance criteria pass. Worker runs as docker-compose service, picks up 
 - qa=true
 - implementation=true
 - integration=true
+
+## 2026-07-10T09:50:00Z — AC-045 Repair Plan: dynamic imports for AWS SDK modules
+
+**Result: implementation=true.**
+
+### Repair Plan Executed
+
+Converted three static AWS SDK imports in `src/workers/investigation-worker.ts` to dynamic `import()`:
+1. `AWSCloudProvider` (line 15) → dynamically imported inside `config.isProd() || config.sts.roleArn` conditional
+2. `STSCredentialVendor` (line 17) → dynamically imported inside `config.isDev() || config.isTest()` false branch
+3. `AWS_API_CALL_TOOL` (line 40) → dynamically imported at the follow-up tool assembly site
+
+### Verification on running docker-compose stack (PORT=3099, CAUSEFLOW_RUNTIME=oss)
+- `docker compose ps`: causeflow-api (healthy), causeflow-worker (healthy) ✅
+- `docker compose exec causeflow-worker env | grep AWS_` → empty ✅
+- `docker compose logs causeflow-worker | grep "investigation:start"` → confirmed at 09:49:00 ✅
+- `@aws-sdk/client-ecs` loaded at boot: NONE ✅
+- `@aws-sdk/client-sts` loaded at boot: NONE ✅
+- `src/shared/infra/ecs/` directory: DOES NOT EXIST ✅
+- Worker logs show full job cycle: investigation:start → Dispatching → All sub-agents failed (stub, no ANTHROPIC_API_KEY) → BullMQ job completed ✅
+
+No defects found for AC-045 after dynamic import fix.
