@@ -161,3 +161,10 @@ index b1a4cc93c00f4a7defdd71bb5392974245b9f857..4d94f3349a92d701c063366e88d65d34
 - Observation method: real HTTP/SSE on `PORT=5175` against OSS local dependencies (Postgres `5439`, Redis `6380`, Hindsight `8888`).
 - Evidence: registered fresh tenant; created severity-bearing incident `5a317cc5-c325-4b2c-ac11-6ddcf4d195d8`; `GET /api/v1/investigation/:id` observed `status=running` while incident was `investigating` with six assigned agents; `/api/v1/investigation/:id/stream` returned `text/event-stream` and emitted `investigation_progress` per-agent events using `agentRole` for `log_analyst`, `metric_analyst`, `change_detector`, `code_analyzer`, `infra_inspector`, and `db_analyst`, then `investigation_completed`; final detail returned `status=succeeded`, incident `status=resolved`, and stored `finalSynthesis="Unable to determine root cause (LLM service unavailable)"`.
 - Defects: none.
+
+## 2026-07-10T03:01:12.784Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: repair_plan
+- Attempt: 2
+- NextAction: repair-plan
