@@ -906,3 +906,11 @@ index 4438113f180e5b168f1372a48451fcb900c81a17..851d7f68bd0431a7fb0c7bb5dd5e481d
 - WorkItem: WI-AC-019
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T09:35:06.484Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: integration could not complete
+- Defects: Checkpoint was not integrated into the integration branch
+- NextAction: User reviews evidence and explicitly resumes with guidance
