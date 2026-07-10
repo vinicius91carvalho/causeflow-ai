@@ -472,3 +472,10 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: AC-023 passes at HTTP boundary (zero-diff)
 - Evidence: localhost:3099 (container PORT=5171); GET /api/v1/remediation/:id/proposal → 200 with ecs.updateService + ssm.runCommand; POST approve → 200 status=approved; second POST approve → 409 CONFLICT
 - NextAction: integration merge
+
+## 2026-07-10T17:12:16.870Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
