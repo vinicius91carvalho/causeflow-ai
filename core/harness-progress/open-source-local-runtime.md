@@ -1042,3 +1042,10 @@ AC-051 requires port boundaries to be preserved for the open-source local runtim
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-048-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-10T09:19:52.438Z — Resumed
+
+- WorkItem: WI-AC-045
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
