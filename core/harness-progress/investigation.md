@@ -4832,3 +4832,11 @@ Scaffold audit: all required AC-019 structures present. Exercised AC-019 at real
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-10T16:51:30Z — QA verdict for WI-AC-019
+
+- WorkItem: WI-AC-019
+- Result: qa=true, implementation=true
+- Scaffold audit: project_specs.xml present; required structures present; no missing artifact
+- Boundary: PORT=5175 HTTP/SSE pass; incident `5a5419ff-3796-4d42-839c-15c3df9a3c17`; `status=running` then `status=succeeded`; SSE per-agent events (`agent_failed`) for all 6 agents; `finalSynthesis` stored
+- Defects: none
