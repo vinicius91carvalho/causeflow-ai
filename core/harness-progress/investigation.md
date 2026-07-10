@@ -5071,7 +5071,7 @@ No defects found for AC-019.
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
 
-## 2026-07-10T17:35:37Z — Integrated verification verdict for WI-AC-019
+## 2026-07-10T17:35:37Z ï¿½ Integrated verification verdict for WI-AC-019
 
 **Result: integration=true, implementation=true.**
 
@@ -5079,10 +5079,24 @@ Scaffold audit pass. Real HTTP/SSE on `PORT=5175` (plan/opensource-docker): inci
 
 No defects found for AC-019.
 
-## 2026-07-10T17:36:00Z — Integrated verification verdict for WI-AC-019
+## 2026-07-10T17:36:00Z ï¿½ Integrated verification verdict for WI-AC-019
 
 **Result: integration=true, implementation=true.**
 
 Scaffold audit pass. Real HTTP/SSE on `PORT=5175` (plan/opensource-docker): incident `3924ab62-2068-4d0e-9191-0ef4670b6a19` -> `status=running`, SSE per-agent events for all 6 agents, final `status=succeeded` with `finalSynthesis` stored. `.harness/ac019-integrated-verify.sh` exit 0.
 
 No defects found for AC-019.
+## 2026-07-10T17:38:23.957Z â€” Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T17:38:24.014Z â€” Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
