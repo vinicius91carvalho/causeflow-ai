@@ -196,3 +196,26 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: integration=true
 - Evidence: HTTP boundary on port 3099 (OSS runtime, container PORT=5171). GET proposal returns AWS action plan; POST approve returns 200 + approved; second POST returns 409.
 - NextAction: WI-AC-024
+
+## 2026-07-10T15:57:48.309Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: integration_qa
+- Attempt: 2
+- NextAction: integration-qa
+
+## 2026-07-10T15:57:48.328Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T15:59:00.000Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-023
+- Outcome: integration=true
+- Evidence: HTTP boundary on port 3099 (OSS runtime, container PORT=5171). GET /api/v1/remediation/:id/proposal returns steps[] with AWS actions; POST approve returns 200 status=approved; second POST returns 409 CONFLICT.
+- NextAction: WI-AC-024
+
