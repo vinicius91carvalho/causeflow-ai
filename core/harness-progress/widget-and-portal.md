@@ -8081,3 +8081,10 @@ index 54666309eaaed3868da8b50f871b7f75b842cb72..ba501b6019df4c302408c9feb62569e5
 - AcceptanceChecks: AC-035
 - Outcome: implementation=true (zero-diff)
 - Evidence: HTTP + browser on PORT=5170. `/dashboard` shows tenant `QA Tenant AC035`, incident `AC035 checkout latency spike`, `New investigation`; incident detail has Evidence, Hypotheses, Chat Panel, Remediation Pending Approval; `GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses` 200; SSE `/v1/notifications/stream` 200 text/event-stream.
+
+## 2026-07-10T17:02:04.549Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
