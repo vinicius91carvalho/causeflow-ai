@@ -342,3 +342,11 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - WorkItem: WI-AC-023
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T16:28:56Z — Integrated Verification PASS
+
+- WorkItem: WI-AC-023
+- AC: AC-023
+- integration: true
+- Evidence: HTTP boundary on port 3099 (container PORT=5171). GET /api/v1/remediation/:id/proposal → 200 with AWS action steps; POST approve → 200 status=approved; second POST → 409 CONFLICT.
+- Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783700936-integration_qa.log
