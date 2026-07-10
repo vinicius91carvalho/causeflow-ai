@@ -541,3 +541,78 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Evidence: remediationId=3ac6d8eb-27b0-4541-9ae5-bf0f038d3c78; proposal 200 with ecs.updateService/ecs.forceNewDeployment; approve 200; duplicate approve 409
 - Evidence log: WI-AC-023-1783703113-integration_qa.log
 - integration=true
+
+## 2026-07-10T17:06:18.802Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T17:06:18.841Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T17:09:11.902Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: integration could not complete
+- Defects: Checkpoint was not integrated into the integration branch
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-10T17:09:22.250Z — Explicit Resume
+
+- WorkItem: WI-AC-023
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+- NextAction: Coding Attempt 1
+
+## 2026-07-10T17:11:28Z — Verify-first pass (coding-agent, attempt 1)
+
+- WorkItem: WI-AC-023
+- Outcome: AC-023 passes at HTTP boundary (zero-diff)
+- Evidence: localhost:3099 (container PORT=5171); GET /api/v1/remediation/:id/proposal → 200 with ecs.updateService + ssm.runCommand; POST approve → 200 status=approved; second POST approve → 409 CONFLICT
+- NextAction: integration merge
+
+## 2026-07-10T17:12:16.870Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T17:14:35Z — QA independent verification (WI-AC-023)
+
+- WorkItem: WI-AC-023
+- Outcome: AC-023 passes at HTTP boundary
+- Evidence: localhost:3099 (container PORT=5171); GET /api/v1/remediation/:id/proposal → 200 (ecs.updateService, ssm.runCommand); POST approve → 200 status=approved; second POST approve → 409 CONFLICT; ApprovalEntity via approvalRepo.create in approve-remediation.usecase.ts
+- qa: true
+- implementation: true
+- NextAction: integration merge
+
+## 2026-07-10T17:15:00.165Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T17:15:00.186Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T17:16:57Z — Merge conflict resolved + Integrated Verification PASS
+
+- WorkItem: WI-AC-023
+- AC: AC-023
+- Outcome: merge gen/core-remediation into plan/opensource-docker (append-only journal); AC-023 black-box HTTP checks pass on port 3099 (container PORT=5171)
+- Evidence: remediationId=7bfe9d97-43b9-4fd8-9cb7-614eb4bd1724; GET proposal → 200 with ecs.updateService/ecs.forceNewDeployment; POST approve → 200 status=approved; duplicate approve → 409 CONFLICT
+- integration=true
+

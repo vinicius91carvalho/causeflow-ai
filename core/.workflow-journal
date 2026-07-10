@@ -346,9 +346,9 @@ qa=false, implementation=false — core auth flow and bundle serving work, but A
 
 ## WI-AC-023: Remediation proposal, approval, and duplicate-prevention
 
-### Status: IMPLEMENTED & VERIFIED (QA PASS)
+### Status: QA VERIFIED (2026-07-10T17:14:35Z independent QA pass, zero-diff)
 
-### HTTP boundary verification (PORT=5171, OSS runtime)
+### HTTP boundary verification (PORT=5171 container → localhost:3099, OSS runtime)
 
 1. **GET /api/v1/remediation/:id/proposal** — Returns the remediation plan with AWS actions (steps, action types, params). Status 200 with plan body. ✅
 2. **POST /api/v1/remediation/:id/approve** — With admin JWT, returns 200 and creates an ApprovalEntity. Remediation status transitions to 'approved', approvedBy set. ✅
