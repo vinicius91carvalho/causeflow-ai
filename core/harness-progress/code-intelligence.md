@@ -227,3 +227,10 @@ Verified AC-028 at the real HTTP boundary on PORT=5184 using the running `pnpm d
   - ✅ AC-029.P2: POST /v1/remediation with `"path":"acme/payment-service/src/payments.ts"` in proposed fix files → 201, step description contains `"src/payments.ts:42"`
   - ✅ AC-029.P3: POST /v1/remediation/:id/approve → status=approved, auto-execution triggers, step action=`create_fix_pr` completes as `skipped` ("No proposed fix available or GitHub not configured") — expected in OSS runtime
 - implementation: true
+
+## 2026-07-10T01:08:42.899Z — Resumed
+
+- WorkItem: WI-AC-029
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
