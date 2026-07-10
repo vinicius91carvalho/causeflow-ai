@@ -11,6 +11,8 @@ import type { WebPushAdapter } from './web-push.adapter.js';
 import { widgetAuthMiddleware } from '../../../shared/infra/http/middleware/widget-auth.middleware.js';
 import { widgetCorsMiddleware } from '../../../shared/infra/http/middleware/widget-cors.middleware.js';
 import type { WidgetSessionId } from '../../../shared/domain/value-objects.js';
+import type { IIncidentRepository } from '../../ingestion/domain/incident.repository.js';
+import { sanitizeIncidentForTenant } from '../../ingestion/domain/incident.entity.js';
 
 export interface WidgetRouteDeps {
     widgetChat: WidgetChatUseCase;
@@ -19,6 +21,7 @@ export interface WidgetRouteDeps {
     apiKeyRepo: IApiKeyRepository;
     tenantRepo: ITenantRepository;
     pushAdapter?: WebPushAdapter;
+    incidentRepo: IIncidentRepository;
 }
 
 export function createWidgetRoutes(deps: WidgetRouteDeps) {
@@ -115,6 +118,28 @@ export function createWidgetRoutes(deps: WidgetRouteDeps) {
         });
 
         return c.json({ ok: true });
+    });
+
+    // GET /v1/widget/incidents — latest incidents for this tenant (read-only panel)
+    app.get('/incidents', async (c) => {
+        const tenantId = c.get('tenantId');
+        const result = await deps.incidentRepo.listByCreatedAt(tenantId, {
+            limit: 10,
+            order: 'desc',
+        });
+        const items = result.items.map((inc) => {
+            const safe = sanitizeIncidentForTenant(inc);
+            return {
+                incidentId: safe.incidentId,
+                title: safe.title,
+                severity: safe.severity,
+                status: safe.status,
+                summary: (safe as any).customerExplanation?.summary ?? safe.description?.slice(0, 120),
+                createdAt: safe.createdAt,
+                updatedAt: safe.updatedAt,
+            };
+        });
+        return c.json({ items, cursor: result.cursor });
     });
 
     // GET /v1/widget/config — widget branding config for this tenant

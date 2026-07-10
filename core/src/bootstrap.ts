@@ -1211,6 +1211,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       apiKeyRepo,
       tenantRepo,
       pushAdapter,
+      incidentRepo,
     };
 
     // Register widget event subscribers (forward investigation progress to SSE)

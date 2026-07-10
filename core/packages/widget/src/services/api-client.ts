@@ -1,4 +1,4 @@
-import type { SessionResponse, ChatResponse, BrandingConfig } from '../types.js';
+import type { SessionResponse, ChatResponse, BrandingConfig, IncidentsResponse } from '../types.js';
 
 export class WidgetApiClient {
   private baseUrl: string;
@@ -64,6 +64,14 @@ export class WidgetApiClient {
         keys: json.keys,
       }),
     });
+  }
+
+  async getIncidents(): Promise<IncidentsResponse> {
+    const res = await fetch(`${this.baseUrl}/v1/widget/incidents`, {
+      headers: this.headers(),
+    });
+    if (!res.ok) throw new Error(`Failed to fetch incidents: ${res.status}`);
+    return res.json();
   }
 
   async closeSession(sessionId: string): Promise<void> {
