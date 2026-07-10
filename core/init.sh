@@ -11,6 +11,11 @@ set -euo pipefail
 
 export CAUSEFLOW_RUNTIME="${CAUSEFLOW_RUNTIME:-oss}"
 
+# Node's compile cache (NODE_COMPILE_CACHE / cursor-compile-cache) can serve
+# stale bytecode across harness retries - e.g. an old triage fallback that
+# assigned severity=low and skipped investigation (AC-046 false fail).
+unset NODE_COMPILE_CACHE
+
 PORT="${PORT:-3099}"
 HEALTH_URL="http://127.0.0.1:${PORT}/health"
 LOG_FILE="dev.log"
