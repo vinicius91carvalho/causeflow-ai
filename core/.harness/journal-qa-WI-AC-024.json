@@ -5,9 +5,9 @@
   "result": "PASS",
   "implementation": true,
   "qa": true,
-  "verifiedAt": "2026-07-10T19:55:00Z",
+  "verifiedAt": "2026-07-10T20:00:00Z",
   "verifiedBy": "qa-agent",
-  "tested": "2026-07-10T19:55:00Z",
+  "tested": "2026-07-10T20:00:00Z",
   "verification": {
     "stubCloudProviderExecuteWithBeforeAfterDiff": "pass",
     "rollbackCreatesInversePlan": "pass",
@@ -16,8 +16,8 @@
   "evidence": [
     "Scaffold verified: init.sh, feature_list.json, project_specs.xml, bootstrap.ts, .harness/ac024-verify.sh present.",
     "API healthy at http://127.0.0.1:5170 (node dist/main.js, OSS runtime, Postgres :5439, Redis :6380).",
-    "POST approve auto-executes plan; remediation 403627a1-00ac-4542-9473-79facb5fc295 status=completed with scale_horizontal desiredCount 3→5 and restart_service succeeded steps.",
-    "POST /api/v1/remediation/403627a1-00ac-4542-9473-79facb5fc295/rollback → 201 rollback ee6b0181-8a50-4c07-8d3b-d97e291ebc48 with inverse actions and rollbackOf.",
+    "POST approve auto-executes plan; remediation c81546a1-6814-42dd-bd19-df98031f24f5 status=completed with scale_horizontal desiredCount 3→5 and restart_service succeeded steps.",
+    "POST /api/v1/remediation/c81546a1-6814-42dd-bd19-df98031f24f5/rollback → 201 rollback 983e2634-7df1-4a6c-af05-9fa05c6b5ec7 with inverse actions and rollbackOf.",
     "Approve+execute rollback reverts desiredCount 5→3; audit tail includes remediation.proposed and remediation.executed for rollback id."
   ],
   "defects": []

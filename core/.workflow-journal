@@ -1,5 +1,18 @@
 # Workflow Journal
 
+## 2026-07-10T20:00:00Z — Independent QA pass (WI-AC-024, this worktree)
+
+**Result: qa=true, implementation=true. Zero defects.**
+
+Exercised AC-024 via real HTTP on PORT=5170 (OSS runtime, Postgres :5439, Redis :6380).
+
+### AC-024 boundary checks (3/3 passed)
+1. ✅ Approve auto-executes via StubCloudProvider; steps `status=succeeded` with `beforeState`/`afterState` diff (`desiredCount` 3→5)
+2. ✅ `POST /api/v1/remediation/:id/rollback` → follow-up plan with inverse actions and `rollbackOf`
+3. ✅ Approve+execute rollback reverts state (`desiredCount` 5→3); audit chain records `remediation.proposed` + `remediation.executed`
+
+`.harness/ac024-verify.sh` PASS; remediationId `c81546a1-6814-42dd-bd19-df98031f24f5`.
+
 ## 2026-07-10T19:55:00Z — Independent QA pass (WI-AC-024, this worktree)
 
 **Result: qa=true, implementation=true. Zero defects.**
