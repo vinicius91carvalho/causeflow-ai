@@ -878,3 +878,10 @@ index 4438113f180e5b168f1372a48451fcb900c81a17..851d7f68bd0431a7fb0c7bb5dd5e481d
 - Boundary: HTTP/SSE on PORT=5175; incident `cfc80d3b-4789-48ac-8293-936a6ea0552c`
 - Observed: poll 0 `status=running`; SSE 11 per-agent progress events for all 6 agents + `investigation_completed`; final `status=succeeded` with stored `finalSynthesis`
 - Defects: none
+
+## 2026-07-10T09:24:03.523Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
