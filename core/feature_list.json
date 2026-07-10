@@ -521,11 +521,11 @@
     "depends_on": ["AC-023"],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 0,
     "attempts": 1,
-    "status": "implemented"
+    "status": "done"
   },
   {
     "id": "WI-AC-025",
