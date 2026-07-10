@@ -1124,11 +1124,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   });
 
   eventBus.subscribe('investigation.completed', async (event) => {
-    const incidentIdForSse = (event.payload['incidentId'] as string) ?? '';
     const sseEvent = { event: 'investigation_completed', data: event.payload };
-    if (incidentIdForSse) {
-      sseManager.recordIncidentEvent(event.tenantId, incidentIdForSse, sseEvent);
-    }
     await sseManager.broadcast(event.tenantId, sseEvent);
   });
 
@@ -1178,11 +1174,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // === EventBus Wiring: Investigation Progress SSE ===
   eventBus.subscribe('investigation.progress', async (event) => {
-    const incidentIdForSse = (event.payload['incidentId'] as string) ?? '';
     const sseEvent = { event: 'investigation_progress', data: event.payload };
-    if (incidentIdForSse) {
-      sseManager.recordIncidentEvent(event.tenantId, incidentIdForSse, sseEvent);
-    }
     await sseManager.broadcast(event.tenantId, sseEvent);
   });
 
@@ -1474,6 +1466,26 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   }
 
   if (config.isOss()) {
+    // AC-041 / AC-046: Bridge investigation-worker progress (Redis) → SSE clients.
+    // The worker publishes to INVESTIGATION_PROGRESS_CHANNEL; the API process
+    // has no shared EventBus with the worker, so Redis is the cross-process bus.
+    {
+      const { subscribeProgress, INVESTIGATION_PROGRESS_CHANNEL } = await import('./shared/infra/pubsub/redis-pubsub.js');
+      const eventNameMap: Record<string, string> = {
+        'investigation.progress': 'investigation_progress',
+        'investigation.completed': 'investigation_completed',
+        'investigation.known_solution_found': 'investigation_known_solution_found',
+        'investigation.inconclusive': 'investigation_inconclusive',
+        'investigation.failed': 'investigation_failed',
+      };
+      const unsubscribe = await subscribeProgress(INVESTIGATION_PROGRESS_CHANNEL, (event) => {
+        const sseEventName = eventNameMap[event.eventType] ?? event.eventType;
+        const sseEvent = { event: sseEventName, data: event.payload };
+        void sseManager.broadcast(event.tenantId, sseEvent);
+      });
+      consumers.push({ stop: unsubscribe });
+    }
+
     // AC-041: BullMQ workers replace SQS consumers in the OSS runtime.
     // Workers process jobs from named BullMQ queues on the shared Redis instance.
     // The triage worker calls the same triageIncident use case that the SQS
@@ -1483,7 +1495,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
     // Triage worker — picks up triage jobs from causeflow-triage
     // Workers are started unconditionally in OSS mode (no API key required).
-    // If the LLM is unavailable, the fallback assigns low severity.
+    // If the LLM is unavailable, the fallback assigns high severity + default agents
+    // so the investigation pipeline still runs (AC-046).
     {
       const triageWorker = createBullWorker({
         queueName: config.bullmq.triageQueueName,
@@ -1499,7 +1512,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
             const iid = incidentId(body['incidentId'] as string);
             try {
               await incidentRepo.update(tid, iid, {
-                severity: 'low',
+                severity: 'high',
                 status: 'triaging',
                 updatedAt: new Date().toISOString(),
               });

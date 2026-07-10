@@ -1166,3 +1166,394 @@ No defects found. integration=true set in feature_list.json.
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-045-3-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-10T19:26:18.144Z — Resumed
+
+- WorkItem: WI-AC-052
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:26:23.229Z — Resumed
+
+- WorkItem: WI-AC-052
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:26:28.407Z — Resumed
+
+- WorkItem: WI-AC-052
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:26:31.117Z — Resumed
+
+- WorkItem: WI-AC-052
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:26:36.265Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:41:26.310Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:41:37.919Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:41:42.990Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:41:48.097Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:41:53.211Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T19:41:58.924Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:08:10.251Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:08:17.460Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:08:24.922Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:08:32.245Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:08:39.681Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:08:47.055Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:08:54.270Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:09:01.681Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:09:08.979Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:09:16.382Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:09:23.822Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:09:29.389Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:09:34.441Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:09:39.510Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:09:44.594Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:18:53.110Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:22:47.217Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:22:52.334Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:22:57.189Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:23:02.407Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:23:07.477Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:23:24.098Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:23:29.331Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:23:34.220Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:23:39.476Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:23:44.533Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:24:08.054Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:38:25.780Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:46:29.437Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T20:53:14.018Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T21:04:55.089Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T21:12:08.260Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T21:20:44.596Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T21:32:27.542Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T21:44:28.223Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T21:48:57.003Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10 — WI-AC-046 SSE replay fix (attempt 1)
+
+- Outcome: Centralized incident replay buffering in `SSEManager.broadcast`; moved AC-046 SSE subscribe to immediately after webhook1.
+- Evidence: `.harness/ac046-verify.sh` PASS (6 agent roles, replay verified on late connect), `tests/unit/shared/chat/sse-manager.test.ts`
+- Next: none
+
+## 2026-07-10T21:59:56.625Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:03:37.404Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:15:03.937Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:21:41.738Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:25:27.578Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:33:31.150Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T22:39:49.647Z — Resumed
+
+- WorkItem: WI-AC-046
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T22:42:09.609Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-046
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

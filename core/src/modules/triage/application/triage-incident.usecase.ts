@@ -146,14 +146,22 @@ export class TriageIncidentUseCase {
                 result = completion.content;
             }
             catch (err) {
-                // If LLM is unavailable (e.g., no API key configured), fall back to
-                // a default low-severity triage so the pipeline can continue without
-                // blocking on an external SaaS (AC-041 / AC-039).
+                // If LLM is unavailable (e.g., no API key configured), fall back so the
+                // local-only pipeline still reaches investigation (AC-046 / AC-041).
+                // Use high severity + the six foundational agents so the investigation
+                // worker runs and emits per-agent progress without SaaS credentials.
                 logger.warn({ incidentId, err: err instanceof Error ? err.message : String(err) }, 'LLM triage failed — using fallback default');
                 result = {
-                    priority: 'low',
-                    summary: 'Triage completed via fallback (LLM unavailable). Assigned default low severity.',
-                    suggestedAgents: [],
+                    priority: 'high',
+                    summary: 'Triage completed via fallback (LLM unavailable). Assigned default high severity for local investigation.',
+                    suggestedAgents: [
+                        'log_analyst',
+                        'metric_analyst',
+                        'change_detector',
+                        'code_analyzer',
+                        'infra_inspector',
+                        'db_analyst',
+                    ],
                     confidence: 0,
                     category: 'unknown',
                     investigationMode: 'orchestrator',

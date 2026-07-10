@@ -49,6 +49,10 @@ export class SSEManager {
         logger.info({ tenantId, clientId }, 'SSE client disconnected');
     }
     async broadcast(tenantId: string, event: SSEEvent): Promise<void> {
+        const incidentId = event.data['incidentId'];
+        if (typeof incidentId === 'string' && incidentId) {
+            this.recordIncidentEvent(tenantId, incidentId, event);
+        }
         const tenantClients = this.clients.get(tenantId);
         if (!tenantClients || tenantClients.size === 0)
             return;

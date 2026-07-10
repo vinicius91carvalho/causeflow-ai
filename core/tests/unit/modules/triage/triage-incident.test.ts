@@ -162,7 +162,7 @@ describe('TriageIncidentUseCase', () => {
     ).rejects.toThrow(ConflictError);
   });
 
-  it('should fall back to default low-severity when LLM returns invalid response', async () => {
+  it('should fall back to default high-severity when LLM returns invalid response', async () => {
     vi.mocked(incidentRepo.findById).mockResolvedValueOnce(createMockIncident());
     vi.mocked(llmClient.complete).mockRejectedValueOnce(new Error('Invalid JSON response'));
 
@@ -171,18 +171,34 @@ describe('TriageIncidentUseCase', () => {
       incidentId('inc-123'),
     );
 
-    // Fallback result should have low priority
-    expect(result.priority).toBe('low');
+    // Fallback result should enqueue investigation (high priority + default agents)
+    expect(result.priority).toBe('high');
     expect(result.confidence).toBe(0);
     expect(result.category).toBe('unknown');
     expect(result.investigationMode).toBe('orchestrator');
+    expect(result.suggestedAgents).toEqual([
+      'log_analyst',
+      'metric_analyst',
+      'change_detector',
+      'code_analyzer',
+      'infra_inspector',
+      'db_analyst',
+    ]);
 
     // Incident updated with fallback severity
     expect(incidentRepo.update).toHaveBeenCalledWith(
       tenantId('tenant-1'),
       incidentId('inc-123'),
       expect.objectContaining({
-        severity: 'low',
+        severity: 'high',
+      }),
+    );
+
+    expect(messageQueue.send).toHaveBeenCalledWith(
+      'http://localhost:4566/000000000000/causeflow-investigation',
+      expect.objectContaining({
+        incidentId: 'inc-123',
+        severity: 'high',
       }),
     );
   });
