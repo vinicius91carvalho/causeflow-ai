@@ -1826,3 +1826,53 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - Outcome: integration=true, implementation=true, qa=true
 - Evidence: real browser boundary on PORT=5170 (Playwright) against OSS runtime on plan/opensource-docker. `/dashboard` 200; sidebar shows `QA Tenant AC035`, `AC035 checkout latency spike`, `New investigation`; SSE `/v1/notifications/stream` 200; incident detail shows Evidence, Hypotheses, Chat, Remediation; `GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses` returns 200.
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/widget-and-portal/WI-AC-035-integrated-qa.log
+## 2026-07-10T09:58:06.247Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T09:58:06.278Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T10:00:38.556Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: integration could not complete
+- Defects: Checkpoint was not integrated into the integration branch
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-10T10:00:43.999Z — Explicit Resume
+
+- WorkItem: WI-AC-035
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+- NextAction: Coding Attempt 1
+
+## 2026-07-10T10:06:00.000Z � Implementation verified
+
+- WorkItem: WI-AC-035
+- AcceptanceChecks: AC-035
+- Outcome: implementation=true
+- Evidence: Playwright black-box on PORT=5170 � `/dashboard` shows tenant `QA Tenant AC035`, incident `AC035 checkout latency spike`, `New investigation`; detail view has evidence, hypotheses, chat, remediation panels; `GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses` 200; SSE `/v1/notifications/stream` 200.
+- Notes: OSS runtime uses PgHypothesisRepository (fixes prior DynamoDB 500 on hypotheses endpoint).
+
+## 2026-07-10T10:06:29.451Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T10:06:29.482Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
