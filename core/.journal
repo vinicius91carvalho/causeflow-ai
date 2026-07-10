@@ -178,3 +178,18 @@ Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres + Redis healthy):
 - Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
 
 No defects found for AC-019.
+
+## 2026-07-10T09:37:00Z — VERIFY-FIRST AC-019 boundary pass
+
+**Result: implementation=true. Zero-diff checkpoint — no source changes.**
+
+Scaffold audit: `project_specs.xml` and required structures verified on PORT=5175.
+
+Real HTTP/SSE boundary (OSS runtime, Postgres + Redis healthy):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `8d9cf39e-616d-40bb-b747-3a7210d1b377`.
+- Fast poll `GET /api/v1/investigation/:id` -> `running` then `succeeded`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 11 `investigation_progress` events for all 6 agents, then `investigation_completed`.
+- Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+No defects found for AC-019.
