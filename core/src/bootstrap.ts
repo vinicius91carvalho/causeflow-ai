@@ -38,6 +38,8 @@ import { SentryParser } from './modules/ingestion/infra/parsers/sentry.parser.js
 import { AnthropicClient } from './shared/infra/llm/anthropic-client.js';
 import { AnthropicAgentRunner } from './shared/infra/llm/anthropic-agent-runner.js';
 import { AnthropicPTCAgentRunner } from './shared/infra/llm/anthropic-ptc-agent-runner.js';
+import { StubLlmClient } from './shared/infra/llm/stub-llm-client.js';
+import { StubAgentRunner } from './shared/infra/llm/stub-agent-runner.js';
 import { AesGcmTokenEncryption } from './shared/infra/credentials/aes-gcm-token-encryption.js';
 import { StubCloudProvider } from './shared/infra/cloud/stub-cloud-provider.js';
 import { AWSCloudProvider } from './shared/infra/cloud/aws-cloud-provider.js';
@@ -334,10 +336,18 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // Observability Stack
   const { tracer, metrics } = await createObservabilityStack();
 
-  // LLM Client + Agent Runner (wrapped with observability decorators)
-  const rawLlmClient = overrides?.llmClient ?? new AnthropicClient();
+  // LLM Client + Agent Runner (wrapped with observability decorators).
+  // AC-046: OSS zero-SaaS path uses deterministic stubs that never touch @anthropic-ai/sdk.
+  const useOssLlmStub = config.isOss() && !config.anthropic.apiKey;
+  if (useOssLlmStub) {
+    logger.info('Bootstrap: using StubLlmClient + StubAgentRunner (OSS, no ANTHROPIC_API_KEY)');
+  }
+  const rawLlmClient = overrides?.llmClient
+    ?? (useOssLlmStub ? new StubLlmClient() : new AnthropicClient());
   const rawAgentRunner = overrides?.agentRunner
-    ?? (config.ptc.enabled ? new AnthropicPTCAgentRunner() : new AnthropicAgentRunner());
+    ?? (useOssLlmStub
+      ? new StubAgentRunner()
+      : (config.ptc.enabled ? new AnthropicPTCAgentRunner() : new AnthropicAgentRunner()));
   const llmClient = new ObservedAnthropicClient(rawLlmClient, tracer, metrics);
   const agentRunner = new ObservedAgentRunner(rawAgentRunner, tracer, metrics);
 
