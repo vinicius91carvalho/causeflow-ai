@@ -1,0 +1,20 @@
+{
+  "workItemId": "WI-AC-020",
+  "ac": "AC-020",
+  "context": "investigation",
+  "result": "PASS",
+  "evidence": [
+    "Scaffold audit: project_specs.xml present; init.sh, bootstrap.ts, docker-compose OSS stack verified.",
+    "Real HTTP on PORT=3099 (host → container 5171), Postgres :5439, Redis :6380, worker healthy.",
+    "Incident d3cd72a0-099d-4a91-8c0d-5a3b3c34b712: poll 1 status=running, poll 2 status=succeeded.",
+    "Evidence per active agent (6 agents + coordinator): evidenceByAgent keys match assignedAgents.",
+    "GET /api/v1/investigation/:id/evidence → 200, grouped by agent, metadata.confidence present.",
+    "GET /api/v1/investigation/:id/hypotheses → 7 hypotheses (1 root, 6 children with parentId).",
+    ".harness/ac020-verify.sh exit 0."
+  ],
+  "integration": true,
+  "implementation": true,
+  "qa": true,
+  "verifiedAt": "2026-07-10T19:25:00Z",
+  "verifiedBy": "qa-agent"
+}

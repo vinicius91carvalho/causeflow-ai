@@ -434,10 +434,10 @@
     "verify_first": true,
     "implementation": true,
     "qa": true,
-    "integration": false,
+    "integration": true,
     "retries": 0,
-    "attempts": 0,
-    "status": "qa-pass"
+    "attempts": 1,
+    "status": "integrated"
   },
   {
     "id": "WI-AC-021",

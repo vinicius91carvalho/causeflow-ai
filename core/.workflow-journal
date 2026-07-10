@@ -1,5 +1,19 @@
 # Workflow Journal
 
+## 2026-07-10T19:25:00Z — Integrated Verification pass (WI-AC-020, this worktree)
+
+**Result: integration=true, implementation=true, qa=true. Zero defects.**
+
+Exercised AC-020 via real HTTP on PORT=3099 (host → container 5171), OSS docker-compose stack
+(Postgres :5439, Redis :6380, worker healthy).
+
+### AC-020 boundary checks (3/3 passed)
+1. ✅ Finished investigation `d3cd72a0-099d-4a91-8c0d-5a3b3c34b712` has EvidenceEntity per active agent (6 agents + coordinator)
+2. ✅ `GET /api/v1/investigation/:id/evidence` → 200, grouped by agent, confidence scores present
+3. ✅ `GET /api/v1/investigation/:id/hypotheses` → 7 hypotheses (1 root, 6 children with parentId links)
+
+`.harness/ac020-verify.sh` PASS (poll 2 status=succeeded)
+
 ## 2026-07-10T19:22:00Z — Independent QA pass (WI-AC-020, this worktree)
 
 **Result: qa=true, implementation=true. Zero defects.**
