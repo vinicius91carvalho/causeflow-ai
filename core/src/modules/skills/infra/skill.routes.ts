@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { tenantId as toTenantId } from '../../../shared/domain/value-objects.js';
 import { skillId } from '../domain/skill.entity.js';
+import type { AppEnv } from '../../../shared/infra/http/hono-types.js';
 import type { CreateSkillUseCase, ListSkillsUseCase, GetSkillUseCase, UpdateSkillUseCase, DeleteSkillUseCase } from '../application/crud-skills.usecase.js';
 
 const createSkillSchema = z.object({
@@ -26,45 +27,45 @@ export function createSkillRoutes(deps: {
     getSkill: GetSkillUseCase;
     updateSkill: UpdateSkillUseCase;
     deleteSkill: DeleteSkillUseCase;
-}): Hono {
-    const app = new Hono();
+}): Hono<AppEnv> {
+    const app = new Hono<AppEnv>();
 
-    // POST /api/v1/tenants/:tenantId/skills
-    app.post('/api/v1/tenants/:tenantId/skills', async (c) => {
-        const tid = toTenantId(c.req.param('tenantId'));
+    // POST /api/v1/skills
+    app.post('/api/v1/skills', async (c) => {
+        const tid = toTenantId(c.get('tenantId'));
         const body = createSkillSchema.parse(await c.req.json());
         const skill = await deps.createSkill.execute({ tenantId: tid, ...body });
         return c.json(skill, 201);
     });
 
-    // GET /api/v1/tenants/:tenantId/skills
-    app.get('/api/v1/tenants/:tenantId/skills', async (c) => {
-        const tid = toTenantId(c.req.param('tenantId'));
+    // GET /api/v1/skills
+    app.get('/api/v1/skills', async (c) => {
+        const tid = toTenantId(c.get('tenantId'));
         const skills = await deps.listSkills.execute(tid);
         return c.json(skills);
     });
 
-    // GET /api/v1/tenants/:tenantId/skills/:id
-    app.get('/api/v1/tenants/:tenantId/skills/:id', async (c) => {
-        const tid = toTenantId(c.req.param('tenantId'));
+    // GET /api/v1/skills/:id
+    app.get('/api/v1/skills/:id', async (c) => {
+        const tid = toTenantId(c.get('tenantId'));
         const id = skillId(c.req.param('id'));
         const skill = await deps.getSkill.execute(tid, id);
         if (!skill) return c.json({ error: 'Skill not found' }, 404);
         return c.json(skill);
     });
 
-    // PUT /api/v1/tenants/:tenantId/skills/:id
-    app.put('/api/v1/tenants/:tenantId/skills/:id', async (c) => {
-        const tid = toTenantId(c.req.param('tenantId'));
+    // PATCH /api/v1/skills/:id
+    app.patch('/api/v1/skills/:id', async (c) => {
+        const tid = toTenantId(c.get('tenantId'));
         const id = skillId(c.req.param('id'));
         const body = updateSkillSchema.parse(await c.req.json());
         const skill = await deps.updateSkill.execute(tid, id, body);
         return c.json(skill);
     });
 
-    // DELETE /api/v1/tenants/:tenantId/skills/:id
-    app.delete('/api/v1/tenants/:tenantId/skills/:id', async (c) => {
-        const tid = toTenantId(c.req.param('tenantId'));
+    // DELETE /api/v1/skills/:id
+    app.delete('/api/v1/skills/:id', async (c) => {
+        const tid = toTenantId(c.get('tenantId'));
         const id = skillId(c.req.param('id'));
         await deps.deleteSkill.execute(tid, id);
         return c.json({ ok: true });
