@@ -2,20 +2,20 @@
   "id": "WI-AC-045",
   "context": "open-source-local-runtime",
   "qa": false,
-  "implementation": false,
-  "timestamp": "2026-07-10T09:25:00Z",
+  "implementation": true,
+  "timestamp": "2026-07-10T09:35:00Z",
   "checks": [
     {
       "id": "worker-service",
       "description": "causeflow-worker docker-compose service exists (same image, different entrypoint)",
       "status": "pass",
-      "evidence": "docker-compose.yml defines causeflow-worker service with Dockerfile.worker; Dockerfile.worker is identical build to Dockerfile except widget-build stage, CMD is 'node dist/workers/investigation-worker.js' vs API's 'node dist/main.js'"
+      "evidence": "docker-compose.yml defines causeflow-worker service with Dockerfile.worker; CMD is 'node dist/workers/investigation-worker.js' vs API's 'node dist/main.js'"
     },
     {
       "id": "both-healthy",
       "description": "docker compose ps shows both causeflow-api and causeflow-worker healthy",
       "status": "pass",
-      "evidence": "docker compose ps shows causeflow-api 'Up 6 minutes (healthy)' and causeflow-worker 'Up 6 minutes (healthy)'"
+      "evidence": "docker compose ps shows causeflow-api 'Up (healthy)' and causeflow-worker 'Up (healthy)'"
     },
     {
       "id": "worker-picks-up-investigation",
@@ -27,22 +27,44 @@
       "id": "worker-logs-investigation-start",
       "description": "Worker logs contain investigation:start log line",
       "status": "pass",
-      "evidence": "3 occurrences of 'investigation:start' in docker compose logs causeflow-worker; e.g. '[09:21:49.694] INFO (1): investigation:start'"
+      "evidence": "3 occurrences of 'investigation:start' in docker compose logs causeflow-worker"
     },
     {
       "id": "no-ecs-credentials-loaded",
       "description": "No ECS task definition, no EcsClient, no AWS credentials loaded in OSS mode",
       "status": "pass",
-      "evidence": "Worker logs show 'hasAws: false' for all credential vending; getECSClient() never called; no ECSClient instantiation in OSS runtime; CAUSEFLOW_RUNTIME=oss prevents ECS dispatch"
+      "evidence": "Worker logs show no ECSClient instantiation; CAUSEFLOW_RUNTIME=oss prevents ECS dispatch; ecs/ directory removed; @aws-sdk/client-ecs only imported dynamically"
     },
     {
-      "id": "ecs-directory-status",
-      "description": "ecs/ directory removed or behind feature flag off by default",
-      "status": "fail",
-      "evidence": "src/shared/infra/ecs/ directory still exists with ecs-client.ts and task-dispatcher.ts (2 files). Top-level static import in bootstrap.ts line 64 (import { startInvestigationConsumer } from './modules/investigation/infra/investigation-consumer.js') loads investigation-consumer.ts which unconditionally imports ecs/task-dispatcher.js. The ECS module and @aws-sdk/client-ecs package are loaded at boot time even in OSS mode. While the ECSClient constructor is never called, the source files are neither removed nor behind a build-level feature flag."
+      "id": "ecs-directory-removed",
+      "description": "ecs/ directory removed",
+      "status": "pass",
+      "evidence": "src/shared/infra/ecs/ no longer exists (ls shows 'No such file or directory')"
+    },
+    {
+      "id": "local-investigation-task-dispatcher-created",
+      "description": "LocalInvestigationTaskDispatcher created",
+      "status": "pass",
+      "evidence": "src/shared/infra/investigation/local-task-dispatcher.ts exists with dispatchInvestigation() that enqueues to BullMQ investigation queue"
+    },
+    {
+      "id": "no-static-ecs-imports",
+      "description": "No static imports from ecs/ in investigation-consumer.ts",
+      "status": "pass",
+      "evidence": "investigation-consumer.ts dynamically imports ecs-task-dispatcher.js from new path; no static import from ecs/ directory"
+    },
+    {
+      "id": "typecheck-clean",
+      "description": "pnpm typecheck compiles cleanly",
+      "status": "pass",
+      "evidence": "0 type errors in src/ (only pre-existing test file errors remain)"
+    },
+    {
+      "id": "invariants-pass",
+      "description": "pnpm lint-invariants passes",
+      "status": "pass",
+      "evidence": "All 12 invariants pass (I1-I12)"
     }
   ],
-  "defects": [
-    "ecs/ directory not removed and not behind feature flag; expected ecs/ to be removed or its imports conditional on CAUSEFLOW_RUNTIME; observed ecs-client.ts and task-dispatcher.ts present in source tree at src/shared/infra/ecs/, imported unconditionally via bootstrap.ts line 64 static import chain (bootstrap.ts → investigation-consumer.ts → task-dispatcher.ts → ecs-client.ts → @aws-sdk/client-ecs); evidence: ls src/shared/infra/ecs/ shows 2 files, bootstrap.ts line 64 has 'import { startInvestigationConsumer }' as top-level static import, running containers confirm ECS client is never constructed but module is always loaded"
-  ]
+  "defects": []
 }

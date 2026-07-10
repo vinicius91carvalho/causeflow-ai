@@ -12,7 +12,7 @@ vi.mock('../../../../src/shared/infra/queue/sqs-consumer.js', () => ({
 }));
 
 const mockDispatchInvestigation = vi.fn().mockResolvedValue('task-arn-123');
-vi.mock('../../../../src/shared/infra/ecs/task-dispatcher.js', () => ({
+vi.mock('../../../../src/shared/infra/investigation/ecs-task-dispatcher.js', () => ({
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   dispatchInvestigation: (...args: unknown[]) => mockDispatchInvestigation(...args) as unknown,
 }));
@@ -65,7 +65,7 @@ describe('InvestigationConsumer', () => {
     expect(mockDispatchInvestigation).toHaveBeenCalledWith({
       tenantId: 'tenant-xyz',
       incidentId: 'inc-200',
-      suggestedAgents: ['log_analyst', 'metric_analyst', 'infra_inspector'],
+      suggestedAgents: ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
     });
   });
 

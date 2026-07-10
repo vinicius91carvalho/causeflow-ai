@@ -271,7 +271,12 @@ async function main() {
   // sends guidance but no worker is currently connected for the session.
   if (config.ecs.cluster) {
     investigationRelay.setDispatcher(async (tid, iid) => {
-      const { dispatchInvestigation } = await import('./shared/infra/ecs/task-dispatcher.js');
+      const { dispatchInvestigation } = await import('./shared/infra/investigation/ecs-task-dispatcher.js');
+      await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
+    });
+  } else if (config.isOss()) {
+    investigationRelay.setDispatcher(async (tid, iid) => {
+      const { dispatchInvestigation } = await import('./shared/infra/investigation/local-task-dispatcher.js');
       await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
     });
   }

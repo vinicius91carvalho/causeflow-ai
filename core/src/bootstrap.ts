@@ -583,10 +583,17 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       ? new (await import('./modules/memory/infra/pg-chat-history.repository.js')).PgChatHistoryRepository()
       : new (await import('./modules/memory/infra/dynamo-chat-history.repository.js')).DynamoChatHistoryRepository(),
     addInvestigationContext,
-    dispatchFollowupWorker: config.ecs.cluster ? async (iid, tid) => {
-      const { dispatchInvestigation } = await import('./shared/infra/ecs/task-dispatcher.js');
-      await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
-    } : undefined,
+    dispatchFollowupWorker: config.ecs.cluster
+      ? async (iid, tid) => {
+          const { dispatchInvestigation } = await import('./shared/infra/investigation/ecs-task-dispatcher.js');
+          await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
+        }
+      : config.isOss()
+        ? async (iid, tid) => {
+            const { dispatchInvestigation } = await import('./shared/infra/investigation/local-task-dispatcher.js');
+            await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
+          }
+        : undefined,
   });
   const listHypotheses = new ListHypothesesUseCase(hypothesisRepo);
   const sseManager = new SSEManager();
