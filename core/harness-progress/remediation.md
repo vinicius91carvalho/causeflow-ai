@@ -524,3 +524,11 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - WorkItem: WI-AC-023
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T17:05:00Z — Integrated Verification PASS
+
+- WorkItem: WI-AC-023
+- AC: AC-023
+- Outcome: merge gen/core-remediation into plan/opensource-docker (append-only); AC-023 black-box checks pass on port 3099 (container PORT=5171)
+- Evidence: GET /api/v1/remediation/:id/proposal → 200 with 2 AWS action steps; POST approve → 200 status=approved; second POST → 409 CONFLICT
+- integration=true
