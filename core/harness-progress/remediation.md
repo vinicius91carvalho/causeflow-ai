@@ -759,3 +759,10 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: implementation=true; black-box verify passed on PORT=5170
 - Evidence: `.harness/ac024-verify.sh` (steps status=succeeded, beforeState/afterState, rollback 201, audit chain)
 - NextAction: QA / integration verification
+
+## 2026-07-10T19:41:56.191Z — Resumed
+
+- WorkItem: WI-AC-024
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
