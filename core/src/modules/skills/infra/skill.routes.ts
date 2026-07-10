@@ -4,6 +4,7 @@ import { tenantId as toTenantId } from '../../../shared/domain/value-objects.js'
 import { skillId } from '../domain/skill.entity.js';
 import type { AppEnv } from '../../../shared/infra/http/hono-types.js';
 import type { CreateSkillUseCase, ListSkillsUseCase, GetSkillUseCase, UpdateSkillUseCase, DeleteSkillUseCase } from '../application/crud-skills.usecase.js';
+import type { PinRunbookUseCase } from '../application/pin-runbook.usecase.js';
 
 const createSkillSchema = z.object({
     name: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/, 'Name must be lowercase alphanumeric with hyphens'),
@@ -21,12 +22,17 @@ const updateSkillSchema = createSkillSchema.partial().extend({
     isEnabled: z.boolean().optional(),
 });
 
+const pinRunbookSchema = z.object({
+    remediationId: z.string().uuid(),
+});
+
 export function createSkillRoutes(deps: {
     createSkill: CreateSkillUseCase;
     listSkills: ListSkillsUseCase;
     getSkill: GetSkillUseCase;
     updateSkill: UpdateSkillUseCase;
     deleteSkill: DeleteSkillUseCase;
+    pinRunbook: PinRunbookUseCase;
 }): Hono<AppEnv> {
     const app = new Hono<AppEnv>();
 
@@ -52,6 +58,19 @@ export function createSkillRoutes(deps: {
         const skill = await deps.getSkill.execute(tid, id);
         if (!skill) return c.json({ error: 'Skill not found' }, 404);
         return c.json(skill);
+    });
+
+    // POST /api/v1/skills/:id/runbook — pin a successful remediation (AC-025)
+    app.post('/api/v1/skills/:id/runbook', async (c) => {
+        const tid = toTenantId(c.get('tenantId'));
+        const id = skillId(c.req.param('id'));
+        const body = pinRunbookSchema.parse(await c.req.json());
+        const result = await deps.pinRunbook.execute({
+            tenantId: tid,
+            skillId: id,
+            remediationId: body.remediationId,
+        });
+        return c.json(result, 201);
     });
 
     // PATCH /api/v1/skills/:id

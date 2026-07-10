@@ -203,6 +203,7 @@ import type { UserUseCases } from './modules/user/infra/user.routes.js';
 import type { MemoryUseCases } from './modules/memory/infra/memory.routes.js';
 import { CreateSkillUseCase, ListSkillsUseCase, GetSkillUseCase, UpdateSkillUseCase, DeleteSkillUseCase } from './modules/skills/application/crud-skills.usecase.js';
 import { SelectSkillsUseCase } from './modules/skills/application/select-skills.usecase.js';
+import { PinRunbookUseCase } from './modules/skills/application/pin-runbook.usecase.js';
 import { createSkillRoutes } from './modules/skills/infra/skill.routes.js';
 import type { Hono } from 'hono';
 import type { AppEnv } from './shared/infra/http/hono-types.js';
@@ -1572,18 +1573,20 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     ossAuthRouter = createOssAuthRoutes({ tenantRepo, userRepo });
   }
 
-  // Skills routes (per-tenant investigation skills) — AC-027
+  // Skills routes (per-tenant investigation skills) — AC-027 / AC-025
   const createSkill = new CreateSkillUseCase(skillRepo);
   const listSkills = new ListSkillsUseCase(skillRepo);
   const getSkill = new GetSkillUseCase(skillRepo);
   const updateSkill = new UpdateSkillUseCase(skillRepo);
   const deleteSkill = new DeleteSkillUseCase(skillRepo);
+  const pinRunbook = new PinRunbookUseCase(skillRepo, remediationRepo, runbookRegistry, agentMemory);
   const skillRoutes = createSkillRoutes({
     createSkill,
     listSkills,
     getSkill,
     updateSkill,
     deleteSkill,
+    pinRunbook,
   });
 
   return {
