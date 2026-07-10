@@ -583,10 +583,17 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       ? new (await import('./modules/memory/infra/pg-chat-history.repository.js')).PgChatHistoryRepository()
       : new (await import('./modules/memory/infra/dynamo-chat-history.repository.js')).DynamoChatHistoryRepository(),
     addInvestigationContext,
-    dispatchFollowupWorker: config.ecs.cluster ? async (iid, tid) => {
-      const { dispatchInvestigation } = await import('./shared/infra/ecs/task-dispatcher.js');
-      await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
-    } : undefined,
+    dispatchFollowupWorker: config.ecs.cluster
+      ? async (iid, tid) => {
+          const { dispatchInvestigation } = await import('./shared/infra/investigation/ecs-task-dispatcher.js');
+          await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
+        }
+      : config.isOss()
+        ? async (iid, tid) => {
+            const { dispatchInvestigation } = await import('./shared/infra/investigation/local-task-dispatcher.js');
+            await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
+          }
+        : undefined,
   });
   const listHypotheses = new ListHypothesesUseCase(hypothesisRepo);
   const sseManager = new SSEManager();
@@ -1490,21 +1497,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       consumers.push({ stop: triageWorker.stop });
     }
 
-    // Investigation worker — picks up investigation jobs from causeflow-investigation
-    // Started unconditionally in OSS mode.
-    {
-      const investigationWorker = createBullWorker({
-        queueName: config.bullmq.investigationQueueName,
-        handler: async (body) => {
-          const tid = tenantId(body['tenantId'] as string);
-          const iid = incidentId(body['incidentId'] as string);
-          const suggestedAgents = (body['suggestedAgents'] as string[]) ??
-            ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'];
-          await dispatchInvestigation.execute({ tenantId: tid, incidentId: iid, suggestedAgents });
-        },
-      });
-      consumers.push({ stop: investigationWorker.stop });
-    }
+    // Investigation worker — NOT started in the API (AC-045).
+    // The `causeflow-worker` docker-compose service runs a long-lived BullMQ
+    // consumer that picks up investigation jobs from causeflow-investigation.
+    // Running a second consumer in the API would cause double processing.
 
     // Remediation worker — picks up remediation jobs from causeflow-remediation
     const remediationWorker = createBullWorker({

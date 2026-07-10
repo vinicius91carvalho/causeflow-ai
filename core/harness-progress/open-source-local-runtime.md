@@ -1042,3 +1042,26 @@ AC-051 requires port boundaries to be preserved for the open-source local runtim
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-048-1-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-10T09:19:52.438Z — Resumed
+
+- WorkItem: WI-AC-045
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T09:29:42.629Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-045
+- DefectReport: ecs/ directory not removed and not behind feature flag; expected ecs/ to be removed or its imports conditional on CAUSEFLOW_RUNTIME; observed ecs-client.ts and task-dispatcher.ts present in source tree at src/shared/infra/ecs/, imported unconditionally via bootstrap.ts line 64 static import chain (bootstrap.ts → investigation-consumer.ts → task-dispatcher.ts → ecs-client.ts → @aws-sdk/client-ecs); evidence: ls src/shared/infra/ecs/ shows 2 files, bootstrap.ts line 64 has 'import { startInvestigationConsumer }' as top-level static import, running containers confirm ECS client is never constructed but module is always loaded
+- RepairPlan: Defect confirmed. The `src/shared/infra/ecs/` directory still exists with `ecs-client.ts` and `task-dispatcher.ts`. The import chain is: `bootstrap.ts:64` statically imports `investigation-consumer.ts`, which at line 2 has an unconditional top-level `import { dispatchInvestigation } from '../../../shared/infra/ecs/task-dispatcher.js'`, which in turn imports `./ecs-client.js`, which at line 1 does `import { ECSClient, RunTaskCommand } from '@aws-sdk/client-ecs'`. This means `@aws-sdk/client-ecs` is always loaded at module evaluation time regardless of `CAUSEFLOW_RUNTIME=oss` or `config.ecs.cluster`. The conditional dynamic imports in `bootstrap.ts:586` and `main.ts:272` only gate *calling* the dispatcher, not *loading* the SDK. Additionally, the `LocalInvestigationTaskDispatcher` (required per project_specs.xml lines 330, 491, 894) does not exist in the source tree — it is a missing scaffold artifact that should have been created as part of AC-045.; Remove `src/shared/infra/ecs/ecs-client.ts` and `src/shared/infra/ecs/task-dispatcher.ts` (the entire `ecs/` directory).; Create `LocalInvestigationTaskDispatcher` that dispatches investigations by enqueuing to BullMQ or calling the worker directly, replacing the removed ECS dispatcher.; Update `investigation-consumer.ts` to either: (a) use `LocalInvestigationTaskDispatcher` instead if in OSS mode, or (b) switch to a dynamic import gated on `config.isOss()` / `config.ecs.cluster` so `@aws-sdk/client-ecs` is never loaded in OSS mode.; Update `bootstrap.ts` line 586-588 to use `LocalInvestigationTaskDispatcher` when `config.isOss()` and only the dynamic ECS import when `config.ecs.cluster` is set, to eliminate the last unconditional reference.; Update `main.ts` line 272-275 to use `LocalInvestigationTaskDispatcher` when `config.isOss()` instead of conditionally importing from `ecs/`.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-045-1-qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-10T09:39:58.078Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-045
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
