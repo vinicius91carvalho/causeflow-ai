@@ -163,3 +163,48 @@
 - `POST /v1/billing/webhook` → 404 (not mounted)
 - No auth → 401 all protected endpoints
 - Zero `stripe` references in boot log
+
+---
+
+## WI-AC-034: Widget bundle + widget-session token auth
+
+### Status: IMPLEMENTED & VERIFIED
+
+### Acceptance Checks
+
+#### AC-034: Widget bundle and widget auth
+
+**Check 1 — Widget bundle loadable from /widget/widget.js:**
+- Route exists in src/app.ts serving `packages/widget/dist/widget.js`
+- File exists (38KB, Vite-built IIFE with `CauseflowWidget` global)
+- Content-Type: `application/javascript; charset=utf-8`
+- `curl http://localhost:3099/widget/widget.js` → HTTP 200, starts with `var CauseflowWidget=(function(c){"use strict";...`
+- `pnpm --filter @causeflow/widget build` succeeds
+- ✅ PASS
+
+**Check 2 — Valid API key renders widget with incident data access:**
+- `POST /v1/widget/sessions` with valid `cflo_` API key → HTTP 201 with `sessionId`
+- `GET /v1/widget/config` with valid API key → HTTP 200 with branding
+- `POST /v1/widget/sessions/:id/messages` with valid API key → HTTP 200 with chat response
+- WidgetAuthMiddleware validates key via `apiKeyRepo.findByHash()`
+- Widget is a LitElement chat component (read-only, embedded panel)
+- ⚠️ The widget is a chat interface, not an "incident panel" that auto-shows latest investigations; users must type a message to get incident data
+- ✅ PASS (core auth + data access works; UI approach is a chat-based incident assistant)
+
+**Check 3 — Invalid token returns unauthorized, no data disclosure:**
+- No Authorization header → 401 `{"error":"UNAUTHORIZED","message":"Missing API key..."}`
+- Wrong prefix (not `cflo_`) → 401 `{"error":"UNAUTHORIZED","message":"Invalid API key format"}`
+- Invalid `cflo_` key → 401 `{"error":"UNAUTHORIZED","message":"Invalid or revoked API key"}`
+- All widget routes protected by `widgetAuthMiddleware`
+- No incident data leaked on any failed auth attempt
+- ✅ PASS
+
+### Defects
+1. **Dockerfile missing widget Vite build**: The Dockerfile does not run `pnpm --filter @causeflow/widget build`. The route at `/widget/widget.js` reads `packages/widget/dist/widget.js`, but this file is not produced during the Docker image build. Fresh Docker images cannot serve the widget bundle.
+2. **Widget UI is a chat interface, not an "incident panel"**: AC-034 requires "the panel shows the latest investigations for the tenant." The widget is a chat assistant that requires user input; it does not auto-display a list of recent investigations.
+
+### Unit Tests
+- All 5 widget test files pass (41 tests): widget.routes.test.ts (8), widget-chat.usecase.test.ts (7), data-masker.test.ts (12), response-formatter.test.ts (9), follow-up-generator.test.ts (5)
+
+### Verdict
+qa=false, implementation=false — core auth flow and bundle serving work, but AC-034 requires "the panel shows the latest investigations for the tenant" which the chat-based widget does not auto-display. Additionally the Dockerfile does not build the widget Vite bundle (missing `pnpm --filter @causeflow/widget build` step). Both are defects per the AC specification.

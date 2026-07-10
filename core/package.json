@@ -23,6 +23,7 @@
     "eval:view": "promptfoo view",
     "lint-invariants": "tsx infra/scripts/check-invariants.ts",
     "verify-deploy": "tsx infra/scripts/verify-deploy.ts",
+    "build:widget": "pnpm --filter @causeflow/widget build",
     "ci:local": "pnpm typecheck && pnpm lint && pnpm build && pnpm test:run"
   },
   "dependencies": {

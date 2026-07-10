@@ -79,6 +79,11 @@ import { MarkNotificationReadUseCase } from './modules/notification/application/
 import type { NotificationUseCases } from './modules/notification/infra/notification.routes.js';
 import { PgPushSubscriptionRepository } from './modules/notification/infra/pg-push-subscription.repository.js';
 import { WebPushAdapter } from './modules/widget/infra/web-push.adapter.js';
+import { DataMasker } from './modules/widget/application/data-masker.js';
+import { ResponseFormatter } from './modules/widget/application/response-formatter.js';
+import { FollowUpGenerator } from './modules/widget/application/follow-up-generator.js';
+import { WidgetChatUseCase } from './modules/widget/application/widget-chat.usecase.js';
+import { registerWidgetEventSubscribers } from './modules/widget/application/widget-event.subscriber.js';
 import { startRemediationConsumer } from './modules/remediation/infra/remediation-consumer.js';
 import { startProgressConsumer } from './shared/infra/pubsub/progress-consumer.js';
 import { createObservabilityStack } from './shared/infra/observability/observability-factory.js';
@@ -872,7 +877,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     pushSubscriptionRepo,
   };
 
-
   // === EventBus Wiring: Audit Trail ===
   eventBus.subscribe('incident.created', async (event) => {
     const actor = resolveIncidentCreatedActor(event.payload);
@@ -1205,6 +1209,53 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     revokeApiKey: new RevokeApiKeyUseCase(apiKeyRepo, eventBus),
   };
 
+  // === Widget Dependencies ===
+  let widgetUseCases: WidgetRouteDeps | undefined;
+  try {
+    const sessionRepo = config.isOss()
+      ? new (await import('./modules/widget/infra/pg-widget-session.repository.js')).PgWidgetSessionRepository()
+      : new (await import('./modules/widget/infra/dynamo-widget-session.repository.js')).DynamoWidgetSessionRepository();
+
+    const dataMasker = new DataMasker();
+    const responseFormatter = new ResponseFormatter();
+    const followUpGenerator = new FollowUpGenerator(llmClient);
+
+    const widgetChat = new WidgetChatUseCase({
+      chatUseCase: memoryUseCases.chat!,
+      sessionRepo,
+      llmClient,
+      tenantRepo,
+      dataMasker,
+      responseFormatter,
+      followUpGenerator,
+    });
+
+    widgetUseCases = {
+      widgetChat,
+      sessionRepo,
+      sseManager,
+      apiKeyRepo,
+      tenantRepo,
+      pushAdapter,
+      incidentRepo,
+    };
+
+    // Register widget event subscribers (forward investigation progress to SSE)
+    registerWidgetEventSubscribers({
+      eventBus,
+      sessionRepo,
+      sseManager,
+      tenantRepo,
+      dataMasker,
+      responseFormatter,
+      pushAdapter,
+    });
+
+    logger.info('Widget routes and event subscribers registered');
+  } catch (err) {
+    logger.warn({ err }, 'Failed to initialize widget dependencies — widget routes disabled');
+  }
+
   // === EventBus Wiring: API Key Audit Trail ===
   eventBus.subscribe('apikey.created', async (event) => {
     const actor = resolveApiKeyCreatedActor(event.payload);
@@ -1515,6 +1566,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     authUseCases,
     userUseCases,
     memoryUseCases,
+    widgetUseCases,
     ossAuthRouter,
   };
 }

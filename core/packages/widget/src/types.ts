@@ -56,3 +56,18 @@ export interface BrandingConfig {
   vapidPublicKey: string;
   maxSessionMessages: number;
 }
+
+export interface IncidentListItem {
+  incidentId: string;
+  title: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  status: string;
+  summary: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IncidentsResponse {
+  items: IncidentListItem[];
+  cursor?: string;
+}
