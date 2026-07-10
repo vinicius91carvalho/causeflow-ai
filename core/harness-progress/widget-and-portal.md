@@ -431,3 +431,17 @@ index 54666309eaaed3868da8b50f871b7f75b842cb72..ba501b6019df4c302408c9feb62569e5
 - Evidence: real browser boundary on PORT=5170 (Chrome via Playwright) against OSS runtime on plan/opensource-docker. `/dashboard` 200; first load shows tenant `QA Tenant AC035`, sidebar incident `AC035 checkout latency spike`, `New investigation`, and SSE `/v1/notifications/stream` 200. Clicking the incident opens detail with Evidence, Hypotheses, Chat Panel, and Remediation chrome; `GET /v1/investigation/ef1a7e3f-5c3e-4d0c-9cc1-45289bdd565d/hypotheses` returns 500.
 - Defect: expected the dashboard incident detail hypotheses panel to load without an internal server error; observed hypotheses request failed with `INTERNAL_ERROR` because OSS bootstrap still wires `DynamoHypothesisRepository` (DynamoDB unavailable in CAUSEFLOW_RUNTIME=oss).
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/widget-and-portal/WI-AC-035-integrated-qa.log
+
+## 2026-07-10T05:50:37.045Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T05:50:37.099Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
