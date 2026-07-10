@@ -741,6 +741,14 @@ Scaffold audit: `project_specs.xml`, `feature_list.json`, `init.sh`, `dashboard/
 
 No defects found for AC-035.
 
+## 2026-07-10T16:26:16Z — Integrated verification for WI-AC-035
+
+**Result: integration=true, implementation=true, qa=true.**
+
+Scaffold audit: `project_specs.xml`, `feature_list.json`, `init.sh`, `dashboard/`, and harness verify script present. Real browser boundary on PORT=5170 (CAUSEFLOW_RUNTIME=oss, Postgres :5439, Redis :6380): `.harness/ac035-integrated-verify.mjs` exit 0, 10/10 PASS.
+
+No defects found for AC-035.
+
 ## 2026-07-10T10:33:00Z — VERIFY-FIRST AC-019 boundary pass
 
 **Result: implementation=true. Zero-diff checkpoint — no source changes.**
