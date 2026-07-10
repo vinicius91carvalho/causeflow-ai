@@ -84,18 +84,20 @@ const DEFAULT_RESPONSES: Record<string, string> = {
 
 export class StubAgentRunner implements AgentRunner {
   async run(config: AgentRunConfig): Promise<AgentRunResult> {
-    const combinedPrompt =
-      config.systemPrompt +
-      ' ' +
-      (config.staticSystemPrompt ?? '') +
-      ' ' +
-      config.userPrompt;
-    const role = inferRole(combinedPrompt);
+    // Prefer the agent system prompts (not user/memory context) so shared
+    // capability text mentioning every specialist does not scramble the role.
+    const role =
+      inferRole(config.staticSystemPrompt ?? '') ||
+      inferRole(config.systemPrompt) ||
+      inferRoleFromTools(config.tools.map((t) => t.name)) ||
+      inferRole(`${config.systemPrompt} ${config.staticSystemPrompt ?? ''} ${config.userPrompt}`) ||
+      'unknown';
 
-    const toolCallsToMake = [...(DEFAULT_TOOL_CALLS[role] ?? [])];
+    const toolNames = new Set(config.tools.map((t) => t.name));
+    const toolCallsToMake = [...(DEFAULT_TOOL_CALLS[role] ?? [])].filter((c) => toolNames.has(c.name));
     if (toolCallsToMake.length === 0 && config.tools.length > 0) {
       for (const tool of config.tools.slice(0, 2)) {
-        toolCallsToMake.push({ name: tool.name, input: {} });
+        toolCallsToMake.push({ name: tool.name, input: stubInputForTool(tool.name) });
       }
     }
 
@@ -138,7 +140,8 @@ export class StubAgentRunner implements AgentRunner {
   }
 }
 
-function inferRole(systemPrompt: string): string {
+function inferRole(systemPrompt: string): string | null {
+  if (!systemPrompt.trim()) return null;
   const lower = systemPrompt.toLowerCase();
   // Prefer explicit specialist titles (capabilities prompts can mention other domains).
   if (lower.includes('log analysis specialist')) return 'log_analyst';
@@ -163,5 +166,48 @@ function inferRole(systemPrompt: string): string {
   if (lower.includes('database') || lower.includes('data-layer')) return 'db_analyst';
   if (lower.includes('scout') || lower.includes('first-responder')) return 'scout';
   if (lower.includes('verif') || lower.includes('adversarial')) return 'diagnosis_verifier';
-  return 'unknown';
+  return null;
+}
+
+function inferRoleFromTools(toolNames: string[]): string | null {
+  const names = new Set(toolNames);
+  if (names.has('query_logs')) return 'log_analyst';
+  if (names.has('query_metrics')) return 'metric_analyst';
+  if (names.has('db_list_resources') || names.has('db_query')) return 'db_analyst';
+  if (names.has('code_get_service_repos') || names.has('code_search')) return 'code_analyzer';
+  if (names.has('get_recent_changes')) return 'change_detector';
+  if (names.has('describe_service')) return 'infra_inspector';
+  return null;
+}
+
+function stubInputForTool(name: string): Record<string, unknown> {
+  switch (name) {
+    case 'aws_api_call':
+      return { service: 'ecs', action: 'DescribeServices', params: { services: ['order-service'] } };
+    case 'query_logs':
+      return {
+        service: 'order-service',
+        filter: 'error',
+        startTime: new Date(Date.now() - 3600000).toISOString(),
+        endTime: new Date().toISOString(),
+        limit: 20,
+      };
+    case 'query_metrics':
+      return {
+        metricName: 'CPUUtilization',
+        namespace: 'AWS/ECS',
+        startTime: new Date(Date.now() - 3600000).toISOString(),
+        endTime: new Date().toISOString(),
+        period: 60,
+        stat: 'Average',
+      };
+    case 'describe_service':
+      return { serviceName: 'order-service', region: 'us-east-1' };
+    case 'get_recent_changes':
+      return { service: 'order-service' };
+    case 'code_get_service_repos':
+      return { service: 'order-service' };
+    default:
+      return {};
+  }
 }

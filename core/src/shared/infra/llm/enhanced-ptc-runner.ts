@@ -188,16 +188,28 @@ function isCriticalToolFailure(err: unknown): boolean {
 // --- Enhanced PTC Runner ---
 
 export class EnhancedPTCRunner implements AgentRunner {
-    private client: Anthropic;
+    private client: Anthropic | null;
 
     constructor() {
-        this.client = new Anthropic({
-            apiKey: config.anthropic.apiKey,
-            ...(config.anthropic.baseUrl && { baseURL: config.anthropic.baseUrl }),
-        });
+        // AC-046: refuse to construct the SDK client without a key so OSS
+        // zero-SaaS never emits "Could not resolve authentication method".
+        if (!config.anthropic.apiKey) {
+            this.client = null;
+        } else {
+            this.client = new Anthropic({
+                apiKey: config.anthropic.apiKey,
+                ...(config.anthropic.baseUrl && { baseURL: config.anthropic.baseUrl }),
+            });
+        }
     }
 
     async run(agentConfig: AgentRunConfig): Promise<AgentRunResult> {
+        if (!this.client || !config.anthropic.apiKey) {
+            throw new Error(
+                'EnhancedPTCRunner requires ANTHROPIC_API_KEY; use StubAgentRunner in OSS zero-SaaS mode',
+            );
+        }
+        const client = this.client;
         const model = agentConfig.model ?? config.anthropic.investigationModel;
         const maxTurns = agentConfig.maxTurns ?? 10;
         let maxTokens = agentConfig.maxTokens ?? 4096;
@@ -250,7 +262,7 @@ export class EnhancedPTCRunner implements AgentRunner {
             let response: any;
             try {
                 const { result, retries } = await withRetry(
-                    () => this.client.beta.messages.create({
+                    () => client.beta.messages.create({
                         model,
                         max_tokens: maxTokens,
                         temperature,
