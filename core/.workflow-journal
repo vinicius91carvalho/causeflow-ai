@@ -109,6 +109,13 @@ running stack (PORT=3099, OSS runtime, Postgres :5439, Redis :6380, Hindsight :8
 
 ## WI-AC-019: Investigation with 6+ agents, SSE stream, status=succeeded
 
+### Status: IMPLEMENTED & VERIFIED (2026-07-10T09:06:00Z verify-first pass)
+
+### Latest boundary verification (PORT=5175, zero-diff)
+- Incident `76544df7-1c1a-4e72-ae7c-4a74fe88cb95`: poll 1 `status=running`, poll 2 `status=succeeded`
+- SSE: connected + 11 investigation_progress (all 6 agents) + investigation_completed
+- `finalSynthesis` stored; no source code changes
+
 ### Status: IMPLEMENTED & VERIFIED (2026-07-10T03:44:00Z verify-first pass)
 
 ### Latest boundary verification (PORT=5175)

@@ -405,3 +405,31 @@ No defects found for AC-035.
 Scaffold audit: required harness artifacts present. Real browser boundary on PORT=5170 (CAUSEFLOW_RUNTIME=oss, Postgres :5439, Redis :6380): `.harness/ac035-integrated-verify.mjs` exit 0, 10/10 PASS.
 
 No defects found for AC-035.
+
+## 2026-07-10T09:06:00Z — VERIFY-FIRST AC-019 boundary pass
+
+**Result: implementation=true. Zero-diff checkpoint — no source changes.**
+
+Scaffold audit: `project_specs.xml` present; required files (`src/main.ts`, `src/bootstrap.ts`, `src/workers/investigation-worker.ts`, `src/modules/investigation/`, `src/shared/infra/chat/sse-manager.ts`, `docker-compose.yml`, `.env.dev`) verified.
+
+Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres + Redis healthy):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `76544df7-1c1a-4e72-ae7c-4a74fe88cb95`.
+- `GET /api/v1/investigation/:id` poll 1 -> `status=running`, incident `status=investigating`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 11 `investigation_progress` events with per-agent `agentRole` for all 6 agents, then `investigation_completed`.
+- Final `GET /api/v1/investigation/:id` -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+## 2026-07-10T09:10:00Z — QA verdict for WI-AC-019
+
+**Result: qa=true, implementation=true.**
+
+Scaffold audit: `project_specs.xml` present; required structures verified (`src/main.ts`, `src/bootstrap.ts`, `src/app.ts`, `src/workers/investigation-worker.ts`, `src/modules/investigation/`, 16 module dirs, 17 ports, `src/shared/infra/chat/sse-manager.ts`, `dashboard/`, `packages/widget/`, `relay/`, env files, Docker compose, tests tree).
+
+Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres + Redis healthy):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `1a5f6eb6-fda5-4851-906b-b6036ffb23a0`.
+- `GET /api/v1/investigation/:id` poll 1 -> `status=running`, incident `status=investigating`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 11 `investigation_progress` events with per-agent `agentRole` for all 6 agents, then `investigation_completed`.
+- Final `GET /api/v1/investigation/:id` -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+No defects found for AC-019.
