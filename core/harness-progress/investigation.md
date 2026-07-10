@@ -168,3 +168,34 @@ index b1a4cc93c00f4a7defdd71bb5392974245b9f857..4d94f3349a92d701c063366e88d65d34
 - PreviousPhase: repair_plan
 - Attempt: 2
 - NextAction: repair-plan
+
+## 2026-07-10T03:01:14.274Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-019
+- DefectReport: final detail returned `status=succeeded`, incident `status=resolved`, and stored `finalSynthesis="Unable to determine root cause (LLM service unavailable)"`.
++- Defects: none.
+[35m[3mcodex[0m[0m
+===HARNESS-VERDICT-BEGIN===
+===HARNESS-VERDICT-END===
+diff --git a/core/harness-progress/investigation.md b/core/harness-progress/investigation.md
+index 4438113f180e5b168f1372a48451fcb900c81a17..851d7f68bd0431a7fb0c7bb5dd5e481dd28568ea
+--- a/core/harness-progress/investigation.md
++++ b/core/harness-progress/investigation.md
+@@ -183,3 +183,11 @@
+ 85,692
+ - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/investigation/WI-AC-019-1-qa.log
+ - NextAction: Coding Attempt 2
++
++## 2026-07-10T02:54:58Z — QA verdict for WI-AC-019
++
++- Result: qa=true, implementation=true.
++- Spec/scaffold audit: `project_specs.xml` present; required AC-019 structures present (`src/main.ts`, `src/bootstrap.ts`, `src/app.ts`, `src/modules/investigation/`, `src/workers/investigation-worker.ts`, `src/shared/infra/chat/sse-manager.ts`, `package.json`, env files, Docker compose, tests tree). No missing scaffold artifact found.
++- Observation method: real HTTP/SSE on `PORT=5175` against OSS local dependencies (Postgres `5439`, Redis `6380`, Hindsight `8888`).
++- Evidence: registered fresh tenant; created severity-bearing incident `5a317cc5-c325-4b2c-ac11-6ddcf4d195d8`; `GET /api/v1/investigation/:id` observed `status=running` while incident was `investigating` with six assigned agents; `/api/v1/investigation/:id/stream` returned `text/event-stream` and emitted `investigation_progress` per-agent events using `agentRole` for `log_analyst`, `metric_analyst`, `change_detector`, `code_analyzer`, `infra_inspector`, and `db_analyst`, then `investigation_completed`; final detail returned `status=succeeded`, incident `status=resolved`, and stored `finalSynthesis="Unable to determine root cause (LLM service unavailable)"`.
++- Defects: none.
+[2mtokens used[0m
+111,230
+- RepairPlan: 
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/investigation/WI-AC-019-2-qa.log
+- NextAction: Coding Attempt 3
