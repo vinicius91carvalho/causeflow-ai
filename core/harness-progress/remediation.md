@@ -111,3 +111,10 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 **A causa raiz do "defeito" reportado** é que o agente integration_qa produziu um log truncado com apenas 1 linha — duas frases incompletas ("Let me read the core files... Let me do one more clean test...") — sem uma avaliação real. O código está correto.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1-integration_qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-10T05:47:47.426Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
