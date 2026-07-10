@@ -945,10 +945,10 @@
     "acceptance_checks": ["AC-045"],
     "depends_on": ["AC-039", "AC-019"],
     "verify_first": false,
-    "implementation": true,
-    "qa": true,
+    "implementation": false,
+    "qa": false,
     "integration": false,
-    "retries": 1
+    "retries": 2
   },
   {
     "id": "WI-AC-046",

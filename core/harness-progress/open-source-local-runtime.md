@@ -1065,3 +1065,22 @@ AC-051 requires port boundaries to be preserved for the open-source local runtim
 - WorkItem: WI-AC-045
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T09:44:48.029Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-045
+- Defects: Let me start by auditing the repository for AC-045 requirements.Now I have all the evidence needed. Let me also check the journal to see the current status.All checks completed. Let me update the journal and commit the verdict.I've verified all 4 requirements of AC-045 independently. The evidence confirms all pass. Now let me update the journal and commit.Verdict delivered. Here is a summary of the verification:
+
+## AC-045 Integrated Verification — PASS ✅
+
+| Check | Result | Evidence |
+|-------|--------|----------|
+| **1. Worker service** | ✅ PASS | `causeflow-worker` docker-compose service uses `Dockerfile.worker` (CMD: `node dist/workers/investigation-worker.js`), same 128MB `node:22-alpine` image as API |
+| **2. Both healthy** | ✅ PASS | `docker compose ps`: `causeflow-api` (Up 22min healthy), `causeflow-worker` (Up 22min healthy) |
+| **3. investigation:start log** | ✅ PASS | Worker logs at `[09:21:49.694]`: `investigation:start`, followed by dispatching to 6 sub-agents |
+| **4. No ECS / AWS** | ✅ PASS | `src/shared/infra/ecs/` removed; `ecs-task-dispatcher.ts` behind feature flag; zero `AWS_*` env vars; `StubCloudProvider` + `StubCredentialVendor` active (provider: "stub") |
+
+**No defects found.** Journal updated and committed with `integration=true`, `implementation=true`.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/open-source-local-runtime/WI-AC-045-2-integration_qa.log
+- NextAction: Repair Plan
