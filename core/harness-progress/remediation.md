@@ -488,3 +488,10 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - qa: true
 - implementation: true
 - NextAction: integration merge
+
+## 2026-07-10T17:15:00.165Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
