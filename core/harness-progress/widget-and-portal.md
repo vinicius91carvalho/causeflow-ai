@@ -8067,3 +8067,10 @@ index 54666309eaaed3868da8b50f871b7f75b842cb72..ba501b6019df4c302408c9feb62569e5
 - Outcome: integration could not complete
 - Defects: Checkpoint was not integrated into the integration branch
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-10T16:55:00.200Z — Explicit Resume
+
+- WorkItem: WI-AC-035
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+- NextAction: Coding Attempt 1

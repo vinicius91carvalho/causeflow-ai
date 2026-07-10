@@ -765,7 +765,7 @@
     "implementation": false,
     "qa": false,
     "integration": false,
-    "retries": 1,
+    "retries": 0,
     "attempts": 1,
     "status": "implemented"
   },
