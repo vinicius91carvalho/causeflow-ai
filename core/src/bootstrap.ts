@@ -1111,11 +1111,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   });
 
   eventBus.subscribe('investigation.completed', async (event) => {
-    const incidentIdForSse = (event.payload['incidentId'] as string) ?? '';
     const sseEvent = { event: 'investigation_completed', data: event.payload };
-    if (incidentIdForSse) {
-      sseManager.recordIncidentEvent(event.tenantId, incidentIdForSse, sseEvent);
-    }
     await sseManager.broadcast(event.tenantId, sseEvent);
   });
 
@@ -1165,11 +1161,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // === EventBus Wiring: Investigation Progress SSE ===
   eventBus.subscribe('investigation.progress', async (event) => {
-    const incidentIdForSse = (event.payload['incidentId'] as string) ?? '';
     const sseEvent = { event: 'investigation_progress', data: event.payload };
-    if (incidentIdForSse) {
-      sseManager.recordIncidentEvent(event.tenantId, incidentIdForSse, sseEvent);
-    }
     await sseManager.broadcast(event.tenantId, sseEvent);
   });
 
@@ -1474,12 +1466,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
         'investigation.failed': 'investigation_failed',
       };
       const unsubscribe = await subscribeProgress(INVESTIGATION_PROGRESS_CHANNEL, (event) => {
-        const incidentIdForSse = (event.payload['incidentId'] as string) ?? '';
         const sseEventName = eventNameMap[event.eventType] ?? event.eventType;
         const sseEvent = { event: sseEventName, data: event.payload };
-        if (incidentIdForSse) {
-          sseManager.recordIncidentEvent(event.tenantId, incidentIdForSse, sseEvent);
-        }
         void sseManager.broadcast(event.tenantId, sseEvent);
       });
       consumers.push({ stop: unsubscribe });

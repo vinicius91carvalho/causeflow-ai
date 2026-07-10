@@ -50,6 +50,16 @@ TENANT_ID=$(echo "$REG_BODY" | python3 -c 'import sys,json; d=json.load(sys.stdi
 [ -n "$TENANT_ID" ] || fail "no tenantId from register"
 log "tenantId=$TENANT_ID"
 
+# Early SSE placeholder — incidentId filled after webhook1; replay covers fast completions.
+SSE_PID=""
+start_sse() {
+  [ -n "${INCIDENT_ID:-}" ] || return 0
+  curl -sS -N --max-time 180 \
+    -H "Authorization: Bearer $TOKEN" \
+    "$BASE/api/v1/investigation/${INCIDENT_ID}/stream" >"$SSE_FILE" 2>/dev/null &
+  SSE_PID=$!
+}
+
 # 2. Datadog webhook with valid HMAC → creates incident (AC-014)
 ALERT_ID="dd-ac046-$(date +%s)"
 BODY=$(python3 - <<PY
@@ -79,6 +89,9 @@ INCIDENT_ID=$(echo "$WH1_BODY" | python3 -c 'import sys,json; d=json.load(sys.st
 [ -n "$INCIDENT_ID" ] || fail "no incidentId from webhook"
 log "incidentId=$INCIDENT_ID"
 
+# Subscribe SSE immediately after incident exists (before dedup + polling)
+start_sse
+
 # 3. Identical POST within dedup window → same incident (AC-015)
 WH2=$(curl -sS -w '\n%{http_code}' -X POST "$BASE/v1/webhooks/${TENANT_ID}/datadog" \
   -H 'Content-Type: application/json' \
@@ -92,13 +105,7 @@ INCIDENT_ID2=$(echo "$WH2_BODY" | python3 -c 'import sys,json; d=json.load(sys.s
 DEDUPED=$(echo "$WH2_BODY" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("deduplicated") or d.get("duplicate") or "")')
 log "dedup ok incidentId=$INCIDENT_ID2 deduplicated=$DEDUPED"
 
-# 4. Subscribe SSE early (replay covers fast completions)
-curl -sS -N --max-time 180 \
-  -H "Authorization: Bearer $TOKEN" \
-  "$BASE/api/v1/investigation/${INCIDENT_ID}/stream" >"$SSE_FILE" 2>/dev/null &
-SSE_PID=$!
-
-# 5. Poll until triage sets severity + investigation completes (AC-017 / AC-019 / AC-020)
+# 4. Poll until triage sets severity + investigation completes (AC-017 / AC-019 / AC-020)
 SEVERITY=""
 FINAL_STATUS=""
 for i in $(seq 1 120); do
@@ -119,10 +126,10 @@ done
 [ -n "$SEVERITY" ] || fail "triage never set severity"
 log "severity_set=$SEVERITY"
 
-# 6. SSE: 6+ agent roles (AC-019)
+# 5. SSE: 6+ agent roles (AC-019)
 sleep 2
-kill "$SSE_PID" 2>/dev/null || true
-wait "$SSE_PID" 2>/dev/null || true
+[ -n "${SSE_PID:-}" ] && kill "$SSE_PID" 2>/dev/null || true
+[ -n "${SSE_PID:-}" ] && wait "$SSE_PID" 2>/dev/null || true
 log "SSE bytes=$(wc -c <"$SSE_FILE")"
 log "SSE content (head):"
 head -c 4000 "$SSE_FILE" | tee -a "$EVIDENCE"
@@ -152,7 +159,7 @@ AGENT_COUNT=$(echo "$AGENTS" | python3 -c 'import sys; print(len([x for x in sys
 log "sse_agent_roles=$AGENTS count=$AGENT_COUNT"
 [ "$AGENT_COUNT" -ge 6 ] || fail "expected 6+ agent SSE roles, got $AGENT_COUNT ($AGENTS)"
 
-# 7. Evidence + Hypothesis via API and Postgres (AC-020)
+# 6. Evidence + Hypothesis via API and Postgres (AC-020)
 EV=$(curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/investigation/${INCIDENT_ID}/evidence")
 HY=$(curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/investigation/${INCIDENT_ID}/hypotheses")
 log "evidence_api=$EV"
@@ -172,7 +179,7 @@ log "postgres evidence=$PG_EV hypotheses=$PG_HY"
 [ "${PG_EV:-0}" -ge 1 ] || fail "no evidence rows in Postgres"
 [ "${PG_HY:-0}" -ge 1 ] || fail "no hypothesis rows in Postgres"
 
-# 8. Hindsight bank runbook (AC-026)
+# 7. Hindsight bank runbook (AC-026)
 BANK="causeflow-${TENANT_ID}"
 RECALL=$(curl -sS -X POST "$HINDSIGHT/v1/default/banks/${BANK}/memories/recall" \
   -H 'Content-Type: application/json' \

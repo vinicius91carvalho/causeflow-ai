@@ -1495,3 +1495,9 @@ No defects found. integration=true set in feature_list.json.
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-10 — WI-AC-046 SSE replay fix (attempt 1)
+
+- Outcome: Centralized incident replay buffering in `SSEManager.broadcast`; moved AC-046 SSE subscribe to immediately after webhook1.
+- Evidence: `.harness/ac046-verify.sh` PASS (6 agent roles, replay verified on late connect), `tests/unit/shared/chat/sse-manager.test.ts`
+- Next: none

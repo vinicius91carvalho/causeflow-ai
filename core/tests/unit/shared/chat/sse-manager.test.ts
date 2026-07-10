@@ -104,4 +104,32 @@ describe('SSEManager', () => {
 
     expect(manager.getClientCount('tenant-1')).toBe(1);
   });
+
+  it('should buffer incident events for SSE replay even without connected clients', async () => {
+    await manager.broadcast('tenant-1', {
+      event: 'investigation_progress',
+      data: { incidentId: 'inc-1', stage: 'agent_failed', agentRole: 'log_analyst' },
+    });
+
+    expect(manager.getIncidentReplayEvents('tenant-1', 'inc-1')).toEqual([
+      {
+        event: 'investigation_progress',
+        data: { incidentId: 'inc-1', stage: 'agent_failed', agentRole: 'log_analyst' },
+      },
+    ]);
+  });
+
+  it('should replay buffered incident events to late SSE subscribers', async () => {
+    await manager.broadcast('tenant-1', {
+      event: 'investigation_progress',
+      data: { incidentId: 'inc-2', stage: 'agent_failed', agentRole: 'metric_analyst' },
+    });
+
+    const stream = createMockStream();
+    manager.addClient('tenant-1', 'late-client', stream);
+
+    const replay = manager.getIncidentReplayEvents('tenant-1', 'inc-2');
+    expect(replay).toHaveLength(1);
+    expect(replay[0]?.data.agentRole).toBe('metric_analyst');
+  });
 });
