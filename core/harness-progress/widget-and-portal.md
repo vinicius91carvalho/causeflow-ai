@@ -71,3 +71,29 @@ implementation=true — zero-diff checkpoint, no code changes needed
   - `app.ts` global CORS: return `'*'` for null origin alongside no-origin requests
 - Widget bundle included in Docker image (verified: /app/packages/widget/dist/widget.js exists, 32085 bytes)
 - Result: AC-034 passes at browser boundary. All 3 acceptance sub-checks confirmed.
+
+## 2026-07-10T02:10:00.000Z — QA Re-Verification (independent audit)
+
+- Role: qa-agent
+- WorkItem: WI-AC-034
+- Environment: API running on PORT=5171 (OSS runtime, Postgres:5439, Redis:6380)
+- Auth: Local JWT via POST /v1/auth/register, widget API key via POST /v1/api-keys
+- Method: static file audit + HTTP boundary tests
+
+### Static File Audit (3 checks)
+
+1. ✅ `packages/widget/dist/widget.js` exists (32085 bytes, valid JS IIFE via Vite build)
+2. ✅ Widget source tree complete (causeflow-widget.ts, api-client.ts, session-manager.ts, types.ts, vite.config.ts, portal-shell.html)
+3. ✅ Widget code correctly enforces: incident rendering guarded by `!this.unauthorized`; 401/403 response sets `unauthorized=true`; unauthorized state shows lock icon + "Unauthorized" message + never discloses incident data
+
+### HTTP Boundary Verification (6 checks)
+
+1. ✅ `GET /widget/widget.js` → 200, Content-Type: application/javascript; charset=utf-8, 32085 bytes
+2. ✅ `POST /v1/widget/sessions` (valid cflo_ API key) → 201 with sessionId
+3. ✅ `GET /v1/widget/incidents` (valid API key) → 200, `{"items":[]}` (empty — no incidents exist)
+4. ✅ `GET /v1/widget/incidents` (invalid API key `cflo_invalidkey123`) → 401, error message
+5. ✅ `GET /v1/widget/incidents` (no API key) → 401, missing auth error
+6. ✅ `POST /v1/widget/sessions` (invalid API key) → 401, invalid key format
+
+### Verdict
+All acceptance sub-checks pass. qa=true, implementation=true.
