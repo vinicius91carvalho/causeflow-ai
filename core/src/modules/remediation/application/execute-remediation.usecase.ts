@@ -99,7 +99,7 @@ export class ExecuteRemediationUseCase {
                         pullRequests.push(prResult);
                         updatedSteps[i] = {
                             ...updatedSteps[i]!,
-                            status: 'completed' as const,
+                            status: 'succeeded' as const,
                             output: `PR #${prResult.prNumber} created: ${prResult.prUrl}`,
                             durationMs: stepDurationMs,
                             completedAt: new Date().toISOString(),
@@ -124,8 +124,10 @@ export class ExecuteRemediationUseCase {
                 const stepDurationMs = Date.now() - stepStartMs;
                 updatedSteps[i] = {
                     ...updatedSteps[i]!,
-                    status: (result.success ? 'completed' : 'failed') as RemediationStep['status'],
+                    status: (result.success ? 'succeeded' : 'failed') as RemediationStep['status'],
                     output: result.output,
+                    beforeState: result.beforeState,
+                    afterState: result.afterState,
                     durationMs: stepDurationMs,
                     completedAt: new Date().toISOString(),
                 };
@@ -169,6 +171,7 @@ export class ExecuteRemediationUseCase {
             await this.incidentRepo.updateStatus(tenantId, remediation.incidentId, 'resolved', now);
         }
         // 7. Publish event
+        const isRollback = Boolean(remediation.rollbackOf) || remediation.description.toLowerCase().includes('rollback');
         await this.eventBus.publish({
             eventType: 'remediation.executed',
             occurredAt: now,
@@ -177,10 +180,11 @@ export class ExecuteRemediationUseCase {
                 incidentId: remediation.incidentId,
                 remediationId,
                 status: finalStatus,
-                stepsCompleted: updatedSteps.filter((s) => s.status === 'completed').length,
+                stepsCompleted: updatedSteps.filter((s) => s.status === 'succeeded').length,
                 totalSteps: updatedSteps.length,
                 actorUserId: input.actorUserId,
                 actorEmail: input.actorEmail,
+                ...(isRollback ? { isRollback: true, rollbackOf: remediation.rollbackOf } : {}),
             },
         });
         return updated;

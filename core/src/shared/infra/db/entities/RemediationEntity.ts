@@ -7,6 +7,7 @@ export const RemediationEntity = new Entity({
         tenantId: { type: 'string', required: true },
         remediationId: { type: 'string', required: true },
         incidentId: { type: 'string', required: true },
+        rollbackOf: { type: 'string' },
         status: {
             type: ['proposed', 'approved', 'rejected', 'executing', 'completed', 'failed'],
             required: true,
@@ -27,10 +28,12 @@ export const RemediationEntity = new Entity({
                     automated: { type: 'boolean', default: false },
                     params: { type: 'any' },
                     status: {
-                        type: ['pending', 'running', 'completed', 'failed', 'skipped'],
+                        type: ['pending', 'running', 'completed', 'succeeded', 'failed', 'skipped'],
                         required: true,
                         default: 'pending',
                     },
+                    beforeState: { type: 'any' },
+                    afterState: { type: 'any' },
                     output: { type: 'string' },
                     costUsd: { type: 'number' },
                     durationMs: { type: 'number' },

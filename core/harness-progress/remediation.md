@@ -751,3 +751,11 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: AC-023 black-box HTTP checks pass on port 3099 (container PORT=5171)
 - remediationId: 1d14548e-545d-4558-aef4-ee8671afe708
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783705789-integration_qa.log
+
+## 2026-07-10T19:41:00.000Z — WI-AC-024 implemented
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: implementation=true; black-box verify passed on PORT=5170
+- Evidence: `.harness/ac024-verify.sh` (steps status=succeeded, beforeState/afterState, rollback 201, audit chain)
+- NextAction: QA / integration verification

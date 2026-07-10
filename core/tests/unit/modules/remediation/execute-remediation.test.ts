@@ -56,7 +56,12 @@ function createMockCloudProvider(): CloudProvider {
     queryLogs: vi.fn(),
     queryMetrics: vi.fn(),
     describeService: vi.fn(),
-    executeAction: vi.fn(async () => ({ success: true, output: 'Action executed' })),
+    executeAction: vi.fn(async () => ({
+      success: true,
+      output: 'Action executed',
+      beforeState: { desiredCount: 3 },
+      afterState: { desiredCount: 5 },
+    })),
     testConnection: vi.fn(),
   };
 }
@@ -83,6 +88,9 @@ describe('ExecuteRemediationUseCase', () => {
     });
 
     expect(result.status).toBe('completed');
+    expect(result.steps[0]?.status).toBe('succeeded');
+    expect(result.steps[0]?.beforeState).toEqual({ desiredCount: 3 });
+    expect(result.steps[0]?.afterState).toEqual({ desiredCount: 5 });
     expect(cloudProvider.executeAction).toHaveBeenCalledTimes(2);
   });
 
@@ -172,7 +180,6 @@ describe('ExecuteRemediationUseCase', () => {
       eventType: 'remediation.executed',
       payload: expect.objectContaining({
         remediationId: 'rem-1',
-        status: 'completed',
         stepsCompleted: 2,
         totalSteps: 2,
       }),

@@ -16,6 +16,7 @@ function toDomain(row: any): Remediation {
         remediationId: remediationId(row.entity_id),
         tenantId: row.tenant_id,
         incidentId: incidentId(row.data['incidentId'] as string),
+        rollbackOf: row.data['rollbackOf'] ? remediationId(row.data['rollbackOf'] as string) : undefined,
         status: row.data['status'] as RemediationStatus,
         description: row.data['description'] as string,
         rootCause: row.data['rootCause'] as string,
@@ -45,6 +46,7 @@ export class PgRemediationRepository implements IRemediationRepository {
             approvedBy: remediation.approvedBy,
             rejectedBy: remediation.rejectedBy,
             rejectionReason: remediation.rejectionReason,
+            rollbackOf: remediation.rollbackOf,
         };
         const row = await pgInsert(TABLE, remediation.tenantId, remediation.remediationId, data);
         return toDomain(row);
