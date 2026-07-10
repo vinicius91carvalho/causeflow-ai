@@ -4,7 +4,7 @@
   "context": "widget-and-portal",
   "result": "PASS",
   "evidence": [
-    "Playwright browser verification on PORT=5170 with OSS runtime.",
+    "Playwright integrated verification on PORT=5170 with CAUSEFLOW_RUNTIME=oss.",
     "/dashboard returns 200; sidebar shows QA Tenant AC035, AC035 checkout latency spike, and New investigation.",
     "Clicking the incident opens detail view with Evidence, Hypotheses, Chat Panel, and Remediation chrome.",
     "SSE /v1/notifications/stream connects with HTTP 200.",
@@ -13,6 +13,6 @@
   "integration": true,
   "implementation": true,
   "qa": true,
-  "verifiedAt": "2026-07-10T18:49:00Z",
+  "verifiedAt": "2026-07-10T19:01:00Z",
   "verifiedBy": "qa-agent"
 }
