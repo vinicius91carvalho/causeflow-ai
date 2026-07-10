@@ -652,3 +652,45 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - WorkItem: WI-AC-035
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T07:56:27.257Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T07:56:27.291Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T08:01:04.315Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T08:01:04.365Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T08:04:43.374Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T08:04:43.418Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
