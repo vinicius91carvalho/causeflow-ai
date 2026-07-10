@@ -1,5 +1,19 @@
 # Workflow Journal
 
+## 2026-07-10T19:35:00Z — Independent QA pass (WI-AC-021, this worktree)
+
+**Result: qa=true, implementation=true. Zero defects.**
+
+Exercised AC-021 via real HTTP on PORT=3099 (host → container 5171), OSS docker-compose stack
+(Postgres :5439, Redis :6380, worker healthy).
+
+### AC-021 boundary checks (all passed)
+1. ✅ `POST /api/v1/investigation/:id/chat` → 200 with `response`, `chatId`, `action=question_answered`
+2. ✅ `GET /api/v1/investigation/:id/chat` → user + assistant `ChatMessageEntity` rows persisted
+3. ✅ Assistant message carries `slackThreadId` from chat-platform mirror (Slack-equivalent when Slack not installed)
+
+Incident `8716315d-a286-4dbb-b7f4-bfc1b820db2c` — `.harness/ac021-verify.sh` PASS (poll 3 status=succeeded)
+
 ## 2026-07-10T19:32:00Z — VERIFY-FIRST boundary pass (WI-AC-021, this worktree)
 
 **Result: implementation=true (minimal fix — chat platform mirroring + LLM-unavailable stub reply).**
