@@ -2732,3 +2732,339 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - WorkItem: WI-AC-035
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T13:34:22.125Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T13:34:22.155Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:34:31.791Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:34:31.823Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:34:45.636Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:34:45.669Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:34:57.425Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:34:57.464Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:35:09.298Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:35:09.326Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:35:20.959Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:35:20.992Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:35:30.636Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:35:30.663Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:35:42.401Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:35:42.431Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:35:56.297Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:35:56.327Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:36:08.015Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:36:08.046Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:36:21.818Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:36:21.855Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:36:35.613Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:36:35.680Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:36:47.380Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:36:47.407Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:36:59.060Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:36:59.089Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:37:12.877Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:37:12.906Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:37:22.696Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:37:22.727Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:37:36.479Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:37:36.506Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:37:50.342Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:37:50.370Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:37:59.755Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:37:59.788Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:38:14.100Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:38:14.131Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:38:27.894Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:38:27.927Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:38:37.555Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:38:37.580Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:38:51.534Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:38:51.565Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:40:29.391Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:40:29.424Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
