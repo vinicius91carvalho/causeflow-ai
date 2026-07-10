@@ -433,11 +433,11 @@
     "depends_on": ["AC-019"],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "qa-pass"
   },
   {
     "id": "WI-AC-021",
