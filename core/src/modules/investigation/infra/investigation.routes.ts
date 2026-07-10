@@ -78,7 +78,7 @@ const investigationFeedbackSchema = z.object({
 
 function runStatusFromIncident(status: string): 'running' | 'succeeded' | 'failed' {
     if (status === 'resolved' || status === 'awaiting_approval') return 'succeeded';
-    if (status === 'failed' || status === 'aborted' || status === 'inconclusive') return 'failed';
+    if (status === 'failed' || status === 'aborted' || status === 'inconclusive' || status === 'cost_exceeded') return 'failed';
     return 'running';
 }
 

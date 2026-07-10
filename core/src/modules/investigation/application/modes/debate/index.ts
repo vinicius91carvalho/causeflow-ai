@@ -27,6 +27,7 @@ import type { AgentMemory } from '../../../../../shared/application/ports/agent-
 import type { ToolHandlerFactory } from '../../investigate-incident.usecase.js';
 import type { IInvestigationToolset } from '../shared/toolset.port.js';
 import type { MetricRecorder } from '../../../../../shared/application/ports/metric-recorder.port.js';
+import { config } from '../../../../../shared/config/index.js';
 
 export interface DebateModeDeps {
     toolset: IInvestigationToolset;
@@ -465,6 +466,18 @@ Prosecutor summary: ${round.prosecutor.response}`)
             },
             updatedAt: new Date().toISOString(),
         });
+        // Check cost ceiling (AC-038). If the total cost exceeds the configured
+        // per-investigation ceiling, abort the run and mark cost_exceeded.
+        const ceiling = config.billing.maxCostUsd;
+        if (ceiling > 0 && totalCostUsd > ceiling) {
+            logger.warn(
+                { incidentId, totalCostUsd, ceiling },
+                'Debate investigation cost exceeded ceiling — aborting',
+            );
+            await this.deps.incidentRepo.updateStatus(tenantId, incidentId, 'cost_exceeded');
+            return result;
+        }
+
         await this.deps.incidentRepo.updateStatus(tenantId, incidentId, newStatus);
 
         await this.deps.eventBus.publish({
