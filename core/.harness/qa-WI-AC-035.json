@@ -1,0 +1,23 @@
+{
+  "workItemId": "WI-AC-035",
+  "qa": true,
+  "integration": false,
+  "implementation": true,
+  "tested": "2026-07-10T17:05:02.000Z",
+  "verification": {
+    "dashboard_http": "pass",
+    "hypotheses_api": "pass",
+    "sse_stream": "pass",
+    "sidebar_tenant": "pass",
+    "new_investigation_btn": "pass",
+    "recent_incidents": "pass",
+    "panel_evidence": "pass",
+    "panel_hypotheses": "pass",
+    "panel_chat_panel": "pass",
+    "panel_remediation": "pass",
+    "sse_ui": "pass",
+    "browser_hypotheses": "pass",
+    "browser_sse": "pass"
+  },
+  "defects": []
+}
