@@ -1,0 +1,30 @@
+{
+  "workItemId": "WI-AC-043",
+  "qa": true,
+  "integration": true,
+  "implementation": true,
+  "tested": "2026-07-10T01:50:00Z",
+  "verification": {
+    "getSubscriptionReturnsFreeActive": "pass",
+    "checkoutSessionReturns410Gone": "pass",
+    "getUsageReturnsPaginatedRecords": "pass",
+    "noStripeDotComCallAtBoot": "pass",
+    "quotaEnforcementFromEnvLimits": "pass",
+    "stripeWebhookDisabledInOSS": "pass",
+    "stripeSignupDisabledInOSS": "pass",
+    "ossBillingGuardInBootstrap": "pass"
+  },
+  "observations": [
+    "GET /v1/billing/subscription returns {\"plan\":\"free\",\"status\":\"active\"} with HTTP 200 for any authenticated tenant — the GetSubscriptionUseCase is NOT wired in OSS mode so the route defaults to the stub response.",
+    "POST /v1/billing/checkout-session returns HTTP 410 Gone with \"Billing is disabled in the OSS build. Checkout is not available.\" — the CreateCheckoutUseCase is NOT wired in OSS mode.",
+    "GET /v1/billing/usage returns the tenant's local UsageRecordEntity rows from PgUsageRecordRepository, with limit/cursor pagination — the GetUsageUseCase IS wired and functional in OSS mode.",
+    "POST /v1/billing/portal also correctly returns 410 Gone (CreatePortalUseCase not wired).",
+    "POST /v1/billing/webhook is not mounted in OSS mode (guarded by !config.isOss() in app.ts).",
+    "POST /v1/signup is not mounted in OSS mode (guarded by !config.isOss() in app.ts).",
+    "No stripe.com call is made at boot: getStripeClient() is never invoked in OSS mode; the Stripe-dependent use cases (createCheckout, createPortal, getSubscription, etc.) are only constructed in the else branch of the OSS guard in bootstrap.ts.",
+    "Quota enforcement (maxParallelInvestigations, maxAgentsPerRun) comes from config.billing which reads env vars MAX_PARALLEL_INVESTIGATIONS (default 10) and MAX_AGENTS_PER_RUN (default 10) — these are used by PgBillingAccountRepository and CheckQuotaUseCase, no Stripe plan is consulted.",
+    "Initial dist build was stale (missing the OSS billing guard). After pnpm build + docker compose build causeflow-api + restart, all HTTP checks pass correctly.",
+    "All Stripe-dependent routes (/plans, /subscribe, /credits, /invoices, /purchase, /upgrade, /cancel, /reactivate, /settings) return 404 Not Found in OSS mode — they are conditionally registered and the condition (useCases.* present) is false."
+  ],
+  "defects": []
+}
