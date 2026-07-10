@@ -150,3 +150,18 @@ Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres :5439, Redis :6380)
 - Final `GET /api/v1/investigation/:id` -> `status=succeeded`, 6 `assignedAgents`, `finalSynthesis` stored.
 
 No defects found for AC-019.
+
+## 2026-07-10T05:12:00Z — Integrated verification for WI-AC-019
+
+**Result: integration=true, implementation=true.**
+
+Scaffold audit: `project_specs.xml`, `package.json`, `src/main.ts`, `src/bootstrap.ts`, `src/workers/investigation-worker.ts`, `src/modules/investigation/`, `src/shared/infra/chat/sse-manager.ts`, `docker-compose.yml`, tests tree present.
+
+Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres :5439, Redis :6380):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `467da0a4-eb76-405f-adb3-9667338a4fb6`.
+- `GET /api/v1/investigation/:id` -> `status=running` during pipeline.
+- SSE `/api/v1/investigation/:id/stream` -> 24 events including per-agent `agentRole` for all 6 agents, then `investigation_completed`.
+- Final `GET /api/v1/investigation/:id` -> `status=succeeded`, 6 `assignedAgents`, `finalSynthesis` stored.
+
+No defects found for AC-019.
