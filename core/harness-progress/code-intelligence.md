@@ -215,3 +215,15 @@ Verified AC-028 at the real HTTP boundary on PORT=5184 using the running `pnpm d
 - Outcome: passed on integrated main
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/code-intelligence/WI-AC-028-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T21:33:00.000Z — Verify-First checkpoint passed (WI-AC-029)
+
+- WorkItem: WI-AC-029
+- AcceptanceChecks: AC-029
+- Phase: Verify-First
+- Outcome: All AC-029 checks pass at HTTP boundary on port 3099 (Docker OSS runtime). Zero code changes needed — commit 2c338fbd already contains implementation.
+- Evidence:
+  - ✅ AC-029.P1: POST /v1/code-knowledge/repo-mappings → 201; GET /v1/code-knowledge/services/payment-service/repos → returns `[{"repoFullName":"acme/payment-service","serviceId":"payment-service"}]` — consistent with RepoServiceMapEntity
+  - ✅ AC-029.P2: POST /v1/remediation with `"path":"acme/payment-service/src/payments.ts"` in proposed fix files → 201, step description contains `"src/payments.ts:42"`
+  - ✅ AC-029.P3: POST /v1/remediation/:id/approve → status=approved, auto-execution triggers, step action=`create_fix_pr` completes as `skipped` ("No proposed fix available or GitHub not configured") — expected in OSS runtime
+- implementation: true
