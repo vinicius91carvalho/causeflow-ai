@@ -382,3 +382,36 @@ Exercised AC-027 via real HTTP on port 5176 (OSS runtime, Redis + Postgres + Hin
 - Unit tests: 9/9 pass (crud-skills: 4 tests, select-skills: 5 tests)
 
 ### Zero defects — no code changes needed
+
+## 2026-07-10T09:20:00Z — Black-box verification (WI-AC-045, this worktree)
+
+**Result: implementation=true (zero-diff checkpoint — no code changes).**
+
+Re-verified AC-045 against the running OSS stack on PORT=5176 (docker compose,
+Postgres :5439, Redis :6380, Hindsight :8888).
+
+### Checks passed (14/14)
+1. ✅ `docker compose ps` — both causeflow-api (healthy) and causeflow-worker (healthy)
+2. ✅ `GET /health` returns 200 with `{"postgres":"ok","redis":"ok","anthropic":"skipped","queues":"ok"}`
+3. ✅ Worker container logs contain `investigation:start` (3 occurrences for recent jobs)
+4. ✅ Worker logs show `investigation:start` for the new AC-045 test incident `be05636c-6825-421c-b123-557c5a1e509f`
+5. ✅ Incident transitioned: `triaging` → `investigating` → `resolved` via worker processing
+6. ✅ `GET /admin/queues` returns investigation queue with 7 completed jobs (0 failed)
+7. ✅ Worker uses `dist/workers/investigation-worker.js` entrypoint (confirmed via docker inspect)
+8. ✅ No `ECS_CLUSTER` env var in worker container
+9. ✅ No `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_SESSION_TOKEN` in worker container
+10. ✅ Worker code (`src/workers/investigation-worker.ts`) has zero ECS imports (no `@aws-sdk/client-ecs`, no `ecs-client`, no `task-dispatcher`)
+11. ✅ ECS code in `src/main.ts` and `src/bootstrap.ts` is gated behind `config.ecs.cluster` (falsy in OSS)
+12. ✅ `ecs/` directory exists but is behind feature flag (spec-compliant: "kept behind feature flag, off by default")
+13. ✅ Worker runs BullMQ consumer mode (`CAUSEFLOW_RUNTIME=oss`) as a long-lived consumer
+14. ✅ `pnpm lint-invariants` passes (no new violations)
+
+### Code state (unchanged — zero-diff)
+- `src/workers/investigation-worker.ts` — BullMQ consumer mode + one-shot ECS mode (unchanged from previous implementation)
+- `docker-compose.yml` — worker service with Postgres env vars + healthcheck (unchanged)
+- `Dockerfile.worker` — entrypoint `dist/workers/investigation-worker.js` (unchanged)
+- `src/shared/infra/ecs/` — ECS files present but never loaded (gated by `config.ecs.cluster`)
+
+### Verdict
+All AC-045 black-box checks pass against the running OSS stack. No code changes needed —
+the existing implementation is complete and verified.
