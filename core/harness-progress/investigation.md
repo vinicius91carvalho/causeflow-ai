@@ -2124,3 +2124,10 @@ Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d
 - Outcome: integration=true, implementation=true
 - Evidence: append-only merge of harness-progress/investigation.md (HEAD + gen/core-investigation); incident `28bf1563-508a-42e1-8150-1159958ef525`; immediate GET `status=running`; SSE 11 `investigation_progress` events with all 6 agent roles; final GET `status=succeeded` with `finalSynthesis` stored; `.harness/ac019-integrated-verify.sh` exit 0
 - NextAction: done
+
+## 2026-07-10T12:59:30Z - Integrated verification for WI-AC-019
+
+- WorkItem: WI-AC-019
+- Outcome: integration=true, implementation=true
+- Evidence: scaffold audit pass; incident `5f5dd1c2-1ce3-4949-ae91-f250161c45d8`; immediate GET `status=running`; SSE 11 `investigation_progress` events with per-agent `agentRole` for all 6 agents; final GET `status=succeeded` with `finalSynthesis` stored; `.harness/ac019-integrated-verify.sh` exit 0
+- NextAction: done
