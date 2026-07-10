@@ -358,3 +358,11 @@ index 54666309eaaed3868da8b50f871b7f75b842cb72..ba501b6019df4c302408c9feb62569e5
 - WorkItem: WI-AC-035
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T05:02:00.000Z — Integrated Verification failed
+
+- WorkItem: WI-AC-035
+- AcceptanceChecks: AC-035
+- Outcome: integration=false, implementation=false, qa=false
+- Evidence: real browser boundary on PORT=5170 (Chrome via Playwright) against OSS runtime on plan/opensource-docker. `/dashboard` first load shows tenant `QA Tenant AC035`, sidebar incident `AC035 checkout latency spike`, `New investigation`, and SSE `/v1/notifications/stream` 200. Clicking the incident opens detail with Evidence, Hypotheses, Chat Panel, and Remediation chrome; `GET /v1/investigation/517bfbc3-9a1f-41a4-8a67-c51d4256bbfe/hypotheses` returns 500.
+- Defect: expected the dashboard incident detail hypotheses panel to load without an internal server error; observed hypotheses request failed with `INTERNAL_ERROR` because OSS bootstrap still wires `DynamoHypothesisRepository` (DynamoDB unavailable in CAUSEFLOW_RUNTIME=oss).
