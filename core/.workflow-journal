@@ -234,3 +234,24 @@
 
 ### Verdict
 qa=false, implementation=false — core auth flow and bundle serving work, but AC-034 requires "the panel shows the latest investigations for the tenant" which the chat-based widget does not auto-display. Additionally the Dockerfile does not build the widget Vite bundle (missing `pnpm --filter @causeflow/widget build` step). Both are defects per the AC specification.
+
+## WI-AC-023: Remediation proposal, approval, and duplicate-prevention
+
+### Status: IMPLEMENTED & VERIFIED (QA PASS)
+
+### HTTP boundary verification (PORT=5171, OSS runtime)
+
+1. **GET /api/v1/remediation/:id/proposal** — Returns the remediation plan with AWS actions (steps, action types, params). Status 200 with plan body. ✅
+2. **POST /api/v1/remediation/:id/approve** — With admin JWT, returns 200 and creates an ApprovalEntity. Remediation status transitions to 'approved', approvedBy set. ✅
+3. **Second approve** — Returns 409 (ConflictError) when remediation is already approved or completed. ✅
+
+### Changes
+- `src/app.ts`: Added `/api/v1/remediation` route prefix (matching investigation pattern)
+- `src/modules/remediation/infra/remediation.routes.ts`: Added `GET /:remediationId/proposal` endpoint
+- `src/modules/remediation/application/approve-remediation.usecase.ts`: Accepts optional `IApprovalRepository`, creates ApprovalEntity on approve, throws `ConflictError` (409) for duplicate/improper approvals
+- `src/bootstrap.ts`: Passes `approvalRepo` to ApproveRemediationUseCase
+- `tests/unit/modules/remediation/approve-remediation.test.ts`: Updated to expect `ConflictError` instead of `RemediationNotProposedError`
+
+### Unit Tests
+- All 57 remediation tests pass (10 test files)
+- 1076/1079 tests pass overall (3 pre-existing failures in investigation module, unrelated)

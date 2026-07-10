@@ -4,8 +4,7 @@ import type { IRemediationRepository } from '../../../../src/modules/remediation
 import type { Remediation } from '../../../../src/modules/remediation/domain/remediation.entity.js';
 import { EventBus } from '../../../../src/shared/domain/events.js';
 import { tenantId, remediationId } from '../../../../src/shared/domain/value-objects.js';
-import { NotFoundError } from '../../../../src/shared/domain/errors.js';
-import { RemediationNotProposedError } from '../../../../src/modules/remediation/domain/remediation.errors.js';
+import { NotFoundError, ConflictError } from '../../../../src/shared/domain/errors.js';
 
 const mockRemediation: Remediation = {
   remediationId: remediationId('rem-1'),
@@ -88,7 +87,7 @@ describe('ApproveRemediationUseCase', () => {
     ).rejects.toThrow(NotFoundError);
   });
 
-  it('should throw RemediationNotProposedError when status is not proposed', async () => {
+  it('should throw ConflictError when status is not proposed', async () => {
     vi.mocked(repo.findById).mockResolvedValueOnce({ ...mockRemediation, status: 'executing' });
 
     await expect(
@@ -97,6 +96,6 @@ describe('ApproveRemediationUseCase', () => {
         remediationId: remediationId('rem-1'),
         approvedBy: 'admin@test.com',
       }),
-    ).rejects.toThrow(RemediationNotProposedError);
+    ).rejects.toThrow(ConflictError);
   });
 });
