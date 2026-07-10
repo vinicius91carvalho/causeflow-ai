@@ -1,3 +1,4 @@
+
 # investigation workflow journal
 
 ## 2026-07-10T01:08:42.889Z — Resumed
@@ -4902,6 +4903,71 @@ No defects found for AC-019.
 - NextAction: merge
 
 ## 2026-07-10T16:29:27.645Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T16:42:12.542Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T16:42:12.598Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T16:44:36.875Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: integration could not complete
+- Defects: Checkpoint was not integrated into the integration branch
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-10T16:44:44.400Z — Explicit Resume
+
+- WorkItem: WI-AC-019
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+- NextAction: Coding Attempt 1
+
+## 2026-07-10T16:48:00Z � VERIFY-FIRST AC-019 boundary pass
+
+**Result: implementation=true (zero-diff checkpoint � no code changes).**
+
+Scaffold audit: all required AC-019 structures present. Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `ccf1412e-18cd-420f-a073-2e424a300ee3`: status sequence `running` -> `succeeded`; SSE emitted per-agent events for all 6 agents (log_analyst, metric_analyst, change_detector, code_analyzer, infra_inspector, db_analyst); `finalSynthesis` stored.
+
+## 2026-07-10T16:47:45.502Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T16:51:30Z � QA verdict for WI-AC-019
+
+- WorkItem: WI-AC-019
+- Result: qa=true, implementation=true
+- Scaffold audit: project_specs.xml present; required structures present; no missing artifact
+- Boundary: PORT=5175 HTTP/SSE pass; incident `5a5419ff-3796-4d42-839c-15c3df9a3c17`; `status=running` then `status=succeeded`; SSE per-agent events (`agent_failed`) for all 6 agents; `finalSynthesis` stored
+- Defects: none
+
+
+## 2026-07-10T16:53:10.688Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T16:53:10.717Z — Checkpoint ready
 
 - Attempt: 1/3
 - WorkItem: WI-AC-019
