@@ -244,3 +244,10 @@ index 4438113f180e5b168f1372a48451fcb900c81a17..851d7f68bd0431a7fb0c7bb5dd5e481d
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Claude/Codex rate-limited — use Cursor agent composer-2.5 only (NOT composer-2.5-fast). VERIFY-FIRST at real boundary; zero-diff if green. No flash.
 - NextAction: Coding Attempt 1
+
+## 2026-07-10T03:38:36.727Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
