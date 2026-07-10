@@ -692,3 +692,12 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: merge gen/core-remediation into plan/opensource-docker (append-only journal); AC-023 black-box HTTP checks pass on port 3099 (container PORT=5171)
 - Evidence: remediationId=649c3015-d4cc-4a75-b913-9839f0812914; GET proposal → 200 with ecs.updateService/ecs.forceNewDeployment; POST approve → 200 status=approved; duplicate approve → 409 CONFLICT
 - integration=true
+
+## 2026-07-10T17:32:41Z — Integrated verification (WI-AC-023)
+
+- WorkItem: WI-AC-023
+- AC: AC-023
+- Outcome: AC-023 black-box HTTP checks pass on port 3099 (container PORT=5171)
+- Evidence: remediationId=28c63b9b-4fde-4d15-a65f-4fd4b94bc19f; GET proposal → 200 with ecs.updateService/ecs.forceNewDeployment; POST approve → 200 status=approved; duplicate approve → 409 CONFLICT; ApprovalEntity via ApproveRemediationUseCase.approvalRepo.create (OSS in-memory PgApprovalRepository)
+- Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783704761-integration_qa.log
+- integration=true
