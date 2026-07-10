@@ -482,3 +482,31 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Outcome: merge conflict in harness-progress/remediation.md resolved (append-only); AC-023 passes at HTTP boundary on port 3099 (container PORT=5171)
 - Evidence: GET /api/v1/remediation/:id/proposal → 200 with ecs.updateService + ecs.forceNewDeployment; POST approve → 200 status=approved; second POST → 409 CONFLICT
 - integration=true
+
+## 2026-07-10T16:52:32.645Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T16:52:32.669Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T16:58:54.240Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T16:58:54.286Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
