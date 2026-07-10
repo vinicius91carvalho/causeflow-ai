@@ -5145,6 +5145,64 @@ No defects found for AC-019.
 
 ## 2026-07-10T17:50:29.679Z — Checkpoint ready
 
+ — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T17:56:57.454Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T17:56:57.508Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T17:58:14.930Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: integration could not complete
+- Defects: Checkpoint was not integrated into the integration branch
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-10T17:58:23.576Z — Explicit Resume
+
+- WorkItem: WI-AC-019
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+- NextAction: Coding Attempt 1
+
+## 2026-07-10T18:06:00Z � VERIFY-FIRST AC-019 boundary pass
+
+**Result: implementation=true (zero-diff checkpoint � no code changes).**
+
+Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `83b81b63-c490-4ccd-819c-e1254eaa6c17`: status sequence `running` -> `succeeded`; SSE emitted 11 per-agent `investigation_progress` events for all 6 agents; `finalSynthesis` stored.
+
+## 2026-07-10T18:06:49.449Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T18:10:00Z � QA verdict for WI-AC-019
+
+- WorkItem: WI-AC-019
+- Result: qa=true, implementation=true
+- Spec/scaffold audit: `project_specs.xml` and required AC-019 structures present; no missing scaffold artifact.
+- Boundary (PORT=5175): registered tenant; created high-severity incident `ce90218a-3d15-4e6d-bd40-9474a5fcc59c`; `GET /api/v1/investigation/:id` observed `status=running` then `status=succeeded` with 6 assigned agents; SSE at `/api/v1/investigation/:id/stream` emitted `connected`, per-agent `investigation_progress` events for log/metric/change/code/infra/db, and `investigation_completed`; `finalSynthesis` stored.
+- Defects: none
+
+## 2026-07-10T18:10:51.171Z — Checkpoint ready
 - Attempt: 1/3
 - WorkItem: WI-AC-019
 - Outcome: isolated QA passed
