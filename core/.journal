@@ -1192,3 +1192,11 @@ Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres + Redis healthy):
 - Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
 
 No defects found for AC-019.
+
+## 2026-07-10T18:22:00Z — Integrated verification for WI-AC-035
+
+**Result: integration=true, implementation=true, qa=true.**
+
+Scaffold audit: `project_specs.xml`, `feature_list.json`, `init.sh`, `dashboard/`, and harness verify script present. Real browser boundary on PORT=5170 (Playwright, CAUSEFLOW_RUNTIME=oss, Postgres :5439, Redis :6380): `.harness/ac035-integrated-verify.mjs` exit 0, 10/10 PASS.
+
+No defects found for AC-035.
