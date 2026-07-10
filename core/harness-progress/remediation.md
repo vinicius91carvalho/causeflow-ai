@@ -625,3 +625,16 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783703969-integration_qa.log
 - integration=true
 
+## 2026-07-10T17:20:13.305Z — Resumed
+
+- WorkItem: WI-AC-023
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-10T17:20:13.350Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-023
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
