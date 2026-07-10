@@ -17,9 +17,9 @@ function toDomain(row: any): UsageRecord {
         recordId: usageRecordId(row.entity_id),
         tenantId: row.tenant_id,
         type: row.data['type'] as UsageRecord['type'],
-        incidentId: row.data['incidentId'] as UsageRecord['incidentId'],
         costUsd: row.data['costUsd'] as number | undefined,
         agentBreakdown: row.data['agentBreakdown'] as UsageRecord['agentBreakdown'],
+        incidentId: row.data['incidentId'] as UsageRecord['incidentId'],
         createdAt: row.created_at,
     };
 }
@@ -28,9 +28,9 @@ export class PgUsageRecordRepository implements IUsageRecordRepository {
     async create(record: UsageRecord): Promise<UsageRecord> {
         const data: Record<string, unknown> = {
             type: record.type,
-            incidentId: record.incidentId,
             costUsd: record.costUsd,
             agentBreakdown: record.agentBreakdown,
+            incidentId: record.incidentId,
         };
         const row = await pgInsert(TABLE, record.tenantId, record.recordId, data);
         return toDomain(row);

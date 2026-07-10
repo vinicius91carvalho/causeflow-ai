@@ -585,7 +585,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const notificationRepo = config.isOss()
     ? new (await import('./modules/notification/infra/pg-notification.repository.js')).PgNotificationRepository()
     : new DynamoNotificationRepository();
-  const approvalRepo = new DynamoApprovalRepository();
+  const approvalRepo = config.isOss()
+    ? new (await import('./modules/notification/infra/pg-approval.repository.js')).PgApprovalRepository()
+    : new DynamoApprovalRepository();
   const sseManager = new SSEManager();
 
   // Chat Platform (Web Portal replaces Stub)
