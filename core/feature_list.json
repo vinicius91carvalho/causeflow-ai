@@ -414,7 +414,7 @@
     "qa": true,
     "integration": true,
     "retries": 1,
-    "attempts": 2,
+    "attempts": 4,
     "status": "integrated"
   },
   {

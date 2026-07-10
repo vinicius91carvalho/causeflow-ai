@@ -2319,4 +2319,2811 @@ Exercised AC-019 at real HTTP/SSE boundary on PORT=5175. Incident `8d9cf39e-616d
 - WorkItem: WI-AC-019
 - Outcome: integration=true, implementation=true
 - Evidence: append-only merge of harness-progress/investigation.md (HEAD + gen/core-investigation); incident `3b1c122c-fd5e-4ec0-9556-38a7d10cec1d`; immediate GET `status=running`; SSE 11 `investigation_progress` events with all 6 agent roles; final GET `status=succeeded` with `finalSynthesis` stored; `.harness/ac019-integrated-verify.sh` exit 0
-- NextAction: done
+- NextAction: done## 2026-07-10T13:34:26.903Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:34:26.930Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:34:36.609Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:34:36.640Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:34:52.540Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:34:52.567Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:35:02.336Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:35:02.365Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:35:16.149Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:35:16.177Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:35:25.793Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:35:25.850Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:35:37.596Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:35:37.631Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:35:49.348Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:35:49.376Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:36:01.060Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:36:01.087Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:36:14.917Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:36:14.945Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:36:30.786Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:36:30.815Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:36:40.437Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:36:40.467Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:36:52.157Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:36:52.188Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:37:05.942Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:37:05.970Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:37:17.713Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:37:17.743Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:37:29.598Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:37:29.636Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:37:41.337Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:37:41.367Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:37:57.350Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:37:57.392Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:38:07.227Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:38:07.258Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:38:21.017Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:38:21.043Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:38:32.698Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:38:32.726Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:38:44.622Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:38:44.663Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:38:51.686Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: merge
+- Attempt: 1
+- NextAction: merge
+
+## 2026-07-10T13:38:51.718Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-10T13:40:26.847Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: integration could not complete
+- Defects: Checkpoint was not integrated into the integration branch
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-10T13:40:36.375Z — Explicit Resume
+
+- WorkItem: WI-AC-019
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+- NextAction: Coding Attempt 1
+
+## 2026-07-10T13:50:21.445Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
+
+## 2026-07-10T13:51:33.318Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:51:42.945Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:51:54.727Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:52:06.571Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:52:16.363Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:52:21.906Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:52:33.774Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:52:45.469Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:52:50.903Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:52:55.867Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:53:01.357Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:53:06.815Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:53:16.595Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:53:28.371Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:53:42.312Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:53:56.212Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:54:01.624Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:54:13.473Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:54:25.268Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:54:34.853Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:54:44.623Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:54:54.375Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:55:04.104Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:55:15.912Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:55:23.181Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:55:31.315Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:55:41.093Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:55:50.912Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:55:57.885Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:56:03.258Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:56:08.878Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:56:18.646Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:56:28.435Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:56:35.621Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:56:45.821Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:56:51.378Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:01.162Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:08.422Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:16.595Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:21.806Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:27.364Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:32.719Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:38.035Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:43.525Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:48.933Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:54.426Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:57:59.859Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:05.353Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:10.835Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:16.282Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:21.765Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:27.191Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:32.169Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:37.494Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:42.898Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:47.854Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:53.291Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:58:58.725Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:59:03.893Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:59:09.373Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:59:17.140Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:59:22.587Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:59:28.124Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:59:33.426Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:59:38.806Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:59:44.366Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:59:49.806Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T13:59:55.219Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:00.685Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:06.235Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:11.664Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:17.141Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:22.612Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:28.126Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:33.684Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:39.207Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:44.655Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:50.164Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:00:55.610Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:01.105Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:06.673Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:12.116Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:17.545Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:22.994Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:28.501Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:33.901Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:39.490Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:45.058Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:50.473Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:01:55.956Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:01.508Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:06.979Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:12.517Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:18.080Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:23.548Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:29.020Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:34.488Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:39.907Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:45.396Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:50.892Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:02:56.391Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:01.862Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:07.392Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:12.808Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:18.294Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:23.661Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:29.114Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:34.586Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:40.039Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:45.547Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:50.971Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:03:56.433Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:01.913Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:07.358Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:12.832Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:18.335Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:23.791Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:29.272Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:34.703Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:40.144Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:45.135Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:50.534Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:04:56.118Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:05:06.025Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:05:17.979Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:05:31.846Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:05:43.637Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:05:55.455Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:06:07.299Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:06:21.294Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:06:31.037Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:06:36.530Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:06:46.303Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:06:56.041Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:07:08.000Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:07:19.699Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:07:29.404Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:07:39.223Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:07:49.000Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:07:58.830Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:08:05.991Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:08:11.318Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:08:17.009Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:08:22.540Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:08:28.057Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:08:37.915Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:08:47.614Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:08:57.394Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:09:07.197Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:09:16.978Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:09:28.899Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:09:40.700Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:09:50.476Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:10:00.186Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:10:09.977Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:10:19.828Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:10:29.651Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:10:43.728Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:10:55.544Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:11:05.263Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:11:12.517Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:11:17.889Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:11:23.329Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:11:31.109Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:11:40.882Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:11:46.343Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:11:56.153Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:12:06.018Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:12:13.739Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:12:21.128Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:12:31.354Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:12:41.192Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:12:53.029Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:00.462Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:06.078Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:11.605Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:17.274Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:22.848Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:30.976Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:36.481Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:42.006Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:47.457Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:52.478Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:13:57.855Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:14:03.331Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:14:08.797Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:14:14.320Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:14:19.857Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:14:24.856Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:14:30.265Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:14:35.818Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:14:47.793Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:14:53.387Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:15:05.331Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:15:12.836Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:15:18.403Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:15:26.513Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:15:32.015Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:15:41.958Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:15:47.433Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:15:57.247Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:16:07.096Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:16:17.045Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:16:24.260Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:16:29.732Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:16:39.583Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:16:51.446Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:17:01.234Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:17:15.298Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:17:27.199Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:17:34.296Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:17:39.731Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:17:49.603Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:17:59.483Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:18:13.646Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:18:19.234Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:18:24.836Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:18:30.334Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:18:35.306Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:18:40.900Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:18:50.804Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:18:56.382Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:19:01.840Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:19:07.382Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:19:12.897Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:19:18.485Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:19:24.091Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:19:29.652Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:19:35.296Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:19:40.897Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:19:46.548Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:19:52.121Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:20:02.041Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:20:13.864Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:20:30.192Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:20:42.138Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:20:49.429Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:20:54.813Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:00.396Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:05.896Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:11.560Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:17.147Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:22.628Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:28.128Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:33.632Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:39.052Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:44.561Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:49.557Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:21:54.961Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:22:00.400Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:22:05.393Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:22:10.802Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:22:16.377Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:22:21.912Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:22:27.495Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:22:33.056Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:22:58.697Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:23:15.019Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:23:25.001Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:23:30.255Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:23:35.902Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:23:44.024Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:23:49.596Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:24:01.618Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:24:11.614Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:24:25.838Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:24:37.790Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:24:45.048Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:24:50.740Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:24:56.237Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:25:01.923Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:25:07.537Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:25:13.267Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:25:18.958Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:25:24.516Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:25:30.164Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:25:38.292Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:25:43.885Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:25:49.564Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:25:55.197Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:00.811Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:06.399Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:11.970Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:17.520Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:23.024Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:28.524Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:34.045Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:39.593Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:45.187Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:50.771Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:26:56.363Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:01.927Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:07.480Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:13.036Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:18.570Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:24.159Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:29.734Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:35.317Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:40.861Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:46.457Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:51.984Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:27:57.485Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:03.006Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:08.620Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:14.059Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:19.755Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:25.213Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:30.773Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:36.387Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:41.859Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:47.502Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:53.074Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:28:58.579Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:29:04.081Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:29:09.787Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:29:19.775Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:29:31.597Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:29:41.517Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:29:48.676Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:29:54.052Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:29:59.674Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:30:05.232Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:30:10.814Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:30:16.387Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:30:22.003Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:30:27.619Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:30:33.166Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:30:38.200Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:30:43.650Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:30:49.252Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:30:54.781Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:31:00.330Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:31:05.907Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:31:10.975Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:31:16.333Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:31:26.172Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:31:36.176Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:31:46.089Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:31:56.045Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:32:03.283Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:32:08.686Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:32:14.222Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:32:19.233Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:32:24.643Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:32:30.200Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:32:40.012Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:32:54.028Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:33:06.054Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:33:13.397Z — Resumed
+
+- WorkItem: WI-AC-019
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-10T14:38:03Z — QA verdict for WI-AC-019
+
+**Result: qa=true, implementation=true.**
+
+Scaffold audit: `project_specs.xml` present; required AC-019 structures verified. No missing scaffold artifact found.
+
+Real HTTP/SSE boundary on `PORT=5175`:
+- Registered OSS tenant via `POST /v1/auth/register` -> 201.
+- Created severity-bearing incident via `POST /v1/incidents` -> 201, incident `3bbfbeba-da37-4d81-a79e-94f33ba2cb67`.
+- Polled `GET /api/v1/investigation/:id`: observed `status=running`, then `status=succeeded`.
+- SSE `/api/v1/investigation/:id/stream`: `connected`, 24 events, per-agent progress for all 6 agents (`log_analyst`, `metric_analyst`, `change_detector`, `code_analyzer`, `infra_inspector`, `db_analyst`), `investigation_completed`.
+- Final detail: `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+No defects found for AC-019.
+
+## 2026-07-10T14:38:46.737Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-019
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

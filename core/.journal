@@ -1047,4 +1047,32 @@ Scaffold audit: `project_specs.xml` and required AC-019 structures present. Real
 - Final GET -> `status=succeeded`, 6 `assignedAgents`, `finalSynthesis` stored.
 - `.harness/ac019-integrated-verify.sh` exit 0 (PASS).
 
+## 2026-07-10T13:42:00Z — VERIFY-FIRST AC-019 boundary pass
+
+**Result: implementation=true. Zero-diff checkpoint — no source changes.**
+
+Scaffold audit: `project_specs.xml` present; required structures verified (`package.json`, `src/main.ts`, `src/bootstrap.ts`, `src/app.ts`, `src/workers/investigation-worker.ts`, `src/modules/investigation/`, `src/shared/infra/chat/sse-manager.ts`, `docker-compose.yml`, `.env.dev`, `init.sh`).
+
+Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres + Redis healthy):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `8c95b230-36f4-4ad3-97c5-5e7c57a42418`.
+- `GET /api/v1/investigation/:id` fast poll -> polls 1-15 `status=running`, then `status=succeeded`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, `investigation_progress` with per-agent `agentRole` for all 6 agents, then `investigation_completed`.
+- Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+No defects found for AC-019.
+
+## 2026-07-10T14:38:03Z — QA verdict for WI-AC-019
+
+**Result: qa=true, implementation=true.**
+
+Scaffold audit: `project_specs.xml` present; required structures verified (`package.json`, `src/main.ts`, `src/bootstrap.ts`, `src/app.ts`, `src/workers/investigation-worker.ts`, `src/modules/investigation/`, `src/shared/infra/chat/sse-manager.ts`, `docker-compose.yml`, `.env.dev`, `tests`).
+
+Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres + Redis healthy):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `3bbfbeba-da37-4d81-a79e-94f33ba2cb67`.
+- `GET /api/v1/investigation/:id` poll -> `status=running`, then `status=succeeded`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 24 events including per-agent `agentRole` for all 6 agents, then `investigation_completed`.
+- Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
 No defects found for AC-019.
