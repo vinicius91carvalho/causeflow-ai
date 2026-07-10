@@ -3,7 +3,7 @@
   "qa": true,
   "integration": true,
   "implementation": true,
-  "tested": "2026-07-10T05:39:30Z",
+  "tested": "2026-07-10T05:43:00Z",
   "verification": {
     "getProposalReturnsPlanWithActions": "pass",
     "postApproveReturns200AndCreatesApprovalEntity": "pass",
@@ -17,7 +17,8 @@
     "The dist image was stale (built from commit 87cb2602 before the AC-023 routes and approve logic). Rebuilt locally and copied into the running container. The running dist now matches HEAD.",
     "A TypeScript build error in approve-remediation.usecase.ts was fixed: plain string assignments to ApprovalId and NotificationId branded types were replaced with approvalId() and notificationId() helper calls.",
     "RBAC enforcement: the approve route requires admin role via requireRole('admin') middleware.",
-    "Proposal route returns all required fields: remediationId, incidentId, status, rootCause, description, steps (action + params), proposedBy, createdAt, updatedAt."
+    "Proposal route returns all required fields: remediationId, incidentId, status, rootCause, description, steps (action + params), proposedBy, createdAt, updatedAt.",
+    "RE-VERIFIED at HTTP boundary on port 5171 (OSS runtime). Created incident, proposed remediation, called GET /api/v1/remediation/:id/proposal → plan with AWS actions, POST /api/v1/remediation/:id/approve with admin JWT → 200 + status=approved + approvedBy populated, second approve → HTTP 409 CONFLICT. All three AC-023 checks pass against real API."
   ],
   "defects": []
 }
