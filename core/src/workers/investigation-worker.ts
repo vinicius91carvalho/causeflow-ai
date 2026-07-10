@@ -12,9 +12,7 @@ import type { ITenantRepository } from '../modules/tenant/domain/tenant.reposito
 import type { IBillingAccountRepository } from '../modules/billing/domain/billing-account.repository.js';
 import { RefundInvestigationUseCase } from '../modules/billing/application/refund-investigation.usecase.js';
 import { ProviderRegistry } from '../shared/application/provider-registry.js';
-import { AWSCloudProvider } from '../shared/infra/cloud/aws-cloud-provider.js';
 import { StubCloudProvider } from '../shared/infra/cloud/stub-cloud-provider.js';
-import { STSCredentialVendor } from '../shared/infra/credentials/sts-credential-vendor.js';
 import { StubCredentialVendor } from '../shared/infra/credentials/stub-credential-vendor.js';
 import { AnthropicClient } from '../shared/infra/llm/anthropic-client.js';
 import { EnhancedPTCRunner } from '../shared/infra/llm/enhanced-ptc-runner.js';
@@ -37,7 +35,6 @@ import type { IHypothesisRepository } from '../modules/investigation/domain/hypo
 import { GetCloudIntegrationUseCase } from '../modules/integration/application/get-cloud-integration.usecase.js';
 import { AesGcmTokenEncryption } from '../shared/infra/credentials/aes-gcm-token-encryption.js';
 import { createToolHandler, incidentDetailsTool } from '../modules/investigation/infra/investigation-tools.js';
-import { AWS_API_CALL_TOOL } from '../modules/investigation/infra/aws-api-tool.js';
 import { MEMORY_TOOLS } from '../modules/investigation/infra/memory-tools.js';
 import { CHECKPOINT_TOOLS } from '../modules/investigation/infra/checkpoint-tools.js';
 import { tenantId, incidentId } from '../shared/domain/value-objects.js';
@@ -183,7 +180,7 @@ async function workerBootstrap(ossMode?: boolean) {
     const agentRunner = new ObservedAgentRunner(rawAgentRunner, tracer, metrics, traceContext);
     // Cloud Provider
     const cloudProvider = config.isProd() || config.sts.roleArn
-        ? new AWSCloudProvider()
+        ? new (await import('../shared/infra/cloud/aws-cloud-provider.js')).AWSCloudProvider()
         : new StubCloudProvider();
     providerRegistry.registerCloudProvider('aws', cloudProvider);
     // Credential Vendor
@@ -191,7 +188,7 @@ async function workerBootstrap(ossMode?: boolean) {
     const getCloudIntegration = new GetCloudIntegrationUseCase(tokenEncryption);
     const credentialVendor = config.isDev() || config.isTest()
         ? new StubCredentialVendor()
-        : new STSCredentialVendor(undefined, tenantRepo, getCloudIntegration);
+        : new (await import('../shared/infra/credentials/sts-credential-vendor.js')).STSCredentialVendor(undefined, tenantRepo, getCloudIntegration);
     providerRegistry.registerCredentialVendor(credentialVendor);
     // Composio (conditional)
     const integrationToolProvider = config.composio.apiKey
@@ -432,7 +429,8 @@ async function main() {
                 });
                 if (vended.provider !== 'stub' && vended.credentials['accessKeyId']) {
                     followupCredentials = vended;
-                    followupTools.push(AWS_API_CALL_TOOL);
+                    const { AWS_API_CALL_TOOL: loadedAwsApiTool } = await import('../modules/investigation/infra/aws-api-tool.js');
+                    followupTools.push(loadedAwsApiTool);
                 }
             }
         } catch (err) {
