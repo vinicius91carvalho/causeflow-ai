@@ -914,7 +914,7 @@
     "depends_on": ["AC-042", "AC-011"],
     "verify_first": false,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 0
   },
