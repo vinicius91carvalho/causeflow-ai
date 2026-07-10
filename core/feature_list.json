@@ -411,7 +411,7 @@
     "depends_on": ["AC-017"],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
+    "qa": true,
     "integration": false,
     "retries": 0,
     "attempts": 5,

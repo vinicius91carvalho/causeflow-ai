@@ -4952,3 +4952,18 @@ Scaffold audit: `project_specs.xml` and required AC-019 structures present. Real
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-10T17:26:12Z — QA verdict for WI-AC-019
+
+**Result: qa=true, implementation=true.**
+
+Scaffold audit: `project_specs.xml` present; required AC-019 structures verified (`package.json`, `src/main.ts`, `src/bootstrap.ts`, `src/app.ts`, `src/modules/investigation/`, `src/workers/investigation-worker.ts`, `src/shared/infra/chat/sse-manager.ts`, `docker-compose.yml`, `.env.dev`, `init.sh`, `tests`).
+
+Real HTTP/SSE boundary on `PORT=5175`:
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `dc1dd21a-1e54-49a7-a2e3-0bc65efd7304`.
+- `GET /api/v1/investigation/:id` poll -> `status=running`, then `status=succeeded`.
+- SSE `/api/v1/investigation/:id/stream` -> `connected`, 24 events with per-agent `investigation_progress` for all 6 agents, then `investigation_completed`.
+- Final response -> `status=succeeded`, 6 assigned agents, `finalSynthesis` stored.
+
+No defects found for AC-019.
