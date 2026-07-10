@@ -1139,3 +1139,21 @@ AC-051 requires port boundaries to be preserved for the open-source local runtim
 - WorkItem: WI-AC-045
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T10:05:00Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-045
+- AcceptanceChecks: AC-045
+- Outcome: passed on integrated branch
+
+### Verification results
+
+| Check | Result | Evidence |
+|-------|--------|----------|
+| **Worker service with different entrypoint** | ✅ PASS | `causeflow-worker` uses `Dockerfile.worker` with `CMD ["node", "dist/workers/investigation-worker.js"]` vs API's `Dockerfile` with `CMD ["node", "dist/main.js"]` |
+| **Both services healthy** | ✅ PASS | `docker compose ps`: `causeflow-api` (healthy), `causeflow-worker` (healthy) |
+| **investigation:start log line** | ✅ PASS | Worker logs at `[09:49:00.747]` contain `investigation:start` with incidentId, tenantId, 6 suggestedAgents |
+| **No ECS / no EcsClient / no AWS credentials** | ✅ PASS | `src/shared/infra/ecs/` removed; `ecs-task-dispatcher.ts` behind `config.ecs.cluster` flag (default `''`); `AWSCloudProvider` dynamically imported; zero ECS/AWS env vars in containers |
+
+No defects found. integration=true set in feature_list.json.
