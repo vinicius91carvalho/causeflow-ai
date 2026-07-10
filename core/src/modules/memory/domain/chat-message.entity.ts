@@ -12,6 +12,8 @@ export interface ChatMessage {
     costUsd?: number;
     liveDataChecked?: boolean;
     toolCallsCount?: number;
+    /** Slack (or chat-platform) thread timestamp returned when the message is mirrored */
+    slackThreadId?: string;
     createdAt: string;
 }
 

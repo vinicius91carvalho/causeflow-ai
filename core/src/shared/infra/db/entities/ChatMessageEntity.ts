@@ -15,6 +15,7 @@ export const ChatMessageEntity = new Entity({
         costUsd: { type: 'number' },
         liveDataChecked: { type: 'boolean' },
         toolCallsCount: { type: 'number' },
+        slackThreadId: { type: 'string' },
         createdAt: { type: 'string', required: true, default: () => new Date().toISOString(), readOnly: true },
     },
     indexes: {

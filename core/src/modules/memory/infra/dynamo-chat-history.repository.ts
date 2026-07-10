@@ -16,6 +16,7 @@ export class DynamoChatHistoryRepository implements IChatHistoryRepository {
             costUsd: msg.costUsd,
             liveDataChecked: msg.liveDataChecked,
             toolCallsCount: msg.toolCallsCount,
+            slackThreadId: msg.slackThreadId,
             createdAt: msg.createdAt,
         }).go();
     }
@@ -36,6 +37,7 @@ export class DynamoChatHistoryRepository implements IChatHistoryRepository {
             costUsd: item.costUsd ?? undefined,
             liveDataChecked: item.liveDataChecked ?? undefined,
             toolCallsCount: item.toolCallsCount ?? undefined,
+            slackThreadId: item.slackThreadId ?? undefined,
             createdAt: item.createdAt,
         })) as ChatMessage[];
     }
