@@ -638,3 +638,12 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - WorkItem: WI-AC-023
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-10T17:24:13Z — Integrated verification (qa-agent)
+
+- WorkItem: WI-AC-023
+- AC: AC-023
+- Outcome: AC-023 black-box HTTP checks pass on port 3099 (container PORT=5171)
+- Evidence: remediationId=f94b2661-5d67-41dd-83f5-b8e28a9bbd74; GET proposal → 200 with ecs.updateService/ecs.forceNewDeployment; POST approve → 200 status=approved; duplicate approve → 409 CONFLICT
+- Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/remediation/WI-AC-023-1783704251-integration_qa.log
+- integration=true
