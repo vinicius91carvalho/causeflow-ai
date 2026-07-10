@@ -330,3 +330,11 @@ O wiring em `bootstrap.ts` (linhas 596-613) passa corretamente o `approvalRepo` 
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-10T16:42:00Z — QA pass (independent)
+
+- WorkItem: WI-AC-023
+- Outcome: AC-023 passes at HTTP boundary
+- Evidence: GET /api/v1/remediation/:id/proposal → 200 (ecs.updateService, ssm.runCommand); POST approve → 200 approved; second approve → 409 CONFLICT; ApprovalEntity via approvalRepo.create in approve-remediation.usecase.ts
+- API: http://localhost:3099 (host maps to container PORT=5171)
+- qa=true, implementation=true
