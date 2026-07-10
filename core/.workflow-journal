@@ -81,6 +81,15 @@
 
 ## WI-AC-019: Investigation with 6+ agents, SSE stream, status=succeeded
 
+### Status: IMPLEMENTED & VERIFIED (2026-07-10T03:44:00Z verify-first pass)
+
+### Latest boundary verification (PORT=5175)
+- Fresh tenant + incident `1f4718f3-c719-47bd-9f31-635f91f1d237`
+- `status=running` observed during investigation
+- SSE per-agent events via `investigation_progress` with `agentRole` for all 6 agents
+- Final `status=succeeded` with `finalSynthesis` stored
+- Zero code changes required
+
 ### Status: IMPLEMENTED & VERIFIED
 
 ### HTTP boundary verification (PORT=5175, OSS runtime, no ANTHROPIC_API_KEY)

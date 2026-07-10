@@ -290,6 +290,9 @@ export function createInvestigationRoutes(useCases: InvestigationUseCases): Hono
                 };
                 useCases.sseManager?.addClient(tid, clientId, stream as SSEStreamingApi);
                 writeSSE('connected', JSON.stringify({ clientId, tenantId: tid, incidentId: incidentIdParam }));
+                for (const replay of useCases.sseManager?.getIncidentReplayEvents(tid, incidentIdParam) ?? []) {
+                    writeSSE(replay.event, JSON.stringify(replay.data), replay.id);
+                }
                 heartbeat = setInterval(() => writeSSE('heartbeat', ''), 30_000);
                 c.req.raw.signal.addEventListener('abort', () => {
                     if (heartbeat) clearInterval(heartbeat);

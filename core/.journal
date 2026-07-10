@@ -94,3 +94,14 @@ Fresh real HTTP/SSE boundary on `PORT=5175`:
 - `GET /api/v1/investigation/:id` first returned `status=running` with incident `status=investigating`.
 - SSE emitted `connected`, `investigation_progress`, and `investigation_completed`; per-agent events included `log_analyst`, `metric_analyst`, `change_detector`, `code_analyzer`, `infra_inspector`, and `db_analyst`.
 - Final `GET /api/v1/investigation/:id` returned `status=succeeded`, incident `status=resolved`, all 6 assigned agents, and stored `finalSynthesis="Unable to determine root cause (LLM service unavailable)"`.
+
+## 2026-07-10T03:44:00Z — VERIFY-FIRST AC-019 boundary pass
+
+**Result: implementation=true. Zero-diff checkpoint — no code changes.**
+
+Fresh HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres :5439, Redis :6380):
+- `POST /v1/auth/register` -> 201 with JWT.
+- `POST /v1/incidents` (severity=critical) -> 201 incident `1f4718f3-c719-47bd-9f31-635f91f1d237`.
+- `GET /api/v1/investigation/:id` first returned `status=running` with incident `status=investigating`.
+- SSE at `/api/v1/investigation/:id/stream` emitted `connected`, 11 `investigation_progress` events (per-agent `agent_failed` for log_analyst, metric_analyst, change_detector, code_analyzer, infra_inspector, db_analyst), and `investigation_completed`.
+- Final `GET /api/v1/investigation/:id` returned `status=succeeded`, all 6 assigned agents, and stored `finalSynthesis`.

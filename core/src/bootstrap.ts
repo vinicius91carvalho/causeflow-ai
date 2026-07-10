@@ -1054,10 +1054,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   });
 
   eventBus.subscribe('investigation.completed', async (event) => {
-    await sseManager.broadcast(event.tenantId, {
-      event: 'investigation_completed',
-      data: event.payload,
-    });
+    const incidentIdForSse = (event.payload['incidentId'] as string) ?? '';
+    const sseEvent = { event: 'investigation_completed', data: event.payload };
+    if (incidentIdForSse) {
+      sseManager.recordIncidentEvent(event.tenantId, incidentIdForSse, sseEvent);
+    }
+    await sseManager.broadcast(event.tenantId, sseEvent);
   });
 
   // === EventBus Wiring: Usage Record on Investigation Completion (AC-012) ===
@@ -1106,10 +1108,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // === EventBus Wiring: Investigation Progress SSE ===
   eventBus.subscribe('investigation.progress', async (event) => {
-    await sseManager.broadcast(event.tenantId, {
-      event: 'investigation_progress',
-      data: event.payload,
-    });
+    const incidentIdForSse = (event.payload['incidentId'] as string) ?? '';
+    const sseEvent = { event: 'investigation_progress', data: event.payload };
+    if (incidentIdForSse) {
+      sseManager.recordIncidentEvent(event.tenantId, incidentIdForSse, sseEvent);
+    }
+    await sseManager.broadcast(event.tenantId, sseEvent);
   });
 
   // === EventBus Wiring: Slack Notifications ===
