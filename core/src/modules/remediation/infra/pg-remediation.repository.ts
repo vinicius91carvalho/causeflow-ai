@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid';
 import type { IRemediationRepository } from '../domain/remediation.repository.js';
 import type { Remediation, RemediationStep, RemediationStatus } from '../domain/remediation.entity.js';
 import type { RemediationId, TenantId, IncidentId } from '../../../shared/domain/value-objects.js';
-import { remediationId } from '../../../shared/domain/value-objects.js';
+import { remediationId, incidentId } from '../../../shared/domain/value-objects.js';
 import { pgGet, pgInsert, pgUpdate, pgQuery } from '../../../shared/infra/db/postgres/pg-utils.js';
 
 const TABLE = 'remediation';
@@ -15,7 +15,7 @@ function toDomain(row: any): Remediation {
     return {
         remediationId: remediationId(row.entity_id),
         tenantId: row.tenant_id,
-        incidentId: row.data['incidentId'] as string,
+        incidentId: incidentId(row.data['incidentId'] as string),
         status: row.data['status'] as RemediationStatus,
         description: row.data['description'] as string,
         rootCause: row.data['rootCause'] as string,
