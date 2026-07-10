@@ -860,12 +860,24 @@ export class InvestigateIncidentUseCase {
                     payload: { incidentId, rootCause: stubRootCause, recommendedActions: [], totalCostUsd: 0, investigationDurationMs: Date.now() - investigationStartMs },
                 });
                 const stubRoles = suggestedAgents.filter((r) => r in AGENT_CONFIG_MAP);
+                const agentRoles = stubRoles.length > 0 ? stubRoles : ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'];
                 await this.persistInvestigationArtifacts({
                     tenantId,
                     incidentId,
-                    agentRoles: stubRoles.length > 0 ? stubRoles : ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
+                    agentRoles,
                     rootCause: stubRootCause,
                 });
+                if (this.agentMemory) {
+                    retainInvestigationSummary(
+                        this.agentMemory, tenantId, incidentId, incident.title,
+                        stubRootCause,
+                        [{ text: 'Investigation completed without agent findings (LLM unavailable)' }],
+                        [],
+                        0,
+                        Date.now() - investigationStartMs,
+                        agentRoles,
+                    ).catch(() => { /* non-critical */ });
+                }
                 return {
                     findings: [{ text: 'Investigation completed without agent findings (LLM unavailable)', evidenceIds: [] }],
                     potentialRootCause: stubRootCause,
@@ -898,7 +910,13 @@ export class InvestigateIncidentUseCase {
         if (unknownRoles.length > 0) {
             logger.warn({ unknownRoles, incidentId }, 'Unknown agent roles requested - skipping');
         }
-        const validRoles = suggestedAgents.filter((r) => r in AGENT_CONFIG_MAP);
+        const validRoles = (() => {
+            const roles = suggestedAgents.filter((r) => r in AGENT_CONFIG_MAP);
+            if (roles.length > 0) return roles;
+            // Local-only / LLM-fallback path may enqueue with an empty agent list —
+            // default to the six foundational agents so AC-046 still runs the pipeline.
+            return ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'];
+        })();
         // Progress: investigation started (after auto-add so message reflects real agent list)
         await this.eventBus.publish({
             eventType: 'investigation.progress',
@@ -1092,6 +1110,17 @@ export class InvestigateIncidentUseCase {
                     confidence: 0,
                 })),
             });
+            if (this.agentMemory) {
+                retainInvestigationSummary(
+                    this.agentMemory, tenantId, incidentId, incident.title,
+                    stubRootCause,
+                    [{ text: 'Investigation completed without agent findings (LLM unavailable)' }],
+                    [],
+                    0,
+                    investigationDurationMs,
+                    failedAgents.map((a) => a.role),
+                ).catch(() => { /* non-critical */ });
+            }
             return {
                 findings: [{ text: 'Investigation completed without agent findings (LLM unavailable)', evidenceIds: [] }],
                 potentialRootCause: stubRootCause,

@@ -43,7 +43,25 @@ import type { IntegrationToolProvider } from '../shared/application/ports/integr
 import type { ToolDefinition } from '../shared/application/ports/agent-runner.port.js';
 import type { CloudCredentials } from '../shared/application/ports/cloud-provider.port.js';
 import { publishProgressToSQS } from '../shared/infra/pubsub/sqs-progress.js';
+import { publishProgress, INVESTIGATION_PROGRESS_CHANNEL } from '../shared/infra/pubsub/redis-pubsub.js';
 import { InvestigationWSClient } from '../shared/infra/relay/investigation-ws-client.js';
+
+const DEFAULT_SUGGESTED_AGENTS = [
+    'log_analyst',
+    'metric_analyst',
+    'change_detector',
+    'code_analyzer',
+    'infra_inspector',
+    'db_analyst',
+];
+
+/** Forward progress to SQS (AWS) and Redis pub/sub (OSS local runtime). */
+async function forwardProgress(eventType: string, tenantId: string, payload: Record<string, unknown>): Promise<void> {
+    await publishProgressToSQS(config.sqs.progressQueueUrl, { eventType, tenantId, payload });
+    if (config.isOss()) {
+        await publishProgress(INVESTIGATION_PROGRESS_CHANNEL, { eventType, tenantId, payload });
+    }
+}
 // ── Read environment ────────────────────────────────────────────────
 const INCIDENT_ID = process.env['INCIDENT_ID'];
 const TENANT_ID = process.env['TENANT_ID'];
@@ -79,37 +97,21 @@ async function workerBootstrap(ossMode?: boolean) {
     eventBus.setErrorLogger((eventType, err) => {
         logger.error({ err, eventType }, 'EventBus handler error');
     });
-    // Forward EventBus progress/completion events to Redis Pub/Sub
+    // Forward EventBus progress/completion events to SQS (AWS) and Redis (OSS)
     eventBus.subscribe('investigation.progress', async (event) => {
-        await publishProgressToSQS(config.sqs.progressQueueUrl, {
-            eventType: 'investigation.progress',
-            tenantId: event.tenantId,
-            payload: event.payload,
-        });
+        await forwardProgress('investigation.progress', event.tenantId, event.payload);
     });
     eventBus.subscribe('investigation.completed', async (event) => {
-        await publishProgressToSQS(config.sqs.progressQueueUrl, {
-            eventType: 'investigation.completed',
-            tenantId: event.tenantId,
-            payload: event.payload,
-        });
+        await forwardProgress('investigation.completed', event.tenantId, event.payload);
     });
     eventBus.subscribe('investigation.known_solution_found', async (event) => {
-        await publishProgressToSQS(config.sqs.progressQueueUrl, {
-            eventType: 'investigation.known_solution_found',
-            tenantId: event.tenantId,
-            payload: event.payload,
-        });
+        await forwardProgress('investigation.known_solution_found', event.tenantId, event.payload);
     });
     // Inconclusive investigations are a terminal state — forward the event to
-    // the progress queue so the dashboard can display the inconclusive UI, then
+    // the progress channel so the dashboard can display the inconclusive UI, then
     // the worker exits immediately (no idle mode needed for inconclusive results).
     eventBus.subscribe('investigation.inconclusive', async (event) => {
-        await publishProgressToSQS(config.sqs.progressQueueUrl, {
-            eventType: 'investigation.inconclusive',
-            tenantId: event.tenantId,
-            payload: event.payload,
-        });
+        await forwardProgress('investigation.inconclusive', event.tenantId, event.payload);
     });
     const providerRegistry = new ProviderRegistry();
 
@@ -312,10 +314,8 @@ async function main() {
         logger.error({ incidentId: INCIDENT_ID, tenantId: TENANT_ID }, 'Investigation timed out after 5 minutes');
         incidentRepo.updateStatus(tid, iid, 'failed')
             .then(() => refundInvestigation.execute(tid))
-            .then(() => publishProgressToSQS(config.sqs.progressQueueUrl, {
-                eventType: 'investigation.failed',
-                tenantId: TENANT_ID!,
-                payload: { incidentId: INCIDENT_ID!, reason: 'timeout' },
+            .then(() => forwardProgress('investigation.failed', TENANT_ID!, {
+                incidentId: INCIDENT_ID!, reason: 'timeout',
             }))
             .catch((err: unknown) => {
                 logger.error({ err }, 'Failed to update status on timeout');
@@ -592,13 +592,9 @@ Read each message in context and respond accordingly:
             await incidentRepo.updateStatus(tid, iid, 'failed');
             // Refund the reserved investigation credit since it failed
             await refundInvestigation.execute(tid);
-            await publishProgressToSQS(config.sqs.progressQueueUrl, {
-                eventType: 'investigation.failed',
-                tenantId: TENANT_ID!,
-                payload: {
-                    incidentId: INCIDENT_ID!,
-                    reason: errorMsg,
-                },
+            await forwardProgress('investigation.failed', TENANT_ID!, {
+                incidentId: INCIDENT_ID!,
+                reason: errorMsg,
             });
         }
         catch (statusErr) {
@@ -624,8 +620,10 @@ async function startBullConsumer(): Promise<void> {
         handler: async (body) => {
             const tid = body['tenantId'] as string;
             const iid = body['incidentId'] as string;
-            const suggestedAgents = (body['suggestedAgents'] as string[]) ??
-                ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'];
+            const rawAgents = body['suggestedAgents'] as string[] | undefined;
+            const suggestedAgents = (rawAgents && rawAgents.length > 0)
+                ? rawAgents
+                : DEFAULT_SUGGESTED_AGENTS;
 
             if (!tid || !iid) {
                 logger.warn({ body }, 'BullMQ investigation job missing tenantId or incidentId — skipping');
