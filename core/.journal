@@ -210,3 +210,14 @@ Real HTTP/SSE boundary on `PORT=5175` (OSS runtime, Postgres :5439, Redis :6380)
 - Final `GET /api/v1/investigation/:id` -> `status=succeeded`, 6 `assignedAgents`, `finalSynthesis` stored.
 
 No defects found for AC-019.
+
+## 2026-07-10T06:58:00Z — Integrated verification for WI-AC-019
+
+**Result: integration=true, implementation=true.**
+
+Scaffold audit: required structures present. Real HTTP/SSE on `PORT=5175` (OSS runtime, Postgres :5439, Redis :6380):
+- Incident `d61a182b-28ea-49db-a62e-86bde1eab07a`; immediate GET -> `status=running` / `investigating`.
+- SSE stream emitted per-agent events for all 6 agents; final GET -> `status=succeeded` with `finalSynthesis` stored.
+- `.harness/ac019-integrated-verify.sh` exit 0 (PASS).
+
+No defects found for AC-019.
