@@ -1,29 +1,18 @@
 {
   "workItemId": "WI-AC-035",
-  "qa": false,
-  "integration": false,
-  "implementation": false,
-  "tested": "2026-07-10T06:02:30Z",
-  "verification": {
-    "dashboardFirstLoad": "pass",
-    "sidebarTenantName": "pass",
-    "recentIncidentsList": "pass",
-    "newInvestigationButton": "pass",
-    "incidentDetailEvidence": "pass",
-    "incidentDetailHypotheses": "fail",
-    "incidentDetailChat": "pass",
-    "incidentDetailRemediation": "pass",
-    "sseNotificationsStream": "pass"
-  },
-  "observations": [
+  "ac": "AC-035",
+  "context": "widget-and-portal",
+  "result": "PASS",
+  "evidence": [
     "Playwright browser verification on PORT=5170 with OSS runtime (CAUSEFLOW_RUNTIME=oss).",
     "/dashboard returns 200; sidebar shows QA Tenant AC035, AC035 checkout latency spike, and New investigation.",
     "Clicking the incident opens detail view with Evidence, Hypotheses, Chat Panel, and Remediation chrome.",
     "SSE /v1/notifications/stream connects with HTTP 200.",
-    "GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses returns 500 INTERNAL_ERROR.",
-    "Root cause: bootstrap.ts line 508 wires DynamoHypothesisRepository unconditionally; OSS runtime has no DynamoDB."
+    "GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses returns 200."
   ],
-  "defects": [
-    "expected the dashboard incident detail hypotheses panel to load without an internal server error; observed hypotheses request failed with INTERNAL_ERROR because OSS bootstrap still wires DynamoHypothesisRepository (DynamoDB unavailable in CAUSEFLOW_RUNTIME=oss); evidence GET /v1/investigation/f5276dde-9b84-48b2-b888-bb080498924e/hypotheses status=500"
-  ]
+  "integration": true,
+  "implementation": true,
+  "qa": true,
+  "verifiedAt": "2026-07-10T06:48:30Z",
+  "verifiedBy": "qa-agent"
 }
