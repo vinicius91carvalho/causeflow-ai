@@ -5006,3 +5006,10 @@ The repair is in how QA runs the check, not in the code under test.
 - RepairPlan: WI-AC-006 fails at webServer startup before any test runs. Three compounding config/env mismatches: (1) harness PORT=5172 binds website to :5172 but committed config probes :3000; (2) unconditional dashboard webServer probes GET / at 127.0.0.1:3001 causing a localhost redirect loop; (3) three dashboard specs still import removed @clerk/testing/playwright when dashboard projects load. Partial fixes exist uncommitted in the worktree but were not integrated when INTEGRATION_QA ran.; Commit and merge playwright.config.ts fixes: bind website with explicit `-p ${port}` where `port = process.env.PORT || '3000'` and `baseURL` uses the same port; gate dashboard webServer and dashboard/e2e/review projects behind `PLAYWRIGHT_DASHBOARD_WEBSERVER=1`; change dashboard readiness URL to `${dashboardURL}/api/health`.; Do not re-add @clerk/testing. Migrate tests/dashboard/dashboard-overview.spec.ts, rbac-member-read.spec.ts, and integrations-composio.spec.ts to the JWT cookie pattern already used in tests/dashboard/auth-setup.ts.; Add QA precondition: pkill stale next/playwright processes, then `pnpm --filter website build` before `pnpm exec playwright test tests/` (AC-006 depends on AC-001 build artifacts for `next start`).; For harness runs with PORT≠3000, either unset PORT for Playwright or introduce a dedicated `PLAYWRIGHT_WEBSITE_PORT` defaulting to 3000 so AC-006 literal port-3000 clause and harness PORT=5172 isolation both hold.; Optional: add testIgnore or narrow the default `tests/` match so AC-006 foundation QA does not pull theme-switcher.spec.ts or other out-of-scope specs beyond audit.spec.ts and visual-functional.spec.ts.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/93a12aa0-f5a6-478c-a179-cc727b466560/foundation/WI-AC-006-1-integration_qa-a48b805c1e7b7d0d.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-11T07:31:28.289Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-006
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
