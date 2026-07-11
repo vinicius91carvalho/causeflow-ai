@@ -315,3 +315,11 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - WorkItem: WI-AC-027
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T06:45:41.552Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- Defects: expected each integration card to display a non-empty integration description per AC-027 Step 1; observed 14 of 15 cards with empty description text (only AWS CloudWatch shows description); evidence Playwright at http://127.0.0.1:5181/dashboard/integrations after OSS admin login (cardCount=15, emptyDescriptionCount=14) and GET /api/integrations/catalog returns desc_len=0 for slack/github/jira/hubspot/trello/postgresql/linear/sentry/mongodb/datadog/pagerduty/grafana/confluence/webhooks; expected each integration card to display the Composio logo per AC-027 Step 1; observed 14 of 15 cards use local /icons/integrations/*.svg and only Webhooks uses https://logos.composio.dev (composioLogoCount=1); evidence integrations-client.tsx prefers PROVIDER_ICONS over provider.logo and Playwright img src audit at /dashboard/integrations; expected each integration card to render a Connect CTA per AC-027 Step 1; observed 0 Connect or Authorize buttons on all 15 cards (connectCount=0, authorizeCount=0); evidence Playwright at /dashboard/integrations — cards render read-only because getServerAuthState() in layout.tsx does not map OSS JWT roles[] claim to admin, so usePermission(MANAGE_INTEGRATIONS) is false and IntegrationCard hides action buttons; expected catalog-normalize fix from coding attempt to backfill descriptions from INTEGRATION_CATALOG when Core returns empty strings; observed no catalog-normalize.ts or equivalent enrichment in catalog-handler.ts/integrations-client.tsx on merged branch; evidence coding log references catalog-normalize.ts but file absent from repo and /api/integrations/catalog still returns 14/15 empty descriptions
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/67751db7-4824-4b19-aefa-745f30371cd5/dashboard/WI-AC-027-1-integration_qa-47d580f612af7efc.log
+- NextAction: Repair Plan
