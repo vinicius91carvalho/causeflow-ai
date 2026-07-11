@@ -308,3 +308,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Outcome: user authorized a new Attempt cycle
 - Guidance: WI-AC-027 failed because /api/integrations/catalog returns empty description (desc_len=0) for 14/15 providers; only AWS CloudWatch has text. Playwright at /dashboard/integrations correctly shows empty card descriptions.
 - NextAction: Coding Attempt 1
+
+## 2026-07-11T06:38:34.426Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
