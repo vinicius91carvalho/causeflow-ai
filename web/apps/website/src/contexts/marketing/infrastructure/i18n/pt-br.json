@@ -678,6 +678,20 @@
           }
         ]
       }
+    },
+    "faq": {
+      "q1": {
+        "question": "O que é o CauseFlow AI?",
+        "answer": "O CauseFlow é uma plataforma de investigação de incidentes com IA que implanta 6 agentes especializados em paralelo para encontrar causas raiz em minutos, não em horas."
+      },
+      "q2": {
+        "question": "Quanto tempo leva uma investigação?",
+        "answer": "O CauseFlow identifica a causa raiz em cerca de 3 minutos. A resolução completa, incluindo aprovação humana, leva em torno de 35 minutos versus 2-4 horas manualmente."
+      },
+      "q3": {
+        "question": "As correções são aplicadas sem aprovação humana?",
+        "answer": "Não. O CauseFlow propõe correções exatas, mas nada é executado sem sua aprovação explícita. Se nenhuma decisão for tomada em 30 minutos, a ação é cancelada automaticamente."
+      }
     }
   },
   "product": {
@@ -751,6 +765,20 @@
       "core": "Core proprietário: Motor de planejamento, geração de hipóteses, aprendizado e Knowledge Base",
       "llm": "LLM Gateway: Usa modelos leves para leitura de logs e extração de dados. Reserva modelos de maior capacidade para síntese final e raciocínio sobre causa raiz. Isso mantém as investigações rápidas sem sacrificar precisão nas decisões que importam.",
       "security": "Segurança: AWS Bedrock (ISO/IEC 42001), KMS por tenant, motor de detecção de PII"
+    },
+    "faq": {
+      "q1": {
+        "question": "Como o CauseFlow investiga incidentes?",
+        "answer": "O CauseFlow implanta 6 agentes de IA especializados em paralelo em suas ferramentas de monitoramento, código e infraestrutura, depois correlaciona os achados para entregar a causa raiz com scores de confiança em cerca de 3 minutos."
+      },
+      "q2": {
+        "question": "Quais integrações o CauseFlow suporta?",
+        "answer": "O CauseFlow conecta a ferramentas de monitoramento como Datadog e PagerDuty, repositórios de código como GitHub, sistemas de tickets como Jira e plataformas de suporte ao cliente. Cada integração mapeia para um agente especializado."
+      },
+      "q3": {
+        "question": "O CauseFlow é seguro para dados de produção?",
+        "answer": "Sim. Os agentes recebem credenciais temporárias somente leitura, com escopo exato para sua fonte de dados, válidas por 15 minutos. Dados de clientes nunca são usados para treinar modelos de outros clientes, e todas as ações são registradas em um audit trail imutável."
+      }
     }
   },
   "integrations": {

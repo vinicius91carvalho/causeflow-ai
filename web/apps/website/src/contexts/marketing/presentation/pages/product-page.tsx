@@ -23,6 +23,10 @@ import {
   TicketIcon,
 } from '@/contexts/marketing/presentation/components/sections/page-icons';
 import { TimelineItem } from '@/contexts/marketing/presentation/components/sections/timeline-item';
+import {
+  generateFAQSchema,
+  StructuredData,
+} from '@/contexts/marketing/presentation/components/structured-data';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
 import { getDashboardUrl } from '@/lib/dashboard-url';
@@ -149,9 +153,17 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
   setRequestLocale(locale);
 
   const t = useTranslations('product');
+  const tFaq = useTranslations('product.faq');
+
+  const faqItems = [
+    { question: tFaq('q1.question'), answer: tFaq('q1.answer') },
+    { question: tFaq('q2.question'), answer: tFaq('q2.answer') },
+    { question: tFaq('q3.question'), answer: tFaq('q3.answer') },
+  ];
 
   return (
     <PageLayout header={<Header />} footer={<Footer />}>
+      <StructuredData data={generateFAQSchema(faqItems)} />
       {/* Section 1: Hero */}
       <HeroSection
         title={t('hero.title')}
