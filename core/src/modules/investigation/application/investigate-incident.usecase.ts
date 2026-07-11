@@ -7,6 +7,9 @@ import { InvestigationFailedError, IncidentNotInvestigatableError } from '../dom
 import { CircuitBreakerOpenError, type CircuitState } from '../../../shared/infra/llm/circuit-breaker.js';
 import { isLocalLlmFailClosedMode } from '../../../shared/infra/llm/llm-factory.js';
 import { assertLocalLlmReachable, LOCAL_LLM_UNAVAILABLE_MESSAGE } from '../../../shared/infra/llm/local-llm-guard.js';
+import { LlmContextTooLargeError } from '../../../shared/infra/llm/llm-context-errors.js';
+import { LLM_CONTEXT_TOO_LARGE_CODE } from '../../../shared/domain/llm-connector.entity.js';
+import { connectorEvidenceLabel, resolveActiveLlmEndpoint } from '../../../shared/infra/llm/llm-connector-profile.js';
 import { AGENT_CONFIG_MAP, ORCHESTRATOR_CONFIG } from './agent-configs.js';
 import { AWS_API_CALL_TOOL } from '../infra/aws-api-tool.js';
 import { config } from '../../../shared/config/index.js';
@@ -369,7 +372,7 @@ export class InvestigateIncidentUseCase {
         }
     }
 
-    /** AC-057: persist attributable Ornith/local LLM completion evidence on the incident. */
+    /** AC-057 / AC-059: persist attributable OSS LLM completion evidence on the incident. */
     private async persistLlmCompletionEvidence(params: {
         tenantId: TenantId;
         incidentId: IncidentId;
@@ -377,8 +380,14 @@ export class InvestigateIncidentUseCase {
         phase: 'synthesis' | 'investigation';
         agentRole: SubAgentResult['agentRole'];
         content: string;
+        llmConnector?: string;
     }): Promise<void> {
         try {
+            const endpoint = params.llmConnector
+                ? null
+                : await resolveActiveLlmEndpoint();
+            const llmConnector = params.llmConnector
+                ?? (endpoint ? connectorEvidenceLabel(endpoint.connectorId) : 'local');
             await this.evidenceRepo.create({
                 tenantId: params.tenantId,
                 incidentId: params.incidentId,
@@ -389,7 +398,7 @@ export class InvestigateIncidentUseCase {
                 metadata: {
                     source: 'llm_completion',
                     llmModel: params.model,
-                    llmConnector: 'local',
+                    llmConnector,
                     phase: params.phase,
                 },
                 createdAt: new Date().toISOString(),
@@ -568,6 +577,12 @@ export class InvestigateIncidentUseCase {
                     `\n\nPREVIOUS ATTEMPT REJECTED — invalid evidenceId references:\n${details}\n` +
                     `Re-produce the synthesis using ONLY the evidenceIds from AVAILABLE EVIDENCE above.`;
             } catch (err) {
+                if (err instanceof LlmContextTooLargeError) {
+                    throw new InvestigationFailedError(
+                        String(params.incidentId),
+                        `${LLM_CONTEXT_TOO_LARGE_CODE}: ${err.message}`,
+                    );
+                }
                 lastErr = err;
                 logger.warn({ err, incidentId: params.incidentId, attempt }, 'Synthesis attempt failed');
                 // fall through to retry; if this was the last attempt, loop exits
@@ -1338,6 +1353,12 @@ ${findingsSummary}`;
             });
         }
         catch (err) {
+            if (err instanceof LlmContextTooLargeError) {
+                throw new InvestigationFailedError(
+                    String(incidentId),
+                    `${LLM_CONTEXT_TOO_LARGE_CODE}: ${err.message}`,
+                );
+            }
             if (isLocalLlmFailClosedMode() || this.isCircuitBreakerFailure(err)) {
                 throw new InvestigationFailedError(
                     String(incidentId),

@@ -68,11 +68,32 @@ export const config = {
   },
 
   // Local Ornith / llama.cpp connector for the OSS runtime (AC-054).
-  // Anthropic API key, when set, overrides this connector.
+  // DeepSeek V4 Flash fallback via OpenCode Go or NVIDIA NIM (AC-059).
+  // Anthropic API key, when set, overrides all OSS connectors.
   llm: {
-    baseUrl: env('LLM_BASE_URL', 'http://127.0.0.1:8081/v1'),
-    model: env('LLM_MODEL', 'Ornith-1.0-9B-code'),
-    apiKey: env('LLM_API_KEY', 'local'),
+    /** Boot default; runtime override via Redis + PUT /v1/oss/llm-connector. */
+    connector: env('LLM_CONNECTOR', 'ornith'),
+    ornithBaseUrl: env('LLM_BASE_URL', 'http://127.0.0.1:8081/v1'),
+    ornithModel: env('LLM_MODEL', 'Ornith-1.0-9B-code'),
+    ornithApiKey: env('LLM_API_KEY', 'local'),
+    /** OpenCode Go — populate OPENCODE_API_KEY from ~/.pi/agent/auth.json or ~/.config/opencode. */
+    opencodeBaseUrl: env('OPENCODE_BASE_URL', 'https://opencode.ai/zen/go/v1'),
+    opencodeModel: env('OPENCODE_MODEL', 'deepseek-v4-flash-free'),
+    opencodeApiKey: env('OPENCODE_API_KEY', ''),
+    /** NVIDIA NIM — populate NVIDIA_API_KEY from ~/.pi/agent/auth.json. */
+    nimBaseUrl: env('NVIDIA_NIM_BASE_URL', 'https://integrate.api.nvidia.com/v1'),
+    nimModel: env('NVIDIA_NIM_MODEL', 'deepseek-ai/deepseek-v4-flash'),
+    nimApiKey: env('NVIDIA_API_KEY', ''),
+    // Back-compat aliases used by existing health checks and logs.
+    get baseUrl() {
+      return this.ornithBaseUrl;
+    },
+    get model() {
+      return this.ornithModel;
+    },
+    get apiKey() {
+      return this.ornithApiKey;
+    },
   },
 
   anthropic: {

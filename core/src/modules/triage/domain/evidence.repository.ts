@@ -20,6 +20,10 @@ export interface Evidence {
         category?: string;
         toolName?: string;
         label?: string;
+        /** AC-059: LLM completion attribution for OSS connector fallback. */
+        llmModel?: string;
+        llmConnector?: string;
+        phase?: string;
     };
     createdAt: string;
 }

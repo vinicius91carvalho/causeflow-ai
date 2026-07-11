@@ -3,9 +3,14 @@
  * Targets llama.cpp (Ornith 9B) at LLM_BASE_URL — never imports @anthropic-ai/sdk.
  */
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { config } from '../../config/index.js';
 import type { LLMClient, CompletionParams, CompletionResult } from '../../application/ports/llm-client.port.js';
 import { instrumentedCall } from '../observability/outbound.js';
+import { resolveActiveLlmEndpoint } from './llm-connector-profile.js';
+import {
+  LlmContextTooLargeError,
+  contextOverflowGuidance,
+  isContextOverflowError,
+} from './llm-context-errors.js';
 
 const DEFAULT_TIMEOUT_MS = 120_000;
 
@@ -33,15 +38,16 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
   }
 
   async complete<T>(params: CompletionParams): Promise<CompletionResult<T>> {
-    const model = config.llm.model;
+    const endpoint = await resolveActiveLlmEndpoint();
+    const model = endpoint.model;
     if (params.responseSchema) {
-      return this.completeStructured(params, model);
+      return this.completeStructured(params, endpoint);
     }
     const response = await instrumentedCall(
       'local-llm',
       'chat.completions',
-      () => this.call(() => this.requestCompletion(params, model, false)),
-      { attributes: { model, ...(params.attributes ?? {}) } },
+      () => this.call(() => this.requestCompletion(params, endpoint, false)),
+      { attributes: { model, connector: endpoint.connectorId, ...(params.attributes ?? {}) } },
     );
     const raw = response.choices[0]?.message?.content ?? '';
     const usage = {
@@ -56,7 +62,11 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
     };
   }
 
-  private async completeStructured<T>(params: CompletionParams, model: string): Promise<CompletionResult<T>> {
+  private async completeStructured<T>(
+    params: CompletionParams,
+    endpoint: Awaited<ReturnType<typeof resolveActiveLlmEndpoint>>,
+  ): Promise<CompletionResult<T>> {
+    const model = endpoint.model;
     const { $schema: _, ...rawSchema } = zodToJsonSchema(params.responseSchema!);
     const schemaHint = JSON.stringify(rawSchema);
     const systemPrompt = `${params.systemPrompt}\n\nRespond with a single JSON object matching this schema (no markdown, no commentary):\n${schemaHint}`;
@@ -65,10 +75,10 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
       'chat.completions.structured',
       () => this.call(() => this.requestCompletion(
         { ...params, systemPrompt },
-        model,
+        endpoint,
         true,
       )),
-      { attributes: { model, ...(params.attributes ?? {}) } },
+      { attributes: { model, connector: endpoint.connectorId, ...(params.attributes ?? {}) } },
     );
     const text = response.choices[0]?.message?.content ?? '';
     const parsed = JSON.parse(extractJsonObject(text));
@@ -87,9 +97,10 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
 
   private async requestCompletion(
     params: CompletionParams,
-    model: string,
+    endpoint: Awaited<ReturnType<typeof resolveActiveLlmEndpoint>>,
     jsonMode: boolean,
   ): Promise<ChatCompletionResponse> {
+    const { baseUrl, model, apiKey, connectorId } = endpoint;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
     try {
@@ -105,18 +116,27 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
       if (jsonMode) {
         body.response_format = { type: 'json_object' };
       }
-      const res = await fetch(`${config.llm.baseUrl}/chat/completions`, {
+      const res = await fetch(`${baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.llm.apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify(body),
         signal: controller.signal,
       });
       if (!res.ok) {
         const detail = await res.text().catch(() => '');
-        throw new Error(`Local LLM request failed (${res.status}): ${detail.slice(0, 300)}`);
+        const snippet = detail.slice(0, 500);
+        if (isContextOverflowError(snippet, res.status)) {
+          throw new LlmContextTooLargeError(
+            `${contextOverflowGuidance(connectorId)} (${snippet.slice(0, 200)})`,
+            connectorId,
+            model,
+            res.status,
+          );
+        }
+        throw new Error(`Local LLM request failed (${res.status}): ${snippet.slice(0, 300)}`);
       }
       return await res.json() as ChatCompletionResponse;
     } finally {

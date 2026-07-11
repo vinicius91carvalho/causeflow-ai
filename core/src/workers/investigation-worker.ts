@@ -22,6 +22,7 @@ import { createObservabilityStack } from '../shared/infra/observability/observab
 import { ObservedAnthropicClient } from '../shared/infra/llm/observed-anthropic-client.js';
 import { ObservedAgentRunner } from '../shared/infra/llm/observed-agent-runner.js';
 import { CircuitBreaker } from '../shared/infra/llm/circuit-breaker.js';
+import { registerOssLlmCircuitBreaker } from '../shared/infra/llm/oss-llm-circuit-breaker.js';
 import type { AgentRunner } from '../shared/application/ports/agent-runner.port.js';
 import type { MessageQueue } from '../shared/application/ports/message-queue.port.js';
 import { ComposioToolProvider } from '../shared/infra/integrations/composio-tool-provider.js';
@@ -171,6 +172,9 @@ async function workerBootstrap(ossMode?: boolean) {
             eventBus.publish({ eventType: 'ai.unavailable', occurredAt: new Date().toISOString(), tenantId: 'system', payload: { from, to } }).catch(() => { });
         }
     });
+    if (config.isOss()) {
+        registerOssLlmCircuitBreaker(anthropicCircuitBreaker);
+    }
     // AC-054: OSS default connector is Ornith via OpenAI-compatible llama.cpp.
     const traceContext = { sessionId: INCIDENT_ID!, userId: TENANT_ID! };
     let rawLlmClient: LLMClient;
