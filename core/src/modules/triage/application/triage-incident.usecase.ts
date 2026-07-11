@@ -212,6 +212,26 @@ export class TriageIncidentUseCase {
                 result = { ...result, investigationMode: 'orchestrator' };
             }
 
+            // AC-046 / AC-053: Ornith often under-severes inbound P1/critical alerts
+            // (e.g. wording like "synthetic" / "local-only") to medium, which skips
+            // investigation (min severity = high). Floor to the inbound severity so
+            // the OSS pipeline still dispatches the investigation worker.
+            if (
+                usesLocalLlmConnector()
+                && (incident.severity === 'high' || incident.severity === 'critical')
+                && (SEVERITY_RANK[result.priority] ?? 4) > (SEVERITY_RANK[incident.severity] ?? 1)
+            ) {
+                logger.info(
+                    {
+                        incidentId,
+                        from: result.priority,
+                        to: incident.severity,
+                    },
+                    'Local LLM triage — flooring priority to inbound alert severity',
+                );
+                result = { ...result, priority: incident.severity };
+            }
+
             // AC-046 / AC-050: local Ornith often under-suggests agents (3 of 6).
             // Expand to the six foundational roles for high/critical so the
             // investigation worker emits per-agent progress/evidence end-to-end.

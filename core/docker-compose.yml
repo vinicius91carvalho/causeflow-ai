@@ -112,9 +112,11 @@ services:
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-oss-dev-webhook-secret}
       DEDUP_WINDOW_MINUTES: ${DEDUP_WINDOW_MINUTES:-60}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      LLM_CONNECTOR: ${LLM_CONNECTOR:-ornith}
-      LLM_BASE_URL: ${LLM_BASE_URL:-http://host.docker.internal:8081/v1}
-      LLM_MODEL: ${LLM_MODEL:-Ornith-1.0-9B-code}
+      LLM_CONNECTOR: ornith
+      # Literal host-gateway URL — do NOT interpolate LLM_BASE_URL from .env
+      # (host-dev 127.0.0.1 is unreachable inside the container; AC-053).
+      LLM_BASE_URL: http://host.docker.internal:8081/v1
+      LLM_MODEL: Ornith-1.0-9B-code
       OPENCODE_API_KEY: ${OPENCODE_API_KEY:-}
       OPENCODE_BASE_URL: ${OPENCODE_BASE_URL:-https://opencode.ai/zen/go/v1}
       OPENCODE_MODEL: ${OPENCODE_MODEL:-deepseek-v4-flash-free}
@@ -161,9 +163,11 @@ services:
       HINDSIGHT_BASE_URL: http://hindsight:8888
       HINDSIGHT_API_KEY: ${HINDSIGHT_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      LLM_CONNECTOR: ${LLM_CONNECTOR:-ornith}
-      LLM_BASE_URL: ${LLM_BASE_URL:-http://host.docker.internal:8081/v1}
-      LLM_MODEL: ${LLM_MODEL:-Ornith-1.0-9B-code}
+      LLM_CONNECTOR: ornith
+      # Literal host-gateway URL — do NOT interpolate LLM_BASE_URL from .env
+      # (host-dev 127.0.0.1 is unreachable inside the container; AC-053).
+      LLM_BASE_URL: http://host.docker.internal:8081/v1
+      LLM_MODEL: Ornith-1.0-9B-code
       OPENCODE_API_KEY: ${OPENCODE_API_KEY:-}
       OPENCODE_BASE_URL: ${OPENCODE_BASE_URL:-https://opencode.ai/zen/go/v1}
       OPENCODE_MODEL: ${OPENCODE_MODEL:-deepseek-v4-flash-free}

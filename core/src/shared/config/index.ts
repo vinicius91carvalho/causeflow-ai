@@ -294,7 +294,9 @@ export const config = {
   },
 
   hindsight: {
-    baseUrl: env('HINDSIGHT_BASE_URL', ''),
+    // Prefer HINDSIGHT_API_URL (AC-053 .env.example); fall back to
+    // HINDSIGHT_BASE_URL so docker-compose / CDK hardcodes keep working.
+    baseUrl: process.env['HINDSIGHT_API_URL'] || process.env['HINDSIGHT_BASE_URL'] || '',
     apiKey: process.env['HINDSIGHT_API_KEY'] ?? '',
     enabled: true,
   },
