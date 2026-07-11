@@ -474,3 +474,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - RepairPlan: WI-AC-024 static structure is satisfied (all 47 routes named in the AC exist as thin re-exports with context handlers), but QA fails on two orthogonal issues: (1) stale AC text demanding exactly 44 route.ts files while the repo legitimately has 84, and (2) harness HTTP probes time out because the turbo/Next dev stack accepts connections on :5170/:5169 but never returns responses.; Amend AC-024 in project_specs.xml and feature_list.json: replace the literal '44' gate with 'all enumerated AC routes present + thin re-export + handler exists' (current count 47 mapped / 84 total) or publish an authoritative route manifest the QA script counts against.; Do not delete the 37 extra routes — they are valid product BFF endpoints outside the AC-024 inventory unless explicitly scoped out.; Fix harness bring-up: pkill stale next/turbo processes, restart with PORT=5169 (dashboard lands on 5170 per init.sh PORT+1), confirm dev.log shows route compilation on first probe.; Diagnose why Next dev accepts TCP but never responds (instrumentation/Sentry compile stall, zombie next-server pid, or PRoot networking); website on :5169 shows the same hang, so treat as stack-wide not route-specific.; Optional polish: collapse integrations/sentry and integrations/slack/config route.ts to single-line re-exports (2 files exceed 1-line strictness).; Add .harness/ac024-verify.mjs scoped to the AC route map + thin-re-export audit; keep HTTP probes behind a healthy-server preflight.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/e76f109e-3a6b-4eb3-8f27-aac4cd0197e9/dashboard/WI-AC-024-1-qa-59bf42508cae816d.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-11T10:47:13.623Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-024
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
