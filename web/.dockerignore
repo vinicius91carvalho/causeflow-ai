@@ -1,6 +1,5 @@
-# Git
+# Git metadata (keep .gitignore — Biome vcs.useIgnoreFile needs it for AC-053 lint)
 .git
-.gitignore
 
 # Build outputs
 .next

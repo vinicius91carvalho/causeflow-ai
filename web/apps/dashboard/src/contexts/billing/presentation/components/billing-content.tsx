@@ -5,6 +5,7 @@ import { getSelfServicePlans, PLANS } from '@causeflow/shared/constants';
 import { useCallback, useEffect, useState } from 'react';
 import { PERMISSION } from '@/contexts/identity/domain/rbac/permissions';
 import { usePermission } from '@/contexts/identity/domain/rbac/role-guard';
+import { planSelectConfetti } from '@/contexts/shared/lib/confetti';
 import { BillingFooter, InlineToast, ManageSubscriptionButton } from './billing-cta';
 import type { BillingMessages, SubscriptionData } from './billing-types';
 import { InvoicesTable } from './invoices-table';
@@ -149,7 +150,7 @@ export function BillingPage({ messages }: BillingPageProps) {
   // Handle checkout — opens the OSS billing-disabled modal (AC-048).
   // Stripe Payment Element / subscribe flow removed; the modal POSTs to
   // /api/billing/checkout which proxies Core's StubBillingService (410).
-  function handleCheckout(planId: TenantPlan) {
+  async function handleCheckout(planId: TenantPlan) {
     setLoadingPlanId(planId);
     setErrorMessage(null);
     const plan = displayPlans.find((p) => p.id === planId);
