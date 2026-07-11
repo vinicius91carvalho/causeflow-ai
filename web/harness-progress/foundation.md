@@ -5220,3 +5220,10 @@ The repair is in how QA runs the check, not in the code under test.
 - RepairPlan: WI-AC-034 QA failed because foundation AC-034 still mandates SST deploy and literal unfiltered turbo commands, while the repo already implements AC-050: both deploy workflows run the four turbo gates then Docker-only deploy jobs with zero `sst deploy`. Step 1 and Step 3 of AC-034 pass; Step 2 fails only against stale SST wording. The `--filter` turbo commands are a minor literal deviation but preserve gate order and app scope.; Reconcile AC-034 in project_specs.xml and feature_list.json WI-AC-034: drop SST deploy requirement; assert workflows keep pnpm/action-setup@v4, .nvmrc Node 24, --frozen-lockfile, sequential check-types/lint/test/build, staging on push to main, production on workflow_dispatch stage=production, environment staging/production, and concurrency blocks.; Align AC-034 Step 2 with AC-050 Step 2: `grep -E 'sst deploy' .github/workflows/*-deploy.yml` must return zero matches; deploy jobs may echo Docker compose instructions instead of running SST.; Either accept `--filter=@causeflow/{website,dashboard}...` as satisfying the turbo gate intent or update AC-034 description to document filtered commands explicitly.; Do not restore `sst deploy` or `sst.config.ts` without an explicit AC-050 rollback; Dockerfiles and docker-compose.yml are the intended deploy path.; Mark WI-AC-034 verify-first complete after spec update; no workflow code change required unless product policy reverses OSS migration.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/cc376b25-cb4d-418c-b1eb-2ca062405a88/foundation/WI-AC-034-1-qa-ebf23b3a56e665da.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-11T09:34:52.688Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-034
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
