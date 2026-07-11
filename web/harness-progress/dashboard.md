@@ -489,3 +489,34 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Defects: expected `find apps/dashboard/src/app/api -name 'route.ts' | wc -l` to return 44 per AC-024 Step 1; observed 82; evidence shell count on plan/opensource-docker; expected AC-enumerated route file apps/dashboard/src/app/api/billing/webhook/route.ts delegating to a context *-handler.ts; observed file absent and POST /api/billing/webhook returned 404 on http://localhost:5170; evidence static audit + HTTP probe in .harness/wi-ac-024-iv-http.json; expected AC-enumerated route file apps/dashboard/src/app/api/onboarding/connect-integration/route.ts delegating to a context *-handler.ts; observed file absent and POST /api/onboarding/connect-integration returned 404 on http://localhost:5170; evidence static audit + HTTP probe in .harness/wi-ac-024-iv-http.json
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/e76f109e-3a6b-4eb3-8f27-aac4cd0197e9/dashboard/WI-AC-024-2-integration_qa-33e3d826e090b50e.log
 - NextAction: Repair Plan
+
+## 2026-07-11T10:52:09.940Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-024
+- DefectReport: expected `find apps/dashboard/src/app/api -name 'route.ts' | wc -l` to return 44 per AC-024 Step 1; observed 82; evidence shell count on plan/opensource-docker; expected AC-enumerated route file apps/dashboard/src/app/api/billing/webhook/route.ts delegating to a context *-handler.ts; observed file absent and POST /api/billing/webhook returned 404 on http://localhost:5170; evidence static audit + HTTP probe in .harness/wi-ac-024-iv-http.json; expected AC-enumerated route file apps/dashboard/src/app/api/onboarding/connect-integration/route.ts delegating to a context *-handler.ts; observed file absent and POST /api/onboarding/connect-integration returned 404 on http://localhost:5170; evidence static audit + HTTP probe in .harness/wi-ac-024-iv-http.json
+- RepairPlan: WI-AC-024 fails integration QA for two concrete gaps: (1) billing/webhook and onboarding/connect-integration route.ts + handler files exist only as untracked worktree changes (not in HEAD), causing static absence and HTTP 404 on :5170; (2) AC-024 Step 1 still gates on exactly 44 route.ts files while the integrated tree has 82 and the worktree has 84 legitimate BFF routes beyond the 47-route AC inventory.; Commit and integrate the four untracked artifacts: apps/dashboard/src/app/api/billing/webhook/route.ts, apps/dashboard/src/contexts/billing/api/webhook-handler.ts, apps/dashboard/src/app/api/onboarding/connect-integration/route.ts, apps/dashboard/src/contexts/onboarding/api/connect-integration-handler.ts (thin re-exports already correct).; Amend AC-024 Step 1 in project_specs.xml and feature_list.json: replace the literal `wc -l == 44` gate with manifest-based validation (47 enumerated AC routes present, each thin re-export to a context *-handler.ts) and document total route.ts count as ~84, not 44.; Point integration QA at .harness/ac024-verify.mjs (or equivalent) instead of the raw shell count; do not delete the ~37 extra BFF routes outside the AC inventory.; Re-run integration verification on the committed branch: confirm POST /api/billing/webhook returns 400 (missing stripe-signature), not 404; POST /api/onboarding/connect-integration returns 401 without session, not 404.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/e76f109e-3a6b-4eb3-8f27-aac4cd0197e9/dashboard/WI-AC-024-2-integration_qa-33e3d826e090b50e.log
+- NextAction: Coding Attempt 3
+
+## 2026-07-11T11:01:56.872Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-024
+- Outcome: QA failed after Attempt 3
+- Defects: expected GET /api/health within 15s on http://127.0.0.1:5170; observed timeout (AbortError after 15s); evidence node .harness/ac024-verify.mjs HTTP preflight — next-server pid 1019478 listening on 127.0.0.1:5170 but curl returned 000 after 30s
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-11T11:11:36.148Z — Explicit Resume
+
+- WorkItem: WI-AC-024
+- Outcome: user authorized a new Attempt cycle
+- Guidance: WI-AC-024 QA Attempt 3 FAILED — evidence: next-server listens on :5170 but GET /api/health hangs (AbortError 15s / curl 000). Routes may be committed (0b6bfeb8) but HTTP preflight must work. Fix bring-up: kill stale next/turbo; use next start (not turbo dev) on PORT=5170; confirm curl --max-time 15 /api/health → 200 before ac024-verify.mjs. Also keep manifest-based route check (47 AC routes thin re-exports), not literal wc -l == 44. Then re-QA + IV.
+- NextAction: Coding Attempt 1
+
+## 2026-07-11T11:18:51.967Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
