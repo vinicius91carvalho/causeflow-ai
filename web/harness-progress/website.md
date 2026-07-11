@@ -292,3 +292,11 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - WorkItem: WI-AC-016
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T06:18:18.885Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-016
+- Defects: expected sitemap.xml to include every localized route including /from-opsgenie and /pt-br/from-opsgenie; observed 24 URLs with no from-opsgenie entries; evidence curl http://localhost:3000/sitemap.xml | grep from-opsgenie returned empty while apps/website/src/app/[locale]/from-opsgenie/page.tsx exists and /from-opsgenie is listed in project_specs.xml routes; expected curl http://localhost:3000/ to include JSON-LD scripts for Organization, WebSite, and FAQPage on home and product pages; observed only Organization and WebSite (@types parsed: ['Organization','WebSite'], FAQPage grep count 0); evidence generateFAQSchema in apps/website/src/contexts/marketing/presentation/components/structured-data.tsx is never imported by home-page.tsx or product-page.tsx
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bc727dd9-05a1-4163-88bb-cbb42e54f01c/website/WI-AC-016-2-integration_qa-5a623964f24f5a49.log
+- NextAction: Repair Plan
