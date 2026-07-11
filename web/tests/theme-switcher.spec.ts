@@ -49,7 +49,9 @@ test.describe('Dark Mode Toggle', () => {
 });
 
 test.describe('Theme Persistence (localStorage)', () => {
-  test('dark mode persists across page reloads', async ({ page }) => {
+  test('website is light-only and ignores dark localStorage preference', async ({ page }) => {
+    // The marketing site uses lockColorMode — it always renders light regardless
+    // of localStorage.
     await page.evaluate(() => {
       localStorage.setItem(
         'causeflow-theme',
@@ -60,7 +62,14 @@ test.describe('Theme Persistence (localStorage)', () => {
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('main')).toBeVisible();
 
+    // Site is light-only; dark class must NOT be set
     const hasDark = await page.evaluate(() => document.documentElement.classList.contains('dark'));
-    expect(hasDark).toBe(true);
+    expect(hasDark).toBe(false);
+
+    // data-theme is overridden by the theme init script to 'original'
+    const dataTheme = await page.evaluate(() =>
+      document.documentElement.getAttribute('data-theme'),
+    );
+    expect(dataTheme).toBe('original');
   });
 });
