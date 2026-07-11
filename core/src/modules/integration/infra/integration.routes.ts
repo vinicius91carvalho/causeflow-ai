@@ -18,6 +18,8 @@ import type { SaveSentryClientSecretUseCase } from '../application/save-sentry-c
 import type { GetSentryIntegrationStatusUseCase } from '../application/get-sentry-integration-status.usecase.js';
 import type { ComposioRouteDeps } from './trigger.routes.js';
 import { createComposioRoutes } from './trigger.routes.js';
+import type { StubIntegrationRouteDeps } from './stub-integration.routes.js';
+import { createStubIntegrationRoutes } from './stub-integration.routes.js';
 
 export interface IntegrationUseCases {
     connectCredential: ConnectCredentialUseCase;
@@ -30,6 +32,7 @@ export interface IntegrationUseCases {
     saveSentryClientSecret?: SaveSentryClientSecretUseCase;
     getSentryIntegrationStatus?: GetSentryIntegrationStatusUseCase;
     composioRouteDeps?: ComposioRouteDeps;
+    stubRouteDeps?: StubIntegrationRouteDeps;
 }
 
 /** Static metadata for our supported providers (category + type). Composio enriches with description/logo. */
@@ -115,6 +118,11 @@ export function createIntegrationRoutes(useCases: IntegrationUseCases) {
     // AC-031: GET /v1/integrations/composio/tools, POST /v1/integrations/composio/triggers
     if (useCases.composioRouteDeps) {
         app.route('/composio', createComposioRoutes(useCases.composioRouteDeps));
+    }
+
+    // OSS stub upstream connector (AC-056): /v1/integrations/stub/*
+    if (useCases.stubRouteDeps) {
+        app.route('/stub', createStubIntegrationRoutes(useCases.stubRouteDeps));
     }
 
     // GET /catalog — list all available integration providers with Composio metadata

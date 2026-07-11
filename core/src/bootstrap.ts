@@ -146,6 +146,9 @@ import { GetSentryIntegrationStatusUseCase } from './modules/integration/applica
 import { SlackNotificationRepository } from './modules/integration/infra/slack-notification.repository.js';
 import { SlackNotificationSubscriber } from './shared/application/subscribers/slack-notification.subscriber.js';
 import { FinalizeConnectionUseCase } from './modules/integration/application/finalize-connection.usecase.js';
+import { ConnectStubIntegrationUseCase } from './modules/integration/application/connect-stub-integration.usecase.js';
+import { ProbeStubIntegrationUseCase } from './modules/integration/application/probe-stub-integration.usecase.js';
+import { IngestViaStubIntegrationUseCase } from './modules/integration/application/ingest-via-stub-integration.usecase.js';
 import { DynamoBillingAccountRepository } from './modules/billing/infra/dynamo-billing-account.repository.js';
 import { DynamoUsageRecordRepository } from './modules/billing/infra/dynamo-usage-record.repository.js';
 import { StripeMeterEventService } from './modules/billing/infra/stripe-meter.service.js';
@@ -704,7 +707,20 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   const connectCredential = new ConnectCredentialUseCase(tokenEncryption, eventBus);
   const disconnectIntegration = new DisconnectIntegrationUseCase(eventBus);
-  const listAllIntegrations = new ListAllIntegrationsUseCase();
+
+  let stubRouteDeps: IntegrationUseCases['stubRouteDeps'];
+  let listAllIntegrations: ListAllIntegrationsUseCase;
+  if (config.isOss()) {
+    const { PgIntegrationRepository } = await import('./modules/integration/infra/pg-integration.repository.js');
+    const integrationRepo = new PgIntegrationRepository();
+    listAllIntegrations = new ListAllIntegrationsUseCase(integrationRepo);
+    const connectStub = new ConnectStubIntegrationUseCase(integrationRepo, eventBus);
+    const probeStub = new ProbeStubIntegrationUseCase(integrationRepo);
+    const ingestViaStub = new IngestViaStubIntegrationUseCase(integrationRepo);
+    stubRouteDeps = { connectStub, probeStub, ingestViaStub };
+  } else {
+    listAllIntegrations = new ListAllIntegrationsUseCase();
+  }
 
   // Slack integration
   const slackOAuthConfig = {
@@ -744,6 +760,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     composioRouteDeps: config.composio.apiKey
       ? { composioToolProvider, createTrigger, composioTriggerService }
       : undefined,
+    stubRouteDeps,
   };
 
   // Billing Use Cases (reuse early billing repo)

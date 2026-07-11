@@ -126,6 +126,16 @@ export const config = {
     secret: env('WEBHOOK_SECRET', 'dev-webhook-secret'),
   },
 
+  // Documented stub upstream for OSS connector connect/probe/ingest (AC-056).
+  stubUpstream: {
+    baseUrl: env('STUB_UPSTREAM_BASE_URL', 'http://127.0.0.1:5190'),
+    coreBaseUrl: env(
+      'STUB_UPSTREAM_CORE_BASE_URL',
+      `http://127.0.0.1:${envInt('PORT', 3000)}`,
+    ),
+    port: envInt('STUB_UPSTREAM_PORT', 5190),
+  },
+
   ingestion: {
     dedupWindowMinutes: Number(env('DEDUP_WINDOW_MINUTES', '60')),
   },
