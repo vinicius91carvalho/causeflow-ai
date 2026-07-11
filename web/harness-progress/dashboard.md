@@ -376,3 +376,11 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - WorkItem: WI-AC-020
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T08:47:19.286Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-020
+- Defects: expected AC-020 middleware pipeline staging auth → public bypass → clerkMiddleware → profile guard → i18n in order; observed apps/dashboard/src/middleware.ts uses OSS local __session JWT auth with public-route bypass + i18n only — no staging auth, no clerkMiddleware() call, no profile-completion guard; evidence static audit of middleware.ts + HTTP on http://localhost:5170; expected GET /dashboard with valid session but no orgId/tenant_id to redirect 307 to /create-organization before page render; observed HTTP 200 with crafted __session JWT payload {sub,email} only (no orgId/tenant_id); evidence fetch redirect:manual http://localhost:5170/dashboard Cookie __session=<no-org-jwt>; expected isPublicRoute matcher to include /api/health(.*) matching /api/health/detailed; observed PUBLIC_ROUTE_PATTERNS uses /^\/api\/health(\.|$)/ which fails /api/health/detailed in static audit (pass:false); evidence regex test against documented paths in apps/dashboard/src/middleware.ts
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/e76f109e-3a6b-4eb3-8f27-aac4cd0197e9/dashboard/WI-AC-020-1-integration_qa-158d4dd812cf49dc.log
+- NextAction: Repair Plan
