@@ -4989,3 +4989,11 @@ The repair is in how QA runs the check, not in the code under test.
 - WorkItem: WI-AC-006
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T07:18:59.224Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- Defects: expected `pnpm exec playwright test tests/` exit 0; observed exit 1 with `Error: Timed out waiting 30000ms from config.webServer`; evidence: harness PORT=5172 causes website `next start` to bind 127.0.0.1:5172 while probe targets :3000 (DEBUG=pw:webserver shows Local http://127.0.0.1:5172, probe ECONNREFUSED :3000); expected webServer health check on dashboard :3001 to succeed within 30s; observed 30s hang then ECONNRESET; evidence: dashboard GET / returns 307 Location http://localhost:3001/ causing infinite redirect loop when probed via 127.0.0.1 (curl -L hits 50 redirects); expected `tests/` path to run website E2E suite cleanly; observed module resolution failure for dashboard specs under tests/dashboard/; evidence: `Cannot find module '@clerk/testing/playwright'` (package removed per WORKFLOW_JOURNAL.md) when SKIP_WEB_SERVER=1 bypasses webServer timeout
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/93a12aa0-f5a6-478c-a179-cc727b466560/foundation/WI-AC-006-1-integration_qa-a48b805c1e7b7d0d.log
+- NextAction: Repair Plan
