@@ -42,8 +42,6 @@ import { StubLlmClient } from './shared/infra/llm/stub-llm-client.js';
 import { StubAgentRunner } from './shared/infra/llm/stub-agent-runner.js';
 import { AesGcmTokenEncryption } from './shared/infra/credentials/aes-gcm-token-encryption.js';
 import { StubCloudProvider } from './shared/infra/cloud/stub-cloud-provider.js';
-import { AWSCloudProvider } from './shared/infra/cloud/aws-cloud-provider.js';
-import { AzureCloudProviderStub } from './shared/infra/cloud/azure-cloud-provider-stub.js';
 import { STSCredentialVendor } from './shared/infra/credentials/sts-credential-vendor.js';
 import type { LLMClient } from './shared/application/ports/llm-client.port.js';
 import { GetCloudIntegrationUseCase } from './modules/integration/application/get-cloud-integration.usecase.js';
@@ -371,16 +369,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const saveSentryClientSecret = new SaveSentryClientSecretUseCase(tokenEncryption, sentryIntegrationRepo);
   const getSentryIntegrationStatus = new GetSentryIntegrationStatusUseCase(sentryIntegrationRepo);
 
-  // Cloud Provider (AWS real in prod, Stub in dev)
-  const cloudProvider = config.isProd() || config.sts.roleArn
-    ? new AWSCloudProvider()
-    : new StubCloudProvider();
+  // Cloud Provider — StubCloudProvider is the only provider (AC-047).
+  // Real AWS/Azure cloud providers are not wired in this runtime.
+  const cloudProvider = new StubCloudProvider();
   providerRegistry.registerCloudProvider('aws', cloudProvider);
-  // AC-040: Skip Azure stub in OSS runtime — no cloud provider registrations
-  // that imply a non-local runtime are added when running in OSS mode.
-  if (!config.isOss()) {
-    providerRegistry.registerCloudProvider('azure', new AzureCloudProviderStub());
-  }
 
   // Credential Vendor (STS in prod, Stub in dev)
   const getCloudIntegration = new GetCloudIntegrationUseCase(tokenEncryption);

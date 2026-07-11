@@ -92,6 +92,31 @@ describe('StubCloudProvider', () => {
 
     expect(result.success).toBe(true);
     expect(result.output).toContain('restart');
+    expect(result.beforeState).toBeDefined();
+    expect(result.afterState).toBeDefined();
+  });
+
+  it('should fail deterministically for unsupported action types', async () => {
+    const result = await provider.executeAction(STUB_CREDS, {
+      resourceId: 'api-server',
+      action: 'delete_production_cluster',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.output).toContain('unsupported action');
+    expect(result.beforeState).toEqual(result.afterState);
+  });
+
+  it('should record before/after desiredCount for scale_horizontal', async () => {
+    const result = await provider.executeAction(STUB_CREDS, {
+      resourceId: 'incident-scale-test',
+      action: 'scale_horizontal',
+      params: { service: 'order-service', desiredCount: 5 },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.beforeState?.['desiredCount']).toBe(3);
+    expect(result.afterState?.['desiredCount']).toBe(5);
   });
 
   it('should return true for testConnection', async () => {

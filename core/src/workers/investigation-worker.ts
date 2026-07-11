@@ -193,10 +193,8 @@ async function workerBootstrap(ossMode?: boolean) {
     }
     const llmClient = new ObservedAnthropicClient(rawLlmClient, tracer, metrics, traceContext);
     const agentRunner = new ObservedAgentRunner(rawAgentRunner, tracer, metrics, traceContext);
-    // Cloud Provider
-    const cloudProvider = config.isProd() || config.sts.roleArn
-        ? new (await import('../shared/infra/cloud/aws-cloud-provider.js')).AWSCloudProvider()
-        : new StubCloudProvider();
+    // Cloud Provider — StubCloudProvider only (AC-047); no AWS/Azure providers.
+    const cloudProvider = new StubCloudProvider();
     providerRegistry.registerCloudProvider('aws', cloudProvider);
     // Credential Vendor
     const tokenEncryption = new AesGcmTokenEncryption();

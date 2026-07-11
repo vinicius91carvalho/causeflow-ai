@@ -8,6 +8,35 @@ const DEFAULT_STATE: Record<string, unknown> = {
     status: 'running',
 };
 
+/**
+ * Actions the stub executes successfully with a before/after state diff.
+ * Anything else fails deterministically (AC-047: success or failure by action type).
+ */
+const SUCCESS_ACTIONS = new Set([
+    'restart',
+    'restart_service',
+    'scale_horizontal',
+    'scale_service',
+    'scale_database',
+    'increase_memory_limit',
+    'increase_pool_size',
+    'enable_heap_profiler',
+    'enable_connection_timeout',
+    'enable_circuit_breaker',
+    'rollback_deployment',
+    'rollback_service',
+    'run_command',
+    'optimize_queries',
+    'add_cache_layer',
+    'invalidate_cache',
+    'escalate_to_oncall',
+    'send_customer_resolution',
+    'check_sqs_dlq_depth',
+    'increase_lambda_reserved_concurrency',
+    'enable_webhook_delivery_alerting_on_dlq_depth',
+    'audit_sqs_visibility_timeout_vs_lambda_timeout',
+]);
+
 function resourceKey(resourceId: string, params?: Record<string, unknown>): string {
     const service = (params?.service as string | undefined) ?? 'default';
     return `${resourceId}:${service}`;
@@ -21,10 +50,23 @@ function applyParamsToState(current: Record<string, unknown>, params?: Record<st
         }
         next[key] = value;
     }
+    // Common remediation aliases → canonical state fields
+    if (typeof params?.desiredCount === 'number') {
+        next['desiredCount'] = params.desiredCount;
+        next['replicas'] = params.desiredCount;
+    }
+    if (actionImpliesRestart(params)) {
+        next['status'] = 'running';
+        next['restartedAt'] = new Date().toISOString();
+    }
     return next;
 }
 
-export class StubCloudProvider {
+function actionImpliesRestart(params?: Record<string, unknown>): boolean {
+    return params !== undefined && Object.keys(params).length === 1 && 'service' in params;
+}
+
+export class StubCloudProvider implements CloudProvider {
     name = 'stub';
     async queryLogs(_creds: CloudCredentials, query: LogQuery): Promise<LogEntry[]> {
         const now = new Date();
@@ -75,9 +117,9 @@ export class StubCloudProvider {
         const metric = query.metricName.toLowerCase();
         const baseValue = metric.includes('cpu') ? 35 : metric.includes('memory') ? 60 : metric.includes('latency') ? 120 : 50;
         const unit = metric.includes('cpu') ? 'Percent' : metric.includes('memory') ? 'Percent' : metric.includes('latency') ? 'Milliseconds' : 'Count';
-        // Generate 30 data points with anomaly spike in the middle
+        // Deterministic 30-point series with a fixed anomaly spike (no Math.random).
         for (let i = 30; i >= 0; i--) {
-            const jitter = (Math.random() - 0.5) * 10;
+            const jitter = ((i * 7) % 11) - 5;
             const isAnomalyWindow = i >= 8 && i <= 15;
             const spikeMultiplier = isAnomalyWindow ? 2.5 : 1;
             points.push({
@@ -116,11 +158,26 @@ export class StubCloudProvider {
         beforeState?: Record<string, unknown>;
         afterState?: Record<string, unknown>;
     }> {
-        await sleep(500);
+        await sleep(50);
         const key = resourceKey(action.resourceId, action.params);
         const current = resourceStates.get(key) ?? { ...DEFAULT_STATE };
         const beforeState = { ...current };
+
+        if (!SUCCESS_ACTIONS.has(action.action)) {
+            return {
+                success: false,
+                output: `StubCloudProvider: unsupported action '${action.action}'`,
+                beforeState,
+                afterState: beforeState,
+            };
+        }
+
         const afterState = applyParamsToState(current, action.params);
+        // Action-specific deterministic state transitions
+        if (action.action === 'restart' || action.action === 'restart_service') {
+            afterState['status'] = 'running';
+            afterState['restartedAt'] = 'stub-restart';
+        }
         resourceStates.set(key, afterState);
         return {
             success: true,
