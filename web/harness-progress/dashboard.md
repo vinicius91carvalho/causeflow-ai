@@ -481,3 +481,11 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - WorkItem: WI-AC-024
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T10:51:26.213Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-024
+- Defects: expected `find apps/dashboard/src/app/api -name 'route.ts' | wc -l` to return 44 per AC-024 Step 1; observed 82; evidence shell count on plan/opensource-docker; expected AC-enumerated route file apps/dashboard/src/app/api/billing/webhook/route.ts delegating to a context *-handler.ts; observed file absent and POST /api/billing/webhook returned 404 on http://localhost:5170; evidence static audit + HTTP probe in .harness/wi-ac-024-iv-http.json; expected AC-enumerated route file apps/dashboard/src/app/api/onboarding/connect-integration/route.ts delegating to a context *-handler.ts; observed file absent and POST /api/onboarding/connect-integration returned 404 on http://localhost:5170; evidence static audit + HTTP probe in .harness/wi-ac-024-iv-http.json
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/e76f109e-3a6b-4eb3-8f27-aac4cd0197e9/dashboard/WI-AC-024-2-integration_qa-33e3d826e090b50e.log
+- NextAction: Repair Plan
