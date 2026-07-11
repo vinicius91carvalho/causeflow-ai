@@ -276,3 +276,12 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - PreviousPhase: qa
 - Attempt: 1
 - NextAction: qa
+
+## 2026-07-11T06:04:53.541Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- DefectReport: expected FAQPage JSON-LD script on / and /product per AC-016 description; observed only Organization and WebSite schemas (2 blocks, no FAQPage); evidence: curl -s http://127.0.0.1:5173/ | python3 JSON-LD parse showed Organization + WebSite only, FAQPage grep count 0; expected sitemap.xml to include every route x locale including /from-opsgenie; observed 24 <loc> entries with no from-opsgenie URLs; evidence: curl -s http://127.0.0.1:5173/sitemap.xml | grep from-opsgenie returned 0 matches while /from-opsgenie is a live app route per project_specs.xml
+- RepairPlan: WI-AC-016 fails on 2 of 3 requirements. robots.ts is correct. FAQPage JSON-LD is never rendered on / or /product despite generateFAQSchema existing. sitemap.ts emits 24 locs from a hardcoded list that omits /from-opsgenie and includes /about instead.; Wire FAQPage JSON-LD on home and product: in home-page.tsx and product-page.tsx, build FAQ items from i18n (add home/product faq keys if missing; pricing.faq exists today), render <StructuredData data={generateFAQSchema(items)} /> per page; Fix sitemap.ts: add /from-opsgenie to pages; align the list with the 9 canonical EN routes plus use-case subpaths; remove or justify /about; consider deriving routes from a shared constant to avoid drift; Optional hygiene: add FROM_OPSGENIE to packages/shared ROUTES; reconcile spec/docs path sections/structured-data.tsx vs actual components/structured-data.tsx; Re-run QA on PORT=5173: curl / and /product for 3 JSON-LD blocks including @type FAQPage; curl /sitemap.xml | grep from-opsgenie expects 2 matches (EN + pt-br)
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bc727dd9-05a1-4163-88bb-cbb42e54f01c/website/WI-AC-016-1-qa-892b22ad02488efd.log
+- NextAction: Coding Attempt 2
