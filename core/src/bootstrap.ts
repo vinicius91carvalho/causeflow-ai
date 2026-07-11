@@ -489,6 +489,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   })();
   const agentMemory = new HindsightAgentMemory({ baseUrl: config.hindsight.baseUrl, apiKey: config.hindsight.apiKey });
 
+  // Hindsight bank lifecycle (AC-026 / AC-052)
+  const { registerConfigureHindsightBankSubscriber } = await import('./shared/application/subscribers/configure-hindsight-bank.subscriber.js');
+  const { registerInvestigationToMemorySubscriber } = await import('./shared/application/subscribers/investigation-to-memory.subscriber.js');
+  registerConfigureHindsightBankSubscriber({ eventBus, agentMemory });
+  registerInvestigationToMemorySubscriber({ eventBus, agentMemory, runbookRegistry });
+
   // Skills (per-tenant investigation runbooks / escalation paths)
   // AC-027: PgSkillRepository in OSS runtime, Dynamo in AWS runtime
   const skillRepo = await (async () => {
@@ -1585,7 +1591,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // OSS auth router (register + login) — defined only in OSS runtime
   if (config.isOss()) {
     const { createOssAuthRoutes } = await import('./modules/auth/infra/oss-auth.routes.js');
-    ossAuthRouter = createOssAuthRoutes({ tenantRepo, userRepo });
+    ossAuthRouter = createOssAuthRoutes({ tenantRepo, userRepo, eventBus });
   }
 
   // Skills routes (per-tenant investigation skills) — AC-027 / AC-025

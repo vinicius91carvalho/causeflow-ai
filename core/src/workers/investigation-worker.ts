@@ -236,6 +236,13 @@ async function workerBootstrap(ossMode?: boolean) {
     const refundInvestigation = new RefundInvestigationUseCase(billingAccountRepo);
 
     const agentMemory = new HindsightAgentMemory({ baseUrl: config.hindsight.baseUrl, apiKey: config.hindsight.apiKey });
+
+    // Register investigation-to-memory subscriber so completed investigations
+    // are retained in the tenant's Hindsight bank (AC-052). The worker has its
+    // own EventBus — API-process subscribers never see these events.
+    const { registerInvestigationToMemorySubscriber } = await import('../shared/application/subscribers/investigation-to-memory.subscriber.js');
+    registerInvestigationToMemorySubscriber({ eventBus, agentMemory });
+
     // Investigation mode dispatcher — orchestrator is default, hypothesis mode
     // is available for staff to toggle per-incident via the admin endpoint.
     // hypothesisRepo is already set in the OSS-aware block above

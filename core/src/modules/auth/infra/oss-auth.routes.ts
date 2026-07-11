@@ -15,6 +15,7 @@ import { SignJWT } from 'jose';
 import type { AppEnv } from '../../../shared/infra/http/hono-types.js';
 import type { ITenantRepository } from '../../../modules/tenant/domain/tenant.repository.js';
 import type { IUserRepository } from '../../../modules/user/domain/user.repository.js';
+import type { IEventBus } from '../../../shared/domain/events.js';
 import { tenantId } from '../../../shared/domain/value-objects.js';
 import { config } from '../../../shared/config/index.js';
 import { pgGet, pgUpdate } from '../../../shared/infra/db/postgres/pg-utils.js';
@@ -22,6 +23,7 @@ import { pgGet, pgUpdate } from '../../../shared/infra/db/postgres/pg-utils.js';
 export interface OssAuthDeps {
     tenantRepo: ITenantRepository;
     userRepo: IUserRepository;
+    eventBus: IEventBus;
 }
 
 function hashPassword(password: string): string {
@@ -90,6 +92,18 @@ export function createOssAuthRoutes(deps: OssAuthDeps) {
             createdAt: now,
             updatedAt: now,
         });
+
+        // Fire tenant.created so configureHindsightBankSubscriber creates the bank (AC-052).
+        try {
+            await deps.eventBus.publish({
+                eventType: 'tenant.created',
+                occurredAt: now,
+                tenantId: tenant.tenantId,
+                payload: { tenantId: String(tenant.tenantId), slug, plan: tenant.plan, name: tenant.name },
+            });
+        } catch {
+            // Non-critical — Hindsight bank is created lazily on first retain
+        }
 
         // Create user
         const userId = randomUUID();

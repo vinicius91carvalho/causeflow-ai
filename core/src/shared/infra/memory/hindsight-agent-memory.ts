@@ -26,7 +26,9 @@ export class HindsightAgentMemory {
                 context: options?.context,
                 metadata: options?.metadata ? this.toStringRecord(options.metadata) : undefined,
                 tags: options?.tags,
-                async: true,
+                // Sync retain so AC-052 can observe writes via GET .../memories without racing
+                // the Hindsight background indexer.
+                async: false,
             });
             getLogger().debug({ event: 'hindsight.retain', tenantId, durationMs: Date.now() - start }, 'hindsight.retain');
         }

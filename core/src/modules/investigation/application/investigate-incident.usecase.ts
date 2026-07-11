@@ -938,6 +938,15 @@ export class InvestigateIncidentUseCase {
                     memoryContext = '\n\nRelevant Knowledge from Past Incidents & Infrastructure:\n' +
                         memories.map((m, i) => `${i + 1}. [${m.type}] ${m.text}`).join('\n');
                 }
+                // Persist orchestrator recall payload so AC-052 can observe prior runbooks
+                // via tool_calls (same shape as executeOrchestrator prelude).
+                await this.logSyntheticMemoryCall({
+                    tenantId, incidentId,
+                    name: 'memory_recall',
+                    input: { query, maxResults: 7, budget: 'mid' },
+                    output: memoryContext || '(no memories found)',
+                    label: 'Investigation prelude',
+                });
             }
             catch { /* non-critical — degrade gracefully */ }
         }
