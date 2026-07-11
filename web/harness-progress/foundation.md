@@ -5037,3 +5037,10 @@ The repair is in how QA runs the check, not in the code under test.
 - RepairPlan: WI-AC-006 fails at Playwright webServer startup before any test runs. Isolated QA passed with workarounds (PORT=3000 or SKIP_WEB_SERVER=1), but integrated verification under harness PORT=5172 exits 1 with `Timed out waiting 30000ms from config.webServer`. Website static config (4 viewports, workers:3, trace/video/screenshot off, analytics blocking) is correct; the defect is playwright.config.ts env/port/scope drift plus a stale dashboard Clerk import.; In playwright.config.ts, pin website webServer to port 3000 independent of harness PORT (e.g. `PORT=3000 pnpm exec next start -H 127.0.0.1 -p 3000` with baseURL `http://127.0.0.1:3000`, or derive both from a dedicated PLAYWRIGHT_WEBSITE_PORT defaulting to 3000).; Remove or gate the dashboard webServer and dashboard/e2e/review Playwright projects behind PLAYWRIGHT_DASHBOARD_WEBSERVER=1 so `pnpm exec playwright test tests/` for foundation AC-006 only needs the website server.; If dashboard webServer must remain for broader suites, change readiness url from `${dashboardURL}/` to `${dashboardURL}/api/health` and use `pnpm exec next start -H 127.0.0.1 -p 3001` with cwd `./apps/dashboard` (drop redundant `--filter`).; Migrate tests/dashboard/dashboard-overview.spec.ts, rbac-member-read.spec.ts, and integrations-composio.spec.ts off `@clerk/testing/playwright` to the local JWT cookie pattern in tests/dashboard/auth-setup.ts; do not re-add @clerk/testing.; Add QA precondition before Playwright: kill stale next/playwright processes, then `pnpm --filter website build` (AC-006 depends on AC-001 artifacts for `next start`).; Re-run integrated verification with harness PORT=5172 unchanged to prove AC-006 is port-isolated.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/0cccd36a-e499-4fe9-b17f-e1663f3da9b1/foundation/WI-AC-006-2-integration_qa-565ea0bd219d7fec.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-11T07:53:00.366Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-006
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
