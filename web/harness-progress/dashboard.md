@@ -277,3 +277,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - RepairPlan: QA report marked WI-AC-027 as PASS with zero defects, but the implementation has 3 genuine deviations from AC-027 requirements. (1) The `Integration` interface in types.ts lacks `composioTriggerId` — AC-027 Step 2 requires this field. (2) `next.config.mjs` `images.remotePatterns` is an empty array — AC-027 Step 3 requires `logos.composio.dev` and `backend.composio.dev` allow-listed. (3) The IntegrationType union has 17 identifiers (adds Notion, Shortcut) while AC-027 Step 2 says 'exactly 15 type identifiers'. The QA incorrectly waived these as 'OSS migration per AC-051', but AC-051 commit c0cd08c is NOT an ancestor of gen/web-dashboard HEAD — those removals are not active on this branch. The QA's 17-vs-15 rationalization as 'enhancements, not omissions' contradicts the AC's 'exactly 15' wording. All 15 required types are present, and the test/catalog/rendering assertions in the QA report are correct — the three defects are missing-structure issues, not broken functionality.; Add `composioTriggerId?: string;` field to the `Integration` interface in `apps/dashboard/src/contexts/integrations/domain/types.ts`; Add `{ hostname: 'logos.composio.dev', protocol: 'https' }` and `{ hostname: 'backend.composio.dev', protocol: 'https' }` to `images.remotePatterns` in `apps/dashboard/next.config.mjs`; Either remove Notion and Shortcut from the `IntegrationType` union (reverting to exactly 15) or update AC-027's Step 2 description to accept 17 types — the first option aligns with the AC specification; Update the QA evidence log at `/home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-027-1-qa.log` to reflect these defects
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-027-1-qa.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-11T06:02:11.467Z — Resumed
+
+- WorkItem: WI-AC-027
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
