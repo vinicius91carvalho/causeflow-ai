@@ -506,3 +506,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Outcome: QA failed after Attempt 3
 - Defects: expected GET /api/health within 15s on http://127.0.0.1:5170; observed timeout (AbortError after 15s); evidence node .harness/ac024-verify.mjs HTTP preflight — next-server pid 1019478 listening on 127.0.0.1:5170 but curl returned 000 after 30s
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-11T11:11:36.148Z — Explicit Resume
+
+- WorkItem: WI-AC-024
+- Outcome: user authorized a new Attempt cycle
+- Guidance: WI-AC-024 QA Attempt 3 FAILED — evidence: next-server listens on :5170 but GET /api/health hangs (AbortError 15s / curl 000). Routes may be committed (0b6bfeb8) but HTTP preflight must work. Fix bring-up: kill stale next/turbo; use next start (not turbo dev) on PORT=5170; confirm curl --max-time 15 /api/health → 200 before ac024-verify.mjs. Also keep manifest-based route check (47 AC routes thin re-exports), not literal wc -l == 44. Then re-QA + IV.
+- NextAction: Coding Attempt 1
