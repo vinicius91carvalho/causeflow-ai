@@ -353,3 +353,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Outcome: user authorized a new Attempt cycle
 - Guidance: WI-AC-027 INTEGRATION_QA attempt 3 FAILED — from evidence log WI-AC-027-3-integration_qa-539b7a94713a43cd (integration:false). Fix these verbatim defects, then re-QA + IV on real boundary (no mocks):
 - NextAction: Coding Attempt 1
+
+## 2026-07-11T08:32:34.124Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
