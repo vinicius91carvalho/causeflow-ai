@@ -91,16 +91,18 @@ export class StubLlmClient implements LLMClient {
 
     switch (callType) {
       case 'triage':
-        content = DEFAULT_TRIAGE;
+        content = structuredClone(DEFAULT_TRIAGE);
         break;
       case 'synthesis':
-        content = DEFAULT_SYNTHESIS;
+        content = structuredClone(DEFAULT_SYNTHESIS);
         break;
       case 'extraction':
-        content = DEFAULT_EXTRACTION;
+        content = structuredClone(DEFAULT_EXTRACTION);
         break;
       default:
-        content = {
+        // Prefer schema-shaped defaults when the prompt is ambiguous so
+        // triage never receives a body without `priority` (AC-046).
+        content = guessContentForSchema(params.responseSchema) ?? {
           result: 'stub llm response',
           summary: 'Deterministic OSS stub response (no Anthropic API key)',
         };
@@ -109,8 +111,12 @@ export class StubLlmClient implements LLMClient {
     if (params.responseSchema) {
       try {
         content = params.responseSchema.parse(content);
-      } catch {
-        // Return unparsed content; callers have their own fallbacks.
+      } catch (err) {
+        // Throw so TriageIncidentUseCase / callers hit their LLM-unavailable
+        // fallback (high severity + 6 agents) instead of silently accepting
+        // an invalid body that skips investigation.
+        const message = err instanceof Error ? err.message : String(err);
+        throw new Error(`StubLlmClient response failed schema validation: ${message}`);
       }
     }
 
@@ -125,18 +131,39 @@ export class StubLlmClient implements LLMClient {
 
 function detectCallType(systemPrompt: string): string {
   const lower = systemPrompt.toLowerCase();
-  if (lower.includes('triage') || lower.includes('severity') || lower.includes('classify')) {
+  // Triage prompts also mention "root cause" in investigationMode docs —
+  // match triage/severity/classify before synthesis.
+  if (
+    lower.includes('triage') ||
+    lower.includes('sre triage') ||
+    (lower.includes('severity') && lower.includes('classify')) ||
+    lower.includes('suggestedagents') ||
+    lower.includes('suggested agents')
+  ) {
     return 'triage';
   }
   if (
     lower.includes('synthesi') ||
-    lower.includes('root cause') ||
-    lower.includes('investigation results')
+    lower.includes('investigation results') ||
+    (lower.includes('root cause') && !lower.includes('triage'))
   ) {
     return 'synthesis';
   }
   if (lower.includes('extract') || lower.includes('pattern')) {
     return 'extraction';
   }
+  // Plain "severity" without classify still implies triage for OSS stubs.
+  if (lower.includes('severity') || lower.includes('classify')) {
+    return 'triage';
+  }
   return 'unknown';
+}
+
+function guessContentForSchema(schema: CompletionParams['responseSchema']): unknown | null {
+  if (!schema || typeof schema.safeParse !== 'function') return null;
+  for (const candidate of [DEFAULT_TRIAGE, DEFAULT_SYNTHESIS, DEFAULT_EXTRACTION]) {
+    const parsed = schema.safeParse(candidate);
+    if (parsed.success) return structuredClone(candidate);
+  }
+  return null;
 }

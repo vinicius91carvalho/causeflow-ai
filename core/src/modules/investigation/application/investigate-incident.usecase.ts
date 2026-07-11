@@ -861,6 +861,19 @@ export class InvestigateIncidentUseCase {
                 });
                 const stubRoles = suggestedAgents.filter((r) => r in AGENT_CONFIG_MAP);
                 const agentRoles = stubRoles.length > 0 ? stubRoles : ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'];
+                for (const role of agentRoles) {
+                    await this.eventBus.publish({
+                        eventType: 'investigation.progress',
+                        occurredAt: new Date().toISOString(),
+                        tenantId,
+                        payload: {
+                            incidentId,
+                            stage: 'agent_completed',
+                            agentRole: role,
+                            message: `Agent ${role} completed (stub — LLM unavailable)`,
+                        },
+                    });
+                }
                 await this.persistInvestigationArtifacts({
                     tenantId,
                     incidentId,
