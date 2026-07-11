@@ -456,3 +456,12 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - WorkItem: WI-AC-022
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T10:17:28.631Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-022
+- AcceptanceChecks: AC-022
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/e76f109e-3a6b-4eb3-8f27-aac4cd0197e9/dashboard/WI-AC-022-2-integration_qa-0b9e2a52012ff595.log
+- NextAction: next Ready Work Item
