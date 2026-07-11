@@ -12,7 +12,7 @@ import {
   isContextOverflowError,
 } from './llm-context-errors.js';
 
-const DEFAULT_TIMEOUT_MS = 120_000;
+const DEFAULT_TIMEOUT_MS = Number(process.env['LLM_TIMEOUT_MS'] ?? 300_000);
 
 interface ChatCompletionResponse {
   model: string;
@@ -70,29 +70,44 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
     const { $schema: _, ...rawSchema } = zodToJsonSchema(params.responseSchema!);
     const schemaHint = JSON.stringify(rawSchema);
     const systemPrompt = `${params.systemPrompt}\n\nRespond with a single JSON object matching this schema (no markdown, no commentary):\n${schemaHint}`;
-    const response = await instrumentedCall(
-      'local-llm',
-      'chat.completions.structured',
-      () => this.call(() => this.requestCompletion(
-        { ...params, systemPrompt },
-        endpoint,
-        true,
-      )),
-      { attributes: { model, connector: endpoint.connectorId, ...(params.attributes ?? {}) } },
-    );
-    const text = response.choices[0]?.message?.content ?? '';
-    const parsed = JSON.parse(extractJsonObject(text));
-    const validated = params.responseSchema!.parse(parsed);
-    const usage = {
-      inputTokens: response.usage?.prompt_tokens ?? 0,
-      outputTokens: response.usage?.completion_tokens ?? 0,
+
+    const attempt = async (userPrompt: string): Promise<CompletionResult<T>> => {
+      const response = await instrumentedCall(
+        'local-llm',
+        'chat.completions.structured',
+        () => this.call(() => this.requestCompletion(
+          { ...params, systemPrompt, userPrompt },
+          endpoint,
+          true,
+        )),
+        { attributes: { model, connector: endpoint.connectorId, ...(params.attributes ?? {}) } },
+      );
+      const text = response.choices[0]?.message?.content ?? '';
+      const parsed = JSON.parse(extractJsonObject(text));
+      const validated = params.responseSchema!.parse(parsed);
+      const usage = {
+        inputTokens: response.usage?.prompt_tokens ?? 0,
+        outputTokens: response.usage?.completion_tokens ?? 0,
+      };
+      return {
+        content: validated as T,
+        usage,
+        model: response.model,
+        costUsd: 0,
+      };
     };
-    return {
-      content: validated as T,
-      usage,
-      model: response.model,
-      costUsd: 0,
-    };
+
+    try {
+      return await attempt(params.userPrompt);
+    } catch (err) {
+      // Ornith/local models often omit required keys on the first pass — one
+      // repair retry with the broken JSON keeps the OSS golden path alive.
+      const broken = err instanceof Error ? err.message.slice(0, 800) : String(err);
+      const repairPrompt =
+        `${params.userPrompt}\n\nYour previous JSON failed schema validation:\n${broken}\n` +
+        `Return a corrected single JSON object that satisfies the schema exactly.`;
+      return attempt(repairPrompt);
+    }
   }
 
   private async requestCompletion(

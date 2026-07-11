@@ -649,44 +649,17 @@ async function startBullConsumer(): Promise<void> {
         'causeflow-worker BullMQ consumer starting — waiting for investigation jobs',
     );
 
+    const { handleInvestigationBullJob } = await import('./investigation-bull-job-handler.js');
     const consumer = createBullWorker({
         queueName: config.bullmq.investigationQueueName,
         handler: async (body) => {
-            const tid = body['tenantId'] as string;
-            const iid = body['incidentId'] as string;
-            const rawAgents = body['suggestedAgents'] as string[] | undefined;
-            const suggestedAgents = (rawAgents && rawAgents.length > 0)
-                ? rawAgents
-                : DEFAULT_SUGGESTED_AGENTS;
-
-            if (!tid || !iid) {
-                logger.warn({ body }, 'BullMQ investigation job missing tenantId or incidentId — skipping');
-                return;
-            }
-
-            // AC-045: This log line is the verification signal — the AC test
-            // tails worker container logs and confirms `investigation:start`.
-            logger.info({ incidentId: iid, tenantId: tid, suggestedAgents }, 'investigation:start');
-            try {
-                await investigate.investigateIncident.execute({
-                    tenantId: tenantId(tid),
-                    incidentId: incidentId(iid),
-                    suggestedAgents,
-                });
-            } catch (err) {
-                const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-                logger.error({ err, incidentId: iid, tenantId: tid }, 'Investigation job failed');
-                try {
-                    await investigate.incidentRepo.update(tenantId(tid), incidentId(iid), {
-                        rootCause: errorMsg,
-                        updatedAt: new Date().toISOString(),
-                    });
-                    await investigate.incidentRepo.updateStatus(tenantId(tid), incidentId(iid), 'failed');
-                } catch (statusErr) {
-                    logger.error({ err: statusErr, incidentId: iid }, 'Failed to mark investigation as failed');
-                }
-                throw new Error(errorMsg);
-            }
+            // AC-045 / AC-060: honor body.mode (followup = no-op) and skip
+            // terminal incidents so chat-triggered followup jobs never clobber
+            // synthesis rootCause via IncidentNotInvestigatableError.
+            await handleInvestigationBullJob(body, {
+                investigateIncident: investigate.investigateIncident,
+                incidentRepo: investigate.incidentRepo,
+            });
         },
     });
 
