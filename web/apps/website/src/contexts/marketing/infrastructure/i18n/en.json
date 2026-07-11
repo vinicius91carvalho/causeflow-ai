@@ -678,6 +678,20 @@
           }
         ]
       }
+    },
+    "faq": {
+      "q1": {
+        "question": "What is CauseFlow AI?",
+        "answer": "CauseFlow is an AI-powered incident investigation platform that deploys 6 specialized agents in parallel to find root causes in minutes instead of hours."
+      },
+      "q2": {
+        "question": "How long does an investigation take?",
+        "answer": "CauseFlow identifies root cause in about 3 minutes. End-to-end resolution including human approval typically takes around 35 minutes versus 2-4 hours manual."
+      },
+      "q3": {
+        "question": "Do fixes run without human approval?",
+        "answer": "No. CauseFlow proposes exact fixes but nothing executes without your explicit approval. If no decision is made within 30 minutes, the action is automatically cancelled."
+      }
     }
   },
   "product": {
@@ -751,6 +765,20 @@
       "core": "Proprietary core: Planning engine, hypothesis generation, learning and Knowledge Base",
       "llm": "LLM Gateway: Uses lightweight models for log reading and data extraction. Reserves higher-capability models for final synthesis and root cause reasoning. This keeps investigations fast without sacrificing accuracy on the decisions that matter.",
       "security": "Security: AWS Bedrock (ISO/IEC 42001), KMS per-tenant, PII detection engine"
+    },
+    "faq": {
+      "q1": {
+        "question": "How does CauseFlow investigate incidents?",
+        "answer": "CauseFlow deploys 6 specialized AI agents in parallel across your monitoring, code, and infrastructure tools, then correlates findings to deliver root cause with confidence scores in about 3 minutes."
+      },
+      "q2": {
+        "question": "What integrations does CauseFlow support?",
+        "answer": "CauseFlow connects to monitoring tools like Datadog and PagerDuty, code repositories like GitHub, ticketing systems like Jira, and customer support platforms. Each integration maps to a specialized agent."
+      },
+      "q3": {
+        "question": "Is CauseFlow secure for production data?",
+        "answer": "Yes. Agents receive temporary read-only credentials scoped to their data source, valid for 15 minutes. Customer data is never used to train models for other customers, and all actions are recorded in an immutable audit trail."
+      }
     }
   },
   "integrations": {

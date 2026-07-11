@@ -37,6 +37,10 @@ import { ParanoidByDesignSection } from '@/contexts/marketing/presentation/compo
 import { ReasoningInActionSection } from '@/contexts/marketing/presentation/components/sections/reasoning-in-action-section';
 import { TimeSavedSection } from '@/contexts/marketing/presentation/components/sections/time-saved-section';
 import { UseCasesCarouselSection } from '@/contexts/marketing/presentation/components/sections/use-cases-carousel-section';
+import {
+  generateFAQSchema,
+  StructuredData,
+} from '@/contexts/marketing/presentation/components/structured-data';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
 import { getDashboardUrl } from '@/lib/dashboard-url';
@@ -138,7 +142,14 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
 
   const t = useTranslations('home.newTemplate');
   const tHero = useTranslations('home.hero');
+  const tFaq = useTranslations('home.faq');
   const dashboardUrl = getDashboardUrl();
+
+  const faqItems = [
+    { question: tFaq('q1.question'), answer: tFaq('q1.answer') },
+    { question: tFaq('q2.question'), answer: tFaq('q2.answer') },
+    { question: tFaq('q3.question'), answer: tFaq('q3.answer') },
+  ];
 
   // ── Hero dash labels ──────────────────────────────────────────────────────
   const dashLabels = {
@@ -265,6 +276,7 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
 
   return (
     <PageLayout header={<Header />} footer={<Footer />}>
+      <StructuredData data={generateFAQSchema(faqItems)} />
       {/* ===== 1. Hero ===== */}
       <HeroMainHeader
         labels={{
