@@ -84,6 +84,21 @@
         "slackDisconnectError": "Falha ao desconectar o Slack. Tente novamente.",
         "slackAdminOnly": "Somente administradores podem gerenciar notificações do Slack"
       },
+      "llmConnector": {
+        "title": "LLM de investigação",
+        "description": "Selecione o conector LLM de investigação do Core. O padrão é Ornith 9B local em :8081. Alterne para DeepSeek V4 Flash quando o Ornith reportar overflow de contexto.",
+        "loading": "Carregando status do conector…",
+        "active": "Ativo",
+        "select": "Usar",
+        "selected": "Ativo",
+        "switching": "Alternando…",
+        "switched": "Conector ativo: {label}",
+        "errorLoad": "Falha ao carregar o status do conector LLM do Core.",
+        "errorSwitch": "Falha ao alternar o conector LLM.",
+        "credsMissing": "credenciais não configuradas no Core",
+        "credsNote": "As credenciais do DeepSeek vêm do host do operador em runtime (~/.config/opencode, ~/.pi/agent/auth.json ou variáveis de ambiente). Nunca são commitadas no repositório.",
+        "overflowHint": "Quando o Core retornar {code}, alterne para DeepSeek V4 Flash (OpenCode Go ou NVIDIA NIM)."
+      },
       "apiKeys": {
         "title": "Chaves de API",
         "description": "Gerencie chaves de API para integrações externas",

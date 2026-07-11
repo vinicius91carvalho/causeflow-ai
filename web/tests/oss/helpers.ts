@@ -5,7 +5,7 @@ import type { Page } from '@playwright/test';
  *
  * Analytics blockers only. Do NOT add `page.route` mocks of
  * `/api/integrations/*` or `/api/incidents*` — those are not the pass path
- * for AC-055..AC-058 (PD-OSS-DASHBOARD-E2E-CONNECTORS).
+ * for AC-055..AC-059 (PD-OSS-DASHBOARD-E2E-CONNECTORS).
  */
 
 /** Block analytics/tracker network requests to prevent test interference. */

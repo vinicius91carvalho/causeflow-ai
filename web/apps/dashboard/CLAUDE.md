@@ -69,6 +69,7 @@ See [API Reference](../../docs/apps/dashboard/api-reference.md) for complete doc
 |---|---|
 | `GET /api/settings` | Fetch user/company settings |
 | `PATCH /api/settings` | Update settings |
+| `GET/PUT /api/settings/llm-connector` | OSS investigation LLM connector proxy (Core `/v1/oss/llm-connector`, AC-059) |
 | `GET/POST/DELETE /api/settings/api-keys` | API key management (CORE_API_URL feature) |
 
 **Incidents API (2 endpoints):**
