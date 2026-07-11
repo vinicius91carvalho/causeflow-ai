@@ -79,10 +79,10 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
     //   - version → semver from package.json (stable, app-level)
     //   - commit  → 7-char git SHA baked at image build time via Dockerfile ARG GIT_SHA
     //
-    // In the open-source local runtime (AC-039) the body is instead a flat map
-    //   of check name → status, e.g. {postgres:"ok",redis:"ok",anthropic:"ok",queues:"ok"}
-    //   (anthropic is "skipped" when no API key is set). The AWS control plane
-    //   keeps the I5 metadata shape so verify-deploy's `commit` assertion holds.
+    // In the open-source local runtime (AC-039 / AC-054) the body is instead a flat map
+    //   of check name → status, e.g. {postgres:"ok",redis:"ok",llm:"ok",anthropic:"ok",queues:"ok"}
+    //   (anthropic is "skipped" when no API key is set; llm reports Ornith reachability).
+    // The AWS control plane keeps the I5 metadata shape so verify-deploy's `commit` assertion holds.
     app.get('/health', async (c) => {
         const result = await ctx.healthChecker.runAll();
         const httpStatus = result.status === 'down' ? 503 : 200;

@@ -67,6 +67,14 @@ export const config = {
     baseUrl: process.env['LANGFUSE_BASE_URL'],
   },
 
+  // Local Ornith / llama.cpp connector for the OSS runtime (AC-054).
+  // Anthropic API key, when set, overrides this connector.
+  llm: {
+    baseUrl: env('LLM_BASE_URL', 'http://127.0.0.1:8081/v1'),
+    model: env('LLM_MODEL', 'Ornith-1.0-9B-code'),
+    apiKey: env('LLM_API_KEY', 'local'),
+  },
+
   anthropic: {
     apiKey: env('ANTHROPIC_API_KEY', ''),
     baseUrl: process.env['ANTHROPIC_BASE_URL'],

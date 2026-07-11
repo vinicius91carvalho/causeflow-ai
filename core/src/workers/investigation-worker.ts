@@ -14,10 +14,8 @@ import { RefundInvestigationUseCase } from '../modules/billing/application/refun
 import { ProviderRegistry } from '../shared/application/provider-registry.js';
 import { StubCloudProvider } from '../shared/infra/cloud/stub-cloud-provider.js';
 import { StubCredentialVendor } from '../shared/infra/credentials/stub-credential-vendor.js';
-import { AnthropicClient } from '../shared/infra/llm/anthropic-client.js';
+import { createRawAgentRunner, createRawLlmClient, usesLocalLlmConnector } from '../shared/infra/llm/llm-factory.js';
 import { EnhancedPTCRunner } from '../shared/infra/llm/enhanced-ptc-runner.js';
-import { StubLlmClient } from '../shared/infra/llm/stub-llm-client.js';
-import { StubAgentRunner } from '../shared/infra/llm/stub-agent-runner.js';
 import type { ISkillRepository } from '../modules/skills/domain/skill.repository.js';
 import { SelectSkillsUseCase } from '../modules/skills/application/select-skills.usecase.js';
 import { createObservabilityStack } from '../shared/infra/observability/observability-factory.js';
@@ -173,20 +171,19 @@ async function workerBootstrap(ossMode?: boolean) {
             eventBus.publish({ eventType: 'ai.unavailable', occurredAt: new Date().toISOString(), tenantId: 'system', payload: { from, to } }).catch(() => { });
         }
     });
-    // LLM Client + Agent Runner (with investigation context for Langfuse sessions/users).
-    // AC-046: OSS zero-SaaS path wires stubs so @anthropic-ai/sdk is never called.
+    // AC-054: OSS default connector is Ornith via OpenAI-compatible llama.cpp.
     const traceContext = { sessionId: INCIDENT_ID!, userId: TENANT_ID! };
-    const useOssLlmStub = (useOssRepos || config.isOss()) && !config.anthropic.apiKey;
     let rawLlmClient: LLMClient;
     let rawAgentRunner: AgentRunner;
-    if (useOssLlmStub) {
-        logger.info('Investigation worker: using StubLlmClient + StubAgentRunner (OSS, no ANTHROPIC_API_KEY)');
-        rawLlmClient = new StubLlmClient();
-        rawAgentRunner = new StubAgentRunner();
+    if (usesLocalLlmConnector()) {
+        logger.info(
+            { baseUrl: config.llm.baseUrl, model: config.llm.model },
+            'Investigation worker: using local OpenAI-compatible LLM connector (OSS, no ANTHROPIC_API_KEY)',
+        );
+        rawLlmClient = createRawLlmClient(anthropicCircuitBreaker);
+        rawAgentRunner = createRawAgentRunner();
     } else {
-        const client = new AnthropicClient();
-        client.setCircuitBreaker(anthropicCircuitBreaker);
-        rawLlmClient = client as unknown as LLMClient;
+        rawLlmClient = createRawLlmClient(anthropicCircuitBreaker) as unknown as LLMClient;
         rawAgentRunner = config.enhancedRunner.mastra
             ? new (await import('../shared/infra/llm/mastra-agent-runner.js')).MastraAgentRunner()
             : new EnhancedPTCRunner();
@@ -431,8 +428,8 @@ async function main() {
             : `Incident ${INCIDENT_ID} investigation completed.`;
 
         // Set up follow-up agent runner for Q&A
-        const followupRunner = (config.isOss() && !config.anthropic.apiKey)
-            ? new StubAgentRunner()
+        const followupRunner = usesLocalLlmConnector()
+            ? createRawAgentRunner()
             : (config.enhancedRunner.mastra
                 ? new (await import('../shared/infra/llm/mastra-agent-runner.js')).MastraAgentRunner()
                 : new EnhancedPTCRunner());
