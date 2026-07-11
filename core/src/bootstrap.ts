@@ -35,11 +35,7 @@ import { DatadogParser } from './modules/ingestion/infra/parsers/datadog.parser.
 import { GrafanaParser } from './modules/ingestion/infra/parsers/grafana.parser.js';
 import { CloudWatchParser } from './modules/ingestion/infra/parsers/cloudwatch.parser.js';
 import { SentryParser } from './modules/ingestion/infra/parsers/sentry.parser.js';
-import { AnthropicClient } from './shared/infra/llm/anthropic-client.js';
-import { AnthropicAgentRunner } from './shared/infra/llm/anthropic-agent-runner.js';
-import { AnthropicPTCAgentRunner } from './shared/infra/llm/anthropic-ptc-agent-runner.js';
-import { StubLlmClient } from './shared/infra/llm/stub-llm-client.js';
-import { StubAgentRunner } from './shared/infra/llm/stub-agent-runner.js';
+import { createRawAgentRunner, createRawLlmClient, usesLocalLlmConnector } from './shared/infra/llm/llm-factory.js';
 import { AesGcmTokenEncryption } from './shared/infra/credentials/aes-gcm-token-encryption.js';
 import { StubCloudProvider } from './shared/infra/cloud/stub-cloud-provider.js';
 import { STSCredentialVendor } from './shared/infra/credentials/sts-credential-vendor.js';
@@ -96,6 +92,7 @@ import { DynamoDBHealthCheck } from './shared/infra/health/checks/dynamodb-check
 import { RedisHealthCheck } from './shared/infra/health/checks/redis-check.js';
 import { SQSHealthCheck } from './shared/infra/health/checks/sqs-check.js';
 import { AnthropicHealthCheck } from './shared/infra/health/checks/anthropic-check.js';
+import { LocalLlmHealthCheck } from './shared/infra/health/checks/local-llm-check.js';
 import { CircuitBreaker } from './shared/infra/llm/circuit-breaker.js';
 import { PostgresHealthCheck } from './shared/infra/health/checks/postgres-check.js';
 import { QueuesHealthCheck } from './shared/infra/health/checks/queues-check.js';
@@ -347,21 +344,16 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   );
 
   // LLM Client + Agent Runner (wrapped with observability decorators).
-  // AC-046: OSS zero-SaaS path uses deterministic stubs that never touch @anthropic-ai/sdk.
-  const useOssLlmStub = config.isOss() && !config.anthropic.apiKey;
-  if (useOssLlmStub) {
-    logger.info('Bootstrap: using StubLlmClient + StubAgentRunner (OSS, no ANTHROPIC_API_KEY)');
+  // AC-054: OSS default connector is Ornith via OpenAI-compatible llama.cpp.
+  // ANTHROPIC_API_KEY remains an optional override.
+  if (usesLocalLlmConnector()) {
+    logger.info(
+      { baseUrl: config.llm.baseUrl, model: config.llm.model },
+      'Bootstrap: using local OpenAI-compatible LLM connector (OSS, no ANTHROPIC_API_KEY)',
+    );
   }
-  const rawLlmClient = overrides?.llmClient ?? (() => {
-    if (useOssLlmStub) return new StubLlmClient();
-    const client = new AnthropicClient();
-    client.setCircuitBreaker(anthropicCircuitBreaker);
-    return client;
-  })();
-  const rawAgentRunner = overrides?.agentRunner
-    ?? (useOssLlmStub
-      ? new StubAgentRunner()
-      : (config.ptc.enabled ? new AnthropicPTCAgentRunner() : new AnthropicAgentRunner()));
+  const rawLlmClient = overrides?.llmClient ?? createRawLlmClient(anthropicCircuitBreaker);
+  const rawAgentRunner = overrides?.agentRunner ?? createRawAgentRunner();
   const llmClient = new ObservedAnthropicClient(rawLlmClient, tracer, metrics);
   const agentRunner = new ObservedAgentRunner(rawAgentRunner, tracer, metrics);
 
@@ -1349,6 +1341,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   if (config.isOss()) {
     healthChecker.register(new PostgresHealthCheck());
     healthChecker.register(new RedisHealthCheck(() => getRedisClient()));
+    healthChecker.register(new LocalLlmHealthCheck(anthropicCircuitBreaker));
     healthChecker.register(new AnthropicHealthCheck(anthropicCircuitBreaker));
     healthChecker.register(new QueuesHealthCheck(() => getRedisClient()));
   } else {

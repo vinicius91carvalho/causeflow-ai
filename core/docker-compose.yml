@@ -68,6 +68,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     depends_on:
       causeflow-postgres:
         condition: service_healthy
@@ -89,6 +91,8 @@ services:
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-oss-dev-webhook-secret}
       DEDUP_WINDOW_MINUTES: ${DEDUP_WINDOW_MINUTES:-60}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-http://host.docker.internal:8081/v1}
+      LLM_MODEL: ${LLM_MODEL:-Ornith-1.0-9B-code}
       ANTHROPIC_TRIAGE_MODEL: ${ANTHROPIC_TRIAGE_MODEL:-}
       ANTHROPIC_INVESTIGATION_MODEL: ${ANTHROPIC_INVESTIGATION_MODEL:-}
       LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
@@ -111,6 +115,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.worker
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     depends_on:
       causeflow-postgres:
         condition: service_healthy
@@ -130,6 +136,8 @@ services:
       HINDSIGHT_BASE_URL: http://hindsight:8888
       HINDSIGHT_API_KEY: ${HINDSIGHT_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-http://host.docker.internal:8081/v1}
+      LLM_MODEL: ${LLM_MODEL:-Ornith-1.0-9B-code}
       ANTHROPIC_TRIAGE_MODEL: ${ANTHROPIC_TRIAGE_MODEL:-}
       ANTHROPIC_INVESTIGATION_MODEL: ${ANTHROPIC_INVESTIGATION_MODEL:-}
       LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
