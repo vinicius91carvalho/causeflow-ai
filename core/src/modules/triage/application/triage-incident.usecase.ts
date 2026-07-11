@@ -144,6 +144,17 @@ export class TriageIncidentUseCase {
                     attributes: { tenantId: String(tenantId), incidentId: String(incidentId) },
                 });
                 result = completion.content;
+                // Guard against stub/LLM bodies that parse loosely but omit fields
+                // required to dispatch investigation (AC-046).
+                const validated = triageResultSchema.safeParse(result);
+                if (!validated.success || !result.suggestedAgents?.length) {
+                    throw new Error(
+                        validated.success
+                            ? 'Triage result missing suggestedAgents'
+                            : `Invalid triage result: ${validated.error.message}`,
+                    );
+                }
+                result = validated.data;
             }
             catch (err) {
                 // If LLM is unavailable (e.g., no API key configured), fall back so the

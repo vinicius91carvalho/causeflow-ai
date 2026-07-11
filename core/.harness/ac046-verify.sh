@@ -130,9 +130,15 @@ done
 log "severity_set=$SEVERITY"
 
 # 5. SSE: 6+ agent roles (AC-019)
+# Give the Redis→SSE bridge a moment to flush replay, then re-open the stream
+# once so late subscribers still receive buffered agent_completed events.
 sleep 2
 [ -n "${SSE_PID:-}" ] && kill "$SSE_PID" 2>/dev/null || true
 [ -n "${SSE_PID:-}" ] && wait "$SSE_PID" 2>/dev/null || true
+# Second SSE connect exercises incident replay buffer (fast stub completions).
+curl -sS -N --max-time 5 \
+  -H "Authorization: Bearer $TOKEN" \
+  "$BASE/api/v1/investigation/${INCIDENT_ID}/stream" >>"$SSE_FILE" 2>/dev/null || true
 log "SSE bytes=$(wc -c <"$SSE_FILE")"
 log "SSE content (head):"
 head -c 4000 "$SSE_FILE" | tee -a "$EVIDENCE"
