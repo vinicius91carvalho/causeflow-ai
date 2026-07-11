@@ -8642,3 +8642,10 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - Outcome: integration=true, implementation=true, qa=true
 - Evidence: Playwright on PORT=5170 (OSS runtime, Postgres :5439, Redis :6380). `.harness/ac035-integrated-verify.mjs` exit 0, 10/10 PASS — `/dashboard` 200, tenant `QA Tenant AC035`, `New investigation`, incident `AC035 checkout latency spike`, detail panels (Evidence, Hypotheses, Chat, Remediation), hypotheses API 200, SSE `/v1/notifications/stream` 200.
 - Evidence log: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/widget-and-portal/WI-AC-035-integrated-qa.log
+
+## 2026-07-11T03:57:09.953Z — Resumed
+
+- WorkItem: WI-AC-035
+- PreviousPhase: qa
+- Attempt: 3
+- NextAction: qa
