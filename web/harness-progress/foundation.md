@@ -4968,3 +4968,10 @@ The repair is in how QA runs the check, not in the code under test.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: WI-AC-006 root cause is a port mismatch under the harness worktree: harness exports PORT=5172, so `next start -H 127.0.0.1` binds 5172 while playwright.config.ts still probes http://127.0.0.1:3000 (timeout). With PORT=3000 the same suite already passes (139 passed, 5 skipped).
 - NextAction: Coding Attempt 1
+
+## 2026-07-11T06:55:23.486Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
