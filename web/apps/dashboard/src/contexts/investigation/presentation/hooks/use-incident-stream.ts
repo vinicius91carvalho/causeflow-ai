@@ -3,9 +3,10 @@
 /**
  * useIncidentStream — subscribe to the live SSE stream for one incident.
  *
- * Opens a single `EventSource` against the existing `/api/notifications/stream`
- * proxy, filters events by `incidentId` so that cross-incident events from
- * the same tenant don't bleed in, and exposes a typed subscription API.
+ * Opens a single `EventSource` against `/api/incidents/{id}/stream`, which
+ * proxies Core's `GET /v1/incidents/:id/stream` as `text/event-stream`.
+ * Filters events by `incidentId` so cross-incident events don't bleed in,
+ * and exposes a typed subscription API.
  *
  * There is intentionally NO automatic reconnect — silent retries hide
  * upstream issues. `<DisconnectedBanner>` reads `status` and surfaces a
@@ -19,7 +20,9 @@ import type {
   UseIncidentStreamResult,
 } from '@/contexts/investigation/domain/incident-stream-types';
 
-const STREAM_URL = '/api/notifications/stream';
+function streamUrlFor(incidentId: string): string {
+  return `/api/incidents/${encodeURIComponent(incidentId)}/stream`;
+}
 
 /** Internal handler shape stored in the per-event-type handler map. */
 type Handler = (event: IncidentStreamEvent) => void;
@@ -176,7 +179,7 @@ export function useIncidentStream(incidentId: string): UseIncidentStreamResult {
 
     let source: EventSource;
     try {
-      source = new Ctor(STREAM_URL);
+      source = new Ctor(streamUrlFor(incidentIdRef.current));
     } catch {
       setStatus('error');
       return;

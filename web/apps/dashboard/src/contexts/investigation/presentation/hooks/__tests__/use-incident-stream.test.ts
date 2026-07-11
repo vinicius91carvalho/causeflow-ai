@@ -27,8 +27,8 @@ describe('useIncidentStream — source invariants', () => {
     expect(typeof useIncidentStream).toBe('function');
   });
 
-  it('opens an EventSource against /api/notifications/stream', () => {
-    expect(SOURCE).toMatch(/\/api\/notifications\/stream/);
+  it('opens an EventSource against /api/incidents/{id}/stream', () => {
+    expect(SOURCE).toMatch(/\/api\/incidents\/\$\{encodeURIComponent\(incidentId\)\}\/stream/);
     expect(SOURCE).toMatch(/new Ctor/);
   });
 

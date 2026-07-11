@@ -1,9 +1,9 @@
 /**
  * Smoke test for IncidentDetail.
  *
- * Verifies the component uses WS relay for real-time updates with polling
- * as fallback only. SSE was removed because it caused WebSocket relay disconnects.
- * Status updates now flow through InvestigationLiveFeed callbacks (onStatusChange).
+ * Verifies the component opens the AC-025 SSE stream (EventSource via
+ * useIncidentStream) while keeping the WebSocket live feed and polling
+ * as a WS fallback.
  */
 
 import { readFileSync } from 'node:fs';
@@ -15,13 +15,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const SOURCE = readFileSync(join(__dirname, 'incident-detail.tsx'), 'utf8');
 
-describe('incident-detail.tsx — SSE removal regression', () => {
-  it('does not use SSE stream (causes WS relay disconnects)', () => {
-    expect(SOURCE).not.toMatch(/useIncidentStream/);
-    expect(SOURCE).not.toMatch(/DisconnectedBanner/);
+describe('incident-detail.tsx — live SSE + WS feed', () => {
+  it('opens the incident SSE stream via useIncidentStream (AC-025)', () => {
+    expect(SOURCE).toMatch(/useIncidentStream/);
+    expect(SOURCE).toMatch(/agent\.completed/);
   });
 
-  it('uses polling for status updates while in progress', () => {
+  it('uses polling for status updates while in progress as WS fallback', () => {
     expect(SOURCE).toMatch(/POLL_INTERVAL_MS/);
     expect(SOURCE).toMatch(/setInterval/);
   });

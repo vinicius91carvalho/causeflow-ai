@@ -1,9 +1,9 @@
 /**
- * Polling regression — uses lightweight polling as WS fallback (not SSE).
+ * Polling regression — lightweight polling remains as WS fallback.
  *
- * SSE was removed because it caused WebSocket relay disconnects on the
- * incident detail page. Polling is used ONLY as fallback when WebSocket
- * is not connected. When WS is active, status updates come via the relay.
+ * AC-025 re-enables the incident SSE stream (useIncidentStream) alongside
+ * the WebSocket live feed. Polling is still used ONLY when WebSocket is
+ * not connected.
  */
 
 import { readFileSync } from 'node:fs';
@@ -15,10 +15,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const SOURCE = readFileSync(join(__dirname, '..', 'incident-detail.tsx'), 'utf8');
 
-describe('Polling — uses polling, not SSE', () => {
-  it('does not use SSE stream (removed — caused WS disconnects)', () => {
-    expect(SOURCE).not.toMatch(/useIncidentStream/);
-    expect(SOURCE).not.toMatch(/DisconnectedBanner/);
+describe('Polling — WS fallback alongside SSE', () => {
+  it('opens the incident SSE stream (AC-025)', () => {
+    expect(SOURCE).toMatch(/useIncidentStream/);
   });
 
   it('uses setInterval for status polling while in progress', () => {
@@ -28,5 +27,9 @@ describe('Polling — uses polling, not SSE', () => {
 
   it('cleans up interval on unmount', () => {
     expect(SOURCE).toMatch(/clearInterval/);
+  });
+
+  it('skips polling when WebSocket is connected', () => {
+    expect(SOURCE).toMatch(/wsConnectedRef\.current/);
   });
 });

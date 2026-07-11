@@ -6,6 +6,7 @@ import type { Incident, IncidentStatus } from '@/contexts/investigation/domain/t
 import { useToast } from '@/contexts/shared/presentation/components/toast-provider';
 import { Link } from '@/i18n/navigation';
 import { useIncidentActions } from '../hooks/use-incident-actions';
+import { useIncidentStream } from '../hooks/use-incident-stream';
 import { EvidenceReviewView } from './incident-detail/evidence-review-view';
 import { HypothesisDebateView } from './incident-detail/hypothesis-debate-view';
 import { IncidentActionBar } from './incident-detail/incident-action-bar';
@@ -53,6 +54,39 @@ export function IncidentDetail({ initialIncident }: IncidentDetailProps) {
       /* silently ignore */
     }
   }, [incident.incidentId, addToast, t]);
+
+  // Live SSE from Core via /api/incidents/[id]/stream (AC-025). Opens an
+  // EventSource so per-agent events (log, metric, change, code, infra, db)
+  // reach the client as they complete; status events trigger a refresh.
+  const stream = useIncidentStream(incident.incidentId);
+  useEffect(() => {
+    const unsubs = [
+      stream.on('incident.status_changed', () => {
+        void fetchIncident();
+      }),
+      stream.on('incident.updated', () => {
+        void fetchIncident();
+      }),
+      stream.on('investigation.completed', () => {
+        void fetchIncident();
+      }),
+      stream.on('investigation.failed', () => {
+        void fetchIncident();
+      }),
+      stream.on('investigation.aborted', () => {
+        void fetchIncident();
+      }),
+      stream.on('remediation.proposed', () => {
+        void fetchIncident();
+      }),
+      stream.on('agent.completed', () => {
+        void fetchIncident();
+      }),
+    ];
+    return () => {
+      for (const unsub of unsubs) unsub();
+    };
+  }, [stream, fetchIncident]);
 
   // Poll as fallback ONLY when WebSocket is not connected
   useEffect(() => {
