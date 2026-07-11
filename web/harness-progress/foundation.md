@@ -5131,3 +5131,10 @@ The repair is in how QA runs the check, not in the code under test.
 - RepairPlan: WI-AC-007 failed on three checks. Defect 1 is a real committed gap: dashboard build omits tsc (uncommitted local fix exists). Defects 2-3 are valid against AC-007's stale SST/OpenNext description but conflict with AC-050 OSS Docker migration where turbo build only runs next build and produces .next/, not .open-next/ or out/.; Commit apps/dashboard/package.json build script: tsc --noEmit --project tsconfig.build.json && next build (change already in worktree, unstaged).; Reconcile AC-007 with AC-050: update project_specs.xml and feature_list.json WI-AC-007 description/QA rubric to assert turbo build exit 0, .next/ in both apps, turbo.json cache:true, and dashboard tsc in build — drop .open-next/ and out/ checks from foundation QA (those belong to a separate deploy/OpenNext step, not pnpm turbo build).; Do not add output:export or open-next build to turbo build without an explicit AC-050 rollback — website middleware blocks pure static export and Dockerfiles depend on next start + .next/.; Optional alignment: prepend tsc --noEmit to apps/website/package.json build per tech_stack runtime note (not in current QA defects).
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bcaa3315-1fdf-462e-b406-249a4f274399/foundation/WI-AC-007-1-integration_qa-73efc5a5285cad04.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-11T08:42:19.075Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-007
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
