@@ -5195,3 +5195,10 @@ The repair is in how QA runs the check, not in the code under test.
 - RepairPlan: QA defects are valid against committed HEAD: AC-009 mock-mode fallback was never integrated. HEAD get-api-client.ts fail-fast throws on blank CORE_API_URL; mock-api-client.ts is absent from git. Uncommitted working-tree changes appear to implement the fix (local harness shows 11/11 API routes 200 in blank mode) but were not present when integration QA ran.; Commit the uncommitted AC-009 bundle: apps/dashboard/src/lib/api/get-api-client.ts (blank/unset CORE_API_URL -> require mock-api-client; set URL -> http-api-client), apps/dashboard/src/lib/api/mock-api-client.ts implementing ICoreApiClient, and apps/dashboard/src/lib/api/get-api-client.test.ts; Commit missing thin API re-exports if not already tracked: apps/dashboard/src/app/api/topology/route.ts, apps/dashboard/src/app/api/topology/[serviceId]/route.ts, apps/dashboard/src/app/api/pattern-analytics/route.ts (topology + intelligence/pattern-analytics coverage); Run pnpm --filter dashboard exec vitest run apps/dashboard/src/lib/api/get-api-client.test.ts and pnpm exec biome check on touched files; Re-run AC-009 integration QA from clean committed state: VERIFY_MODE=blank with CORE_API_URL blank in apps/dashboard/.env.local -> all 11 getApiClient routes 2xx, dev log free of CORE_API_URL errors; VERIFY_MODE=bad-host with CORE_API_URL=http://127.0.0.1:1 -> fetch failed on same routes; Update feature_list.json WI-AC-009 status after QA pass (implementation/qa/integration flags)
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bcaa3315-1fdf-462e-b406-249a4f274399/foundation/WI-AC-009-2-integration_qa-f75fd7f253482f77.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-11T09:24:06.951Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-009
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
