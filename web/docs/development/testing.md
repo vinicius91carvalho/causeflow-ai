@@ -114,10 +114,26 @@ BASE_URL=https://staging.causeflow.ai pnpm exec playwright test
 
 # Run with Portuguese locale
 TEST_LOCALES=en,pt-br pnpm exec playwright test
+
+# OSS compose E2E (AC-054..AC-057) — requires `docker compose up -d`
+# Dashboard :3001, Core :3099. Core local register/login only (no Clerk / .env.staging).
+pnpm exec playwright test --project=dashboard-oss-e2e
+pnpm exec playwright test --project=dashboard-oss-e2e --list
 ```
 
 > ALWAYS use `pnpm exec playwright`. Never use `pnpm dlx playwright` — it downloads a conflicting version that ignores the local config.
 
+### OSS compose project (`dashboard-oss-e2e`)
+
+| Item | Value |
+|---|---|
+| Specs | `tests/oss/ac-055-*.spec.ts`, `ac-056-*.spec.ts`, `ac-057-*.spec.ts` |
+| Auth setup | `tests/oss/auth-setup.ts` → dashboard `/api/auth/register` + `/api/auth/login` → Core |
+| Dashboard URL | `OSS_DASHBOARD_URL` (default `http://127.0.0.1:3001`) |
+| Core URL | `OSS_CORE_API_URL` (default `http://127.0.0.1:3099`) |
+| Not the pass path | Clerk, `STAGING_TEST_USER` / `.env.staging`, `page.route` mocks of `/api/integrations/*` or `/api/incidents*` |
+
+The OSS projects are registered only when `--project=dashboard-oss-e2e` (or `PLAYWRIGHT_OSS=1`) is used, so the default website Playwright suite does not require compose.
 ### Screenshots
 
 When writing tests that capture screenshots for style verification, always save to the `./screenshots` folder:

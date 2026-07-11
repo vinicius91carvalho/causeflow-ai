@@ -7,11 +7,18 @@ const baseURL = process.env.BASE_URL || `http://127.0.0.1:${websitePort}`;
 const dashboardURL = process.env.DASHBOARD_URL || `http://127.0.0.1:${dashboardPort}`;
 const isExternalTarget = baseURL.startsWith('https://');
 const enableDashboard = process.env.PLAYWRIGHT_DASHBOARD_WEBSERVER === '1';
+// OSS compose E2E (AC-054): dashboard host :3001, Core host :3099.
+// Always selectable via `--project=dashboard-oss-e2e` (no PLAYWRIGHT_DASHBOARD_WEBSERVER gate).
+const isOssE2eProject =
+  process.env.PLAYWRIGHT_OSS === '1' ||
+  process.argv.some((arg) => arg === 'dashboard-oss-e2e' || arg.includes('dashboard-oss-e2e'));
+const ossDashboardURL = process.env.OSS_DASHBOARD_URL || 'http://127.0.0.1:3001';
 // Set SKIP_WEB_SERVER=1 to skip the Playwright webServer block entirely —
 // useful when dev servers are already running on a non-default hostname (e.g.
 // in PRoot where `localhost` may resolve only to IPv6 `::1` and the webServer
 // reuse probe cannot reach them).
-const skipWebServer = process.env.SKIP_WEB_SERVER === '1';
+// OSS compose already serves the dashboard — never spin up the website webServer.
+const skipWebServer = process.env.SKIP_WEB_SERVER === '1' || isOssE2eProject;
 
 // Use local chromium in PRoot, otherwise let Playwright manage the browser
 const localChromium = '/usr/bin/chromium';
@@ -150,6 +157,36 @@ export default defineConfig({
               storageState: 'tests/dashboard/.auth/user.json',
               actionTimeout: 30000,
               navigationTimeout: 180000,
+            },
+          },
+        ]
+      : []),
+
+    // --- OSS compose E2E (AC-054): Core local auth, no Clerk / .env.staging ---
+    // Only registered when explicitly selected so default website E2E stays green
+    // without docker compose. Operators + harness QA for AC-055..AC-057:
+    //   pnpm exec playwright test --project=dashboard-oss-e2e
+    ...(isOssE2eProject
+      ? [
+          {
+            name: 'dashboard-oss-setup',
+            testDir: './tests/oss',
+            testMatch: 'auth-setup.ts',
+            use: {
+              ...devices['Desktop Chrome'],
+              baseURL: ossDashboardURL,
+            },
+          },
+          {
+            name: 'dashboard-oss-e2e',
+            dependencies: ['dashboard-oss-setup'],
+            testDir: './tests/oss',
+            testMatch: /.*\.spec\.ts$/,
+            use: {
+              ...devices['Desktop Chrome'],
+              viewport: { width: 1280, height: 800 },
+              baseURL: ossDashboardURL,
+              storageState: 'tests/oss/.auth/user.json',
             },
           },
         ]

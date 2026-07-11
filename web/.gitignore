@@ -53,6 +53,7 @@ pnpm-debug.log*
 
 # Playwright auth state
 tests/dashboard/.auth/
+tests/oss/.auth/
 
 # Claude Code worktrees
 .claude/worktrees/

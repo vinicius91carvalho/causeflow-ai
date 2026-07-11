@@ -66,7 +66,8 @@ docs/solutions/
 │   ├── 2026-02-28_fail-safe-auth-defaulting.md
 │   ├── 2026-02-28_dashboard-url-constant.md
 │   ├── 2026-03-03_stripe-subscription-integration.md
-│   └── 2026-03-04_bounded-contexts-nextjs-refactoring.md
+│   ├── 2026-03-04_bounded-contexts-nextjs-refactoring.md
+│   └── 2026-07-11_oss-playwright-dashboard-e2e.md
 ├── bugfixes/
 │   ├── 2026-02-28_cognito-secrethash.md
 │   ├── 2026-02-28_sst-opennext-header-renaming.md
@@ -331,6 +332,7 @@ See `./packages/ui/src/themes/THEMES.md` for full spec (folder structure, creati
 ## Playwright Test Suite
 
 - **Test files:** `tests/audit.spec.ts` (SEO, A11y, Infrastructure), `tests/visual-functional.spec.ts` (Visual/Functional checks)
+- **OSS compose E2E (AC-054):** `tests/oss/` — project `dashboard-oss-e2e` targets compose dashboard `:3001` + Core `:3099` with Core local register/login (no Clerk, no `.env.staging` STAGING_TEST_USER, no `page.route` mocks of `/api/integrations/*` or `/api/incidents*` as the pass path). Command: `pnpm exec playwright test --project=dashboard-oss-e2e`
 - **Config:** `playwright.config.ts` at project root
 - **Settings:** `workers: 3`, `fullyParallel: true`, `trace/video/screenshot: 'off'`
 - **Locales:** English-only by default. Set `TEST_LOCALES=en,pt-br` for Portuguese.
