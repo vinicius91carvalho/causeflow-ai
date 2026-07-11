@@ -1638,5 +1638,125 @@
     "qa": false,
     "integration": false,
     "retries": 0
+  },
+  {
+    "id": "WI-AC-058",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ],
+    "description": "From the OSS dashboard (local auth), the user connects a Core-owned **runnable test application** (not a Playwright `page.route` fake) via `/dashboard/integrations`. At least two integration types (or one app plus one additional connector) are enabled against that test app through Core OSS/stub endpoints. The UI shows connected/enabled state and Core persists the connection records for the tenant. Composio remains unused.",
+    "steps": [
+      "Verify AC-058: From the OSS dashboard (local auth), the user connects a Core-owned **runnable test application** (not a Playwright `page.route` fake) via `/dashboard/integrations`. At least two integration types (or one app plus one additional connector) are enabled against that test app through Core OSS/stub endpoints. The UI shows connected/enabled state and Core persists the connection records for the tenant. Composio remains unused."
+    ],
+    "acceptance_checks": [
+      "AC-058"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-DASHBOARD-GOLDEN-PATH",
+      "PD-OSS-TEST-APP"
+    ],
+    "depends_on": [
+      "AC-054",
+      "AC-055"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-059",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "The OSS dashboard (or settings surface it proxies) can select Core's investigation LLM connector. Default is Ornith 9B on `:8081`. When Ornith's context window is insufficient for the investigation (documented overflow / context-too-large signal from Core), the operator switches to **DeepSeek V4 Flash** via OpenCode Go (`opencode/deepseek-v4-flash-free`) or NVIDIA NIM (`deepseek-ai/deepseek-v4-pro` or `deepseek-v4-flash`). Credentials are supplied at runtime from the operator host (`~/.config/opencode`, `~/.pi/agent/auth.json`, or env vars derived from them) and are never committed to the repo. After selection, Core health/settings reflect the active connector.",
+    "steps": [
+      "Verify AC-059: The OSS dashboard (or settings surface it proxies) can select Core's investigation LLM connector. Default is Ornith 9B on `:8081`. When Ornith's context window is insufficient for the investigation (documented overflow / context-too-large signal from Core), the operator switches to **DeepSeek V4 Flash** via OpenCode Go (`opencode/deepseek-v4-flash-free`) or NVIDIA NIM (`deepseek-ai/deepseek-v4-pro` or `deepseek-v4-flash`). Credentials are supplied at runtime from the operator host (`~/.config/opencode`, `~/.pi/agent/auth.json`, or env vars derived from them) and are never committed to the repo. After selection, Core health/settings reflect the active connector."
+    ],
+    "acceptance_checks": [
+      "AC-059"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-DASHBOARD-GOLDEN-PATH",
+      "PD-OSS-LLM-FALLBACK"
+    ],
+    "depends_on": [
+      "AC-054",
+      "AC-057"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-060",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ],
+    "description": "Using the connected test application (AC-058) and configured LLM (AC-059), the dashboard drives a full investigation on a real Core incident: analyses list/detail update, triage assigns severity, the user can **talk to the model on the incident** (chat panel returns model-backed replies), the UI shows a **root-cause** hypothesis with evidence, and Core produces a **remediation** proposal visible in the dashboard. All progress is live from Core (SSE or documented polling), not Playwright fixtures. DeterministicLLMClient is not the pass path.",
+    "steps": [
+      "Verify AC-060: Using the connected test application (AC-058) and configured LLM (AC-059), the dashboard drives a full investigation on a real Core incident: analyses list/detail update, triage assigns severity, the user can **talk to the model on the incident** (chat panel returns model-backed replies), the UI shows a **root-cause** hypothesis with evidence, and Core produces a **remediation** proposal visible in the dashboard. All progress is live from Core (SSE or documented polling), not Playwright fixtures. DeterministicLLMClient is not the pass path."
+    ],
+    "acceptance_checks": [
+      "AC-060"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-DASHBOARD-GOLDEN-PATH",
+      "PD-OSS-TEST-APP"
+    ],
+    "depends_on": [
+      "AC-056",
+      "AC-058",
+      "AC-059"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-061",
+    "context": "open-source-local-runtime",
+    "category": "testing",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ],
+    "description": "`pnpm exec playwright test --project=dashboard-oss-e2e` (or the documented suite name) runs one end-to-end scenario that chains AC-054..AC-060: local auth → connect test app → enable integrations → configure Ornith/DeepSeek → create incident → analyses/triage/chat/root-cause/remediation. The suite exits 0 only when every stage passes against compose Core. This suite is required evidence for Goal Review / `run_completed` on web — partial AC-055/057 smoke alone does not satisfy open-source delivery.",
+    "steps": [
+      "Verify AC-061: `pnpm exec playwright test --project=dashboard-oss-e2e` (or the documented suite name) runs one end-to-end scenario that chains AC-054..AC-060: local auth → connect test app → enable integrations → configure Ornith/DeepSeek → create incident → analyses/triage/chat/root-cause/remediation. The suite exits 0 only when every stage passes against compose Core. This suite is required evidence for Goal Review / `run_completed` on web — partial AC-055/057 smoke alone does not satisfy open-source delivery."
+    ],
+    "acceptance_checks": [
+      "AC-061"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-DASHBOARD-GOLDEN-PATH",
+      "PD-OSS-LLM-FALLBACK",
+      "PD-OSS-TEST-APP"
+    ],
+    "depends_on": [
+      "AC-054",
+      "AC-058",
+      "AC-059",
+      "AC-060"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
   }
 ]

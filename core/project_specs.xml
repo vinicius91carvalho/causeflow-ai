@@ -510,6 +510,18 @@
     <acceptance_check id="AC-057" context="open-source-local-runtime" category="functional" depends_on="AC-046,AC-054,AC-056">
       <description>Capstone local pipeline with Ornith + stub connector. Starting from a stub-connector alert or `POST /api/v1/incidents`, Core runs triage → investigation on the local stack with Ornith as the LLM connector and writes evidence attributable to both the stub upstream and ≥1 Ornith completion for that incident. Hindsight write from AC-052 still occurs. This is the Core-side contract the web dashboard E2E (web AC-056/AC-057) depends on.</description>
     </acceptance_check>
+    <acceptance_check id="AC-058" context="open-source-local-runtime" category="functional" depends_on="AC-056">
+      <description>Runnable test application for dashboard connect. Core ships a documented, compose-startable mock application (HTTP service) that a dashboard user can connect as an integration target. The app can emit an alert/webhook into Core incident ingest and answer investigation probe/tool calls with deterministic evidence. It is the upstream web AC-058/AC-060 must use — not a dashboard-only mock.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-059" context="open-source-local-runtime" category="functional" depends_on="AC-054,AC-055">
+      <description>LLM connector fallback when Ornith context is insufficient. If Ornith 9B (~32k context) cannot complete an investigation (context overflow / documented too-large prompt), Core supports switching the active LLM connector to DeepSeek V4 Flash via OpenCode Go (`opencode/deepseek-v4-flash-free`) or NVIDIA NIM (`deepseek-ai/deepseek-v4-pro` or `deepseek-v4-flash`). Credentials are read at runtime from env vars populated from the operator host (`~/.config/opencode`, `~/.pi/agent/auth.json`) and must never be committed. After switch, triage/investigation completions use DeepSeek; Anthropic remains optional only.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-060" context="open-source-local-runtime" category="functional" depends_on="AC-057,AC-058,AC-059">
+      <description>Full investigation product loop on the local stack. For an incident sourced from the test application (AC-058) with an active LLM connector (Ornith or DeepSeek fallback), Core produces: triage severity, investigation agent progress on SSE, support for incident chat/ask completions, at least one root-cause hypothesis with evidence referencing the test app, and a remediation proposal record. DeterministicLLMClient is not the happy-path proof.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-061" context="open-source-local-runtime" category="functional" depends_on="AC-058,AC-059,AC-060">
+      <description>Core-side delivery gate for the dashboard golden path. A single documented script or e2e test (invoked by harness QA) runs: boot test app → connect integration → select Ornith (or DeepSeek fallback) → ingest incident → assert triage + chat completion + root cause + remediation artifacts in Postgres/API. This is the Core contract web AC-061 depends on. Goal Review for core after these ACs must not pass without this evidence.</description>
+    </acceptance_check>
   </acceptance_checks>
 
   <planning_decisions>
@@ -533,9 +545,21 @@
     </decision>
     <decision id="PD-OSS-DASHBOARD-CONTRACT" topic="ambiguous-requirement">
       <question>Is Core responsible for the contract web dashboard E2E needs for incidents, stub connectors, and Ornith?</question>
-      <choice>Yes. Core AC-054..AC-057 define the LLM connector, fail-closed behavior, stub upstreams, and Ornith-backed pipeline that web AC-054..AC-057 consume.</choice>
+      <choice>Yes. Core AC-054..AC-061 define the LLM connector, fail-closed behavior, runnable test app, DeepSeek fallback, and full triage→chat→root-cause→remediation loop that web AC-054..AC-061 consume.</choice>
       <rationale>Cross-project E2E requires an explicit Core contract; web must not invent mocks that hide Core gaps.</rationale>
-      <acceptance_checks>AC-054,AC-056,AC-057</acceptance_checks>
+      <acceptance_checks>AC-054,AC-056,AC-057,AC-058,AC-059,AC-060,AC-061</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-DEEPSEEK-FALLBACK" topic="architectural-tradeoff">
+      <question>Which larger-context LLM is approved when Ornith 9B 32k is too small?</question>
+      <choice>DeepSeek V4 Flash via OpenCode Go or NVIDIA NIM, using runtime credentials from the operator's opencode/pi host config — never committed secrets.</choice>
+      <rationale>Operator lock 2026-07-11 for real investigation workloads.</rationale>
+      <acceptance_checks>AC-059,AC-060,AC-061</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-RUNNABLE-TEST-APP" topic="edge-case">
+      <question>What upstream does investigation evidence come from in OSS E2E?</question>
+      <choice>A compose-startable Core test application the dashboard user connects; it emits alerts and answers probes so root-cause/remediation are grounded.</choice>
+      <rationale>Validates the full product loop, not empty stub JSON.</rationale>
+      <acceptance_checks>AC-058,AC-060,AC-061</acceptance_checks>
     </decision>
   </planning_decisions>
 
@@ -954,7 +978,7 @@
       All colors come from the documented palette. All animations respect `prefers-reduced-motion`. The embeddable widget renders cleanly inside a 300px column on a third-party status page. The dashboard renders cleanly at 1920×1080, 1366×768, 768×1024 and 375×667. Severity and status badges are always uppercase, always with a 1px tracking, always with the palette color, never inline-styled. No emoji in production UI text.
     </design_polish>
     <open_source_local_runtime>
-      Acceptance Checks AC-039 through AC-057 all pass against the running docker-compose stack with no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars configured. `docker compose up -d` from a fresh clone with an unchanged `.env.example` brings the platform to `/health=200` in under 60 seconds, and the full Datadog webhook → ingest → dedup → triage → investigation → remediation → memory pipeline (AC-046) is reproducible on the local-only stack with Ornith 9B as the default LLM connector (AC-054..AC-057). The 38 original acceptance checks (AC-001..AC-038) continue to pass on the new stack; port boundaries and invariants I1–I12 are enforced.
+      Acceptance Checks AC-039 through AC-061 all pass against the running docker-compose stack with no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars configured. `docker compose up -d` from a fresh clone with an unchanged `.env.example` brings the platform to `/health=200` in under 60 seconds, and the full Datadog webhook → ingest → dedup → triage → investigation → remediation → memory pipeline (AC-046) is reproducible on the local-only stack with Ornith 9B as the default LLM connector and DeepSeek V4 Flash fallback (AC-054..AC-061), including the runnable test application golden path. The 38 original acceptance checks (AC-001..AC-038) continue to pass on the new stack; port boundaries and invariants I1–I12 are enforced.
     </open_source_local_runtime>
   </success_criteria>
 </project_specification>

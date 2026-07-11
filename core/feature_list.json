@@ -1266,5 +1266,89 @@
     "qa": false,
     "integration": false,
     "retries": 0
+  },
+  {
+    "id": "WI-AC-058",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": ["http"],
+    "description": "Runnable test application for dashboard connect. Core ships a documented, compose-startable mock application (HTTP service) that a dashboard user can connect as an integration target. The app can emit an alert/webhook into Core incident ingest and answer investigation probe/tool calls with deterministic evidence. It is the upstream web AC-058/AC-060 must use — not a dashboard-only mock.",
+    "steps": [
+      "Verify AC-058: Runnable test application for dashboard connect. Core ships a documented, compose-startable mock application (HTTP service) that a dashboard user can connect as an integration target. The app can emit an alert/webhook into Core incident ingest and answer investigation probe/tool calls with deterministic evidence. It is the upstream web AC-058/AC-060 must use — not a dashboard-only mock."
+    ],
+    "acceptance_checks": ["AC-058"],
+    "planning_decision_ids": ["PD-OSS-DASHBOARD-CONTRACT", "PD-OSS-RUNNABLE-TEST-APP"],
+    "depends_on": ["AC-056"],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-059",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": ["http"],
+    "description": "LLM connector fallback when Ornith context is insufficient. If Ornith 9B (~32k context) cannot complete an investigation (context overflow / documented too-large prompt), Core supports switching the active LLM connector to DeepSeek V4 Flash via OpenCode Go (`opencode/deepseek-v4-flash-free`) or NVIDIA NIM (`deepseek-ai/deepseek-v4-pro` or `deepseek-v4-flash`). Credentials are read at runtime from env vars populated from the operator host (`~/.config/opencode`, `~/.pi/agent/auth.json`) and must never be committed. After switch, triage/investigation completions use DeepSeek; Anthropic remains optional only.",
+    "steps": [
+      "Verify AC-059: LLM connector fallback when Ornith context is insufficient. If Ornith 9B (~32k context) cannot complete an investigation (context overflow / documented too-large prompt), Core supports switching the active LLM connector to DeepSeek V4 Flash via OpenCode Go (`opencode/deepseek-v4-flash-free`) or NVIDIA NIM (`deepseek-ai/deepseek-v4-pro` or `deepseek-v4-flash`). Credentials are read at runtime from env vars populated from the operator host (`~/.config/opencode`, `~/.pi/agent/auth.json`) and must never be committed. After switch, triage/investigation completions use DeepSeek; Anthropic remains optional only."
+    ],
+    "acceptance_checks": ["AC-059"],
+    "planning_decision_ids": ["PD-OSS-DASHBOARD-CONTRACT", "PD-OSS-DEEPSEEK-FALLBACK"],
+    "depends_on": ["AC-054", "AC-055"],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-060",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": ["http"],
+    "description": "Full investigation product loop on the local stack. For an incident sourced from the test application (AC-058) with an active LLM connector (Ornith or DeepSeek fallback), Core produces: triage severity, investigation agent progress on SSE, support for incident chat/ask completions, at least one root-cause hypothesis with evidence referencing the test app, and a remediation proposal record. DeterministicLLMClient is not the happy-path proof.",
+    "steps": [
+      "Verify AC-060: Full investigation product loop on the local stack. For an incident sourced from the test application (AC-058) with an active LLM connector (Ornith or DeepSeek fallback), Core produces: triage severity, investigation agent progress on SSE, support for incident chat/ask completions, at least one root-cause hypothesis with evidence referencing the test app, and a remediation proposal record. DeterministicLLMClient is not the happy-path proof."
+    ],
+    "acceptance_checks": ["AC-060"],
+    "planning_decision_ids": [
+      "PD-OSS-DASHBOARD-CONTRACT",
+      "PD-OSS-DEEPSEEK-FALLBACK",
+      "PD-OSS-RUNNABLE-TEST-APP"
+    ],
+    "depends_on": ["AC-057", "AC-058", "AC-059"],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-061",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": ["http"],
+    "description": "Core-side delivery gate for the dashboard golden path. A single documented script or e2e test (invoked by harness QA) runs: boot test app → connect integration → select Ornith (or DeepSeek fallback) → ingest incident → assert triage + chat completion + root cause + remediation artifacts in Postgres/API. This is the Core contract web AC-061 depends on. Goal Review for core after these ACs must not pass without this evidence.",
+    "steps": [
+      "Verify AC-061: Core-side delivery gate for the dashboard golden path. A single documented script or e2e test (invoked by harness QA) runs: boot test app → connect integration → select Ornith (or DeepSeek fallback) → ingest incident → assert triage + chat completion + root cause + remediation artifacts in Postgres/API. This is the Core contract web AC-061 depends on. Goal Review for core after these ACs must not pass without this evidence."
+    ],
+    "acceptance_checks": ["AC-061"],
+    "planning_decision_ids": [
+      "PD-OSS-DASHBOARD-CONTRACT",
+      "PD-OSS-DEEPSEEK-FALLBACK",
+      "PD-OSS-RUNNABLE-TEST-APP"
+    ],
+    "depends_on": ["AC-058", "AC-059", "AC-060"],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
   }
 ]

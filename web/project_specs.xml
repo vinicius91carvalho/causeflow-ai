@@ -795,6 +795,46 @@
         <step>Step 3: Stop Ornith and re-run (or probe health); Core reports LLM unavailable clearly and the E2E does not pass via DeterministicLLMClient/Anthropic fallback.</step>
       </steps>
     </acceptance_check>
+
+    <acceptance_check id="AC-058" context="open-source-local-runtime" category="functional" depends_on="AC-054,AC-055">
+      <title>Dashboard user connects a runnable test application and enables integrations</title>
+      <description>From the OSS dashboard (local auth), the user connects a Core-owned **runnable test application** (not a Playwright `page.route` fake) via `/dashboard/integrations`. At least two integration types (or one app plus one additional connector) are enabled against that test app through Core OSS/stub endpoints. The UI shows connected/enabled state and Core persists the connection records for the tenant. Composio remains unused.</description>
+      <steps>
+        <step>Step 1: Start/confirm the Core test application is reachable; from `/dashboard/integrations`, complete Connect for the test application.</step>
+        <step>Step 2: Enable at least one additional integration/connector tied to that app (or a second catalog card) through Core stub endpoints.</step>
+        <step>Step 3: Reload the page and confirm both connections remain enabled; Core API status for those integrations returns connected for the tenant.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-059" context="open-source-local-runtime" category="functional" depends_on="AC-054,AC-057">
+      <title>Dashboard configures investigation LLM: Ornith default, DeepSeek V4 Flash fallback</title>
+      <description>The OSS dashboard (or settings surface it proxies) can select Core's investigation LLM connector. Default is Ornith 9B on `:8081`. When Ornith's context window is insufficient for the investigation (documented overflow / context-too-large signal from Core), the operator switches to **DeepSeek V4 Flash** via OpenCode Go (`opencode/deepseek-v4-flash-free`) or NVIDIA NIM (`deepseek-ai/deepseek-v4-pro` or `deepseek-v4-flash`). Credentials are supplied at runtime from the operator host (`~/.config/opencode`, `~/.pi/agent/auth.json`, or env vars derived from them) and are never committed to the repo. After selection, Core health/settings reflect the active connector.</description>
+      <steps>
+        <step>Step 1: With Ornith up, confirm the dashboard/settings UI (or documented API) shows Ornith as the active default LLM connector.</step>
+        <step>Step 2: Simulate or trigger Ornith context-too-small / switch to DeepSeek V4 Flash (OpenCode Go or NVIDIA NIM) using runtime host credentials.</step>
+        <step>Step 3: Confirm Core reports the active connector as DeepSeek for subsequent investigation calls; no Anthropic key is required for this path.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-060" context="open-source-local-runtime" category="functional" depends_on="AC-056,AC-058,AC-059">
+      <title>Dashboard golden path: analyses, triage, incident chat, root cause, remediation</title>
+      <description>Using the connected test application (AC-058) and configured LLM (AC-059), the dashboard drives a full investigation on a real Core incident: analyses list/detail update, triage assigns severity, the user can **talk to the model on the incident** (chat panel returns model-backed replies), the UI shows a **root-cause** hypothesis with evidence, and Core produces a **remediation** proposal visible in the dashboard. All progress is live from Core (SSE or documented polling), not Playwright fixtures. DeterministicLLMClient is not the pass path.</description>
+      <steps>
+        <step>Step 1: From the connected test app / dashboard, create or ingest an incident; open analyses/detail and confirm triage severity appears from Core.</step>
+        <step>Step 2: Use the incident chat/ask panel; receive a non-empty model-backed reply attributable to the active LLM connector.</step>
+        <step>Step 3: Confirm the UI shows a root-cause hypothesis/evidence and a remediation proposal generated for that incident before the run completes.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-061" context="open-source-local-runtime" category="testing" depends_on="AC-054,AC-058,AC-059,AC-060">
+      <title>Capstone OSS Playwright suite: full golden path is the delivery gate</title>
+      <description>`pnpm exec playwright test --project=dashboard-oss-e2e` (or the documented suite name) runs one end-to-end scenario that chains AC-054..AC-060: local auth → connect test app → enable integrations → configure Ornith/DeepSeek → create incident → analyses/triage/chat/root-cause/remediation. The suite exits 0 only when every stage passes against compose Core. This suite is required evidence for Goal Review / `run_completed` on web — partial AC-055/057 smoke alone does not satisfy open-source delivery.</description>
+      <steps>
+        <step>Step 1: With compose Core + dashboard + test app + Ornith (or approved DeepSeek fallback) up, run the golden-path Playwright suite.</step>
+        <step>Step 2: Confirm the suite asserts each stage (connect, integrations, LLM, incident, triage, chat, root cause, remediation) with Core-backed evidence.</step>
+        <step>Step 3: Suite exits 0; artifacts/logs retained under the harness evidence path for Goal Review.</step>
+      </steps>
+    </acceptance_check>
   </acceptance_checks>
 
   <planning_decisions>
@@ -821,6 +861,24 @@
       <choice>Default Core LLM connector is OpenAI-compatible Ornith on :8081 (model Ornith-1.0-9B-code). E2E must evidence ≥1 local completion for the incident. If Ornith is down, fail closed with a clear error — no DeterministicLLMClient/Anthropic happy-path substitute.</choice>
       <rationale>Operator lock: local Ornith is the OSS demo LLM; silent stubs hide broken wiring.</rationale>
       <acceptance_checks>AC-057</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-DASHBOARD-GOLDEN-PATH" topic="ambiguous-requirement">
+      <question>What is the minimum dashboard E2E that counts as open-source delivery done?</question>
+      <choice>A single OSS Playwright golden path: connect a runnable test application, enable integrations, configure Ornith (or DeepSeek V4 Flash via OpenCode Go / NVIDIA NIM when 32k context is insufficient), create an incident, then complete analyses → triage → incident chat → root cause → remediation with live Core SSE. Tokens come from operator host config at runtime, never committed.</choice>
+      <rationale>Operator 2026-07-11: partial connector/LLM smoke is not enough; the full product loop must work.</rationale>
+      <acceptance_checks>AC-058,AC-059,AC-060,AC-061</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-LLM-FALLBACK" topic="architectural-tradeoff">
+      <question>If Ornith 9B 32k context is too small for investigation, which LLM fallback is approved?</question>
+      <choice>DeepSeek V4 Flash via OpenCode Go (`opencode/deepseek-v4-flash-free`) or NVIDIA NIM (`deepseek-ai/deepseek-v4-pro` / `deepseek-v4-flash` per `~/.pi/agent/models.json`), using runtime credentials from `~/.config/opencode` / `~/.pi/agent/auth.json`.</choice>
+      <rationale>Keep local Ornith as default; allow a larger-context path without Anthropic.</rationale>
+      <acceptance_checks>AC-059,AC-061</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-TEST-APP" topic="architectural-tradeoff">
+      <question>What does the user connect on the dashboard for E2E — a fake route mock or a real test application?</question>
+      <choice>A Core-owned runnable test application the user connects from `/dashboard/integrations`, which can emit alerts and answer investigation probes.</choice>
+      <rationale>Validates connectors and evidence gathering the way a real customer app would.</rationale>
+      <acceptance_checks>AC-058,AC-060,AC-061</acceptance_checks>
     </decision>
   </planning_decisions>
 </project_specification>
