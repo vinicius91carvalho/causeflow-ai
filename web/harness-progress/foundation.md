@@ -5227,3 +5227,11 @@ The repair is in how QA runs the check, not in the code under test.
 - WorkItem: WI-AC-034
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T09:37:06.886Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-034
+- Defects: expected AC-034 Step 2: check-types, lint, test, build in sequence before an SST deploy step; observed both workflows run the four turbo gates then a deploy job that only echoes Docker compose instructions with no sst deploy command; evidence: grep -rE 'sst deploy' .github/workflows/ returns zero matches, website-deploy.yml lines 64-82 and dashboard-deploy.yml lines 57-75; expected AC-034 Step 3: each workflow sets environment staging and environment production plus concurrency; observed concurrency blocks present and environment staging only on the build job with no environment production anywhere; evidence: grep 'environment:' .github/workflows/*-deploy.yml shows only website-deploy.yml:25 and dashboard-deploy.yml:26 (staging); expected AC-034 description: bare pnpm turbo check-types/lint/test/build before deploy; observed filtered commands --filter=@causeflow/website... and --filter=@causeflow/dashboard...; evidence: website-deploy.yml lines 40-52 and dashboard-deploy.yml lines 36-45
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/cc376b25-cb4d-418c-b1eb-2ca062405a88/foundation/WI-AC-034-2-integration_qa-3bc6781500f39394.log
+- NextAction: Repair Plan
