@@ -1,4 +1,6 @@
-# Stub Upstream (OSS Connector Simulator)
+# Stub Upstream (legacy entrypoint)
+
+> **AC-058:** The canonical runnable test application lives in [`../test-app/`](../test-app/). This directory keeps a backward-compatible launcher (`node stub-upstream/server.mjs` → `test-app/server.mjs`) for AC-056/AC-057 harness scripts.
 
 Documented mock upstream application for CauseFlow OSS integration connect, probe, and ingest flows (AC-056). This is a **real HTTP service** — not a dashboard route mock. Web dashboard E2E (web AC-055) and Core harness scripts exercise these endpoints.
 
