@@ -1,9 +1,13 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { BILLING_DISABLED_MESSAGE } from '@/contexts/billing/application/billing-disabled';
 
 /**
  * POST /api/billing/webhook
- * Stripe webhook handler. Does NOT use withAuth() — verified via stripe-signature header.
- * When STRIPE_WEBHOOK_SECRET is unset (OSS local dev), signature verification fails closed.
+ *
+ * Stripe webhooks are owned by the Core API. The dashboard no longer ships the
+ * `stripe` SDK (AC-048 / AC-049), so this route fails closed: require the
+ * legacy stripe-signature header for callers that still hit it, then return
+ * 410 Gone with the OSS billing-disabled message.
  */
 export async function POST(request: NextRequest) {
   const signature = request.headers.get('stripe-signature');
@@ -11,19 +15,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 });
   }
 
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  const body = await request.text();
+  // Consume the body so the request is fully read (Stripe-style clients expect it).
+  await request.text();
 
-  if (!secret) {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-  }
-
-  try {
-    const { default: Stripe } = await import('stripe');
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? 'sk_test_placeholder');
-    stripe.webhooks.constructEvent(body, signature, secret);
-    return NextResponse.json({ received: true });
-  } catch {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-  }
+  return NextResponse.json({ error: BILLING_DISABLED_MESSAGE }, { status: 410 });
 }
