@@ -6472,3 +6472,10 @@ No defects found. integration=true set in feature_list.json.
 - RepairPlan: AC-060 golden path works end-to-end (1/3 PASS) but is flaky: after REST chat succeeds, ChatInvestigationUseCase enqueues a BullMQ job with mode:followup; the OSS BullMQ consumer in investigation-worker.ts always calls investigateIncident.execute() and ignores body.mode, re-investigating terminal incidents (awaiting_approval), throwing IncidentNotInvestigatableError and overwriting rootCause with an error placeholder before ac060-verify.sh step 6. Secondary: init.sh starts the host worker with --env-file=.env.dev but does not bootstrap TOKEN_ENCRYPTION_KEY when .env.dev is absent, crashing the worker on QA hosts.; src/workers/investigation-worker.ts: In BullMQ handler, read body.mode; when mode==='followup', skip investigateIncident.execute() (no-op or followup/idle path only).; src/workers/investigation-worker.ts: Before execute, short-circuit if incident status is terminal (awaiting_approval, resolved, failed); keep catch guard so retries never clobber synthesis rootCause.; init.sh: If .env.dev missing, copy from .env.example; fail fast with clear error if TOKEN_ENCRYPTION_KEY unset before starting investigation worker.; Optional src/modules/investigation/application/chat-investigation.usecase.ts: In OSS, omit or defer dispatchFollowupWorker when REST chat already satisfies AC-060.; Add unit test: BullMQ handler with mode:followup on awaiting_approval incident must not call investigateIncident.execute() or mutate rootCause.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/439c0b7c-87a1-4a73-a2f3-5a6aa9bb3dda/open-source-local-runtime/WI-AC-060-2-integration_qa-105904b5fd0fb8b7.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-11T11:10:08.579Z — Resumed
+
+- WorkItem: WI-AC-060
+- PreviousPhase: coding
+- Attempt: 3
+- NextAction: coding
