@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
+import { billingDisabledResponse } from '@/contexts/billing/application/billing-disabled';
 import { checkoutSchema } from '@/contexts/billing/infrastructure/api-schema';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { parseBody } from '@/lib/api/parse-body';
@@ -15,6 +16,7 @@ import { logger as dashLogger } from '@/lib/logger';
  * Request body: { planId: 'starter' | 'pro' | 'business', from?: 'onboarding' | 'billing' }
  *
  * Response: { url: string } — redirect the user to this URL
+ * OSS (AC-048): Core returns 410 Gone → clear "billing disabled" message.
  */
 export const POST = withAuth(
   async (request: NextRequest, ctx) => {
@@ -41,6 +43,10 @@ export const POST = withAuth(
       const result = await api.createCheckout({ planKey: planId, successUrl, cancelUrl });
       return NextResponse.json({ url: result.url });
     } catch (err) {
+      const disabled = billingDisabledResponse(err);
+      if (disabled) {
+        return NextResponse.json({ error: disabled.error }, { status: disabled.status });
+      }
       const logPath = new URL(request.url).pathname;
       const logPayload = {
         method: request.method,

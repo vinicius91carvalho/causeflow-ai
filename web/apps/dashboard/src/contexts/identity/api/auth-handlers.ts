@@ -116,8 +116,12 @@ export async function loginHandler(request: NextRequest) {
 /**
  * POST /api/auth/register
  *
- * Body: { name, email, password }
+ * Body: { name, email, password, tenantName? }
  * Sets: __session httpOnly cookie
+ *
+ * Core's OSS register requires `tenantName`. When the sign-up form only
+ * collects the user's name, we derive a tenant name from it so fresh OSS
+ * tenants can complete registration in one step (AC-046/AC-048).
  */
 export async function registerHandler(request: NextRequest) {
   const baseUrl = coreApiUrl();
@@ -128,9 +132,14 @@ export async function registerHandler(request: NextRequest) {
     );
   }
 
-  let body: { name?: string; email?: string; password?: string };
+  let body: { name?: string; email?: string; password?: string; tenantName?: string };
   try {
-    body = (await request.json()) as { name?: string; email?: string; password?: string };
+    body = (await request.json()) as {
+      name?: string;
+      email?: string;
+      password?: string;
+      tenantName?: string;
+    };
   } catch {
     return NextResponse.json(
       { error: 'invalid_body', message: 'Invalid JSON body.' },
@@ -145,11 +154,18 @@ export async function registerHandler(request: NextRequest) {
     );
   }
 
+  const tenantName = (body.tenantName ?? body.name).trim();
+
   try {
     const res = await fetch(`${baseUrl}/v1/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: body.name, email: body.email, password: body.password }),
+      body: JSON.stringify({
+        name: body.name,
+        email: body.email,
+        password: body.password,
+        tenantName,
+      }),
     });
 
     if (!res.ok) {

@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
+import { billingDisabledResponse } from '@/contexts/billing/application/billing-disabled';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
 import { logger as dashLogger } from '@/lib/logger';
@@ -15,6 +16,7 @@ import { logger as dashLogger } from '@/lib/logger';
  * is controlled by the Stripe Portal configuration, not by this handler.
  *
  * Response: { url: string } — redirect the user to this URL
+ * OSS (AC-048): Core returns 410 Gone → clear "billing disabled" message.
  */
 export const POST = withAuth(async (request: NextRequest, ctx) => {
   const start = Date.now();
@@ -26,6 +28,10 @@ export const POST = withAuth(async (request: NextRequest, ctx) => {
     const result = await api.createPortalSession({ returnUrl });
     return NextResponse.json({ url: result.url });
   } catch (err) {
+    const disabled = billingDisabledResponse(err);
+    if (disabled) {
+      return NextResponse.json({ error: disabled.error }, { status: disabled.status });
+    }
     const logPath = new URL(request.url).pathname;
     const logPayload = {
       method: request.method,

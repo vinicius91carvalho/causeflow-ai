@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockGetSubscription = vi.fn();
 
@@ -9,8 +9,20 @@ vi.mock('@/lib/api/get-api-client', () => ({
 import { fetchPlanStatus } from './plan-status';
 
 describe('fetchPlanStatus', () => {
+  const originalRuntime = process.env.CAUSEFLOW_RUNTIME;
+  const originalStripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+
   beforeEach(() => {
     mockGetSubscription.mockReset();
+    process.env.CAUSEFLOW_RUNTIME = 'commercial';
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = 'pk_test_commercial';
+  });
+
+  afterEach(() => {
+    if (originalRuntime === undefined) delete process.env.CAUSEFLOW_RUNTIME;
+    else process.env.CAUSEFLOW_RUNTIME = originalRuntime;
+    if (originalStripeKey === undefined) delete process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+    else process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = originalStripeKey;
   });
 
   it('returns hasActivePlan=true when status is active AND currentPeriodEnd is set', async () => {
@@ -37,11 +49,9 @@ describe('fetchPlanStatus', () => {
   });
 
   it('returns hasActivePlan=false when Core API defaults status=active but currentPeriodEnd missing (fresh tenant)', async () => {
-    // This is the exact bug that let vinicius@causeflow.ai into /dashboard.
-    // Core API reports status: "active" as a DEFAULT for fresh tenants that
-    // never touched Stripe. Without cross-checking currentPeriodEnd we'd
-    // incorrectly treat them as paid users. currentPeriodEnd is only set by
-    // the Stripe webhook flow, so its presence proves a real subscription.
+    // Commercial bug guard (AC-023): Core defaults status to "active" for
+    // fresh tenants that never touched Stripe. Without currentPeriodEnd we
+    // must not treat them as paid.
     mockGetSubscription.mockResolvedValueOnce({
       status: 'active',
       plan: 'starter',
@@ -50,6 +60,20 @@ describe('fetchPlanStatus', () => {
     const result = await fetchPlanStatus();
     expect(result.hasActivePlan).toBe(false);
     expect(result.hasStripeSubscription).toBe(false);
+  });
+
+  it('returns hasActivePlan=true for OSS free+active stub without currentPeriodEnd (AC-048)', async () => {
+    process.env.CAUSEFLOW_RUNTIME = 'oss';
+    delete process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+    mockGetSubscription.mockResolvedValueOnce({
+      status: 'active',
+      plan: 'free',
+      currentPeriodEnd: null,
+    });
+    const result = await fetchPlanStatus();
+    expect(result.hasActivePlan).toBe(true);
+    expect(result.hasStripeSubscription).toBe(false);
+    expect(result.plan).toBe('free');
   });
 
   it('returns hasActivePlan=false when currentPeriodEnd is undefined', async () => {
@@ -79,12 +103,21 @@ describe('fetchPlanStatus', () => {
     expect(result.hasActivePlan).toBe(false);
   });
 
-  it('returns hasActivePlan=false when Core API throws', async () => {
+  it('returns hasActivePlan=false when Core API throws (commercial)', async () => {
     mockGetSubscription.mockRejectedValueOnce(new Error('Network error'));
     const result = await fetchPlanStatus();
     expect(result.hasActivePlan).toBe(false);
     expect(result.plan).toBeNull();
     expect(result.status).toBeNull();
+  });
+
+  it('returns hasActivePlan=true when Core API throws in OSS runtime (AC-048)', async () => {
+    process.env.CAUSEFLOW_RUNTIME = 'oss';
+    delete process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+    mockGetSubscription.mockRejectedValueOnce(new Error('Network error'));
+    const result = await fetchPlanStatus();
+    expect(result.hasActivePlan).toBe(true);
+    expect(result.plan).toBe('free');
   });
 
   it('returns hasActivePlan=false when Core API returns null', async () => {

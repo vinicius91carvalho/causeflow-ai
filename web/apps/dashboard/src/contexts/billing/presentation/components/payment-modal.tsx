@@ -1,82 +1,18 @@
 'use client';
 
 import type { TenantPlan } from '@causeflow/shared/constants';
-import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import { useCallback, useState } from 'react';
-
-const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
+import { useCallback, useEffect, useState } from 'react';
 
 // ---------------------------------------------------------------------------
-// Payment Form (inside Elements provider)
+// Modal wrapper — OSS stub (AC-048)
 // ---------------------------------------------------------------------------
-
-interface PaymentFormProps {
-  onSuccess: () => void;
-  onError: (msg: string) => void;
-  isTrialing: boolean;
-}
-
-function PaymentForm({ onSuccess, onError, isTrialing }: PaymentFormProps) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [processing, setProcessing] = useState(false);
-
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!stripe || !elements) return;
-
-      setProcessing(true);
-
-      try {
-        const confirmFn = isTrialing ? stripe.confirmSetup : stripe.confirmPayment;
-        const { error } = await confirmFn({
-          elements,
-          confirmParams: {
-            return_url: `${window.location.origin}/dashboard/billing?success=1`,
-          },
-        });
-
-        if (error) {
-          onError(error.message ?? 'Payment failed');
-          setProcessing(false);
-        } else {
-          onSuccess();
-        }
-      } catch {
-        onError('An unexpected error occurred');
-        setProcessing(false);
-      }
-    },
-    [stripe, elements, isTrialing, onSuccess, onError],
-  );
-
-  return (
-    <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
-      <PaymentElement
-        options={{
-          layout: 'tabs',
-        }}
-      />
-      <button
-        type="submit"
-        disabled={!stripe || !elements || processing}
-        className="w-full rounded-md bg-success/80 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-success/50 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {processing ? 'Processing...' : isTrialing ? 'Start free trial' : 'Subscribe'}
-      </button>
-    </form>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Modal wrapper
-// ---------------------------------------------------------------------------
+// Stripe React SDK removed. This modal posts to the dashboard checkout proxy,
+// which forwards to Core's StubBillingService (410 Gone) and shows a clear
+// "Billing disabled in OSS build" panel. No card iframe / stripe.com traffic.
 
 interface PaymentModalProps {
   open: boolean;
+  /** Unused in OSS — kept for call-site compatibility with billing-content. */
   clientSecret: string | null;
   planName: string;
   planId: TenantPlan;
@@ -88,24 +24,65 @@ interface PaymentModalProps {
 
 export function PaymentModal({
   open,
-  clientSecret,
+  clientSecret: _clientSecret,
   planName,
-  planId: _planId,
-  isTrialing,
+  planId,
+  isTrialing: _isTrialing,
   onClose,
-  onSuccess,
+  onSuccess: _onSuccess,
   onError,
 }: PaymentModalProps) {
-  if (!open || !clientSecret || !stripePromise) return null;
+  const [posting, setPosting] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const postCheckout = useCallback(async () => {
+    setPosting(true);
+    setMessage(null);
+    try {
+      const res = await fetch('/api/billing/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId, from: 'billing' }),
+      });
+      const json = (await res.json()) as { url?: string; error?: string };
+      if (res.status === 410 || /billing is disabled/i.test(json.error ?? '')) {
+        setMessage('Billing disabled in OSS build');
+        return;
+      }
+      if (res.ok && json.url) {
+        window.location.href = json.url;
+        return;
+      }
+      const err = json.error ?? 'Failed to create checkout session';
+      setMessage(err);
+      onError(err);
+    } catch {
+      const err = 'Failed to create checkout session';
+      setMessage(err);
+      onError(err);
+    } finally {
+      setPosting(false);
+    }
+  }, [planId, onError]);
+
+  useEffect(() => {
+    if (!open) {
+      setMessage(null);
+      setPosting(false);
+      return;
+    }
+    void postCheckout();
+  }, [open, postCheckout]);
+
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-md rounded-xl bg-card p-6 shadow-2xl ">
-        {/* Close button */}
+      <div className="relative w-full max-w-md rounded-xl bg-card p-6 shadow-2xl">
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground"
+          className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
           aria-label="Close"
         >
           <svg
@@ -121,32 +98,32 @@ export function PaymentModal({
           </svg>
         </button>
 
-        {/* Header */}
-        <h2 className="mb-1 text-lg font-semibold text-muted-foreground dark:text-white">
-          Subscribe to {planName}
-        </h2>
-        <p className="mb-6 text-sm text-muted-foreground ">
-          {isTrialing
-            ? "Start your 7-day free trial. You won't be charged today."
-            : 'Enter your payment details to subscribe.'}
+        <h2 className="mb-1 text-lg font-semibold text-foreground">Subscribe to {planName}</h2>
+        <p className="mb-6 text-sm text-muted-foreground">
+          Open-source builds do not process payments through Stripe.
         </p>
 
-        {/* Stripe Payment Element */}
-        <Elements
-          stripe={stripePromise}
-          options={{
-            clientSecret,
-            appearance: {
-              theme: 'stripe',
-              variables: {
-                colorPrimary: 'hsl(232, 50%, 18%)', // cleric DS primary token (light mode)
-                borderRadius: '8px',
-              },
-            },
-          }}
+        <div
+          className="rounded-lg border border-border bg-muted/40 p-4 text-sm text-foreground"
+          data-testid="billing-disabled-panel"
         >
-          <PaymentForm onSuccess={onSuccess} onError={onError} isTrialing={isTrialing} />
-        </Elements>
+          {posting && !message ? (
+            <p>Checking billing availability…</p>
+          ) : (
+            <p className="font-medium">{message ?? 'Billing disabled in OSS build'}</p>
+          )}
+          <p className="mt-2 text-muted-foreground">
+            Billing is disabled in the OSS build. Checkout is not available.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-4 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
