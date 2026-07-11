@@ -1316,3 +1316,10 @@ Defects 1-2 are in the dashboard's OSS auth integration code. Defects 3-4 are on
 - WorkItem: WI-AC-060
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T22:18:08.174Z — Resumed
+
+- WorkItem: WI-AC-060
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
