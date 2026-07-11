@@ -5114,3 +5114,11 @@ The repair is in how QA runs the check, not in the code under test.
 - WorkItem: WI-AC-007
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T08:38:52.193Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-007
+- Defects: expected dashboard package.json build script to invoke `tsc --noEmit --project tsconfig.build.json` per AC-007 Step 3; observed `"build": "next build"` with tsc only on `"check-types"`; evidence grep apps/dashboard/package.json lines 8-11; expected `pnpm turbo build` to emit a Next.js Lambda@Edge bundle per AC-007 description; observed no `apps/dashboard/.open-next/` directory after successful build; evidence `ls apps/dashboard/.open-next` returned MISSING; expected website build to produce a static export for CloudFront+S3 per AC-007 description; observed no `apps/website/out/` and no `output: 'export'` in apps/website/next.config.mjs; evidence grep + ls after build
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bcaa3315-1fdf-462e-b406-249a4f274399/foundation/WI-AC-007-1-integration_qa-73efc5a5285cad04.log
+- NextAction: Repair Plan
