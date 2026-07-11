@@ -432,3 +432,11 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - WorkItem: WI-AC-022
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T10:11:28.092Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-022
+- Defects: expected Step 1: plans.ts defines free plan with 3 credits/month and getCreditsForPlan() returns documented counts including free=3; observed PLANS has only starter/pro/business/enterprise (starter=15, pro=60, business=200, enterprise=-1), no free plan entry, no FREE_PLAN_MONTHLY_CREDITS constant; evidence packages/shared/src/domain/constants/plans.ts + getCreditsForPlan() import audit; expected Step 1: fresh free-plan tenant GET /api/metrics shows creditsTotal=3 creditsRemaining=3; observed creditsTotal=0 creditsRemaining=0 plan=free for newly registered tenant; evidence GET http://localhost:5183/api/metrics → {"creditsTotal":0,"creditsRemaining":0,"plan":"free"}; expected Step 2: POST /api/incidents with 0 credits returns 402 {"code":"CREDITS_EXHAUSTED"}; observed HTTP 405 Method Not Allowed (route exports GET only, no POST handler); evidence POST http://localhost:5183/api/incidents with valid __session cookie → status 405 empty body; expected Step 3: free-plan tenant with 1 credit remaining POST /api/incidents returns 200 then subsequent POST returns 402 CREDITS_EXHAUSTED; observed POST /api/incidents always 405; POST /api/analyses (actual create route) returned 201 five consecutive times with no credit decrement or 402; evidence POST /api/analyses attempts 1-5 all status 201 with incidentId, metrics still creditsRemaining=0 throughout; expected coding-agent implementation (credits-ledger, lazy 30-day renewal, POST /api/incidents credit gate) committed on plan/opensource-docker; observed no credits-ledger module, no CREDITS_EXHAUSTED string anywhere in apps/dashboard/src, only harness-progress checkpoint commit f621db2d with no feature code changes
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/e76f109e-3a6b-4eb3-8f27-aac4cd0197e9/dashboard/WI-AC-022-1-integration_qa-21154607d3d378a7.log
+- NextAction: Repair Plan
