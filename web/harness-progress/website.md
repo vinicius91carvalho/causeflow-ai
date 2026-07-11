@@ -309,3 +309,10 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - RepairPlan: AC-016 failed on integrated main: sitemap emitted 24 URLs but used stale /about instead of /from-opsgenie; home and product rendered only Organization+WebSite JSON-LD (layout) with no FAQPage. robots.ts is correct. Uncommitted local fixes (sitemap swap, FAQ wiring, i18n keys) address both defects but were not in the QA build.; Integrate and commit the existing unstaged AC-016 fixes: sitemap.ts replace /about with /from-opsgenie; home-page.tsx and product-page.tsx import StructuredData+generateFAQSchema and render FAQPage; en.json/pt-br.json home.faq and product.faq keys.; Restart website dev server and re-run integration QA against the integrated commit (not dirty-only working tree).; Optional hardening: derive sitemap routes from a shared ROUTES constant to prevent drift; update project_specs.xml structured-data path from sections/ to components/.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bc727dd9-05a1-4163-88bb-cbb42e54f01c/website/WI-AC-016-2-integration_qa-5a623964f24f5a49.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-11T06:32:45.000Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
