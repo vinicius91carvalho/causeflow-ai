@@ -1339,3 +1339,10 @@ Defects 1-2 are in the dashboard's OSS auth integration code. Defects 3-4 are on
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/257116be-d441-4359-b439-1278f11f7c22/open-source-local-runtime/WI-AC-060-1-integration_qa-fef763e053703423.log
 - NextAction: next Ready Work Item
+
+## 2026-07-11T22:26:38.664Z — Resumed
+
+- WorkItem: WI-AC-061
+- PreviousPhase: claimed
+- Attempt: 1
+- NextAction: start-orchestrator
