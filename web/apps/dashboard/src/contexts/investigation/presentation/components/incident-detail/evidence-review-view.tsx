@@ -453,6 +453,7 @@ export function EvidenceReviewView({ incident, approvalActionsSlot }: EvidenceRe
               </span>
             )}
             <span
+              data-testid="incident-severity"
               className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[10.5px] font-bold uppercase tracking-[0.08em] ${severityClass}`}
             >
               <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
@@ -511,7 +512,11 @@ export function EvidenceReviewView({ incident, approvalActionsSlot }: EvidenceRe
 
         {/* Root cause hero */}
         {incident.rootCause?.trim() ? (
-          <section className="relative rounded-2xl border border-accent/25 bg-gradient-to-b from-accent/10 to-accent/[0.03] p-5 sm:p-6">
+          <section
+            data-testid="incident-root-cause"
+            data-state="identified"
+            className="relative rounded-2xl border border-accent/25 bg-gradient-to-b from-accent/10 to-accent/[0.03] p-5 sm:p-6"
+          >
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="inline-flex items-center gap-2 font-mono text-[10.5px] font-bold uppercase tracking-[0.1em] text-accent">
                 <Lightbulb className="h-3.5 w-3.5" aria-hidden="true" />
@@ -524,7 +529,10 @@ export function EvidenceReviewView({ incident, approvalActionsSlot }: EvidenceRe
                 </span>
               )}
             </div>
-            <p className="max-w-[72ch] whitespace-pre-wrap text-[15px] leading-relaxed tracking-[-0.005em] text-foreground">
+            <p
+              data-testid="incident-root-cause-text"
+              className="max-w-[72ch] whitespace-pre-wrap text-[15px] leading-relaxed tracking-[-0.005em] text-foreground"
+            >
               {incident.rootCause}
             </p>
             {incident.resolution && (
@@ -564,6 +572,7 @@ export function EvidenceReviewView({ incident, approvalActionsSlot }: EvidenceRe
             icon={<MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />}
             label={t('tabs.discussion')}
             count={chatMessages.length}
+            testId="incident-chat-tab"
           />
         </div>
 
@@ -644,9 +653,15 @@ export function EvidenceReviewView({ incident, approvalActionsSlot }: EvidenceRe
           </section>
         )}
 
-        <div className="flex items-center justify-between text-[10.5px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+        <div
+          data-testid="incident-remediations"
+          className="flex items-center justify-between text-[10.5px] font-bold uppercase tracking-[0.1em] text-muted-foreground"
+        >
           <span>{t('rail.title')}</span>
-          <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+          <span
+            data-testid="incident-remediations-count"
+            className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
+          >
             {flatActions.length}
           </span>
         </div>
@@ -782,13 +797,15 @@ interface TabButtonProps {
   icon: React.ReactNode;
   label: string;
   count: number;
+  testId?: string;
 }
 
-function TabButton({ active, onClick, icon, label, count }: TabButtonProps) {
+function TabButton({ active, onClick, icon, label, count, testId }: TabButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
+      data-testid={testId}
       className={`-mb-px inline-flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-semibold transition-colors ${
         active
           ? 'border-primary text-foreground'
@@ -1249,8 +1266,15 @@ function DiscussionPanel({
   };
 
   return (
-    <section className="flex h-[540px] flex-col overflow-hidden rounded-xl border border-border bg-card">
-      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+    <section
+      data-testid="incident-chat-panel"
+      className="flex h-[540px] flex-col overflow-hidden rounded-xl border border-border bg-card"
+    >
+      <div
+        ref={scrollRef}
+        data-testid="incident-chat-messages"
+        className="flex-1 space-y-3 overflow-y-auto px-4 py-4"
+      >
         {isLoading ? (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
@@ -1274,6 +1298,7 @@ function DiscussionPanel({
       <div className="shrink-0 border-t border-border bg-muted/30 p-3">
         <div className="flex items-end gap-2">
           <textarea
+            data-testid="incident-chat-input"
             value={draft}
             onChange={(e) => onDraftChange(e.target.value)}
             onKeyDown={handleKey}
@@ -1284,6 +1309,7 @@ function DiscussionPanel({
           />
           <button
             type="button"
+            data-testid="incident-chat-send"
             onClick={onSend}
             disabled={!draft.trim() || isSending}
             className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
@@ -1311,7 +1337,10 @@ function ChatBubble({
 }) {
   const isUser = message.role === 'user';
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div
+      data-testid={isUser ? 'incident-chat-user' : 'incident-chat-assistant'}
+      className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
+    >
       <div
         className={`max-w-[80%] rounded-xl px-3 py-2 text-sm leading-relaxed ${
           isUser

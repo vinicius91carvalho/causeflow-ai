@@ -102,6 +102,7 @@ export function IncidentDetail({ initialIncident }: IncidentDetailProps) {
         void fetchIncident();
       }),
       stream.on('remediation.proposed', () => {
+        setRemediationRefreshKey((k) => k + 1);
         void fetchIncident();
       }),
       stream.on('agent.completed', (evt) => {
@@ -142,6 +143,7 @@ export function IncidentDetail({ initialIncident }: IncidentDetailProps) {
   const handleHypothesisProgress = useCallback(() => {
     setHypothesisRefreshKey((k) => k + 1);
   }, []);
+  const [remediationRefreshKey, setRemediationRefreshKey] = useState(0);
 
   const isInProgress = LIVE_STATUSES.has(incident.status);
   const isEvidenceReview =
@@ -292,6 +294,7 @@ export function IncidentDetail({ initialIncident }: IncidentDetailProps) {
               incidentId={incident.incidentId}
               incidentStatus={incident.status}
               rootCause={incident.rootCause}
+              refreshKey={remediationRefreshKey}
               hideWhenEmpty
             />
           </div>

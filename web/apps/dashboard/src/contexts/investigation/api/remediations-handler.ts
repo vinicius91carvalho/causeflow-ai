@@ -25,6 +25,20 @@ export const GET = withAuth(async (request: NextRequest, ctx) => {
     const remediations = await client.listRemediations(incidentId);
     return NextResponse.json({ remediations });
   } catch (error) {
+    const status =
+      typeof error === 'object' &&
+      error !== null &&
+      'status' in error &&
+      typeof (error as { status: unknown }).status === 'number'
+        ? (error as { status: number }).status
+        : 500;
+    // Propagate Core RATE_LIMIT so clients can back off (AC-060 polling).
+    if (status === 429) {
+      return NextResponse.json(
+        { error: 'RATE_LIMIT', message: 'Rate limit exceeded' },
+        { status: 429, headers: { 'Retry-After': '60' } },
+      );
+    }
     const logPath = new URL(request.url).pathname;
     const logPayload = {
       method: request.method,

@@ -29,6 +29,8 @@ export function RootCauseCard({ incident }: RootCauseCardProps) {
   if (!hasRootCause) {
     return (
       <section
+        data-testid="incident-root-cause"
+        data-state="investigating"
         aria-live="polite"
         className="rounded-xl border border-dashed border-primary/40 bg-primary/10/50 p-4 shadow-sm /20"
       >
@@ -47,7 +49,11 @@ export function RootCauseCard({ incident }: RootCauseCardProps) {
   const badgeClasses = 'border-success/60 bg-success/10 text-success';
 
   return (
-    <section className={`rounded-xl border p-5 shadow-sm ${cardClasses}`}>
+    <section
+      data-testid="incident-root-cause"
+      data-state="identified"
+      className={`rounded-xl border p-5 shadow-sm ${cardClasses}`}
+    >
       <div className="mb-3 flex items-center justify-between gap-2">
         <span
           className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${badgeClasses}`}
@@ -57,6 +63,7 @@ export function RootCauseCard({ incident }: RootCauseCardProps) {
         </span>
       </div>
       <p
+        data-testid="incident-root-cause-text"
         className={`whitespace-pre-wrap text-sm leading-relaxed text-foreground ${
           isLong && !expanded ? 'line-clamp-4' : ''
         }`}

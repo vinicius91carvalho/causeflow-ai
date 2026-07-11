@@ -54,5 +54,9 @@ export function StatusBadge({ status }: StatusBadgeProps) {
 export function SeverityBadge({ severity }: SeverityBadgeProps) {
   const t = useTranslations('dashboard.incidents.severity');
 
-  return <span className={severityClasses[severity]}>{t(severity)}</span>;
+  return (
+    <span data-testid="incident-severity" className={severityClasses[severity]}>
+      {t(severity)}
+    </span>
+  );
 }

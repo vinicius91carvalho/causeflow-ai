@@ -322,14 +322,24 @@ interface RemediationsSectionProps {
   rootCause?: string;
   /** When true, the entire section is hidden if there are no remediations. */
   hideWhenEmpty?: boolean;
+  /** Bump to re-fetch (e.g. on SSE `remediation.proposed`). */
+  refreshKey?: number;
 }
+
+const LIVE_REMEDIATION_POLL_STATUSES: ReadonlySet<IncidentStatus> = new Set([
+  'open',
+  'triaging',
+  'investigating',
+  'awaiting_approval',
+]);
 
 export function RemediationsSection({
   incidentId,
   autoApprove,
-  incidentStatus: _incidentStatus,
+  incidentStatus,
   rootCause: _rootCause,
   hideWhenEmpty,
+  refreshKey = 0,
 }: RemediationsSectionProps) {
   const t = useTranslations('dashboard.incidents.detail.remediations');
   const [remediations, setRemediations] = useState<Remediation[] | null>(null);
@@ -356,7 +366,17 @@ export function RemediationsSection({
 
   useEffect(() => {
     void fetchRemediations();
-  }, [fetchRemediations]);
+  }, [fetchRemediations, refreshKey]);
+
+  // Documented polling fallback while Core investigation is live (AC-060).
+  // 15s cadence avoids compounding Core RATE_LIMIT with SSE + detail polls.
+  useEffect(() => {
+    if (!incidentStatus || !LIVE_REMEDIATION_POLL_STATUSES.has(incidentStatus)) return;
+    const id = setInterval(() => {
+      void fetchRemediations();
+    }, 15_000);
+    return () => clearInterval(id);
+  }, [incidentStatus, fetchRemediations]);
 
   const handleUpdate = useCallback((updated: Remediation) => {
     setRemediations((prev) =>
@@ -370,7 +390,10 @@ export function RemediationsSection({
   }
 
   return (
-    <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
+    <section
+      data-testid="incident-remediations"
+      className="rounded-xl border border-border bg-card p-5 shadow-sm"
+    >
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -380,7 +403,12 @@ export function RemediationsSection({
           {t('title')}
         </h3>
         {remediations !== null && remediations.length > 0 && (
-          <span className="text-xs font-medium text-muted-foreground">({remediations.length})</span>
+          <span
+            data-testid="incident-remediations-count"
+            className="text-xs font-medium text-muted-foreground"
+          >
+            ({remediations.length})
+          </span>
         )}
         {autoApprove && (
           <span className="inline-flex items-center rounded-full border border-success/40 bg-success/10 px-2 py-0.5 text-xs font-medium text-success">

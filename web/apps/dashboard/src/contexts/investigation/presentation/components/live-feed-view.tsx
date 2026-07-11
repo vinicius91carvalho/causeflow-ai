@@ -170,6 +170,13 @@ export function LiveFeedView({
             <EvidenceCard item={item} />
           ) : (
             <div
+              data-testid={
+                item.type === 'followup'
+                  ? 'incident-chat-assistant'
+                  : item.type === 'guidance'
+                    ? 'incident-chat-user'
+                    : undefined
+              }
               className={`rounded-lg px-3 py-2 text-sm ${
                 item.type === 'guidance'
                   ? 'bg-primary/10 border border-primary/40 /30 ml-8'
@@ -246,10 +253,11 @@ export function LiveFeedView({
       </div>
 
       {canChat && (
-        <div className="shrink-0 border-t border-border p-3">
+        <div data-testid="incident-chat-panel" className="shrink-0 border-t border-border p-3">
           <div className="flex gap-2">
             <input
               type="text"
+              data-testid="incident-chat-input"
               value={guidance}
               onChange={(e) => setGuidance(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -261,6 +269,7 @@ export function LiveFeedView({
             />
             <button
               type="button"
+              data-testid="incident-chat-send"
               onClick={() => void handleSend()}
               disabled={!guidance.trim() || sending}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

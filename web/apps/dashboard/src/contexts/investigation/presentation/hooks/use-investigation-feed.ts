@@ -530,7 +530,40 @@ export function useInvestigationFeed(options: {
         return;
       }
 
-      // Worker is absent, provisioning, or disconnected — buffer and trigger dispatch.
+      // When the live worker WS is unavailable, fall back to Core investigation chat
+      // (AC-060): POST /api/investigation/:id/chat → model-backed reply, not fixtures.
+      if (!wsOpen || status === 'no_worker' || status === 'disconnected' || status === null) {
+        try {
+          const res = await fetch(`/api/investigation/${encodeURIComponent(incidentId)}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: trimmed }),
+          });
+          if (res.ok) {
+            const data = (await res.json()) as { response?: string };
+            const reply =
+              typeof data.response === 'string' && data.response.trim()
+                ? data.response.trim()
+                : null;
+            if (reply) {
+              setFeed((prev) => [
+                ...prev,
+                {
+                  id: `${Date.now()}-followup`,
+                  type: 'followup',
+                  message: reply,
+                  timestamp: new Date().toISOString(),
+                },
+              ]);
+              return;
+            }
+          }
+        } catch {
+          /* fall through to WS buffer / dispatch path */
+        }
+      }
+
+      // Worker is provisioning or REST chat failed — buffer and trigger dispatch.
       // The relay reacts to the 'guidance' message by dispatching a followup worker and
       // emitting worker_status: provisioning. The buffered messages are flushed as a
       // single batch once worker_status: ready arrives (see onmessage handler above).
