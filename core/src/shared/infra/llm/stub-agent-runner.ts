@@ -10,6 +10,7 @@ import type {
   AgentRunResult,
   ToolCallRecord,
 } from '../../application/ports/agent-runner.port.js';
+import { LOCAL_LLM_UNAVAILABLE_MESSAGE, probeLocalLlmReachable } from './local-llm-guard.js';
 
 const DEFAULT_TOOL_CALLS: Record<string, Array<{ name: string; input: Record<string, unknown> }>> = {
   log_analyst: [
@@ -82,8 +83,21 @@ const DEFAULT_RESPONSES: Record<string, string> = {
     'Database analysis: connection waiters spiked while active connections hit the configured maximum. No lock contention on primary tables; pool sizing is the bottleneck.\n\n## Summary\n- **Key Finding**: Pool max reached, waiters growing\n- **Confidence**: high\n- **Evidence**: waiter count, max connections',
 };
 
+export interface StubAgentRunnerOptions {
+  /** When true, refuse to run — Ornith must be up (AC-055). */
+  failClosed?: boolean;
+}
+
 export class StubAgentRunner implements AgentRunner {
+  constructor(private readonly options: StubAgentRunnerOptions = {}) {}
+
   async run(config: AgentRunConfig): Promise<AgentRunResult> {
+    if (this.options.failClosed) {
+      const reachable = await probeLocalLlmReachable();
+      if (!reachable) {
+        throw new Error(`${LOCAL_LLM_UNAVAILABLE_MESSAGE} — investigation agents require the local LLM connector`);
+      }
+    }
     // Prefer the agent system prompts (not user/memory context) so shared
     // capability text mentioning every specialist does not scramble the role.
     const role =

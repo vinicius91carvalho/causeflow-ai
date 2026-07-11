@@ -1,10 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { evidenceId } from '../../../shared/domain/value-objects.js';
 import { NotFoundError } from '../../../shared/domain/errors.js';
-import { IncidentAlreadyTriagedError } from '../domain/triage.errors.js';
+import { IncidentAlreadyTriagedError, TriageFailedError } from '../domain/triage.errors.js';
 import { triageResultSchema, buildTriagePrompt, TRIAGE_SYSTEM_PROMPT } from '../domain/triage.prompts.js';
 import { logger } from '../../../shared/infra/logger.js';
 import { config } from '../../../shared/config/index.js';
+import { isLocalLlmFailClosedMode } from '../../../shared/infra/llm/llm-factory.js';
 import type { IIncidentRepository } from '../../ingestion/domain/incident.repository.js';
 import type { IEvidenceRepository } from '../domain/evidence.repository.js';
 import type { IEventBus } from '../../../shared/domain/events.js';
@@ -157,6 +158,11 @@ export class TriageIncidentUseCase {
                 result = validated.data;
             }
             catch (err) {
+                if (isLocalLlmFailClosedMode()) {
+                    const reason = err instanceof Error ? err.message : 'Local LLM connector unavailable';
+                    await this.incidentRepo.updateStatus(tenantId, incidentId, 'failed');
+                    throw new TriageFailedError(String(incidentId), reason);
+                }
                 // If LLM is unavailable (e.g., no API key configured), fall back so the
                 // local-only pipeline still reaches investigation (AC-046 / AC-041).
                 // Use high severity + the six foundational agents so the investigation
