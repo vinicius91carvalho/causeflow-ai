@@ -4961,3 +4961,10 @@ The repair is in how QA runs the check, not in the code under test.
 - Outcome: QA failed after Attempt 3
 - Defects: expected `pnpm exec playwright test tests/` exit 0 in harness worktree (PORT=5172); observed exit 1 with `Error: Timed out waiting 30000ms from config.webServer` because `next start -H 127.0.0.1` honors PORT=5172 while `playwright.config.ts` probes `http://127.0.0.1:3000`; expected webServer auto-starts production server on port 3000 per AC-006; observed webServer command has no `-p 3000` so Next.js binds to PORT env instead of 3000; evidence: PORT=5172 run timed out at 31s; PORT=3000 run passed 139 tests, 5 skipped, exit 0 in 33.7s; static audits pass (@playwright/test@1.58.2, workers:3, fullyParallel:true, trace/video/screenshot off, 4 chromium viewport projects 375x812/768x1024/1280x800/1440x900, audit.spec.ts and visual-functional.spec.ts beforeEach block google-analytics.com/clarity.ms/intercom.io via page.route)
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-11T06:49:45.265Z — Explicit Resume
+
+- WorkItem: WI-AC-006
+- Outcome: user authorized a new Attempt cycle
+- Guidance: WI-AC-006 root cause is a port mismatch under the harness worktree: harness exports PORT=5172, so `next start -H 127.0.0.1` binds 5172 while playwright.config.ts still probes http://127.0.0.1:3000 (timeout). With PORT=3000 the same suite already passes (139 passed, 5 skipped).
+- NextAction: Coding Attempt 1
