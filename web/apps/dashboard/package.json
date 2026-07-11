@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "PORT=${PORT:-3000} && next dev --hostname localhost -p $((PORT + 1))",
-    "build": "next build",
+    "build": "tsc --noEmit --project tsconfig.build.json && next build",
     "start": "next start -p 3001",
     "lint": "biome lint ./src",
     "check-types": "tsc --noEmit --project tsconfig.build.json",
