@@ -119,7 +119,13 @@ async function resolveWhoami(
     tenantId: data.tenantId ?? data.orgId ?? '',
     email: user.email ?? data.email ?? '',
     name: user.name ?? data.name ?? '',
-    role: (data.role ?? data.orgRole) === 'admin' ? 'admin' : 'member',
+    role: (() => {
+      const r = data.role ?? data.orgRole;
+      if (r === 'admin') return 'admin' as const;
+      const roles = (data as { roles?: string[] }).roles;
+      if (Array.isArray(roles) && roles.includes('admin')) return 'admin' as const;
+      return 'member' as const;
+    })(),
   };
 }
 
@@ -140,7 +146,16 @@ function claimsToAuth(claims: SessionClaims): {
       (claims.tenantId as string) ?? (claims.tenant_id as string) ?? (claims.orgId as string) ?? '',
     email: (claims.email as string) ?? '',
     name: (claims.name as string) ?? '',
-    role: ((claims.role ?? claims.orgRole) as string) === 'admin' ? 'admin' : 'member',
+    role: (() => {
+      const direct = claims.role ?? claims.orgRole;
+      if (direct === 'admin' || direct === 'member') return direct;
+      const roles = claims.roles;
+      if (Array.isArray(roles)) {
+        if (roles.includes('admin')) return 'admin';
+        if (roles.includes('member')) return 'member';
+      }
+      return 'member';
+    })(),
   };
 }
 

@@ -52,14 +52,36 @@ export async function fetchPlanStatus(): Promise<PlanStatus> {
     const currentPeriodEnd = sub?.currentPeriodEnd ?? null;
     const hasStripeSubscription = Boolean(currentPeriodEnd);
 
+    // OSS local runtime: Core returns { plan: 'free', status: 'active' } with no
+    // currentPeriodEnd because Stripe is disabled (AC-043/AC-048). Allow dashboard
+    // access without a Stripe checkout so integration and other features are testable.
+    const ossBillingDisabled =
+      !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY &&
+      sub?.plan === 'free' &&
+      sub?.status === 'active' &&
+      currentPeriodEnd == null;
+
     return {
-      hasActivePlan: statusOk && hasStripeSubscription,
+      hasActivePlan: ossBillingDisabled || (statusOk && hasStripeSubscription),
       plan: sub?.plan ?? null,
       status: sub?.status ?? null,
       currentPeriodEnd,
       hasStripeSubscription,
     };
   } catch {
+    // OSS local runtime: when Stripe is disabled and Core subscription fetch fails
+    // (transient proxy error), still allow dashboard access so RBAC and other
+    // features remain testable without a Stripe checkout (AC-043/AC-048).
+    const ossBillingDisabled = !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+    if (ossBillingDisabled) {
+      return {
+        hasActivePlan: true,
+        plan: 'free',
+        status: 'active',
+        currentPeriodEnd: null,
+        hasStripeSubscription: false,
+      };
+    }
     return {
       hasActivePlan: false,
       plan: null,

@@ -49,7 +49,20 @@ export interface SessionClaims {
   orgId?: string;
   /** Legacy alias — Core JWT may use "orgRole" instead of "role" */
   orgRole?: 'admin' | 'member';
+  /** OSS Core JWT uses a roles array instead of a single role claim */
+  roles?: string[];
   [key: string]: unknown;
+}
+
+function resolveRole(claims: SessionClaims): 'admin' | 'member' {
+  const direct = claims.role ?? claims.orgRole;
+  if (direct === 'admin' || direct === 'member') return direct;
+  const roles = claims.roles;
+  if (Array.isArray(roles)) {
+    if (roles.includes('admin')) return 'admin';
+    if (roles.includes('member')) return 'member';
+  }
+  return 'member';
 }
 
 /**
@@ -106,6 +119,6 @@ export function claimsToAuthContext(claims: SessionClaims): AuthContext {
     tenantId: claims.tenantId ?? claims.tenant_id ?? claims.orgId ?? String(claims.userId ?? ''),
     email: claims.email ?? '',
     name: claims.name ?? '',
-    role: (claims.role ?? claims.orgRole ?? 'member') as 'admin' | 'member',
+    role: resolveRole(claims),
   };
 }

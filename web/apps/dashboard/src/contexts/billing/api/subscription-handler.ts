@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { resolveCredits } from '@/contexts/billing/application/credits-ledger';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
 
@@ -30,7 +31,7 @@ import { withAuth } from '@/lib/api/with-auth';
  * carry VIEW_BILLING). Mutating endpoints (checkout, subscribe) remain
  * admin-only in their own handlers.
  */
-export const GET = withAuth(async (_request: NextRequest, _ctx) => {
+export const GET = withAuth(async (_request: NextRequest, ctx) => {
   const api = getApiClient();
 
   const sub = (await api.getSubscription()) as {
@@ -40,18 +41,30 @@ export const GET = withAuth(async (_request: NextRequest, _ctx) => {
     investigationsUsed?: number;
     currentPeriodEnd?: string | null;
     cancelAtPeriodEnd?: boolean;
+    renewDate?: string | null;
   } | null;
 
   const currentPeriodEnd = sub?.currentPeriodEnd ?? null;
+  const credits = resolveCredits(ctx.tenantId, {
+    plan: sub?.plan,
+    status: sub?.status,
+    investigationsLimit: sub?.investigationsLimit,
+    investigationsUsed: sub?.investigationsUsed,
+    currentPeriodEnd,
+    renewDate: sub?.renewDate ?? null,
+  });
 
   return NextResponse.json({
-    plan: sub?.plan ?? 'starter',
-    subscriptionStatus: sub?.status ?? null,
-    creditsTotal: sub?.investigationsLimit ?? 0,
-    creditsUsed: sub?.investigationsUsed ?? 0,
-    creditsRemaining: Math.max(0, (sub?.investigationsLimit ?? 0) - (sub?.investigationsUsed ?? 0)),
+    plan: credits.plan,
+    subscriptionStatus: credits.subscriptionStatus,
+    creditsTotal: credits.creditsTotal,
+    creditsUsed: credits.creditsUsed,
+    creditsRemaining: Number.isFinite(credits.creditsRemaining)
+      ? credits.creditsRemaining
+      : credits.creditsTotal,
     currentPeriodEnd,
     cancelAtPeriodEnd: sub?.cancelAtPeriodEnd ?? false,
     hasStripeCustomer: Boolean(currentPeriodEnd),
+    renewDate: credits.renewDate,
   });
 });

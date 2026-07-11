@@ -15,11 +15,13 @@ import { CoreApiError } from '@/lib/api/http-api-client';
 
 const createIncident = vi.fn();
 const listIncidents = vi.fn();
+const getSubscription = vi.fn();
 
 vi.mock('@/lib/api/get-api-client', () => ({
   getApiClient: () => ({
     createIncident,
     listIncidents,
+    getSubscription,
   }),
 }));
 
@@ -47,9 +49,21 @@ vi.mock('@/lib/api/with-auth', () => ({
       }),
 }));
 
-beforeEach(() => {
+beforeEach(async () => {
   createIncident.mockReset();
   listIncidents.mockReset();
+  getSubscription.mockReset();
+  getSubscription.mockResolvedValue({
+    plan: 'starter',
+    status: 'active',
+    investigationsLimit: 15,
+    investigationsUsed: 0,
+    currentPeriodEnd: '2026-12-31T00:00:00.000Z',
+  });
+  const { _resetCreditsLedgerForTests } = await import(
+    '@/contexts/billing/application/credits-ledger'
+  );
+  _resetCreditsLedgerForTests();
   dashLoggerMock.error.mockClear();
   sentryMock.captureException.mockClear();
 });
@@ -160,6 +174,49 @@ describe('POST /api/analyses — Core API error mapping', () => {
     expect(res.status).toBe(403);
     expect(dashLoggerMock.error).not.toHaveBeenCalled();
     expect(sentryMock.captureException).not.toHaveBeenCalled();
+  });
+
+  it('returns 402 CREDITS_EXHAUSTED when free-plan credits are exhausted', async () => {
+    const { _resetCreditsLedgerForTests } = await import(
+      '@/contexts/billing/application/credits-ledger'
+    );
+    _resetCreditsLedgerForTests();
+    getSubscription.mockResolvedValue({
+      plan: 'free',
+      status: 'active',
+      investigationsLimit: 0,
+      investigationsUsed: 0,
+      currentPeriodEnd: null,
+    });
+    const { consumeCredit } = await import('@/contexts/billing/application/credits-ledger');
+    consumeCredit('tenant_test', {
+      plan: 'free',
+      status: 'active',
+      investigationsLimit: 0,
+      investigationsUsed: 0,
+      currentPeriodEnd: null,
+    });
+    consumeCredit('tenant_test', {
+      plan: 'free',
+      status: 'active',
+      investigationsLimit: 0,
+      investigationsUsed: 0,
+      currentPeriodEnd: null,
+    });
+    consumeCredit('tenant_test', {
+      plan: 'free',
+      status: 'active',
+      investigationsLimit: 0,
+      investigationsUsed: 0,
+      currentPeriodEnd: null,
+    });
+
+    const { POST } = await importHandler();
+    const res = await POST(postRequest(VALID_BODY), ROUTE_CTX);
+    expect(res.status).toBe(402);
+    const body = (await res.json()) as { code: string };
+    expect(body.code).toBe('CREDITS_EXHAUSTED');
+    expect(createIncident).not.toHaveBeenCalled();
   });
 
   it('returns 201 with the created incident on success', async () => {

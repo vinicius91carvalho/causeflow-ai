@@ -15,8 +15,12 @@ vi.mock('@/lib/api/get-api-client', () => ({
 import { GET } from './subscription-handler';
 
 describe('GET /api/billing/subscription', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     mockGetSubscription.mockReset();
+    const { _resetCreditsLedgerForTests } = await import(
+      '@/contexts/billing/application/credits-ledger'
+    );
+    _resetCreditsLedgerForTests();
   });
 
   it('returns hasStripeCustomer=true when Subscription includes a currentPeriodEnd', async () => {
@@ -68,10 +72,10 @@ describe('GET /api/billing/subscription', () => {
     const res = await (GET as any)(new NextRequest('http://localhost/api/billing/subscription'));
     const body = await res.json();
 
-    expect(body.plan).toBe('starter');
-    expect(body.subscriptionStatus).toBeNull();
-    expect(body.creditsTotal).toBe(0);
-    expect(body.creditsRemaining).toBe(0);
+    expect(body.plan).toBe('free');
+    expect(body.subscriptionStatus).toBe('active');
+    expect(body.creditsTotal).toBe(3);
+    expect(body.creditsRemaining).toBe(3);
     expect(body.hasStripeCustomer).toBe(false);
   });
 });

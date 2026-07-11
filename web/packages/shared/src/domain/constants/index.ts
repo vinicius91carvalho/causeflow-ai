@@ -7,7 +7,9 @@ export {
 } from './navigation';
 export type { PlanConfig, TenantPlan } from './plans';
 export {
+  FREE_PLAN_MONTHLY_CREDITS,
   getCreditsForPlan,
+  getFreePlanMonthlyCredits,
   getPlanByStripePriceId,
   getSelfServicePlans,
   PLANS,

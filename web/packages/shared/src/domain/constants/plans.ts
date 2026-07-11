@@ -4,6 +4,9 @@ export type { SubscriptionStatus };
 
 export type TenantPlan = 'starter' | 'pro' | 'business' | 'enterprise';
 
+/** Free-tier monthly investigation quota (not a self-service checkout plan). */
+export const FREE_PLAN_MONTHLY_CREDITS = 3;
+
 export interface PlanConfig {
   id: TenantPlan;
   name: string;
@@ -99,6 +102,10 @@ export function getPlanByStripePriceId(priceId: string): PlanConfig | undefined 
 
 export function getCreditsForPlan(plan: TenantPlan): number {
   return PLANS[plan].credits;
+}
+
+export function getFreePlanMonthlyCredits(): number {
+  return FREE_PLAN_MONTHLY_CREDITS;
 }
 
 export function getSelfServicePlans(): PlanConfig[] {

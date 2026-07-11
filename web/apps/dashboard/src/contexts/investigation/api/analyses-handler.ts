@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { consumeCredit } from '@/contexts/billing/application/credits-ledger';
 import { INCIDENT_STATUSES } from '@/contexts/investigation/domain/types';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { CoreApiError } from '@/lib/api/http-api-client';
@@ -112,6 +113,19 @@ export const POST = withAuth(async (request: NextRequest, ctx) => {
 
   try {
     const client = getApiClient();
+    const sub = (await client.getSubscription()) as {
+      plan?: string;
+      status?: string;
+      investigationsLimit?: number;
+      investigationsUsed?: number;
+      currentPeriodEnd?: string | null;
+      renewDate?: string | null;
+    };
+    const creditResult = consumeCredit(ctx.tenantId, sub);
+    if (!creditResult.ok) {
+      return NextResponse.json({ code: creditResult.code }, { status: 402 });
+    }
+
     const result = await client.createIncident(forwarded);
     return NextResponse.json(result, { status: 201 });
   } catch (err) {

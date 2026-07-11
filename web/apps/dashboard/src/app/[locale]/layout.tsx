@@ -13,7 +13,7 @@ import {
 import { ClerkThemeProvider } from '@/contexts/shared/presentation/components/clerk-theme-provider';
 import { ThemeProviderWithPersistence } from '@/contexts/shared/presentation/components/theme-provider-with-persistence';
 import { routing } from '@/i18n/routing';
-import { SESSION_COOKIE, verifySessionCookie } from '@/lib/auth/session-auth';
+import { claimsToAuthContext, SESSION_COOKIE, verifySessionCookie } from '@/lib/auth/session-auth';
 import './globals.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -131,15 +131,16 @@ async function getServerAuthState(): Promise<ClientAuthState | null> {
     const claims = await verifySessionCookie(sessionCookie);
     if (!claims) return null;
 
-    const email = (claims.email as string) ?? '';
+    const auth = claimsToAuthContext(claims);
+    const email = auth.email;
     const isStaff = ['@causeflow.ai', '@simuser.ai'].some((d) => email.toLowerCase().endsWith(d));
 
     return {
-      userId: (claims.sub as string) ?? (claims.userId as string) ?? null,
-      tenantId: (claims.tenantId as string) ?? (claims.orgId as string) ?? null,
+      userId: auth.userId || null,
+      tenantId: auth.tenantId || null,
       email,
-      name: (claims.name as string) ?? null,
-      role: ((claims.role ?? claims.orgRole) as string) === 'admin' ? 'admin' : 'member',
+      name: auth.name || null,
+      role: auth.role,
       isSignedIn: true,
       isStaff,
     };

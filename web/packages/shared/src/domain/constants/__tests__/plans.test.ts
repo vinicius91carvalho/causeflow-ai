@@ -117,6 +117,12 @@ describe('getCreditsForPlan', () => {
   it('returns -1 for enterprise plan', () => {
     expect(getCreditsForPlan('enterprise')).toBe(-1);
   });
+
+  it('returns 3 for free plan monthly credits', async () => {
+    const { getFreePlanMonthlyCredits, FREE_PLAN_MONTHLY_CREDITS } = await import('../plans');
+    expect(FREE_PLAN_MONTHLY_CREDITS).toBe(3);
+    expect(getFreePlanMonthlyCredits()).toBe(3);
+  });
 });
 
 describe('getSelfServicePlans', () => {
