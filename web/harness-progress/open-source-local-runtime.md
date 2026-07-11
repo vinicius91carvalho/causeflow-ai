@@ -1131,3 +1131,10 @@ Defects 1-2 are in the dashboard's OSS auth integration code. Defects 3-4 are on
 - RepairPlan: AC-048 Step 1 (Stripe removed) and plan-gate OSS behavior pass. Step 2 fails because SSR auth maps Core JWT `roles:["admin"]` to `member`, hiding upgrade UI and never opening PaymentModal. Step 3 fails because the running Core container is stale (still wires Stripe checkout/portal use cases), so Core returns 500 INTERNAL_ERROR and web handlers correctly surface 500 instead of 410. Web checkout/portal proxy logic and payment-modal OSS panel are already implemented.; Web: Add shared `resolveTenantRole(claims)` in session-auth.ts — honor `role`, `orgRole`, then `roles.includes('admin')`; extend SessionClaims with `roles?: string[]`.; Web: Route all role mapping through that helper — claimsToAuthContext, layout.tsx#getServerAuthState, with-auth.ts#claimsToAuth; update resolveWhoami to read `data.roles`/`roles[0]` when `role` is absent.; Web: Add unit tests for JWT `{ roles: ["admin"] }` with no scalar role field (session-auth, with-auth whoami/claims paths).; Core (AC-043 dependency): Rebuild and redeploy causeflow-api/causeflow-worker images from current tree so OSS bootstrap omits Stripe billing use cases; verify `config.isOss()` true in container env.; Stack: `docker compose build --no-cache causeflow-api` (or full stack) then `docker compose up -d`; confirm dist/bootstrap.js has no createCheckout wiring under OSS.; Spec hygiene: Fix AC-048 Step 3 contradiction (`hasActivePlan: false` vs description requiring OSS `{plan:'free',status:'active'}` gate pass); authoritative behavior is `hasActivePlan: true` via plan-status.ts#isOssFreeActiveSubscription.; No changes needed to checkout-handler.ts, portal-handler.ts, billing-disabled.ts, or payment-modal.tsx once Core returns 410.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/5cabbd14-0f9c-4bb9-8ef1-d98c65157ff5/open-source-local-runtime/WI-AC-048-2-qa-b6a6e7687ae9c5a5.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-11T07:27:37.247Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-048
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
