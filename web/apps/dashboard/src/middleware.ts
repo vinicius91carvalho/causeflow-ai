@@ -118,6 +118,20 @@ function matchLocale(tags: string[]): SupportedLocale | null {
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Preserve the browser-facing host on redirects. `nextUrl.clone()` can
+  // emit `localhost` even when the client hit `127.0.0.1` (or vice versa),
+  // which drops `__session` cookies scoped to the other host and causes
+  // ERR_TOO_MANY_REDIRECTS in OSS Playwright (AC-054/AC-055).
+  const redirectTo = (path: string, search?: Record<string, string>) => {
+    const host = request.headers.get('host') ?? request.nextUrl.host;
+    const protocol = request.nextUrl.protocol || 'http:';
+    const url = new URL(`${protocol}//${host}${path}`);
+    if (search) {
+      for (const [k, v] of Object.entries(search)) url.searchParams.set(k, v);
+    }
+    return NextResponse.redirect(url);
+  };
+
   // Dev-only: rewrite lvh.me loopback back to localhost so the __session
   // cookie (scoped to localhost) is valid. Checkout/portal handlers rewrite
   // localhost → lvh.me to bypass the Core API's WAF SSRF filter, but Stripe
@@ -144,9 +158,7 @@ export default async function middleware(request: NextRequest) {
       (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`),
     );
     if (!hasLocalePrefix && isSupportedLocale(cookieLocale) && cookieLocale !== 'en') {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = `/${cookieLocale}${pathname === '/' ? '' : pathname}`;
-      return NextResponse.redirect(redirectUrl);
+      return redirectTo(`/${cookieLocale}${pathname === '/' ? '' : pathname}`);
     }
   }
 
@@ -169,20 +181,14 @@ export default async function middleware(request: NextRequest) {
   // `withAuth` via the Core's `whoami` endpoint.
   const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value;
   if (!sessionCookie) {
-    const signInUrl = request.nextUrl.clone();
-    signInUrl.pathname = '/auth/sign-in';
-    signInUrl.searchParams.set('redirect_url', pathname);
-    return NextResponse.redirect(signInUrl);
+    return redirectTo('/auth/sign-in', { redirect_url: pathname });
   }
 
   // Decode the JWT payload (no signature verification in Edge Runtime).
   const payload = decodeJwtPayload(sessionCookie);
   if (!payload) {
     // Invalid or expired JWT — clear the cookie and redirect.
-    const signInUrl = request.nextUrl.clone();
-    signInUrl.pathname = '/auth/sign-in';
-    signInUrl.searchParams.set('redirect_url', pathname);
-    const expiredResponse = NextResponse.redirect(signInUrl);
+    const expiredResponse = redirectTo('/auth/sign-in', { redirect_url: pathname });
     expiredResponse.cookies.set(SESSION_COOKIE, '', {
       httpOnly: true,
       path: '/',
@@ -193,30 +199,36 @@ export default async function middleware(request: NextRequest) {
 
   // Authenticated but no tenant/org — send to create-organization (AC-020).
   if (!hasOrganization(payload)) {
-    const createOrgUrl = request.nextUrl.clone();
-    createOrgUrl.pathname = '/create-organization';
-    return NextResponse.redirect(createOrgUrl);
+    return redirectTo('/create-organization');
   }
 
-  // Authenticated with org — run i18n middleware (locale detection).
+  // Authenticated with org — locale prefix is applied via next.config `rewrites`
+  // (internal). Do NOT NextResponse.rewrite() to an absolute /en/... URL here:
+  // Next treats those as external proxies when Host/bind disagree and ECONNRESET.
   if (!request.cookies.get(COOKIE_NAME)?.value) {
     const acceptLanguage = request.headers.get('Accept-Language') ?? '';
     const tags = acceptLanguage ? parseAcceptLanguage(acceptLanguage) : [];
     const detected: SupportedLocale = matchLocale(tags) ?? 'en';
     const alreadyOnLocale = pathname === `/${detected}` || pathname.startsWith(`/${detected}/`);
     if (!alreadyOnLocale && detected !== 'en') {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = `/${detected}${pathname}`;
-      const response = NextResponse.redirect(redirectUrl);
+      const response = redirectTo(`/${detected}${pathname}`);
       response.cookies.set(COOKIE_NAME, detected, cookieOptions);
       return response;
     }
-    const response = intlMiddleware(request);
+    const response = NextResponse.next();
     response.cookies.set(COOKIE_NAME, 'en', cookieOptions);
     return response;
   }
 
-  return intlMiddleware(request);
+  const activeLocale = (request.cookies.get(COOKIE_NAME)?.value ?? 'en') as SupportedLocale;
+  if (isSupportedLocale(activeLocale) && activeLocale !== 'en') {
+    const alreadyOnLocale =
+      pathname === `/${activeLocale}` || pathname.startsWith(`/${activeLocale}/`);
+    if (!alreadyOnLocale) {
+      return redirectTo(`/${activeLocale}${pathname}`);
+    }
+  }
+  return NextResponse.next();
 }
 
 export const config = {

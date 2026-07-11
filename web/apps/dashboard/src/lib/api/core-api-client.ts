@@ -179,6 +179,20 @@ export interface ICoreApiClient {
   disconnectCredential(type: string): Promise<any>;
   testIntegrationConnection(body: any): Promise<any>;
 
+  /**
+   * OSS stub upstream connector (AC-055 / Core AC-056).
+   * POSTs to Core `POST /v1/integrations/stub/connect`, which registers the
+   * tenant against the Core-owned test-app / stub-upstream (not Composio).
+   */
+  connectStubIntegration(body?: { baseUrl?: string; coreBaseUrl?: string }): Promise<{
+    integrationId: string;
+    provider: string;
+    status: string;
+    stubConnectionId: string;
+    stubBaseUrl: string;
+    connectedAt: string;
+  }>;
+
   // Legacy aliases
   connectIntegration(body: { type: string; [key: string]: unknown }): Promise<any>;
   getOAuthAuthorizeUrl(provider: string): Promise<string>;

@@ -16,5 +16,7 @@ export async function blockTrackers(page: Page): Promise<void> {
 }
 
 /** Documented compose host ports (docker-compose.yml). */
+// Use 127.0.0.1 (not localhost): Next binds to IPv4 and middleware rewrites
+// must share that origin or Next treats them as external proxies.
 export const OSS_DASHBOARD_URL = process.env.OSS_DASHBOARD_URL || 'http://127.0.0.1:3001';
 export const OSS_CORE_API_URL = process.env.OSS_CORE_API_URL || 'http://127.0.0.1:3099';

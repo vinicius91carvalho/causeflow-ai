@@ -283,6 +283,14 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
     const provider = catalog.find((p) => p.id === id);
     if (!provider) return;
 
+    // OSS stub upstream — Core-owned mock/test-app connector (AC-055).
+    // One-click connect via BFF → Core POST /v1/integrations/stub/connect.
+    // Never opens Composio and never uses Playwright page.route fakes.
+    if (id === 'stub-upstream') {
+      void handleStubConnect();
+      return;
+    }
+
     // Sentry uses Internal Integration with a Client Secret (not OAuth).
     if (id === 'sentry') {
       setSentrySetupOpen(true);
@@ -297,6 +305,31 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
 
     // All OAuth integrations — open Composio popup
     openOAuthPopup(`/api/integrations/oauth/${id}/authorize`);
+  }
+
+  async function handleStubConnect() {
+    try {
+      const res = await fetch('/api/integrations/stub/connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) {
+        let message = `Failed to connect stub upstream (HTTP ${res.status})`;
+        try {
+          const data = (await res.json()) as { error?: string };
+          if (data.error) message = data.error;
+        } catch {
+          // keep default
+        }
+        addToast(t('connectErrorToast', { message }), 'error');
+        return;
+      }
+      addToast(t('connectedToast', { provider: 'Stub Upstream (OSS)' }), 'success');
+      await fetchIntegrations();
+    } catch {
+      addToast(t('connectErrorToast', { message: 'network error' }), 'error');
+    }
   }
 
   /**
@@ -494,6 +527,14 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
             // Sentry: overlay status pill + persistent "Show setup instructions"
             // affordance rendered in normal flow below the card so it cannot
             // overlap the Add Trigger dropdown chevron.
+            if (card.id === 'stub-upstream') {
+              return (
+                <div key={card.id} data-testid="stub-upstream-card">
+                  {cardEl}
+                </div>
+              );
+            }
+
             if (card.id === 'sentry') {
               return (
                 <div key={card.id} className="flex flex-col" data-testid="sentry-card-wrapper">

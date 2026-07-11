@@ -12,15 +12,28 @@ import { logger as dashLogger } from '@/lib/logger';
  * Response shape contract: { integrations: ApiIntegration[] }.
  * Consumers must extract `.integrations`; raw array shape is deprecated and only returned
  * if the upstream Core API returns an array directly (legacy back-compat).
+ *
+ * Normalizes Core OSS IntegrationSummary (`displayName`, no `type`) into the
+ * dashboard card shape (`name`, `type`) so stub-upstream connected state renders.
  */
 export const GET = withAuth(async (_request: NextRequest) => {
   const status = await getApiClient().getOAuthStatus();
-  // status is already { integrations: [...] } from the backend
-  // If the backend returns the array directly, wrap it; if it's already wrapped, forward as-is
-  if (Array.isArray(status)) {
-    return NextResponse.json({ integrations: status });
-  }
-  return NextResponse.json(status);
+  const raw = Array.isArray(status)
+    ? status
+    : ((status as { integrations?: unknown[] })?.integrations ?? []);
+  const integrations = (Array.isArray(raw) ? raw : []).map((item) => {
+    const row = item as Record<string, unknown>;
+    const provider = String(row.provider ?? row.type ?? '');
+    return {
+      ...row,
+      type: String(row.type ?? provider),
+      provider,
+      name: String(row.name ?? row.displayName ?? provider),
+      status: String(row.status ?? 'disconnected'),
+      createdAt: String(row.createdAt ?? ''),
+    };
+  });
+  return NextResponse.json({ integrations });
 });
 
 /**

@@ -482,6 +482,24 @@ export class MockApiClient implements ICoreApiClient {
     return ok({ connected: true });
   }
 
+  connectStubIntegration(_body?: { baseUrl?: string; coreBaseUrl?: string }): Promise<{
+    integrationId: string;
+    provider: string;
+    status: string;
+    stubConnectionId: string;
+    stubBaseUrl: string;
+    connectedAt: string;
+  }> {
+    return ok({
+      integrationId: 'stub-upstream-credential',
+      provider: 'stub-upstream',
+      status: 'active',
+      stubConnectionId: 'mock-stub-connection',
+      stubBaseUrl: 'http://127.0.0.1:5190',
+      connectedAt: new Date().toISOString(),
+    });
+  }
+
   disconnectCredential(_type: string): Promise<any> {
     return ok({ success: true });
   }
