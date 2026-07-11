@@ -18,6 +18,11 @@ export function usesLocalLlmConnector(): boolean {
   return config.isOss() && !usesAnthropicOverride();
 }
 
+/** AC-055: OSS Ornith connector must fail closed when unreachable. */
+export function isLocalLlmFailClosedMode(): boolean {
+  return usesLocalLlmConnector();
+}
+
 export function createRawLlmClient(circuitBreaker?: {
   execute: <T>(fn: () => Promise<T>) => Promise<T>;
 }): LLMClient {
@@ -38,9 +43,8 @@ export function createRawLlmClient(circuitBreaker?: {
 
 export function createRawAgentRunner(): AgentRunner {
   if (usesLocalLlmConnector()) {
-    // Investigation agents still use the deterministic stub runner in OSS;
-    // triage / synthesis / chat use the local LLM connector via LLMClient.
-    return new StubAgentRunner();
+    // AC-055: stub agents must not silently pass when Ornith is down.
+    return new StubAgentRunner({ failClosed: true });
   }
   return config.ptc.enabled ? new AnthropicPTCAgentRunner() : new AnthropicAgentRunner();
 }

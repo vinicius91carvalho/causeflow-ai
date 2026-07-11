@@ -5,6 +5,8 @@ import { evidenceId, toolCallId as toToolCallId } from '../../../shared/domain/v
 import { NotFoundError } from '../../../shared/domain/errors.js';
 import { InvestigationFailedError, IncidentNotInvestigatableError } from '../domain/investigation.errors.js';
 import { CircuitBreakerOpenError, type CircuitState } from '../../../shared/infra/llm/circuit-breaker.js';
+import { isLocalLlmFailClosedMode } from '../../../shared/infra/llm/llm-factory.js';
+import { assertLocalLlmReachable, LOCAL_LLM_UNAVAILABLE_MESSAGE } from '../../../shared/infra/llm/local-llm-guard.js';
 import { AGENT_CONFIG_MAP, ORCHESTRATOR_CONFIG } from './agent-configs.js';
 import { AWS_API_CALL_TOOL } from '../infra/aws-api-tool.js';
 import { config } from '../../../shared/config/index.js';
@@ -354,6 +356,12 @@ export class InvestigateIncidentUseCase {
                 String(incidentId),
                 'Circuit breaker is open. LLM service unavailable.',
             );
+        }
+    }
+
+    private failClosedIfLocalLlmMode(incidentId: IncidentId, reason = LOCAL_LLM_UNAVAILABLE_MESSAGE): void {
+        if (isLocalLlmFailClosedMode()) {
+            throw new InvestigationFailedError(String(incidentId), reason);
         }
     }
 
@@ -733,6 +741,16 @@ export class InvestigateIncidentUseCase {
         if (incident.status !== 'triaging' && incident.status !== 'investigating') {
             throw new IncidentNotInvestigatableError(incidentId, incident.status);
         }
+        if (isLocalLlmFailClosedMode()) {
+            try {
+                await assertLocalLlmReachable(this.circuitBreaker);
+            } catch (err) {
+                throw new InvestigationFailedError(
+                    String(incidentId),
+                    err instanceof Error ? err.message : LOCAL_LLM_UNAVAILABLE_MESSAGE,
+                );
+            }
+        }
         // 2. Pre-investigation memory check — use reflect() to check for known solutions
         input.channel?.sendProgress({ stage: 'memory_check', message: 'Checking knowledge from past incidents...' });
         // Skip if the operator has provided a correction (the description will contain [CORRECTION])
@@ -869,6 +887,7 @@ export class InvestigateIncidentUseCase {
                     );
                 }
                 this.failIfCircuitBreakerOpen(incidentId);
+                this.failClosedIfLocalLlmMode(incidentId);
                 logger.warn({ err, incidentId, tenantId }, 'Orchestrator execution failed — producing stub result');
                 // Fallback: produce stub result so pipeline continues (AC-019)
                 const stubRootCause = 'Unable to determine root cause (LLM service unavailable)';
@@ -1128,6 +1147,7 @@ export class InvestigateIncidentUseCase {
             if (circuitErr) {
                 throw new InvestigationFailedError(String(incidentId), circuitErr.error);
             }
+            this.failClosedIfLocalLlmMode(incidentId);
             logger.warn({ incidentId, tenantId, failedAgents }, 'All sub-agents failed — completing with stub result');
             const stubRootCause = 'Unable to determine root cause (LLM service unavailable)';
             const investigationDurationMs = Date.now() - investigationStartMs;
@@ -1254,6 +1274,12 @@ ${findingsSummary}`;
             synthesisCostUsd = completion.costUsd;
         }
         catch (err) {
+            if (isLocalLlmFailClosedMode() || this.isCircuitBreakerFailure(err)) {
+                throw new InvestigationFailedError(
+                    String(incidentId),
+                    err instanceof Error ? err.message : LOCAL_LLM_UNAVAILABLE_MESSAGE,
+                );
+            }
             // Fallback: build result from agent findings when synthesis JSON parsing fails
             logger.warn({ err, incidentId }, 'Synthesis LLM failed, building result from agent findings');
             const allFindings = successfulResults.flatMap((r) => r.findings);

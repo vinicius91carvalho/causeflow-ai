@@ -1397,6 +1397,11 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
         });
       } catch (err) {
         logger.error({ err, event }, 'In-process investigation failed');
+        try {
+          await incidentRepo.updateStatus(tenantId(event.tenantId), incidentId(iid), 'failed');
+        } catch (statusErr) {
+          logger.error({ err: statusErr, incidentId: iid }, 'Failed to mark incident failed after in-process investigation error');
+        }
       }
     });
 
