@@ -5244,3 +5244,10 @@ The repair is in how QA runs the check, not in the code under test.
 - RepairPlan: All three QA defects are false positives against the updated AC-034 spec or already fixed in uncommitted workflow changes. Workflows match AC-050 Docker guidance (no sst deploy), use required --filter scopes, and now declare environment: staging plus environment: production on split deploy jobs.; Commit the pending changes to website-deploy.yml, dashboard-deploy.yml, and project_specs.xml AC-034 so spec and workflows align on main.; Re-run WI-AC-034 integration QA using project_specs.xml AC-034 steps as the sole acceptance source, not the embedded SST-era WI description.; Ensure the harness WI metadata syncs from project_specs.xml after AC-050 so future QA does not regress to SST criteria.; Do not restore sst deploy in workflows; AC-050 explicitly requires Docker deploy guidance only.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/cc376b25-cb4d-418c-b1eb-2ca062405a88/foundation/WI-AC-034-2-integration_qa-3bc6781500f39394.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-11T09:39:42.329Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-034
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
