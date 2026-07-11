@@ -542,6 +542,21 @@ export class HttpApiClient implements ICoreApiClient {
     });
   }
 
+  // Integrations — OSS stub upstream connect (AC-055)
+  async connectStubIntegration(body?: { baseUrl?: string; coreBaseUrl?: string }): Promise<{
+    integrationId: string;
+    provider: string;
+    status: string;
+    stubConnectionId: string;
+    stubBaseUrl: string;
+    connectedAt: string;
+  }> {
+    return this.request('/v1/integrations/stub/connect', {
+      method: 'POST',
+      body: JSON.stringify(body ?? {}),
+    });
+  }
+
   // Integrations — disconnect credential (AWS)
   async disconnectCredential(type: string): Promise<any> {
     return this.request(`/v1/integrations/credentials/${encodeURIComponent(type)}`, {

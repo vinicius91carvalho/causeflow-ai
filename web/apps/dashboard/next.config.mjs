@@ -164,6 +164,41 @@ const nextConfig = {
       ],
     },
   ],
+  // Internal locale prefix for default-locale (en) unprefixed URLs.
+  // Prefer next.config rewrites over middleware NextResponse.rewrite(): the
+  // latter becomes an external proxy when Host/bind disagree (AC-055).
+  async rewrites() {
+    return [
+      {
+        source: '/dashboard/:path*',
+        destination: '/en/dashboard/:path*',
+      },
+      {
+        source: '/onboarding/:path*',
+        destination: '/en/onboarding/:path*',
+      },
+      {
+        source: '/auth/:path*',
+        destination: '/en/auth/:path*',
+      },
+      {
+        source: '/create-organization',
+        destination: '/en/create-organization',
+      },
+      {
+        source: '/accept-invitation',
+        destination: '/en/accept-invitation',
+      },
+      {
+        source: '/beta-waitlist',
+        destination: '/en/beta-waitlist',
+      },
+      {
+        source: '/waitlist',
+        destination: '/en/waitlist',
+      },
+    ];
+  },
   webpack(config, { dev }) {
     // Handle node: URI scheme for transpiled monorepo packages.
     // @causeflow/auth uses `import { createHmac } from 'node:crypto'` in
