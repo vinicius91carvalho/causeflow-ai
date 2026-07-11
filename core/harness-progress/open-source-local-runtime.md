@@ -6271,3 +6271,12 @@ No defects found. integration=true set in feature_list.json.
 - WorkItem: WI-AC-058
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T09:09:36.176Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-058
+- AcceptanceChecks: AC-058
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/c3578d9e-7239-4fa8-a283-863ced79c962/open-source-local-runtime/WI-AC-058-1-integration_qa-3aad0f52aea44bfc.log
+- NextAction: next Ready Work Item
