@@ -1,9 +1,12 @@
 import { existsSync } from 'node:fs';
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.BASE_URL || 'http://127.0.0.1:3000';
-const dashboardURL = process.env.DASHBOARD_URL || 'http://127.0.0.1:3001';
+const websitePort = process.env.PLAYWRIGHT_WEBSITE_PORT || '3000';
+const dashboardPort = process.env.PLAYWRIGHT_DASHBOARD_PORT || '3001';
+const baseURL = process.env.BASE_URL || `http://127.0.0.1:${websitePort}`;
+const dashboardURL = process.env.DASHBOARD_URL || `http://127.0.0.1:${dashboardPort}`;
 const isExternalTarget = baseURL.startsWith('https://');
+const enableDashboard = process.env.PLAYWRIGHT_DASHBOARD_WEBSERVER === '1';
 // Set SKIP_WEB_SERVER=1 to skip the Playwright webServer block entirely —
 // useful when dev servers are already running on a non-default hostname (e.g.
 // in PRoot where `localhost` may resolve only to IPv6 `::1` and the webServer
@@ -102,63 +105,55 @@ export default defineConfig({
       },
     },
 
-    // --- Dashboard projects ---
-    // Signs in once and saves session state to tests/dashboard/.auth/user.json.
-    // auth.spec.ts and onboarding.spec.ts mock their own sessions and remain in
-    // the viewport projects above; they are excluded from dashboard-authed.
-    {
-      name: 'dashboard-setup',
-      testDir: './tests/dashboard',
-      testMatch: 'auth-setup.ts',
-      use: {
-        ...devices['Desktop Chrome'],
-      },
-    },
-    {
-      name: 'dashboard-authed',
-      dependencies: ['dashboard-setup'],
-      testDir: './tests/dashboard',
-      testMatch: /^(?!auth\.spec|auth-setup|onboarding\.spec).*\.spec\.ts$/,
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1280, height: 800 },
-        storageState: 'tests/dashboard/.auth/user.json',
-      },
-    },
-
-    // --- E2E dashboard project for tests/e2e/dashboard/ ---
-    // integration-hardening sprint 05 specs (integrations-sentry-setup,
-    // integrations-slack-card, settings-fire-test-error-roundtrip) live under
-    // tests/e2e/dashboard/. They need the same Clerk-authed session as
-    // dashboard-authed but a different testDir.
-    {
-      name: 'e2e-dashboard-authed',
-      dependencies: ['dashboard-setup'],
-      testDir: './tests/e2e/dashboard',
-      testMatch: /.*\.spec\.ts$/,
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1280, height: 800 },
-        storageState: 'tests/dashboard/.auth/user.json',
-      },
-    },
-
-    // --- Sprint-06b persona review project ---
-    // Reuses the dashboard-setup session but targets tests/e2e/review/*.spec.ts.
-    {
-      name: 'dashboard-review',
-      dependencies: ['dashboard-setup'],
-      testDir: './tests/e2e/review',
-      testMatch: /.*-audit\.spec\.ts$/,
-      timeout: 300000,
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1280, height: 800 },
-        storageState: 'tests/dashboard/.auth/user.json',
-        actionTimeout: 30000,
-        navigationTimeout: 180000,
-      },
-    },
+    // --- Dashboard projects (opt-in via PLAYWRIGHT_DASHBOARD_WEBSERVER=1) ---
+    ...(enableDashboard
+      ? [
+          {
+            name: 'dashboard-setup',
+            testDir: './tests/dashboard',
+            testMatch: 'auth-setup.ts',
+            use: {
+              ...devices['Desktop Chrome'],
+            },
+          },
+          {
+            name: 'dashboard-authed',
+            dependencies: ['dashboard-setup'],
+            testDir: './tests/dashboard',
+            testMatch: /^(?!auth\.spec|auth-setup|onboarding\.spec).*\.spec\.ts$/,
+            use: {
+              ...devices['Desktop Chrome'],
+              viewport: { width: 1280, height: 800 },
+              storageState: 'tests/dashboard/.auth/user.json',
+            },
+          },
+          {
+            name: 'e2e-dashboard-authed',
+            dependencies: ['dashboard-setup'],
+            testDir: './tests/e2e/dashboard',
+            testMatch: /.*\.spec\.ts$/,
+            use: {
+              ...devices['Desktop Chrome'],
+              viewport: { width: 1280, height: 800 },
+              storageState: 'tests/dashboard/.auth/user.json',
+            },
+          },
+          {
+            name: 'dashboard-review',
+            dependencies: ['dashboard-setup'],
+            testDir: './tests/e2e/review',
+            testMatch: /.*-audit\.spec\.ts$/,
+            timeout: 300000,
+            use: {
+              ...devices['Desktop Chrome'],
+              viewport: { width: 1280, height: 800 },
+              storageState: 'tests/dashboard/.auth/user.json',
+              actionTimeout: 30000,
+              navigationTimeout: 180000,
+            },
+          },
+        ]
+      : []),
   ],
 
   // Skip webServer when testing against a deployed URL (CI E2E) or when
@@ -168,19 +163,23 @@ export default defineConfig({
     : {
         webServer: [
           {
-            command: 'pnpm exec next start -H 127.0.0.1',
-            cwd: './apps/website',
+            command: `bash -c 'NEXT_PUBLIC_DASHBOARD_URL=http://localhost:3001 pnpm --filter website build && cd apps/website && PORT=${websitePort} pnpm exec next start -H 127.0.0.1 -p ${websitePort}'`,
+            cwd: '.',
             url: baseURL,
             reuseExistingServer: !process.env.CI,
-            timeout: 30000,
+            timeout: 120000,
           },
-          {
-            command: 'pnpm --filter dashboard exec next start -H 127.0.0.1 -p 3001',
-            cwd: './apps/dashboard',
-            url: dashboardURL,
-            reuseExistingServer: !process.env.CI,
-            timeout: 30000,
-          },
+          ...(enableDashboard
+            ? [
+                {
+                  command: `pnpm exec next start -H 127.0.0.1 -p ${dashboardPort}`,
+                  cwd: './apps/dashboard',
+                  url: `${dashboardURL}/api/health`,
+                  reuseExistingServer: !process.env.CI,
+                  timeout: 30000,
+                },
+              ]
+            : []),
         ],
       }),
 });

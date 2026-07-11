@@ -8,24 +8,16 @@
  *   4. Section error fence — one section returns 500, page does not crash
  *   5. /api/health contract — URL must be exactly /api/health
  *
- * Auth: Clerk sign-in token, mirroring tests/dashboard/dark-mode-settings.spec.ts.
+ * Auth: dashboard-authed project storageState (local JWT via auth-setup.ts).
  * All /api/* routes are stubbed via page.route() — no real Core API contacted.
  */
 
-import { clerkSetup, setupClerkTestingToken } from '@clerk/testing/playwright';
 import type { Page, Request, Response, Route } from '@playwright/test';
 import { expect, test } from '@playwright/test';
-
-test.beforeAll(async () => {
-  await clerkSetup({ secretKey: process.env.CLERK_SECRET_KEY || CLERK_SECRET_KEY });
-});
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://127.0.0.1:3001';
-const CLERK_SECRET_KEY =
-  process.env.CLERK_SECRET_KEY || 'sk_test_zrOdKQaUtuFZarEWlgKMBJlKAFBEjrxzCpoSebBr2v';
-const CLERK_TEST_EMAIL = 'sergio@causeflow.ai';
 
 // ─── Canned response data ─────────────────────────────────────────────────────
 
@@ -85,49 +77,6 @@ const USAGE_HISTORY_OK = {
   items: [{ month: '2026-03', investigationsUsed: 3, investigationsLimit: 20 }],
   cursor: null,
 };
-
-// ─── Auth helper ──────────────────────────────────────────────────────────────
-
-async function signInWithClerk(page: Page): Promise<void> {
-  const usersRes = await fetch(
-    `https://api.clerk.com/v1/users?email_address=${encodeURIComponent(CLERK_TEST_EMAIL)}`,
-    { headers: { Authorization: `Bearer ${CLERK_SECRET_KEY}` } },
-  );
-  if (!usersRes.ok) {
-    throw new Error(`Clerk user lookup failed: ${usersRes.status} ${await usersRes.text()}`);
-  }
-  const users = (await usersRes.json()) as Array<{ id: string }>;
-  if (!users.length) {
-    throw new Error(`No Clerk user found for ${CLERK_TEST_EMAIL}`);
-  }
-
-  const tokenRes = await fetch('https://api.clerk.com/v1/sign_in_tokens', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${CLERK_SECRET_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ user_id: users[0].id }),
-  });
-  if (!tokenRes.ok) {
-    throw new Error(
-      `Clerk sign-in token creation failed: ${tokenRes.status} ${await tokenRes.text()}`,
-    );
-  }
-  const tokenData = (await tokenRes.json()) as { token: string };
-
-  // Inject the Clerk dev-browser testing token so the middleware lets us through
-  // (in dev keys mode Clerk loops on /auth/* without it).
-  await setupClerkTestingToken({ page });
-
-  const signInUrl = `${DASHBOARD_URL}/auth/sign-in#/sso-callback?__clerk_ticket=${tokenData.token}`;
-  await page.goto(signInUrl, { waitUntil: 'domcontentloaded' });
-  await page
-    .waitForURL((url) => !url.pathname.includes('/auth/'), { timeout: 20000 })
-    .catch(() => {
-      // If redirect doesn't happen, downstream assertions will fail clearly
-    });
-}
 
 // ─── Route stub helper ────────────────────────────────────────────────────────
 
@@ -207,7 +156,6 @@ test.beforeEach(async ({ page }) => {
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 test('1. Branch A — no analyses, no integrations', async ({ page }) => {
-  await signInWithClerk(page);
   await stubEndpoints(page, {
     '/api/metrics': { status: 200, body: METRICS_EMPTY },
     '/api/integrations': { status: 200, body: [] },
@@ -229,7 +177,6 @@ test('1. Branch A — no analyses, no integrations', async ({ page }) => {
 });
 
 test('2. Branch B — no analyses, has integrations (legacy raw array shape)', async ({ page }) => {
-  await signInWithClerk(page);
   await stubEndpoints(page, {
     '/api/metrics': { status: 200, body: METRICS_EMPTY },
     '/api/integrations': { status: 200, body: INTEGRATION_ONE },
@@ -255,7 +202,6 @@ test('2b. Branch B — wrapped { integrations: [...] } shape (the production con
   // Reproduces the bug fixed in Sprint 03: the production /api/integrations
   // returns { integrations: [...] }, not a raw array. The DashboardOverview
   // consumer must extract `.integrations` to compute hasIntegrations.
-  await signInWithClerk(page);
   await stubEndpoints(page, {
     '/api/metrics': { status: 200, body: METRICS_EMPTY },
     '/api/integrations': {
@@ -275,8 +221,6 @@ test('2b. Branch B — wrapped { integrations: [...] } shape (the production con
 
 test('3. Branch C — full dashboard with all sections', async ({ page }) => {
   const apiResponses: Array<{ url: string; status: number }> = [];
-
-  await signInWithClerk(page);
 
   page.on('response', (response: Response) => {
     const url = response.url();
@@ -313,7 +257,6 @@ test('3. Branch C — full dashboard with all sections', async ({ page }) => {
 });
 
 test('4. Section error fence — /api/memory/insights 500 does not crash page', async ({ page }) => {
-  await signInWithClerk(page);
   await stubEndpoints(page, {
     '/api/memory/insights': { status: 500, body: { error: 'Internal Server Error' } },
   });
@@ -336,7 +279,6 @@ test('4. Section error fence — /api/memory/insights 500 does not crash page', 
 test('5. /api/health contract — URL must be exactly /api/health', async ({ page }) => {
   const healthPaths: string[] = [];
 
-  await signInWithClerk(page);
   await stubEndpoints(page);
 
   page.on('request', (request: Request) => {

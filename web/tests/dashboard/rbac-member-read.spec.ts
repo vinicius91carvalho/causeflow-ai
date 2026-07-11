@@ -6,76 +6,49 @@
  *   2. Sees no mutation controls on any of the four pages
  *   3. Can open the Stripe Portal via the "Manage billing in Stripe" button
  *
- * Auth: requires a Clerk member-role test user. Provide MEMBER_TEST_EMAIL env
- * var pointing at a Clerk user whose org membership is `org:member`.
- *
- * If MEMBER_TEST_EMAIL is missing, every test in this file is skipped with
- * a clear actionable message — the suite will not fail CI.
+ * Auth: local JWT with role=member (mirrors tests/dashboard/auth-setup.ts).
  *
  * Tag: @member-read (run with `--grep @member-read` for selective execution).
  */
 
-import { clerkSetup, setupClerkTestingToken } from '@clerk/testing/playwright';
 import type { Page } from '@playwright/test';
 import { expect, test } from '@playwright/test';
+import { SignJWT } from 'jose';
 
 const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://127.0.0.1:3001';
-const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY ?? '';
-const MEMBER_TEST_EMAIL = process.env.MEMBER_TEST_EMAIL ?? '';
-
-const HAS_MEMBER_FIXTURE = Boolean(CLERK_SECRET_KEY && MEMBER_TEST_EMAIL);
-
-test.beforeAll(async () => {
-  if (!HAS_MEMBER_FIXTURE) {
-    test.skip(
-      true,
-      'rbac-member-read.spec.ts requires CLERK_SECRET_KEY + MEMBER_TEST_EMAIL env vars. Set MEMBER_TEST_EMAIL to a Clerk user whose org membership role is org:member, then re-run.',
-    );
-    return;
-  }
-  await clerkSetup({ secretKey: CLERK_SECRET_KEY });
-});
+const JWT_SECRET = process.env.JWT_SECRET || 'oss-dev-jwt-secret-change-me';
 
 async function signInAsMember(page: Page): Promise<void> {
-  const usersRes = await fetch(
-    `https://api.clerk.com/v1/users?email_address=${encodeURIComponent(MEMBER_TEST_EMAIL)}`,
-    { headers: { Authorization: `Bearer ${CLERK_SECRET_KEY}` } },
-  );
-  if (!usersRes.ok) {
-    throw new Error(`Clerk user lookup failed: ${usersRes.status} ${await usersRes.text()}`);
-  }
-  const users = (await usersRes.json()) as Array<{ id: string }>;
-  if (!users.length) {
-    throw new Error(`No Clerk user found for ${MEMBER_TEST_EMAIL}`);
-  }
-  const tokenRes = await fetch('https://api.clerk.com/v1/sign_in_tokens', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${CLERK_SECRET_KEY}`,
-      'Content-Type': 'application/json',
+  const secret = new TextEncoder().encode(JWT_SECRET.trim());
+  const jwt = await new SignJWT({
+    sub: 'member-user-id',
+    email: 'member@causeflow.ai',
+    name: 'Member User',
+    tenantId: 'test-tenant-id',
+    role: 'member',
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('2h')
+    .sign(secret);
+
+  await page.context().addCookies([
+    {
+      name: '__session',
+      value: jwt,
+      domain: '127.0.0.1',
+      path: '/',
+      expires: Math.floor(Date.now() / 1000) + 7200,
+      httpOnly: true,
+      secure: false,
+      sameSite: 'Lax',
     },
-    body: JSON.stringify({ user_id: users[0].id }),
-  });
-  if (!tokenRes.ok) {
-    throw new Error(`Clerk sign-in token failed: ${tokenRes.status} ${await tokenRes.text()}`);
-  }
-  const tokenData = (await tokenRes.json()) as { token: string };
-  await setupClerkTestingToken({ page });
-  await page.goto(`${DASHBOARD_URL}/auth/sign-in#/sso-callback?__clerk_ticket=${tokenData.token}`, {
-    waitUntil: 'domcontentloaded',
-  });
-  await page
-    .waitForURL((url) => !url.pathname.includes('/auth/'), { timeout: 20000 })
-    .catch(() => {
-      // Downstream assertions will surface failure
-    });
+  ]);
 }
 
 test.describe('@member-read', () => {
   test('member can view billing page with Stripe Portal button and no mutation controls', async ({
     page,
   }) => {
-    test.skip(!HAS_MEMBER_FIXTURE, 'requires MEMBER_TEST_EMAIL');
     await signInAsMember(page);
     await page.goto(`${DASHBOARD_URL}/dashboard/billing`, { waitUntil: 'domcontentloaded' });
 
@@ -95,7 +68,6 @@ test.describe('@member-read', () => {
   test('member can view settings page with disabled inputs and no save button', async ({
     page,
   }) => {
-    test.skip(!HAS_MEMBER_FIXTURE, 'requires MEMBER_TEST_EMAIL');
     await signInAsMember(page);
     await page.goto(`${DASHBOARD_URL}/dashboard/settings`, { waitUntil: 'domcontentloaded' });
 
@@ -105,7 +77,6 @@ test.describe('@member-read', () => {
   });
 
   test('member can view team page with no invite or role-change controls', async ({ page }) => {
-    test.skip(!HAS_MEMBER_FIXTURE, 'requires MEMBER_TEST_EMAIL');
     await signInAsMember(page);
     await page.goto(`${DASHBOARD_URL}/dashboard/team`, { waitUntil: 'domcontentloaded' });
 
@@ -119,7 +90,6 @@ test.describe('@member-read', () => {
   test('member can view integrations page with no connect or disconnect controls', async ({
     page,
   }) => {
-    test.skip(!HAS_MEMBER_FIXTURE, 'requires MEMBER_TEST_EMAIL');
     await signInAsMember(page);
     await page.goto(`${DASHBOARD_URL}/dashboard/integrations`, {
       waitUntil: 'domcontentloaded',

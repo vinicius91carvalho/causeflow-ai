@@ -10,7 +10,6 @@
  * Runs under the `dashboard-authed` project (requires auth-setup.ts to complete).
  */
 
-import { setupClerkTestingToken } from '@clerk/testing/playwright';
 import { expect, test } from '@playwright/test';
 
 const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://127.0.0.1:3001';
@@ -301,7 +300,6 @@ test.describe('Slack — settings panel', () => {
 
 test.describe('Composio OAuth callback — connectedAccountId param handling', () => {
   test.beforeEach(async ({ page }) => {
-    await setupClerkTestingToken({ page });
     await blockAnalytics(page);
     await mockCatalogRoute(page);
     await mockIntegrationsRoute(page, []);
