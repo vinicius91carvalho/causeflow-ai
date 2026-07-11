@@ -614,3 +614,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - WorkItem: WI-AC-026
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T19:51:42.673Z — Resumed
+
+- WorkItem: WI-AC-026
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
