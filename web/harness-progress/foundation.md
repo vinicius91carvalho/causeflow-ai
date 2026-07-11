@@ -5178,3 +5178,11 @@ The repair is in how QA runs the check, not in the code under test.
 - WorkItem: WI-AC-009
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T09:12:14.371Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-009
+- Defects: expected apps/dashboard/src/lib/api/mock-api-client.ts to exist and be selected when CORE_API_URL is unset; observed file is absent (only http-api-client.ts present under apps/dashboard/src/lib/api/); evidence glob search returned 0 matches for mock-api-client.ts; expected get-api-client.ts to require mock-api-client when CORE_API_URL is blank and http-api-client otherwise; observed get-api-client.ts throws Error('CORE_API_URL environment variable is required') at line 10 when apiUrl is falsy; evidence apps/dashboard/src/lib/api/get-api-client.ts lines 8-14; expected all 11 getApiClient() API routes to return 2xx with blank CORE_API_URL (mock mode); observed VERIFY_MODE=blank run: allOk=false, anyCoreApiUrlError=true, 11/11 routes returned 500 (analyses body: {"error":"CORE_API_URL environment variable is required"}); evidence .harness/wi-ac-009-http.json and dev log CORE_API_URL errors at get-api-client.ts:11; expected blank CORE_API_URL dev log to show no network errors on navigation; observed repeated CORE_API_URL environment variable is required stack traces for analyses, billing, settings, team, integrations, audit, memory, notifications, approvals; evidence terminal 359754.txt grep output; partial pass on bad-host fail-fast: CORE_API_URL=http://127.0.0.1:1 caused analyses to return {"error":"fetch failed"} (anyFetchError=true) confirming http-api-client path works when URL is set, but this does not satisfy the primary mock-fallback requirement
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bcaa3315-1fdf-462e-b406-249a4f274399/foundation/WI-AC-009-2-integration_qa-f75fd7f253482f77.log
+- NextAction: Repair Plan
