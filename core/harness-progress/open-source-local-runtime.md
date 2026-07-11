@@ -6649,3 +6649,10 @@ No defects found. integration=true set in feature_list.json.
 - RepairPlan: AC-053 OSS compose stack is present (no ministack/langfuse/localstack-init), but .env.example exceeds the allowed key set and its host-only LLM_BASE_URL=http://127.0.0.1:8081/v1 is interpolated into api/worker via ${LLM_BASE_URL:-...}, so in-container LLM is unreachable, /health llm=degraded, and AC-046 investigation fails with sse_agent_roles=0.; Slim .env.example to AC-053 allowlist only: PORT, DATABASE_URL, REDIS_URL, JWT_SECRET, TOKEN_ENCRYPTION_KEY, HINDSIGHT_API_URL, HINDSIGHT_API_KEY, optional ANTHROPIC_API_KEY + VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY; remove WEBHOOK_SECRET, LLM_*, OPENCODE_*, NVIDIA_*, TEST_APP_*, STUB_* KEY= lines (comment-only docs OK for AC-054).; Rename/align Hindsight: put HINDSIGHT_API_URL in .env.example; update src/shared/config (and any readers) to prefer HINDSIGHT_API_URL with fallback to HINDSIGHT_BASE_URL so compose hardcode HINDSIGHT_BASE_URL: http://hindsight:8888 still works.; In docker-compose.yml for causeflow-api and causeflow-worker, stop interpolating host LLM_BASE_URL—set literal LLM_BASE_URL: http://host.docker.internal:8081/v1 (keep existing extra_hosts host.docker.internal:host-gateway); leave host-dev 127.0.0.1 default only in config/code for non-compose runs.; Keep LLM/webhook/test-app/stub defaults inside compose environment blocks / code defaults (not .env.example KEY=) so AC-054..AC-059 remain reachable without re-breaking AC-053.; Do not re-add ministack/langfuse/localstack-init to compose; optional later: note schema path drift (migrations via pg-client vs missing docker-entrypoint-initdb.d/01-schema.sql) is out of scope for these defects.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/043e35ec-23e3-4f1a-af56-0c5c9559521f/open-source-local-runtime/WI-AC-053-2-qa-94616f83cbd8dcca.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-11T18:20:45.470Z — Resumed
+
+- WorkItem: WI-AC-053
+- PreviousPhase: coding
+- Attempt: 3
+- NextAction: coding
