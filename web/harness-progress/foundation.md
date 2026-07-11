@@ -4944,3 +4944,12 @@ The repair is in how QA runs the check, not in the code under test.
 - PreviousPhase: coding
 - Attempt: 2
 - NextAction: coding
+
+## 2026-07-11T06:22:59.976Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-006
+- DefectReport: Step 1: expected `pnpm exec playwright test tests/` to exit 0 with a green report; observed exit code 1 with `Error: Timed out waiting 30000ms from config.webServer.` — evidence: DEBUG=pw:webserver shows website webServer on http://127.0.0.1:3000/ returns HTTP 200 and becomes available, but dashboard webServer probe `HTTP GET http://127.0.0.1:3001/` hangs ~30s after `next start` reports Ready then ECONNRESET/timeout (reproduced with `env -u PORT pnpm exec playwright test tests/`).
+- RepairPlan: AC-006 Step 1 fails before any test runs because playwright.config.ts unconditionally starts a second webServer for dashboard :3001, but AC-006 only requires auto-start on :3000. The website probe succeeds; the dashboard probe to GET / hangs until the 30s webServer timeout (ECONNRESET). This is config/scope drift, not a defect in audit.spec.ts or visual-functional.spec.ts.; Align playwright.config.ts with AC-006: remove the unconditional dashboard webServer entry, or gate it behind an env var (e.g. PLAYWRIGHT_DASHBOARD_WEBSERVER=1) used only by dashboard/e2e project runs.; If the dashboard webServer must remain for broader suites, change its readiness url from http://127.0.0.1:3001/ to http://127.0.0.1:3001/api/health and simplify the start command to `pnpm exec next start -H 127.0.0.1 -p 3001` with cwd `./apps/dashboard` (drop redundant `--filter`).; Add a QA precondition before Playwright: kill stale next processes, then `pnpm --filter website build` (and `pnpm --filter dashboard build` only when dashboard projects are in scope). AC-006 depends on AC-001, not AC-007, but `next start` requires a prior build.; Document that `pnpm exec playwright test tests/` also matches tests/dashboard/** and tests/e2e/** beyond the AC-006 narrative; either exclude those paths for foundation QA or ensure dashboard webServer health is fixed before dashboard-setup runs.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/d88cba21-996c-484b-8b49-8ecab7e88023/foundation/WI-AC-006-2-qa-d7b3aa7461a81909.log
+- NextAction: Coding Attempt 3
