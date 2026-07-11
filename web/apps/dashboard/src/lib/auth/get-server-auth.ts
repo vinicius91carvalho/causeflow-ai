@@ -3,7 +3,7 @@
  *
  * Reads the `__session` cookie via `cookies()` from `next/headers` (or an
  * explicit request object) and returns a resolved AuthContext. This replaces
- * Clerk's `auth()` from `@clerk/nextjs/server`.
+ * the legacy hosted-auth `auth()` helper.
  *
  * Usage (server component):
  * ```ts

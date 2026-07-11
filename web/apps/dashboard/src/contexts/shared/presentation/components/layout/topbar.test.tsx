@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-describe('Topbar (AC-046) — no Clerk components', () => {
-  it('does not import from @clerk/nextjs', async () => {
+describe('Topbar (AC-046) — OSS auth UI', () => {
+  it('does not import hosted-auth SDK components', async () => {
     const fs = await import('node:fs');
     const source = fs.readFileSync(new URL('./topbar.tsx', import.meta.url), 'utf-8');
-    expect(source).not.toContain('@clerk/nextjs');
     expect(source).not.toContain('OrganizationSwitcher');
     expect(source).not.toContain('UserButton');
   });

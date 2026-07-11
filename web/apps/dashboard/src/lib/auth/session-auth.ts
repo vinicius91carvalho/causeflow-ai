@@ -3,7 +3,7 @@ import { jwtVerify } from 'jose';
 /**
  * Open-source local-runtime session auth (AC-046).
  *
- * Replaces Clerk's `auth()` from `@clerk/nextjs/server`. The CauseFlow Core
+ * Replaces the legacy hosted-auth `auth()` helper. The CauseFlow Core
  * API issues a short-lived JWT signed with the shared `JWT_SECRET`. This
  * module provides server-side helpers to verify the JWT, extract claims, and
  * produce a backend token for onward Core API calls.

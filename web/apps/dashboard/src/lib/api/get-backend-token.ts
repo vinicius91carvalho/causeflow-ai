@@ -2,8 +2,8 @@
  * Open-source local-runtime backend token helper (AC-046).
  *
  * Reads the local `__session` JWT cookie and returns it as a Bearer token for
- * onward CauseFlow Core API calls. Replaces Clerk's `getToken()` from
- * `@clerk/nextjs/server`.
+ * onward CauseFlow Core API calls. Replaces the legacy hosted-auth
+ * `getToken()` helper.
  *
  * Two call signatures:
  *
