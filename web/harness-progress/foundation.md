@@ -5020,3 +5020,11 @@ The repair is in how QA runs the check, not in the code under test.
 - WorkItem: WI-AC-006
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T07:43:08.349Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-006
+- Defects: expected `pnpm exec playwright test tests/` to exit 0 with a green report; observed exit 1 with `Error: Timed out waiting 30000ms from config.webServer.`; evidence DEBUG=pw:webserver run shows website :3000 becomes available (HTTP 200) but dashboard probe at http://127.0.0.1:3001/ never completes within 30s even after Next.js logs Ready; expected webServer to auto-start the production website on port 3000 when PORT is unset; observed harness PORT=5172 causes `next start` to bind :5172 while Playwright probes :3000 unless PORT=3000 is explicitly set (webServer command does not pin PORT=3000); expected website E2E suite (audit.spec.ts + visual-functional.spec.ts) to be runnable via the AC command; observed 119 passed / 5 skipped only when servers were pre-started manually and SKIP_WEB_SERVER=1 was used — the documented `pnpm exec playwright test tests/` path cannot reach test execution due to webServer failure
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/0cccd36a-e499-4fe9-b17f-e1663f3da9b1/foundation/WI-AC-006-2-integration_qa-565ea0bd219d7fec.log
+- NextAction: Repair Plan
