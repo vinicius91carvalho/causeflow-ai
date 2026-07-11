@@ -145,9 +145,9 @@ for (const localeKey of TEST_LOCALES) {
 
       // Hreflang tags
       const enHreflang = await browserPage.locator('link[hreflang="en"]').count();
-      const ptHreflang = await browserPage.locator('link[hreflang="pt-BR"]').count();
+      const ptHreflang = await browserPage.locator('link[hreflang="pt-br"]').count();
       expect(enHreflang, `${testName}: en hreflang missing`).toBeGreaterThanOrEqual(1);
-      expect(ptHreflang, `${testName}: pt-BR hreflang missing`).toBeGreaterThanOrEqual(1);
+      expect(ptHreflang, `${testName}: pt-br hreflang missing`).toBeGreaterThanOrEqual(1);
 
       // Structured data (only for pages known to have it)
       if (pageInfo.hasJsonLd) {

@@ -24,7 +24,7 @@ export function generatePageMetadata({
     description,
     alternates: {
       canonical: url,
-      languages: { en: alternateEn, 'pt-BR': alternatePtBr, 'x-default': alternateEn },
+      languages: { en: alternateEn, 'pt-br': alternatePtBr, 'x-default': alternateEn },
     },
     openGraph: {
       title: `${title} | CauseFlow AI`,
