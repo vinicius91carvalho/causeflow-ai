@@ -655,3 +655,11 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - RepairPlan: QA defects match the tree but are intentional OSS removals (AC-048/049); WI-AC-031 still requires commercial Stripe while AC-053 says AC-031's surviving invariant is no STRIPE_SECRET_KEY because Stripe is gone.; Reconcile feature_list.json WI-AC-031 (+ project_specs AC-031 steps) to AC-053 OSS reading: Step 2 secret-key absence + Core-proxy handlers; drop PaymentElement/stripe@20.x/setup-stripe/delete-user requirements; Do not restore @stripe/react-stripe-js, @stripe/stripe-js, stripe@20.x, PaymentElement, setup-stripe.ts, or delete-user.ts (would regress AC-048/049); Keep payment-modal.tsx OSS stub and scripts/=add-credits.ts only; re-run WI-AC-031 verify-first against reconciled steps
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/b4d41e64-d831-4e28-bde0-9e16435828b0/dashboard/WI-AC-031-2-qa-622681947744f7f0.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-11T20:09:24.414Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-031
+- Outcome: QA failed after Attempt 3
+- Defects: expected Step 1: payment-modal mounts Stripe PaymentElement (via @stripe/react-stripe-js + @stripe/stripe-js loadStripe) when NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set; observed zero @stripe packages in apps/dashboard/package.json and payment-modal.tsx is AC-048 OSS stub with no PaymentElement/loadStripe/@stripe imports (grep -nE PaymentElement|loadStripe|@stripe → zero matches); evidence cli audit apps/dashboard/package.json + apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx; expected Step 3: stripe@20.x in apps/dashboard/package.json devDependencies (not dependencies) and only imported from apps/dashboard/scripts/setup-stripe.ts and delete-user.ts; observed stripe absent from dependencies and devDependencies (grep -nE stripe|@stripe package.json → zero), scripts/ contains only add-credits.ts, setup-stripe.ts and delete-user.ts missing (AC-049); evidence cli audit apps/dashboard/package.json + find apps/dashboard/scripts
+- NextAction: User reviews evidence and explicitly resumes with guidance
