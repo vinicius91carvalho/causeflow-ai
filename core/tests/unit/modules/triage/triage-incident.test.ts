@@ -125,7 +125,14 @@ describe('TriageIncidentUseCase', () => {
         agentRole: 'coordinator',
         evidenceType: 'agent_reasoning',
         content: 'High CPU usage detected on production API server',
-        metadata: { confidence: 0.85, category: 'infrastructure' },
+        metadata: expect.objectContaining({
+          confidence: 0.85,
+          category: 'infrastructure',
+          source: 'llm_completion',
+          llmModel: 'claude-sonnet-4-5-20250929',
+          llmConnector: 'local',
+          phase: 'triage',
+        }),
       }),
     );
   });

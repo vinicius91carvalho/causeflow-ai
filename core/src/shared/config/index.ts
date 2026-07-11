@@ -144,7 +144,7 @@ export const config = {
   },
 
   webhook: {
-    secret: env('WEBHOOK_SECRET', 'dev-webhook-secret'),
+    secret: env('WEBHOOK_SECRET', 'oss-dev-webhook-secret'),
   },
 
   // Documented stub upstream for OSS connector connect/probe/ingest (AC-056).

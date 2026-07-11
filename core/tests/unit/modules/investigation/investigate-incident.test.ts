@@ -205,8 +205,8 @@ describe('InvestigateIncidentUseCase', () => {
     // 3 sub-agents dispatched
     expect(agentRunner.run).toHaveBeenCalledTimes(3);
 
-    // Evidence saved: 3 agents + 1 synthesis = 4
-    expect(evidenceRepo.create).toHaveBeenCalledTimes(4);
+    // Evidence saved: 3 agents + 1 synthesis + 1 LLM completion attribution = 5
+    expect(evidenceRepo.create).toHaveBeenCalledTimes(5);
 
     // Incident updated with root cause
     expect(incidentRepo.update).toHaveBeenCalledWith(
@@ -289,8 +289,8 @@ describe('InvestigateIncidentUseCase', () => {
     expect(result!.failedAgents).toEqual([
       { role: 'metric_analyst', error: 'Agent timeout' },
     ]);
-    // 2 successful agents + 1 synthesis = 3
-    expect(evidenceRepo.create).toHaveBeenCalledTimes(3);
+    // 2 successful agents + 1 synthesis + 1 LLM completion attribution = 4
+    expect(evidenceRepo.create).toHaveBeenCalledTimes(4);
   });
 
   it('should complete with stub result when all sub-agents fail (OSS / LLM-unavailable path)', async () => {

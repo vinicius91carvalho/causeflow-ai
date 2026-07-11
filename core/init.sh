@@ -47,6 +47,10 @@ ensure_env_dev() {
     echo "ERROR: TOKEN_ENCRYPTION_KEY unset in .env.dev — AesGcmTokenEncryption requires it before starting the investigation worker" >&2
     exit 1
   fi
+  # Host-dev + AC-046/AC-050 black-box e2e share this HMAC secret with docker-compose.
+  if ! grep -qE '^WEBHOOK_SECRET=.+' .env.dev; then
+    echo 'WEBHOOK_SECRET=oss-dev-webhook-secret' >> .env.dev
+  fi
 }
 
 worker_alive() {

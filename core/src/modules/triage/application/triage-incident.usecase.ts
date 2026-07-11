@@ -212,6 +212,37 @@ export class TriageIncidentUseCase {
                 result = { ...result, investigationMode: 'orchestrator' };
             }
 
+            // AC-046 / AC-050: local Ornith often under-suggests agents (3 of 6).
+            // Expand to the six foundational roles for high/critical so the
+            // investigation worker emits per-agent progress/evidence end-to-end.
+            const foundationalAgents = [
+                'log_analyst',
+                'metric_analyst',
+                'change_detector',
+                'code_analyzer',
+                'infra_inspector',
+                'db_analyst',
+            ] as const;
+            if (
+                usesLocalLlmConnector()
+                && (result.priority === 'high' || result.priority === 'critical')
+            ) {
+                const merged = Array.from(
+                    new Set([...result.suggestedAgents, ...foundationalAgents]),
+                );
+                if (merged.length > result.suggestedAgents.length) {
+                    logger.info(
+                        {
+                            incidentId,
+                            from: result.suggestedAgents,
+                            to: merged,
+                        },
+                        'Local LLM triage — expanding suggestedAgents to foundational set',
+                    );
+                    result = { ...result, suggestedAgents: merged };
+                }
+            }
+
             await this.incidentRepo.update(tenantId, incidentId, {
                 severity: result.priority,
                 assignedAgents: result.suggestedAgents,
