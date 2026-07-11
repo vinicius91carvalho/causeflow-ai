@@ -5052,3 +5052,11 @@ The repair is in how QA runs the check, not in the code under test.
 - Defects: expected `pnpm exec playwright test tests/` to exit 0 with webServer auto-start; observed `Error: Timed out waiting 30000ms from config.webServer` because the dashboard webServer health probe at `http://127.0.0.1:3001/` never becomes ready (server returns 307 to `http://localhost:3001/`, probe hangs until timeout); evidence `DEBUG=pw:webserver` run ending with `Timed out waiting 30000ms from config.webServer`; expected webServer website bind on port 3000 when harness sets PORT=5172; observed Next.js honors PORT=5172 (`Local: http://127.0.0.1:5172`) while playwright.config.ts probes `http://127.0.0.1:3000`; evidence manual `next start` with PORT=5172 in environment; expected AC Step 1 green report without manual server workaround; observed 119 passed / 5 skipped only when website was manually started on PORT=3000 with `SKIP_WEB_SERVER=1`; default command never reached test execution
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/0cccd36a-e499-4fe9-b17f-e1663f3da9b1/foundation/WI-AC-006-3-integration_qa-02366aa13f1cca66.log
 - NextAction: Repair Plan
+
+## 2026-07-11T08:04:29.803Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-006
+- Outcome: Integrated Verification failed after Attempt 3
+- Defects: expected `pnpm exec playwright test tests/` to exit 0 with webServer auto-start; observed `Error: Timed out waiting 30000ms from config.webServer` because the dashboard webServer health probe at `http://127.0.0.1:3001/` never becomes ready (server returns 307 to `http://localhost:3001/`, probe hangs until timeout); evidence `DEBUG=pw:webserver` run ending with `Timed out waiting 30000ms from config.webServer`; expected webServer website bind on port 3000 when harness sets PORT=5172; observed Next.js honors PORT=5172 (`Local: http://127.0.0.1:5172`) while playwright.config.ts probes `http://127.0.0.1:3000`; evidence manual `next start` with PORT=5172 in environment; expected AC Step 1 green report without manual server workaround; observed 119 passed / 5 skipped only when website was manually started on PORT=3000 with `SKIP_WEB_SERVER=1`; default command never reached test execution
+- NextAction: User reviews evidence and explicitly resumes with guidance
