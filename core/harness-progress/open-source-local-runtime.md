@@ -6315,3 +6315,11 @@ No defects found. integration=true set in feature_list.json.
 - WorkItem: WI-AC-059
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T09:34:52.403Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-059
+- Defects: expected PUT/GET /v1/oss/llm-connector API to switch active LLM connector between Ornith and DeepSeek (OpenCode Go or NVIDIA NIM); observed HTTP 404 on both GET and PUT with valid JWT against running Core at http://127.0.0.1:3099; evidence: authenticated curl returned '404 Not Found'; expected .harness/ac059-verify.sh black-box verification script and llm-connector-fallback unit tests per coding-agent notes; observed neither file exists in plan/opensource-docker checkout; evidence: glob and rg found zero matches for ac059-verify, llm-connector-fallback.test.ts, OPENCODE_API_KEY, NVIDIA_API_KEY, deepseek-v4, LLM_CONTEXT_TOO_LARGE under core/; expected .env.example and docker-compose.yml to document DeepSeek fallback env vars (OPENCODE_API_KEY / NVIDIA_API_KEY, deepseek-opencode / deepseek-nim profiles) populated at runtime from operator host config; observed only Ornith LLM_BASE_URL/LLM_MODEL entries; evidence: .env.example lines 35-42, docker-compose.yml lines 115-116; expected runtime connector switch so triage/investigation completions use DeepSeek after operator selects fallback; observed llm-factory.ts wires only Ornith OpenAiCompatibleLlmClient or Anthropic override with no DeepSeek profile resolution; evidence: src/shared/infra/llm/llm-factory.ts; expected feature_list.json implementation:true after coding phase; observed implementation:false, qa:false, integration:false for WI-AC-059; evidence: core/feature_list.json lines 1303-1305; coding harness log claimed implementation but only harness-progress checkpoint commits (8ce88fb4, b2ade5be) landed with no product code
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/8bc00f7e-25b3-402f-ba11-5d754945ca60/open-source-local-runtime/WI-AC-059-1-integration_qa-212dec2495492050.log
+- NextAction: Repair Plan
