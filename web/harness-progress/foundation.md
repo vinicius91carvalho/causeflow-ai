@@ -5074,3 +5074,11 @@ The repair is in how QA runs the check, not in the code under test.
 - WorkItem: WI-AC-006
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T08:21:08.032Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- Defects: expected `pnpm exec playwright test tests/` exit 0; observed exit 1 with `Error: Timed out waiting 30000ms from config.webServer`; evidence: DEBUG=pw:webserver shows website probe succeeds on :3000 but dashboard probe at http://127.0.0.1:3001 hangs ~30s then ECONNRESET — dashboard GET / returns 307 Location http://localhost:3001/ causing fetch redirect failure when probed via 127.0.0.1; expected `pnpm exec playwright test tests/` to load and run the full tests/ tree; observed exit 1 with module resolution errors when webServer timeout is bypassed via SKIP_WEB_SERVER=1; evidence: `Cannot find module '@clerk/testing/playwright'` in tests/dashboard/dashboard-overview.spec.ts, rbac-member-read.spec.ts, integrations-composio.spec.ts (@clerk/testing removed per WORKFLOW_JOURNAL.md); expected harness PORT env not to break AC-006 webServer port 3000 contract; observed default harness PORT=5172 binds website `next start` to :5172 while config baseURL probes :3000; evidence: first run without PORT=3000 override timed out with ECONNREFUSED on :3000 while server logged Local http://127.0.0.1:5172
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bcaa3315-1fdf-462e-b406-249a4f274399/foundation/WI-AC-006-1-integration_qa-dd370c58a9ec74b4.log
+- NextAction: Repair Plan
