@@ -6383,3 +6383,54 @@ No defects found. integration=true set in feature_list.json.
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/cdefdf66-82d9-490b-a2c6-e0ae679df1b0/open-source-local-runtime/WI-AC-059-2-integration_qa-1068fd2cfdc4df28.log
 - NextAction: next Ready Work Item
+
+## 2026-07-11T09:51:11.123Z — Resumed
+
+- WorkItem: WI-AC-060
+- PreviousPhase: claimed
+- Attempt: 1
+- NextAction: start-orchestrator
+
+## 2026-07-11T10:13:35.785Z — Resumed
+
+- WorkItem: WI-AC-060
+- PreviousPhase: qa
+- Attempt: 1
+- NextAction: qa
+
+## 2026-07-11T10:24:07.799Z — Resumed
+
+- WorkItem: WI-AC-060
+- PreviousPhase: repair_plan
+- Attempt: 1
+- NextAction: repair-plan
+
+## 2026-07-11T10:30:15.919Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-060
+- DefectReport: expected full investigation product loop to complete within 300s (status awaiting_approval or resolved) after test-app ingest with Ornith connector; observed incident c3f9560f-4c4a-4a47-8e47-f112b7e3f2cb stuck in status=triaging with severity=high for 150 polls (~5 min); evidence .harness/ac060-verify.sh exit 1 FAIL: investigation did not complete (status=timeout); expected triage completion to enqueue causeflow-investigation job for the incident; observed triage job id=19 completed for c3f9560f but zero investigation jobs (wait/failed/completed) in Redis contained that incidentId; evidence GET /admin/queues depth=28 and redis scan returned no keys matching c3f9560f; expected investigation SSE stream with investigation_progress and completion/remediation events; observed SSE connected but script never reached SSE assertions because investigation never advanced past triaging; expected incident chat, root-cause hypothesis with causeflow-test-app evidence, and ≥1 remediation proposal; observed none — blocked by missing investigation completion; partial pass: stub connect 201, test-app ingest 202, triage severity=high assigned, health llm=ok with Ornith on :8081; implementation artifacts present (test-app/server.mjs, .harness/ac060-verify.sh) but golden-path handoff triage→investigation is broken on PORT=5171 host-dev stack
+- RepairPlan: AC-060 falha no handoff triage→investigation do runtime OSS em PORT=5171: triage conclui (severity=high, job triage id=19), mas o incidente permanece em status=triaging por ~300s e nenhum artefato downstream (SSE progress, chat, root-cause, remediation) é produzido. Scaffold e script de verificação existem; o golden path quebra após triage.; Confirmar no ambiente QA: `pgrep -af investigation-worker`, `.harness/worker.pid`, e `worker.log` com `BullMQ worker started` + `investigation:start` para o incidentId; reiniciar via `PORT=5171 init.sh` (não apenas `pnpm dev`).; Verificar alinhamento Redis: API e worker devem usar o mesmo `REDIS_URL` (6380 publicado); inspecionar jobs via `GET http://127.0.0.1:5171/admin/queues` (incluindo fila `active`), não `docker exec redis-cli` na porta 6379.; Corrigir `TriageIncidentUseCase`: em OSS, se severity passa no threshold e o enqueue para `causeflow-investigation` falhar ou for pulado, falhar o job de triage (não completar silenciosamente); promover log de enqueue para info com `incidentId`.; Endurecer `.harness/ac060-verify.sh`: preflight que falha se investigation worker não estiver vivo e se `causeflow-investigation` não tiver consumer ativo antes do ingest.; Adicionar teste de integração: stub ingest → triage completo → job `causeflow-investigation` com `incidentId` dentro de 2s → worker consome → status sai de `triaging`.
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/d91fb56b-5d48-45ec-b786-137e61a094df/open-source-local-runtime/WI-AC-060-1-qa-02148cdd9cc96f34.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-11T10:31:22.495Z — Resumed
+
+- WorkItem: WI-AC-060
+- PreviousPhase: coding
+- Attempt: 2
+- NextAction: coding
+
+## 2026-07-11T10:48:10.414Z — Resumed
+
+- WorkItem: WI-AC-060
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
+
+## 2026-07-11T10:52:21.662Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-060
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
