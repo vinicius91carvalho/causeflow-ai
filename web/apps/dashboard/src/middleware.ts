@@ -65,7 +65,7 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 // Public routes — mirror the previous Clerk `isPublicRoute` matcher so
 // AC-019/AC-020 behavior is preserved.
 const PUBLIC_ROUTE_PATTERNS: RegExp[] = [
-  /^\/api\/health(\.|$)/,
+  /^\/api\/health/,
   /^\/api\/ingestion\/webhook$/,
   /^\/auth\/?(.*)$/,
   /^\/(en|pt-br)\/auth\/?(.*)$/,
@@ -83,6 +83,11 @@ const PUBLIC_ROUTE_PATTERNS: RegExp[] = [
 
 function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTE_PATTERNS.some((re) => re.test(pathname));
+}
+
+function hasOrganization(payload: Record<string, unknown>): boolean {
+  const tenantId = payload.tenantId ?? payload.tenant_id ?? payload.orgId;
+  return typeof tenantId === 'string' && tenantId.trim() !== '';
 }
 
 function parseAcceptLanguage(header: string): string[] {
@@ -173,7 +178,14 @@ export default async function middleware(request: NextRequest) {
     return expiredResponse;
   }
 
-  // Authenticated — run i18n middleware (locale detection).
+  // Authenticated but no tenant/org — send to create-organization (AC-020).
+  if (!hasOrganization(payload)) {
+    const createOrgUrl = request.nextUrl.clone();
+    createOrgUrl.pathname = '/create-organization';
+    return NextResponse.redirect(createOrgUrl);
+  }
+
+  // Authenticated with org — run i18n middleware (locale detection).
   if (!request.cookies.get(COOKIE_NAME)?.value) {
     const acceptLanguage = request.headers.get('Accept-Language') ?? '';
     const tags = acceptLanguage ? parseAcceptLanguage(acceptLanguage) : [];

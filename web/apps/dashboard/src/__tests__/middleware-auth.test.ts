@@ -8,15 +8,31 @@ import { describe, expect, it } from 'vitest';
  * pure helper logic that can be extracted and tested in isolation.
  */
 
+// Mirror PUBLIC_ROUTE_PATTERNS from middleware.ts (AC-020 / AC-046 OSS semantics).
 const PUBLIC_PATH_PATTERNS = [
-  /^\/api\/auth\//,
-  /^\/auth\//,
-  /^\/(en|pt-br)\/auth\//,
-  /^\/api\/health$/,
+  /^\/api\/health/,
+  /^\/api\/ingestion\/webhook$/,
+  /^\/auth\/?(.*)$/,
+  /^\/(en|pt-br)\/auth\/?(.*)$/,
+  /^\/accept-invitation/,
+  /^\/(en|pt-br)\/accept-invitation/,
+  /^\/beta-waitlist/,
+  /^\/(en|pt-br)\/beta-waitlist/,
+  /^\/waitlist/,
+  /^\/(en|pt-br)\/waitlist/,
+  /^\/create-organization/,
+  /^\/(en|pt-br)\/create-organization/,
+  /^\/$/,
+  /^\/(en|pt-br)\/?$/,
 ];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATH_PATTERNS.some((pattern) => pattern.test(pathname));
+}
+
+function hasOrganization(payload: Record<string, unknown>): boolean {
+  const tenantId = payload.tenantId ?? payload.tenant_id ?? payload.orgId;
+  return typeof tenantId === 'string' && tenantId.trim() !== '';
 }
 
 describe('isPublicPath', () => {
@@ -36,13 +52,29 @@ describe('isPublicPath', () => {
     expect(isPublicPath('/auth/forgot-password')).toBe(true);
   });
 
-  it('marks /api/auth/* as public', () => {
-    expect(isPublicPath('/api/auth/session')).toBe(true);
-    expect(isPublicPath('/api/auth/callback/cognito')).toBe(true);
+  it('does not list /api/auth/* in isPublicRoute (API paths bypass middleware earlier)', () => {
+    expect(isPublicPath('/api/auth/session')).toBe(false);
+    expect(isPublicPath('/api/auth/login')).toBe(false);
   });
 
-  it('marks /api/health as public', () => {
+  it('marks /api/health and /api/health/detailed as public', () => {
     expect(isPublicPath('/api/health')).toBe(true);
+    expect(isPublicPath('/api/health/detailed')).toBe(true);
+  });
+
+  it('marks /api/ingestion/webhook as public', () => {
+    expect(isPublicPath('/api/ingestion/webhook')).toBe(true);
+  });
+
+  it('marks invitation, waitlist, and create-organization routes as public', () => {
+    expect(isPublicPath('/accept-invitation/token')).toBe(true);
+    expect(isPublicPath('/pt-br/accept-invitation/token')).toBe(true);
+    expect(isPublicPath('/beta-waitlist')).toBe(true);
+    expect(isPublicPath('/pt-br/beta-waitlist')).toBe(true);
+    expect(isPublicPath('/waitlist')).toBe(true);
+    expect(isPublicPath('/pt-br/waitlist')).toBe(true);
+    expect(isPublicPath('/create-organization')).toBe(true);
+    expect(isPublicPath('/pt-br/create-organization')).toBe(true);
   });
 
   it('marks /pt-br/auth/sign-in as public', () => {
@@ -63,6 +95,26 @@ describe('isPublicPath', () => {
 
   it('marks /onboarding/complete-profile as protected', () => {
     expect(isPublicPath('/onboarding/complete-profile')).toBe(false);
+  });
+});
+
+describe('hasOrganization (AC-020 org guard)', () => {
+  it('returns false when tenantId, tenant_id, and orgId are absent', () => {
+    expect(hasOrganization({ sub: 'u1', email: 'a@b.com' })).toBe(false);
+  });
+
+  it('returns true when tenantId is set', () => {
+    expect(hasOrganization({ tenantId: 't1' })).toBe(true);
+  });
+
+  it('returns true when tenant_id or orgId is set', () => {
+    expect(hasOrganization({ tenant_id: 't2' })).toBe(true);
+    expect(hasOrganization({ orgId: 'org-1' })).toBe(true);
+  });
+
+  it('returns false for blank tenant identifiers', () => {
+    expect(hasOrganization({ tenantId: '  ' })).toBe(false);
+    expect(hasOrganization({ tenantId: '' })).toBe(false);
   });
 });
 
