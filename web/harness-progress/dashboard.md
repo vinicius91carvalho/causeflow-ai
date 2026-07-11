@@ -663,3 +663,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Outcome: QA failed after Attempt 3
 - Defects: expected Step 1: payment-modal mounts Stripe PaymentElement (via @stripe/react-stripe-js + @stripe/stripe-js loadStripe) when NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set; observed zero @stripe packages in apps/dashboard/package.json and payment-modal.tsx is AC-048 OSS stub with no PaymentElement/loadStripe/@stripe imports (grep -nE PaymentElement|loadStripe|@stripe → zero matches); evidence cli audit apps/dashboard/package.json + apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx; expected Step 3: stripe@20.x in apps/dashboard/package.json devDependencies (not dependencies) and only imported from apps/dashboard/scripts/setup-stripe.ts and delete-user.ts; observed stripe absent from dependencies and devDependencies (grep -nE stripe|@stripe package.json → zero), scripts/ contains only add-credits.ts, setup-stripe.ts and delete-user.ts missing (AC-049); evidence cli audit apps/dashboard/package.json + find apps/dashboard/scripts
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-11T20:09:28.015Z — Explicit Resume
+
+- WorkItem: WI-AC-031
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: worker process exited; resume context after confirming worktree is healthy.
+- NextAction: Coding Attempt 1
