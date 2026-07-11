@@ -53,6 +53,17 @@ const clientCache = new Map();
 
 /** Test seam: override dynamic SDK imports without referencing @aws-sdk in tests (AC-050). */
 type AwsSdkModule = Record<string, unknown>;
+type AwsClientInstance = { send: (command: unknown) => Promise<Record<string, unknown>> };
+type AwsClientConstructor = new (config: {
+    region: string;
+    credentials: {
+        accessKeyId?: string;
+        secretAccessKey?: string;
+        sessionToken?: string;
+    };
+}) => AwsClientInstance;
+type AwsCommandConstructor = new (input: Record<string, unknown>) => unknown;
+
 let testSdkImportFn: ((pkg: string) => Promise<AwsSdkModule>) | undefined;
 
 export function setAwsSdkImportForTests(
@@ -67,6 +78,21 @@ async function loadSdkModule(pkg: string): Promise<AwsSdkModule> {
     }
     return import(pkg);
 }
+
+function asClientConstructor(value: unknown, label: string): AwsClientConstructor {
+    if (typeof value !== 'function') {
+        throw new Error(`${label} is not constructable`);
+    }
+    return value as AwsClientConstructor;
+}
+
+function asCommandConstructor(value: unknown, label: string): AwsCommandConstructor {
+    if (typeof value !== 'function') {
+        throw new Error(`${label} is not constructable`);
+    }
+    return value as AwsCommandConstructor;
+}
+
 function buildCacheKey(service: string, region: string, accessKeyId: string) {
     return `${service}:${region}:${accessKeyId}`;
 }
@@ -75,10 +101,7 @@ async function resolveClient(service: string, credentials: CloudCredentials) {
     const cacheKey = buildCacheKey(service, credentials.region, credentials.credentials['accessKeyId'] ?? '');
     // Dynamic import of the SDK package
     const mod = await loadSdkModule(entry.pkg);
-    const ClientClass = mod[entry.client];
-    if (!ClientClass) {
-        throw new Error(`Client class "${entry.client}" not found in package "${entry.pkg}"`);
-    }
+    const ClientClass = asClientConstructor(mod[entry.client], `Client class "${entry.client}"`);
     let client = clientCache.get(cacheKey);
     if (!client) {
         client = new ClientClass({
@@ -118,13 +141,13 @@ export function createAwsApiToolHandler(credentials: CloudCredentials): (name: s
         const mod = await loadSdkModule(entry.pkg);
         // Find the command class: {Action}Command
         const commandName = `${validated.action}Command`;
-        const CommandClass = mod[commandName];
-        if (!CommandClass) {
+        if (mod[commandName] == null) {
             throw new Error(`Unknown action "${validated.action}" for service "${validated.service}". Command "${commandName}" not found in SDK package.`);
         }
+        const CommandClass = asCommandConstructor(mod[commandName], `Command "${commandName}"`);
         // Get or create client
-        const ClientClass = mod[entry.client];
-        let client = clientCache.get(cacheKey);
+        const ClientClass = asClientConstructor(mod[entry.client], `Client class "${entry.client}"`);
+        let client = clientCache.get(cacheKey) as AwsClientInstance | undefined;
         if (!client) {
             client = new ClientClass({
                 region,
