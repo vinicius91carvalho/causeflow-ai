@@ -449,3 +449,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - RepairPlan: All five QA defects are valid against committed HEAD: WI-AC-022 was never integrated (only harness checkpoint commits landed). The full credits implementation exists only as uncommitted working-tree changes; local harness verify already passes when run against that tree.; Commit the complete uncommitted AC-022 delta: packages/shared plans.ts + index + plans.test.ts; apps/dashboard credits-ledger.ts; incidents-create-handler.ts; incidents/route.ts POST export; metrics-handler resolveCredits wiring; analyses-handler consumeCredit gate; subscription-handler + plan-status + with-auth/session-auth if required for OSS auth path.; Rebuild and restart the dashboard BFF on the harness PORT (5170) so integration QA does not serve stale pre-implementation bundles.; Re-run .harness/ac022-verify.mjs and pnpm turbo test for @causeflow/shared and dashboard billing/investigation handlers; fix any failures before re-QA.; If Step 1 strictness is required, either extend getCreditsForPlan to accept 'free' returning 3 or document FREE_PLAN_MONTHLY_CREDITS as the free-plan accessor in AC-022 Step 1 (current harness verifier already checks the constant).; Wire consumeCredit on every incident-creation path (POST /api/incidents primary; keep POST /api/analyses gated to prevent bypass).
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/e76f109e-3a6b-4eb3-8f27-aac4cd0197e9/dashboard/WI-AC-022-1-integration_qa-21154607d3d378a7.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-11T10:14:35.457Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-022
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
