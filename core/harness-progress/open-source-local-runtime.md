@@ -6507,3 +6507,11 @@ No defects found. integration=true set in feature_list.json.
 - WorkItem: WI-AC-060
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T11:42:23.474Z — Integrated Verification defect
+
+- Attempt: 3/3
+- WorkItem: WI-AC-060
+- Defects: expected `.harness/ac060-verify.sh` to exit 0 with triage severity, SSE investigation_progress/completion events, model-backed chat, root-cause hypothesis referencing causeflow-test-app, and ≥1 remediation proposal; observed run2 reached `awaiting_approval` (severity=critical, 19 SSE events, chat HTTP 200) then failed at step 6 with `FAIL: root cause is an error placeholder`; evidence `/tmp/wi-ac060-iv-run2.log`, incident `bf442789-3faf-4953-9c29-c48e3407b4af`; expected incident to remain `awaiting_approval` with synthesis root cause after REST chat; observed Postgres row flips to `failed` with `rootCause=Incident bf442789-3faf-4953-9c29-c48e3407b4af cannot be investigated (status: failed)` immediately after chat; evidence `docker exec core-causeflow-postgres-1 psql … entity_id=bf442789-3faf-4953-9c29-c48e3407b4af`, `worker.log` lines 672-708; expected BullMQ followup jobs enqueued by chat (`mode:followup`, job id 121) to skip re-investigation of terminal incidents; observed `investigation-worker.ts` BullMQ handler always calls `investigateIncident.execute()` ignoring `body.mode`, throwing `IncidentNotInvestigatableError` for `status: awaiting_approval` and clobbering rootCause via error handler; evidence `worker.log` jobId=121 at 08:41:58
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/359688da-6999-44c2-8343-7c9ba168c2be/open-source-local-runtime/WI-AC-060-3-integration_qa-566e3cbe1a9ee717.log
+- NextAction: Repair Plan
