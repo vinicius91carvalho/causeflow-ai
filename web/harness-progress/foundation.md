@@ -5067,3 +5067,10 @@ The repair is in how QA runs the check, not in the code under test.
 - Outcome: user authorized a new Attempt cycle
 - Guidance: WI-AC-006 Integrated Verification failed after Attempt 3 — fix from FINAL evidence logs (not SKIP_WEB_SERVER workarounds):
 - NextAction: Coding Attempt 1
+
+## 2026-07-11T08:13:33.178Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-006
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
