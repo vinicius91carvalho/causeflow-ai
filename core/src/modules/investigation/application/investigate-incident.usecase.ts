@@ -72,6 +72,8 @@ export interface InvestigateIncidentDeps {
     selectSkills?: SelectSkillsUseCase;
     hypothesisRepo?: IHypothesisRepository;
     circuitBreaker?: { getState(): CircuitState; onFailure(): void };
+    /** AC-057: optional hook to persist stub-upstream probe evidence on the incident. */
+    persistStubUpstreamEvidence?: (tenantId: TenantId, incidentId: IncidentId) => Promise<void>;
 }
 
 /**
@@ -323,6 +325,7 @@ export class InvestigateIncidentUseCase {
     selectSkills;
     hypothesisRepo;
     circuitBreaker;
+    persistStubUpstreamEvidence;
     constructor(deps: InvestigateIncidentDeps) {
         this.incidentRepo = deps.incidentRepo;
         this.evidenceRepo = deps.evidenceRepo;
@@ -343,6 +346,7 @@ export class InvestigateIncidentUseCase {
         this.selectSkills = deps.selectSkills;
         this.hypothesisRepo = deps.hypothesisRepo;
         this.circuitBreaker = deps.circuitBreaker;
+        this.persistStubUpstreamEvidence = deps.persistStubUpstreamEvidence;
     }
 
     private isCircuitBreakerFailure(err: unknown): boolean {
@@ -362,6 +366,39 @@ export class InvestigateIncidentUseCase {
     private failClosedIfLocalLlmMode(incidentId: IncidentId, reason = LOCAL_LLM_UNAVAILABLE_MESSAGE): void {
         if (isLocalLlmFailClosedMode()) {
             throw new InvestigationFailedError(String(incidentId), reason);
+        }
+    }
+
+    /** AC-057: persist attributable Ornith/local LLM completion evidence on the incident. */
+    private async persistLlmCompletionEvidence(params: {
+        tenantId: TenantId;
+        incidentId: IncidentId;
+        model: string;
+        phase: 'synthesis' | 'investigation';
+        agentRole: SubAgentResult['agentRole'];
+        content: string;
+    }): Promise<void> {
+        try {
+            await this.evidenceRepo.create({
+                tenantId: params.tenantId,
+                incidentId: params.incidentId,
+                evidenceId: evidenceId(uuidv4()),
+                agentRole: params.agentRole,
+                evidenceType: 'agent_reasoning',
+                content: params.content,
+                metadata: {
+                    source: 'llm_completion',
+                    llmModel: params.model,
+                    llmConnector: 'local',
+                    phase: params.phase,
+                },
+                createdAt: new Date().toISOString(),
+            });
+        } catch (err) {
+            logger.warn(
+                { err, incidentId: params.incidentId, model: params.model, phase: params.phase },
+                'Failed to persist LLM completion evidence — non-critical',
+            );
         }
     }
 
@@ -505,6 +542,14 @@ export class InvestigateIncidentUseCase {
                     if (bad.length > 0) invalidRefs.push({ finding: f.text, badIds: bad });
                 }
                 if (invalidRefs.length === 0) {
+                    await this.persistLlmCompletionEvidence({
+                        tenantId: params.tenantId,
+                        incidentId: params.incidentId,
+                        model: completion.model,
+                        phase: 'synthesis',
+                        agentRole: 'orchestrator',
+                        content: `Investigation synthesis completed via ${completion.model}`,
+                    });
                     return { result: parsed, costUsd: totalCost, evidences };
                 }
 
@@ -748,6 +793,17 @@ export class InvestigateIncidentUseCase {
                 throw new InvestigationFailedError(
                     String(incidentId),
                     err instanceof Error ? err.message : LOCAL_LLM_UNAVAILABLE_MESSAGE,
+                );
+            }
+        }
+        // AC-057: attach stub-upstream probe evidence when the tenant has a connection.
+        if (this.persistStubUpstreamEvidence) {
+            try {
+                await this.persistStubUpstreamEvidence(tenantId, incidentId);
+            } catch (err) {
+                logger.warn(
+                    { err, incidentId, tenantId },
+                    'Failed to persist stub-upstream probe evidence — non-critical',
                 );
             }
         }
@@ -1272,6 +1328,14 @@ ${findingsSummary}`;
             });
             investigationResult = completion.content as InvestigationResult;
             synthesisCostUsd = completion.costUsd;
+            await this.persistLlmCompletionEvidence({
+                tenantId,
+                incidentId,
+                model: completion.model,
+                phase: 'synthesis',
+                agentRole: 'orchestrator',
+                content: `Investigation synthesis completed via ${completion.model}`,
+            });
         }
         catch (err) {
             if (isLocalLlmFailClosedMode() || this.isCircuitBreakerFailure(err)) {

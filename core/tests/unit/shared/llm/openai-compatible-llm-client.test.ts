@@ -21,6 +21,25 @@ describe('extractJsonObject', () => {
     const raw = 'Here is the result: {"priority":"high","summary":"cpu"} end';
     expect(JSON.parse(extractJsonObject(raw))).toEqual({ priority: 'high', summary: 'cpu' });
   });
+
+  it('extracts JSON from Ornith thinking tags and markdown fences', () => {
+    const raw = `<think>reasoning</think>
+
+\`\`\`json
+{
+  "priority": "high",
+  "summary": "cpu spike",
+  "suggestedAgents": ["log_analyst"],
+  "confidence": 0.9,
+  "category": "application",
+  "investigationMode": "orchestrator"
+}
+\`\`\``;
+    expect(JSON.parse(extractJsonObject(raw))).toMatchObject({
+      priority: 'high',
+      suggestedAgents: ['log_analyst'],
+    });
+  });
 });
 
 describe('OpenAiCompatibleLlmClient', () => {

@@ -207,6 +207,17 @@ async function workerBootstrap(ossMode?: boolean) {
     // Skills
     // skillRepo is already set in the OSS-aware block above
     const selectSkills = new SelectSkillsUseCase(skillRepo, llmClient as unknown as LLMClient);
+    // AC-057: persist stub-upstream probe evidence during investigation (OSS worker).
+    let persistStubUpstreamEvidence: ((tenantId: import('../shared/domain/value-objects.js').TenantId, incidentId: import('../shared/domain/value-objects.js').IncidentId) => Promise<void>) | undefined;
+    if (useOssRepos) {
+        const { PgIntegrationRepository } = await import('../modules/integration/infra/pg-integration.repository.js');
+        const integrationRepo = new PgIntegrationRepository();
+        const { PersistStubProbeEvidenceUseCase } = await import('../modules/integration/application/persist-stub-probe-evidence.usecase.js');
+        const persistStubProbeEvidence = new PersistStubProbeEvidenceUseCase(integrationRepo, evidenceRepo);
+        persistStubUpstreamEvidence = async (tenantId, incidentId) => {
+            await persistStubProbeEvidence.execute({ tenantId, incidentId });
+        };
+    }
     // Investigation Use Case
     const investigateIncident = new InvestigateIncidentUseCase({
         incidentRepo: incidentRepo as unknown as IIncidentRepository,
@@ -227,6 +238,7 @@ async function workerBootstrap(ossMode?: boolean) {
         selectSkills,
         hypothesisRepo,
         circuitBreaker: anthropicCircuitBreaker,
+        persistStubUpstreamEvidence,
     });
     // Billing — refund on failure
     // billingAccountRepo is already set in the OSS-aware block above

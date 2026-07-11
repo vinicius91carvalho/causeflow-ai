@@ -127,7 +127,8 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
 
 /** Pull the first JSON object from model output (handles thinking tags / prose wrappers). */
 export function extractJsonObject(text: string): string {
-  const trimmed = text.trim();
+  const stripped = stripLlmWrappers(text);
+  const trimmed = stripped.trim();
   if (trimmed.startsWith('{')) {
     const end = findMatchingBrace(trimmed);
     if (end > 0) return trimmed.slice(0, end + 1);
@@ -138,6 +139,18 @@ export function extractJsonObject(text: string): string {
     return trimmed.slice(start, start + end + 1);
   }
   throw new Error('Local LLM response did not contain a JSON object');
+}
+
+/** Remove Ornith/llama thinking blocks and markdown JSON fences before parsing. */
+function stripLlmWrappers(text: string): string {
+  let out = text;
+  out = out.replace(/<think>[\s\S]*?<\/redacted_thinking>/gi, '');
+  out = out.replace(/[\s\S]*?<\/think>/gi, '');
+  const fenced = out.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenced?.[1]) {
+    return fenced[1];
+  }
+  return out;
 }
 
 function findMatchingBrace(text: string): number {
