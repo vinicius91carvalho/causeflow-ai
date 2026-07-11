@@ -500,6 +500,24 @@ export class MockApiClient implements ICoreApiClient {
     });
   }
 
+  enableStubConnector(body: { provider: string }): Promise<{
+    integrationId: string;
+    provider: string;
+    status: string;
+    stubBaseUrl: string;
+    linkedTo: string;
+    connectedAt: string;
+  }> {
+    return ok({
+      integrationId: `${body.provider}-stub-credential`,
+      provider: body.provider,
+      status: 'active',
+      stubBaseUrl: 'http://127.0.0.1:5190',
+      linkedTo: 'stub-upstream',
+      connectedAt: new Date().toISOString(),
+    });
+  }
+
   disconnectCredential(_type: string): Promise<any> {
     return ok({ success: true });
   }

@@ -58,10 +58,10 @@ test.describe('AC-055 — Core stub connector connect', () => {
 
     const stubCard = page.getByTestId('stub-upstream-card');
     await expect(stubCard).toBeVisible({ timeout: 30_000 });
-    await expect(stubCard.getByText('Stub Upstream (OSS)')).toBeVisible();
+    await expect(stubCard.getByText('Test Application (OSS)')).toBeVisible();
 
     // Connect against Core stub — real network to BFF → Core → stub upstream.
-    await stubCard.getByRole('button', { name: /Connect Stub Upstream/i }).click();
+    await stubCard.getByRole('button', { name: /Connect Test Application/i }).click();
 
     // UI shows connected/ready after Core persists the stub record.
     await expect(stubCard.getByText('Connected', { exact: true })).toBeVisible({

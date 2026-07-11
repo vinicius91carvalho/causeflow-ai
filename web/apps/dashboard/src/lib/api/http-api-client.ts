@@ -557,6 +557,21 @@ export class HttpApiClient implements ICoreApiClient {
     });
   }
 
+  // Integrations — OSS enable additional connector against test app (AC-058)
+  async enableStubConnector(body: { provider: string }): Promise<{
+    integrationId: string;
+    provider: string;
+    status: string;
+    stubBaseUrl: string;
+    linkedTo: string;
+    connectedAt: string;
+  }> {
+    return this.request('/v1/integrations/stub/enable', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
   // Integrations — disconnect credential (AWS)
   async disconnectCredential(type: string): Promise<any> {
     return this.request(`/v1/integrations/credentials/${encodeURIComponent(type)}`, {

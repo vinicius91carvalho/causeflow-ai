@@ -193,6 +193,19 @@ export interface ICoreApiClient {
     connectedAt: string;
   }>;
 
+  /**
+   * OSS additional connector against the connected test app (AC-058).
+   * POSTs to Core `POST /v1/integrations/stub/enable` (not Composio).
+   */
+  enableStubConnector(body: { provider: string }): Promise<{
+    integrationId: string;
+    provider: string;
+    status: string;
+    stubBaseUrl: string;
+    linkedTo: string;
+    connectedAt: string;
+  }>;
+
   // Legacy aliases
   connectIntegration(body: { type: string; [key: string]: unknown }): Promise<any>;
   getOAuthAuthorizeUrl(provider: string): Promise<string>;

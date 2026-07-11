@@ -149,6 +149,7 @@ import { SlackNotificationRepository } from './modules/integration/infra/slack-n
 import { SlackNotificationSubscriber } from './shared/application/subscribers/slack-notification.subscriber.js';
 import { FinalizeConnectionUseCase } from './modules/integration/application/finalize-connection.usecase.js';
 import { ConnectStubIntegrationUseCase } from './modules/integration/application/connect-stub-integration.usecase.js';
+import { EnableStubConnectorUseCase } from './modules/integration/application/enable-stub-connector.usecase.js';
 import { ProbeStubIntegrationUseCase } from './modules/integration/application/probe-stub-integration.usecase.js';
 import { IngestViaStubIntegrationUseCase } from './modules/integration/application/ingest-via-stub-integration.usecase.js';
 import { DynamoBillingAccountRepository } from './modules/billing/infra/dynamo-billing-account.repository.js';
@@ -734,9 +735,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     const integrationRepo = ossIntegrationRepo ?? new PgIntegrationRepository();
     listAllIntegrations = new ListAllIntegrationsUseCase(integrationRepo);
     const connectStub = new ConnectStubIntegrationUseCase(integrationRepo, eventBus);
+    const enableStubConnector = new EnableStubConnectorUseCase(integrationRepo, eventBus);
     const probeStub = new ProbeStubIntegrationUseCase(integrationRepo);
     const ingestViaStub = new IngestViaStubIntegrationUseCase(integrationRepo);
-    stubRouteDeps = { connectStub, probeStub, ingestViaStub };
+    stubRouteDeps = { connectStub, enableStubConnector, probeStub, ingestViaStub };
   } else {
     listAllIntegrations = new ListAllIntegrationsUseCase();
   }

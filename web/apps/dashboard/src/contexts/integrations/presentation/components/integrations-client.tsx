@@ -283,11 +283,17 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
     const provider = catalog.find((p) => p.id === id);
     if (!provider) return;
 
-    // OSS stub upstream — Core-owned mock/test-app connector (AC-055).
+    // OSS test application — Core-owned runnable mock (AC-055 / AC-058).
     // One-click connect via BFF → Core POST /v1/integrations/stub/connect.
     // Never opens Composio and never uses Playwright page.route fakes.
     if (id === 'stub-upstream') {
       void handleStubConnect();
+      return;
+    }
+
+    // OSS Datadog stub — additional connector against the test app (AC-058).
+    if (id === 'datadog' && catalog.find((p) => p.id === 'datadog')?.type === 'credential') {
+      void handleStubEnable('datadog');
       return;
     }
 
@@ -325,7 +331,33 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
         addToast(t('connectErrorToast', { message }), 'error');
         return;
       }
-      addToast(t('connectedToast', { provider: 'Stub Upstream (OSS)' }), 'success');
+      addToast(t('connectedToast', { provider: 'Test Application (OSS)' }), 'success');
+      await fetchIntegrations();
+    } catch {
+      addToast(t('connectErrorToast', { message: 'network error' }), 'error');
+    }
+  }
+
+  async function handleStubEnable(provider: string) {
+    try {
+      const res = await fetch('/api/integrations/stub/enable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider }),
+      });
+      if (!res.ok) {
+        let message = `Failed to enable ${provider} stub connector (HTTP ${res.status})`;
+        try {
+          const data = (await res.json()) as { error?: string };
+          if (data.error) message = data.error;
+        } catch {
+          // keep default
+        }
+        addToast(t('connectErrorToast', { message }), 'error');
+        return;
+      }
+      const label = provider === 'datadog' ? 'Datadog (OSS stub)' : provider;
+      addToast(t('connectedToast', { provider: label }), 'success');
       await fetchIntegrations();
     } catch {
       addToast(t('connectErrorToast', { message: 'network error' }), 'error');
@@ -530,6 +562,14 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
             if (card.id === 'stub-upstream') {
               return (
                 <div key={card.id} data-testid="stub-upstream-card">
+                  {cardEl}
+                </div>
+              );
+            }
+
+            if (card.id === 'datadog' && card.type === 'credential') {
+              return (
+                <div key={card.id} data-testid="stub-datadog-card">
                   {cardEl}
                 </div>
               );

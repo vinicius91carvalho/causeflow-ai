@@ -73,7 +73,7 @@ export class ConnectStubIntegrationUseCase {
       provider: 'stub-upstream',
       category: 'monitoring',
       status: 'active',
-      displayName: 'Stub Upstream (OSS)',
+      displayName: 'Test Application (OSS)',
       config: {
         stubBaseUrl,
         coreBaseUrl,
