@@ -5091,3 +5091,10 @@ The repair is in how QA runs the check, not in the code under test.
 - RepairPlan: WI-AC-006 fails before any test executes because committed playwright.config.ts unconditionally starts a dashboard webServer (probe hangs on 127.0.0.1:3001 due to 307→localhost redirect), binds the website server to harness PORT=5172 instead of AC-006's fixed :3000, and always registers dashboard Playwright projects whose committed specs still import removed @clerk/testing/playwright. Partial fixes exist uncommitted in the worktree but were not on the branch when integration QA ran.; Commit and merge the uncommitted playwright.config.ts changes: derive website port from PLAYWRIGHT_WEBSITE_PORT defaulting to 3000, start website with explicit `-p ${websitePort}` and `PORT=${websitePort}` so harness PORT cannot override AC-006; Gate dashboard webServer and all dashboard/e2e/review Playwright projects behind PLAYWRIGHT_DASHBOARD_WEBSERVER=1 so foundation `pnpm exec playwright test tests/` only needs the website server and the four viewport projects; When dashboard webServer is enabled, probe `${dashboardURL}/api/health` instead of dashboard root `/` to avoid localhost redirect failure; Commit dashboard spec migrations: remove @clerk/testing/playwright from tests/dashboard/dashboard-overview.spec.ts, rbac-member-read.spec.ts, and integrations-composio.spec.ts; use dashboard-authed storageState or local JWT cookie pattern (already drafted in worktree); Re-run INTEGRATION_QA with default harness PORT=5172 and no SKIP_WEB_SERVER override
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bcaa3315-1fdf-462e-b406-249a4f274399/foundation/WI-AC-006-1-integration_qa-dd370c58a9ec74b4.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-11T08:27:03.263Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-006
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
