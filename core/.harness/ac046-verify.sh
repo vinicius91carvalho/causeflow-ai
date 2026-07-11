@@ -106,7 +106,9 @@ INCIDENT_ID2=$(echo "$WH2_BODY" | python3 -c 'import sys,json; d=json.load(sys.s
 DEDUPED=$(echo "$WH2_BODY" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("deduplicated") or d.get("duplicate") or "")')
 log "dedup ok incidentId=$INCIDENT_ID2 deduplicated=$DEDUPED"
 
-# 4. Poll until triage sets severity + investigation completes (AC-017 / AC-019 / AC-020)
+# 4. Poll until triage sets severity + investigation completes (AC-017 / AC-019 / AC-020).
+# Do not abort on a transient status=failed — wait for succeeded/resolved/awaiting_approval
+# (or timeout) so hypotheses + Hindsight recall can still be verified.
 SEVERITY=""
 FINAL_STATUS=""
 for i in $(seq 1 120); do
@@ -116,8 +118,8 @@ for i in $(seq 1 120); do
   SEV=$(echo "$RESP" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("incident",{}).get("severity",""))' 2>/dev/null || true)
   if [ -n "$SEV" ] && [ "$SEV" != "null" ]; then SEVERITY="$SEV"; fi
   log "poll $i run_status=$STATUS incident_status=$INC_STATUS severity=$SEV"
-  if [ "$STATUS" = "succeeded" ] || [ "$STATUS" = "failed" ] || [ "$INC_STATUS" = "resolved" ] || [ "$INC_STATUS" = "failed" ]; then
-    FINAL_STATUS="$STATUS"
+  if [ "$STATUS" = "succeeded" ] || [ "$INC_STATUS" = "resolved" ] || [ "$INC_STATUS" = "awaiting_approval" ]; then
+    FINAL_STATUS="${STATUS:-$INC_STATUS}"
     sleep 3
     break
   fi

@@ -962,10 +962,11 @@
     "acceptance_checks": ["AC-046"],
     "depends_on": ["AC-040", "AC-041", "AC-042", "AC-045"],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "status": "integrated"
   },
   {
     "id": "WI-AC-047",
