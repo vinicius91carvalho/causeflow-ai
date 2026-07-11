@@ -26,6 +26,29 @@ WORKER_PID_FILE="${HARNESS_DIR}/worker.pid"
 
 mkdir -p "$HARNESS_DIR"
 
+# Host-dev .env.dev: copy from .env.example when missing, then rewrite docker
+# service hostnames to published localhost ports (AC-060 / TOKEN_ENCRYPTION_KEY).
+ensure_env_dev() {
+  if [ ! -f .env.dev ]; then
+    if [ ! -f .env.example ]; then
+      echo "ERROR: .env.dev missing and .env.example not found — cannot boot host worker" >&2
+      exit 1
+    fi
+    cp .env.example .env.dev
+    # Host-dev talks to compose-published ports, not in-network DNS names.
+    sed -i \
+      -e 's|@causeflow-postgres:5432|@127.0.0.1:5439|g' \
+      -e 's|redis://redis:6379|redis://127.0.0.1:6380|g' \
+      -e 's|http://hindsight:8888|http://127.0.0.1:8888|g' \
+      .env.dev
+    echo "Created .env.dev from .env.example (host-dev Postgres/Redis/Hindsight URLs)"
+  fi
+  if ! grep -qE '^TOKEN_ENCRYPTION_KEY=.+' .env.dev; then
+    echo "ERROR: TOKEN_ENCRYPTION_KEY unset in .env.dev — AesGcmTokenEncryption requires it before starting the investigation worker" >&2
+    exit 1
+  fi
+}
+
 worker_alive() {
   if [ -f "$WORKER_PID_FILE" ]; then
     local pid
@@ -43,6 +66,7 @@ start_worker() {
     echo "Investigation worker already running"
     return 0
   fi
+  ensure_env_dev
   export PORT
   export CAUSEFLOW_RUNTIME="${CAUSEFLOW_RUNTIME:-oss}"
   # Host-dev worker shares .env.dev (Postgres/Redis on published ports).
@@ -75,6 +99,8 @@ health_code() {
   # and the fallback would concatenate to "000000".
   curl -s -o /dev/null -w '%{http_code}' --max-time 2 "$HEALTH_URL" 2>/dev/null || true
 }
+
+ensure_env_dev
 
 EXISTING_CODE="$(health_code)"
 if [ "$EXISTING_CODE" = "200" ] || [ "$EXISTING_CODE" = "503" ]; then

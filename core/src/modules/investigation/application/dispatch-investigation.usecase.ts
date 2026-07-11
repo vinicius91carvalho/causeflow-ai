@@ -1,6 +1,7 @@
 import { logger } from '../../../shared/infra/logger.js';
 import { NotFoundError } from '../../../shared/domain/errors.js';
 import { DEFAULT_INVESTIGATION_MODE } from './modes/types.js';
+import { usesLocalLlmConnector } from '../../../shared/infra/llm/llm-factory.js';
 import type { IIncidentRepository } from '../../ingestion/domain/incident.repository.js';
 import type { InvestigationInput, InvestigationResult } from '../domain/investigation.types.js';
 import type { InvestigationMode, InvestigationModeName } from './modes/types.js';
@@ -36,7 +37,19 @@ export class DispatchInvestigationUseCase {
             throw new NotFoundError('Incident', input.incidentId);
         }
 
-        const modeName: InvestigationModeName = incident.investigationMode ?? DEFAULT_INVESTIGATION_MODE;
+        let modeName: InvestigationModeName = incident.investigationMode ?? DEFAULT_INVESTIGATION_MODE;
+        // AC-060 safety net: local Ornith cannot reliably run debate/hypothesis
+        // seeker schemas — fall back to orchestrator for the OSS golden path.
+        if (
+            usesLocalLlmConnector() &&
+            (modeName === 'debate' || modeName === 'hypothesis')
+        ) {
+            logger.info(
+                { incidentId: input.incidentId, from: modeName, to: 'orchestrator' },
+                'Local LLM investigation — coercing mode to orchestrator',
+            );
+            modeName = 'orchestrator';
+        }
         const mode = this.deps.registry.get(modeName);
 
         logger.info(

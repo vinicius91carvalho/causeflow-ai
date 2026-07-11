@@ -197,6 +197,21 @@ export class TriageIncidentUseCase {
                 };
             }
 
+            // AC-060: Ornith/local 9B models are unreliable on hypothesis/debate
+            // seeker schemas (missing `hypotheses`). Keep the OSS golden path on
+            // orchestrator mode so triage → investigation → remediation completes.
+            if (usesLocalLlmConnector() && result.investigationMode !== 'orchestrator') {
+                logger.info(
+                    {
+                        incidentId,
+                        from: result.investigationMode,
+                        to: 'orchestrator',
+                    },
+                    'Local LLM triage — coercing investigationMode to orchestrator',
+                );
+                result = { ...result, investigationMode: 'orchestrator' };
+            }
+
             await this.incidentRepo.update(tenantId, incidentId, {
                 severity: result.priority,
                 assignedAgents: result.suggestedAgents,
