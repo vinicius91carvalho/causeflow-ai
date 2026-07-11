@@ -5060,3 +5060,10 @@ The repair is in how QA runs the check, not in the code under test.
 - Outcome: Integrated Verification failed after Attempt 3
 - Defects: expected `pnpm exec playwright test tests/` to exit 0 with webServer auto-start; observed `Error: Timed out waiting 30000ms from config.webServer` because the dashboard webServer health probe at `http://127.0.0.1:3001/` never becomes ready (server returns 307 to `http://localhost:3001/`, probe hangs until timeout); evidence `DEBUG=pw:webserver` run ending with `Timed out waiting 30000ms from config.webServer`; expected webServer website bind on port 3000 when harness sets PORT=5172; observed Next.js honors PORT=5172 (`Local: http://127.0.0.1:5172`) while playwright.config.ts probes `http://127.0.0.1:3000`; evidence manual `next start` with PORT=5172 in environment; expected AC Step 1 green report without manual server workaround; observed 119 passed / 5 skipped only when website was manually started on PORT=3000 with `SKIP_WEB_SERVER=1`; default command never reached test execution
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-11T08:08:43.987Z — Explicit Resume
+
+- WorkItem: WI-AC-006
+- Outcome: user authorized a new Attempt cycle
+- Guidance: WI-AC-006 Integrated Verification failed after Attempt 3 — fix from FINAL evidence logs (not SKIP_WEB_SERVER workarounds):
+- NextAction: Coding Attempt 1
