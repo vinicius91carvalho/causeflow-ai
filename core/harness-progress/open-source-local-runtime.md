@@ -6397,3 +6397,10 @@ No defects found. integration=true set in feature_list.json.
 - PreviousPhase: qa
 - Attempt: 1
 - NextAction: qa
+
+## 2026-07-11T10:24:07.799Z — Resumed
+
+- WorkItem: WI-AC-060
+- PreviousPhase: repair_plan
+- Attempt: 1
+- NextAction: repair-plan
