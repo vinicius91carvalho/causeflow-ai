@@ -97,6 +97,7 @@ services:
       HINDSIGHT_API_KEY: ${HINDSIGHT_API_KEY:-}
       JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-oss-dev-webhook-secret}
+      TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
       - '3099:5171'
@@ -169,6 +170,8 @@ services:
       CORE_API_URL: http://causeflow-api:5171
       # Shared with the Core container — the Core signs JWTs with this secret.
       JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}
+      # OSS plan-gate + stub billing (AC-048).
+      CAUSEFLOW_RUNTIME: oss
       # Optional analytics — blank = no-op, no outbound calls.
       NEXT_PUBLIC_GA4_MEASUREMENT_ID: ${NEXT_PUBLIC_GA4_MEASUREMENT_ID:-}
       NEXT_PUBLIC_CLARITY_ID: ${NEXT_PUBLIC_CLARITY_ID:-}

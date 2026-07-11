@@ -5,9 +5,19 @@ import { describe, expect, it } from 'vitest';
 const source = readFileSync(resolve(__dirname, 'payment-modal.tsx'), 'utf-8');
 
 describe('payment-modal', () => {
-  it('uses cleric DS primary color for Stripe Elements (no hardcoded emerald)', () => {
-    expect(source).not.toContain('#059669');
-    expect(source).toContain('hsl(232');
+  it('does not mount a Stripe payment element', () => {
+    expect(source).not.toMatch(/PaymentElement/);
+    expect(source).not.toMatch(/loadStripe/);
+    expect(source).not.toMatch(/useStripe/);
+    expect(source).not.toMatch(/from ['"]@str/);
+  });
+
+  it('renders Billing disabled in OSS build panel', () => {
+    expect(source).toContain('Billing disabled in OSS build');
+  });
+
+  it('POSTs to /api/billing/checkout', () => {
+    expect(source).toContain('/api/billing/checkout');
   });
 
   it('exports PaymentModal component', () => {

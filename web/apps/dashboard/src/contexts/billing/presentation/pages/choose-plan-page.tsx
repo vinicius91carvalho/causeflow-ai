@@ -120,14 +120,14 @@ export default function ChoosePlanPage() {
     void fetch('/api/onboarding/complete-profile', { method: 'POST', body: JSON.stringify({}) });
   }, []);
 
-  // If user already has a Stripe-backed active subscription, bounce admins
-  // straight to /dashboard (the dashboard layout re-verifies via Core API).
-  // Non-admins see an explanatory screen — only admins configure billing.
+  // If user already has an active subscription (Stripe-backed, or OSS free
+  // stub from Core AC-043), bounce admins to /dashboard. Non-admins see an
+  // explanatory screen — only admins configure billing.
   //
-  // IMPORTANT: the Core API defaults `subscriptionStatus` to "active" for fresh
-  // tenants that have never touched Stripe. We must also require
-  // `hasStripeCustomer: true` before treating the subscription as real —
-  // otherwise every new tenant would skip the plan gate on first visit.
+  // Commercial: require hasStripeCustomer so fresh tenants with the Core
+  // default status=active do not skip the plan gate.
+  // OSS (AC-048): Core returns { plan: 'free', status: 'active' } with no
+  // Stripe customer — treat that as active and send users to /dashboard.
   useEffect(() => {
     let cancelled = false;
     async function checkSubscription() {
@@ -136,11 +136,15 @@ export default function ChoosePlanPage() {
         if (cancelled) return;
         if (res.ok) {
           const data = await res.json();
-          const sub = data.subscriptionStatus;
+          const sub = data.subscriptionStatus ?? data.status;
+          const plan = data.plan as string | undefined;
           const hasStripeCustomer = Boolean(data.hasStripeCustomer);
-          const isRealActive = (sub === 'active' || sub === 'trialing') && hasStripeCustomer;
+          const isOssFreeActive =
+            plan === 'free' && (sub === 'active' || sub === 'trialing') && !hasStripeCustomer;
+          const isRealActive =
+            isOssFreeActive || ((sub === 'active' || sub === 'trialing') && hasStripeCustomer);
           if (isRealActive) {
-            if (isAdmin) {
+            if (isAdmin || isOssFreeActive) {
               window.location.replace('/dashboard');
             } else {
               setNotAdmin(true);
@@ -189,10 +193,16 @@ export default function ChoosePlanPage() {
       const json = (await res.json()) as { url?: string; error?: string };
       if (res.ok && json.url) {
         window.location.href = json.url;
-      } else {
-        setError(json.error ?? t('error'));
-        setLoadingPlan(null);
+        return;
       }
+      // OSS (AC-048): Core StubBillingService returns 410 — send the user to
+      // the billing page (or dashboard) instead of trapping them here.
+      if (res.status === 410 || /billing is disabled/i.test(json.error ?? '')) {
+        window.location.replace('/dashboard/billing');
+        return;
+      }
+      setError(json.error ?? t('error'));
+      setLoadingPlan(null);
     } catch {
       setError(t('error'));
       setLoadingPlan(null);

@@ -65,6 +65,11 @@ function resolveRole(claims: SessionClaims): 'admin' | 'member' {
   return 'member';
 }
 
+/** Shared role resolver for JWT claims (scalar role/orgRole or roles[]). */
+export function resolveTenantRole(claims: SessionClaims): 'admin' | 'member' {
+  return resolveRole(claims);
+}
+
 /**
  * Normalised auth context resolved from the JWT claims.
  * This is the shape consumed by `withAuth` and server component helpers.

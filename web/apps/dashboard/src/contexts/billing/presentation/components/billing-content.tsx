@@ -5,7 +5,6 @@ import { getSelfServicePlans, PLANS } from '@causeflow/shared/constants';
 import { useCallback, useEffect, useState } from 'react';
 import { PERMISSION } from '@/contexts/identity/domain/rbac/permissions';
 import { usePermission } from '@/contexts/identity/domain/rbac/role-guard';
-import { planSelectConfetti } from '@/contexts/shared/lib/confetti';
 import { BillingFooter, InlineToast, ManageSubscriptionButton } from './billing-cta';
 import type { BillingMessages, SubscriptionData } from './billing-types';
 import { InvoicesTable } from './invoices-table';
@@ -147,52 +146,21 @@ export function BillingPage({ messages }: BillingPageProps) {
     };
   }, []);
 
-  // Handle checkout — opens inline Payment Element modal
-  async function handleCheckout(planId: TenantPlan) {
+  // Handle checkout — opens the OSS billing-disabled modal (AC-048).
+  // Stripe Payment Element / subscribe flow removed; the modal POSTs to
+  // /api/billing/checkout which proxies Core's StubBillingService (410).
+  function handleCheckout(planId: TenantPlan) {
     setLoadingPlanId(planId);
     setErrorMessage(null);
-    try {
-      // Try Payment Element flow first (inline payment)
-      const res = await fetch('/api/billing/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId }),
-      });
-      const json = (await res.json()) as {
-        clientSecret?: string;
-        subscriptionId?: string;
-        error?: string;
-      };
-      if (res.ok && json.clientSecret) {
-        const plan = displayPlans.find((p) => p.id === planId);
-        setPaymentModal({
-          open: true,
-          clientSecret: json.clientSecret,
-          planId,
-          planName: plan?.name ?? planId,
-          isTrialing: false, // TODO: detect from plan trialDays
-        });
-        setLoadingPlanId(null);
-        return;
-      }
-
-      // Fallback to Stripe Checkout redirect
-      const checkoutRes = await fetch('/api/billing/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId }),
-      });
-      const checkoutJson = (await checkoutRes.json()) as { url?: string; error?: string };
-      if (checkoutRes.ok && checkoutJson.url) {
-        window.location.href = checkoutJson.url;
-      } else {
-        setErrorMessage(checkoutJson.error ?? json.error ?? messages.checkoutError);
-        setLoadingPlanId(null);
-      }
-    } catch {
-      setErrorMessage(messages.checkoutError);
-      setLoadingPlanId(null);
-    }
+    const plan = displayPlans.find((p) => p.id === planId);
+    setPaymentModal({
+      open: true,
+      clientSecret: null,
+      planId,
+      planName: plan?.name ?? planId,
+      isTrialing: false,
+    });
+    setLoadingPlanId(null);
   }
 
   // Handle Stripe Customer Portal
@@ -300,7 +268,7 @@ export function BillingPage({ messages }: BillingPageProps) {
       {/* Footer note */}
       <BillingFooter />
 
-      {/* Payment modal (inline Stripe Payment Element) */}
+      {/* Payment modal — OSS billing-disabled panel (AC-048) */}
       <PaymentModal
         open={paymentModal.open}
         clientSecret={paymentModal.clientSecret}
@@ -310,12 +278,6 @@ export function BillingPage({ messages }: BillingPageProps) {
         onClose={() => setPaymentModal((prev) => ({ ...prev, open: false }))}
         onSuccess={() => {
           setPaymentModal((prev) => ({ ...prev, open: false }));
-          planSelectConfetti();
-          setSuccessMessage('Subscription activated!');
-          // Refetch subscription data
-          void fetch('/api/billing/subscription').then(async (r) => {
-            if (r.ok) setSubscription((await r.json()) as SubscriptionData);
-          });
         }}
         onError={(msg) => setErrorMessage(msg)}
       />

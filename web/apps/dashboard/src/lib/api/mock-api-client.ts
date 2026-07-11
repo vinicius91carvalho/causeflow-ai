@@ -47,6 +47,7 @@ import type {
   UpdateIncidentInput,
   UpdateTenantSettingsInput,
 } from './core-api-types';
+import { CoreApiError } from './http-api-client';
 
 const MOCK_TENANT_ID = 'ten_mock_local';
 const MOCK_USER_ID = 'usr_mock_local';
@@ -573,6 +574,16 @@ export class MockApiClient implements ICoreApiClient {
   }
 
   getSubscription(): Promise<any> {
+    // OSS stub shape (AC-043/AC-048) when CAUSEFLOW_RUNTIME=oss.
+    if (process.env.CAUSEFLOW_RUNTIME === 'oss') {
+      return ok({
+        plan: 'free',
+        status: 'active',
+        investigationsLimit: 3,
+        investigationsUsed: 0,
+        currentPeriodEnd: null,
+      });
+    }
     return ok({
       plan: 'starter',
       status: 'active',
@@ -587,10 +598,20 @@ export class MockApiClient implements ICoreApiClient {
     successUrl: string;
     cancelUrl: string;
   }): Promise<{ url: string }> {
+    if (process.env.CAUSEFLOW_RUNTIME === 'oss') {
+      return Promise.reject(
+        new CoreApiError('Billing is disabled in the OSS build. Checkout is not available.', 410),
+      );
+    }
     return ok({ url: 'http://localhost/mock-checkout' });
   }
 
   createPortalSession(_body: { returnUrl: string }): Promise<{ url: string }> {
+    if (process.env.CAUSEFLOW_RUNTIME === 'oss') {
+      return Promise.reject(
+        new CoreApiError('Billing is disabled in the OSS build. Portal is not available.', 410),
+      );
+    }
     return ok({ url: 'http://localhost/mock-portal' });
   }
 

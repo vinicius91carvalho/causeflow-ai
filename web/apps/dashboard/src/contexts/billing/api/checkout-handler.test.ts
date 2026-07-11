@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CoreApiError } from '@/lib/api/http-api-client';
 
 vi.mock('@/lib/api/with-auth', () => ({
   withAuth: (handler: (req: unknown, ctx: unknown) => Promise<unknown>) => (req: unknown) =>
@@ -17,8 +18,12 @@ vi.mock('@/lib/api/get-api-client', () => ({
 import { POST } from './checkout-handler';
 
 describe('POST /api/billing/checkout', () => {
+  beforeEach(() => {
+    mockCreateCheckout.mockReset();
+    mockCreateCheckout.mockResolvedValue({ url: 'https://checkout.stripe.com/pay/cs_test' });
+  });
+
   it('routes success URL through /api/billing/checkout/complete for onboarding', async () => {
-    mockCreateCheckout.mockClear();
     const req = new NextRequest('http://localhost:3001/api/billing/checkout', {
       method: 'POST',
       body: JSON.stringify({ planId: 'starter', from: 'onboarding' }),
@@ -36,7 +41,6 @@ describe('POST /api/billing/checkout', () => {
   });
 
   it('routes success URL through /api/billing/checkout/complete for billing upgrades', async () => {
-    mockCreateCheckout.mockClear();
     const req = new NextRequest('http://localhost:3001/api/billing/checkout', {
       method: 'POST',
       body: JSON.stringify({ planId: 'pro', from: 'billing' }),
@@ -59,5 +63,21 @@ describe('POST /api/billing/checkout', () => {
 
     const res = await (POST as any)(req);
     expect(res.status).toBe(400);
+  });
+
+  it('surfaces Core 410 as billing disabled message (AC-048)', async () => {
+    mockCreateCheckout.mockRejectedValueOnce(
+      new CoreApiError('Billing is disabled in the OSS build. Checkout is not available.', 410),
+    );
+    const req = new NextRequest('http://localhost:3001/api/billing/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ planId: 'starter', from: 'billing' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const res = await (POST as any)(req);
+    expect(res.status).toBe(410);
+    const body = await res.json();
+    expect(body.error).toMatch(/billing is disabled/i);
   });
 });

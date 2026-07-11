@@ -1,6 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { logRequest } from '@/contexts/shared/lib/monitoring/request-logger';
-import { SESSION_COOKIE, type SessionClaims, verifySessionCookie } from '@/lib/auth/session-auth';
+import {
+  resolveTenantRole,
+  SESSION_COOKIE,
+  type SessionClaims,
+  verifySessionCookie,
+} from '@/lib/auth/session-auth';
 import { logger as dashLogger } from '@/lib/logger';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
@@ -93,15 +98,9 @@ async function resolveWhoami(
     throw new Error(`Whoami failed: ${res.status}`);
   }
 
-  const data = (await res.json()) as {
+  const data = (await res.json()) as SessionClaims & {
     id?: string;
     userId?: string;
-    email?: string;
-    name?: string;
-    tenantId?: string;
-    orgId?: string;
-    role?: string;
-    orgRole?: string;
     // Nested user object (Core API /v1/whoami shape)
     user?: {
       id?: string;
@@ -116,16 +115,10 @@ async function resolveWhoami(
 
   return {
     userId: user.id ?? user.userId ?? data.id ?? data.userId ?? '',
-    tenantId: data.tenantId ?? data.orgId ?? '',
+    tenantId: data.tenantId ?? data.tenant_id ?? data.orgId ?? '',
     email: user.email ?? data.email ?? '',
     name: user.name ?? data.name ?? '',
-    role: (() => {
-      const r = data.role ?? data.orgRole;
-      if (r === 'admin') return 'admin' as const;
-      const roles = (data as { roles?: string[] }).roles;
-      if (Array.isArray(roles) && roles.includes('admin')) return 'admin' as const;
-      return 'member' as const;
-    })(),
+    role: resolveTenantRole(data),
   };
 }
 
@@ -146,16 +139,7 @@ function claimsToAuth(claims: SessionClaims): {
       (claims.tenantId as string) ?? (claims.tenant_id as string) ?? (claims.orgId as string) ?? '',
     email: (claims.email as string) ?? '',
     name: (claims.name as string) ?? '',
-    role: (() => {
-      const direct = claims.role ?? claims.orgRole;
-      if (direct === 'admin' || direct === 'member') return direct;
-      const roles = claims.roles;
-      if (Array.isArray(roles)) {
-        if (roles.includes('admin')) return 'admin';
-        if (roles.includes('member')) return 'member';
-      }
-      return 'member';
-    })(),
+    role: resolveTenantRole(claims as SessionClaims),
   };
 }
 
