@@ -115,10 +115,13 @@ BASE_URL=https://staging.causeflow.ai pnpm exec playwright test
 # Run with Portuguese locale
 TEST_LOCALES=en,pt-br pnpm exec playwright test
 
-# OSS compose E2E (AC-054..AC-057) — requires `docker compose up -d`
-# Dashboard :3001, Core :3099. Core local register/login only (no Clerk / .env.staging).
+# OSS compose E2E (AC-054..AC-061) — requires Core compose + Ornith for golden path
+# Dashboard :3001 (or OSS_DASHBOARD_URL), Core :3099. Core local register/login only.
 pnpm exec playwright test --project=dashboard-oss-e2e
 pnpm exec playwright test --project=dashboard-oss-e2e --list
+
+# Goal Review / run_completed gate (AC-061 capstone — full AC-054..AC-060 chain)
+pnpm exec playwright test --project=dashboard-oss-e2e tests/oss/ac-061-capstone.spec.ts
 ```
 
 > ALWAYS use `pnpm exec playwright`. Never use `pnpm dlx playwright` — it downloads a conflicting version that ignores the local config.
@@ -127,7 +130,8 @@ pnpm exec playwright test --project=dashboard-oss-e2e --list
 
 | Item | Value |
 |---|---|
-| Specs | `tests/oss/ac-055-*.spec.ts`, `ac-056-*.spec.ts`, `ac-057-*.spec.ts` |
+| Specs | `tests/oss/ac-055-*.spec.ts` … `ac-061-capstone.spec.ts` |
+| Capstone (AC-061) | `tests/oss/ac-061-capstone.spec.ts` — Goal Review delivery gate |
 | Auth setup | `tests/oss/auth-setup.ts` → dashboard `/api/auth/register` + `/api/auth/login` → Core |
 | Dashboard URL | `OSS_DASHBOARD_URL` (default `http://127.0.0.1:3001`) |
 | Core URL | `OSS_CORE_API_URL` (default `http://127.0.0.1:3099`) |

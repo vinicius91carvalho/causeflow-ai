@@ -162,9 +162,11 @@ export default defineConfig({
         ]
       : []),
 
-    // --- OSS compose E2E (AC-054): Core local auth, no Clerk / .env.staging ---
+    // --- OSS compose E2E (AC-054..AC-061): Core local auth, no Clerk / .env.staging ---
     // Only registered when explicitly selected so default website E2E stays green
-    // without docker compose. Operators + harness QA for AC-055..AC-058:
+    // without docker compose. Goal Review gate (AC-061 capstone):
+    //   pnpm exec playwright test --project=dashboard-oss-e2e tests/oss/ac-061-capstone.spec.ts
+    // Full OSS suite (AC-055..AC-061):
     //   pnpm exec playwright test --project=dashboard-oss-e2e
     ...(isOssE2eProject
       ? [
