@@ -256,10 +256,15 @@ export function EvidenceReviewView({ incident, approvalActionsSlot }: EvidenceRe
   const [isLoadingRemediations, setIsLoadingRemediations] = useState(true);
   const [hasLoadError, setHasLoadError] = useState(false);
 
+  // Load detail + remediations once, then poll until remediations appear so a
+  // transient RATE_LIMIT / empty first paint does not leave the rail at 0
+  // when Core already has a remediation (AC-060 / AC-061). Stop once loaded
+  // to avoid burning Core's shared rate budget before follow-up chat.
   useEffect(() => {
     let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
 
-    const load = async () => {
+    const load = async (isInitial: boolean) => {
       try {
         const [detailRes, remRes] = await Promise.all([
           fetch(`/api/investigation/${incident.incidentId}/detail`),
@@ -272,24 +277,46 @@ export function EvidenceReviewView({ incident, approvalActionsSlot }: EvidenceRe
           }
           if (remRes.ok) {
             const data = (await remRes.json()) as { remediations: Remediation[] };
-            setRemediations(data.remediations ?? []);
+            const next = data.remediations ?? [];
+            setRemediations(next);
+            if (next.length > 0 && intervalId !== null) {
+              clearInterval(intervalId);
+              intervalId = null;
+            }
           }
         }
       } catch {
-        if (!cancelled) setHasLoadError(true);
+        if (!cancelled && isInitial) setHasLoadError(true);
       } finally {
-        if (!cancelled) {
+        if (!cancelled && isInitial) {
           setIsLoadingDetail(false);
           setIsLoadingRemediations(false);
         }
       }
     };
 
-    void load();
+    void load(true);
+
+    const shouldPoll =
+      incident.status === 'awaiting_approval' ||
+      incident.status === 'investigating' ||
+      incident.status === 'remediating' ||
+      incident.status === 'open' ||
+      incident.status === 'triaging';
+    if (!shouldPoll) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    intervalId = setInterval(() => {
+      void load(false);
+    }, 15_000);
     return () => {
       cancelled = true;
+      if (intervalId !== null) clearInterval(intervalId);
     };
-  }, [incident.incidentId]);
+  }, [incident.incidentId, incident.status]);
 
   const allEvidences: InvestigationEvidence[] = useMemo(() => {
     if (!detail) return [];
@@ -384,12 +411,31 @@ export function EvidenceReviewView({ incident, approvalActionsSlot }: EvidenceRe
     setChatMessages((prev) => [...prev, optimistic]);
     setChatDraft('');
 
-    try {
-      const res = await fetch(`/api/investigation/${incident.incidentId}/chat`, {
+    const postOnce = async (): Promise<Response> =>
+      fetch(`/api/investigation/${incident.incidentId}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message }),
       });
+
+    try {
+      // Core RATE_LIMIT (429, retryAfterSeconds≈60) is common after investigation
+      // polling — retry through the quota window rather than fail the chat rail.
+      let res = await postOnce();
+      for (let attempt = 0; attempt < 4 && (res.status === 429 || res.status >= 500); attempt++) {
+        let waitMs = 65_000;
+        try {
+          const body = (await res.clone().json()) as {
+            details?: { retryAfterSeconds?: number };
+          };
+          const secs = body.details?.retryAfterSeconds;
+          if (typeof secs === 'number' && secs > 0) waitMs = Math.min(secs * 1000, 90_000);
+        } catch {
+          /* use default wait */
+        }
+        await new Promise((r) => setTimeout(r, waitMs));
+        res = await postOnce();
+      }
       if (!res.ok) {
         throw new Error(`Request failed (${res.status})`);
       }

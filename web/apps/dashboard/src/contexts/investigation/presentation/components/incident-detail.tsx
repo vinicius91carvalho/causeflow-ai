@@ -116,9 +116,13 @@ export function IncidentDetail({ initialIncident }: IncidentDetailProps) {
     };
   }, [stream, fetchIncident]);
 
-  // Poll as fallback ONLY when WebSocket is not connected
+  // Poll as fallback ONLY when WebSocket is not connected.
+  // Skip for awaiting_approval/resolved: EvidenceReviewView owns that surface
+  // and already polls detail/remediations — a 5s analyses poll here compounds
+  // Core RATE_LIMIT and breaks follow-up chat (AC-060 / AC-061).
   useEffect(() => {
     if (!LIVE_STATUSES.has(incident.status)) return;
+    if (incident.status === 'awaiting_approval') return;
     if (wsConnectedRef.current) return; // WS handles updates — skip polling
     const id = setInterval(() => {
       void fetchIncident();
