@@ -19,7 +19,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "implemented"
+    "status": "implemented",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-002",
@@ -41,7 +43,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "done"
+    "status": "done",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-003",
@@ -63,7 +67,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "implemented"
+    "status": "implemented",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-004",
@@ -85,7 +91,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": ["grep"]
   },
   {
     "id": "WI-AC-005",
@@ -107,7 +115,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-006",
@@ -129,7 +139,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-007",
@@ -151,7 +163,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-008",
@@ -173,7 +187,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-009",
@@ -195,7 +211,9 @@
     "integration": true,
     "retries": 2,
     "attempts": 3,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-010",
@@ -217,7 +235,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-011",
@@ -239,7 +259,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-012",
@@ -261,7 +283,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-013",
@@ -283,7 +307,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-014",
@@ -305,7 +331,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-015",
@@ -327,7 +355,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-016",
@@ -349,7 +379,9 @@
     "integration": true,
     "retries": 2,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-017",
@@ -371,7 +403,9 @@
     "integration": true,
     "retries": 2,
     "attempts": 0,
-    "status": "done"
+    "status": "done",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-018",
@@ -393,7 +427,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-019",
@@ -415,7 +451,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 5,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-020",
@@ -437,7 +475,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-021",
@@ -459,7 +499,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-022",
@@ -481,7 +523,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-023",
@@ -503,7 +547,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 1,
-    "status": "done"
+    "status": "done",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-024",
@@ -525,7 +571,9 @@
     "integration": false,
     "retries": 0,
     "attempts": 1,
-    "status": "done"
+    "status": "done",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-025",
@@ -547,7 +595,9 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-026",
@@ -569,7 +619,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-027",
@@ -591,7 +643,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "qa-passed"
+    "status": "qa-passed",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-028",
@@ -613,7 +667,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 1,
-    "status": "qa-passed"
+    "status": "qa-passed",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-029",
@@ -635,7 +691,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 0,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-030",
@@ -657,7 +715,9 @@
     "integration": true,
     "retries": 3,
     "attempts": 3,
-    "status": "implemented"
+    "status": "implemented",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-031",
@@ -679,7 +739,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "implemented"
+    "status": "implemented",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-032",
@@ -701,7 +763,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "implemented"
+    "status": "implemented",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-033",
@@ -723,7 +787,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "browser",
+    "observation_methods": ["browser"]
   },
   {
     "id": "WI-AC-034",
@@ -745,7 +811,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 1,
-    "status": "qa-passed"
+    "status": "qa-passed",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-035",
@@ -767,7 +835,9 @@
     "integration": true,
     "retries": 1,
     "attempts": 1,
-    "status": "integration-passed"
+    "status": "integration-passed",
+    "observation_method": "browser",
+    "observation_methods": ["browser"]
   },
   {
     "id": "WI-AC-036",
@@ -789,7 +859,9 @@
     "integration": true,
     "retries": 2,
     "attempts": 0,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-037",
@@ -811,7 +883,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-038",
@@ -833,7 +907,9 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-039",
@@ -850,7 +926,9 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-040",
@@ -867,7 +945,9 @@
     "qa": true,
     "integration": true,
     "retries": 1,
-    "status": "done"
+    "status": "done",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-041",
@@ -884,7 +964,9 @@
     "qa": true,
     "integration": true,
     "retries": 2,
-    "status": "done"
+    "status": "done",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-042",
@@ -900,7 +982,9 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-043",
@@ -916,7 +1000,9 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-044",
@@ -932,7 +1018,9 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-045",
@@ -949,7 +1037,9 @@
     "qa": true,
     "integration": true,
     "retries": 2,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "grep",
+    "observation_methods": ["grep"]
   },
   {
     "id": "WI-AC-046",
@@ -966,7 +1056,9 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "status": "integrated"
+    "status": "integrated",
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-047",
@@ -982,7 +1074,9 @@
     "implementation": false,
     "qa": false,
     "integration": false,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-048",
@@ -998,7 +1092,9 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-049",
@@ -1014,7 +1110,9 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-050",
@@ -1030,7 +1128,9 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": ["grep"]
   },
   {
     "id": "WI-AC-051",
@@ -1047,7 +1147,9 @@
     "qa": true,
     "integration": true,
     "retries": 1,
-    "status": "implemented"
+    "status": "implemented",
+    "observation_method": "grep",
+    "observation_methods": ["grep"]
   },
   {
     "id": "WI-AC-052",
@@ -1063,7 +1165,9 @@
     "implementation": false,
     "qa": false,
     "integration": false,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": ["http"]
   },
   {
     "id": "WI-AC-053",
@@ -1079,6 +1183,88 @@
     "implementation": true,
     "qa": true,
     "integration": true,
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": ["grep"]
+  },
+  {
+    "id": "WI-AC-054",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": ["http"],
+    "description": "Default local LLM connector is Ornith 9B via OpenAI-compatible llama.cpp. With `~/tools/llama-session.sh` serving on port 8081 (model `~/tools/ai-models/Ornith-1.0-9B-Q4_K_M.gguf`, alias `Ornith-1.0-9B-code`), Core's composition root wires the default `LLMClient` to base URL `http://127.0.0.1:8081/v1` (or the compose-reachable host equivalent) and model `Ornith-1.0-9B-code`. `.env.example` documents `LLM_BASE_URL` / `LLM_MODEL` (names may match existing env keys) with those defaults. `GET /health` (or documented LLM readiness field) reports the local connector reachable when Ornith is up. Anthropic remains optional override only — `ANTHROPIC_API_KEY` must not be required for `docker compose up` demos or AC-046-class pipeline runs when Ornith is available.",
+    "steps": [
+      "Verify AC-054: Default local LLM connector is Ornith 9B via OpenAI-compatible llama.cpp. With `~/tools/llama-session.sh` serving on port 8081 (model `~/tools/ai-models/Ornith-1.0-9B-Q4_K_M.gguf`, alias `Ornith-1.0-9B-code`), Core's composition root wires the default `LLMClient` to base URL `http://127.0.0.1:8081/v1` (or the compose-reachable host equivalent) and model `Ornith-1.0-9B-code`. `.env.example` documents `LLM_BASE_URL` / `LLM_MODEL` (names may match existing env keys) with those defaults. `GET /health` (or documented LLM readiness field) reports the local connector reachable when Ornith is up. Anthropic remains optional override only — `ANTHROPIC_API_KEY` must not be required for `docker compose up` demos or AC-046-class pipeline runs when Ornith is available."
+    ],
+    "acceptance_checks": ["AC-054"],
+    "planning_decision_ids": ["PD-OSS-ORNITH-DEFAULT-LLM", "PD-OSS-DASHBOARD-CONTRACT"],
+    "depends_on": ["AC-039", "AC-046"],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-055",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": ["http"],
+    "description": "Ornith fail-closed behavior. With the default LLM connector configured for :8081 and Ornith stopped, triage/investigation does not hang indefinitely and does not silently pass via `DeterministicLLMClient` (or equivalent) as the happy path. Core surfaces a clear LLM-unavailable error on health and/or the incident investigation status within the documented timeout. Restarting Ornith restores successful completions without requiring Anthropic.",
+    "steps": [
+      "Verify AC-055: Ornith fail-closed behavior. With the default LLM connector configured for :8081 and Ornith stopped, triage/investigation does not hang indefinitely and does not silently pass via `DeterministicLLMClient` (or equivalent) as the happy path. Core surfaces a clear LLM-unavailable error on health and/or the incident investigation status within the documented timeout. Restarting Ornith restores successful completions without requiring Anthropic."
+    ],
+    "acceptance_checks": ["AC-055"],
+    "planning_decision_ids": ["PD-OSS-ORNITH-DEFAULT-LLM", "PD-OSS-ORNITH-DOWN"],
+    "depends_on": ["AC-054"],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-056",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": ["http"],
+    "description": "Mock/stub upstream applications for OSS connectors. Core provides at least one documented stub upstream (webhook simulator or mock app) that OSS integration connect + probe flows can hit without Composio or paid SaaS. Connecting an integration through the stub endpoints records a tenant connection and a probe/ingest against the stub is observable (log or deterministic stub state). These stubs are what the web dashboard E2E (web AC-055) must exercise — not dashboard-only route mocks.",
+    "steps": [
+      "Verify AC-056: Mock/stub upstream applications for OSS connectors. Core provides at least one documented stub upstream (webhook simulator or mock app) that OSS integration connect + probe flows can hit without Composio or paid SaaS. Connecting an integration through the stub endpoints records a tenant connection and a probe/ingest against the stub is observable (log or deterministic stub state). These stubs are what the web dashboard E2E (web AC-055) must exercise — not dashboard-only route mocks."
+    ],
+    "acceptance_checks": ["AC-056"],
+    "planning_decision_ids": ["PD-OSS-STUB-UPSTREAM-APPS", "PD-OSS-DASHBOARD-CONTRACT"],
+    "depends_on": ["AC-039", "AC-046", "AC-054"],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-057",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": ["http"],
+    "description": "Capstone local pipeline with Ornith + stub connector. Starting from a stub-connector alert or `POST /api/v1/incidents`, Core runs triage → investigation on the local stack with Ornith as the LLM connector and writes evidence attributable to both the stub upstream and ≥1 Ornith completion for that incident. Hindsight write from AC-052 still occurs. This is the Core-side contract the web dashboard E2E (web AC-056/AC-057) depends on.",
+    "steps": [
+      "Verify AC-057: Capstone local pipeline with Ornith + stub connector. Starting from a stub-connector alert or `POST /api/v1/incidents`, Core runs triage → investigation on the local stack with Ornith as the LLM connector and writes evidence attributable to both the stub upstream and ≥1 Ornith completion for that incident. Hindsight write from AC-052 still occurs. This is the Core-side contract the web dashboard E2E (web AC-056/AC-057) depends on."
+    ],
+    "acceptance_checks": ["AC-057"],
+    "planning_decision_ids": [
+      "PD-OSS-ORNITH-DEFAULT-LLM",
+      "PD-OSS-STUB-UPSTREAM-APPS",
+      "PD-OSS-DASHBOARD-CONTRACT"
+    ],
+    "depends_on": ["AC-046", "AC-054", "AC-056"],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
     "retries": 0
   }
 ]

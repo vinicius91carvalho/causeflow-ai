@@ -498,7 +498,46 @@
     <acceptance_check id="AC-053" context="open-source-local-runtime" category="foundation" depends_on="AC-039,AC-002">
       <description>The bundled `docker-compose.yml` no longer references the `ministack`, `langfuse`, or `langfuse-worker` services; no `localstack-init` script runs. The `.env.example` ships with only `PORT`, `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY`, `HINDSIGHT_API_URL`, `HINDSIGHT_API_KEY`, and the optional `ANTHROPIC_API_KEY` + the VAPID pair. Running `docker compose up -d` from a fresh clone without modifying `.env.example` brings the platform to a healthy `/health` in under 60 seconds and reproduces the local-only pipeline from AC-046.</description>
     </acceptance_check>
+    <acceptance_check id="AC-054" context="open-source-local-runtime" category="functional" depends_on="AC-039,AC-046">
+      <description>Default local LLM connector is Ornith 9B via OpenAI-compatible llama.cpp. With `~/tools/llama-session.sh` serving on port 8081 (model `~/tools/ai-models/Ornith-1.0-9B-Q4_K_M.gguf`, alias `Ornith-1.0-9B-code`), Core's composition root wires the default `LLMClient` to base URL `http://127.0.0.1:8081/v1` (or the compose-reachable host equivalent) and model `Ornith-1.0-9B-code`. `.env.example` documents `LLM_BASE_URL` / `LLM_MODEL` (names may match existing env keys) with those defaults. `GET /health` (or documented LLM readiness field) reports the local connector reachable when Ornith is up. Anthropic remains optional override only — `ANTHROPIC_API_KEY` must not be required for `docker compose up` demos or AC-046-class pipeline runs when Ornith is available.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-055" context="open-source-local-runtime" category="functional" depends_on="AC-054">
+      <description>Ornith fail-closed behavior. With the default LLM connector configured for :8081 and Ornith stopped, triage/investigation does not hang indefinitely and does not silently pass via `DeterministicLLMClient` (or equivalent) as the happy path. Core surfaces a clear LLM-unavailable error on health and/or the incident investigation status within the documented timeout. Restarting Ornith restores successful completions without requiring Anthropic.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-056" context="open-source-local-runtime" category="functional" depends_on="AC-039,AC-046,AC-054">
+      <description>Mock/stub upstream applications for OSS connectors. Core provides at least one documented stub upstream (webhook simulator or mock app) that OSS integration connect + probe flows can hit without Composio or paid SaaS. Connecting an integration through the stub endpoints records a tenant connection and a probe/ingest against the stub is observable (log or deterministic stub state). These stubs are what the web dashboard E2E (web AC-055) must exercise — not dashboard-only route mocks.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-057" context="open-source-local-runtime" category="functional" depends_on="AC-046,AC-054,AC-056">
+      <description>Capstone local pipeline with Ornith + stub connector. Starting from a stub-connector alert or `POST /api/v1/incidents`, Core runs triage → investigation on the local stack with Ornith as the LLM connector and writes evidence attributable to both the stub upstream and ≥1 Ornith completion for that incident. Hindsight write from AC-052 still occurs. This is the Core-side contract the web dashboard E2E (web AC-056/AC-057) depends on.</description>
+    </acceptance_check>
   </acceptance_checks>
+
+  <planning_decisions>
+    <decision id="PD-OSS-ORNITH-DEFAULT-LLM" topic="architectural-tradeoff">
+      <question>What is the default local LLM for OSS Core triage/investigation?</question>
+      <choice>Ornith 9B via OpenAI-compatible llama.cpp on :8081 (`~/tools/llama-session.sh`, model alias Ornith-1.0-9B-code). Anthropic is optional override only.</choice>
+      <rationale>Operator product lock for open-source demos without paid Anthropic.</rationale>
+      <acceptance_checks>AC-054,AC-055,AC-057</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-STUB-UPSTREAM-APPS" topic="architectural-tradeoff">
+      <question>How do OSS connectors get exercised without Composio/paid SaaS?</question>
+      <choice>Core owns documented mock/stub upstream applications or webhook simulators that connect+probe flows hit; web dashboard E2E must use those, not BFF route mocks.</choice>
+      <rationale>Composio removed; connectors still need a real Core boundary for dashboard E2E.</rationale>
+      <acceptance_checks>AC-056,AC-057</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-ORNITH-DOWN" topic="edge-case">
+      <question>What happens when Ornith on :8081 is unreachable during triage/investigation?</question>
+      <choice>Fail closed with a clear LLM-unavailable health/investigation error within the documented timeout. Do not hang and do not silently pass via DeterministicLLMClient as the happy path.</choice>
+      <rationale>Operators must see broken local LLM wiring instead of false greens.</rationale>
+      <acceptance_checks>AC-055</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-DASHBOARD-CONTRACT" topic="ambiguous-requirement">
+      <question>Is Core responsible for the contract web dashboard E2E needs for incidents, stub connectors, and Ornith?</question>
+      <choice>Yes. Core AC-054..AC-057 define the LLM connector, fail-closed behavior, stub upstreams, and Ornith-backed pipeline that web AC-054..AC-057 consume.</choice>
+      <rationale>Cross-project E2E requires an explicit Core contract; web must not invent mocks that hide Core gaps.</rationale>
+      <acceptance_checks>AC-054,AC-056,AC-057</acceptance_checks>
+    </decision>
+  </planning_decisions>
 
   <database_schema>
     <tables>
@@ -915,7 +954,7 @@
       All colors come from the documented palette. All animations respect `prefers-reduced-motion`. The embeddable widget renders cleanly inside a 300px column on a third-party status page. The dashboard renders cleanly at 1920×1080, 1366×768, 768×1024 and 375×667. Severity and status badges are always uppercase, always with a 1px tracking, always with the palette color, never inline-styled. No emoji in production UI text.
     </design_polish>
     <open_source_local_runtime>
-      Acceptance Checks AC-039 through AC-053 all pass against the running docker-compose stack with no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars configured. `docker compose up -d` from a fresh clone with an unchanged `.env.example` brings the platform to `/health=200` in under 60 seconds, and the full Datadog webhook → ingest → dedup → triage → investigation → remediation → memory pipeline (AC-046) is reproducible on the local-only stack. The 38 original acceptance checks (AC-001..AC-038) continue to pass on the new stack; port boundaries and invariants I1–I12 are enforced.
+      Acceptance Checks AC-039 through AC-057 all pass against the running docker-compose stack with no AWS, Stripe, Clerk, Sentry, Langfuse, Svix, Slack, Composio, or Mastra env vars configured. `docker compose up -d` from a fresh clone with an unchanged `.env.example` brings the platform to `/health=200` in under 60 seconds, and the full Datadog webhook → ingest → dedup → triage → investigation → remediation → memory pipeline (AC-046) is reproducible on the local-only stack with Ornith 9B as the default LLM connector (AC-054..AC-057). The 38 original acceptance checks (AC-001..AC-038) continue to pass on the new stack; port boundaries and invariants I1–I12 are enforced.
     </open_source_local_runtime>
   </success_criteria>
 </project_specification>

@@ -21,7 +21,11 @@
     "integration": true,
     "retries": 1,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-008",
@@ -45,7 +49,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-028",
@@ -73,7 +81,11 @@
     "implemented_at": "2026-07-07T23:20:00Z",
     "implementation_notes": "Verify-first zero-diff checkpoint: structure verified at real boundaries (dashboard /api/health HTTP 200 exercising shared/api re-export; dashboard compose.test.ts deep-merges all 10 context i18n files; website / HTTP 200 renders i18n via 3-context compose). Dashboard=10 contexts, website=3 contexts, no index.ts barrels, per-context i18n at infrastructure/i18n/{en,pt-br}.json deep-merged by lib/i18n/compose.ts in both apps.",
     "qa_at": "2026-07-07T23:25:00Z",
-    "qa_notes": "Independent QA pass: dashboard src/contexts/ = exactly 10 dirs (approvals, audit, billing, identity, integrations, investigation, onboarding, settings, shared, team). website src/contexts/ = exactly 3 dirs (legal, marketing, shell). find apps/{dashboard,website}/src/contexts -name index.ts returns no barrel files. Each context uses only needed DDD layers (domain/application/infrastructure/presentation/api); shared also has a documented lib/ utility dir. Per-context i18n en.json+pt-br.json exist for all 10 dashboard + 3 website contexts. Both apps/src/lib/i18n/compose.ts deep-merge via @causeflow/shared/domain/utils/deep-merge. All AC-028 steps pass."
+    "qa_notes": "Independent QA pass: dashboard src/contexts/ = exactly 10 dirs (approvals, audit, billing, identity, integrations, investigation, onboarding, settings, shared, team). website src/contexts/ = exactly 3 dirs (legal, marketing, shell). find apps/{dashboard,website}/src/contexts -name index.ts returns no barrel files. Each context uses only needed DDD layers (domain/application/infrastructure/presentation/api); shared also has a documented lib/ utility dir. Per-context i18n en.json+pt-br.json exist for all 10 dashboard + 3 website contexts. Both apps/src/lib/i18n/compose.ts deep-merge via @causeflow/shared/domain/utils/deep-merge. All AC-028 steps pass.",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-033",
@@ -97,7 +109,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-036",
@@ -121,7 +137,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-037",
@@ -145,7 +165,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "implemented"
+    "status": "implemented",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-038",
@@ -169,7 +193,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 1,
-    "status": "implemented"
+    "status": "implemented",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-002",
@@ -195,7 +223,11 @@
     "integration": true,
     "retries": 1,
     "attempts": 1,
-    "status": "qa-pass"
+    "status": "qa-pass",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-003",
@@ -221,7 +253,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-004",
@@ -251,7 +287,11 @@
     "implemented_at": "2026-07-09T10:54:59Z",
     "implementation_notes": "Verify-first zero-diff checkpoint: pnpm exec biome check . exits 0 (76 warnings, 0 errors). biome.json at repo root with schema 2.4.4, @biomejs/biome ^2.4.4 installed as 2.4.4. No ESLint/Prettier configs found anywhere in repo. All AC-004 steps verified independently at real boundary.",
     "qa_at": "2026-07-09T10:54:59Z",
-    "qa_notes": "Independent re-verification: Step 1 - pnpm exec biome check . exit=0, 76 warnings (all warn-level: noNonNullAssertion, noExplicitAny, noArrayIndexKey, useExhaustiveDependencies), 0 errors. Step 2 - biome.json =https://biomejs.dev/schemas/2.4.4/schema.json; @biomejs/biome@^2.4.4 in devDependencies, installed v2.4.4. Step 3 - find . -path ./node_modules -prune -o \\( -name .eslintrc* -o -name .prettierrc* -o -name eslint.config.* -o -name prettier.config.* \\) returns zero results. The orchestrator-claimed feature_list.json formatter error does not reproduce on this tree. All AC-004 steps pass."
+    "qa_notes": "Independent re-verification: Step 1 - pnpm exec biome check . exit=0, 76 warnings (all warn-level: noNonNullAssertion, noExplicitAny, noArrayIndexKey, useExhaustiveDependencies), 0 errors. Step 2 - biome.json =https://biomejs.dev/schemas/2.4.4/schema.json; @biomejs/biome@^2.4.4 in devDependencies, installed v2.4.4. Step 3 - find . -path ./node_modules -prune -o \\( -name .eslintrc* -o -name .prettierrc* -o -name eslint.config.* -o -name prettier.config.* \\) returns zero results. The orchestrator-claimed feature_list.json formatter error does not reproduce on this tree. All AC-004 steps pass.",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-005",
@@ -277,7 +317,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-006",
@@ -303,7 +347,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ]
   },
   {
     "id": "WI-AC-007",
@@ -329,7 +377,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-009",
@@ -355,7 +407,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-017",
@@ -381,7 +437,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-032",
@@ -407,7 +467,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-039",
@@ -433,7 +497,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-042",
@@ -459,7 +527,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-010",
@@ -485,7 +557,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-012",
@@ -511,7 +587,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-013",
@@ -537,7 +617,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-014",
@@ -563,7 +647,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-015",
@@ -589,7 +677,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-016",
@@ -615,7 +707,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-018",
@@ -641,7 +737,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ]
   },
   {
     "id": "WI-AC-019",
@@ -667,7 +767,11 @@
     "integration": true,
     "retries": 1,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-027",
@@ -695,7 +799,11 @@
     "attempts": 1,
     "status": "implemented",
     "implemented_at": "2026-07-09T16:55:00Z",
-    "implementation_notes": "Verify-first checkpoint: types.ts has all 15 AC-specified types (plus 2 extras: Notion, Shortcut). INTEGRATION_CATALOG has 17 entries with descriptions, local SVG icons, and phase-gated Connect CTAs. Type-specific Zod schemas exist in per-context api-schema.ts (re-exported through lib/api/schemas.ts). Integration type has encryptedCredentials field for KMS-envelope encryption. Dev server boots (port 5181), /api/integrations/catalog route exists and responds 401 without auth, tsc --noEmit exit 0, 163 test files/1071 tests pass. Composio-specific requirements (logos, composioTriggerId, remotePatterns) intentionally removed per AC-051 open-source-local-runtime migration -- cards use local SVGs instead of Composio CDN."
+    "implementation_notes": "Verify-first checkpoint: types.ts has all 15 AC-specified types (plus 2 extras: Notion, Shortcut). INTEGRATION_CATALOG has 17 entries with descriptions, local SVG icons, and phase-gated Connect CTAs. Type-specific Zod schemas exist in per-context api-schema.ts (re-exported through lib/api/schemas.ts). Integration type has encryptedCredentials field for KMS-envelope encryption. Dev server boots (port 5181), /api/integrations/catalog route exists and responds 401 without auth, tsc --noEmit exit 0, 163 test files/1071 tests pass. Composio-specific requirements (logos, composioTriggerId, remotePatterns) intentionally removed per AC-051 open-source-local-runtime migration -- cards use local SVGs instead of Composio CDN.",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-034",
@@ -721,7 +829,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-011",
@@ -747,7 +859,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-020",
@@ -773,7 +889,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-021",
@@ -799,7 +919,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-022",
@@ -825,7 +949,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-024",
@@ -851,7 +979,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-029",
@@ -877,7 +1009,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-030",
@@ -903,7 +1039,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ]
   },
   {
     "id": "WI-AC-023",
@@ -929,7 +1069,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-025",
@@ -955,7 +1099,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-026",
@@ -981,7 +1129,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-031",
@@ -1007,7 +1159,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "cli",
+    "observation_methods": [
+      "cli"
+    ]
   },
   {
     "id": "WI-AC-035",
@@ -1033,7 +1189,11 @@
     "integration": false,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-040",
@@ -1059,7 +1219,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ]
   },
   {
     "id": "WI-AC-041",
@@ -1085,7 +1249,11 @@
     "integration": true,
     "retries": 0,
     "attempts": 0,
-    "status": "qa-passed"
+    "status": "qa-passed",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-043",
@@ -1112,7 +1280,11 @@
     "integration": true,
     "retries": 1,
     "attempts": 0,
-    "status": "verify-first"
+    "status": "verify-first",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ]
   },
   {
     "id": "WI-AC-044",
@@ -1130,7 +1302,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-045",
@@ -1150,7 +1326,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-046",
@@ -1170,7 +1350,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-047",
@@ -1190,7 +1374,11 @@
     "implementation": false,
     "qa": false,
     "integration": false,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-048",
@@ -1210,7 +1398,11 @@
     "implementation": false,
     "qa": false,
     "integration": false,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-049",
@@ -1230,7 +1422,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-050",
@@ -1250,7 +1446,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-051",
@@ -1270,7 +1470,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-052",
@@ -1290,7 +1494,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-053",
@@ -1308,6 +1516,122 @@
       "AC-046",
       "AC-048",
       "AC-049"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
+  },
+  {
+    "id": "WI-AC-054",
+    "context": "open-source-local-runtime",
+    "category": "testing",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ],
+    "description": "A dedicated Playwright project (e.g. `dashboard-oss-e2e`) targets the OSS compose stack (dashboard on the documented compose port, `CORE_API_URL` pointing at Core `:3099`). Auth setup uses Core local register/login + session cookie only — zero Clerk, zero `.env.staging` STAGING_TEST_USER path, zero `page.route` mocks of `/api/integrations/*` or `/api/incidents*` as the pass path. `pnpm exec playwright test --project=dashboard-oss-e2e` is the command operators and harness QA run for AC-055..AC-057.",
+    "steps": [
+      "Verify AC-054: A dedicated Playwright project (e.g. `dashboard-oss-e2e`) targets the OSS compose stack (dashboard on the documented compose port, `CORE_API_URL` pointing at Core `:3099`). Auth setup uses Core local register/login + session cookie only — zero Clerk, zero `.env.staging` STAGING_TEST_USER path, zero `page.route` mocks of `/api/integrations/*` or `/api/incidents*` as the pass path. `pnpm exec playwright test --project=dashboard-oss-e2e` is the command operators and harness QA run for AC-055..AC-057."
+    ],
+    "acceptance_checks": [
+      "AC-054"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-DASHBOARD-E2E-AUTH"
+    ],
+    "depends_on": [
+      "AC-044",
+      "AC-046",
+      "AC-051"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-055",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ],
+    "description": "Signed in via AC-054, the operator opens `/dashboard/integrations`, connects at least one integration through the Core OSS/stub integration API (Composio remains removed). The connect flow reaches a Core-owned mock/stub upstream application or webhook simulator (not a Playwright `page.route` fake of the dashboard BFF). After connect, the integrations UI shows the connector as connected/ready and a subsequent Core API read confirms the stub connection record exists for the tenant.",
+    "steps": [
+      "Verify AC-055: Signed in via AC-054, the operator opens `/dashboard/integrations`, connects at least one integration through the Core OSS/stub integration API (Composio remains removed). The connect flow reaches a Core-owned mock/stub upstream application or webhook simulator (not a Playwright `page.route` fake of the dashboard BFF). After connect, the integrations UI shows the connector as connected/ready and a subsequent Core API read confirms the stub connection record exists for the tenant."
+    ],
+    "acceptance_checks": [
+      "AC-055"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-DASHBOARD-E2E-CONNECTORS"
+    ],
+    "depends_on": [
+      "AC-054",
+      "AC-051"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-056",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ],
+    "description": "From the OSS dashboard (local auth), create a real incident/analysis (UI or authenticated `POST` through the dashboard BFF into Core). Core persists the incident in Postgres. The dashboard incident/analysis detail page opens a live SSE (or equivalent) feed and shows triage/investigation progress from Core — not fixture JSON injected by Playwright. Credits/ledger rules from AC-022 still apply on the OSS stack.",
+    "steps": [
+      "Verify AC-056: From the OSS dashboard (local auth), create a real incident/analysis (UI or authenticated `POST` through the dashboard BFF into Core). Core persists the incident in Postgres. The dashboard incident/analysis detail page opens a live SSE (or equivalent) feed and shows triage/investigation progress from Core — not fixture JSON injected by Playwright. Credits/ledger rules from AC-022 still apply on the OSS stack."
+    ],
+    "acceptance_checks": [
+      "AC-056"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-DASHBOARD-E2E-INCIDENT"
+    ],
+    "depends_on": [
+      "AC-054",
+      "AC-055"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-057",
+    "context": "open-source-local-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "With Ornith 9B serving on `http://127.0.0.1:8081` (`~/tools/llama-session.sh`), the AC-056 incident's triage/investigation happy path uses Core's default OpenAI-compatible LLM connector pointed at Ornith (model alias `Ornith-1.0-9B-code`). Evidence must show at least one successful completion call to the local connector during the run (Core LLM audit/metrics, llama-server access log, or documented `/admin` trace) — Anthropic must not be required and a silent DeterministicLLMClient stub must not be the pass path for this check. If Ornith is stopped, the same E2E fails closed with a clear Core health/investigation error instead of hanging or auto-passing via stub.",
+    "steps": [
+      "Verify AC-057: With Ornith 9B serving on `http://127.0.0.1:8081` (`~/tools/llama-session.sh`), the AC-056 incident's triage/investigation happy path uses Core's default OpenAI-compatible LLM connector pointed at Ornith (model alias `Ornith-1.0-9B-code`). Evidence must show at least one successful completion call to the local connector during the run (Core LLM audit/metrics, llama-server access log, or documented `/admin` trace) — Anthropic must not be required and a silent DeterministicLLMClient stub must not be the pass path for this check. If Ornith is stopped, the same E2E fails closed with a clear Core health/investigation error instead of hanging or auto-passing via stub."
+    ],
+    "acceptance_checks": [
+      "AC-057"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-DASHBOARD-E2E-ORNITH"
+    ],
+    "depends_on": [
+      "AC-056"
     ],
     "verify_first": false,
     "implementation": false,

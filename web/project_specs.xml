@@ -755,5 +755,72 @@
         <step>Step 3: `GET /api/settings` with a valid `__session` cookie returns 200; `GET /api/billing/subscription` returns the Core's stub `{ plan: 'free', status: 'active' }`; `POST /api/incidents` decrements credits and returns 402 CREDITS_EXHAUSTED when the ledger is empty.</step>
       </steps>
     </acceptance_check>
+
+    <acceptance_check id="AC-054" context="open-source-local-runtime" category="testing" depends_on="AC-044,AC-046,AC-051">
+      <title>OSS Playwright project: local JWT auth against compose dashboard+Core (no Clerk staging)</title>
+      <description>A dedicated Playwright project (e.g. `dashboard-oss-e2e`) targets the OSS compose stack (dashboard on the documented compose port, `CORE_API_URL` pointing at Core `:3099`). Auth setup uses Core local register/login + session cookie only — zero Clerk, zero `.env.staging` STAGING_TEST_USER path, zero `page.route` mocks of `/api/integrations/*` or `/api/incidents*` as the pass path. `pnpm exec playwright test --project=dashboard-oss-e2e` is the command operators and harness QA run for AC-055..AC-057.</description>
+      <steps>
+        <step>Step 1: Confirm `playwright.config.ts` defines a `dashboard-oss-e2e` (or equivalent) project whose baseURL is the compose dashboard and whose setup uses Core local auth only.</step>
+        <step>Step 2: Confirm the project does not load Clerk auth-setup and does not depend on `STAGING_TEST_USER` / `.env.staging`.</step>
+        <step>Step 3: `pnpm exec playwright test --project=dashboard-oss-e2e --list` lists the AC-055..AC-057 specs and exits 0.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-055" context="open-source-local-runtime" category="functional" depends_on="AC-054,AC-051">
+      <title>Dashboard E2E connects a Core stub connector and exercises a mock/stub upstream application</title>
+      <description>Signed in via AC-054, the operator opens `/dashboard/integrations`, connects at least one integration through the Core OSS/stub integration API (Composio remains removed). The connect flow reaches a Core-owned mock/stub upstream application or webhook simulator (not a Playwright `page.route` fake of the dashboard BFF). After connect, the integrations UI shows the connector as connected/ready and a subsequent Core API read confirms the stub connection record exists for the tenant.</description>
+      <steps>
+        <step>Step 1: As local-auth admin, load `/dashboard/integrations` and complete Connect for at least one catalog card against Core stub endpoints (HTTP 200, no `composio.dev` traffic).</step>
+        <step>Step 2: Confirm a Core-owned mock/stub upstream (webhook simulator or stub app documented in Core) received the connection or a probe request attributable to that connector.</step>
+        <step>Step 3: Reload integrations and confirm the UI reflects connected state; `GET` the Core integration status for that type returns connected for the tenant.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-056" context="open-source-local-runtime" category="functional" depends_on="AC-054,AC-055">
+      <title>Dashboard E2E creates a real incident that Core persists and investigates</title>
+      <description>From the OSS dashboard (local auth), create a real incident/analysis (UI or authenticated `POST` through the dashboard BFF into Core). Core persists the incident in Postgres. The dashboard incident/analysis detail page opens a live SSE (or equivalent) feed and shows triage/investigation progress from Core — not fixture JSON injected by Playwright. Credits/ledger rules from AC-022 still apply on the OSS stack.</description>
+      <steps>
+        <step>Step 1: Create an incident from the dashboard against compose Core; the BFF returns success and Core `GET /api/v1/incidents/:id` (or documented equivalent) returns the same id for the tenant.</step>
+        <step>Step 2: Open the dashboard detail page and confirm a live event stream proxies Core investigation/triage events (Content-Type text/event-stream or documented equivalent).</step>
+        <step>Step 3: Within the documented timeout, the UI shows non-empty investigation progress (severity/hypothesis/agent event) sourced from Core, not from a mocked route.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-057" context="open-source-local-runtime" category="functional" depends_on="AC-056">
+      <title>Dashboard E2E proves the investigation used Ornith 9B via Core's local LLM connector</title>
+      <description>With Ornith 9B serving on `http://127.0.0.1:8081` (`~/tools/llama-session.sh`), the AC-056 incident's triage/investigation happy path uses Core's default OpenAI-compatible LLM connector pointed at Ornith (model alias `Ornith-1.0-9B-code`). Evidence must show at least one successful completion call to the local connector during the run (Core LLM audit/metrics, llama-server access log, or documented `/admin` trace) — Anthropic must not be required and a silent DeterministicLLMClient stub must not be the pass path for this check. If Ornith is stopped, the same E2E fails closed with a clear Core health/investigation error instead of hanging or auto-passing via stub.</description>
+      <steps>
+        <step>Step 1: With Ornith up on :8081, run the AC-056 flow and confirm Core is configured for the OpenAI-compatible base URL `http://127.0.0.1:8081/v1` (or compose-reachable equivalent) and model `Ornith-1.0-9B-code`.</step>
+        <step>Step 2: After investigation progresses, produce evidence of ≥1 successful local LLM completion attributable to that incident (log/metric/trace).</step>
+        <step>Step 3: Stop Ornith and re-run (or probe health); Core reports LLM unavailable clearly and the E2E does not pass via DeterministicLLMClient/Anthropic fallback.</step>
+      </steps>
+    </acceptance_check>
   </acceptance_checks>
+
+  <planning_decisions>
+    <decision id="PD-OSS-DASHBOARD-E2E-AUTH" topic="ambiguous-requirement">
+      <question>Is Clerk-staging Playwright or OSS local-auth compose Playwright the pass path for dashboard E2E?</question>
+      <choice>OSS compose + Core local JWT auth only. Clerk staging and `.env.staging` are not the pass path for AC-054..AC-057.</choice>
+      <rationale>Open-source delivery must prove the local stack operators actually run.</rationale>
+      <acceptance_checks>AC-054</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-DASHBOARD-E2E-CONNECTORS" topic="architectural-tradeoff">
+      <question>Do connector E2E tests mock the dashboard BFF or hit Core stub connectors and mock upstream apps?</question>
+      <choice>Hit Core OSS/stub integration endpoints and Core-owned mock/stub upstream applications. Playwright `page.route` BFF mocks are not the pass path.</choice>
+      <rationale>Composio is removed; connectors must be proven through Core stubs the dashboard proxies.</rationale>
+      <acceptance_checks>AC-055</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-DASHBOARD-E2E-INCIDENT" topic="ambiguous-requirement">
+      <question>Must dashboard E2E create a real Core-persisted incident with live investigation progress?</question>
+      <choice>Yes. Create a real incident through the dashboard into Core and assert live SSE/progress from Core, not fixture JSON.</choice>
+      <rationale>Credits, persistence, and investigation UX only count if Core actually runs the pipeline.</rationale>
+      <acceptance_checks>AC-056</acceptance_checks>
+    </decision>
+    <decision id="PD-OSS-DASHBOARD-E2E-ORNITH" topic="edge-case">
+      <question>What proves the investigation used Ornith 9B, and what happens when Ornith is down?</question>
+      <choice>Default Core LLM connector is OpenAI-compatible Ornith on :8081 (model Ornith-1.0-9B-code). E2E must evidence ≥1 local completion for the incident. If Ornith is down, fail closed with a clear error — no DeterministicLLMClient/Anthropic happy-path substitute.</choice>
+      <rationale>Operator lock: local Ornith is the OSS demo LLM; silent stubs hide broken wiring.</rationale>
+      <acceptance_checks>AC-057</acceptance_checks>
+    </decision>
+  </planning_decisions>
 </project_specification>
