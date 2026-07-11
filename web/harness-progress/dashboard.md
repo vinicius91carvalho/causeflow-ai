@@ -679,3 +679,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - RepairPlan: QA correctly finds commercial Stripe packages/PaymentElement/setup scripts missing vs AC-031 Steps 1/3, but the dashboard already matches OSS AC-048/049 (stub payment-modal, no @stripe/stripe deps, only add-credits.ts). AC-053 reinterprets AC-031 as no STRIPE_SECRET_KEY in dashboard env.; Reconcile WI-AC-031 / feature_list verify steps to AC-053 OSS reading: keep Step 2 (no STRIPE_SECRET_KEY in dashboard env); drop or rewrite Steps 1/3 to match AC-048 stub + AC-049 script deletion; Update project_specs.xml Stripe integration + AC-031 title/steps to document OSS stub billing (not PaymentElement/devDep stripe scripts); Do not reinstall @stripe/react-stripe-js, @stripe/stripe-js, or stripe@20.x; do not restore PaymentElement or setup-stripe.ts/delete-user.ts (would regress AC-048/049); Keep OSS payment-modal stub and negative Stripe-absence tests; re-run QA against reconciled AC-031 criteria
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/914a1a9e-333d-425d-ae31-acc1dcef468b/dashboard/WI-AC-031-1-qa-82e3ecbf0e2734c7.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-11T20:16:22.452Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-031
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
