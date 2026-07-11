@@ -196,7 +196,7 @@ const server = http.createServer(async (req, res) => {
     metrics.probeCount += 1;
     metrics.lastProbeAt = new Date().toISOString();
     const evidence = {
-      source: 'stub-upstream',
+      source: 'causeflow-test-app',
       app: 'causeflow-test-app',
       tenantId,
       metric: 'cpu.utilization',

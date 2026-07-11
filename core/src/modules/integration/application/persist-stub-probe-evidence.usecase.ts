@@ -51,7 +51,7 @@ export class PersistStubProbeEvidenceUseCase {
       return { persisted: false };
     }
 
-    const source = String(stubEvidence['source'] ?? 'stub-upstream');
+    const source = String(stubEvidence['source'] ?? stubEvidence['app'] ?? 'causeflow-test-app');
     const metric = String(stubEvidence['metric'] ?? 'cpu.utilization');
     const value = stubEvidence['value'];
     const service = String(stubEvidence['service'] ?? 'order-service');
