@@ -5,9 +5,13 @@ let _client: ICoreApiClient | null = null;
 export function getApiClient(): ICoreApiClient {
   if (_client) return _client;
 
-  const apiUrl = process.env.CORE_API_URL;
+  const apiUrl = process.env.CORE_API_URL?.trim();
+
   if (!apiUrl) {
-    throw new Error('CORE_API_URL environment variable is required');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { MockApiClient } = require('./mock-api-client') as typeof import('./mock-api-client');
+    _client = new MockApiClient();
+    return _client;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-require-imports
