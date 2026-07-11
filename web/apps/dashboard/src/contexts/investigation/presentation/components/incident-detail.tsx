@@ -55,10 +55,11 @@ export function IncidentDetail({ initialIncident }: IncidentDetailProps) {
     }
   }, [incident.incidentId, addToast, t]);
 
-  // Live SSE from Core via /api/incidents/[id]/stream (AC-025). Opens an
+  // Live SSE from Core via /api/incidents/[id]/stream (AC-025 / AC-056). Opens an
   // EventSource so per-agent events (log, metric, change, code, infra, db)
   // reach the client as they complete; status events trigger a refresh.
   const stream = useIncidentStream(incident.incidentId);
+  const [sseProgressLabel, setSseProgressLabel] = useState<string | null>(null);
   useEffect(() => {
     const unsubs = [
       stream.on('incident.status_changed', () => {
@@ -67,10 +68,34 @@ export function IncidentDetail({ initialIncident }: IncidentDetailProps) {
       stream.on('incident.updated', () => {
         void fetchIncident();
       }),
+      stream.on('investigation.started', (evt) => {
+        const msg =
+          typeof evt.data.message === 'string'
+            ? evt.data.message
+            : typeof evt.data.stage === 'string'
+              ? evt.data.stage
+              : 'Investigation started';
+        setSseProgressLabel(msg);
+        void fetchIncident();
+      }),
+      stream.on('investigation.progress', (evt) => {
+        const msg =
+          typeof evt.data.message === 'string'
+            ? evt.data.message
+            : typeof evt.data.stage === 'string'
+              ? String(evt.data.stage)
+              : typeof evt.data.agentRole === 'string'
+                ? `Agent ${evt.data.agentRole}`
+                : 'Investigation progress';
+        setSseProgressLabel(msg);
+        void fetchIncident();
+      }),
       stream.on('investigation.completed', () => {
+        setSseProgressLabel('Investigation completed');
         void fetchIncident();
       }),
       stream.on('investigation.failed', () => {
+        setSseProgressLabel('Investigation failed');
         void fetchIncident();
       }),
       stream.on('investigation.aborted', () => {
@@ -79,7 +104,9 @@ export function IncidentDetail({ initialIncident }: IncidentDetailProps) {
       stream.on('remediation.proposed', () => {
         void fetchIncident();
       }),
-      stream.on('agent.completed', () => {
+      stream.on('agent.completed', (evt) => {
+        const role = typeof evt.data.agentRole === 'string' ? evt.data.agentRole : 'agent';
+        setSseProgressLabel(`Agent ${role} completed`);
         void fetchIncident();
       }),
     ];
@@ -216,6 +243,19 @@ export function IncidentDetail({ initialIncident }: IncidentDetailProps) {
           {/* Compact header: title + badges + actions + collapsible details */}
           <div className="shrink-0">
             <IncidentHeader incident={incident} actionBar={actionBar} />
+            {(sseProgressLabel || stream.status === 'connected') && (
+              <p
+                data-testid="incident-sse-progress"
+                className="mt-2 text-xs text-muted-foreground"
+                aria-live="polite"
+              >
+                {sseProgressLabel
+                  ? sseProgressLabel
+                  : stream.status === 'connected'
+                    ? 'Live investigation stream connected'
+                    : null}
+              </p>
+            )}
           </div>
 
           {/* Hypothesis / debate modes render a structured view that subsumes

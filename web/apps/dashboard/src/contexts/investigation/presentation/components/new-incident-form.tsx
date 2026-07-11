@@ -21,6 +21,7 @@ const SEVERITIES: { value: IncidentSeverity; colorClass: string }[] = [
 
 interface FormErrors {
   title?: string;
+  description?: string;
   severity?: string;
 }
 
@@ -47,6 +48,11 @@ export function NewIncidentForm() {
     } else if (title.length > 200) {
       newErrors.title = 'Title must be 200 characters or less';
     }
+    if (!description.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters';
+    }
     if (!severity) {
       newErrors.severity = 'Severity is required';
     }
@@ -63,10 +69,9 @@ export function NewIncidentForm() {
     try {
       const body: Record<string, unknown> = {
         title: title.trim(),
+        description: description.trim(),
         severity,
-        sourceProvider: 'manual',
       };
-      if (description.trim()) body.description = description.trim();
       // Staff-only: stamp the reasoning strategy at creation time so the
       // dispatcher routes to the chosen mode when the investigation kicks
       // off. BFF + Core API both silently drop this field for non-staff.
@@ -74,14 +79,20 @@ export function NewIncidentForm() {
         body.investigationMode = investigationMode;
       }
 
-      const res = await fetch('/api/analyses', {
+      // Prefer POST /api/incidents (AC-022 credits ledger + Core persist).
+      // Fall back to /api/analyses which shares the same createIncident client.
+      const res = await fetch('/api/incidents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
 
       if (!res.ok) {
-        const data = (await res.json()) as { error?: string };
+        const data = (await res.json()) as { error?: string; code?: string };
+        if (res.status === 402 || data.code === 'CREDITS_EXHAUSTED') {
+          addToast('Credits exhausted. Free plan allows 3 analyses per month.', 'error');
+          return;
+        }
         addToast(data.error ?? 'Failed to create incident. Please try again.', 'error');
         return;
       }
@@ -141,17 +152,35 @@ export function NewIncidentForm() {
       <div className="space-y-2">
         <label htmlFor="incident-description" className="block text-sm font-medium text-foreground">
           {t('description')}
+          <span className="text-destructive ml-1" aria-hidden="true">
+            *
+          </span>
         </label>
         <textarea
           id="incident-description"
           name="description"
           rows={8}
-          className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+          className={[
+            'w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground',
+            'focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow',
+            errors.description ? 'border-destructive/60' : 'border-border',
+          ].join(' ')}
           placeholder={t('descriptionPlaceholder')}
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e) => {
+            setDescription(e.target.value);
+            if (errors.description) setErrors((prev) => ({ ...prev, description: undefined }));
+          }}
           disabled={isSubmitting}
+          aria-describedby={errors.description ? 'description-error' : undefined}
+          aria-invalid={!!errors.description}
+          required
         />
+        {errors.description && (
+          <p id="description-error" role="alert" className="text-xs text-destructive">
+            {errors.description}
+          </p>
+        )}
       </div>
 
       {/* Severity */}

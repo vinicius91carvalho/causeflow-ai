@@ -4,7 +4,7 @@
  * useIncidentStream — subscribe to the live SSE stream for one incident.
  *
  * Opens a single `EventSource` against `/api/incidents/{id}/stream`, which
- * proxies Core's `GET /v1/incidents/:id/stream` as `text/event-stream`.
+ * proxies Core's `GET /v1/investigation/:id/stream` as `text/event-stream`.
  * Filters events by `incidentId` so cross-incident events don't bleed in,
  * and exposes a typed subscription API.
  *

@@ -67,7 +67,8 @@ docs/solutions/
 │   ├── 2026-02-28_dashboard-url-constant.md
 │   ├── 2026-03-03_stripe-subscription-integration.md
 │   ├── 2026-03-04_bounded-contexts-nextjs-refactoring.md
-│   └── 2026-07-11_oss-playwright-dashboard-e2e.md
+│   ├── 2026-07-11_oss-playwright-dashboard-e2e.md
+│   └── 2026-07-11_oss-incident-create-sse.md
 ├── bugfixes/
 │   ├── 2026-02-28_cognito-secrethash.md
 │   ├── 2026-02-28_sst-opennext-header-renaming.md

@@ -4,9 +4,13 @@ import { withAuth } from '@/lib/api/with-auth';
 /**
  * GET /api/incidents/[id]/stream
  *
- * Proxies the Core API SSE stream (GET /v1/incidents/:id/stream) to the
+ * Proxies the Core API SSE stream (GET /v1/investigation/:id/stream) to the
  * browser as a streaming Next.js Response. Middleware skips /api/* so this
  * route is not buffered or redirected; withAuth still gates the session.
+ *
+ * Core mounts investigation progress SSE under `/v1/investigation/:id/stream`
+ * (not `/v1/incidents/:id/stream`, which 404s). Keep the dashboard BFF path
+ * stable for the browser EventSource while forwarding to the real Core route.
  */
 export const GET = withAuth(async (request: NextRequest, ctx, params) => {
   const incidentId = params?.id;
@@ -39,7 +43,7 @@ export const GET = withAuth(async (request: NextRequest, ctx, params) => {
 
       try {
         const res = await fetch(
-          `${apiUrl}/v1/incidents/${encodeURIComponent(incidentId)}/stream`,
+          `${apiUrl}/v1/investigation/${encodeURIComponent(incidentId)}/stream`,
           {
             headers: { Authorization: `Bearer ${token}` },
             signal: request.signal,

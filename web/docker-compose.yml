@@ -20,7 +20,8 @@
 # shellcheck disable=SC2034
 x-core-context: &core-context
   # Override with: CORE_CONTEXT=/abs/path/to/core docker compose up -d
-  context: ${CORE_CONTEXT:-../../causeflow-ai-wt-core-open-source-local-runtime/core}
+  # Default: sibling `core/` in this monorepo checkout (…/web + …/core).
+  context: ${CORE_CONTEXT:-../core}
 
 name: causeflow-oss
 

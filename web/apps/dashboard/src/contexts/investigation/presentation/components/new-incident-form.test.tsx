@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 
 describe('new-incident-form stub', () => {
-  it('placeholder — form always sends sourceProvider: manual', () => {
+  it('placeholder — form requires description and POSTs /api/incidents', () => {
     expect(true).toBe(true);
   });
 });
