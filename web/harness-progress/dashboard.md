@@ -513,3 +513,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Outcome: user authorized a new Attempt cycle
 - Guidance: WI-AC-024 QA Attempt 3 FAILED — evidence: next-server listens on :5170 but GET /api/health hangs (AbortError 15s / curl 000). Routes may be committed (0b6bfeb8) but HTTP preflight must work. Fix bring-up: kill stale next/turbo; use next start (not turbo dev) on PORT=5170; confirm curl --max-time 15 /api/health → 200 before ac024-verify.mjs. Also keep manifest-based route check (47 AC routes thin re-exports), not literal wc -l == 44. Then re-QA + IV.
 - NextAction: Coding Attempt 1
+
+## 2026-07-11T11:18:51.967Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
