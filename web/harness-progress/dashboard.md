@@ -301,3 +301,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Outcome: QA failed after Attempt 3
 - Defects: expected each integration card to display a non-empty integration description per AC-027; observed 14 of 15 cards with empty description text (only AWS CloudWatch shows description); evidence Playwright at http://localhost:5181/dashboard/integrations (cardCount=15, composioLogoCount=15, connectCount=15) and GET /api/integrations/catalog returns desc_len=0 for slack/github/jira/hubspot/trello/postgresql/linear/sentry/mongodb/datadog/pagerduty/grafana/confluence/webhooks
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-11T06:29:03.696Z — Explicit Resume
+
+- WorkItem: WI-AC-027
+- Outcome: user authorized a new Attempt cycle
+- Guidance: WI-AC-027 failed because /api/integrations/catalog returns empty description (desc_len=0) for 14/15 providers; only AWS CloudWatch has text. Playwright at /dashboard/integrations correctly shows empty card descriptions.
+- NextAction: Coding Attempt 1
