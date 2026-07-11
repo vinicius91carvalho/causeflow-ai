@@ -1,4 +1,5 @@
 import { logger } from '../logger.js';
+import { shouldCountLlmCircuitFailure } from './llm-context-errors.js';
 
 export type CircuitState = 'closed' | 'open' | 'half_open';
 
@@ -40,7 +41,9 @@ export class CircuitBreaker {
             return result;
         }
         catch (error) {
-            this.onFailure();
+            if (shouldCountLlmCircuitFailure(error)) {
+                this.onFailure();
+            }
             throw error;
         }
     }

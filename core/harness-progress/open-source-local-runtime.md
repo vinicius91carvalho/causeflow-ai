@@ -6323,3 +6323,40 @@ No defects found. integration=true set in feature_list.json.
 - Defects: expected PUT/GET /v1/oss/llm-connector API to switch active LLM connector between Ornith and DeepSeek (OpenCode Go or NVIDIA NIM); observed HTTP 404 on both GET and PUT with valid JWT against running Core at http://127.0.0.1:3099; evidence: authenticated curl returned '404 Not Found'; expected .harness/ac059-verify.sh black-box verification script and llm-connector-fallback unit tests per coding-agent notes; observed neither file exists in plan/opensource-docker checkout; evidence: glob and rg found zero matches for ac059-verify, llm-connector-fallback.test.ts, OPENCODE_API_KEY, NVIDIA_API_KEY, deepseek-v4, LLM_CONTEXT_TOO_LARGE under core/; expected .env.example and docker-compose.yml to document DeepSeek fallback env vars (OPENCODE_API_KEY / NVIDIA_API_KEY, deepseek-opencode / deepseek-nim profiles) populated at runtime from operator host config; observed only Ornith LLM_BASE_URL/LLM_MODEL entries; evidence: .env.example lines 35-42, docker-compose.yml lines 115-116; expected runtime connector switch so triage/investigation completions use DeepSeek after operator selects fallback; observed llm-factory.ts wires only Ornith OpenAiCompatibleLlmClient or Anthropic override with no DeepSeek profile resolution; evidence: src/shared/infra/llm/llm-factory.ts; expected feature_list.json implementation:true after coding phase; observed implementation:false, qa:false, integration:false for WI-AC-059; evidence: core/feature_list.json lines 1303-1305; coding harness log claimed implementation but only harness-progress checkpoint commits (8ce88fb4, b2ade5be) landed with no product code
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/8bc00f7e-25b3-402f-ba11-5d754945ca60/open-source-local-runtime/WI-AC-059-1-integration_qa-212dec2495492050.log
 - NextAction: Repair Plan
+
+## 2026-07-11T09:35:57.660Z — Resumed
+
+- WorkItem: WI-AC-059
+- PreviousPhase: repair_plan
+- Attempt: 1
+- NextAction: repair-plan
+
+## 2026-07-11T09:38:24.891Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-059
+- DefectReport: expected PUT/GET /v1/oss/llm-connector API to switch active LLM connector between Ornith and DeepSeek (OpenCode Go or NVIDIA NIM); observed HTTP 404 on both GET and PUT with valid JWT against running Core at http://127.0.0.1:3099; evidence: authenticated curl returned '404 Not Found'; expected .harness/ac059-verify.sh black-box verification script and llm-connector-fallback unit tests per coding-agent notes; observed neither file exists in plan/opensource-docker checkout; evidence: glob and rg found zero matches for ac059-verify, llm-connector-fallback.test.ts, OPENCODE_API_KEY, NVIDIA_API_KEY, deepseek-v4, LLM_CONTEXT_TOO_LARGE under core/; expected .env.example and docker-compose.yml to document DeepSeek fallback env vars (OPENCODE_API_KEY / NVIDIA_API_KEY, deepseek-opencode / deepseek-nim profiles) populated at runtime from operator host config; observed only Ornith LLM_BASE_URL/LLM_MODEL entries; evidence: .env.example lines 35-42, docker-compose.yml lines 115-116; expected runtime connector switch so triage/investigation completions use DeepSeek after operator selects fallback; observed llm-factory.ts wires only Ornith OpenAiCompatibleLlmClient or Anthropic override with no DeepSeek profile resolution; evidence: src/shared/infra/llm/llm-factory.ts; expected feature_list.json implementation:true after coding phase; observed implementation:false, qa:false, integration:false for WI-AC-059; evidence: core/feature_list.json lines 1303-1305; coding harness log claimed implementation but only harness-progress checkpoint commits (8ce88fb4, b2ade5be) landed with no product code
+- RepairPlan: QA correctly failed WI-AC-059: committed HEAD has no AC-059 product code (only harness-progress checkpoints 8ce88fb4/b2ade5be and defect log 5ae54cf6). A near-complete implementation exists only as uncommitted changes (13 modified + 10 untracked files including oss-llm-connector routes, connector profile/store, tests, and ac059-verify.sh). QA at 09:34Z hit http://127.0.0.1:3099 without those files, so GET/PUT /v1/oss/llm-connector returned 404 and rg found zero AC-059 symbols. project_specs.xml scaffold (feature_list.json, init.sh, project_specs.xml) is present; AC-059 deliverables are missing from the git index, not from the worktree.; Commit the full AC-059 stack atomically: untracked src/modules/oss/infra/oss-llm-connector.routes.ts, src/shared/domain/llm-connector.entity.ts, llm-connector-profile.ts, llm-context-errors.ts, oss-llm-connector-store.ts, oss-llm-circuit-breaker.ts, tests/unit/shared/llm/llm-connector-fallback.test.ts, .harness/ac059-verify.sh, plus modified app.ts (route mount), bootstrap.ts, config, llm-factory, openai-compatible-llm-client, triage/investigate use cases, worker, .env.example, docker-compose.yml; exclude ephemeral .harness/worker.pid; Verify OSS gate: CAUSEFLOW_RUNTIME=oss, bootstrap provides ossAuthRouter, and app.ts registers app.route('/v1/oss/llm-connector', createOssLlmConnectorRoutes()) only in OSS mode; Run pnpm typecheck && pnpm test:run tests/unit/shared/llm/llm-connector-fallback.test.ts && pnpm lint-invariants; Boot fresh API+worker on PORT=5171 using .harness/ac059.env (not stale :3099), then run .harness/ac059-verify.sh end-to-end including PUT switch to deepseek-opencode and triage completion evidence; After green local proof, set feature_list.json WI-AC-059 implementation:true (then qa/integration on re-run) and re-invoke INTEGRATION_QA against the committed revision
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/8bc00f7e-25b3-402f-ba11-5d754945ca60/open-source-local-runtime/WI-AC-059-1-integration_qa-212dec2495492050.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-11T09:39:32.277Z — Resumed
+
+- WorkItem: WI-AC-059
+- PreviousPhase: coding
+- Attempt: 2
+- NextAction: coding
+
+## 2026-07-11T09:44:15.767Z — Resumed
+
+- WorkItem: WI-AC-059
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
+
+## 2026-07-11T09:46:36.916Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-059
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

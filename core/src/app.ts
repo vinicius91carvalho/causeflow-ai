@@ -33,6 +33,7 @@ import { createWidgetRoutes } from './modules/widget/infra/widget.routes.js';
 import { createPortalRoutes } from './modules/widget/infra/portal.routes.js';
 import { createBillingRoutes, createBillingWebhookRoute, createSignupRoute } from './modules/billing/infra/billing.routes.js';
 import { createUserRoutes } from './modules/user/infra/user.routes.js';
+import { createOssLlmConnectorRoutes } from './modules/oss/infra/oss-llm-connector.routes.js';
 import type { AppContext } from './bootstrap.js';
 import type { AppEnv } from './shared/infra/http/hono-types.js';
 import type { BlankSchema } from 'hono/types';
@@ -166,6 +167,7 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, "/"> {
     if (config.isOss() && 'ossAuthRouter' in ctx) {
       const ossAuthRouter = (ctx as any).ossAuthRouter;
       app.route('/v1/auth', ossAuthRouter);
+      app.route('/v1/oss/llm-connector', createOssLlmConnectorRoutes());
     } else {
       app.route('/v1/auth', createAuthRoutes(ctx.authUseCases));
     }

@@ -6,6 +6,9 @@ import { triageResultSchema, buildTriagePrompt, TRIAGE_SYSTEM_PROMPT } from '../
 import { logger } from '../../../shared/infra/logger.js';
 import { config } from '../../../shared/config/index.js';
 import { isLocalLlmFailClosedMode, usesLocalLlmConnector } from '../../../shared/infra/llm/llm-factory.js';
+import { LlmContextTooLargeError } from '../../../shared/infra/llm/llm-context-errors.js';
+import { LLM_CONTEXT_TOO_LARGE_CODE } from '../../../shared/domain/llm-connector.entity.js';
+import { connectorEvidenceLabel, resolveActiveLlmEndpoint } from '../../../shared/infra/llm/llm-connector-profile.js';
 import type { IIncidentRepository } from '../../ingestion/domain/incident.repository.js';
 import type { IEvidenceRepository } from '../domain/evidence.repository.js';
 import type { IEventBus } from '../../../shared/domain/events.js';
@@ -135,6 +138,7 @@ export class TriageIncidentUseCase {
             const systemPrompt = await this.buildSmartPrompt(tenantId);
             let result: TriageResult;
             let triageLlmModel: string | undefined;
+            let triageLlmConnector: string | undefined;
             try {
                 const completion = await this.llmClient.complete<TriageResult>({
                     systemPrompt,
@@ -147,6 +151,8 @@ export class TriageIncidentUseCase {
                 });
                 result = completion.content;
                 triageLlmModel = completion.model;
+                const endpoint = await resolveActiveLlmEndpoint();
+                triageLlmConnector = connectorEvidenceLabel(endpoint.connectorId);
                 // Guard against stub/LLM bodies that parse loosely but omit fields
                 // required to dispatch investigation (AC-046).
                 const validated = triageResultSchema.safeParse(result);
@@ -160,6 +166,10 @@ export class TriageIncidentUseCase {
                 result = validated.data;
             }
             catch (err) {
+                if (err instanceof LlmContextTooLargeError) {
+                    await this.incidentRepo.updateStatus(tenantId, incidentId, 'failed');
+                    throw new TriageFailedError(String(incidentId), `${LLM_CONTEXT_TOO_LARGE_CODE}: ${err.message}`);
+                }
                 if (isLocalLlmFailClosedMode()) {
                     const reason = err instanceof Error ? err.message : 'Local LLM connector unavailable';
                     await this.incidentRepo.updateStatus(tenantId, incidentId, 'failed');
@@ -209,7 +219,12 @@ export class TriageIncidentUseCase {
                         confidence: result.confidence,
                         category: result.category,
                         ...(triageLlmModel
-                            ? { source: 'llm_completion', llmModel: triageLlmModel, llmConnector: 'local', phase: 'triage' }
+                            ? {
+                                source: 'llm_completion',
+                                llmModel: triageLlmModel,
+                                llmConnector: triageLlmConnector ?? 'local',
+                                phase: 'triage',
+                              }
                             : {}),
                     },
                     createdAt: new Date().toISOString(),

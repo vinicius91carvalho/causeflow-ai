@@ -36,6 +36,7 @@ import { GrafanaParser } from './modules/ingestion/infra/parsers/grafana.parser.
 import { CloudWatchParser } from './modules/ingestion/infra/parsers/cloudwatch.parser.js';
 import { SentryParser } from './modules/ingestion/infra/parsers/sentry.parser.js';
 import { createRawAgentRunner, createRawLlmClient, usesLocalLlmConnector } from './shared/infra/llm/llm-factory.js';
+import { registerOssLlmCircuitBreaker } from './shared/infra/llm/oss-llm-circuit-breaker.js';
 import { AesGcmTokenEncryption } from './shared/infra/credentials/aes-gcm-token-encryption.js';
 import { StubCloudProvider } from './shared/infra/cloud/stub-cloud-provider.js';
 import { STSCredentialVendor } from './shared/infra/credentials/sts-credential-vendor.js';
@@ -346,6 +347,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const anthropicCircuitBreaker = new CircuitBreaker(
     config.isOss() ? { failureThreshold: 1, resetTimeoutMs: 60_000 } : { failureThreshold: 5, resetTimeoutMs: 60_000 },
   );
+  if (config.isOss()) {
+    registerOssLlmCircuitBreaker(anthropicCircuitBreaker);
+  }
 
   // LLM Client + Agent Runner (wrapped with observability decorators).
   // AC-054: OSS default connector is Ornith via OpenAI-compatible llama.cpp.
