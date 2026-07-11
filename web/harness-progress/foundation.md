@@ -5138,3 +5138,12 @@ The repair is in how QA runs the check, not in the code under test.
 - WorkItem: WI-AC-007
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T08:43:47.177Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-007
+- AcceptanceChecks: AC-007
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bcaa3315-1fdf-462e-b406-249a4f274399/foundation/WI-AC-007-2-integration_qa-3efb616bac31c0ed.log
+- NextAction: next Ready Work Item
