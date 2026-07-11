@@ -393,3 +393,10 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - RepairPlan: WI-AC-020 failed because integration QA evaluated Clerk-era AC-020 criteria against committed OSS JWT middleware (AC-046). Committed HEAD lacked the no-org redirect and used a broken /api/health regex; partial fixes exist uncommitted in the worktree but were not running on :5170 during QA.; Commit and integrate the uncommitted middleware.ts changes: add hasOrganization() + /create-organization redirect and fix health regex to /^\/api\/health/.; Reconcile AC-020 acceptance text and QA script with AC-046 OSS semantics: test pipeline as public bypass → __session JWT auth → org guard → i18n; stop failing on absent clerkMiddleware/staging-auth/profile-guard unless OSS equivalents are explicitly required.; Extend apps/dashboard/src/__tests__/middleware-auth.test.ts (and/or a Playwright spec) to assert no-org JWT → 307 /create-organization, no cookie → 307 /auth/sign-in, and all documented isPublicRoute paths including /api/health/detailed.; If profile-completion gating remains a product requirement in OSS, add an explicit post-auth guard (e.g. redirect to /onboarding/complete-profile) or document it as out-of-scope for AC-020 under AC-046.; Re-run WI-AC-020 INTEGRATION_QA on the integrated commit at PORT=5170.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/e76f109e-3a6b-4eb3-8f27-aac4cd0197e9/dashboard/WI-AC-020-1-integration_qa-158d4dd812cf49dc.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-11T08:57:48.665Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-020
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
