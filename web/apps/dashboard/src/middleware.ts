@@ -118,6 +118,19 @@ function matchLocale(tags: string[]): SupportedLocale | null {
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Dev-only: rewrite lvh.me loopback back to localhost so the __session
+  // cookie (scoped to localhost) is valid. Checkout/portal handlers rewrite
+  // localhost → lvh.me to bypass the Core API's WAF SSRF filter, but Stripe
+  // redirects the browser to lvh.me where the cookie would otherwise be absent.
+  // Prefer the Host header: `next dev --hostname localhost` can keep
+  // nextUrl.hostname as "localhost" even when the browser hit lvh.me.
+  const requestHost = (request.headers.get('host') ?? request.nextUrl.hostname).split(':')[0];
+  if (process.env.NODE_ENV === 'development' && requestHost === 'lvh.me') {
+    const port = request.nextUrl.port || (request.headers.get('host')?.split(':')[1] ?? '');
+    const dest = `http://localhost${port ? `:${port}` : ''}${pathname}${request.nextUrl.search}`;
+    return NextResponse.redirect(dest);
+  }
+
   // API routes — skip i18n entirely. Protected API routes are guarded by
   // `withAuth` (which reads the __session cookie + Core whoami), not here.
   if (pathname.startsWith('/api/')) {
