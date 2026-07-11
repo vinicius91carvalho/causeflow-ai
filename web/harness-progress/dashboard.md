@@ -637,3 +637,52 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/b4d41e64-d831-4e28-bde0-9e16435828b0/dashboard/WI-AC-026-1-integration_qa-8cee9c1cca1a882c.log
 - NextAction: next Ready Work Item
+
+## 2026-07-11T20:02:19.344Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-031
+- DefectReport: expected payment-modal.tsx to mount Stripe PaymentElement via @stripe/react-stripe-js + @stripe/stripe-js loadStripe when NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set; observed OSS stub with no @stripe imports/PaymentElement/loadStripe and payment-modal.test.tsx asserting their absence; evidence rg PaymentElement/loadStripe/@stripe in apps/dashboard/src → only negative test assertions + apps/dashboard/package.json has neither @stripe/react-stripe-js nor @stripe/stripe-js; expected stripe@20.x in apps/dashboard package.json devDependencies (not dependencies) and imported only from scripts/setup-stripe.ts and scripts/delete-user.ts; observed no stripe entry in dependencies or devDependencies, scripts/ contains only add-credits.ts (no setup-stripe.ts/delete-user.ts), and no from 'stripe' imports under apps/dashboard; evidence node -e package.json check + find apps/dashboard/scripts + rg from ['"]stripe['"]
+- RepairPlan: QA correctly found payment-modal is an AC-048 OSS stub with no @stripe packages/PaymentElement/loadStripe, and stripe@20.x + setup-stripe.ts/delete-user.ts are absent; restoring them would regress AC-048/049. AC-053 reinterprets AC-031's surviving invariant as no STRIPE_SECRET_KEY in dashboard env (already true: no stripe deps, no sst.config.ts, .env.example has no STRIPE_*).; Do not re-add @stripe/react-stripe-js, @stripe/stripe-js, or stripe@20.x; do not restore setup-stripe.ts/delete-user.ts or PaymentElement (forbidden by AC-048/049); Keep payment-modal.tsx OSS stub and payment-modal.test.tsx assertions of Stripe absence; Preserve AC-031 security core: STRIPE_SECRET_KEY absent from .env.example and any SST/runtime injection; checkout/portal/webhook stay Core-proxied with zero Stripe SDK imports; Update feature_list.json WI-AC-031 description/steps to the AC-053 OSS reinterpretation (secret-key absence + no Stripe in dashboard runtime; Steps 1/3 superseded by AC-048/049); Clear stale commercial Stripe docs/env noise (CLAUDE.md CLI stripe:setup/users:delete; optional NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY in .env.local that flips isOssRuntime())
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/b4d41e64-d831-4e28-bde0-9e16435828b0/dashboard/WI-AC-031-1-qa-f4e37cc79280a63f.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-11T20:05:26.836Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-031
+- DefectReport: expected payment-modal to mount Stripe PaymentElement via @stripe/react-stripe-js + @stripe/stripe-js when NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set; observed apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx is an OSS stub with no PaymentElement/loadStripe/useStripe and package.json has neither @stripe/react-stripe-js nor @stripe/stripe-js; evidence rg PaymentElement|loadStripe|@stripe in payment-modal.tsx and node package.json deps (both absent); expected stripe@20.x in apps/dashboard/package.json devDependencies (not dependencies) and imported only from apps/dashboard/scripts/setup-stripe.ts and delete-user.ts; observed stripe absent from dependencies and devDependencies, scripts/ contains only add-credits.ts (setup-stripe.ts and delete-user.ts missing), and no from 'stripe' / @stripe imports under apps/dashboard; evidence node package.json keys + ls apps/dashboard/scripts/ + rg @stripe/|from 'stripe'
+- RepairPlan: QA defects match the tree but are intentional OSS removals (AC-048/049); WI-AC-031 still requires commercial Stripe while AC-053 says AC-031's surviving invariant is no STRIPE_SECRET_KEY because Stripe is gone.; Reconcile feature_list.json WI-AC-031 (+ project_specs AC-031 steps) to AC-053 OSS reading: Step 2 secret-key absence + Core-proxy handlers; drop PaymentElement/stripe@20.x/setup-stripe/delete-user requirements; Do not restore @stripe/react-stripe-js, @stripe/stripe-js, stripe@20.x, PaymentElement, setup-stripe.ts, or delete-user.ts (would regress AC-048/049); Keep payment-modal.tsx OSS stub and scripts/=add-credits.ts only; re-run WI-AC-031 verify-first against reconciled steps
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/b4d41e64-d831-4e28-bde0-9e16435828b0/dashboard/WI-AC-031-2-qa-622681947744f7f0.log
+- NextAction: Coding Attempt 3
+
+## 2026-07-11T20:09:24.414Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-031
+- Outcome: QA failed after Attempt 3
+- Defects: expected Step 1: payment-modal mounts Stripe PaymentElement (via @stripe/react-stripe-js + @stripe/stripe-js loadStripe) when NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set; observed zero @stripe packages in apps/dashboard/package.json and payment-modal.tsx is AC-048 OSS stub with no PaymentElement/loadStripe/@stripe imports (grep -nE PaymentElement|loadStripe|@stripe → zero matches); evidence cli audit apps/dashboard/package.json + apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx; expected Step 3: stripe@20.x in apps/dashboard/package.json devDependencies (not dependencies) and only imported from apps/dashboard/scripts/setup-stripe.ts and delete-user.ts; observed stripe absent from dependencies and devDependencies (grep -nE stripe|@stripe package.json → zero), scripts/ contains only add-credits.ts, setup-stripe.ts and delete-user.ts missing (AC-049); evidence cli audit apps/dashboard/package.json + find apps/dashboard/scripts
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-11T20:09:28.015Z — Explicit Resume
+
+- WorkItem: WI-AC-031
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: worker process exited; resume context after confirming worktree is healthy.
+- NextAction: Coding Attempt 1
+
+## 2026-07-11T20:13:59.604Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-031
+- DefectReport: expected Step 1: payment-modal mounts Stripe PaymentElement via @stripe/react-stripe-js + @stripe/stripe-js loadStripe when NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set; observed apps/dashboard/package.json has zero @stripe packages and payment-modal.tsx is AC-048 OSS stub with no PaymentElement/loadStripe/useStripe (only payment-modal.test.tsx asserts their absence); evidence grep -nE '@stripe|PaymentElement|loadStripe|useStripe|useElements' apps/dashboard/package.json apps/dashboard/src → only negative test assertions; expected Step 3: stripe@20.x in apps/dashboard/package.json devDependencies (not dependencies) and imported only from apps/dashboard/scripts/setup-stripe.ts and delete-user.ts; observed stripe absent from dependencies and devDependencies, scripts/ contains only add-credits.ts (setup-stripe.ts and delete-user.ts missing per AC-049), no from 'stripe' imports; evidence node package.json keys + find apps/dashboard/scripts + grep from ['"]stripe['"]
+- RepairPlan: QA correctly finds commercial Stripe packages/PaymentElement/setup scripts missing vs AC-031 Steps 1/3, but the dashboard already matches OSS AC-048/049 (stub payment-modal, no @stripe/stripe deps, only add-credits.ts). AC-053 reinterprets AC-031 as no STRIPE_SECRET_KEY in dashboard env.; Reconcile WI-AC-031 / feature_list verify steps to AC-053 OSS reading: keep Step 2 (no STRIPE_SECRET_KEY in dashboard env); drop or rewrite Steps 1/3 to match AC-048 stub + AC-049 script deletion; Update project_specs.xml Stripe integration + AC-031 title/steps to document OSS stub billing (not PaymentElement/devDep stripe scripts); Do not reinstall @stripe/react-stripe-js, @stripe/stripe-js, or stripe@20.x; do not restore PaymentElement or setup-stripe.ts/delete-user.ts (would regress AC-048/049); Keep OSS payment-modal stub and negative Stripe-absence tests; re-run QA against reconciled AC-031 criteria
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/914a1a9e-333d-425d-ae31-acc1dcef468b/dashboard/WI-AC-031-1-qa-82e3ecbf0e2734c7.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-11T20:16:22.452Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-031
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
