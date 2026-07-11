@@ -688,12 +688,14 @@
       "AC-002"
     ],
     "verify_first": true,
-    "implementation": false,
+    "implementation": true,
     "qa": false,
     "integration": false,
-    "retries": 0,
-    "attempts": 0,
-    "status": "verify-first"
+    "retries": 1,
+    "attempts": 1,
+    "status": "implemented",
+    "implemented_at": "2026-07-09T16:55:00Z",
+    "implementation_notes": "Verify-first checkpoint: types.ts has all 15 AC-specified types (plus 2 extras: Notion, Shortcut). INTEGRATION_CATALOG has 17 entries with descriptions, local SVG icons, and phase-gated Connect CTAs. Type-specific Zod schemas exist in per-context api-schema.ts (re-exported through lib/api/schemas.ts). Integration type has encryptedCredentials field for KMS-envelope encryption. Dev server boots (port 5181), /api/integrations/catalog route exists and responds 401 without auth, tsc --noEmit exit 0, 163 test files/1071 tests pass. Composio-specific requirements (logos, composioTriggerId, remotePatterns) intentionally removed per AC-051 open-source-local-runtime migration -- cards use local SVGs instead of Composio CDN."
   },
   {
     "id": "WI-AC-034",

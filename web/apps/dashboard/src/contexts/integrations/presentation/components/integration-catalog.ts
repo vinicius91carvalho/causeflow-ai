@@ -71,7 +71,6 @@ export const INTEGRATION_CATALOG: IntegrationCatalogEntry[] = [
     phase: 'mvp',
     color: '#0052CC',
   },
-
   {
     type: 'sentry',
     name: 'Sentry',

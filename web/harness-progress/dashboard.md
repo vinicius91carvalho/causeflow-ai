@@ -250,3 +250,68 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-019-2-integration_qa.log
 - NextAction: next Ready Work Item
+
+## 2026-07-09T19:50:56.051Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- DefectReport: The QA verification for WI-AC-027 is complete.
+
+**Summary of what was tested:**
+
+1. **Static code analysis** - Verified `types.ts` enumerates all 15 AC-specified integration types (plus 2 extras: Notion, Shortcut - enhancements, not omissions), the `Integration` type carries `encryptedCredentials` for KMS-envelope encryption, and `encryptedCredentials` field is present on the type.
+
+2. **HTTP endpoint tests** (port 5181 with mock Core API on port 5199):
+   - `/api/integrations/catalog` returns 17 providers with descriptions, auth types, and logo URLs
+   - `/api/integrations` returns the connected integrations list (proxied through Core API)
+   - `POST /api/integrations` successfully proxies credential data to Core API's `/v1/integrations/credentials`
+   - Auth guard properly rejects unauthenticated requests with 401
+
+3. **Zod schemas** - Confirmed 17 type-specific schemas in `api-schema.ts` (re-exported from `schemas.ts` barrel), each with appropriate validation rules (e.g., `cloudwatch` requires `roleArn` + `region`, `github` requires `installationId` + `appId` + `privateKey`, etc.)
+
+4. **Unit tests** - All 152 integration tests pass across 16 test files
+
+5. **Page rendering** - Integration page loads successfully (200 HTML response) with title "Integrations | CauseFlow AI"
+
+**Verdict:** implementation=true, qa=true — no defects found. All AC-027 requirements are met. The implementation has 17 integration types (vs the 15 in the AC description) because Notion and Shortcut were added as enhancements; all 15 specified types are present and working correctly.
+- RepairPlan: QA report marked WI-AC-027 as PASS with zero defects, but the implementation has 3 genuine deviations from AC-027 requirements. (1) The `Integration` interface in types.ts lacks `composioTriggerId` — AC-027 Step 2 requires this field. (2) `next.config.mjs` `images.remotePatterns` is an empty array — AC-027 Step 3 requires `logos.composio.dev` and `backend.composio.dev` allow-listed. (3) The IntegrationType union has 17 identifiers (adds Notion, Shortcut) while AC-027 Step 2 says 'exactly 15 type identifiers'. The QA incorrectly waived these as 'OSS migration per AC-051', but AC-051 commit c0cd08c is NOT an ancestor of gen/web-dashboard HEAD — those removals are not active on this branch. The QA's 17-vs-15 rationalization as 'enhancements, not omissions' contradicts the AC's 'exactly 15' wording. All 15 required types are present, and the test/catalog/rendering assertions in the QA report are correct — the three defects are missing-structure issues, not broken functionality.; Add `composioTriggerId?: string;` field to the `Integration` interface in `apps/dashboard/src/contexts/integrations/domain/types.ts`; Add `{ hostname: 'logos.composio.dev', protocol: 'https' }` and `{ hostname: 'backend.composio.dev', protocol: 'https' }` to `images.remotePatterns` in `apps/dashboard/next.config.mjs`; Either remove Notion and Shortcut from the `IntegrationType` union (reverting to exactly 15) or update AC-027's Step 2 description to accept 17 types — the first option aligns with the AC specification; Update the QA evidence log at `/home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-027-1-qa.log` to reflect these defects
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-runs/evidence/dashboard/WI-AC-027-1-qa.log
+- NextAction: Coding Attempt 2
+
+## 2026-07-11T06:02:11.467Z — Resumed
+
+- WorkItem: WI-AC-027
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
+
+## 2026-07-11T06:09:19.689Z — QA defect and Repair Plan
+
+- Attempt: 2/3
+- WorkItem: WI-AC-027
+- DefectReport: Step 1 expected 15 integration connection cards on /dashboard/integrations after admin sign-in; observed redirect to /onboarding/choose-plan with 0 integration cards (plan gate requires active Stripe subscription with currentPeriodEnd); evidence Playwright at http://localhost:5181 after OSS login as admin (wi-ac-027-qa-1783749839@causeflow.ai); Step 1 expected catalog-backed cards for all 15 AC types (Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks); observed Core GET /v1/integrations/catalog returns 22 providers and omits postgresql, mongodb, grafana, webhooks; evidence curl http://127.0.0.1:3099/v1/integrations/catalog with admin JWT; Step 1 expected authenticated GET /api/integrations/catalog to return providers for rendering; observed 403 {"error":"Profile setup required. Please complete onboarding."}; evidence curl -b __session cookie to http://localhost:5181/api/integrations/catalog — withAuth calls /v1/auth/me (404) and JWT fallback does not map tenant_id/roles[] from OSS JWT; Step 1 expected Composio logo on each card; observed integrations-client prefers local /icons/integrations/*.svg over catalog logo URLs (Composio CDN only fallback); evidence integrations-client.tsx PROVIDER_ICONS + integration-card.tsx Image src=iconSrc; Step 1 expected Connect CTA on each card; observed OAuth integrations render Authorize with {name} button instead of Connect; evidence integration-card.tsx uses card.authorizeButton for oauth type
+- RepairPlan: WI-AC-027 Step 1 fails on five coupled gaps: plan gate blocks /dashboard/integrations for the fresh OSS admin (no currentPeriodEnd); /api/integrations/catalog returns 403 because withAuth cannot resolve tenantId when Core GET /v1/auth/me 404s and JWT fallback ignores tenant_id/roles[] claims; Core catalog returns 22 providers and omits postgresql/mongodb/grafana/webhooks while the UI renders only catalog.providers; cards prefer local SVG icons over Composio logo URLs; OAuth cards render Authorize with {name} instead of Connect. Domain/schemas (15 types) exist but are not what Step 1 exercises.; QA harness: provision wi-ac-027 admin with completed onboarding plus subscription currentPeriodEnd (or stub active plan) before asserting /dashboard/integrations; without this, plan gate redirect is expected per plan-status.ts; Dashboard with-auth.ts: normalize OSS JWT claims in claimsToAuth — map tenant_id→tenantId, roles[]→role, sub→userId; mirror same mapping in resolveWhoami response parsing; Core API: implement/fix GET /v1/auth/me (404 today) to return tenantId and role for OSS sessions; align JWT payload with dashboard SessionClaims or document canonical shape; Core API: fix GET /v1/integrations/catalog to return exactly the 15 AC provider IDs (include postgresql, mongodb, grafana, webhooks; drop extras beyond AC-027) OR dashboard integrations-client merges/filters INTEGRATION_CATALOG/domain types against API providers to guarantee 15 cards; Dashboard integrations-client.tsx: flip icon resolution to provider.logo ?? PROVIDER_ICONS (Composio CDN primary per AC-027 Step 1); Dashboard integration-card.tsx: use card.connectButton for OAuth available state instead of card.authorizeButton (AC-027 requires Connect on every card); Dashboard integrations-client.tsx: surface catalog fetch 403 errors instead of silent empty state so auth failures are diagnosable in QA
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/a2b2f5e7-2d09-4c0d-9038-f5a80cf27cf3/dashboard/WI-AC-027-2-qa-93d9c7bd046f4a2b.log
+- NextAction: Coding Attempt 3
+
+## 2026-07-11T06:22:44.271Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-027
+- Outcome: QA failed after Attempt 3
+- Defects: expected each integration card to display a non-empty integration description per AC-027; observed 14 of 15 cards with empty description text (only AWS CloudWatch shows description); evidence Playwright at http://localhost:5181/dashboard/integrations (cardCount=15, composioLogoCount=15, connectCount=15) and GET /api/integrations/catalog returns desc_len=0 for slack/github/jira/hubspot/trello/postgresql/linear/sentry/mongodb/datadog/pagerduty/grafana/confluence/webhooks
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-11T06:29:03.696Z — Explicit Resume
+
+- WorkItem: WI-AC-027
+- Outcome: user authorized a new Attempt cycle
+- Guidance: WI-AC-027 failed because /api/integrations/catalog returns empty description (desc_len=0) for 14/15 providers; only AWS CloudWatch has text. Playwright at /dashboard/integrations correctly shows empty card descriptions.
+- NextAction: Coding Attempt 1
+
+## 2026-07-11T06:38:34.426Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-027
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

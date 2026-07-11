@@ -8,7 +8,10 @@ const isDev = process.env.NODE_ENV === 'development';
 const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   images: {
-    remotePatterns: [],
+    remotePatterns: [
+      { hostname: 'logos.composio.dev', protocol: 'https' },
+      { hostname: 'backend.composio.dev', protocol: 'https' },
+    ],
   },
   transpilePackages: [
     '@causeflow/auth',

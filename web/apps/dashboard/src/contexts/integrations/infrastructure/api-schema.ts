@@ -29,7 +29,6 @@ export const connectIntegrationSchema = z.discriminatedUnion('type', [
     apiKey: z.string().min(1, 'API Key is required'),
     apiToken: z.string().min(1, 'API Token is required'),
   }),
-
   z.object({
     type: z.literal('github'),
     installationId: z.string().min(1, 'Installation ID is required'),
