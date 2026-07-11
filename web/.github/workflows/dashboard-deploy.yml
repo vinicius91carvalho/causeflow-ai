@@ -54,15 +54,37 @@ jobs:
   # monorepo root, then publish and deploy the image on your host of choice.
   # See apps/dashboard/Dockerfile and the docker-compose.yml at the repo root.
   # -------------------------------------------------------------------------
-  deploy:
-    name: Docker Build Available
+  deploy-staging:
+    name: Deploy Staging
     needs: build
-    if: (github.event_name == 'push') || (github.event_name == 'workflow_dispatch')
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.stage != 'production')
     runs-on: ubuntu-latest
+    environment: staging
     steps:
-      - name: SST deploy removed
+      - name: Docker deploy (staging)
         run: |
-          echo "## Dashboard Deploy (OSS Build)" >> $GITHUB_STEP_SUMMARY
+          echo "## Dashboard Deploy (OSS Build — staging)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "SST-based deployment has been removed (AC-050)." >> $GITHUB_STEP_SUMMARY
+          echo "Build and deploy the Docker image instead:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo 'docker compose build causeflow-dashboard' >> $GITHUB_STEP_SUMMARY
+          echo 'docker compose up -d causeflow-dashboard' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See apps/dashboard/Dockerfile for the multi-stage build." >> $GITHUB_STEP_SUMMARY
+
+  deploy-production:
+    name: Deploy Production
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.stage == 'production'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Docker deploy (production)
+        run: |
+          echo "## Dashboard Deploy (OSS Build — production)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "SST-based deployment has been removed (AC-050)." >> $GITHUB_STEP_SUMMARY
           echo "Build and deploy the Docker image instead:" >> $GITHUB_STEP_SUMMARY

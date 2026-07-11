@@ -557,11 +557,11 @@
     </acceptance_check>
 
     <acceptance_check id="AC-034" context="foundation" category="ops" depends_on="AC-007">
-      <title>GitHub Actions: 2 workflows (website-deploy.yml, dashboard-deploy.yml) with frozen-lockfile + type-check + lint + test + build + SST deploy</title>
-      <description>`.github/workflows/website-deploy.yml` and `.github/workflows/dashboard-deploy.yml` are the two deploy workflows. Each sets up pnpm via `pnpm/action-setup@v4`, Node via `.nvmrc` (24), installs with `--frozen-lockfile`, then runs `pnpm turbo check-types`, `pnpm turbo lint`, `pnpm turbo test`, `pnpm turbo build` before triggering the SST deploy. Staging deploys trigger on push to main; production deploys trigger via `workflow_dispatch` with `inputs.stage=production`. The workflows use `environment: staging` / `environment: production` and `concurrency:` to avoid racing deploys.</description>
+      <title>GitHub Actions: 2 workflows (website-deploy.yml, dashboard-deploy.yml) with frozen-lockfile + type-check + lint + test + build + Docker deploy guidance</title>
+      <description>`.github/workflows/website-deploy.yml` and `.github/workflows/dashboard-deploy.yml` are the two deploy workflows. Each sets up pnpm via `pnpm/action-setup@v4`, Node via `.nvmrc` (24), installs with `--frozen-lockfile`, then runs app-scoped `pnpm turbo check-types`, `pnpm turbo lint`, `pnpm turbo test`, and `pnpm turbo build` (with `--filter=@causeflow/{website,dashboard}...`) before deploy jobs that echo Docker Compose instructions (no `sst deploy`; see AC-050). Staging deploys trigger on push to main; production deploys trigger via `workflow_dispatch` with `inputs.stage=production`. The workflows use `environment: staging` / `environment: production` and `concurrency:` to avoid racing deploys.</description>
       <steps>
         <step>Step 1: Confirm both workflow files exist under `.github/workflows/`, each referencing pnpm/action-setup@v4 and --frozen-lockfile.</step>
-        <step>Step 2: Confirm each workflow runs check-types, lint, test, build in sequence before the SST deploy step.</step>
+        <step>Step 2: `grep -E 'sst deploy' .github/workflows/website-deploy.yml .github/workflows/dashboard-deploy.yml` returns zero matches; each workflow runs check-types, lint, test, build in sequence before the Docker deploy guidance step.</step>
         <step>Step 3: Confirm each workflow sets `environment: staging` and `environment: production` plus a `concurrency` block.</step>
       </steps>
     </acceptance_check>
