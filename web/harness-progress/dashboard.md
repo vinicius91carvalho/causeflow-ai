@@ -670,3 +670,12 @@ The sign-in page (`sign-in-page.tsx:37`) hard-codes `router.replace('/dashboard'
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Auto-retry: worker process exited; resume context after confirming worktree is healthy.
 - NextAction: Coding Attempt 1
+
+## 2026-07-11T20:13:59.604Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-031
+- DefectReport: expected Step 1: payment-modal mounts Stripe PaymentElement via @stripe/react-stripe-js + @stripe/stripe-js loadStripe when NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set; observed apps/dashboard/package.json has zero @stripe packages and payment-modal.tsx is AC-048 OSS stub with no PaymentElement/loadStripe/useStripe (only payment-modal.test.tsx asserts their absence); evidence grep -nE '@stripe|PaymentElement|loadStripe|useStripe|useElements' apps/dashboard/package.json apps/dashboard/src → only negative test assertions; expected Step 3: stripe@20.x in apps/dashboard/package.json devDependencies (not dependencies) and imported only from apps/dashboard/scripts/setup-stripe.ts and delete-user.ts; observed stripe absent from dependencies and devDependencies, scripts/ contains only add-credits.ts (setup-stripe.ts and delete-user.ts missing per AC-049), no from 'stripe' imports; evidence node package.json keys + find apps/dashboard/scripts + grep from ['"]stripe['"]
+- RepairPlan: QA correctly finds commercial Stripe packages/PaymentElement/setup scripts missing vs AC-031 Steps 1/3, but the dashboard already matches OSS AC-048/049 (stub payment-modal, no @stripe/stripe deps, only add-credits.ts). AC-053 reinterprets AC-031 as no STRIPE_SECRET_KEY in dashboard env.; Reconcile WI-AC-031 / feature_list verify steps to AC-053 OSS reading: keep Step 2 (no STRIPE_SECRET_KEY in dashboard env); drop or rewrite Steps 1/3 to match AC-048 stub + AC-049 script deletion; Update project_specs.xml Stripe integration + AC-031 title/steps to document OSS stub billing (not PaymentElement/devDep stripe scripts); Do not reinstall @stripe/react-stripe-js, @stripe/stripe-js, or stripe@20.x; do not restore PaymentElement or setup-stripe.ts/delete-user.ts (would regress AC-048/049); Keep OSS payment-modal stub and negative Stripe-absence tests; re-run QA against reconciled AC-031 criteria
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/914a1a9e-333d-425d-ae31-acc1dcef468b/dashboard/WI-AC-031-1-qa-82e3ecbf0e2734c7.log
+- NextAction: Coding Attempt 2
