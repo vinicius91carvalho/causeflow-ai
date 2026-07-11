@@ -25,6 +25,7 @@ ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=widget-build /app/packages/widget/dist ./packages/widget/dist
+COPY dashboard/ ./dashboard/
 COPY package.json ./
 
 # Bake commit SHA into the image so /health can report it.
