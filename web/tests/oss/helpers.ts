@@ -20,3 +20,7 @@ export async function blockTrackers(page: Page): Promise<void> {
 // must share that origin or Next treats them as external proxies.
 export const OSS_DASHBOARD_URL = process.env.OSS_DASHBOARD_URL || 'http://127.0.0.1:3001';
 export const OSS_CORE_API_URL = process.env.OSS_CORE_API_URL || 'http://127.0.0.1:3099';
+
+/** Host Ornith / llama.cpp OpenAI-compatible endpoint (AC-057). */
+export const OSS_ORNITH_BASE_URL = process.env.OSS_ORNITH_BASE_URL || 'http://127.0.0.1:8081/v1';
+export const OSS_ORNITH_MODEL = process.env.OSS_ORNITH_MODEL || 'Ornith-1.0-9B-code';

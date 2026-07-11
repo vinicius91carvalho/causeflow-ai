@@ -214,6 +214,10 @@ export interface InvestigationEvidence {
   quote?: string;
   metadata?: {
     source?: string;
+    /** Present on Ornith / OpenAI-compatible completion evidence (AC-057). */
+    llmModel?: string;
+    llmConnector?: string;
+    phase?: string;
     timeRange?: string;
     confidence?: number;
     category?: string;

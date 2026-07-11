@@ -85,6 +85,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    extra_hosts:
+      # Reach host Ornith (llama-server on :8081) from inside the container (AC-057).
+      - 'host.docker.internal:host-gateway'
     environment:
       CAUSEFLOW_RUNTIME: oss
       NODE_ENV: development
@@ -99,7 +102,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-oss-dev-webhook-secret}
       TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+      # Optional override only — OSS default is Ornith via OpenAI-compatible connector.
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # AC-057: default investigation LLM is local Ornith (not DeterministicLLMClient / Anthropic).
+      LLM_CONNECTOR: ornith
+      # Literal host-gateway URL — do NOT interpolate LLM_BASE_URL from .env
+      # (host 127.0.0.1 is unreachable inside the container).
+      LLM_BASE_URL: http://host.docker.internal:8081/v1
+      LLM_MODEL: Ornith-1.0-9B-code
     ports:
       - '3099:5171'
     healthcheck:
@@ -117,6 +127,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     environment:
       CAUSEFLOW_RUNTIME: oss
       NODE_ENV: development
@@ -125,6 +137,10 @@ services:
       HINDSIGHT_BASE_URL: http://hindsight:8888
       HINDSIGHT_API_KEY: ${HINDSIGHT_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # AC-057: worker triage/investigation uses the same Ornith connector as the API.
+      LLM_CONNECTOR: ornith
+      LLM_BASE_URL: http://host.docker.internal:8081/v1
+      LLM_MODEL: Ornith-1.0-9B-code
     restart: unless-stopped
 
   # ---------------------------------------------------------------------------
