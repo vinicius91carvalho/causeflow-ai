@@ -293,18 +293,30 @@ describe('InvestigateIncidentUseCase', () => {
     expect(evidenceRepo.create).toHaveBeenCalledTimes(3);
   });
 
-  it('should throw InvestigationFailedError when all sub-agents fail', async () => {
+  it('should complete with stub result when all sub-agents fail (OSS / LLM-unavailable path)', async () => {
     vi.mocked(incidentRepo.findById).mockResolvedValueOnce(createMockIncident());
 
     vi.mocked(agentRunner.run).mockRejectedValue(new Error('Agent timeout'));
 
-    await expect(
-      useCase.execute({
-        tenantId: tenantId('tenant-1'),
-        incidentId: incidentId('inc-123'),
-        suggestedAgents: ['log_analyst', 'metric_analyst'],
-      }),
-    ).rejects.toThrow('All sub-agents failed');
+    const result = await useCase.execute({
+      tenantId: tenantId('tenant-1'),
+      incidentId: incidentId('inc-123'),
+      suggestedAgents: ['log_analyst', 'metric_analyst'],
+    });
+
+    expect(result).toMatchObject({
+      potentialRootCause: 'Unable to determine root cause (LLM service unavailable)',
+      findings: [
+        expect.objectContaining({
+          text: 'Investigation completed without agent findings (LLM unavailable)',
+        }),
+      ],
+    });
+    expect(incidentRepo.updateStatus).toHaveBeenCalledWith(
+      tenantId('tenant-1'),
+      incidentId('inc-123'),
+      'resolved',
+    );
   });
 
   it('should enqueue to remediation queue when recommended actions exist', async () => {

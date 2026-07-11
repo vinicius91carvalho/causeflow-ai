@@ -2,8 +2,8 @@
  * Typed AWS client factory.
  *
  * Centralizes client instantiation so tests can mock at a single seam.
- * Tests use `aws-sdk-client-mock` to replace the ECS/CFN clients per-test
- * without needing to intercept these factory functions.
+ * Deploy-script tests use `infra/scripts/__tests__/ecs-mock.ts` instead of
+ * intercepting these factory functions.
  *
  * Clients are NOT cached — scripts are single-use and cold-start tolerance
  * matters more than reuse. Caching also makes test isolation harder.

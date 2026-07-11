@@ -1,10 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { mockClient } from 'aws-sdk-client-mock';
-import { ECSClient, DescribeServicesCommand } from '@aws-sdk/client-ecs';
 import { waitForServiceStable } from '../wait-services-stable.js';
 import { TimeoutError, VerifyError, ConfigError } from '../lib/errors.js';
-
-const ecsMock = mockClient(ECSClient);
+import { MockEcsClient } from './ecs-mock.js';
 
 function makeClock(values: number[]): () => number {
   let i = 0;
@@ -18,14 +15,15 @@ function makeClock(values: number[]): () => number {
 const noopSleep = async (): Promise<void> => undefined;
 
 describe('waitForServiceStable', () => {
+  let ecsMock: MockEcsClient;
+
   beforeEach(() => {
-    ecsMock.reset();
+    ecsMock = new MockEcsClient();
   });
 
   it('returns stable state when rolloutState becomes COMPLETED', async () => {
     ecsMock
-      .on(DescribeServicesCommand)
-      .resolvesOnce({
+      .resolvesDescribeServicesOnce({
         services: [
           {
             serviceName: 'causeflow-staging',
@@ -43,7 +41,7 @@ describe('waitForServiceStable', () => {
           },
         ],
       })
-      .resolves({
+      .resolvesDescribeServices({
         services: [
           {
             serviceName: 'causeflow-staging',
@@ -63,7 +61,7 @@ describe('waitForServiceStable', () => {
       });
 
     const result = await waitForServiceStable({
-      client: new ECSClient({ region: 'us-east-2' }),
+      client: ecsMock as never,
       clusterName: 'causeflow-staging',
       serviceName: 'causeflow-staging',
       friendlyName: 'api',
@@ -79,7 +77,7 @@ describe('waitForServiceStable', () => {
   });
 
   it('throws VerifyError when rolloutState becomes FAILED', async () => {
-    ecsMock.on(DescribeServicesCommand).resolves({
+    ecsMock.resolvesDescribeServices({
       services: [
         {
           serviceName: 'causeflow-staging-worker',
@@ -101,7 +99,7 @@ describe('waitForServiceStable', () => {
 
     await expect(
       waitForServiceStable({
-        client: new ECSClient({ region: 'us-east-2' }),
+        client: ecsMock as never,
         clusterName: 'causeflow-staging',
         serviceName: 'causeflow-staging-worker',
         friendlyName: 'worker',
@@ -109,12 +107,12 @@ describe('waitForServiceStable', () => {
         pollIntervalMs: 1_000,
         sleep: noopSleep,
         now: makeClock([0, 1_000]),
-      })
+      }),
     ).rejects.toBeInstanceOf(VerifyError);
   });
 
   it('throws TimeoutError when budget is exhausted', async () => {
-    ecsMock.on(DescribeServicesCommand).resolves({
+    ecsMock.resolvesDescribeServices({
       services: [
         {
           serviceName: 'causeflow-staging',
@@ -134,10 +132,9 @@ describe('waitForServiceStable', () => {
       ],
     });
 
-    // Clock jumps straight past the timeout on the 2nd reading.
     await expect(
       waitForServiceStable({
-        client: new ECSClient({ region: 'us-east-2' }),
+        client: ecsMock as never,
         clusterName: 'causeflow-staging',
         serviceName: 'causeflow-staging',
         friendlyName: 'api',
@@ -145,16 +142,16 @@ describe('waitForServiceStable', () => {
         pollIntervalMs: 1_000,
         sleep: noopSleep,
         now: makeClock([0, 10_000]),
-      })
+      }),
     ).rejects.toBeInstanceOf(TimeoutError);
   });
 
   it('throws VerifyError when the service is missing from the response', async () => {
-    ecsMock.on(DescribeServicesCommand).resolves({ services: [] });
+    ecsMock.resolvesDescribeServices({ services: [] });
 
     await expect(
       waitForServiceStable({
-        client: new ECSClient({ region: 'us-east-2' }),
+        client: ecsMock as never,
         clusterName: 'causeflow-staging',
         serviceName: 'causeflow-staging',
         friendlyName: 'api',
@@ -162,21 +159,21 @@ describe('waitForServiceStable', () => {
         pollIntervalMs: 1_000,
         sleep: noopSleep,
         now: makeClock([0, 1_000]),
-      })
+      }),
     ).rejects.toBeInstanceOf(VerifyError);
   });
 
   it('rejects zero or negative timeouts', async () => {
     await expect(
       waitForServiceStable({
-        client: new ECSClient({ region: 'us-east-2' }),
+        client: ecsMock as never,
         clusterName: 'causeflow-staging',
         serviceName: 'causeflow-staging',
         friendlyName: 'api',
         timeoutMs: 0,
         pollIntervalMs: 1_000,
         sleep: noopSleep,
-      })
+      }),
     ).rejects.toBeInstanceOf(ConfigError);
   });
 });

@@ -28,7 +28,7 @@ const DEFAULT_TRIAGE: Record<string, unknown> = {
   summary: 'Service experiencing critical issues requiring immediate investigation',
   investigationMode: 'orchestrator',
   confidence: 0.95,
-  category: 'performance',
+  category: 'infrastructure',
 };
 
 const DEFAULT_SYNTHESIS: Record<string, unknown> = {

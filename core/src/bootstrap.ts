@@ -47,6 +47,7 @@ import type { LLMClient } from './shared/application/ports/llm-client.port.js';
 import { GetCloudIntegrationUseCase } from './modules/integration/application/get-cloud-integration.usecase.js';
 import { StubCredentialVendor } from './shared/infra/credentials/stub-credential-vendor.js';
 import type { CredentialVendor } from './shared/application/ports/credential-vendor.port.js';
+import type { MessageQueue } from './shared/application/ports/message-queue.port.js';
 // SQSMessageQueue, DynamoEvidenceRepository, DynamoToolCallRepository — dynamically imported in AWS runtime block
 import { TriageIncidentUseCase } from './modules/triage/application/triage-incident.usecase.js';
 import { InvestigateIncidentUseCase } from './modules/investigation/application/investigate-incident.usecase.js';
@@ -251,6 +252,8 @@ export interface BootstrapOverrides {
   llmClient?: LLMClient;
   agentRunner?: AgentRunner;
   relayGateway?: IRelayGateway;
+  /** E2E harness: wire alert→triage→investigation→remediation in-process (no BullMQ). */
+  inProcessPipeline?: boolean;
 }
 
 export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppContext> {
@@ -261,10 +264,13 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   });
   const providerRegistry = new ProviderRegistry();
   // AC-041: In the OSS runtime, BullMQ on Redis replaces SQS.
-  // The AWS runtime keeps the original SQSMessageQueue.
-  const messageQueue = config.isOss()
-    ? new (await import('./shared/infra/queue/bull-mq-message-queue.js')).BullMqMessageQueue()
-    : new (await import('./shared/infra/queue/sqs-message-queue.js')).SQSMessageQueue();
+  // E2E harness uses an in-process pipeline with a no-op queue (AC-050).
+  const noopMessageQueue: MessageQueue = { send: async () => {} };
+  const messageQueue: MessageQueue = overrides?.inProcessPipeline
+    ? noopMessageQueue
+    : config.isOss()
+      ? new (await import('./shared/infra/queue/bull-mq-message-queue.js')).BullMqMessageQueue()
+      : new (await import('./shared/infra/queue/sqs-message-queue.js')).SQSMessageQueue();
 
   // Resolve queue identifiers — BullMQ queue names in OSS runtime, SQS URLs
   // in the AWS runtime (AC-041). These are passed to use cases that need to
@@ -1358,13 +1364,18 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // This ensures the full flow works in dev without docker-compose.
   // AC-041: In OSS mode, BullMQ on Redis provides the queue layer — no fallback needed.
   const sqsConfigured = !!(config.sqs.alertQueueUrl && config.sqs.investigationQueueUrl && config.sqs.remediationQueueUrl);
+  const useInProcessPipeline =
+    overrides?.inProcessPipeline === true ||
+    (!sqsConfigured && !config.isProd() && !config.isOss());
 
-  if (!sqsConfigured && !config.isProd() && !config.isOss()) {
-    logger.info('[STARTUP] SQS not configured — enabling in-process pipeline fallback');
+  if (useInProcessPipeline) {
+    logger.info('[STARTUP] Enabling in-process pipeline (EventBus dispatch)');
+
+    const gateOnApiKey = !overrides?.inProcessPipeline && !config.isOss();
 
     // incident.created → triage (replaces alert queue consumer)
     eventBus.subscribe('incident.created', async (event) => {
-      if (!config.anthropic.apiKey) return;
+      if (gateOnApiKey && !config.anthropic.apiKey) return;
       try {
         await triageIncident.execute(
           tenantId(event.tenantId),
@@ -1377,7 +1388,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
     // incident.status_changed (to triaging) → investigation (replaces investigation queue consumer)
     eventBus.subscribe('incident.status_changed', async (event) => {
-      if (!config.anthropic.apiKey) return;
+      if (gateOnApiKey && !config.anthropic.apiKey) return;
       if (event.payload['to'] !== 'triaging') return;
       const iid = (event.payload['incidentId'] as string) ?? '';
       const incident = await incidentRepo.findById(tenantId(event.tenantId), incidentId(iid));
@@ -1504,9 +1515,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
     // Triage worker — picks up triage jobs from causeflow-triage
     // Workers are started unconditionally in OSS mode (no API key required).
-    // If the LLM is unavailable, the fallback assigns high severity + default agents
-    // so the investigation pipeline still runs (AC-046).
-    {
+    // Skipped when E2E harness uses in-process EventBus dispatch (AC-050).
+    if (!overrides?.inProcessPipeline) {
       const triageWorker = createBullWorker({
         queueName: config.bullmq.triageQueueName,
         handler: async (body) => {
@@ -1540,18 +1550,20 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     // Running a second consumer in the API would cause double processing.
 
     // Remediation worker — picks up remediation jobs from causeflow-remediation
-    const remediationWorker = createBullWorker({
-      queueName: config.bullmq.remediationQueueName,
-      handler: async (body) => {
-        await proposeRemediation.execute({
-          tenantId: tenantId(body['tenantId'] as string),
-          incidentId: incidentId(body['incidentId'] as string),
-          rootCause: (body['rootCause'] as string) ?? '',
-          recommendedActions: (body['recommendedActions'] as StructuredAction[]) ?? [],
-        });
-      },
-    });
-    consumers.push({ stop: remediationWorker.stop });
+    if (!overrides?.inProcessPipeline) {
+      const remediationWorker = createBullWorker({
+        queueName: config.bullmq.remediationQueueName,
+        handler: async (body) => {
+          await proposeRemediation.execute({
+            tenantId: tenantId(body['tenantId'] as string),
+            incidentId: incidentId(body['incidentId'] as string),
+            rootCause: (body['rootCause'] as string) ?? '',
+            recommendedActions: (body['recommendedActions'] as StructuredAction[]) ?? [],
+          });
+        },
+      });
+      consumers.push({ stop: remediationWorker.stop });
+    }
   } else {
     // AWS runtime: SQS consumers
     startQueueConsumer('triage', alertQueueUrl, true, (url) => {

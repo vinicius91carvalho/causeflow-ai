@@ -8,7 +8,7 @@
  *   3. PATCH with {locale: 'en'} after a prior 'pt-br' write flips the value back
  *
  * No real DynamoDB required — UserSettingsEntity is mocked in-memory.
- * No real Clerk required — verifyToken is mocked.
+ * No real Clerk required — local JWT auth (OSS mode).
  */
 
 import { Hono } from 'hono';
@@ -24,16 +24,11 @@ import type { User } from '../../src/modules/user/domain/user.entity.js';
 import type { IUserRepository } from '../../src/modules/user/domain/user.repository.js';
 import { tenantId as toTenantId } from '../../src/shared/domain/value-objects.js';
 import type { AppEnv } from '../../src/shared/infra/http/hono-types.js';
-
-// ── Mock @clerk/backend before any imports that transitively use it ──────────
-const verifyTokenMock = vi.fn();
-vi.mock('@clerk/backend', () => ({
-  verifyToken: verifyTokenMock,
-}));
+import { signLocalJwt } from '../helpers/local-auth-jwt.js';
 
 vi.mock('../../src/shared/config/index.js', () => ({
   config: {
-    clerk: { secretKey: 'test-clerk-secret-key' },
+    clerk: { secretKey: '' },
     logLevel: 'silent',
     aws: {
       region: 'us-east-1',
@@ -50,7 +45,7 @@ vi.mock('../../src/shared/config/index.js', () => ({
     isDev: () => false,
     isProd: () => false,
     isTest: () => true,
-    isOss: () => false,
+    isOss: () => true,
   },
 }));
 
@@ -168,17 +163,17 @@ function makeMockTenantRepo(): ITenantRepository {
 
 describe('Integration: PATCH/GET /v1/users/:userId/settings — locale persistence', () => {
   let app: Hono<AppEnv>;
+  let authToken: string;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     settingsStore.clear();
 
-    // Clerk mock returns authenticated user with org claim
-    verifyTokenMock.mockResolvedValue({
+    authToken = await signLocalJwt({
       sub: USER_ID,
       email: USER_EMAIL,
-      org_id: TENANT_ID,
-      org_role: 'org:admin',
+      tenant_id: TENANT_ID,
+      roles: ['admin'],
     });
 
     const { authMiddleware } = await import(
@@ -223,7 +218,7 @@ describe('Integration: PATCH/GET /v1/users/:userId/settings — locale persisten
     const patchRes = await app.request(`/v1/users/${USER_ID}/settings`, {
       method: 'PATCH',
       headers: {
-        Authorization: `Bearer test-token`,
+        Authorization: `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ locale: 'pt-br' }),
@@ -236,7 +231,7 @@ describe('Integration: PATCH/GET /v1/users/:userId/settings — locale persisten
     // GET settings and verify locale is persisted
     const getRes = await app.request(`/v1/users/${USER_ID}/settings`, {
       method: 'GET',
-      headers: { Authorization: `Bearer test-token` },
+      headers: { Authorization: `Bearer ${authToken}` },
     });
 
     expect(getRes.status).toBe(200);
@@ -250,7 +245,7 @@ describe('Integration: PATCH/GET /v1/users/:userId/settings — locale persisten
     const res = await app.request(`/v1/users/${USER_ID}/settings`, {
       method: 'PATCH',
       headers: {
-        Authorization: `Bearer test-token`,
+        Authorization: `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ locale: 'invalid-locale' }),
@@ -266,7 +261,7 @@ describe('Integration: PATCH/GET /v1/users/:userId/settings — locale persisten
     const patch1 = await app.request(`/v1/users/${USER_ID}/settings`, {
       method: 'PATCH',
       headers: {
-        Authorization: `Bearer test-token`,
+        Authorization: `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ locale: 'pt-br' }),
@@ -281,7 +276,7 @@ describe('Integration: PATCH/GET /v1/users/:userId/settings — locale persisten
     const patch2 = await app.request(`/v1/users/${USER_ID}/settings`, {
       method: 'PATCH',
       headers: {
-        Authorization: `Bearer test-token`,
+        Authorization: `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ locale: 'en' }),
@@ -291,7 +286,7 @@ describe('Integration: PATCH/GET /v1/users/:userId/settings — locale persisten
     // GET and confirm final state is en
     const getRes = await app.request(`/v1/users/${USER_ID}/settings`, {
       method: 'GET',
-      headers: { Authorization: `Bearer test-token` },
+      headers: { Authorization: `Bearer ${authToken}` },
     });
 
     expect(getRes.status).toBe(200);
@@ -308,25 +303,23 @@ describe('Integration: PATCH/GET /v1/users/:userId/settings — locale persisten
     const patch1 = await app.request(`/v1/users/${USER_ID}/settings`, {
       method: 'PATCH',
       headers: {
-        Authorization: `Bearer test-token`,
+        Authorization: `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ locale: 'pt-br' }),
     });
     expect(patch1.status).toBe(200);
 
-    // Now switch verifyToken to return a different tenant org_id
-    verifyTokenMock.mockResolvedValue({
+    const tenant2Token = await signLocalJwt({
       sub: USER_ID,
       email: USER_EMAIL,
-      org_id: TENANT_2_ID,
-      org_role: 'org:admin',
+      tenant_id: TENANT_2_ID,
+      roles: ['admin'],
     });
 
-    // GET settings for the same userId but under tenant T2
     const getRes = await app.request(`/v1/users/${USER_ID}/settings`, {
       method: 'GET',
-      headers: { Authorization: `Bearer test-token` },
+      headers: { Authorization: `Bearer ${tenant2Token}` },
     });
 
     expect(getRes.status).toBe(200);

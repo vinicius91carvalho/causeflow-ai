@@ -3,6 +3,7 @@
  * check-invariants.ts — machine-verifiable contract checks for CauseFlow.
  *
  * Checks invariants I1–I12 as defined in INVARIANTS.md.
+ * AC-050: OSS test tree must not import AWS SDK, Clerk, Stripe, or aws-sdk-client-mock.
  * I5 is skipped here (verified by unit tests).
  * I13 (inconclusive outcome) is verified by integration test, not here.
  *
@@ -492,6 +493,49 @@ function checkI12(): void {
 }
 
 // ---------------------------------------------------------------------------
+// AC-050 — OSS test tree has no forbidden SaaS/AWS imports
+// ---------------------------------------------------------------------------
+const FORBIDDEN_TEST_IMPORT_RE = [
+  /@aws-sdk\//,
+  /@clerk\/backend/,
+  /aws-sdk-client-mock/,
+  /from\s+['"]stripe['"]/,
+];
+
+function checkAc050(): void {
+  const id = 'AC-050';
+  const description =
+    'tests/ and infra/scripts/__tests__/ have no @aws-sdk/*, @clerk/backend, aws-sdk-client-mock, or stripe imports';
+  const violations: string[] = [];
+  const dirs = [join(ROOT, 'tests'), join(ROOT, 'infra', 'scripts', '__tests__')];
+
+  for (const dir of dirs) {
+    let files: string[];
+    try {
+      files = walkTsFiles(dir);
+    } catch {
+      continue;
+    }
+    for (const file of files) {
+      const content = readFileSync(file, 'utf8');
+      const rel = relative(ROOT, file);
+      for (const pattern of FORBIDDEN_TEST_IMPORT_RE) {
+        const match = content.match(pattern);
+        if (match) {
+          violations.push(`${rel} — matches /${pattern.source}/ ("${match[0]}")`);
+        }
+      }
+    }
+  }
+
+  if (violations.length === 0) {
+    pass(id, description);
+  } else {
+    fail(id, description, violations.join('\n        '));
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Run all checks
 // ---------------------------------------------------------------------------
 console.log('Running invariant checks...\n');
@@ -508,6 +552,7 @@ checkI9();
 checkI10();
 checkI11();
 checkI12();
+checkAc050();
 
 const failed = results.filter((r) => !r.passed);
 const passed = results.filter((r) => r.passed);

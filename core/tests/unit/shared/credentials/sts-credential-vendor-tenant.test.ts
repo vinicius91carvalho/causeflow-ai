@@ -4,7 +4,7 @@ import type { ITenantRepository } from '../../../../src/modules/tenant/domain/te
 import type { Tenant } from '../../../../src/modules/tenant/domain/tenant.entity.js';
 import { tenantId } from '../../../../src/shared/domain/value-objects.js';
 
-// Local type to avoid importing @aws-sdk/client-sts (AC-050)
+// Local type stub — no external cloud SDK in unit tests (AC-050)
 interface MockSTSClient {
   send: ReturnType<typeof vi.fn>;
 }

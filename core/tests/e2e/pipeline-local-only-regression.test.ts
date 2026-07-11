@@ -4,12 +4,12 @@
  * Black-box HTTP test against a running host-dev stack (init.sh + docker-compose).
  * Mirrors `.harness/ac046-verify.sh`. Requires API and investigation worker on PORT.
  *
- * Run: PORT=5176 pnpm test:e2e tests/e2e/pipeline-local-only-regression.test.ts
+ * Run: PORT=3099 pnpm test:e2e tests/e2e/pipeline-local-only-regression.test.ts
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createHmac } from 'node:crypto';
 
-const PORT = process.env['PORT'] ?? '5176';
+const PORT = process.env['PORT'] ?? '3099';
 // Avoid Vite/Vitest's built-in BASE_URL ("/") — it collapses to "" after trim.
 const BASE_URL = (() => {
   const raw =

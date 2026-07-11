@@ -1,15 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { mockClient } from 'aws-sdk-client-mock';
-import {
-  ECSClient,
-  DescribeServicesCommand,
-  DescribeTaskDefinitionCommand,
-  type DescribeServicesCommandOutput,
-} from '@aws-sdk/client-ecs';
 import { runVerify } from '../verify-deploy.js';
 import type { DeployConfig, HealthResponse } from '../lib/types.js';
-
-const ecsMock = mockClient(ECSClient);
+import { MockEcsClient } from './ecs-mock.js';
 
 const noopSleep = async (): Promise<void> => undefined;
 
@@ -44,7 +36,7 @@ const WORKER_IMAGE = `${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/causeflow-st
 function stableServiceResponse(
   serviceName: string,
   tdArn: string
-): Partial<DescribeServicesCommandOutput> {
+): Record<string, unknown> {
   return {
     services: [
       {
@@ -77,29 +69,31 @@ function baseConfig(overrides: Partial<DeployConfig> = {}): DeployConfig {
 }
 
 describe('runVerify', () => {
+  let ecsMock: MockEcsClient;
+
   beforeEach(() => {
-    ecsMock.reset();
+    ecsMock = new MockEcsClient();
   });
 
   it('returns allOk=true when both api and worker are stable and match', async () => {
     ecsMock
-      .on(DescribeServicesCommand, {
+      .resolvesDescribeServices(stableServiceResponse('causeflow-staging', API_TD_ARN), {
         cluster: 'causeflow-staging',
         services: ['causeflow-staging'],
       })
-      .resolves(stableServiceResponse('causeflow-staging', API_TD_ARN))
-      .on(DescribeServicesCommand, {
+      .resolvesDescribeServices(stableServiceResponse('causeflow-staging-worker', WORKER_TD_ARN), {
         cluster: 'causeflow-staging',
         services: ['causeflow-staging-worker'],
       })
-      .resolves(stableServiceResponse('causeflow-staging-worker', WORKER_TD_ARN))
-      .on(DescribeTaskDefinitionCommand, { taskDefinition: WORKER_TD_ARN })
-      .resolves({
-        taskDefinition: {
-          taskDefinitionArn: WORKER_TD_ARN,
-          containerDefinitions: [{ name: 'investigation-worker', image: WORKER_IMAGE }],
+      .resolvesDescribeTaskDefinition(
+        {
+          taskDefinition: {
+            taskDefinitionArn: WORKER_TD_ARN,
+            containerDefinitions: [{ name: 'investigation-worker', image: WORKER_IMAGE }],
+          },
         },
-      });
+        { taskDefinition: WORKER_TD_ARN },
+      );
 
     const healthBody: HealthResponse = {
       status: 'ok',
@@ -112,7 +106,7 @@ describe('runVerify', () => {
 
     const output = await runVerify({
       config: baseConfig(),
-      ecsClient: new ECSClient({ region: REGION }),
+      ecsClient: ecsMock as never,
       fetchFn: fetchFn as typeof fetch,
       sleep: noopSleep,
       now: makeClock([0, 500, 1_000, 1_500, 2_000, 2_500, 3_000, 3_500]),
@@ -136,28 +130,28 @@ describe('runVerify', () => {
 
   it('returns allOk=false when worker image does not match the expected tag', async () => {
     ecsMock
-      .on(DescribeServicesCommand, {
+      .resolvesDescribeServices(stableServiceResponse('causeflow-staging-worker', WORKER_TD_ARN), {
         cluster: 'causeflow-staging',
         services: ['causeflow-staging-worker'],
       })
-      .resolves(stableServiceResponse('causeflow-staging-worker', WORKER_TD_ARN))
-      .on(DescribeTaskDefinitionCommand, { taskDefinition: WORKER_TD_ARN })
-      .resolves({
-        taskDefinition: {
-          taskDefinitionArn: WORKER_TD_ARN,
-          containerDefinitions: [
-            {
-              name: 'investigation-worker',
-              // Different (old) image tag — should fail the assertion.
-              image: `${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/causeflow-staging:worker-0000000`,
-            },
-          ],
+      .resolvesDescribeTaskDefinition(
+        {
+          taskDefinition: {
+            taskDefinitionArn: WORKER_TD_ARN,
+            containerDefinitions: [
+              {
+                name: 'investigation-worker',
+                image: `${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/causeflow-staging:worker-0000000`,
+              },
+            ],
+          },
         },
-      });
+        { taskDefinition: WORKER_TD_ARN },
+      );
 
     const output = await runVerify({
       config: baseConfig({ services: ['worker'] }),
-      ecsClient: new ECSClient({ region: REGION }),
+      ecsClient: ecsMock as never,
       sleep: noopSleep,
       now: makeClock([0, 500, 1_000, 1_500]),
       accountId: ACCOUNT_ID,
@@ -173,17 +167,14 @@ describe('runVerify', () => {
   });
 
   it('returns a per-service failure when VerifyError is thrown (no service in response)', async () => {
-    // wait-services-stable throws VerifyError when services list is empty.
-    ecsMock
-      .on(DescribeServicesCommand, {
-        cluster: 'causeflow-staging',
-        services: ['causeflow-staging'],
-      })
-      .resolves({ services: [] });
+    ecsMock.resolvesDescribeServices({ services: [] }, {
+      cluster: 'causeflow-staging',
+      services: ['causeflow-staging'],
+    });
 
     const output = await runVerify({
       config: baseConfig({ services: ['api'] }),
-      ecsClient: new ECSClient({ region: REGION }),
+      ecsClient: ecsMock as never,
       sleep: noopSleep,
       now: makeClock([0, 500, 1_000]),
       accountId: ACCOUNT_ID,
@@ -198,17 +189,16 @@ describe('runVerify', () => {
   });
 
   it('builds production health URL and matches against short SHA', async () => {
-    ecsMock
-      .on(DescribeServicesCommand, {
+    ecsMock.resolvesDescribeServices(
+      stableServiceResponse(
+        'causeflow-production',
+        `arn:aws:ecs:${REGION}:${ACCOUNT_ID}:task-definition/causeflow-production:1`,
+      ),
+      {
         cluster: 'causeflow-production',
         services: ['causeflow-production'],
-      })
-      .resolves(
-        stableServiceResponse(
-          'causeflow-production',
-          `arn:aws:ecs:${REGION}:${ACCOUNT_ID}:task-definition/causeflow-production:1`
-        )
-      );
+      },
+    );
 
     const seenUrls: string[] = [];
     const healthBody: HealthResponse = {
@@ -225,7 +215,7 @@ describe('runVerify', () => {
 
     const output = await runVerify({
       config: baseConfig({ stage: 'production', services: ['api'] }),
-      ecsClient: new ECSClient({ region: REGION }),
+      ecsClient: ecsMock as never,
       fetchFn: fetchFn as typeof fetch,
       sleep: noopSleep,
       now: makeClock([0, 500, 1_000, 1_500, 2_000]),
@@ -238,16 +228,16 @@ describe('runVerify', () => {
 
   it('services are verified in the order declared in config', async () => {
     const clusterSeen: string[] = [];
-    ecsMock.on(DescribeServicesCommand).callsFake((input: { services?: string[] }) => {
+    ecsMock.callsFakeDescribeServices((input) => {
       const svc = input.services?.[0] ?? '';
       clusterSeen.push(svc);
       const arn =
         svc === 'causeflow-staging'
           ? API_TD_ARN
           : `arn:aws:ecs:${REGION}:${ACCOUNT_ID}:task-definition/causeflow-staging-worker:3`;
-      return Promise.resolve(stableServiceResponse(svc, arn));
+      return stableServiceResponse(svc, arn);
     });
-    ecsMock.on(DescribeTaskDefinitionCommand).resolves({
+    ecsMock.resolvesDescribeTaskDefinition({
       taskDefinition: {
         taskDefinitionArn: WORKER_TD_ARN,
         containerDefinitions: [{ name: 'investigation-worker', image: WORKER_IMAGE }],
@@ -265,14 +255,13 @@ describe('runVerify', () => {
 
     await runVerify({
       config: baseConfig({ services: ['worker', 'api'] }),
-      ecsClient: new ECSClient({ region: REGION }),
+      ecsClient: ecsMock as never,
       fetchFn: fetchFn as typeof fetch,
       sleep: noopSleep,
       now: makeClock([0, 500, 1_000, 1_500, 2_000, 2_500, 3_000, 3_500]),
       accountId: ACCOUNT_ID,
     });
 
-    // Worker first, then api — matches config.services order.
     expect(clusterSeen[0]).toBe('causeflow-staging-worker');
     expect(clusterSeen[clusterSeen.length - 1]).toBe('causeflow-staging');
   });

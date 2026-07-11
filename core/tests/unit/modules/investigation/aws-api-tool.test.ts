@@ -1,53 +1,27 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createAwsApiToolHandler, clearAwsClientCache } from '../../../../src/modules/investigation/infra/aws-api-tool.js';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
+import { createAwsApiToolHandler } from '../../../../src/modules/investigation/infra/aws-api-tool.js';
 import type { CloudCredentials } from '../../../../src/shared/application/ports/cloud-provider.port.js';
+import {
+  dynamoMockSend,
+  installAwsApiSdkDoubles,
+  resetAwsApiSdkDoubles,
+  uninstallAwsApiSdkDoubles,
+} from '../../../helpers/aws-api-sdk-doubles.js';
 
-// Mock the dynamic imports
-vi.mock('@aws-sdk/client-ecs', () => {
-  const mockSend = vi.fn().mockResolvedValue({
-    $metadata: { httpStatusCode: 200, requestId: 'test' },
-    services: [{ serviceName: 'api', status: 'ACTIVE', runningCount: 2 }],
-  });
-  class MockECSClient {
-    send = mockSend;
-  }
-  class DescribeServicesCommand {
-    constructor(public input: Record<string, unknown>) {}
-  }
-  return { ECSClient: MockECSClient, DescribeServicesCommand };
-});
-
-vi.mock('@aws-sdk/client-dynamodb', () => {
-  const mockSend = vi.fn().mockResolvedValue({
-    $metadata: { httpStatusCode: 200 },
-    Items: [{ id: { S: 'item-1' } }],
-    Count: 1,
-  });
-  class MockDynamoDBClient {
-    send = mockSend;
-  }
-  class QueryCommand {
-    constructor(public input: Record<string, unknown>) {}
-  }
-  class DescribeTableCommand {
-    constructor(public input: Record<string, unknown>) {}
-  }
-  return { DynamoDBClient: MockDynamoDBClient, QueryCommand, DescribeTableCommand };
-});
-
-vi.mock('@aws-sdk/client-rds', () => {
-  const mockSend = vi.fn().mockResolvedValue({
-    $metadata: { httpStatusCode: 200 },
-    DBInstances: [{ DBInstanceIdentifier: 'mydb', DBInstanceStatus: 'available' }],
-  });
-  class MockRDSClient {
-    send = mockSend;
-  }
-  class DescribeDBInstancesCommand {
-    constructor(public input: Record<string, unknown>) {}
-  }
-  return { RDSClient: MockRDSClient, DescribeDBInstancesCommand };
-});
+vi.mock('../../../../src/modules/investigation/infra/aws-service-map.js', () => ({
+  getServiceEntry: (service: string) => {
+    const map: Record<string, { pkg: string; client: string }> = {
+      ecs: { pkg: 'virtual-sdk-ecs', client: 'ECSClient' },
+      dynamodb: { pkg: 'virtual-sdk-dynamodb', client: 'DynamoDBClient' },
+      rds: { pkg: 'virtual-sdk-rds', client: 'RDSClient' },
+    };
+    const entry = map[service.toLowerCase()];
+    if (!entry) {
+      throw new Error(`Unknown AWS service "${service}"`);
+    }
+    return entry;
+  },
+}));
 
 const CREDS: CloudCredentials = {
   provider: 'aws',
@@ -60,8 +34,16 @@ const CREDS: CloudCredentials = {
 };
 
 describe('aws-api-tool', () => {
+  beforeAll(() => {
+    installAwsApiSdkDoubles();
+  });
+
+  afterAll(() => {
+    uninstallAwsApiSdkDoubles();
+  });
+
   beforeEach(() => {
-    clearAwsClientCache();
+    resetAwsApiSdkDoubles();
   });
 
   it('should return null for non-matching tool name', async () => {
@@ -81,7 +63,7 @@ describe('aws-api-tool', () => {
     expect(result).not.toBeNull();
     const parsed = JSON.parse(result!);
     expect(parsed.services).toBeDefined();
-    expect(parsed.$metadata).toBeUndefined(); // $metadata stripped
+    expect(parsed.$metadata).toBeUndefined();
   });
 
   it('should handle DescribeDBInstances on RDS', async () => {
@@ -141,8 +123,11 @@ describe('aws-api-tool', () => {
   });
 
   describe('DynamoDB Query Limit safeguard', () => {
+    beforeEach(() => {
+      dynamoMockSend.mockClear();
+    });
+
     it('should auto-inject Limit: 1000 on DynamoDB Query when not specified', async () => {
-      const { DynamoDBClient } = await import('@aws-sdk/client-dynamodb');
       const handler = createAwsApiToolHandler(CREDS);
       await handler('aws_api_call', {
         service: 'dynamodb',
@@ -150,13 +135,11 @@ describe('aws-api-tool', () => {
         params: { TableName: 'my-table', KeyConditionExpression: 'id = :id' },
       });
 
-      const mockClient = new DynamoDBClient({}) as unknown as { send: ReturnType<typeof vi.fn> };
-      const lastCall = mockClient.send.mock.calls[mockClient.send.mock.calls.length - 1]?.[0];
+      const lastCall = dynamoMockSend.mock.calls[dynamoMockSend.mock.calls.length - 1]?.[0];
       expect(lastCall?.input?.['Limit']).toBe(1000);
     });
 
     it('should preserve user-specified Limit on DynamoDB Query', async () => {
-      const { DynamoDBClient } = await import('@aws-sdk/client-dynamodb');
       const handler = createAwsApiToolHandler(CREDS);
       await handler('aws_api_call', {
         service: 'dynamodb',
@@ -164,13 +147,11 @@ describe('aws-api-tool', () => {
         params: { TableName: 'my-table', KeyConditionExpression: 'id = :id', Limit: 50 },
       });
 
-      const mockClient = new DynamoDBClient({}) as unknown as { send: ReturnType<typeof vi.fn> };
-      const lastCall = mockClient.send.mock.calls[mockClient.send.mock.calls.length - 1]?.[0];
+      const lastCall = dynamoMockSend.mock.calls[dynamoMockSend.mock.calls.length - 1]?.[0];
       expect(lastCall?.input?.['Limit']).toBe(50);
     });
 
     it('should NOT inject Limit on non-Query DynamoDB actions', async () => {
-      const { DynamoDBClient } = await import('@aws-sdk/client-dynamodb');
       const handler = createAwsApiToolHandler(CREDS);
       await handler('aws_api_call', {
         service: 'dynamodb',
@@ -178,8 +159,7 @@ describe('aws-api-tool', () => {
         params: { TableName: 'my-table' },
       });
 
-      const mockClient = new DynamoDBClient({}) as unknown as { send: ReturnType<typeof vi.fn> };
-      const lastCall = mockClient.send.mock.calls[mockClient.send.mock.calls.length - 1]?.[0];
+      const lastCall = dynamoMockSend.mock.calls[dynamoMockSend.mock.calls.length - 1]?.[0];
       expect(lastCall?.input?.['Limit']).toBeUndefined();
     });
   });

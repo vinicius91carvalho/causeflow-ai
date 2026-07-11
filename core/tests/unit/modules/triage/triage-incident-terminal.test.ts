@@ -26,7 +26,7 @@ const INVESTIGATION_QUEUE_URL = 'http://localhost:4566/000000000000/causeflow-in
 const LOW_PRIORITY_RESULT: TriageResult = {
   priority: 'low',
   category: 'unknown',
-  suggestedAgents: [],
+  suggestedAgents: ['log_analyst'],
   summary: 'manual test',
   confidence: 0.9,
   investigationMode: 'orchestrator',

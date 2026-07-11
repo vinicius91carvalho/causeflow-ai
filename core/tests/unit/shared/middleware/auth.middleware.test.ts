@@ -1,33 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import type { AppEnv } from '../../../../src/shared/infra/http/hono-types.js';
+import { signExpiredLocalJwt, signLocalJwt } from '../../../helpers/local-auth-jwt.js';
 
-// Mock @clerk/backend before importing the middleware
-const verifyTokenMock = vi.fn();
-vi.mock('@clerk/backend', () => ({
-  verifyToken: verifyTokenMock,
-}));
-
-// Mock config so the middleware doesn't need real env vars
 vi.mock('../../../../src/shared/config/index.js', () => ({
   config: {
     auth: {
-      jwtSecret: undefined,
+      jwtSecret: 'test-secret',
       jwtIssuer: 'causeflow',
       jwtAudience: 'causeflow-api',
     },
     clerk: {
-      secretKey: 'test-clerk-secret-key',
+      secretKey: '',
     },
     logLevel: 'silent',
     isDev: () => false,
     isProd: () => false,
     isTest: () => true,
-    isOss: () => false,
+    isOss: () => true,
   },
 }));
 
-// Import after mocks are set up
 const { authMiddleware } = await import(
   '../../../../src/shared/infra/http/middleware/auth.middleware.js'
 );
@@ -64,7 +57,7 @@ describe('authMiddleware', () => {
   const app = createApp();
 
   beforeEach(() => {
-    verifyTokenMock.mockReset();
+    vi.clearAllMocks();
   });
 
   it('bypasses /health (200)', async () => {
@@ -90,8 +83,6 @@ describe('authMiddleware', () => {
   });
 
   it('rejects invalid Bearer token (401)', async () => {
-    verifyTokenMock.mockRejectedValue(new Error('Invalid token'));
-
     const res = await app.request('/test', {
       headers: { Authorization: 'Bearer invalid-token' },
     });
@@ -101,16 +92,16 @@ describe('authMiddleware', () => {
     expect(body['message']).toContain('Invalid or expired token');
   });
 
-  it('sets context variables with valid token (org:admin role)', async () => {
-    verifyTokenMock.mockResolvedValue({
+  it('sets context variables with valid token (admin role)', async () => {
+    const token = await signLocalJwt({
       sub: 'user-456',
-      org_id: 'org_tenant123',
-      org_role: 'org:admin',
       email: 'user@example.com',
+      tenant_id: 'org_tenant123',
+      roles: ['admin'],
     });
 
     const res = await app.request('/test', {
-      headers: { Authorization: 'Bearer valid-token' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status).toBe(200);
     const body = (await res.json()) as Record<string, unknown>;
@@ -120,16 +111,16 @@ describe('authMiddleware', () => {
     expect(body['userRoles']).toEqual(['admin']);
   });
 
-  it('maps non-admin org_role to member', async () => {
-    verifyTokenMock.mockResolvedValue({
+  it('accepts member role from JWT claims', async () => {
+    const token = await signLocalJwt({
       sub: 'user-789',
-      org_id: 'org_tenant456',
-      org_role: 'org:member',
       email: 'member@example.com',
+      tenant_id: 'org_tenant456',
+      roles: ['member'],
     });
 
     const res = await app.request('/test', {
-      headers: { Authorization: 'Bearer valid-token' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status).toBe(200);
     const body = (await res.json()) as Record<string, unknown>;
@@ -138,30 +129,30 @@ describe('authMiddleware', () => {
     expect(body['userRoles']).toEqual(['member']);
   });
 
-  it('rejects token missing org_id on non-provisioning path (401)', async () => {
-    verifyTokenMock.mockResolvedValue({
+  it('rejects token missing tenant_id on non-provisioning path (401)', async () => {
+    const token = await signLocalJwt({
       sub: 'user-456',
       email: 'user@example.com',
     });
 
     const res = await app.request('/test', {
-      headers: { Authorization: 'Bearer valid-token' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status).toBe(401);
     const body = (await res.json()) as Record<string, unknown>;
     expect(body['error']).toBe('UNAUTHORIZED');
-    expect(body['message']).toContain('No organization selected');
+    expect(body['message']).toContain('No tenant in token');
   });
 
-  it('allows provisioning path (POST /v1/tenants) without org_id', async () => {
-    verifyTokenMock.mockResolvedValue({
+  it('allows provisioning path (POST /v1/tenants) without tenant_id', async () => {
+    const token = await signLocalJwt({
       sub: 'user-456',
       email: 'user@example.com',
     });
 
     const res = await app.request('/v1/tenants', {
       method: 'POST',
-      headers: { Authorization: 'Bearer valid-token' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status).toBe(200);
     const body = (await res.json()) as Record<string, unknown>;
@@ -170,10 +161,14 @@ describe('authMiddleware', () => {
   });
 
   it('rejects expired token (401)', async () => {
-    verifyTokenMock.mockRejectedValue(new Error('Token has expired'));
+    const token = await signExpiredLocalJwt({
+      sub: 'user-456',
+      email: 'user@example.com',
+      tenant_id: 'org_tenant123',
+    });
 
     const res = await app.request('/test', {
-      headers: { Authorization: 'Bearer expired-token' },
+      headers: { Authorization: `Bearer ${token}` },
     });
     expect(res.status).toBe(401);
     const body = (await res.json()) as Record<string, unknown>;
@@ -181,19 +176,21 @@ describe('authMiddleware', () => {
     expect(body['message']).toContain('Invalid or expired token');
   });
 
-  it('passes token and secretKey to verifyToken', async () => {
-    verifyTokenMock.mockResolvedValue({
+  it('verifies locally signed JWT with configured secret', async () => {
+    const token = await signLocalJwt({
       sub: 'user-1',
-      org_id: 'org_1',
       email: 'a@b.com',
+      tenant_id: 'org_1',
+      roles: ['admin'],
     });
 
-    await app.request('/test', {
-      headers: { Authorization: 'Bearer my-jwt-token' },
+    const res = await app.request('/test', {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    expect(verifyTokenMock).toHaveBeenCalledWith('my-jwt-token', {
-      secretKey: 'test-clerk-secret-key',
-    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(body['userId']).toBe('user-1');
+    expect(body['tenantId']).toBe('org_1');
   });
 });

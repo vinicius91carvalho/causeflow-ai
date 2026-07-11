@@ -23,21 +23,21 @@ import type { IAuditRepository } from '../../src/modules/audit/domain/audit.repo
 import type { AuditEntry } from '../../src/modules/audit/domain/audit.entity.js';
 import type { Incident } from '../../src/modules/ingestion/domain/incident.entity.js';
 import type { IIncidentRepository } from '../../src/modules/ingestion/domain/incident.repository.js';
-
-// ── Mock @clerk/backend before any imports that transitively use it ──────────
-const verifyTokenMock = vi.fn();
-vi.mock('@clerk/backend', () => ({
-  verifyToken: verifyTokenMock,
-}));
+import { signLocalJwt } from '../helpers/local-auth-jwt.js';
 
 vi.mock('../../src/shared/config/index.js', () => ({
   config: {
-    clerk: { secretKey: 'test-clerk-secret-key' },
+    clerk: { secretKey: '' },
     logLevel: 'silent',
+    auth: {
+      jwtSecret: 'test-secret',
+      jwtIssuer: 'causeflow',
+      jwtAudience: 'causeflow-api',
+    },
     isDev: () => false,
     isProd: () => false,
     isTest: () => true,
-    isOss: () => false,
+    isOss: () => true,
   },
 }));
 
@@ -100,15 +100,16 @@ describe('Integration: authenticated chat → incident.created audit row with ac
   let app: Hono<AppEnv>;
   let auditRepo: IAuditRepository;
   let eventBus: EventBus;
+  let authToken: string;
 
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    // Set up Clerk mock to return authenticated user
-    verifyTokenMock.mockResolvedValue({
+    authToken = await signLocalJwt({
       sub: ACTOR_USER_ID,
       email: ACTOR_EMAIL,
-      org_id: TENANT_ID,
+      tenant_id: TENANT_ID,
+      roles: ['admin'],
     });
 
     eventBus = new EventBus();
@@ -200,7 +201,7 @@ describe('Integration: authenticated chat → incident.created audit row with ac
     const res = await app.request('/v1/memory/chat', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer test-token`,
+        'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

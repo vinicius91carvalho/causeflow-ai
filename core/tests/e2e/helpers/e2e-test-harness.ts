@@ -55,6 +55,7 @@ export async function createE2EHarness(_opts?: E2EHarnessOptions): Promise<E2EHa
   const ctx = await bootstrap({
     llmClient: stubLLM,
     agentRunner: stubAgent,
+    inProcessPipeline: true,
   });
 
   // Tap on EventBus to capture all events

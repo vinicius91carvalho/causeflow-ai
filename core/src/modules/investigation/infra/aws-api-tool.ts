@@ -50,6 +50,23 @@ Available services: ecs, ec2, lambda, rds, elasticache, elbv2, apigateway, apiga
 };
 // Client cache to avoid re-creating per call within the same investigation
 const clientCache = new Map();
+
+/** Test seam: override dynamic SDK imports without referencing @aws-sdk in tests (AC-050). */
+type AwsSdkModule = Record<string, unknown>;
+let testSdkImportFn: ((pkg: string) => Promise<AwsSdkModule>) | undefined;
+
+export function setAwsSdkImportForTests(
+    fn: ((pkg: string) => Promise<AwsSdkModule>) | undefined,
+): void {
+    testSdkImportFn = fn;
+}
+
+async function loadSdkModule(pkg: string): Promise<AwsSdkModule> {
+    if (testSdkImportFn) {
+        return testSdkImportFn(pkg);
+    }
+    return import(pkg);
+}
 function buildCacheKey(service: string, region: string, accessKeyId: string) {
     return `${service}:${region}:${accessKeyId}`;
 }
@@ -57,7 +74,7 @@ async function resolveClient(service: string, credentials: CloudCredentials) {
     const entry = getServiceEntry(service);
     const cacheKey = buildCacheKey(service, credentials.region, credentials.credentials['accessKeyId'] ?? '');
     // Dynamic import of the SDK package
-    const mod = await import(entry.pkg);
+    const mod = await loadSdkModule(entry.pkg);
     const ClientClass = mod[entry.client];
     if (!ClientClass) {
         throw new Error(`Client class "${entry.client}" not found in package "${entry.pkg}"`);
@@ -98,7 +115,7 @@ export function createAwsApiToolHandler(credentials: CloudCredentials): (name: s
         const region = validated.region ?? credentials.region;
         const cacheKey = buildCacheKey(validated.service, region, credentials.credentials['accessKeyId'] ?? '');
         // Dynamic import
-        const mod = await import(entry.pkg);
+        const mod = await loadSdkModule(entry.pkg);
         // Find the command class: {Action}Command
         const commandName = `${validated.action}Command`;
         const CommandClass = mod[commandName];

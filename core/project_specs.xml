@@ -36,7 +36,7 @@
 
       Observability: OpenTelemetry SDK (api, sdk-node, exporter-trace-otlp-proto, auto-instrumentations-node, AWS X-Ray id generator + propagator) initialised in `src/shared/infra/observability/otel.ts`.
 
-      Testing: Vitest (^2.1) as the runner; `aws-sdk-client-mock` for AWS SDK stubbing; Promptfoo (^0.120) for LLM eval suites.
+      Testing: Vitest (^2.1) as the runner; Promptfoo (^0.120) for LLM eval suites.
     </general>
     <frontend>
       <framework>Single-page Alpine.js + Tailwind application (`core/dashboard/index.html`) served by Hono at `/dashboard`; internal embeddable widget built with Vite at `core/packages/widget/`</framework>

@@ -63,10 +63,23 @@ describe('Change Detector Sub-Agent', () => {
       expect(AGENT_CONFIG_MAP['change_detector']).toBe(CHANGE_DETECTOR_CONFIG);
     });
 
-    it('should have 10 agent configs (code_analyzer + db_analyst removed — Composio covers code, no relay-based DB analyst)', () => {
-      expect(Object.keys(AGENT_CONFIG_MAP)).toHaveLength(10);
+    it('should have 12 agent configs including code_analyzer and db_analyst for OSS local pipeline', () => {
+      expect(Object.keys(AGENT_CONFIG_MAP)).toHaveLength(12);
       expect(Object.keys(AGENT_CONFIG_MAP)).toEqual(
-        expect.arrayContaining(['orchestrator', 'scout', 'log_analyst', 'metric_analyst', 'infra_inspector', 'change_detector', 'issue_correlator', 'apm_analyst', 'notification_sender', 'diagnosis_verifier']),
+        expect.arrayContaining([
+          'orchestrator',
+          'scout',
+          'log_analyst',
+          'metric_analyst',
+          'infra_inspector',
+          'change_detector',
+          'code_analyzer',
+          'db_analyst',
+          'issue_correlator',
+          'apm_analyst',
+          'notification_sender',
+          'diagnosis_verifier',
+        ]),
       );
     });
   });

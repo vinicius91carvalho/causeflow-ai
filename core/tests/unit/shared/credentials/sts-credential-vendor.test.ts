@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { STSCredentialVendor } from '../../../../src/shared/infra/credentials/sts-credential-vendor.js';
 
-// Local type to avoid importing @aws-sdk/client-sts (AC-050)
+// Local type stub — no external cloud SDK in unit tests (AC-050)
 interface MockSTSClient {
   send: ReturnType<typeof vi.fn>;
 }

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Local SQS Message type to avoid importing @aws-sdk/client-sqs (AC-050)
+// Local SQS Message type defined here for AC-050 OSS isolation
 interface Message {
   MessageId?: string;
   Body?: string;

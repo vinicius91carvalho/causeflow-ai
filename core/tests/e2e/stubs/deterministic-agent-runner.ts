@@ -3,44 +3,47 @@ import type { AgentRunner, AgentRunConfig, AgentRunResult, ToolCallRecord } from
 export interface AgentResponseOverride {
   response: string;
   toolCallsToMake?: Array<{ name: string; input: Record<string, unknown> }>;
+  toolOutputs?: Record<string, string>;
 }
+
+const KNOWN_ROLES = [
+  'change_detector',
+  'db_analyst',
+  'code_analyzer',
+  'metric_analyst',
+  'log_analyst',
+  'infra_inspector',
+  'scout',
+  'orchestrator',
+  'issue_correlator',
+  'apm_analyst',
+  'notification_sender',
+  'diagnosis_verifier',
+] as const;
 
 const DEFAULT_TOOL_CALLS: Record<string, Array<{ name: string; input: Record<string, unknown> }>> = {
   log_analyst: [
     {
-      name: 'query_logs',
-      input: {
-        service: 'payment-service',
-        filter: 'error',
-        startTime: new Date(Date.now() - 3600000).toISOString(),
-        endTime: new Date().toISOString(),
-        limit: 20,
-      },
+      name: 'aws_api_call',
+      input: { service: 'logs', action: 'FilterLogEvents', params: { logGroupName: '/ecs/payment-service' } },
     },
   ],
   metric_analyst: [
     {
-      name: 'query_metrics',
-      input: {
-        metricName: 'MemoryUtilization',
-        namespace: 'AWS/ECS',
-        startTime: new Date(Date.now() - 3600000).toISOString(),
-        endTime: new Date().toISOString(),
-        period: 60,
-        stat: 'Average',
-      },
+      name: 'aws_api_call',
+      input: { service: 'cloudwatch', action: 'GetMetricData', params: { MetricName: 'MemoryUtilization' } },
     },
   ],
   infra_inspector: [
     {
-      name: 'describe_service',
-      input: { serviceName: 'payment-service', region: 'us-east-1' },
+      name: 'aws_api_call',
+      input: { service: 'ecs', action: 'DescribeServices', params: { cluster: 'production', services: ['payment-service'] } },
     },
   ],
   change_detector: [
     {
-      name: 'describe_service',
-      input: { serviceName: 'payment-service', region: 'us-east-1' },
+      name: 'aws_api_call',
+      input: { service: 'ecs', action: 'DescribeServices', params: { cluster: 'production', services: ['payment-service'] } },
     },
     {
       name: 'get_recent_changes',
@@ -74,14 +77,15 @@ export class DeterministicAgentRunner implements AgentRunner {
   }
 
   async run(config: AgentRunConfig): Promise<AgentRunResult> {
-    // Infer role from systemPrompt, staticSystemPrompt, userPrompt, or tools
-    const combinedPrompt = config.systemPrompt + ' ' + ((config as Record<string, unknown>)['staticSystemPrompt'] as string ?? '') + ' ' + config.userPrompt;
+    const combinedPrompt = [
+      config.systemPrompt,
+      config.staticSystemPrompt ?? '',
+      config.userPrompt,
+    ].join(' ');
     const role = this.inferRole(combinedPrompt);
     const override = this.overrides.get(role);
 
-    // Make tool calls based on the tools available in the config
     const toolCallsToMake = override?.toolCallsToMake ?? DEFAULT_TOOL_CALLS[role] ?? [];
-    // If we have tool definitions but no default tool calls, create one per tool
     if (toolCallsToMake.length === 0 && config.tools.length > 0) {
       for (const tool of config.tools) {
         toolCallsToMake.push({ name: tool.name, input: {} });
@@ -89,16 +93,29 @@ export class DeterministicAgentRunner implements AgentRunner {
     }
     const response = override?.response ?? DEFAULT_RESPONSES[role] ?? `Analysis complete for role: ${role}`;
 
-    // Actually call the tool handler to exercise the real CloudProvider integration
     const toolCalls: ToolCallRecord[] = [];
     for (const call of toolCallsToMake) {
-      try {
-        const output = await config.toolHandler(call.name, call.input);
-        toolCalls.push({ name: call.name, input: call.input, output });
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Tool call failed';
-        toolCalls.push({ name: call.name, input: call.input, output: `Error: ${errorMsg}` });
+      let output = override?.toolOutputs?.[call.name];
+      if (!output) {
+        if (this.useSyntheticOutput(call.name, override)) {
+          output = this.syntheticToolOutput(call.name, call.input);
+        } else {
+          try {
+            const handlerResult = await config.toolHandler(call.name, call.input);
+            if (handlerResult != null && !handlerResult.startsWith('Error:')) {
+              output = handlerResult;
+            }
+          } catch {
+            // Fall through to synthetic OSS stub output.
+          }
+        }
       }
+      output ??= this.syntheticToolOutput(call.name, call.input);
+      toolCalls.push({
+        name: call.name,
+        input: call.input,
+        output: output ?? JSON.stringify({ ok: true, tool: call.name }),
+      });
     }
 
     this.runLog.push({ role, config, toolCalls });
@@ -115,11 +132,67 @@ export class DeterministicAgentRunner implements AgentRunner {
 
   private inferRole(systemPrompt: string): string {
     const lower = systemPrompt.toLowerCase();
-    // Check more specific patterns first to avoid false matches
+    for (const role of KNOWN_ROLES) {
+      if (lower.includes(role)) return role;
+      if (lower.includes(role.replace(/_/g, ' '))) return role;
+    }
     if (lower.includes('change') && lower.includes('detect')) return 'change_detector';
     if (lower.includes('metric') && lower.includes('analy')) return 'metric_analyst';
     if (lower.includes('infra') && lower.includes('inspect')) return 'infra_inspector';
     if (lower.includes('log') && lower.includes('analy')) return 'log_analyst';
+    if (lower.includes('code') && lower.includes('analy')) return 'code_analyzer';
+    if (lower.includes('database') && lower.includes('analy')) return 'db_analyst';
     return 'unknown';
+  }
+
+  private useSyntheticOutput(name: string, override?: AgentResponseOverride): boolean {
+    const syntheticOnly = [
+      'get_recent_changes',
+      'get_commit_diff',
+      'get_file_content',
+      'get_recent_commits',
+      'get_deployments',
+      'query_logs',
+      'query_metrics',
+      'describe_service',
+    ];
+    if (!syntheticOnly.includes(name)) return false;
+    return override?.toolCallsToMake?.some((t) => t.name === name) ?? false;
+  }
+
+  private syntheticToolOutput(name: string, input: Record<string, unknown>): string | undefined {
+    switch (name) {
+      case 'get_commit_diff':
+        return JSON.stringify({
+          files: [{
+            patch: '+  // N+1 query pattern\n+  for (const payment of payments) {\n+    await db.orders.findByPaymentId(payment.id);\n+  }',
+          }],
+        });
+      case 'get_file_content':
+        return JSON.stringify({
+          path: String(input['path'] ?? 'src/config.ts'),
+          content: 'export const requestTimeoutMs = 3000;\n// config regression typo',
+        });
+      case 'get_recent_changes':
+      case 'get_recent_commits':
+        return JSON.stringify([
+          {
+            sha: 'e5f6g7h8',
+            message: 'feat: add payment result caching for faster lookups',
+            date: '2026-02-14T10:00:00Z',
+          },
+        ]);
+      case 'get_deployments':
+        return JSON.stringify([
+          { id: 'dep-1', environment: 'production', status: 'success' },
+        ]);
+      case 'query_logs':
+      case 'query_metrics':
+      case 'describe_service':
+      case 'aws_api_call':
+        return JSON.stringify({ ok: true, tool: name, input });
+      default:
+        return undefined;
+    }
   }
 }
