@@ -1,6 +1,6 @@
 # CauseFlow Test Application (AC-058)
 
-Runnable mock HTTP service that dashboard users connect as an integration target on the OSS local stack. This is a **real upstream application** — not a dashboard route mock or Playwright fixture. Web golden-path E2E (web AC-058/AC-060) and Core harness scripts exercise these endpoints.
+Runnable mock HTTP service that dashboard users connect as an integration target on the OSS local stack. This is a **real upstream application** — not a dashboard route mock or Playwright fixture. Web golden-path E2E (web AC-058/AC-060/AC-061) and Core harness scripts exercise these endpoints.
 
 ## Quick start
 
@@ -73,6 +73,25 @@ Inside docker compose, Core uses `http://causeflow-test-app:5190` automatically.
 ```bash
 PORT=5171 TEST_APP_PORT=5190 bash .harness/ac058-verify.sh
 ```
+
+## AC-061 delivery gate (dashboard golden path)
+
+Core's harness QA / Goal Review entry point for the full product loop.
+It boots this test app, connects the stub integration, selects Ornith
+(or DeepSeek fallback), ingests an incident, then asserts triage severity,
+incident chat completion, root-cause, and remediation artifacts in both
+Postgres and the HTTP API.
+
+```bash
+# Prerequisites: compose Postgres/Redis up, Core + worker healthy, Ornith on :8081
+PORT=5170 ./init.sh
+PORT=5170 TEST_APP_PORT=5193 pnpm verify:ac061
+# equivalent:
+PORT=5170 TEST_APP_PORT=5193 bash .harness/ac061-verify.sh
+```
+
+Web AC-061 depends on this Core contract. Goal Review for Core after the
+OSS LLM ACs must not pass without `.harness/ac061-verify.sh` evidence.
 
 ## Environment
 
