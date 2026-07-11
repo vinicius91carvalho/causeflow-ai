@@ -6383,3 +6383,10 @@ No defects found. integration=true set in feature_list.json.
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/cdefdf66-82d9-490b-a2c6-e0ae679df1b0/open-source-local-runtime/WI-AC-059-2-integration_qa-1068fd2cfdc4df28.log
 - NextAction: next Ready Work Item
+
+## 2026-07-11T09:51:11.123Z — Resumed
+
+- WorkItem: WI-AC-060
+- PreviousPhase: claimed
+- Attempt: 1
+- NextAction: start-orchestrator
