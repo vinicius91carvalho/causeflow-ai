@@ -6413,3 +6413,10 @@ No defects found. integration=true set in feature_list.json.
 - RepairPlan: AC-060 falha no handoff triage→investigation do runtime OSS em PORT=5171: triage conclui (severity=high, job triage id=19), mas o incidente permanece em status=triaging por ~300s e nenhum artefato downstream (SSE progress, chat, root-cause, remediation) é produzido. Scaffold e script de verificação existem; o golden path quebra após triage.; Confirmar no ambiente QA: `pgrep -af investigation-worker`, `.harness/worker.pid`, e `worker.log` com `BullMQ worker started` + `investigation:start` para o incidentId; reiniciar via `PORT=5171 init.sh` (não apenas `pnpm dev`).; Verificar alinhamento Redis: API e worker devem usar o mesmo `REDIS_URL` (6380 publicado); inspecionar jobs via `GET http://127.0.0.1:5171/admin/queues` (incluindo fila `active`), não `docker exec redis-cli` na porta 6379.; Corrigir `TriageIncidentUseCase`: em OSS, se severity passa no threshold e o enqueue para `causeflow-investigation` falhar ou for pulado, falhar o job de triage (não completar silenciosamente); promover log de enqueue para info com `incidentId`.; Endurecer `.harness/ac060-verify.sh`: preflight que falha se investigation worker não estiver vivo e se `causeflow-investigation` não tiver consumer ativo antes do ingest.; Adicionar teste de integração: stub ingest → triage completo → job `causeflow-investigation` com `incidentId` dentro de 2s → worker consome → status sai de `triaging`.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/d91fb56b-5d48-45ec-b786-137e61a094df/open-source-local-runtime/WI-AC-060-1-qa-02148cdd9cc96f34.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-11T10:31:22.495Z — Resumed
+
+- WorkItem: WI-AC-060
+- PreviousPhase: coding
+- Attempt: 2
+- NextAction: coding
