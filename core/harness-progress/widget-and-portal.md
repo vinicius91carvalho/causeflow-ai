@@ -8693,3 +8693,12 @@ All acceptance sub-checks pass. qa=true, implementation=true.
 - WorkItem: WI-AC-035
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-11T05:41:18.704Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-035
+- AcceptanceChecks: AC-035
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/core/b5bbfe39-b435-40d2-9e1f-6cc437fc798c/widget-and-portal/WI-AC-035-1-integration_qa-b999906bc7bf6723.log
+- NextAction: next Ready Work Item
