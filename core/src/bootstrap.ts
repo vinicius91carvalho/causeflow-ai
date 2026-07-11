@@ -46,6 +46,7 @@ import type { CredentialVendor } from './shared/application/ports/credential-ven
 import type { MessageQueue } from './shared/application/ports/message-queue.port.js';
 // SQSMessageQueue, DynamoEvidenceRepository, DynamoToolCallRepository — dynamically imported in AWS runtime block
 import { TriageIncidentUseCase } from './modules/triage/application/triage-incident.usecase.js';
+import { TriageFailedError } from './modules/triage/domain/triage.errors.js';
 import { InvestigateIncidentUseCase } from './modules/investigation/application/investigate-incident.usecase.js';
 import { DispatchInvestigationUseCase } from './modules/investigation/application/dispatch-investigation.usecase.js';
 import { OrchestratorMode } from './modules/investigation/application/modes/orchestrator-mode.js';
@@ -512,6 +513,19 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     ? new (await import('./modules/investigation/infra/pg-hypothesis.repository.js')).PgHypothesisRepository()
     : new DynamoHypothesisRepository();
 
+  // AC-057: OSS stub-upstream probe evidence hook for investigation (wired before use case).
+  let ossIntegrationRepo: import('./modules/integration/infra/pg-integration.repository.js').PgIntegrationRepository | undefined;
+  let persistStubUpstreamEvidence: ((tenantId: import('./shared/domain/value-objects.js').TenantId, incidentId: import('./shared/domain/value-objects.js').IncidentId) => Promise<void>) | undefined;
+  if (config.isOss()) {
+    const { PgIntegrationRepository } = await import('./modules/integration/infra/pg-integration.repository.js');
+    ossIntegrationRepo = new PgIntegrationRepository();
+    const { PersistStubProbeEvidenceUseCase } = await import('./modules/integration/application/persist-stub-probe-evidence.usecase.js');
+    const persistStubProbeEvidence = new PersistStubProbeEvidenceUseCase(ossIntegrationRepo, evidenceRepo);
+    persistStubUpstreamEvidence = async (tenantId, incidentId) => {
+      await persistStubProbeEvidence.execute({ tenantId, incidentId });
+    };
+  }
+
   // Investigation Use Cases
   const investigateIncident = new InvestigateIncidentUseCase({
     incidentRepo,
@@ -532,6 +546,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     agentMemory,
     selectSkills,
     hypothesisRepo,
+    persistStubUpstreamEvidence,
   });
   const getInvestigation = new GetInvestigationUseCase(incidentRepo, evidenceRepo);
   const addInvestigationContext = new AddInvestigationContextUseCase({
@@ -712,7 +727,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   let listAllIntegrations: ListAllIntegrationsUseCase;
   if (config.isOss()) {
     const { PgIntegrationRepository } = await import('./modules/integration/infra/pg-integration.repository.js');
-    const integrationRepo = new PgIntegrationRepository();
+    const integrationRepo = ossIntegrationRepo ?? new PgIntegrationRepository();
     listAllIntegrations = new ListAllIntegrationsUseCase(integrationRepo);
     const connectStub = new ConnectStubIntegrationUseCase(integrationRepo, eventBus);
     const probeStub = new ProbeStubIntegrationUseCase(integrationRepo);
@@ -1541,15 +1556,39 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
               incidentId(body['incidentId'] as string),
             );
           } catch (err) {
-            logger.warn({ err, incidentId: body['incidentId'] }, 'Triage worker fallback — marking incident as triaged with default severity');
             const tid = tenantId(body['tenantId'] as string);
             const iid = incidentId(body['incidentId'] as string);
+            if (err instanceof TriageFailedError) {
+              // AC-055: Ornith/LLM failures fail closed — do not dispatch investigation.
+              try {
+                await incidentRepo.updateStatus(tid, iid, 'failed');
+              } catch (updateErr) {
+                logger.error({ err: updateErr, incidentId: body['incidentId'] }, 'Triage fail-closed status update failed');
+              }
+              return;
+            }
+            logger.warn({ err, incidentId: body['incidentId'] }, 'Triage worker fallback — marking incident as triaged with default severity');
             try {
+              const defaultAgents = [
+                'log_analyst', 'metric_analyst', 'change_detector',
+                'code_analyzer', 'infra_inspector', 'db_analyst',
+              ];
               await incidentRepo.update(tid, iid, {
                 severity: 'high',
                 status: 'triaging',
+                assignedAgents: defaultAgents,
+                investigationMode: 'orchestrator',
                 updatedAt: new Date().toISOString(),
               });
+              if (messageQueue && investigationQueueUrl) {
+                await messageQueue.send(investigationQueueUrl, {
+                  incidentId: iid,
+                  tenantId: tid,
+                  severity: 'high',
+                  suggestedAgents: defaultAgents,
+                  investigationMode: 'orchestrator',
+                });
+              }
             } catch (updateErr) {
               logger.error({ err: updateErr, incidentId: body['incidentId'] }, 'Triage worker fallback update failed');
             }

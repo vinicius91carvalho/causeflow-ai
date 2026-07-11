@@ -5,7 +5,7 @@ import { IncidentAlreadyTriagedError, TriageFailedError } from '../domain/triage
 import { triageResultSchema, buildTriagePrompt, TRIAGE_SYSTEM_PROMPT } from '../domain/triage.prompts.js';
 import { logger } from '../../../shared/infra/logger.js';
 import { config } from '../../../shared/config/index.js';
-import { isLocalLlmFailClosedMode } from '../../../shared/infra/llm/llm-factory.js';
+import { isLocalLlmFailClosedMode, usesLocalLlmConnector } from '../../../shared/infra/llm/llm-factory.js';
 import type { IIncidentRepository } from '../../ingestion/domain/incident.repository.js';
 import type { IEvidenceRepository } from '../domain/evidence.repository.js';
 import type { IEventBus } from '../../../shared/domain/events.js';
@@ -134,17 +134,19 @@ export class TriageIncidentUseCase {
             // Build integration-aware prompt
             const systemPrompt = await this.buildSmartPrompt(tenantId);
             let result: TriageResult;
+            let triageLlmModel: string | undefined;
             try {
                 const completion = await this.llmClient.complete<TriageResult>({
                     systemPrompt,
                     userPrompt: buildUserPrompt(incident),
                     model: config.anthropic.triageModel,
-                    maxTokens: 512,
+                    maxTokens: usesLocalLlmConnector() ? 1024 : 512,
                     temperature: 0,
                     responseSchema: triageResultSchema,
                     attributes: { tenantId: String(tenantId), incidentId: String(incidentId) },
                 });
                 result = completion.content;
+                triageLlmModel = completion.model;
                 // Guard against stub/LLM bodies that parse loosely but omit fields
                 // required to dispatch investigation (AC-046).
                 const validated = triageResultSchema.safeParse(result);
@@ -203,7 +205,13 @@ export class TriageIncidentUseCase {
                     agentRole: 'coordinator',
                     evidenceType: 'agent_reasoning',
                     content: result.summary,
-                    metadata: { confidence: result.confidence, category: result.category },
+                    metadata: {
+                        confidence: result.confidence,
+                        category: result.category,
+                        ...(triageLlmModel
+                            ? { source: 'llm_completion', llmModel: triageLlmModel, llmConnector: 'local', phase: 'triage' }
+                            : {}),
+                    },
                     createdAt: new Date().toISOString(),
                 });
             }
