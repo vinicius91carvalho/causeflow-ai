@@ -18,7 +18,8 @@ import Redis from 'ioredis';
 process.env['CAUSEFLOW_RUNTIME'] ??= 'oss';
 process.env['NODE_ENV'] ??= 'test';
 process.env['JWT_SECRET'] ??= 'e2e-test-jwt-secret';
-process.env['TOKEN_ENCRYPTION_KEY'] ??= '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+process.env['TOKEN_ENCRYPTION_KEY'] ??=
+  '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 process.env['WEBHOOK_SECRET'] ??= 'e2e-webhook-secret';
 process.env['HINDSIGHT_BASE_URL'] ??= 'http://localhost:8888';
 process.env['DATABASE_URL'] ??= 'postgresql://causeflow:causeflow@localhost:5439/causeflow';
@@ -29,10 +30,7 @@ const REDIS_URL = process.env['REDIS_URL'];
 
 export async function setup(): Promise<void> {
   console.log('[E2E Setup] Waiting for OSS infrastructure...');
-  await Promise.all([
-    waitForPostgres(),
-    waitForRedis(),
-  ]);
+  await Promise.all([waitForPostgres(), waitForRedis()]);
   // Queue flush runs in createE2EHarness() for in-process tests only. Black-box
   // tests (AC-046) hit a running API and must not delete its BullMQ keys.
   console.log('[E2E Setup] All OSS infrastructure ready!');

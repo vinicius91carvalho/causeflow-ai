@@ -167,7 +167,10 @@ describe('extractTraceparent', () => {
     const { extractTraceparent } = await getPropagation();
     const attrs = {
       traceparent: { DataType: 'String', StringValue: `00-${mockTraceId}-${mockSpanId}-01` },
-      tracestate: { DataType: 'String', StringValue: 'aws=Root=1-abcdef12-34567890abcdef1234567890' },
+      tracestate: {
+        DataType: 'String',
+        StringValue: 'aws=Root=1-abcdef12-34567890abcdef1234567890',
+      },
     };
     extractTraceparent(attrs);
     expect(mockPropagation.extract).toHaveBeenCalledWith(

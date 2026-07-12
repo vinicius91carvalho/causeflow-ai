@@ -15,69 +15,79 @@ import type { HealthCheck, HealthCheckResult } from '../health-checker.js';
  * SaaS endpoint.
  */
 export class PostgresHealthCheck {
-    name = 'postgres';
-    host;
-    port;
-    timeoutMs;
+  name = 'postgres';
+  host;
+  port;
+  timeoutMs;
 
-    constructor(opts?: { host?: string; port?: number; timeoutMs?: number }) {
-        this.host = opts?.host ?? resolvePostgresHost();
-        this.port = opts?.port ?? resolvePostgresPort();
-        this.timeoutMs = opts?.timeoutMs ?? 2_000;
-    }
+  constructor(opts?: { host?: string; port?: number; timeoutMs?: number }) {
+    this.host = opts?.host ?? resolvePostgresHost();
+    this.port = opts?.port ?? resolvePostgresPort();
+    this.timeoutMs = opts?.timeoutMs ?? 2_000;
+  }
 
-    async check(): Promise<HealthCheckResult> {
-        const start = Date.now();
-        const ok = await tcpOpen(this.host, this.port, this.timeoutMs);
-        return ok
-            ? { name: this.name, status: 'ok', latencyMs: Date.now() - start, details: { host: this.host, port: this.port } }
-            : { name: this.name, status: 'down', latencyMs: Date.now() - start, details: { host: this.host, port: this.port, error: 'connection refused/timeout' } };
-    }
+  async check(): Promise<HealthCheckResult> {
+    const start = Date.now();
+    const ok = await tcpOpen(this.host, this.port, this.timeoutMs);
+    return ok
+      ? {
+          name: this.name,
+          status: 'ok',
+          latencyMs: Date.now() - start,
+          details: { host: this.host, port: this.port },
+        }
+      : {
+          name: this.name,
+          status: 'down',
+          latencyMs: Date.now() - start,
+          details: { host: this.host, port: this.port, error: 'connection refused/timeout' },
+        };
+  }
 }
 
 function resolvePostgresHost(): string {
-    const url = config.postgres.url;
-    if (url) {
-        // Accept both postgresql://user@host and postgresql://user:pass@host:port/db
-        const m = url.match(/postgres(?:ql)?:\/\/(?:[^@/?#]+)@([^:/]+)(?::(\d+))?/i);
-        if (m?.[1]) return m[1];
-        try {
-            const parsed = new URL(url);
-            if (parsed.hostname) return parsed.hostname;
-        } catch {
-            /* fall through */
-        }
+  const url = config.postgres.url;
+  if (url) {
+    // Accept both postgresql://user@host and postgresql://user:pass@host:port/db
+    const m = url.match(/postgres(?:ql)?:\/\/(?:[^@/?#]+)@([^:/]+)(?::(\d+))?/i);
+    if (m?.[1]) return m[1];
+    try {
+      const parsed = new URL(url);
+      if (parsed.hostname) return parsed.hostname;
+    } catch {
+      /* fall through */
     }
-    return config.postgres.host;
+  }
+  return config.postgres.host;
 }
 
 function resolvePostgresPort(): number {
-    const url = config.postgres.url;
-    if (url) {
-        const m = url.match(/postgres(?:ql)?:\/\/(?:[^@/?#]+)@[^:/]+:(\d+)/i);
-        if (m?.[1]) return parseInt(m[1], 10);
-        try {
-            const parsed = new URL(url);
-            if (parsed.port) return parseInt(parsed.port, 10);
-        } catch {
-            /* fall through */
-        }
+  const url = config.postgres.url;
+  if (url) {
+    const m = url.match(/postgres(?:ql)?:\/\/(?:[^@/?#]+)@[^:/]+:(\d+)/i);
+    if (m?.[1]) return parseInt(m[1], 10);
+    try {
+      const parsed = new URL(url);
+      if (parsed.port) return parseInt(parsed.port, 10);
+    } catch {
+      /* fall through */
     }
-    return config.postgres.port;
+  }
+  return config.postgres.port;
 }
 
 function tcpOpen(host: string, port: number, timeoutMs: number): Promise<boolean> {
-    return new Promise((resolve) => {
-        let settled = false;
-        const finish = (value: boolean) => {
-            if (settled) return;
-            settled = true;
-            socket.destroy();
-            resolve(value);
-        };
-        const socket = createConnection({ host, port }, () => finish(true));
-        socket.setTimeout(timeoutMs);
-        socket.on('timeout', () => finish(false));
-        socket.on('error', () => finish(false));
-    });
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value: boolean) => {
+      if (settled) return;
+      settled = true;
+      socket.destroy();
+      resolve(value);
+    };
+    const socket = createConnection({ host, port }, () => finish(true));
+    socket.setTimeout(timeoutMs);
+    socket.on('timeout', () => finish(false));
+    socket.on('error', () => finish(false));
+  });
 }

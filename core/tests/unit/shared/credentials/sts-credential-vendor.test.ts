@@ -10,7 +10,12 @@ interface MockSTSClient {
 vi.mock('../../../../src/shared/config/index.js', () => ({
   config: {
     aws: { region: 'sa-east-1' },
-    sts: { roleArn: 'arn:aws:iam::123456789012:role/CauseFlowRole', roleSessionPrefix: 'causeflow', defaultDuration: 900, maxDuration: 3600 },
+    sts: {
+      roleArn: 'arn:aws:iam::123456789012:role/CauseFlowRole',
+      roleSessionPrefix: 'causeflow',
+      defaultDuration: 900,
+      maxDuration: 3600,
+    },
   },
 }));
 

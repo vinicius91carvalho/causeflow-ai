@@ -21,14 +21,12 @@ describe('Postgres Integration (OSS runtime)', () => {
 
   afterAll(async () => {
     // Clean up test data
-    await pool.query(
-      `DELETE FROM causeflow.incidents WHERE tenant_id = $1`,
-      [testTenantId],
-    ).catch(() => {});
-    await pool.query(
-      `DELETE FROM causeflow.tenants WHERE tenant_id = $1`,
-      [testTenantId],
-    ).catch(() => {});
+    await pool
+      .query(`DELETE FROM causeflow.incidents WHERE tenant_id = $1`, [testTenantId])
+      .catch(() => {});
+    await pool
+      .query(`DELETE FROM causeflow.tenants WHERE tenant_id = $1`, [testTenantId])
+      .catch(() => {});
     await closeConnections();
   });
 
@@ -56,12 +54,18 @@ describe('Postgres Integration (OSS runtime)', () => {
     await pool.query(
       `INSERT INTO causeflow.tenants (tenant_id, entity_id, data, created_at, updated_at)
        VALUES ($1, $2, $3::jsonb, $4, $5)`,
-      [tenantId, tenantId, JSON.stringify({
-        name: 'Test Tenant',
-        plan: 'free',
-        status: 'active',
-        ownerEmail: 'owner@test.com',
-      }), now, now],
+      [
+        tenantId,
+        tenantId,
+        JSON.stringify({
+          name: 'Test Tenant',
+          plan: 'free',
+          status: 'active',
+          ownerEmail: 'owner@test.com',
+        }),
+        now,
+        now,
+      ],
     );
 
     const result = await pool.query(
@@ -83,11 +87,17 @@ describe('Postgres Integration (OSS runtime)', () => {
       await pool.query(
         `INSERT INTO causeflow.incidents (tenant_id, entity_id, data, created_at, updated_at)
          VALUES ($1, $2, $3::jsonb, $4, $5)`,
-        [testTenantId, id, JSON.stringify({
-          severity: id === 'INC#001' ? 'critical' : id === 'INC#002' ? 'high' : 'low',
-          title: `Incident ${id}`,
-          status: 'open',
-        }), now, now],
+        [
+          testTenantId,
+          id,
+          JSON.stringify({
+            severity: id === 'INC#001' ? 'critical' : id === 'INC#002' ? 'high' : 'low',
+            title: `Incident ${id}`,
+            status: 'open',
+          }),
+          now,
+          now,
+        ],
       );
     }
 
@@ -121,7 +131,12 @@ describe('Postgres Integration (OSS runtime)', () => {
       `UPDATE causeflow.incidents
        SET data = data || $3::jsonb, updated_at = $4
        WHERE tenant_id = $1 AND entity_id = $2`,
-      [testTenantId, incidentId, JSON.stringify({ status: 'triaged', severity: 'high' }), new Date().toISOString()],
+      [
+        testTenantId,
+        incidentId,
+        JSON.stringify({ status: 'triaged', severity: 'high' }),
+        new Date().toISOString(),
+      ],
     );
 
     const result = await pool.query(
@@ -182,7 +197,13 @@ describe('Postgres Integration (OSS runtime)', () => {
       await pool.query(
         `INSERT INTO causeflow.incidents (tenant_id, entity_id, data, created_at, updated_at)
          VALUES ($1, $2, $3::jsonb, $4, $5)`,
-        [tenantB, `INC-00${i + 1}`, JSON.stringify({ title: `Tenant B incident ${i + 1}` }), now, now],
+        [
+          tenantB,
+          `INC-00${i + 1}`,
+          JSON.stringify({ title: `Tenant B incident ${i + 1}` }),
+          now,
+          now,
+        ],
       );
     }
 
@@ -217,11 +238,17 @@ describe('Postgres Integration (OSS runtime)', () => {
       await pool.query(
         `INSERT INTO causeflow.audit_entries (tenant_id, entity_id, data, created_at, updated_at)
          VALUES ($1, $2, $3::jsonb, $4, $5)`,
-        [auditTenantId, entryId, JSON.stringify({
-          action: 'test.action',
-          previousHash,
-          hash,
-        }), now, now],
+        [
+          auditTenantId,
+          entryId,
+          JSON.stringify({
+            action: 'test.action',
+            previousHash,
+            hash,
+          }),
+          now,
+          now,
+        ],
       );
       previousHash = `hash-${i}`;
     }

@@ -52,12 +52,7 @@ describe('TriageIncidentUseCase fail-closed (AC-055)', () => {
     complete: vi.fn(),
   } as unknown as LLMClient;
 
-  const useCase = new TriageIncidentUseCase(
-    incidentRepo,
-    evidenceRepo,
-    new EventBus(),
-    llmClient,
-  );
+  const useCase = new TriageIncidentUseCase(incidentRepo, evidenceRepo, new EventBus(), llmClient);
 
   beforeEach(() => {
     vi.mocked(incidentRepo.findById).mockResolvedValue(createMockIncident());

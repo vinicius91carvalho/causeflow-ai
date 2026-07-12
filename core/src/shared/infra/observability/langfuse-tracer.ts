@@ -2,7 +2,14 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import Langfuse from 'langfuse';
 import { config } from '../../config/index.js';
 import { logger } from '../logger.js';
-import type { Tracer, Span, SpanAttributes, TraceContext, SpanType, LLMUsage } from '../../application/ports/tracer.port.js';
+import type {
+  Tracer,
+  Span,
+  SpanAttributes,
+  TraceContext,
+  SpanType,
+  LLMUsage,
+} from '../../application/ports/tracer.port.js';
 
 /**
  * Internal entry stored in the async-local-storage stack.

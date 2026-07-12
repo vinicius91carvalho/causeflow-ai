@@ -27,7 +27,9 @@ export class IngestViaStubIntegrationUseCase {
     }
 
     const stubBaseUrl = String(integration.config['stubBaseUrl'] ?? '').replace(/\/$/, '');
-    const coreBaseUrl = String(integration.config['coreBaseUrl'] ?? config.stubUpstream.coreBaseUrl).replace(/\/$/, '');
+    const coreBaseUrl = String(
+      integration.config['coreBaseUrl'] ?? config.stubUpstream.coreBaseUrl,
+    ).replace(/\/$/, '');
     if (!stubBaseUrl) {
       throw new ValidationError('Stub integration is missing stubBaseUrl');
     }
@@ -40,15 +42,18 @@ export class IngestViaStubIntegrationUseCase {
         coreBaseUrl,
         webhookSecret: config.webhook.secret,
         title: input.title ?? 'Stub upstream alert',
-        description: input.description ?? 'Alert emitted by stub upstream for OSS connector verification',
+        description:
+          input.description ?? 'Alert emitted by stub upstream for OSS connector verification',
         priority: input.priority ?? 'P2',
       }),
       signal: AbortSignal.timeout(15_000),
     });
-    const body = await res.json().catch(() => ({})) as Record<string, unknown>;
+    const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     if (!res.ok) {
       throw new ValidationError(
-        typeof body['error'] === 'string' ? body['error'] : `Stub ingest failed with HTTP ${res.status}`,
+        typeof body['error'] === 'string'
+          ? body['error']
+          : `Stub ingest failed with HTTP ${res.status}`,
       );
     }
 

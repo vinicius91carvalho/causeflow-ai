@@ -31,9 +31,13 @@ describe('E2E Pipeline: N+1 Query with Code Analysis', () => {
 
     // Configure change_detector to inspect code and find the N+1 issue
     harness.stubAgent.setAgentResponse('change_detector', {
-      response: 'Change detection: Commit nq01aaaa added findPaymentsWithOrders method that performs N+1 queries — individual SELECT for each payment in a loop instead of a JOIN.',
+      response:
+        'Change detection: Commit nq01aaaa added findPaymentsWithOrders method that performs N+1 queries — individual SELECT for each payment in a loop instead of a JOIN.',
       toolCallsToMake: [
-        { name: 'describe_service', input: { serviceName: 'payment-service', region: 'us-east-1' } },
+        {
+          name: 'describe_service',
+          input: { serviceName: 'payment-service', region: 'us-east-1' },
+        },
         { name: 'get_recent_changes', input: { service: 'payment-service' } },
         { name: 'get_commit_diff', input: { service: 'payment-service', sha: 'nq01aaaa' } },
       ],
@@ -42,13 +46,23 @@ describe('E2E Pipeline: N+1 Query with Code Analysis', () => {
     // Configure synthesis mentioning N+1 query
     harness.stubLLM.setScenario({
       synthesis: {
-        potentialRootCause: 'N+1 query in findPaymentsWithOrders — individual SELECT per payment instead of batch query or JOIN',
+        potentialRootCause:
+          'N+1 query in findPaymentsWithOrders — individual SELECT per payment instead of batch query or JOIN',
         recommendedActions: [
-          { action: 'restart_service', params: { service: 'payment-service', cluster: 'production' } },
+          {
+            action: 'restart_service',
+            params: { service: 'payment-service', cluster: 'production' },
+          },
         ],
         findings: [
-          { text: 'Commit nq01aaaa introduced N+1 query pattern in payment repository', evidenceIds: ['ev-1'] },
-          { text: 'Each request to /payments/with-orders issues 1 + N database queries', evidenceIds: ['ev-2'] },
+          {
+            text: 'Commit nq01aaaa introduced N+1 query pattern in payment repository',
+            evidenceIds: ['ev-1'],
+          },
+          {
+            text: 'Each request to /payments/with-orders issues 1 + N database queries',
+            evidenceIds: ['ev-2'],
+          },
           { text: 'With 50 payments, this causes 51 queries per request', evidenceIds: ['ev-3'] },
         ],
       },

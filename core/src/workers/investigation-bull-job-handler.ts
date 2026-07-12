@@ -56,8 +56,7 @@ export async function handleInvestigationBullJob(
   const iid = body['incidentId'] as string | undefined;
   const mode = (body['mode'] as string | undefined) ?? 'investigate';
   const rawAgents = body['suggestedAgents'] as string[] | undefined;
-  const suggestedAgents =
-    rawAgents && rawAgents.length > 0 ? rawAgents : DEFAULT_SUGGESTED_AGENTS;
+  const suggestedAgents = rawAgents && rawAgents.length > 0 ? rawAgents : DEFAULT_SUGGESTED_AGENTS;
 
   if (!tid || !iid) {
     logger.warn({ body }, 'BullMQ investigation job missing tenantId or incidentId — skipping');

@@ -12,8 +12,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
  * OTEL_EXPORTER_OTLP_ENDPOINT explicitly.
  */
 const OTEL_ENABLED = !(
-  process.env['CAUSEFLOW_RUNTIME'] === 'oss'
-  && !process.env['OTEL_EXPORTER_OTLP_ENDPOINT']
+  process.env['CAUSEFLOW_RUNTIME'] === 'oss' && !process.env['OTEL_EXPORTER_OTLP_ENDPOINT']
 );
 
 export let sdk: NodeSDK | undefined;

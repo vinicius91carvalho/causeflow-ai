@@ -53,9 +53,10 @@ export function createOssLlmConnectorRoutes(): Hono {
         {
           error: 'DeepSeek credentials not configured',
           connector,
-          hint: connector === 'deepseek-opencode'
-            ? 'Set OPENCODE_API_KEY from ~/.pi/agent/auth.json or ~/.config/opencode'
-            : 'Set NVIDIA_API_KEY from ~/.pi/agent/auth.json',
+          hint:
+            connector === 'deepseek-opencode'
+              ? 'Set OPENCODE_API_KEY from ~/.pi/agent/auth.json or ~/.config/opencode'
+              : 'Set NVIDIA_API_KEY from ~/.pi/agent/auth.json',
         },
         400,
       );

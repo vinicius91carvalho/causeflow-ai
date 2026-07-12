@@ -143,7 +143,12 @@ function makeMockUserRepo(): IUserRepository {
     findByUserId: vi.fn(async () => mockUser),
     findByEmail: vi.fn(async () => mockUser),
     findByTenant: vi.fn(async () => [mockUser]),
-    update: vi.fn(async (_tid: unknown, _uid: unknown, data: Partial<User>): Promise<User> => ({ ...mockUser, ...data })),
+    update: vi.fn(
+      async (_tid: unknown, _uid: unknown, data: Partial<User>): Promise<User> => ({
+        ...mockUser,
+        ...data,
+      }),
+    ),
     delete: vi.fn(async () => {}),
   };
 }
@@ -154,7 +159,9 @@ function makeMockTenantRepo(): ITenantRepository {
     findById: vi.fn(async () => mockTenant),
     findBySlug: vi.fn(async () => mockTenant),
     findByCustomDomain: vi.fn(async () => null),
-    update: vi.fn(async (_tid: unknown, data: Partial<Tenant>): Promise<Tenant> => ({ ...mockTenant, ...data })),
+    update: vi.fn(
+      async (_tid: unknown, data: Partial<Tenant>): Promise<Tenant> => ({ ...mockTenant, ...data }),
+    ),
     listByOwner: vi.fn(async () => ({ items: [mockTenant] })),
   };
 }
@@ -176,16 +183,13 @@ describe('Integration: PATCH/GET /v1/users/:userId/settings — locale persisten
       roles: ['admin'],
     });
 
-    const { authMiddleware } = await import(
-      '../../src/shared/infra/http/middleware/auth.middleware.js'
-    );
+    const { authMiddleware } =
+      await import('../../src/shared/infra/http/middleware/auth.middleware.js');
     const { createUserRoutes } = await import('../../src/modules/user/infra/user.routes.js');
-    const { GetSettingsUseCase } = await import(
-      '../../src/modules/user/application/get-settings.usecase.js'
-    );
-    const { UpdateSettingsUseCase } = await import(
-      '../../src/modules/user/application/update-settings.usecase.js'
-    );
+    const { GetSettingsUseCase } =
+      await import('../../src/modules/user/application/get-settings.usecase.js');
+    const { UpdateSettingsUseCase } =
+      await import('../../src/modules/user/application/update-settings.usecase.js');
 
     const userRepo = makeMockUserRepo();
     const tenantRepo = makeMockTenantRepo();

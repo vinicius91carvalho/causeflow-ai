@@ -24,7 +24,7 @@ export function createStubIntegrationRoutes(deps: StubIntegrationRouteDeps) {
   // POST /connect — register tenant connection against stub upstream / test app
   app.post('/connect', requireRole('admin'), async (c) => {
     const tid = c.get('tenantId')!;
-    const body = await c.req.json().catch(() => ({})) as {
+    const body = (await c.req.json().catch(() => ({}))) as {
       baseUrl?: string;
       coreBaseUrl?: string;
     };
@@ -40,7 +40,7 @@ export function createStubIntegrationRoutes(deps: StubIntegrationRouteDeps) {
   // POST /enable — enable an additional catalog connector against the test app (AC-058)
   app.post('/enable', requireRole('admin'), async (c) => {
     const tid = c.get('tenantId')!;
-    const body = await c.req.json().catch(() => ({})) as { provider?: string };
+    const body = (await c.req.json().catch(() => ({}))) as { provider?: string };
     const result = await deps.enableStubConnector.execute({
       tenantId: tenantId(String(tid)),
       connectedBy: String(c.get('userId') ?? 'unknown'),
@@ -59,7 +59,7 @@ export function createStubIntegrationRoutes(deps: StubIntegrationRouteDeps) {
   // POST /ingest — trigger stub upstream to emit a signed webhook into Core ingest
   app.post('/ingest', requireRole('admin'), async (c) => {
     const tid = c.get('tenantId')!;
-    const body = await c.req.json().catch(() => ({})) as {
+    const body = (await c.req.json().catch(() => ({}))) as {
       title?: string;
       description?: string;
       priority?: string;

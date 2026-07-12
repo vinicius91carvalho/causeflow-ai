@@ -5,7 +5,10 @@ vi.mock('../../../../src/shared/infra/logger.js', () => ({
 }));
 
 import { createTestApp } from '../../../helpers/test-app.js';
-import { createRemediationRoutes, type RemediationUseCases } from '../../../../src/modules/remediation/infra/remediation.routes.js';
+import {
+  createRemediationRoutes,
+  type RemediationUseCases,
+} from '../../../../src/modules/remediation/infra/remediation.routes.js';
 
 const mockUseCases = {
   proposeRemediation: {
@@ -21,7 +24,11 @@ const mockUseCases = {
     execute: vi.fn().mockResolvedValue({ status: 'executing' }),
   },
   rollbackRemediation: {
-    execute: vi.fn().mockResolvedValue({ remediationId: 'rem-rollback', status: 'proposed', rollbackOf: 'rem-1' }),
+    execute: vi.fn().mockResolvedValue({
+      remediationId: 'rem-rollback',
+      status: 'proposed',
+      rollbackOf: 'rem-1',
+    }),
   },
   getRemediation: {
     listByIncident: vi.fn().mockResolvedValue([]),
@@ -41,7 +48,11 @@ describe('remediation.routes', () => {
     mockUseCases.approveRemediation.execute.mockResolvedValue({ status: 'approved' });
     mockUseCases.rejectRemediation.execute.mockResolvedValue({ status: 'rejected' });
     mockUseCases.executeRemediation.execute.mockResolvedValue({ status: 'executing' });
-    mockUseCases.rollbackRemediation.execute.mockResolvedValue({ remediationId: 'rem-rollback', status: 'proposed', rollbackOf: 'rem-1' });
+    mockUseCases.rollbackRemediation.execute.mockResolvedValue({
+      remediationId: 'rem-rollback',
+      status: 'proposed',
+      rollbackOf: 'rem-1',
+    });
     mockUseCases.getRemediation.listByIncident.mockResolvedValue([]);
     mockUseCases.getRemediation.getById.mockResolvedValue({ remediationId: 'rem-1' });
   });

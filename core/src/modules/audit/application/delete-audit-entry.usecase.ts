@@ -4,15 +4,15 @@ import type { AuditEntry } from '../domain/audit.entity.js';
 import type { TenantId, AuditEntryId } from '../../../shared/domain/value-objects.js';
 
 export interface DeleteAuditEntryInput {
-    tenantId: TenantId;
-    entryId: AuditEntryId;
-    actorUserId?: string;
-    actorEmail: string;
+  tenantId: TenantId;
+  entryId: AuditEntryId;
+  actorUserId?: string;
+  actorEmail: string;
 }
 
 export interface DeleteAuditEntryResult {
-    deleted: number;
-    newEntry: AuditEntry;
+  deleted: number;
+  newEntry: AuditEntry;
 }
 
 /**
@@ -28,33 +28,33 @@ export interface DeleteAuditEntryResult {
  * when the target entry was the tip.
  */
 export class DeleteAuditEntryUseCase {
-    constructor(
-        private readonly repo: IAuditRepository,
-        private readonly createAuditEntry: CreateAuditEntryUseCase,
-    ) {}
+  constructor(
+    private readonly repo: IAuditRepository,
+    private readonly createAuditEntry: CreateAuditEntryUseCase,
+  ) {}
 
-    async execute(input: DeleteAuditEntryInput): Promise<DeleteAuditEntryResult> {
-        // Capture prior tip before any mutation (for the changes record).
-        const priorTip = await this.repo.getLastEntry(input.tenantId);
-        const priorHash = priorTip?.entryHash ?? '0'.repeat(64);
+  async execute(input: DeleteAuditEntryInput): Promise<DeleteAuditEntryResult> {
+    // Capture prior tip before any mutation (for the changes record).
+    const priorTip = await this.repo.getLastEntry(input.tenantId);
+    const priorHash = priorTip?.entryHash ?? '0'.repeat(64);
 
-        // Append the deletion record. CreateAuditEntryUseCase reads the current
-        // (unmutated) tip as previousHash, which equals priorHash.
-        const newEntry = await this.createAuditEntry.execute({
-            tenantId: input.tenantId,
-            action: 'audit.entry.deleted',
-            actorType: 'user',
-            ...(input.actorUserId ? { actorUserId: input.actorUserId } : {}),
-            actorEmail: input.actorEmail,
-            resourceType: 'audit',
-            resourceId: input.entryId,
-            changes: { deletedEntryId: input.entryId, priorTip: priorHash },
-        });
+    // Append the deletion record. CreateAuditEntryUseCase reads the current
+    // (unmutated) tip as previousHash, which equals priorHash.
+    const newEntry = await this.createAuditEntry.execute({
+      tenantId: input.tenantId,
+      action: 'audit.entry.deleted',
+      actorType: 'user',
+      ...(input.actorUserId ? { actorUserId: input.actorUserId } : {}),
+      actorEmail: input.actorEmail,
+      resourceType: 'audit',
+      resourceId: input.entryId,
+      changes: { deletedEntryId: input.entryId, priorTip: priorHash },
+    });
 
-        // Hard-delete the target entry (retention purge). Documented as a
-        // chain gap by the audit retention policy.
-        const deleted = await this.repo.deleteBatch(input.tenantId, [input.entryId]);
+    // Hard-delete the target entry (retention purge). Documented as a
+    // chain gap by the audit retention policy.
+    const deleted = await this.repo.deleteBatch(input.tenantId, [input.entryId]);
 
-        return { deleted, newEntry };
-    }
+    return { deleted, newEntry };
+  }
 }

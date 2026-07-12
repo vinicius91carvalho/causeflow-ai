@@ -2,7 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TriageIncidentUseCase } from '../../../../src/modules/triage/application/triage-incident.usecase.js';
 import type { IIncidentRepository } from '../../../../src/modules/ingestion/domain/incident.repository.js';
 import type { Incident } from '../../../../src/modules/ingestion/domain/incident.entity.js';
-import type { IEvidenceRepository, Evidence } from '../../../../src/modules/triage/domain/evidence.repository.js';
+import type {
+  IEvidenceRepository,
+  Evidence,
+} from '../../../../src/modules/triage/domain/evidence.repository.js';
 import type { LLMClient } from '../../../../src/shared/application/ports/llm-client.port.js';
 import type { MessageQueue } from '../../../../src/shared/application/ports/message-queue.port.js';
 import type { TriageResult } from '../../../../src/modules/triage/domain/triage.types.js';
@@ -41,7 +44,9 @@ function createMockIncidentRepo(): IIncidentRepository {
     findById: vi.fn(),
     findBySourceAlert: vi.fn(),
     update: vi.fn(async (_t, _i, data) => ({ ...createMockIncident(), ...data }) as Incident),
-    updateStatus: vi.fn(async (_t, _i, status) => ({ ...createMockIncident(), status }) as Incident),
+    updateStatus: vi.fn(
+      async (_t, _i, status) => ({ ...createMockIncident(), status }) as Incident,
+    ),
     listByTenant: vi.fn(),
     findBySeverity: vi.fn(),
     findByStatus: vi.fn(),
@@ -154,9 +159,9 @@ describe('TriageIncidentUseCase', () => {
   it('should throw NotFoundError when incident does not exist', async () => {
     vi.mocked(incidentRepo.findById).mockResolvedValueOnce(null);
 
-    await expect(
-      useCase.execute(tenantId('tenant-1'), incidentId('inc-999')),
-    ).rejects.toThrow(NotFoundError);
+    await expect(useCase.execute(tenantId('tenant-1'), incidentId('inc-999'))).rejects.toThrow(
+      NotFoundError,
+    );
   });
 
   it('should throw ConflictError when incident is not in open status', async () => {
@@ -164,19 +169,16 @@ describe('TriageIncidentUseCase', () => {
       createMockIncident({ status: 'triaging' }),
     );
 
-    await expect(
-      useCase.execute(tenantId('tenant-1'), incidentId('inc-123')),
-    ).rejects.toThrow(ConflictError);
+    await expect(useCase.execute(tenantId('tenant-1'), incidentId('inc-123'))).rejects.toThrow(
+      ConflictError,
+    );
   });
 
   it('should fall back to default high-severity when LLM returns invalid response', async () => {
     vi.mocked(incidentRepo.findById).mockResolvedValueOnce(createMockIncident());
     vi.mocked(llmClient.complete).mockRejectedValueOnce(new Error('Invalid JSON response'));
 
-    const result = await useCase.execute(
-      tenantId('tenant-1'),
-      incidentId('inc-123'),
-    );
+    const result = await useCase.execute(tenantId('tenant-1'), incidentId('inc-123'));
 
     // Fallback result should enqueue investigation (high priority + default agents)
     expect(result.priority).toBe('high');

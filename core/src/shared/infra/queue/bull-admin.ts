@@ -35,9 +35,7 @@ export interface QueueStats {
   }>;
 }
 
-export async function fetchQueueStats(
-  names: readonly string[],
-): Promise<QueueStats[]> {
+export async function fetchQueueStats(names: readonly string[]): Promise<QueueStats[]> {
   const results: QueueStats[] = [];
 
   for (const name of names) {
@@ -54,14 +52,16 @@ export async function fetchQueueStats(
         ...completed.map((j) => ({ job: j, status: 'completed' as const })),
         ...failed.map((j) => ({ job: j, status: 'failed' as const })),
       ];
-      allJobs.sort((a, b) => ((b.job.timestamp ?? 0) - (a.job.timestamp ?? 0)));
-      const lastJobs = allJobs.slice(0, 5).map(({ job, status }: { job: Job; status: 'completed' | 'failed' }) => ({
-        id: job.id,
-        name: job.name,
-        status,
-        data: (job.data ?? {}) as Record<string, unknown>,
-        timestamp: job.timestamp,
-      }));
+      allJobs.sort((a, b) => (b.job.timestamp ?? 0) - (a.job.timestamp ?? 0));
+      const lastJobs = allJobs
+        .slice(0, 5)
+        .map(({ job, status }: { job: Job; status: 'completed' | 'failed' }) => ({
+          id: job.id,
+          name: job.name,
+          status,
+          data: (job.data ?? {}) as Record<string, unknown>,
+          timestamp: job.timestamp,
+        }));
 
       results.push({
         name,

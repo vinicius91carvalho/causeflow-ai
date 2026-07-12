@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { createE2EHarness, findEvent, waitForEvent, assertEventSequence } from './helpers/e2e-test-harness.js';
+import {
+  createE2EHarness,
+  findEvent,
+  waitForEvent,
+  assertEventSequence,
+} from './helpers/e2e-test-harness.js';
 import type { E2EHarness } from './helpers/e2e-test-harness.js';
 import { injectLatencySpike } from './scenarios/scenario-injector.js';
 import type { RawAlert } from '../../src/shared/application/ports/alert-source.port.js';
@@ -35,10 +40,14 @@ describe('E2E Pipeline: Latency Spike Scenario', () => {
         investigationMode: 'orchestrator',
       },
       synthesis: {
-        potentialRootCause: 'Database connection timeout — connection pool exhausted due to slow queries',
+        potentialRootCause:
+          'Database connection timeout — connection pool exhausted due to slow queries',
         recommendedActions: [
           { action: 'restart_service', params: { service: 'api-gateway', cluster: 'production' } },
-          { action: 'scale_service', params: { service: 'api-gateway', cluster: 'production', desiredCount: 5 } },
+          {
+            action: 'scale_service',
+            params: { service: 'api-gateway', cluster: 'production', desiredCount: 5 },
+          },
         ],
         findings: [
           { text: 'Request latency spiked from 120ms to 1200ms', evidenceIds: ['ev-1'] },
@@ -50,7 +59,8 @@ describe('E2E Pipeline: Latency Spike Scenario', () => {
 
     // Configure agent stubs for latency investigation
     harness.stubAgent.setAgentResponse('log_analyst', {
-      response: 'Log analysis: Found database connection timeout errors. Circuit breaker opened. 47 requests returned 503.',
+      response:
+        'Log analysis: Found database connection timeout errors. Circuit breaker opened. 47 requests returned 503.',
       toolCallsToMake: [
         {
           name: 'query_logs',
@@ -66,7 +76,8 @@ describe('E2E Pipeline: Latency Spike Scenario', () => {
     });
 
     harness.stubAgent.setAgentResponse('metric_analyst', {
-      response: 'Metric analysis: RequestLatency spiked from baseline 120ms to 1200ms+. Sustained high for 10+ minutes.',
+      response:
+        'Metric analysis: RequestLatency spiked from baseline 120ms to 1200ms+. Sustained high for 10+ minutes.',
       toolCallsToMake: [
         {
           name: 'query_metrics',
@@ -83,7 +94,8 @@ describe('E2E Pipeline: Latency Spike Scenario', () => {
     });
 
     harness.stubAgent.setAgentResponse('infra_inspector', {
-      response: 'Infrastructure: api-gateway running in cluster production with 3 tasks. Service is ACTIVE.',
+      response:
+        'Infrastructure: api-gateway running in cluster production with 3 tasks. Service is ACTIVE.',
       toolCallsToMake: [
         {
           name: 'describe_service',
@@ -122,7 +134,9 @@ describe('E2E Pipeline: Latency Spike Scenario', () => {
     const runLog = harness.stubAgent.getRunLog();
     const toolNames = runLog.flatMap((entry) => entry.toolCalls.map((tc) => tc.name));
 
-    const hasLogTool = toolNames.some((n) => n === 'query_logs' || n === 'aws_api_call' || n === 'get_incident_details');
+    const hasLogTool = toolNames.some(
+      (n) => n === 'query_logs' || n === 'aws_api_call' || n === 'get_incident_details',
+    );
     const hasMetricTool = toolNames.some((n) => n === 'query_metrics' || n === 'aws_api_call');
     const hasInfraTool = toolNames.some((n) => n === 'describe_service' || n === 'aws_api_call');
 

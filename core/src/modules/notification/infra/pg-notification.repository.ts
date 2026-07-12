@@ -33,13 +33,16 @@ export class PgNotificationRepository implements INotificationRepository {
     return store.get(key(tenantId, id)) ?? null;
   }
 
-  async listByTenant(tenantId: TenantId, options?: {
-        cursor?: string;
-        limit?: number;
-    }): Promise<{
-        items: Notification[];
-        cursor?: string;
-    }> {
+  async listByTenant(
+    tenantId: TenantId,
+    options?: {
+      cursor?: string;
+      limit?: number;
+    },
+  ): Promise<{
+    items: Notification[];
+    cursor?: string;
+  }> {
     const result: Notification[] = [];
     for (const [k, v] of store) {
       if (k.startsWith(tenantId + '::')) {
@@ -53,7 +56,11 @@ export class PgNotificationRepository implements INotificationRepository {
     return { items, cursor };
   }
 
-  async update(tenantId: TenantId, nid: NotificationId, data: Partial<Notification>): Promise<Notification> {
+  async update(
+    tenantId: TenantId,
+    nid: NotificationId,
+    data: Partial<Notification>,
+  ): Promise<Notification> {
     const existing = store.get(key(tenantId, nid));
     if (!existing) throw new Error(`Notification not found: ${nid}`);
     const updated = { ...existing, ...data, updatedAt: new Date().toISOString() };

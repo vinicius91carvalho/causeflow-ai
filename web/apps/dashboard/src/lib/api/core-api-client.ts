@@ -165,10 +165,7 @@ export interface ICoreApiClient {
   listIntegrations(): Promise<any>;
 
   // Integrations — OAuth connect (Core stub may return empty in OSS — AC-051)
-  initiateOAuthConnect(
-    provider: string,
-    redirectUrl: string,
-  ): Promise<{ authUrl?: string }>;
+  initiateOAuthConnect(provider: string, redirectUrl: string): Promise<{ authUrl?: string }>;
   revokeOAuthConnection(provider: string): Promise<any>;
 
   // Integrations — OAuth callback finalization (server-side redirect flow)

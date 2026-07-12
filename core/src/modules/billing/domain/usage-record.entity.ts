@@ -7,19 +7,19 @@ import type { UsageType } from '../../../shared/domain/types.js';
  * per-agent breakdowns (AC-012).
  */
 export interface AgentUsageBreakdown {
-    agentRole: string;
-    inputTokens: number;
-    outputTokens: number;
-    costUsd: number;
+  agentRole: string;
+  inputTokens: number;
+  outputTokens: number;
+  costUsd: number;
 }
 
 export interface UsageRecord {
-    tenantId: TenantId;
-    recordId: UsageRecordId;
-    type: UsageType;
-    incidentId?: IncidentId;
-    costUsd?: number;
-    /** Per-agent token counts and cost (present for investigation-type records). */
-    agentBreakdown?: AgentUsageBreakdown[];
-    createdAt: string;
+  tenantId: TenantId;
+  recordId: UsageRecordId;
+  type: UsageType;
+  incidentId?: IncidentId;
+  costUsd?: number;
+  /** Per-agent token counts and cost (present for investigation-type records). */
+  agentBreakdown?: AgentUsageBreakdown[];
+  createdAt: string;
 }

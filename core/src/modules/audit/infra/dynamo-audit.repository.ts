@@ -67,7 +67,9 @@ export class DynamoAuditRepository {
     let result: Awaited<ReturnType<typeof baseQuery.go>>;
     if (actorTypeFilter === 'user' || actorTypeFilter === 'system') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      result = await baseQuery.where(({ actorType }, { eq }) => eq(actorType, actorTypeFilter as any)).go(goOpts);
+      result = await baseQuery
+        .where(({ actorType }, { eq }) => eq(actorType, actorTypeFilter as any))
+        .go(goOpts);
     } else {
       result = await baseQuery.go(goOpts);
     }

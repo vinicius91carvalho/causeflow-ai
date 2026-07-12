@@ -1,4 +1,8 @@
-import type { LLMClient, CompletionParams, CompletionResult } from '../../../src/shared/application/ports/llm-client.port.js';
+import type {
+  LLMClient,
+  CompletionParams,
+  CompletionResult,
+} from '../../../src/shared/application/ports/llm-client.port.js';
 
 export interface ScenarioResponse {
   triage?: {
@@ -11,7 +15,16 @@ export interface ScenarioResponse {
   };
   synthesis?: {
     potentialRootCause: string;
-    recommendedActions: Array<{ action: string; label?: string; description?: string; rationale?: string; riskLevel?: string; estimatedDuration?: string; automated?: boolean; params: Record<string, unknown> }>;
+    recommendedActions: Array<{
+      action: string;
+      label?: string;
+      description?: string;
+      rationale?: string;
+      riskLevel?: string;
+      estimatedDuration?: string;
+      automated?: boolean;
+      params: Record<string, unknown>;
+    }>;
     findings: Array<{ text: string; evidenceIds: string[] }>;
     customerExplanation?: { summary: string; impact: string; resolution: string; eta?: string };
   };
@@ -34,8 +47,26 @@ const DEFAULT_TRIAGE: Record<string, unknown> = {
 const DEFAULT_SYNTHESIS: Record<string, unknown> = {
   potentialRootCause: 'OOM memory exceeded — container killed by kernel OOM killer',
   recommendedActions: [
-    { action: 'restart_service', label: 'Restart Payment Service', description: 'Restart the payment-service ECS service', rationale: 'Container was OOM-killed and needs restart', riskLevel: 'low', estimatedDuration: '2 minutes', automated: true, params: { service: 'payment-service', cluster: 'production' } },
-    { action: 'scale_service', label: 'Scale Payment Service', description: 'Increase desired count for payment-service', rationale: 'Scaling provides redundancy after OOM incident', riskLevel: 'low', estimatedDuration: '1 minute', automated: true, params: { service: 'payment-service', cluster: 'production', desiredCount: 3 } },
+    {
+      action: 'restart_service',
+      label: 'Restart Payment Service',
+      description: 'Restart the payment-service ECS service',
+      rationale: 'Container was OOM-killed and needs restart',
+      riskLevel: 'low',
+      estimatedDuration: '2 minutes',
+      automated: true,
+      params: { service: 'payment-service', cluster: 'production' },
+    },
+    {
+      action: 'scale_service',
+      label: 'Scale Payment Service',
+      description: 'Increase desired count for payment-service',
+      rationale: 'Scaling provides redundancy after OOM incident',
+      riskLevel: 'low',
+      estimatedDuration: '1 minute',
+      automated: true,
+      params: { service: 'payment-service', cluster: 'production', desiredCount: 3 },
+    },
   ],
   findings: [
     { text: 'Memory utilization reached 95% before OOM kill', evidenceIds: ['ev-1'] },
@@ -51,7 +82,10 @@ const DEFAULT_SYNTHESIS: Record<string, unknown> = {
 
 const DEFAULT_EXTRACTION = {
   rootCause: { description: 'OOM memory exceeded', category: 'capacity' },
-  fix: { description: 'Increase memory limits and optimize GC', steps: ['Increase task memory to 2048MB', 'Enable GC tuning flags'] },
+  fix: {
+    description: 'Increase memory limits and optimize GC',
+    steps: ['Increase task memory to 2048MB', 'Enable GC tuning flags'],
+  },
   symptoms: ['oom_kill', 'memory_spike', 'gc_pause'],
 };
 
@@ -113,7 +147,11 @@ export class DeterministicLLMClient implements LLMClient {
     if (lower.includes('triage') || lower.includes('severity') || lower.includes('classify')) {
       return 'triage';
     }
-    if (lower.includes('synthesi') || lower.includes('root cause') || lower.includes('investigation results')) {
+    if (
+      lower.includes('synthesi') ||
+      lower.includes('root cause') ||
+      lower.includes('investigation results')
+    ) {
       return 'synthesis';
     }
     if (lower.includes('extract') || lower.includes('pattern')) {

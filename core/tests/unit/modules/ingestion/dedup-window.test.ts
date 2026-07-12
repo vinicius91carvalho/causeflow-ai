@@ -33,9 +33,12 @@ vi.mock('../../../../src/shared/infra/http/middleware/webhook-auth.middleware.js
   webhookAuth: () => async (_c: unknown, next: () => Promise<void>) => next(),
 }));
 
-vi.mock('../../../../src/modules/integration/infra/middleware/sentry-webhook-auth.middleware.js', () => ({
-  createSentryWebhookAuth: () => async (_c: unknown, next: () => Promise<void>) => next(),
-}));
+vi.mock(
+  '../../../../src/modules/integration/infra/middleware/sentry-webhook-auth.middleware.js',
+  () => ({
+    createSentryWebhookAuth: () => async (_c: unknown, next: () => Promise<void>) => next(),
+  }),
+);
 
 vi.mock('../../../../src/shared/infra/logger.js', () => ({
   logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() },
@@ -43,7 +46,10 @@ vi.mock('../../../../src/shared/infra/logger.js', () => ({
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Hono } from 'hono';
-import { createWebhookRoutes, type WebhookUseCases } from '../../../../src/modules/ingestion/infra/webhook.routes.js';
+import {
+  createWebhookRoutes,
+  type WebhookUseCases,
+} from '../../../../src/modules/ingestion/infra/webhook.routes.js';
 import { IngestAlertUseCase } from '../../../../src/modules/ingestion/application/ingest-alert.usecase.js';
 import { ProviderRegistry } from '../../../../src/shared/application/provider-registry.js';
 import { DatadogParser } from '../../../../src/modules/ingestion/infra/parsers/datadog.parser.js';
@@ -268,7 +274,10 @@ describe('AC-015: Dedup window for identical Datadog payloads (HTTP boundary)', 
 
     // 3) Only one incident.created for the dedup-test title
     const relevant = createdEvents.filter(
-      (e) => e.payload && (e.payload as Record<string, unknown>)['title'] === 'CPU Usage Critical – Dedup Window Test',
+      (e) =>
+        e.payload &&
+        (e.payload as Record<string, unknown>)['title'] ===
+          'CPU Usage Critical – Dedup Window Test',
     );
     expect(relevant.length).toBe(1);
   });

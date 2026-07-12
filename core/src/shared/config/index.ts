@@ -150,10 +150,7 @@ export const config = {
   // Documented stub upstream for OSS connector connect/probe/ingest (AC-056).
   stubUpstream: {
     baseUrl: env('STUB_UPSTREAM_BASE_URL', 'http://127.0.0.1:5190'),
-    coreBaseUrl: env(
-      'STUB_UPSTREAM_CORE_BASE_URL',
-      `http://127.0.0.1:${envInt('PORT', 3000)}`,
-    ),
+    coreBaseUrl: env('STUB_UPSTREAM_CORE_BASE_URL', `http://127.0.0.1:${envInt('PORT', 3000)}`),
     port: envInt('STUB_UPSTREAM_PORT', 5190),
   },
 
@@ -217,7 +214,11 @@ export const config = {
   },
 
   cors: {
-    allowedOrigins: (process.env['ALLOWED_ORIGINS'] ?? 'http://localhost:3001,http://127.0.0.1:3001').split(',').map((o) => o.trim()),
+    allowedOrigins: (
+      process.env['ALLOWED_ORIGINS'] ?? 'http://localhost:3001,http://127.0.0.1:3001'
+    )
+      .split(',')
+      .map((o) => o.trim()),
   },
 
   stripe: {

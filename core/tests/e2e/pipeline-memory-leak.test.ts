@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { createE2EHarness, findEvent, assertEventSequence, waitForEvent } from './helpers/e2e-test-harness.js';
+import {
+  createE2EHarness,
+  findEvent,
+  assertEventSequence,
+  waitForEvent,
+} from './helpers/e2e-test-harness.js';
 import type { E2EHarness } from './helpers/e2e-test-harness.js';
 import { injectOOMScenario } from './scenarios/scenario-injector.js';
 import { seedServiceGraph } from './scenarios/graph-seeder.js';
@@ -18,7 +23,8 @@ describe('E2E Pipeline: Memory Leak with Code Analysis', () => {
     payload: {
       AlarmName: 'payment-service-memory-critical',
       NewStateValue: 'ALARM',
-      NewStateReason: 'Threshold Crossed: 1 out of 1 datapoints [95.2 (17/02/2026 10:00:00)] was greater than the threshold (90.0).',
+      NewStateReason:
+        'Threshold Crossed: 1 out of 1 datapoints [95.2 (17/02/2026 10:00:00)] was greater than the threshold (90.0).',
       Trigger: { Namespace: 'AWS/ECS' },
       Region: 'us-east-1',
       AlarmArn: 'arn:aws:cloudwatch:us-east-1:000000000000:alarm:payment-service-memory-critical',
@@ -32,26 +38,43 @@ describe('E2E Pipeline: Memory Leak with Code Analysis', () => {
 
     // Configure change_detector stub to return code-aware analysis
     harness.stubAgent.setAgentResponse('change_detector', {
-      response: 'Change detection: Recent commit e5f6g7h8 added unbounded in-memory cache (paymentCache Map) in payment.service.ts. This Map grows without eviction, causing memory leak and eventual OOM kill.',
+      response:
+        'Change detection: Recent commit e5f6g7h8 added unbounded in-memory cache (paymentCache Map) in payment.service.ts. This Map grows without eviction, causing memory leak and eventual OOM kill.',
       toolCallsToMake: [
-        { name: 'describe_service', input: { serviceName: 'payment-service', region: 'us-east-1' } },
+        {
+          name: 'describe_service',
+          input: { serviceName: 'payment-service', region: 'us-east-1' },
+        },
         { name: 'get_recent_changes', input: { service: 'payment-service' } },
-        { name: 'get_deployments', input: { service: 'payment-service', environment: 'production' } },
+        {
+          name: 'get_deployments',
+          input: { service: 'payment-service', environment: 'production' },
+        },
       ],
     });
 
     // Configure synthesis to mention memory leak + cache
     harness.stubLLM.setScenario({
       synthesis: {
-        potentialRootCause: 'OOM memory leak caused by unbounded paymentCache Map in payment.service.ts — grows without eviction',
+        potentialRootCause:
+          'OOM memory leak caused by unbounded paymentCache Map in payment.service.ts — grows without eviction',
         recommendedActions: [
-          { action: 'restart_service', params: { service: 'payment-service', cluster: 'production' } },
-          { action: 'scale_service', params: { service: 'payment-service', cluster: 'production', desiredCount: 3 } },
+          {
+            action: 'restart_service',
+            params: { service: 'payment-service', cluster: 'production' },
+          },
+          {
+            action: 'scale_service',
+            params: { service: 'payment-service', cluster: 'production', desiredCount: 3 },
+          },
         ],
         findings: [
           { text: 'Memory utilization reached 95% before OOM kill', evidenceIds: ['ev-1'] },
           { text: 'Commit e5f6g7h8 introduced unbounded paymentCache Map', evidenceIds: ['ev-2'] },
-          { text: 'Cache grows with every payment read — no TTL or max size', evidenceIds: ['ev-3'] },
+          {
+            text: 'Cache grows with every payment read — no TTL or max size',
+            evidenceIds: ['ev-3'],
+          },
         ],
       },
     });

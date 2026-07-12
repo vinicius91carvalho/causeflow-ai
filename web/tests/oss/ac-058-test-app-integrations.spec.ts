@@ -61,9 +61,7 @@ test.describe('AC-058 — test application + additional connector', () => {
       timeout: 30_000,
     });
 
-    const stubStateAfterConnect = (await (
-      await fetch(`${STUB_UPSTREAM_URL}/v1/state`)
-    ).json()) as {
+    const stubStateAfterConnect = (await (await fetch(`${STUB_UPSTREAM_URL}/v1/state`)).json()) as {
       connections?: unknown[];
       app?: string;
     };

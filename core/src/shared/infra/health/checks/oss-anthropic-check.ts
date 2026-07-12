@@ -13,16 +13,18 @@ import type { HealthCheck, HealthCheckResult } from '../health-checker.js';
  * This matches the AC-039 contract: Anthropic is "skipped" if no key is set.
  */
 export class OssAnthropicHealthCheck {
-    name = 'anthropic';
+  name = 'anthropic';
 
-    async check(): Promise<HealthCheckResult> {
-        const start = Date.now();
-        const apiKey = config.anthropic.apiKey;
-        return {
-            name: this.name,
-            status: apiKey ? 'ok' : 'skipped',
-            latencyMs: Date.now() - start,
-            details: apiKey ? { configured: true } : { configured: false, message: 'ANTHROPIC_API_KEY not set — AI features disabled' },
-        };
-    }
+  async check(): Promise<HealthCheckResult> {
+    const start = Date.now();
+    const apiKey = config.anthropic.apiKey;
+    return {
+      name: this.name,
+      status: apiKey ? 'ok' : 'skipped',
+      latencyMs: Date.now() - start,
+      details: apiKey
+        ? { configured: true }
+        : { configured: false, message: 'ANTHROPIC_API_KEY not set — AI features disabled' },
+    };
+  }
 }

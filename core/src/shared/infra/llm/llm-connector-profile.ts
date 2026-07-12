@@ -84,11 +84,12 @@ export async function getActiveLlmConnectorProfile(): Promise<LlmConnectorProfil
 
 export async function resolveActiveLlmEndpoint(): Promise<ResolvedLlmEndpoint> {
   const profile = await getActiveLlmConnectorProfile();
-  const apiKey = profile.id === 'deepseek-opencode'
-    ? config.llm.opencodeApiKey
-    : profile.id === 'deepseek-nim'
-      ? config.llm.nimApiKey
-      : config.llm.ornithApiKey;
+  const apiKey =
+    profile.id === 'deepseek-opencode'
+      ? config.llm.opencodeApiKey
+      : profile.id === 'deepseek-nim'
+        ? config.llm.nimApiKey
+        : config.llm.ornithApiKey;
   return {
     connectorId: profile.id,
     baseUrl: profile.baseUrl,

@@ -3,8 +3,14 @@ import { InvestigateIncidentUseCase } from '../../../../src/modules/investigatio
 import type { ToolHandlerFactory } from '../../../../src/modules/investigation/application/investigate-incident.usecase.js';
 import type { IIncidentRepository } from '../../../../src/modules/ingestion/domain/incident.repository.js';
 import type { Incident } from '../../../../src/modules/ingestion/domain/incident.entity.js';
-import type { IEvidenceRepository, Evidence } from '../../../../src/modules/triage/domain/evidence.repository.js';
-import type { AgentRunner, AgentRunResult } from '../../../../src/shared/application/ports/agent-runner.port.js';
+import type {
+  IEvidenceRepository,
+  Evidence,
+} from '../../../../src/modules/triage/domain/evidence.repository.js';
+import type {
+  AgentRunner,
+  AgentRunResult,
+} from '../../../../src/shared/application/ports/agent-runner.port.js';
 import type { LLMClient } from '../../../../src/shared/application/ports/llm-client.port.js';
 import type { CloudProvider } from '../../../../src/shared/application/ports/cloud-provider.port.js';
 import type { MessageQueue } from '../../../../src/shared/application/ports/message-queue.port.js';
@@ -49,8 +55,26 @@ const MOCK_INVESTIGATION_RESULT: InvestigationResult = {
   ],
   potentialRootCause: 'Memory leak in connection pool causing OOM kills and cascading failures',
   recommendedActions: [
-    { action: 'restart_service', label: 'Restart API server', description: 'Restarts the affected API server pod', rationale: 'Service is unresponsive, restart will clear state', riskLevel: 'low', estimatedDuration: '2m', automated: false, params: { service: 'api-server', region: 'sa-east-1' } },
-    { action: 'increase_memory', label: 'Increase memory limit', description: 'Increases container memory limit to 4GB', rationale: 'OOM kills indicate memory limit is too low', riskLevel: 'medium', estimatedDuration: '5m', automated: false, params: { limit: '4GB' } },
+    {
+      action: 'restart_service',
+      label: 'Restart API server',
+      description: 'Restarts the affected API server pod',
+      rationale: 'Service is unresponsive, restart will clear state',
+      riskLevel: 'low',
+      estimatedDuration: '2m',
+      automated: false,
+      params: { service: 'api-server', region: 'sa-east-1' },
+    },
+    {
+      action: 'increase_memory',
+      label: 'Increase memory limit',
+      description: 'Increases container memory limit to 4GB',
+      rationale: 'OOM kills indicate memory limit is too low',
+      riskLevel: 'medium',
+      estimatedDuration: '5m',
+      automated: false,
+      params: { limit: '4GB' },
+    },
   ],
   evidence: [
     { type: 'log_analysis', content: 'OOM kill at 14:32 UTC' },
@@ -60,9 +84,7 @@ const MOCK_INVESTIGATION_RESULT: InvestigationResult = {
 
 const MOCK_AGENT_RESULT: AgentRunResult = {
   response: 'Found high CPU usage correlated with memory leak in worker threads.',
-  toolCalls: [
-    { name: 'query_logs', input: { service: 'api' }, output: '[]' },
-  ],
+  toolCalls: [{ name: 'query_logs', input: { service: 'api' }, output: '[]' }],
   totalUsage: { inputTokens: 500, outputTokens: 200 },
   turns: 3,
   model: 'claude-haiku-4-5-20251001',
@@ -91,7 +113,9 @@ function createMockIncidentRepo(): IIncidentRepository {
     findById: vi.fn(),
     findBySourceAlert: vi.fn(),
     update: vi.fn(async (_t, _i, data) => ({ ...createMockIncident(), ...data }) as Incident),
-    updateStatus: vi.fn(async (_t, _i, status) => ({ ...createMockIncident(), status }) as Incident),
+    updateStatus: vi.fn(
+      async (_t, _i, status) => ({ ...createMockIncident(), status }) as Incident,
+    ),
     listByTenant: vi.fn(),
     findBySeverity: vi.fn(),
     findByStatus: vi.fn(),
@@ -130,7 +154,9 @@ function createMockCloudProvider(): CloudProvider {
     name: 'stub',
     queryLogs: vi.fn().mockResolvedValue([]),
     queryMetrics: vi.fn().mockResolvedValue([]),
-    describeService: vi.fn().mockResolvedValue({ name: 'api', type: 'ECS', status: 'ACTIVE', region: 'us-east-1' }),
+    describeService: vi
+      .fn()
+      .mockResolvedValue({ name: 'api', type: 'ECS', status: 'ACTIVE', region: 'us-east-1' }),
     executeAction: vi.fn().mockResolvedValue({ success: true }),
     testConnection: vi.fn().mockResolvedValue(true),
   };
@@ -255,9 +281,7 @@ describe('InvestigateIncidentUseCase', () => {
   });
 
   it('should throw IncidentNotInvestigatableError when status is not triaging', async () => {
-    vi.mocked(incidentRepo.findById).mockResolvedValueOnce(
-      createMockIncident({ status: 'open' }),
-    );
+    vi.mocked(incidentRepo.findById).mockResolvedValueOnce(createMockIncident({ status: 'open' }));
 
     await expect(
       useCase.execute({
@@ -286,9 +310,7 @@ describe('InvestigateIncidentUseCase', () => {
     expect(result).toMatchObject(MOCK_INVESTIGATION_RESULT);
     // result is narrowed: these tests always mock evidences so execute() returns
     // InvestigationResult (not void). Non-null assert is safe here.
-    expect(result!.failedAgents).toEqual([
-      { role: 'metric_analyst', error: 'Agent timeout' },
-    ]);
+    expect(result!.failedAgents).toEqual([{ role: 'metric_analyst', error: 'Agent timeout' }]);
     // 2 successful agents + 1 synthesis + 1 LLM completion attribution = 4
     expect(evidenceRepo.create).toHaveBeenCalledTimes(4);
   });
@@ -437,7 +459,7 @@ describe('InvestigateIncidentUseCase', () => {
     // Sub-agents: 2 agents × $0.10 each
     const agentResult: AgentRunResult = {
       ...MOCK_AGENT_RESULT,
-      costUsd: 0.10,
+      costUsd: 0.1,
     };
     vi.mocked(agentRunner.run)
       .mockResolvedValueOnce(agentResult) // log_analyst
@@ -448,7 +470,7 @@ describe('InvestigateIncidentUseCase', () => {
       content: MOCK_INVESTIGATION_RESULT,
       usage: { inputTokens: 200, outputTokens: 100 },
       model: 'claude-opus-4-6-20250918',
-      costUsd: 0.50,
+      costUsd: 0.5,
     });
 
     const handler = vi.fn();
@@ -465,12 +487,12 @@ describe('InvestigateIncidentUseCase', () => {
     const payload = event.payload;
 
     // totalCostUsd = subAgents(2 × 0.10) + synthesis(0.50)
-    expect(payload.totalCostUsd).toBeCloseTo(0.70, 2);
+    expect(payload.totalCostUsd).toBeCloseTo(0.7, 2);
 
     // costBreakdown present and correct
     expect(payload.costBreakdown).toBeDefined();
-    expect(payload.costBreakdown.subAgents).toBeCloseTo(0.20, 2);
-    expect(payload.costBreakdown.synthesis).toBeCloseTo(0.50, 2);
+    expect(payload.costBreakdown.subAgents).toBeCloseTo(0.2, 2);
+    expect(payload.costBreakdown.synthesis).toBeCloseTo(0.5, 2);
     expect(payload.costBreakdown.wave1).toBeDefined();
     expect(payload.costBreakdown.wave2).toBeDefined();
 
@@ -495,7 +517,7 @@ describe('InvestigateIncidentUseCase', () => {
       content: MOCK_INVESTIGATION_RESULT,
       usage: { inputTokens: 100, outputTokens: 50 },
       model: 'claude-sonnet-4-5-20250929',
-      costUsd: 0.20,
+      costUsd: 0.2,
     });
 
     const handler = vi.fn();
@@ -511,11 +533,13 @@ describe('InvestigateIncidentUseCase', () => {
 
     // totalCostUsd = subAgent(0.05) + synthesis(0.20) + codeFixer(0)
     expect(payload.totalCostUsd).toBeCloseTo(0.25, 2);
-    expect(payload.costBreakdown).toEqual(expect.objectContaining({
-      subAgents: 0.05,
-      synthesis: 0.20,
-      codeFixer: 0,
-    }));
+    expect(payload.costBreakdown).toEqual(
+      expect.objectContaining({
+        subAgents: 0.05,
+        synthesis: 0.2,
+        codeFixer: 0,
+      }),
+    );
     expect(payload.costBreakdown.wave1).toBeDefined();
     expect(payload.costBreakdown.wave2).toBeDefined();
   });

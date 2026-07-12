@@ -1,9 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { isOssRuntime } from '@/contexts/billing/application/oss-runtime';
-import {
-  INTEGRATION_AUTH_TYPES,
-  type IntegrationType,
-} from '@/contexts/integrations/domain/types';
+import { INTEGRATION_AUTH_TYPES, type IntegrationType } from '@/contexts/integrations/domain/types';
 import { INTEGRATION_CATALOG } from '@/contexts/integrations/presentation/components/integration-catalog';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';

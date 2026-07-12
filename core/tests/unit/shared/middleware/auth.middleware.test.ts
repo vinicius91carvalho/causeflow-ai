@@ -21,12 +21,10 @@ vi.mock('../../../../src/shared/config/index.js', () => ({
   },
 }));
 
-const { authMiddleware } = await import(
-  '../../../../src/shared/infra/http/middleware/auth.middleware.js'
-);
-const { errorHandler } = await import(
-  '../../../../src/shared/infra/http/middleware/error-handler.js'
-);
+const { authMiddleware } =
+  await import('../../../../src/shared/infra/http/middleware/auth.middleware.js');
+const { errorHandler } =
+  await import('../../../../src/shared/infra/http/middleware/error-handler.js');
 
 function createApp() {
   const app = new Hono<AppEnv>();

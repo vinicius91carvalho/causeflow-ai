@@ -8,7 +8,8 @@
  * cross-test interference.
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { Queue, Worker, Job } from 'bullmq';
+import type { Job } from 'bullmq';
+import { Queue, Worker } from 'bullmq';
 import Redis from 'ioredis';
 import { waitForRedis } from './setup.js';
 
@@ -45,7 +46,9 @@ async function waitForJobEnd(job: Job, timeoutMs: number): Promise<string> {
     if (state === 'completed' || state === 'failed') return state;
     await new Promise((r) => setTimeout(r, 200));
   }
-  throw new Error(`Job did not complete within ${timeoutMs}ms, last state: ${await job.getState()}`);
+  throw new Error(
+    `Job did not complete within ${timeoutMs}ms, last state: ${await job.getState()}`,
+  );
 }
 
 describe('BullMQ/Redis Integration (OSS runtime)', () => {
@@ -63,9 +66,13 @@ describe('BullMQ/Redis Integration (OSS runtime)', () => {
     const conn = await ensureBullRedis();
     const qName = nextQueueName('alerts');
     const queue = new Queue(qName, { connection: conn });
-    const worker = new Worker(qName, async (job: Job) => {
-      return { processed: true, received: job.data };
-    }, { connection: conn, concurrency: 1 });
+    const worker = new Worker(
+      qName,
+      async (job: Job) => {
+        return { processed: true, received: job.data };
+      },
+      { connection: conn, concurrency: 1 },
+    );
 
     try {
       await new Promise((r) => setTimeout(r, 500));
@@ -87,10 +94,14 @@ describe('BullMQ/Redis Integration (OSS runtime)', () => {
     const queue = new Queue(qName, { connection: conn });
     const processed: string[] = [];
 
-    const worker = new Worker(qName, async (job: Job) => {
-      processed.push(job.data.id as string);
-      return { ok: true };
-    }, { connection: conn, concurrency: 5 });
+    const worker = new Worker(
+      qName,
+      async (job: Job) => {
+        processed.push(job.data.id as string);
+        return { ok: true };
+      },
+      { connection: conn, concurrency: 5 },
+    );
 
     try {
       await new Promise((r) => setTimeout(r, 500));
@@ -132,18 +143,26 @@ describe('BullMQ/Redis Integration (OSS runtime)', () => {
 
     let attemptCount = 0;
 
-    const worker = new Worker(qName, async () => {
-      attemptCount++;
-      throw new Error('Simulated failure');
-    }, { connection: conn, concurrency: 1 });
+    const worker = new Worker(
+      qName,
+      async () => {
+        attemptCount++;
+        throw new Error('Simulated failure');
+      },
+      { connection: conn, concurrency: 1 },
+    );
 
     try {
       await new Promise((r) => setTimeout(r, 500));
 
-      const job = await queue.add('fail', { x: 1 }, {
-        attempts: 3,
-        backoff: { type: 'fixed', delay: 200 },
-      });
+      const job = await queue.add(
+        'fail',
+        { x: 1 },
+        {
+          attempts: 3,
+          backoff: { type: 'fixed', delay: 200 },
+        },
+      );
 
       const state = await waitForJobEnd(job, 15000);
       expect(state).toBe('failed');
@@ -156,7 +175,12 @@ describe('BullMQ/Redis Integration (OSS runtime)', () => {
 
   it('should create and use all 4 causeflow queue names', async () => {
     const conn = await ensureBullRedis();
-    const names = ['test-all-alerts', 'test-all-triage', 'test-all-investigation', 'test-all-remediation'];
+    const names = [
+      'test-all-alerts',
+      'test-all-triage',
+      'test-all-investigation',
+      'test-all-remediation',
+    ];
     const queues = names.map((n) => new Queue(n, { connection: conn }));
 
     try {
@@ -181,9 +205,13 @@ describe('BullMQ/Redis Integration (OSS runtime)', () => {
     const qName = nextQueueName('fatal');
     const queue = new Queue(qName, { connection: conn });
 
-    const worker = new Worker(qName, async () => {
-      throw new Error('Fatal error');
-    }, { connection: conn, concurrency: 1 });
+    const worker = new Worker(
+      qName,
+      async () => {
+        throw new Error('Fatal error');
+      },
+      { connection: conn, concurrency: 1 },
+    );
 
     try {
       await new Promise((r) => setTimeout(r, 500));

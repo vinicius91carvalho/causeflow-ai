@@ -14,7 +14,10 @@ import { TriageIncidentUseCase } from '../../../../src/modules/triage/applicatio
 import { UpdateIncidentStatusUseCase } from '../../../../src/modules/ingestion/application/update-incident-status.usecase.js';
 import type { IIncidentRepository } from '../../../../src/modules/ingestion/domain/incident.repository.js';
 import type { Incident } from '../../../../src/modules/ingestion/domain/incident.entity.js';
-import type { IEvidenceRepository, Evidence } from '../../../../src/modules/triage/domain/evidence.repository.js';
+import type {
+  IEvidenceRepository,
+  Evidence,
+} from '../../../../src/modules/triage/domain/evidence.repository.js';
 import type { LLMClient } from '../../../../src/shared/application/ports/llm-client.port.js';
 import type { MessageQueue } from '../../../../src/shared/application/ports/message-queue.port.js';
 import type { TriageResult } from '../../../../src/modules/triage/domain/triage.types.js';
@@ -64,7 +67,14 @@ function createMockIncidentRepo(): IIncidentRepository {
     findById: vi.fn(),
     findBySourceAlert: vi.fn(),
     update: vi.fn(async (_t, _i, data) => ({ ...base, ...data }) as Incident),
-    updateStatus: vi.fn(async (_t, _i, status) => ({ ...base, status, resolvedAt: status === 'resolved' ? new Date().toISOString() : undefined }) as Incident),
+    updateStatus: vi.fn(
+      async (_t, _i, status) =>
+        ({
+          ...base,
+          status,
+          resolvedAt: status === 'resolved' ? new Date().toISOString() : undefined,
+        }) as Incident,
+    ),
     listByTenant: vi.fn(),
     findBySeverity: vi.fn(),
     findByStatus: vi.fn(),
@@ -135,7 +145,9 @@ describe('TriageIncidentUseCase — terminal (low/medium/info) path', () => {
     });
 
     const statusChangedEvents: unknown[] = [];
-    eventBus.subscribe('incident.status_changed', (e) => { statusChangedEvents.push(e); });
+    eventBus.subscribe('incident.status_changed', (e) => {
+      statusChangedEvents.push(e);
+    });
 
     await useCase.execute(tenantId('tenant-1'), incidentId('inc-123'));
 
@@ -165,8 +177,7 @@ describe('TriageIncidentUseCase — terminal (low/medium/info) path', () => {
   });
 
   it('should dispatch worker and NOT resolve when LLM returns critical priority', async () => {
-    vi.mocked(incidentRepo.findById)
-      .mockResolvedValueOnce(createMockIncident({ status: 'open' }));
+    vi.mocked(incidentRepo.findById).mockResolvedValueOnce(createMockIncident({ status: 'open' }));
 
     const llmClient = createLLMClient(CRITICAL_PRIORITY_RESULT);
     const useCase = new TriageIncidentUseCase({
@@ -194,15 +205,15 @@ describe('TriageIncidentUseCase — terminal (low/medium/info) path', () => {
     );
 
     // updateStatus should NOT have been called with 'resolved'
-    const resolvedCalls = vi.mocked(incidentRepo.updateStatus).mock.calls.filter(
-      (call) => call[2] === 'resolved',
-    );
+    const resolvedCalls = vi
+      .mocked(incidentRepo.updateStatus)
+      .mock.calls.filter((call) => call[2] === 'resolved');
     expect(resolvedCalls).toHaveLength(0);
 
     // rootCause should NOT be written in the high-severity path
-    const rootCauseCalls = vi.mocked(incidentRepo.update).mock.calls.filter(
-      (call) => (call[2] as any)?.rootCause !== undefined,
-    );
+    const rootCauseCalls = vi
+      .mocked(incidentRepo.update)
+      .mock.calls.filter((call) => (call[2] as any)?.rootCause !== undefined);
     expect(rootCauseCalls).toHaveLength(0);
   });
 });

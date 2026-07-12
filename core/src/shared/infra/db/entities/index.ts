@@ -25,7 +25,8 @@ import { WidgetSessionEntity } from './WidgetSessionEntity.js';
 import { ChatMessageEntity } from './ChatMessageEntity.js';
 import { PushSubscriptionEntity } from './PushSubscriptionEntity.js';
 import { ToolCallEntity } from './ToolCallEntity.js';
-export const CauseFlowService = new Service({
+export const CauseFlowService = new Service(
+  {
     tenant: TenantEntity,
     integration: IntegrationEntity,
     incident: IncidentEntity,
@@ -50,5 +51,32 @@ export const CauseFlowService = new Service({
     chatMessage: ChatMessageEntity,
     toolCall: ToolCallEntity,
     pushSubscription: PushSubscriptionEntity,
-}, { client: getDynamoClient(), table: TABLE_NAME });
-export { TenantEntity, IntegrationEntity, IncidentEntity, EvidenceEntity, AuditEntryEntity, RemediationEntity, PatternEntity, FeedbackEntity, ServiceNodeEntity, ServiceEdgeEntity, ChangeEventEntity, NotificationEntity, ApprovalEntity, ApiKeyEntity, RepoNodeEntity, PackageDependencyEntity, RepoServiceMapEntity, BillingAccountEntity, UsageRecordEntity, TriggerEntity, WidgetSessionEntity, ChatMessageEntity, ToolCallEntity, PushSubscriptionEntity, };
+  },
+  { client: getDynamoClient(), table: TABLE_NAME },
+);
+export {
+  TenantEntity,
+  IntegrationEntity,
+  IncidentEntity,
+  EvidenceEntity,
+  AuditEntryEntity,
+  RemediationEntity,
+  PatternEntity,
+  FeedbackEntity,
+  ServiceNodeEntity,
+  ServiceEdgeEntity,
+  ChangeEventEntity,
+  NotificationEntity,
+  ApprovalEntity,
+  ApiKeyEntity,
+  RepoNodeEntity,
+  PackageDependencyEntity,
+  RepoServiceMapEntity,
+  BillingAccountEntity,
+  UsageRecordEntity,
+  TriggerEntity,
+  WidgetSessionEntity,
+  ChatMessageEntity,
+  ToolCallEntity,
+  PushSubscriptionEntity,
+};

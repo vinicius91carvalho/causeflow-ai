@@ -18,7 +18,14 @@ vi.mock('../../../../src/shared/infra/investigation/ecs-task-dispatcher.js', () 
 }));
 
 vi.mock('../../../../src/shared/infra/logger.js', () => {
-  const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), fatal: vi.fn(), child: vi.fn() };
+  const logger = {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    fatal: vi.fn(),
+    child: vi.fn(),
+  };
   logger.child.mockReturnValue(logger);
   return { logger, rootLogger: logger };
 });
@@ -65,7 +72,14 @@ describe('InvestigationConsumer', () => {
     expect(mockDispatchInvestigation).toHaveBeenCalledWith({
       tenantId: 'tenant-xyz',
       incidentId: 'inc-200',
-      suggestedAgents: ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
+      suggestedAgents: [
+        'log_analyst',
+        'metric_analyst',
+        'change_detector',
+        'code_analyzer',
+        'infra_inspector',
+        'db_analyst',
+      ],
     });
   });
 

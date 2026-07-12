@@ -1,7 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import {
-  handleInvestigationBullJob,
-} from '../../../src/workers/investigation-bull-job-handler.js';
+import { handleInvestigationBullJob } from '../../../src/workers/investigation-bull-job-handler.js';
 import { IncidentNotInvestigatableError } from '../../../src/modules/investigation/domain/investigation.errors.js';
 import type { IIncidentRepository } from '../../../src/modules/ingestion/domain/incident.repository.js';
 import type { Incident } from '../../../src/modules/ingestion/domain/incident.entity.js';
@@ -89,9 +87,7 @@ describe('handleInvestigationBullJob (AC-060)', () => {
 
   it('does not clobber rootCause when execute throws IncidentNotInvestigatableError', async () => {
     findById.mockResolvedValue(incident({ status: 'triaging' }));
-    execute.mockRejectedValue(
-      new IncidentNotInvestigatableError('inc-ac060', 'awaiting_approval'),
-    );
+    execute.mockRejectedValue(new IncidentNotInvestigatableError('inc-ac060', 'awaiting_approval'));
 
     await handleInvestigationBullJob(
       {

@@ -101,7 +101,9 @@ export function assertEventSequence(events: DomainEvent[], expectedSequence: str
   // Check that all expected events are present
   for (const expected of expectedSequence) {
     if (!relevantEvents.includes(expected)) {
-      throw new Error(`Expected event '${expected}' not found. Got: [${relevantEvents.join(', ')}]`);
+      throw new Error(
+        `Expected event '${expected}' not found. Got: [${relevantEvents.join(', ')}]`,
+      );
     }
   }
 

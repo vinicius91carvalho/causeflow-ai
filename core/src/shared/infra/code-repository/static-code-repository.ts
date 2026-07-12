@@ -54,7 +54,7 @@ export class PaymentService {
   retryCount: 3,
 };
 `,
-  'Dockerfile': `FROM node:22-alpine
+  Dockerfile: `FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -88,7 +88,14 @@ export class StaticCodeRepository implements ICodeRepository {
         message: 'feat: add retry handler',
         author: 'dev@acme.com',
         date: new Date().toISOString(),
-        files: [{ filename: 'src/services/retry-handler.ts', status: 'added', additions: 25, deletions: 0 }],
+        files: [
+          {
+            filename: 'src/services/retry-handler.ts',
+            status: 'added',
+            additions: 25,
+            deletions: 0,
+          },
+        ],
       },
     ];
   }
@@ -107,7 +114,12 @@ export class StaticCodeRepository implements ICodeRepository {
     };
   }
 
-  async getFileContent(_owner: string, _repo: string, path: string, _ref?: string): Promise<CodeFile> {
+  async getFileContent(
+    _owner: string,
+    _repo: string,
+    path: string,
+    _ref?: string,
+  ): Promise<CodeFile> {
     const content = STATIC_FILES[path];
     if (content === undefined) {
       throw new Error(`File '${path}' not found in static repository`);
@@ -140,7 +152,12 @@ export class StaticCodeRepository implements ICodeRepository {
     return [];
   }
 
-  async createBranch(_owner: string, _repo: string, branchName: string, baseSha: string): Promise<CreatedBranch> {
+  async createBranch(
+    _owner: string,
+    _repo: string,
+    branchName: string,
+    baseSha: string,
+  ): Promise<CreatedBranch> {
     return { ref: `refs/heads/${branchName}`, sha: baseSha };
   }
 

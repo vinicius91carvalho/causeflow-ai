@@ -3,7 +3,11 @@ import { RollbackRemediationUseCase } from '../../../../src/modules/remediation/
 import type { IRemediationRepository } from '../../../../src/modules/remediation/domain/remediation.repository.js';
 import type { Remediation } from '../../../../src/modules/remediation/domain/remediation.entity.js';
 import { EventBus } from '../../../../src/shared/domain/events.js';
-import { tenantId, remediationId, incidentId } from '../../../../src/shared/domain/value-objects.js';
+import {
+  tenantId,
+  remediationId,
+  incidentId,
+} from '../../../../src/shared/domain/value-objects.js';
 import { NotFoundError } from '../../../../src/shared/domain/errors.js';
 import { ConflictError } from '../../../../src/shared/domain/errors.js';
 
@@ -48,7 +52,10 @@ const completedRemediation: Remediation = {
 function createMockRemediationRepo(): IRemediationRepository {
   return {
     create: vi.fn(async (remediation: Remediation) => remediation),
-    findById: vi.fn(async () => ({ ...completedRemediation, steps: completedRemediation.steps.map((s) => ({ ...s })) })),
+    findById: vi.fn(async () => ({
+      ...completedRemediation,
+      steps: completedRemediation.steps.map((s) => ({ ...s })),
+    })),
     findByIncident: vi.fn(),
     update: vi.fn(),
   };
@@ -112,7 +119,10 @@ describe('RollbackRemediationUseCase', () => {
   });
 
   it('throws ConflictError when source remediation is not completed', async () => {
-    vi.mocked(remediationRepo.findById).mockResolvedValueOnce({ ...completedRemediation, status: 'approved' });
+    vi.mocked(remediationRepo.findById).mockResolvedValueOnce({
+      ...completedRemediation,
+      status: 'approved',
+    });
 
     await expect(
       useCase.execute({

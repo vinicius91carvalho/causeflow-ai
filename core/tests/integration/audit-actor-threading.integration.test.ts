@@ -72,11 +72,20 @@ function makeMockIncidentRepo(): IIncidentRepository {
     create: vi.fn(async (i: Incident): Promise<Incident> => i),
     findById: vi.fn(async () => mockIncident),
     findBySourceAlert: vi.fn(async () => null),
-    update: vi.fn(async (_id: unknown, _tid: unknown, data: Partial<Incident>): Promise<Incident> => ({ ...mockIncident, ...data })),
+    update: vi.fn(
+      async (_id: unknown, _tid: unknown, data: Partial<Incident>): Promise<Incident> => ({
+        ...mockIncident,
+        ...data,
+      }),
+    ),
     updateStatus: vi.fn(async (): Promise<Incident> => mockIncident),
     listByTenant: vi.fn(async () => ({ items: [], cursor: undefined })),
-    findBySeverity: vi.fn(async (): Promise<{ items: Incident[]; cursor?: string }> => ({ items: [] })),
-    findByStatus: vi.fn(async (): Promise<{ items: Incident[]; cursor?: string }> => ({ items: [] })),
+    findBySeverity: vi.fn(
+      async (): Promise<{ items: Incident[]; cursor?: string }> => ({ items: [] }),
+    ),
+    findByStatus: vi.fn(
+      async (): Promise<{ items: Incident[]; cursor?: string }> => ({ items: [] }),
+    ),
     listByCreatedAt: vi.fn(async () => ({ items: [], cursor: undefined })),
     findAll: vi.fn(async (): Promise<Incident[]> => []),
   };
@@ -137,9 +146,8 @@ describe('Integration: authenticated chat → incident.created audit row with ac
 
     // Build a minimal Hono app that mimics the real app:
     //   authMiddleware → memory routes → ChatUseCase
-    const { authMiddleware } = await import(
-      '../../src/shared/infra/http/middleware/auth.middleware.js'
-    );
+    const { authMiddleware } =
+      await import('../../src/shared/infra/http/middleware/auth.middleware.js');
 
     // Mock LLM client so ChatUseCase classifies intent as 'incident'
     const mockLlmClient = {
@@ -161,12 +169,8 @@ describe('Integration: authenticated chat → incident.created audit row with ac
     const mockSseManager = { broadcast: vi.fn(async () => {}) };
     const mockToolHandlerFactory = vi.fn(() => vi.fn(async () => ({ result: 'ok' })));
 
-    const { ChatUseCase } = await import(
-      '../../src/modules/memory/application/chat.usecase.js'
-    );
-    const { createMemoryRoutes } = await import(
-      '../../src/modules/memory/infra/memory.routes.js'
-    );
+    const { ChatUseCase } = await import('../../src/modules/memory/application/chat.usecase.js');
+    const { createMemoryRoutes } = await import('../../src/modules/memory/infra/memory.routes.js');
     const mockRunbookRegistry = {
       listByTenant: vi.fn(async () => []),
       upsert: vi.fn(async () => {}),
@@ -175,14 +179,26 @@ describe('Integration: authenticated chat → incident.created audit row with ac
     };
 
     const chatUseCase = new ChatUseCase({
-      agentRunner: mockAgentRunner as unknown as ConstructorParameters<typeof ChatUseCase>[0]['agentRunner'],
-      llmClient: mockLlmClient as unknown as ConstructorParameters<typeof ChatUseCase>[0]['llmClient'],
-      cloudProvider: mockCloudProvider as unknown as ConstructorParameters<typeof ChatUseCase>[0]['cloudProvider'],
-      agentMemory: mockAgentMemory as unknown as ConstructorParameters<typeof ChatUseCase>[0]['agentMemory'],
+      agentRunner: mockAgentRunner as unknown as ConstructorParameters<
+        typeof ChatUseCase
+      >[0]['agentRunner'],
+      llmClient: mockLlmClient as unknown as ConstructorParameters<
+        typeof ChatUseCase
+      >[0]['llmClient'],
+      cloudProvider: mockCloudProvider as unknown as ConstructorParameters<
+        typeof ChatUseCase
+      >[0]['cloudProvider'],
+      agentMemory: mockAgentMemory as unknown as ConstructorParameters<
+        typeof ChatUseCase
+      >[0]['agentMemory'],
       incidentRepo: makeMockIncidentRepo(),
       eventBus,
-      sseManager: mockSseManager as unknown as ConstructorParameters<typeof ChatUseCase>[0]['sseManager'],
-      toolHandlerFactory: mockToolHandlerFactory as unknown as ConstructorParameters<typeof ChatUseCase>[0]['toolHandlerFactory'],
+      sseManager: mockSseManager as unknown as ConstructorParameters<
+        typeof ChatUseCase
+      >[0]['sseManager'],
+      toolHandlerFactory: mockToolHandlerFactory as unknown as ConstructorParameters<
+        typeof ChatUseCase
+      >[0]['toolHandlerFactory'],
     });
 
     app = new Hono<AppEnv>();
@@ -190,8 +206,12 @@ describe('Integration: authenticated chat → incident.created audit row with ac
     app.route(
       '/v1/memory',
       createMemoryRoutes({
-        agentMemory: mockAgentMemory as unknown as Parameters<typeof createMemoryRoutes>[0]['agentMemory'],
-        runbookRegistry: mockRunbookRegistry as unknown as Parameters<typeof createMemoryRoutes>[0]['runbookRegistry'],
+        agentMemory: mockAgentMemory as unknown as Parameters<
+          typeof createMemoryRoutes
+        >[0]['agentMemory'],
+        runbookRegistry: mockRunbookRegistry as unknown as Parameters<
+          typeof createMemoryRoutes
+        >[0]['runbookRegistry'],
         chat: chatUseCase,
       }),
     );
@@ -201,7 +221,7 @@ describe('Integration: authenticated chat → incident.created audit row with ac
     const res = await app.request('/v1/memory/chat', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${authToken}`,
+        Authorization: `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

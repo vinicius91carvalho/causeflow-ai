@@ -13,7 +13,10 @@
  *   logged or persisted
  */
 import { createCipheriv, createDecipheriv, randomBytes, createHash } from 'node:crypto';
-import type { TokenEncryption, EncryptedPayload } from '../../application/ports/token-encryption.port.js';
+import type {
+  TokenEncryption,
+  EncryptedPayload,
+} from '../../application/ports/token-encryption.port.js';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // GCM recommended IV length
@@ -31,7 +34,7 @@ export class AesGcmTokenEncryption implements TokenEncryption {
     if (!raw) {
       throw new Error(
         'AesGcmTokenEncryption: TOKEN_ENCRYPTION_KEY env var is required. ' +
-        'Generate one with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"',
+          "Generate one with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
       );
     }
     // Accept both hex-encoded 32-byte keys and arbitrary passphrases
@@ -46,10 +49,7 @@ export class AesGcmTokenEncryption implements TokenEncryption {
   async encrypt(plaintext: string): Promise<EncryptedPayload> {
     const iv = randomBytes(IV_LENGTH);
     const cipher = createCipheriv(ALGORITHM, this.key, iv, { authTagLength: TAG_LENGTH });
-    const encrypted = Buffer.concat([
-      cipher.update(plaintext, 'utf8'),
-      cipher.final(),
-    ]);
+    const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
     const tag = cipher.getAuthTag();
     return {
       ciphertext: encrypted.toString('base64'),
@@ -61,12 +61,9 @@ export class AesGcmTokenEncryption implements TokenEncryption {
   }
 
   async decrypt(payload: EncryptedPayload): Promise<string> {
-    const decipher = createDecipheriv(
-      ALGORITHM,
-      this.key,
-      Buffer.from(payload.iv, 'base64'),
-      { authTagLength: TAG_LENGTH },
-    );
+    const decipher = createDecipheriv(ALGORITHM, this.key, Buffer.from(payload.iv, 'base64'), {
+      authTagLength: TAG_LENGTH,
+    });
     decipher.setAuthTag(Buffer.from(payload.tag, 'base64'));
     const decrypted = Buffer.concat([
       decipher.update(Buffer.from(payload.ciphertext, 'base64')),

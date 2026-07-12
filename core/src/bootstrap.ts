@@ -35,7 +35,11 @@ import { DatadogParser } from './modules/ingestion/infra/parsers/datadog.parser.
 import { GrafanaParser } from './modules/ingestion/infra/parsers/grafana.parser.js';
 import { CloudWatchParser } from './modules/ingestion/infra/parsers/cloudwatch.parser.js';
 import { SentryParser } from './modules/ingestion/infra/parsers/sentry.parser.js';
-import { createRawAgentRunner, createRawLlmClient, usesLocalLlmConnector } from './shared/infra/llm/llm-factory.js';
+import {
+  createRawAgentRunner,
+  createRawLlmClient,
+  usesLocalLlmConnector,
+} from './shared/infra/llm/llm-factory.js';
 import { registerOssLlmCircuitBreaker } from './shared/infra/llm/oss-llm-circuit-breaker.js';
 import { AesGcmTokenEncryption } from './shared/infra/credentials/aes-gcm-token-encryption.js';
 import { StubCloudProvider } from './shared/infra/cloud/stub-cloud-provider.js';
@@ -197,15 +201,27 @@ import { SuggestRepoMappingUseCase } from './modules/code-intelligence/applicati
 import type { CodeKnowledgeUseCases } from './modules/code-intelligence/infra/code-knowledge.routes.js';
 import type { IRelayGateway } from './shared/application/ports/relay-gateway.port.js';
 import type { RemediationId } from './shared/domain/value-objects.js';
-import type { StructuredAction, ProposedFix } from './modules/investigation/domain/investigation.types.js';
+import type {
+  StructuredAction,
+  ProposedFix,
+} from './modules/investigation/domain/investigation.types.js';
 import type { BillingUseCases } from './modules/billing/infra/billing.routes.js';
 import type { WidgetRouteDeps } from './modules/widget/infra/widget.routes.js';
-import type { TriggerUseCases, ComposioWebhookDeps } from './modules/integration/infra/trigger.routes.js';
+import type {
+  TriggerUseCases,
+  ComposioWebhookDeps,
+} from './modules/integration/infra/trigger.routes.js';
 import type { IntegrationUseCases } from './modules/integration/infra/integration.routes.js';
 import type { AuthUseCases } from './modules/auth/infra/auth.routes.js';
 import type { UserUseCases } from './modules/user/infra/user.routes.js';
 import type { MemoryUseCases } from './modules/memory/infra/memory.routes.js';
-import { CreateSkillUseCase, ListSkillsUseCase, GetSkillUseCase, UpdateSkillUseCase, DeleteSkillUseCase } from './modules/skills/application/crud-skills.usecase.js';
+import {
+  CreateSkillUseCase,
+  ListSkillsUseCase,
+  GetSkillUseCase,
+  UpdateSkillUseCase,
+  DeleteSkillUseCase,
+} from './modules/skills/application/crud-skills.usecase.js';
 import { SelectSkillsUseCase } from './modules/skills/application/select-skills.usecase.js';
 import { PinRunbookUseCase } from './modules/skills/application/pin-runbook.usecase.js';
 import { createSkillRoutes } from './modules/skills/infra/skill.routes.js';
@@ -280,8 +296,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // enqueue work downstream (triage → investigation → remediation).
   const alertQueueUrl = config.isOss() ? config.bullmq.alertQueueName : config.sqs.alertQueueUrl;
   const triageQueueUrl = config.isOss() ? config.bullmq.triageQueueName : config.sqs.alertQueueUrl;
-  const investigationQueueUrl = config.isOss() ? config.bullmq.investigationQueueName : config.sqs.investigationQueueUrl;
-  const remediationQueueUrl = config.isOss() ? config.bullmq.remediationQueueName : config.sqs.remediationQueueUrl;
+  const investigationQueueUrl = config.isOss()
+    ? config.bullmq.investigationQueueName
+    : config.sqs.investigationQueueUrl;
+  const remediationQueueUrl = config.isOss()
+    ? config.bullmq.remediationQueueName
+    : config.sqs.remediationQueueUrl;
 
   // Register Alert Parsers
   const datadogParser = new DatadogParser();
@@ -318,13 +338,17 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     logger.info('Bootstrap: using Postgres repositories (OSS runtime)');
     const { PgTenantRepository } = await import('./modules/tenant/infra/pg-tenant.repository.js');
     const { PgAuditRepository } = await import('./modules/audit/infra/pg-audit.repository.js');
-    const { PgIncidentRepository } = await import('./modules/ingestion/infra/pg-incident.repository.js');
+    const { PgIncidentRepository } =
+      await import('./modules/ingestion/infra/pg-incident.repository.js');
     tenantRepo = new PgTenantRepository();
     auditRepo = new PgAuditRepository();
     incidentRepo = new PgIncidentRepository();
-    const { PgEvidenceRepository } = await import('./modules/triage/infra/pg-evidence.repository.js');
-    const { PgToolCallRepository } = await import('./modules/triage/infra/pg-tool-call.repository.js');
-    const { PgCodeKnowledgeRepository } = await import('./modules/code-intelligence/infra/pg-code-knowledge.repository.js');
+    const { PgEvidenceRepository } =
+      await import('./modules/triage/infra/pg-evidence.repository.js');
+    const { PgToolCallRepository } =
+      await import('./modules/triage/infra/pg-tool-call.repository.js');
+    const { PgCodeKnowledgeRepository } =
+      await import('./modules/code-intelligence/infra/pg-code-knowledge.repository.js');
     evidenceRepo = new PgEvidenceRepository();
     toolCallRepo = new PgToolCallRepository();
     codeKnowledgeRepo = new PgCodeKnowledgeRepository();
@@ -333,9 +357,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     tenantRepo = new DynamoTenantRepository();
     auditRepo = new DynamoAuditRepository();
     incidentRepo = new DynamoIncidentRepository();
-    const { DynamoEvidenceRepository: DynamoEvidenceRepo } = await import('./modules/triage/infra/dynamo-evidence.repository.js');
-    const { DynamoToolCallRepository: DynamoToolCallRepo } = await import('./modules/triage/infra/dynamo-tool-call.repository.js');
-    const { DynamoCodeKnowledgeRepository: DynamoCodeKnowledgeRepo } = await import('./modules/code-intelligence/infra/dynamo-code-knowledge.repository.js');
+    const { DynamoEvidenceRepository: DynamoEvidenceRepo } =
+      await import('./modules/triage/infra/dynamo-evidence.repository.js');
+    const { DynamoToolCallRepository: DynamoToolCallRepo } =
+      await import('./modules/triage/infra/dynamo-tool-call.repository.js');
+    const { DynamoCodeKnowledgeRepository: DynamoCodeKnowledgeRepo } =
+      await import('./modules/code-intelligence/infra/dynamo-code-knowledge.repository.js');
     evidenceRepo = new DynamoEvidenceRepo();
     toolCallRepo = new DynamoToolCallRepo();
     codeKnowledgeRepo = new DynamoCodeKnowledgeRepo();
@@ -346,7 +373,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // AC-022: Shared circuit breaker for Anthropic health + LLM calls in OSS runtime.
   const anthropicCircuitBreaker = new CircuitBreaker(
-    config.isOss() ? { failureThreshold: 1, resetTimeoutMs: 60_000 } : { failureThreshold: 5, resetTimeoutMs: 60_000 },
+    config.isOss()
+      ? { failureThreshold: 1, resetTimeoutMs: 60_000 }
+      : { failureThreshold: 5, resetTimeoutMs: 60_000 },
   );
   if (config.isOss()) {
     registerOssLlmCircuitBreaker(anthropicCircuitBreaker);
@@ -373,7 +402,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // Sentry Integration Repository + Use Cases (envelope-encrypted Client Secret)
   const sentryIntegrationRepo = new DynamoSentryIntegrationRepository(tokenEncryption);
-  const saveSentryClientSecret = new SaveSentryClientSecretUseCase(tokenEncryption, sentryIntegrationRepo);
+  const saveSentryClientSecret = new SaveSentryClientSecretUseCase(
+    tokenEncryption,
+    sentryIntegrationRepo,
+  );
   const getSentryIntegrationStatus = new GetSentryIntegrationStatusUseCase(sentryIntegrationRepo);
 
   // Cloud Provider — StubCloudProvider is the only provider (AC-047).
@@ -383,9 +415,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // Credential Vendor (STS in prod, Stub in dev)
   const getCloudIntegration = new GetCloudIntegrationUseCase(tokenEncryption);
-  const credentialVendor: CredentialVendor = config.isDev() || config.isTest()
-    ? new StubCredentialVendor()
-    : new STSCredentialVendor(undefined, tenantRepo, getCloudIntegration);
+  const credentialVendor: CredentialVendor =
+    config.isDev() || config.isTest()
+      ? new StubCredentialVendor()
+      : new STSCredentialVendor(undefined, tenantRepo, getCloudIntegration);
   providerRegistry.registerCredentialVendor(credentialVendor);
 
   // Tenant Use Cases
@@ -402,7 +435,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // The ListAuditEntriesUseCase handles undefined resolver gracefully.
   const userEmailResolver = config.isOss()
     ? undefined
-    : new (await import('./modules/audit/infra/clerk-user-email-resolver.js')).ClerkUserEmailResolver();
+    : new (
+        await import('./modules/audit/infra/clerk-user-email-resolver.js')
+      ).ClerkUserEmailResolver();
   const auditUseCases: AuditUseCases = {
     listAuditEntries: new ListAuditEntriesUseCase(auditRepo, userEmailResolver),
     verifyHashChain: new VerifyHashChainUseCase(auditRepo),
@@ -413,10 +448,18 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // Reserve/Refund — needed by ingestion routes (created early, before billing block)
   const billingAccountRepoEarly = config.isOss()
-    ? new (await import('./modules/billing/infra/pg-billing-account.repository.js')).PgBillingAccountRepository()
+    ? new (
+        await import('./modules/billing/infra/pg-billing-account.repository.js')
+      ).PgBillingAccountRepository()
     : new DynamoBillingAccountRepository();
-  const stripeMeterServiceEarly = config.stripe.secretKey ? new StripeMeterEventService() : undefined;
-  const reserveInvestigation = new ReserveInvestigationUseCase(billingAccountRepoEarly, stripeMeterServiceEarly, tenantRepo);
+  const stripeMeterServiceEarly = config.stripe.secretKey
+    ? new StripeMeterEventService()
+    : undefined;
+  const reserveInvestigation = new ReserveInvestigationUseCase(
+    billingAccountRepoEarly,
+    stripeMeterServiceEarly,
+    tenantRepo,
+  );
 
   // Ingestion Use Cases
   const webhookUseCases: WebhookUseCases = {
@@ -467,10 +510,13 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     incidentRepo,
   };
 
-
   // Code Knowledge Use Cases — uses StaticCodeRepository for local dev (no GitHub credentials)
   const staticCodeRepo = new StaticCodeRepository();
-  const indexRepository = new IndexRepositoryUseCase(codeKnowledgeRepo, () => staticCodeRepo, eventBus);
+  const indexRepository = new IndexRepositoryUseCase(
+    codeKnowledgeRepo,
+    () => staticCodeRepo,
+    eventBus,
+  );
   const suggestRepoMapping = new SuggestRepoMappingUseCase(codeKnowledgeRepo);
 
   const codeKnowledgeUseCases: CodeKnowledgeUseCases = {
@@ -480,25 +526,30 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   };
 
   // Composio Integration
-  const composioToolProvider = config.composio.apiKey
-    ? new ComposioToolProvider()
-    : undefined;
+  const composioToolProvider = config.composio.apiKey ? new ComposioToolProvider() : undefined;
 
   // Core dependencies (Hindsight + RunbookRegistry)
   // AC-040: PgRunbookRegistryRepository in OSS runtime, Dynamo in AWS runtime
   const runbookRegistry = await (async () => {
     if (config.isOss()) {
-      const { PgRunbookRegistryRepository } = await import('./shared/infra/db/pg-runbook-registry.repository.js');
+      const { PgRunbookRegistryRepository } =
+        await import('./shared/infra/db/pg-runbook-registry.repository.js');
       return new PgRunbookRegistryRepository();
     }
-    const { DynamoRunbookRegistryRepository } = await import('./shared/infra/db/dynamo-runbook-registry.repository.js');
+    const { DynamoRunbookRegistryRepository } =
+      await import('./shared/infra/db/dynamo-runbook-registry.repository.js');
     return new DynamoRunbookRegistryRepository();
   })();
-  const agentMemory = new HindsightAgentMemory({ baseUrl: config.hindsight.baseUrl, apiKey: config.hindsight.apiKey });
+  const agentMemory = new HindsightAgentMemory({
+    baseUrl: config.hindsight.baseUrl,
+    apiKey: config.hindsight.apiKey,
+  });
 
   // Hindsight bank lifecycle (AC-026 / AC-052)
-  const { registerConfigureHindsightBankSubscriber } = await import('./shared/application/subscribers/configure-hindsight-bank.subscriber.js');
-  const { registerInvestigationToMemorySubscriber } = await import('./shared/application/subscribers/investigation-to-memory.subscriber.js');
+  const { registerConfigureHindsightBankSubscriber } =
+    await import('./shared/application/subscribers/configure-hindsight-bank.subscriber.js');
+  const { registerInvestigationToMemorySubscriber } =
+    await import('./shared/application/subscribers/investigation-to-memory.subscriber.js');
   registerConfigureHindsightBankSubscriber({ eventBus, agentMemory });
   registerInvestigationToMemorySubscriber({ eventBus, agentMemory, runbookRegistry });
 
@@ -509,23 +560,38 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       const { PgSkillRepository } = await import('./modules/skills/infra/pg-skill.repository.js');
       return new PgSkillRepository();
     }
-    const { DynamoSkillRepository } = await import('./modules/skills/infra/dynamo-skill.repository.js');
+    const { DynamoSkillRepository } =
+      await import('./modules/skills/infra/dynamo-skill.repository.js');
     return new DynamoSkillRepository();
   })();
   const selectSkills = new SelectSkillsUseCase(skillRepo, llmClient);
 
   const hypothesisRepo = config.isOss()
-    ? new (await import('./modules/investigation/infra/pg-hypothesis.repository.js')).PgHypothesisRepository()
+    ? new (
+        await import('./modules/investigation/infra/pg-hypothesis.repository.js')
+      ).PgHypothesisRepository()
     : new DynamoHypothesisRepository();
 
   // AC-057: OSS stub-upstream probe evidence hook for investigation (wired before use case).
-  let ossIntegrationRepo: import('./modules/integration/infra/pg-integration.repository.js').PgIntegrationRepository | undefined;
-  let persistStubUpstreamEvidence: ((tenantId: import('./shared/domain/value-objects.js').TenantId, incidentId: import('./shared/domain/value-objects.js').IncidentId) => Promise<void>) | undefined;
+  let ossIntegrationRepo:
+    | import('./modules/integration/infra/pg-integration.repository.js').PgIntegrationRepository
+    | undefined;
+  let persistStubUpstreamEvidence:
+    | ((
+        tenantId: import('./shared/domain/value-objects.js').TenantId,
+        incidentId: import('./shared/domain/value-objects.js').IncidentId,
+      ) => Promise<void>)
+    | undefined;
   if (config.isOss()) {
-    const { PgIntegrationRepository } = await import('./modules/integration/infra/pg-integration.repository.js');
+    const { PgIntegrationRepository } =
+      await import('./modules/integration/infra/pg-integration.repository.js');
     ossIntegrationRepo = new PgIntegrationRepository();
-    const { PersistStubProbeEvidenceUseCase } = await import('./modules/integration/application/persist-stub-probe-evidence.usecase.js');
-    const persistStubProbeEvidence = new PersistStubProbeEvidenceUseCase(ossIntegrationRepo, evidenceRepo);
+    const { PersistStubProbeEvidenceUseCase } =
+      await import('./modules/integration/application/persist-stub-probe-evidence.usecase.js');
+    const persistStubProbeEvidence = new PersistStubProbeEvidenceUseCase(
+      ossIntegrationRepo,
+      evidenceRepo,
+    );
     persistStubUpstreamEvidence = async (tenantId, incidentId) => {
       await persistStubProbeEvidence.execute({ tenantId, incidentId });
     };
@@ -607,34 +673,61 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     judgeModel: config.anthropic.synthesisModel,
     metrics,
   });
-  const modeRegistry = new InvestigationModeRegistry([orchestratorMode, hypothesisMode, debateMode]);
+  const modeRegistry = new InvestigationModeRegistry([
+    orchestratorMode,
+    hypothesisMode,
+    debateMode,
+  ]);
   const dispatchInvestigation = new DispatchInvestigationUseCase({
     incidentRepo,
     registry: modeRegistry,
     metrics,
   });
   const investigationRegistry = new InvestigationRegistry();
-  const abortInvestigation = new AbortInvestigationUseCase(incidentRepo, eventBus, investigationRegistry);
-  const respondKnownSolution = new RespondKnownSolutionUseCase(incidentRepo, eventBus, runbookRegistry);
-  const recordInvestigationFeedback = new RecordInvestigationFeedbackUseCase(eventBus, agentMemory, runbookRegistry);
+  const abortInvestigation = new AbortInvestigationUseCase(
+    incidentRepo,
+    eventBus,
+    investigationRegistry,
+  );
+  const respondKnownSolution = new RespondKnownSolutionUseCase(
+    incidentRepo,
+    eventBus,
+    runbookRegistry,
+  );
+  const recordInvestigationFeedback = new RecordInvestigationFeedbackUseCase(
+    eventBus,
+    agentMemory,
+    runbookRegistry,
+  );
 
   // Notification + chat platform (needed by investigation chat mirroring — AC-021)
   const sseManager = new SSEManager();
   const notificationRepo = config.isOss()
-    ? new (await import('./modules/notification/infra/pg-notification.repository.js')).PgNotificationRepository()
+    ? new (
+        await import('./modules/notification/infra/pg-notification.repository.js')
+      ).PgNotificationRepository()
     : new DynamoNotificationRepository();
   const approvalRepo = config.isOss()
-    ? new (await import('./modules/notification/infra/pg-approval.repository.js')).PgApprovalRepository()
+    ? new (
+        await import('./modules/notification/infra/pg-approval.repository.js')
+      ).PgApprovalRepository()
     : new DynamoApprovalRepository();
   const chatPlatform = new WebPortalChatPlatform(notificationRepo, approvalRepo, sseManager);
   const slackNotificationRepo = new SlackNotificationRepository();
 
   const chatInvestigation = new ChatInvestigationUseCase({
-    incidentRepo, evidenceRepo, agentRunner, agentMemory,
+    incidentRepo,
+    evidenceRepo,
+    agentRunner,
+    agentMemory,
     llmClient: llmClient as unknown as LLMClient,
     chatHistory: config.isOss()
-      ? new (await import('./modules/memory/infra/pg-chat-history.repository.js')).PgChatHistoryRepository()
-      : new (await import('./modules/memory/infra/dynamo-chat-history.repository.js')).DynamoChatHistoryRepository(),
+      ? new (
+          await import('./modules/memory/infra/pg-chat-history.repository.js')
+        ).PgChatHistoryRepository()
+      : new (
+          await import('./modules/memory/infra/dynamo-chat-history.repository.js')
+        ).DynamoChatHistoryRepository(),
     chatPlatform,
     tenantRepo,
     tokenEncryption,
@@ -642,13 +735,25 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     addInvestigationContext,
     dispatchFollowupWorker: config.ecs.cluster
       ? async (iid, tid) => {
-          const { dispatchInvestigation } = await import('./shared/infra/investigation/ecs-task-dispatcher.js');
-          await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
+          const { dispatchInvestigation } =
+            await import('./shared/infra/investigation/ecs-task-dispatcher.js');
+          await dispatchInvestigation({
+            incidentId: iid,
+            tenantId: tid,
+            suggestedAgents: [],
+            mode: 'followup',
+          });
         }
       : config.isOss()
         ? async (iid, tid) => {
-            const { dispatchInvestigation } = await import('./shared/infra/investigation/local-task-dispatcher.js');
-            await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
+            const { dispatchInvestigation } =
+              await import('./shared/infra/investigation/local-task-dispatcher.js');
+            await dispatchInvestigation({
+              incidentId: iid,
+              tenantId: tid,
+              suggestedAgents: [],
+              mode: 'followup',
+            });
           }
         : undefined,
   });
@@ -670,7 +775,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // Remediation Use Cases — OSS runtime uses Postgres, AWS runtime uses DynamoDB
   const remediationRepo = config.isOss()
-    ? new (await import('./modules/remediation/infra/pg-remediation.repository.js')).PgRemediationRepository()
+    ? new (
+        await import('./modules/remediation/infra/pg-remediation.repository.js')
+      ).PgRemediationRepository()
     : new DynamoRemediationRepository();
 
   const proposeRemediation = new ProposeRemediationUseCase(
@@ -731,7 +838,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   let stubRouteDeps: IntegrationUseCases['stubRouteDeps'];
   let listAllIntegrations: ListAllIntegrationsUseCase;
   if (config.isOss()) {
-    const { PgIntegrationRepository } = await import('./modules/integration/infra/pg-integration.repository.js');
+    const { PgIntegrationRepository } =
+      await import('./modules/integration/infra/pg-integration.repository.js');
     const integrationRepo = ossIntegrationRepo ?? new PgIntegrationRepository();
     listAllIntegrations = new ListAllIntegrationsUseCase(integrationRepo);
     const connectStub = new ConnectStubIntegrationUseCase(integrationRepo, eventBus);
@@ -791,7 +899,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // pulling in the Stripe SDK at module evaluation time.
   const billingAccountRepo = billingAccountRepoEarly;
   const usageRecordRepo = config.isOss()
-    ? new (await import('./modules/billing/infra/pg-usage-record.repository.js')).PgUsageRecordRepository()
+    ? new (
+        await import('./modules/billing/infra/pg-usage-record.repository.js')
+      ).PgUsageRecordRepository()
     : new DynamoUsageRecordRepository();
 
   let billingUseCases: BillingUseCases;
@@ -822,7 +932,11 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       purchaseQuotaPack: new PurchaseQuotaPackUseCase(billingAccountRepo, tenantRepo, planCatalog),
       updateBillingSettings: new UpdateBillingSettingsUseCase(billingAccountRepo),
       listPlans: new ListPlansUseCase(planCatalog),
-      upgradeSubscription: new UpgradeSubscriptionUseCase(tenantRepo, planCatalog, billingAccountRepo),
+      upgradeSubscription: new UpgradeSubscriptionUseCase(
+        tenantRepo,
+        planCatalog,
+        billingAccountRepo,
+      ),
       listInvoices: new ListInvoicesUseCase(tenantRepo),
       cancelSubscription: new CancelSubscriptionUseCase(tenantRepo),
       reactivateSubscription: new ReactivateSubscriptionUseCase(tenantRepo),
@@ -855,13 +969,20 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   } else {
     userRepo = new DynamoUserRepository();
     inviteRepo = new DynamoInviteRepository();
-    const { HandleClerkWebhookUseCase: HCW } = await import('./modules/auth/application/handle-clerk-webhook.usecase.js');
+    const { HandleClerkWebhookUseCase: HCW } =
+      await import('./modules/auth/application/handle-clerk-webhook.usecase.js');
     // Use statically-imported Stripe classes (already loaded at top of file).
     // These are only used in the non-OSS branch where Stripe is configured.
     const clerkPlanCatalog = new StripePlanCatalogService();
     const clerkStripeCustomer = config.stripe.secretKey ? new StripeCustomerService() : undefined;
     authUseCases = {
-      handleClerkWebhook: new HCW(tenantRepo, userRepo, clerkStripeCustomer, clerkPlanCatalog, billingAccountRepo),
+      handleClerkWebhook: new HCW(
+        tenantRepo,
+        userRepo,
+        clerkStripeCustomer,
+        clerkPlanCatalog,
+        billingAccountRepo,
+      ),
     };
   }
 
@@ -869,7 +990,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // CreateInviteUseCase dynamically imported to avoid pulling in @clerk/backend
   // at module evaluation time in OSS mode (even though the route is not mounted,
   // the static import would still load clerk-client.ts -> @clerk/backend).
-  const { CreateInviteUseCase: CInv } = await import('./modules/user/application/create-invite.usecase.js');
+  const { CreateInviteUseCase: CInv } =
+    await import('./modules/user/application/create-invite.usecase.js');
   const userUseCases: UserUseCases = {
     createUser: new CreateUserUseCase(userRepo, eventBus),
     listUsers: new ListUsersUseCase(userRepo),
@@ -886,8 +1008,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // Memory Use Cases (Hindsight-backed)
   const chatHistoryRepo = config.isOss()
-    ? new (await import('./modules/memory/infra/pg-chat-history.repository.js')).PgChatHistoryRepository()
-    : new (await import('./modules/memory/infra/dynamo-chat-history.repository.js')).DynamoChatHistoryRepository();
+    ? new (
+        await import('./modules/memory/infra/pg-chat-history.repository.js')
+      ).PgChatHistoryRepository()
+    : new (
+        await import('./modules/memory/infra/dynamo-chat-history.repository.js')
+      ).DynamoChatHistoryRepository();
   const memoryUseCases: MemoryUseCases = {
     agentMemory,
     runbookRegistry,
@@ -937,7 +1063,9 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const markNotificationRead = new MarkNotificationReadUseCase(notificationRepo);
 
   // Push subscription repository and Web Push adapter (VAPID)
-  let pushSubscriptionRepo: import('./modules/notification/domain/push-subscription.repository.js').IPushSubscriptionRepository | undefined;
+  let pushSubscriptionRepo:
+    | import('./modules/notification/domain/push-subscription.repository.js').IPushSubscriptionRepository
+    | undefined;
   let pushAdapter: WebPushAdapter | undefined;
 
   if (config.isOss()) {
@@ -1020,7 +1148,7 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     if (!pushSubscriptionRepo || !pushAdapter) return;
     try {
       const tid = tenantId(event.tenantId);
-      const payload = event.payload as Record<string, unknown>;
+      const payload = event.payload;
       const incidentId = (payload['incidentId'] as string) ?? '';
       const incidentTitle = (payload['title'] as string) ?? 'Incident updated';
 
@@ -1033,16 +1161,21 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
           data: { incidentId, severity: payload['severity'], type: 'incident.severity_changed' },
         };
         for (const sub of subscriptions) {
-          pushAdapter.send(
-            { endpoint: sub.endpoint, keys: sub.keys },
-            pushPayload,
-          ).catch((err: unknown) => {
-            logger.error({ err, tenantId: tid, endpoint: sub.endpoint }, 'Failed to send push notification');
-          });
+          pushAdapter
+            .send({ endpoint: sub.endpoint, keys: sub.keys }, pushPayload)
+            .catch((err: unknown) => {
+              logger.error(
+                { err, tenantId: tid, endpoint: sub.endpoint },
+                'Failed to send push notification',
+              );
+            });
         }
       }
     } catch (err) {
-      logger.error({ err, tenantId: event.tenantId }, 'Failed to send push notifications for incident.severity_changed');
+      logger.error(
+        { err, tenantId: event.tenantId },
+        'Failed to send push notifications for incident.severity_changed',
+      );
     }
   });
 
@@ -1159,7 +1292,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     });
   });
 
-
   // === EventBus Wiring: Notification SSE Broadcasts ===
   eventBus.subscribe('remediation.proposed', async (event) => {
     await sseManager.broadcast(event.tenantId, {
@@ -1200,7 +1332,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
         ...(agentBreakdown && { agentBreakdown }),
       });
     } catch (err) {
-      logger.error({ err, incidentId: incId, tenantId: event.tenantId }, 'Failed to record usage on investigation completion');
+      logger.error(
+        { err, incidentId: incId, tenantId: event.tenantId },
+        'Failed to record usage on investigation completion',
+      );
     }
   });
 
@@ -1215,7 +1350,6 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
       changes: event.payload,
     });
   });
-
 
   // === EventBus Wiring: Investigation Progress SSE ===
   eventBus.subscribe('investigation.progress', async (event) => {
@@ -1295,8 +1429,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   let widgetUseCases: WidgetRouteDeps | undefined;
   try {
     const sessionRepo = config.isOss()
-      ? new (await import('./modules/widget/infra/pg-widget-session.repository.js')).PgWidgetSessionRepository()
-      : new (await import('./modules/widget/infra/dynamo-widget-session.repository.js')).DynamoWidgetSessionRepository();
+      ? new (
+          await import('./modules/widget/infra/pg-widget-session.repository.js')
+        ).PgWidgetSessionRepository()
+      : new (
+          await import('./modules/widget/infra/dynamo-widget-session.repository.js')
+        ).DynamoWidgetSessionRepository();
 
     const dataMasker = new DataMasker();
     const responseFormatter = new ResponseFormatter();
@@ -1385,7 +1523,13 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   } else {
     healthChecker.register(new DynamoDBHealthCheck());
     healthChecker.register(new RedisHealthCheck(() => getRedisClient()));
-    healthChecker.register(new SQSHealthCheck([config.sqs.alertQueueUrl, config.sqs.investigationQueueUrl, config.sqs.remediationQueueUrl]));
+    healthChecker.register(
+      new SQSHealthCheck([
+        config.sqs.alertQueueUrl,
+        config.sqs.investigationQueueUrl,
+        config.sqs.remediationQueueUrl,
+      ]),
+    );
     healthChecker.register(new AnthropicHealthCheck(anthropicCircuitBreaker));
   }
 
@@ -1394,7 +1538,11 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // wire EventBus to dispatch the pipeline in-process.
   // This ensures the full flow works in dev without docker-compose.
   // AC-041: In OSS mode, BullMQ on Redis provides the queue layer — no fallback needed.
-  const sqsConfigured = !!(config.sqs.alertQueueUrl && config.sqs.investigationQueueUrl && config.sqs.remediationQueueUrl);
+  const sqsConfigured = !!(
+    config.sqs.alertQueueUrl &&
+    config.sqs.investigationQueueUrl &&
+    config.sqs.remediationQueueUrl
+  );
   const useInProcessPipeline =
     overrides?.inProcessPipeline === true ||
     (!sqsConfigured && !config.isProd() && !config.isOss());
@@ -1431,14 +1579,24 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
         await dispatchInvestigation.execute({
           tenantId: tenantId(event.tenantId),
           incidentId: incidentId(iid),
-          suggestedAgents: incident.assignedAgents ?? ['log_analyst', 'metric_analyst', 'change_detector', 'code_analyzer', 'infra_inspector', 'db_analyst'],
+          suggestedAgents: incident.assignedAgents ?? [
+            'log_analyst',
+            'metric_analyst',
+            'change_detector',
+            'code_analyzer',
+            'infra_inspector',
+            'db_analyst',
+          ],
         });
       } catch (err) {
         logger.error({ err, event }, 'In-process investigation failed');
         try {
           await incidentRepo.updateStatus(tenantId(event.tenantId), incidentId(iid), 'failed');
         } catch (statusErr) {
-          logger.error({ err: statusErr, incidentId: iid }, 'Failed to mark incident failed after in-process investigation error');
+          logger.error(
+            { err: statusErr, incidentId: iid },
+            'Failed to mark incident failed after in-process investigation error',
+          );
         }
       }
     });
@@ -1479,7 +1637,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     const metadata = (payload['metadata'] as Record<string, unknown>) ?? {};
     const serviceId = (payload['serviceId'] as string) ?? 'unknown';
 
-    const content = `[CHANGE] ${description}. ` +
+    const content =
+      `[CHANGE] ${description}. ` +
       `Service: ${serviceId}, type: ${changeType}, source: ${source}. ` +
       (metadata['branch'] ? `Branch: ${metadata['branch'] as string}. ` : '') +
       (metadata['commitSha'] ? `Commit: ${(metadata['commitSha'] as string).slice(0, 8)}. ` : '') +
@@ -1489,14 +1648,17 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     try {
       await agentMemory.retain(tid, content, {
         tags: ['change', changeType, `service:${serviceId}`, source],
-        context: `change:${payload['changeId'] as string ?? event.occurredAt}`,
+        context: `change:${(payload['changeId'] as string) ?? event.occurredAt}`,
         metadata: {
           serviceId,
           changeType,
           ...Object.fromEntries(Object.entries(metadata).map(([k, v]) => [k, String(v)])),
         },
       });
-      logger.info({ tenantId: tid, serviceId, changeType }, 'Change event retained in Hindsight memory');
+      logger.info(
+        { tenantId: tid, serviceId, changeType },
+        'Change event retained in Hindsight memory',
+      );
     } catch (err) {
       logger.warn({ err, tenantId: tid }, 'Failed to retain change event in memory — non-critical');
     }
@@ -1505,7 +1667,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   // Queue consumer startup with environment-aware validation
   const consumers: ConsumerHandle[] = [];
 
-  function startQueueConsumer(name: string, url: string | undefined, requiresApiKey: boolean, start: (url: string) => ConsumerHandle): void {
+  function startQueueConsumer(
+    name: string,
+    url: string | undefined,
+    requiresApiKey: boolean,
+    start: (url: string) => ConsumerHandle,
+  ): void {
     if (!url) {
       if (config.isProd()) {
         throw new Error(`[FATAL] ${name} queue URL required in production`);
@@ -1526,7 +1693,8 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
     // The worker publishes to INVESTIGATION_PROGRESS_CHANNEL; the API process
     // has no shared EventBus with the worker, so Redis is the cross-process bus.
     {
-      const { subscribeProgress, INVESTIGATION_PROGRESS_CHANNEL } = await import('./shared/infra/pubsub/redis-pubsub.js');
+      const { subscribeProgress, INVESTIGATION_PROGRESS_CHANNEL } =
+        await import('./shared/infra/pubsub/redis-pubsub.js');
       const eventNameMap: Record<string, string> = {
         'investigation.progress': 'investigation_progress',
         'investigation.completed': 'investigation_completed',
@@ -1569,15 +1737,25 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
               try {
                 await incidentRepo.updateStatus(tid, iid, 'failed');
               } catch (updateErr) {
-                logger.error({ err: updateErr, incidentId: body['incidentId'] }, 'Triage fail-closed status update failed');
+                logger.error(
+                  { err: updateErr, incidentId: body['incidentId'] },
+                  'Triage fail-closed status update failed',
+                );
               }
               return;
             }
-            logger.warn({ err, incidentId: body['incidentId'] }, 'Triage worker fallback — marking incident as triaged with default severity');
+            logger.warn(
+              { err, incidentId: body['incidentId'] },
+              'Triage worker fallback — marking incident as triaged with default severity',
+            );
             try {
               const defaultAgents = [
-                'log_analyst', 'metric_analyst', 'change_detector',
-                'code_analyzer', 'infra_inspector', 'db_analyst',
+                'log_analyst',
+                'metric_analyst',
+                'change_detector',
+                'code_analyzer',
+                'infra_inspector',
+                'db_analyst',
               ];
               await incidentRepo.update(tid, iid, {
                 severity: 'high',
@@ -1596,7 +1774,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
                 });
               }
             } catch (updateErr) {
-              logger.error({ err: updateErr, incidentId: body['incidentId'] }, 'Triage worker fallback update failed');
+              logger.error(
+                { err: updateErr, incidentId: body['incidentId'] },
+                'Triage worker fallback update failed',
+              );
             }
           }
         },
@@ -1645,9 +1826,11 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   // Register Composio webhook subscription if apiKey is configured
   if (config.composio.apiKey) {
-    const webhookUrl = config.composio.webhookUrl ||
+    const webhookUrl =
+      config.composio.webhookUrl ||
       `${process.env['APP_BASE_URL'] ?? 'https://api.causeflow.io'}/webhooks/composio`;
-    composioTriggerService.registerWebhookSubscription(webhookUrl)
+    composioTriggerService
+      .registerWebhookSubscription(webhookUrl)
       .then(({ registered, url }) => {
         if (registered) {
           logger.info({ url }, 'composio.webhook.registered');
@@ -1656,7 +1839,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
         }
       })
       .catch((err) => {
-        logger.warn({ err: err instanceof Error ? err.message : err }, 'composio.webhook.registration_failed');
+        logger.warn(
+          { err: err instanceof Error ? err.message : err },
+          'composio.webhook.registration_failed',
+        );
       });
   }
 
@@ -1672,7 +1858,12 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   const getSkill = new GetSkillUseCase(skillRepo);
   const updateSkill = new UpdateSkillUseCase(skillRepo);
   const deleteSkill = new DeleteSkillUseCase(skillRepo);
-  const pinRunbook = new PinRunbookUseCase(skillRepo, remediationRepo, runbookRegistry, agentMemory);
+  const pinRunbook = new PinRunbookUseCase(
+    skillRepo,
+    remediationRepo,
+    runbookRegistry,
+    agentMemory,
+  );
   const skillRoutes = createSkillRoutes({
     createSkill,
     listSkills,

@@ -21,55 +21,61 @@ import type { ISentryIntegrationRepository } from '../../domain/sentry-integrati
  * The generic `webhookAuth` MUST NOT be applied to the Sentry route.
  */
 export function createSentryWebhookAuth(
-    sentryRepo: Pick<ISentryIntegrationRepository, 'findSentryClientSecret'>,
+  sentryRepo: Pick<ISentryIntegrationRepository, 'findSentryClientSecret'>,
 ): ReturnType<typeof createMiddleware<AppEnv>> {
-    return createMiddleware<AppEnv>(async (c, next) => {
-        // Read raw body BEFORE any JSON parsing — body parsing happens only after verification
-        const rawBody = await c.req.text();
+  return createMiddleware<AppEnv>(async (c, next) => {
+    // Read raw body BEFORE any JSON parsing — body parsing happens only after verification
+    const rawBody = await c.req.text();
 
-        // First: try per-tenant Sentry integration auth (Sentry-Hook-Signature)
-        const sentrySignature = c.req.header('Sentry-Hook-Signature');
-        if (sentrySignature) {
-            const tenantIdParam = c.req.param('tenantId') ?? '';
-            const clientSecret = await sentryRepo.findSentryClientSecret(tenantIdParam);
+    // First: try per-tenant Sentry integration auth (Sentry-Hook-Signature)
+    const sentrySignature = c.req.header('Sentry-Hook-Signature');
+    if (sentrySignature) {
+      const tenantIdParam = c.req.param('tenantId') ?? '';
+      const clientSecret = await sentryRepo.findSentryClientSecret(tenantIdParam);
 
-            if (clientSecret) {
-                const expected = createHmac('sha256', clientSecret).update(rawBody).digest('hex');
-                let valid = false;
-                try {
-                    const sigBuffer = Buffer.from(sentrySignature, 'hex');
-                    const expectedBuffer = Buffer.from(expected, 'hex');
-                    valid = sigBuffer.length === expectedBuffer.length && timingSafeEqual(sigBuffer, expectedBuffer);
-                } catch {
-                    valid = false;
-                }
-                if (valid) {
-                    return next();
-                }
-            }
+      if (clientSecret) {
+        const expected = createHmac('sha256', clientSecret).update(rawBody).digest('hex');
+        let valid = false;
+        try {
+          const sigBuffer = Buffer.from(sentrySignature, 'hex');
+          const expectedBuffer = Buffer.from(expected, 'hex');
+          valid =
+            sigBuffer.length === expectedBuffer.length &&
+            timingSafeEqual(sigBuffer, expectedBuffer);
+        } catch {
+          valid = false;
         }
-
-        // Dev-mode fallback: try the generic X-Webhook-Signature with the global
-        // webhook secret (only in non-production environments).
-        if (!config.isProd()) {
-            const genericSig = c.req.header('X-Webhook-Signature');
-            if (genericSig) {
-                const sig = genericSig.replace('sha256=', '');
-                const genericExpected = createHmac('sha256', config.webhook.secret).update(rawBody).digest('hex');
-                let valid = false;
-                try {
-                    const sigBuffer = Buffer.from(sig, 'hex');
-                    const expectedBuffer = Buffer.from(genericExpected, 'hex');
-                    valid = sigBuffer.length === expectedBuffer.length && timingSafeEqual(sigBuffer, expectedBuffer);
-                } catch {
-                    valid = false;
-                }
-                if (valid) {
-                    return next();
-                }
-            }
+        if (valid) {
+          return next();
         }
+      }
+    }
 
-        throw new UnauthorizedError('Webhook authentication failed');
-    });
+    // Dev-mode fallback: try the generic X-Webhook-Signature with the global
+    // webhook secret (only in non-production environments).
+    if (!config.isProd()) {
+      const genericSig = c.req.header('X-Webhook-Signature');
+      if (genericSig) {
+        const sig = genericSig.replace('sha256=', '');
+        const genericExpected = createHmac('sha256', config.webhook.secret)
+          .update(rawBody)
+          .digest('hex');
+        let valid = false;
+        try {
+          const sigBuffer = Buffer.from(sig, 'hex');
+          const expectedBuffer = Buffer.from(genericExpected, 'hex');
+          valid =
+            sigBuffer.length === expectedBuffer.length &&
+            timingSafeEqual(sigBuffer, expectedBuffer);
+        } catch {
+          valid = false;
+        }
+        if (valid) {
+          return next();
+        }
+      }
+    }
+
+    throw new UnauthorizedError('Webhook authentication failed');
+  });
 }

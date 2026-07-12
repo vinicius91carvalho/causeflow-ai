@@ -41,7 +41,7 @@ export class PersistStubProbeEvidenceUseCase {
       body: JSON.stringify({ tenantId: String(input.tenantId) }),
       signal: AbortSignal.timeout(10_000),
     });
-    const body = await res.json().catch(() => ({})) as Record<string, unknown>;
+    const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     if (!res.ok) {
       return { persisted: false };
     }

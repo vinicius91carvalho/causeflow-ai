@@ -4,9 +4,11 @@ import type { Scope } from '@sentry/node';
 vi.mock('@sentry/node', () => ({
   init: vi.fn(),
   captureException: vi.fn(),
-  withScope: vi.fn((cb: (scope: Partial<Scope>) => void) => cb({
-    setTag: vi.fn(),
-  })),
+  withScope: vi.fn((cb: (scope: Partial<Scope>) => void) =>
+    cb({
+      setTag: vi.fn(),
+    }),
+  ),
 }));
 
 describe('sentry', () => {
@@ -60,7 +62,8 @@ describe('sentry', () => {
         (cb: (scope: Partial<Scope>) => void) => cb({ setTag: setTagMock }),
       );
 
-      const { captureException } = await import('../../../../src/shared/infra/observability/sentry.js');
+      const { captureException } =
+        await import('../../../../src/shared/infra/observability/sentry.js');
       const err = new Error('boom');
       await captureException(err, {
         requestId: 'req-1',
@@ -87,7 +90,8 @@ describe('sentry', () => {
       // Force re-import to pick up cleared SENTRY_DSN env var
       vi.resetModules();
       const Sentry = await import('@sentry/node');
-      const { captureException } = await import('../../../../src/shared/infra/observability/sentry.js');
+      const { captureException } =
+        await import('../../../../src/shared/infra/observability/sentry.js');
       await captureException(new Error('boom'));
 
       // With DSN empty, the dynamic import is skipped so withScope is never called

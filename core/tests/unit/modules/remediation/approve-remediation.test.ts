@@ -13,7 +13,18 @@ const mockRemediation: Remediation = {
   status: 'proposed',
   description: 'Fix memory leak',
   rootCause: 'Memory leak',
-  steps: [{ stepIndex: 0, action: 'restart', label: 'Restart service', description: 'Restarts the affected service', riskLevel: 'low', automated: true, params: {}, status: 'pending' }],
+  steps: [
+    {
+      stepIndex: 0,
+      action: 'restart',
+      label: 'Restart service',
+      description: 'Restarts the affected service',
+      riskLevel: 'low',
+      automated: true,
+      params: {},
+      status: 'pending',
+    },
+  ],
   proposedBy: 'system',
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -24,7 +35,10 @@ function createMockRepo(): IRemediationRepository {
     create: vi.fn(),
     findById: vi.fn(async () => ({ ...mockRemediation })),
     findByIncident: vi.fn(),
-    update: vi.fn(async (_t, _r, data: Partial<Remediation>) => ({ ...mockRemediation, ...data }) as Remediation),
+    update: vi.fn(
+      async (_t, _r, data: Partial<Remediation>) =>
+        ({ ...mockRemediation, ...data }) as Remediation,
+    ),
   };
 }
 

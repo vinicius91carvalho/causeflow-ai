@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { AgentRunner, AgentRunResult } from '../../../../src/shared/application/ports/agent-runner.port.js';
+import type {
+  AgentRunner,
+  AgentRunResult,
+} from '../../../../src/shared/application/ports/agent-runner.port.js';
 import type { Tracer, Span } from '../../../../src/shared/application/ports/tracer.port.js';
 import type { MetricRecorder } from '../../../../src/shared/application/ports/metric-recorder.port.js';
 
@@ -13,7 +16,14 @@ vi.mock('../../../../src/shared/infra/observability/propagation.js', () => ({
 import { ObservedAgentRunner } from '../../../../src/shared/infra/llm/observed-agent-runner.js';
 
 function createMockSpan(): Span {
-  return { setAttribute: vi.fn(), setInput: vi.fn(), setOutput: vi.fn(), setUsage: vi.fn(), setStatus: vi.fn(), end: vi.fn() };
+  return {
+    setAttribute: vi.fn(),
+    setInput: vi.fn(),
+    setOutput: vi.fn(),
+    setUsage: vi.fn(),
+    setStatus: vi.fn(),
+    end: vi.fn(),
+  };
 }
 
 function createMockTracer(span: Span): Tracer {
@@ -126,7 +136,10 @@ describe('ObservedAgentRunner', () => {
         toolHandler: async () => '',
       });
 
-      expect(mockSpan.setAttribute).toHaveBeenCalledWith('otelTraceId', 'abcdef1234567890abcdef1234567890');
+      expect(mockSpan.setAttribute).toHaveBeenCalledWith(
+        'otelTraceId',
+        'abcdef1234567890abcdef1234567890',
+      );
     });
 
     it('should not set otelTraceId attribute when no OTel span is active', async () => {
@@ -139,8 +152,9 @@ describe('ObservedAgentRunner', () => {
         toolHandler: async () => '',
       });
 
-      const calls = vi.mocked(mockSpan.setAttribute).mock.calls
-        .filter(([key]) => key === 'otelTraceId');
+      const calls = vi
+        .mocked(mockSpan.setAttribute)
+        .mock.calls.filter(([key]) => key === 'otelTraceId');
       expect(calls).toHaveLength(0);
     });
 
@@ -153,18 +167,17 @@ describe('ObservedAgentRunner', () => {
         traceContext: { sessionId: 'inc-123', userId: 'tenant-x' },
       });
 
-      expect(mockTracer.startSpan).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(Object),
-        { sessionId: 'inc-123', userId: 'tenant-x' },
-      );
+      expect(mockTracer.startSpan).toHaveBeenCalledWith(expect.any(String), expect.any(Object), {
+        sessionId: 'inc-123',
+        userId: 'tenant-x',
+      });
     });
 
     it('should merge per-call traceContext with construction-time traceContext', async () => {
-      const runnerWithCtx = new ObservedAgentRunner(
-        mockInner, mockTracer, mockMetrics,
-        { sessionId: 'base-session', userId: 'base-user' },
-      );
+      const runnerWithCtx = new ObservedAgentRunner(mockInner, mockTracer, mockMetrics, {
+        sessionId: 'base-session',
+        userId: 'base-user',
+      });
 
       await runnerWithCtx.run({
         systemPrompt: 'test',
@@ -174,18 +187,17 @@ describe('ObservedAgentRunner', () => {
         traceContext: { userId: 'override-user' },
       });
 
-      expect(mockTracer.startSpan).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(Object),
-        { sessionId: 'base-session', userId: 'override-user' },
-      );
+      expect(mockTracer.startSpan).toHaveBeenCalledWith(expect.any(String), expect.any(Object), {
+        sessionId: 'base-session',
+        userId: 'override-user',
+      });
     });
 
     it('should use construction-time traceContext when no per-call traceContext provided', async () => {
-      const runnerWithCtx = new ObservedAgentRunner(
-        mockInner, mockTracer, mockMetrics,
-        { sessionId: 'base-session', userId: 'base-user' },
-      );
+      const runnerWithCtx = new ObservedAgentRunner(mockInner, mockTracer, mockMetrics, {
+        sessionId: 'base-session',
+        userId: 'base-user',
+      });
 
       await runnerWithCtx.run({
         systemPrompt: 'test',
@@ -194,11 +206,10 @@ describe('ObservedAgentRunner', () => {
         toolHandler: async () => '',
       });
 
-      expect(mockTracer.startSpan).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(Object),
-        { sessionId: 'base-session', userId: 'base-user' },
-      );
+      expect(mockTracer.startSpan).toHaveBeenCalledWith(expect.any(String), expect.any(Object), {
+        sessionId: 'base-session',
+        userId: 'base-user',
+      });
     });
   });
 });

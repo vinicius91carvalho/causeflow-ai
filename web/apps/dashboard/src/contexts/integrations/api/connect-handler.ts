@@ -31,8 +31,7 @@ export const POST = withAuth(
     }
 
     const origin = new URL(request.url).origin;
-    const redirectUrl =
-      body.redirectUrl ?? `${origin}/dashboard/integrations`;
+    const redirectUrl = body.redirectUrl ?? `${origin}/dashboard/integrations`;
 
     try {
       const result = await getApiClient().initiateOAuthConnect(provider, redirectUrl);
@@ -40,10 +39,7 @@ export const POST = withAuth(
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to connect integration';
       // OSS Core stub: Composio is intentionally unset — surface 200 empty data.
-      if (
-        isOssRuntime() &&
-        /composio/i.test(message)
-      ) {
+      if (isOssRuntime() && /composio/i.test(message)) {
         return NextResponse.json({}, { status: 200 });
       }
 

@@ -1,4 +1,9 @@
-import type { AgentRunner, AgentRunConfig, AgentRunResult, ToolCallRecord } from '../../../src/shared/application/ports/agent-runner.port.js';
+import type {
+  AgentRunner,
+  AgentRunConfig,
+  AgentRunResult,
+  ToolCallRecord,
+} from '../../../src/shared/application/ports/agent-runner.port.js';
 
 export interface AgentResponseOverride {
   response: string;
@@ -21,29 +26,48 @@ const KNOWN_ROLES = [
   'diagnosis_verifier',
 ] as const;
 
-const DEFAULT_TOOL_CALLS: Record<string, Array<{ name: string; input: Record<string, unknown> }>> = {
+const DEFAULT_TOOL_CALLS: Record<
+  string,
+  Array<{ name: string; input: Record<string, unknown> }>
+> = {
   log_analyst: [
     {
       name: 'aws_api_call',
-      input: { service: 'logs', action: 'FilterLogEvents', params: { logGroupName: '/ecs/payment-service' } },
+      input: {
+        service: 'logs',
+        action: 'FilterLogEvents',
+        params: { logGroupName: '/ecs/payment-service' },
+      },
     },
   ],
   metric_analyst: [
     {
       name: 'aws_api_call',
-      input: { service: 'cloudwatch', action: 'GetMetricData', params: { MetricName: 'MemoryUtilization' } },
+      input: {
+        service: 'cloudwatch',
+        action: 'GetMetricData',
+        params: { MetricName: 'MemoryUtilization' },
+      },
     },
   ],
   infra_inspector: [
     {
       name: 'aws_api_call',
-      input: { service: 'ecs', action: 'DescribeServices', params: { cluster: 'production', services: ['payment-service'] } },
+      input: {
+        service: 'ecs',
+        action: 'DescribeServices',
+        params: { cluster: 'production', services: ['payment-service'] },
+      },
     },
   ],
   change_detector: [
     {
       name: 'aws_api_call',
-      input: { service: 'ecs', action: 'DescribeServices', params: { cluster: 'production', services: ['payment-service'] } },
+      input: {
+        service: 'ecs',
+        action: 'DescribeServices',
+        params: { cluster: 'production', services: ['payment-service'] },
+      },
     },
     {
       name: 'get_recent_changes',
@@ -53,10 +77,14 @@ const DEFAULT_TOOL_CALLS: Record<string, Array<{ name: string; input: Record<str
 };
 
 const DEFAULT_RESPONSES: Record<string, string> = {
-  log_analyst: 'Log analysis complete: Found OOM kill events and memory pressure warnings. Container was killed by kernel OOM killer at 95% memory utilization.',
-  metric_analyst: 'Metric analysis complete: MemoryUtilization reached 95% before crash. Steady increase from 60% baseline over 30 minutes. GC pause times exceeded 5s.',
-  infra_inspector: 'Infrastructure inspection: ECS service payment-service running in cluster production. 2 desired tasks, currently 2 running. Task definition uses 512 CPU / 1024 memory.',
-  change_detector: 'Change detection: No recent deployments found. Service configuration unchanged in last 24 hours. Issue appears to be a gradual memory leak.',
+  log_analyst:
+    'Log analysis complete: Found OOM kill events and memory pressure warnings. Container was killed by kernel OOM killer at 95% memory utilization.',
+  metric_analyst:
+    'Metric analysis complete: MemoryUtilization reached 95% before crash. Steady increase from 60% baseline over 30 minutes. GC pause times exceeded 5s.',
+  infra_inspector:
+    'Infrastructure inspection: ECS service payment-service running in cluster production. 2 desired tasks, currently 2 running. Task definition uses 512 CPU / 1024 memory.',
+  change_detector:
+    'Change detection: No recent deployments found. Service configuration unchanged in last 24 hours. Issue appears to be a gradual memory leak.',
 };
 
 export class DeterministicAgentRunner implements AgentRunner {
@@ -91,7 +119,8 @@ export class DeterministicAgentRunner implements AgentRunner {
         toolCallsToMake.push({ name: tool.name, input: {} });
       }
     }
-    const response = override?.response ?? DEFAULT_RESPONSES[role] ?? `Analysis complete for role: ${role}`;
+    const response =
+      override?.response ?? DEFAULT_RESPONSES[role] ?? `Analysis complete for role: ${role}`;
 
     const toolCalls: ToolCallRecord[] = [];
     for (const call of toolCallsToMake) {
@@ -164,9 +193,12 @@ export class DeterministicAgentRunner implements AgentRunner {
     switch (name) {
       case 'get_commit_diff':
         return JSON.stringify({
-          files: [{
-            patch: '+  // N+1 query pattern\n+  for (const payment of payments) {\n+    await db.orders.findByPaymentId(payment.id);\n+  }',
-          }],
+          files: [
+            {
+              patch:
+                '+  // N+1 query pattern\n+  for (const payment of payments) {\n+    await db.orders.findByPaymentId(payment.id);\n+  }',
+            },
+          ],
         });
       case 'get_file_content':
         return JSON.stringify({
@@ -183,9 +215,7 @@ export class DeterministicAgentRunner implements AgentRunner {
           },
         ]);
       case 'get_deployments':
-        return JSON.stringify([
-          { id: 'dep-1', environment: 'production', status: 'success' },
-        ]);
+        return JSON.stringify([{ id: 'dep-1', environment: 'production', status: 'success' }]);
       case 'query_logs':
       case 'query_metrics':
       case 'describe_service':

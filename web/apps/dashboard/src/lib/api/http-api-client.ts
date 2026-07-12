@@ -520,10 +520,7 @@ export class HttpApiClient implements ICoreApiClient {
   }
 
   // Integrations — OAuth connect (OSS Core stub returns 200 empty — AC-051)
-  async initiateOAuthConnect(
-    provider: string,
-    redirectUrl: string,
-  ): Promise<{ authUrl?: string }> {
+  async initiateOAuthConnect(provider: string, redirectUrl: string): Promise<{ authUrl?: string }> {
     return this.request<{ authUrl?: string }>('/v1/integrations/connect', {
       method: 'POST',
       body: JSON.stringify({ provider, redirectUrl }),

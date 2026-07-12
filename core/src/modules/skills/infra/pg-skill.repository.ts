@@ -35,7 +35,11 @@ export class PgSkillRepository implements ISkillRepository {
     return result;
   }
 
-  async update(tenantId: TenantId, id: SkillId, data: Partial<InvestigationSkill>): Promise<InvestigationSkill> {
+  async update(
+    tenantId: TenantId,
+    id: SkillId,
+    data: Partial<InvestigationSkill>,
+  ): Promise<InvestigationSkill> {
     const existing = store.get(key(tenantId, id));
     if (!existing) throw new Error(`Skill not found: ${id}`);
     const updated = { ...existing, ...data, updatedAt: new Date().toISOString() };

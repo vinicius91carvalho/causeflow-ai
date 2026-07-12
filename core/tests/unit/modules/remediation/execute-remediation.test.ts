@@ -5,7 +5,11 @@ import type { IIncidentRepository } from '../../../../src/modules/ingestion/doma
 import type { Remediation } from '../../../../src/modules/remediation/domain/remediation.entity.js';
 import type { CloudProvider } from '../../../../src/shared/application/ports/cloud-provider.port.js';
 import { EventBus } from '../../../../src/shared/domain/events.js';
-import { tenantId, remediationId, incidentId } from '../../../../src/shared/domain/value-objects.js';
+import {
+  tenantId,
+  remediationId,
+  incidentId,
+} from '../../../../src/shared/domain/value-objects.js';
 import { NotFoundError } from '../../../../src/shared/domain/errors.js';
 import { RemediationNotApprovedError } from '../../../../src/modules/remediation/domain/remediation.errors.js';
 
@@ -17,8 +21,26 @@ const mockRemediation: Remediation = {
   description: 'Fix memory leak',
   rootCause: 'Memory leak',
   steps: [
-    { stepIndex: 0, action: 'restart_service', label: 'Restart service', description: 'Restarts the affected service pod', riskLevel: 'low', automated: true, params: {}, status: 'pending' },
-    { stepIndex: 1, action: 'scale_up', label: 'Scale up replicas', description: 'Increases replica count to handle load', riskLevel: 'medium', automated: true, params: { replicas: 3 }, status: 'pending' },
+    {
+      stepIndex: 0,
+      action: 'restart_service',
+      label: 'Restart service',
+      description: 'Restarts the affected service pod',
+      riskLevel: 'low',
+      automated: true,
+      params: {},
+      status: 'pending',
+    },
+    {
+      stepIndex: 1,
+      action: 'scale_up',
+      label: 'Scale up replicas',
+      description: 'Increases replica count to handle load',
+      riskLevel: 'medium',
+      automated: true,
+      params: { replicas: 3 },
+      status: 'pending',
+    },
   ],
   proposedBy: 'system',
   approvedBy: 'admin@test.com',
@@ -29,9 +51,15 @@ const mockRemediation: Remediation = {
 function createMockRemediationRepo(): IRemediationRepository {
   return {
     create: vi.fn(),
-    findById: vi.fn(async () => ({ ...mockRemediation, steps: mockRemediation.steps.map((s) => ({ ...s })) })),
+    findById: vi.fn(async () => ({
+      ...mockRemediation,
+      steps: mockRemediation.steps.map((s) => ({ ...s })),
+    })),
     findByIncident: vi.fn(),
-    update: vi.fn(async (_t, _r, data: Partial<Remediation>) => ({ ...mockRemediation, ...data }) as Remediation),
+    update: vi.fn(
+      async (_t, _r, data: Partial<Remediation>) =>
+        ({ ...mockRemediation, ...data }) as Remediation,
+    ),
   };
 }
 
@@ -111,7 +139,10 @@ describe('ExecuteRemediationUseCase', () => {
   });
 
   it('should mark remaining steps as skipped when one fails', async () => {
-    vi.mocked(cloudProvider.executeAction).mockResolvedValueOnce({ success: false, output: 'Failed' });
+    vi.mocked(cloudProvider.executeAction).mockResolvedValueOnce({
+      success: false,
+      output: 'Failed',
+    });
 
     const result = await useCase.execute({
       tenantId: tenantId('tenant-1'),
@@ -145,7 +176,10 @@ describe('ExecuteRemediationUseCase', () => {
   });
 
   it('should not resolve incident on failure', async () => {
-    vi.mocked(cloudProvider.executeAction).mockResolvedValueOnce({ success: false, output: 'Error' });
+    vi.mocked(cloudProvider.executeAction).mockResolvedValueOnce({
+      success: false,
+      output: 'Error',
+    });
 
     await useCase.execute({
       tenantId: tenantId('tenant-1'),
@@ -198,7 +232,10 @@ describe('ExecuteRemediationUseCase', () => {
   });
 
   it('should throw RemediationNotApprovedError when status is not approved', async () => {
-    vi.mocked(remediationRepo.findById).mockResolvedValueOnce({ ...mockRemediation, status: 'proposed' });
+    vi.mocked(remediationRepo.findById).mockResolvedValueOnce({
+      ...mockRemediation,
+      status: 'proposed',
+    });
 
     await expect(
       useCase.execute({

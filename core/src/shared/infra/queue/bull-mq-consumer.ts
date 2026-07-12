@@ -39,10 +39,7 @@ export function createBullWorker(options: BullWorkerOptions): BullWorkerHandle {
   );
 
   worker.on('completed', (job: Job) => {
-    logger.info(
-      { queueName: options.queueName, jobId: job.id },
-      'BullMQ job completed',
-    );
+    logger.info({ queueName: options.queueName, jobId: job.id }, 'BullMQ job completed');
   });
 
   worker.on('failed', (job: Job | undefined, err: Error) => {

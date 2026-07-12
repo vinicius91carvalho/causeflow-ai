@@ -13,9 +13,7 @@ const PORT = process.env['PORT'] ?? '3099';
 // Avoid Vite/Vitest's built-in BASE_URL ("/") — it collapses to "" after trim.
 const BASE_URL = (() => {
   const raw =
-    process.env['E2E_BASE_URL'] ||
-    process.env['CAUSEFLOW_BASE_URL'] ||
-    `http://127.0.0.1:${PORT}`;
+    process.env['E2E_BASE_URL'] || process.env['CAUSEFLOW_BASE_URL'] || `http://127.0.0.1:${PORT}`;
   return raw.replace(/\/$/, '') || `http://127.0.0.1:${PORT}`;
 })();
 const WEBHOOK_SECRET = (() => {
@@ -314,10 +312,9 @@ async function runPipeline(): Promise<PipelineState> {
     evidenceCount = countEvidence(evidenceJson);
     roles = evidenceAgentRoles(evidenceJson);
 
-    const hypothesesRes = await fetch(
-      `${BASE_URL}/api/v1/investigation/${incidentId}/hypotheses`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
+    const hypothesesRes = await fetch(`${BASE_URL}/api/v1/investigation/${incidentId}/hypotheses`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (hypothesesRes.status === 429) {
       await new Promise((r) => setTimeout(r, 2_000));
       continue;

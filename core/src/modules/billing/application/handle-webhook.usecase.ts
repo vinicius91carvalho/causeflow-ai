@@ -370,9 +370,9 @@ export class HandleWebhookUseCase {
         // establishes the BillingAccountEntity for the user.
         await this.billingAccountRepo.create({
           tenantId: tenantId(tid),
-          investigationsLimit: investigationsLimit!,
+          investigationsLimit: investigationsLimit,
           investigationsUsed: 0,
-          eventsLimit: eventsLimit!,
+          eventsLimit: eventsLimit,
           eventsUsed: 0,
           createdAt: now,
           updatedAt: now,
@@ -380,8 +380,8 @@ export class HandleWebhookUseCase {
         return;
       }
       await this.billingAccountRepo.update(tenantId(tid), {
-        investigationsLimit: investigationsLimit!,
-        eventsLimit: eventsLimit!,
+        investigationsLimit: investigationsLimit,
+        eventsLimit: eventsLimit,
         updatedAt: now,
       });
     } catch (err) {

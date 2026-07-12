@@ -30,7 +30,7 @@ async function fetchJson(url: string, init?: RequestInit): Promise<Record<string
     const message = err instanceof Error ? err.message : String(err);
     throw new ValidationError(`Stub upstream unreachable at ${url}: ${message}`);
   }
-  const body = await res.json().catch(() => ({})) as Record<string, unknown>;
+  const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
     const message = typeof body['error'] === 'string' ? body['error'] : `HTTP ${res.status}`;
     throw new ValidationError(`Stub upstream request failed: ${message}`);

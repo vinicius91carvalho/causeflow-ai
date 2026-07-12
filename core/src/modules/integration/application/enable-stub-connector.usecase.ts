@@ -41,7 +41,9 @@ export class EnableStubConnectorUseCase {
   ) {}
 
   async execute(input: EnableStubConnectorInput): Promise<EnableStubConnectorOutput> {
-    const provider = String(input.provider ?? '').toLowerCase().trim();
+    const provider = String(input.provider ?? '')
+      .toLowerCase()
+      .trim();
     if (!STUB_ENABLEABLE_PROVIDERS.includes(provider as StubEnableableProvider)) {
       throw new ValidationError(
         `Unsupported stub connector "${provider}". Allowed: ${STUB_ENABLEABLE_PROVIDERS.join(', ')}`,

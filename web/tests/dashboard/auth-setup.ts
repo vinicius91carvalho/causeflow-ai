@@ -10,9 +10,9 @@
  * No outbound call to clerk.com / stripe.com / amazonaws.com is made.
  */
 
-import { SignJWT } from 'jose';
 import path from 'node:path';
 import { test as setup } from '@playwright/test';
+import { SignJWT } from 'jose';
 
 const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://127.0.0.1:3001';
 const JWT_SECRET = process.env.JWT_SECRET || 'oss-dev-jwt-secret-change-me';
@@ -112,7 +112,9 @@ setup('authenticate via local JWT', async () => {
     // Navigation might fail if the dashboard server isn't up yet, or if mock
     // mode returns unexpected responses. That's OK — the auth file is still
     // created and can be used by tests that handle the mock state.
-    console.warn(`[auth-setup] Smoke test warning: ${err instanceof Error ? err.message : String(err)}`);
+    console.warn(
+      `[auth-setup] Smoke test warning: ${err instanceof Error ? err.message : String(err)}`,
+    );
   } finally {
     await browser.close();
   }

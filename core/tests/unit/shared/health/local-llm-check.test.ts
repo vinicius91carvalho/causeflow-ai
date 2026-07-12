@@ -60,10 +60,7 @@ describe('LocalLlmHealthCheck', () => {
     const result = await check.check();
     expect(result.status).toBe('ok');
     expect(result.name).toBe('llm');
-    expect(fetchMock).toHaveBeenCalledWith(
-      'http://127.0.0.1:8081/v1/models',
-      expect.any(Object),
-    );
+    expect(fetchMock).toHaveBeenCalledWith('http://127.0.0.1:8081/v1/models', expect.any(Object));
   });
 
   it('reports degraded when the connector is unreachable', async () => {

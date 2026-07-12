@@ -73,7 +73,7 @@ describe('GET /health', () => {
 
     // I5 contract: exactly these six keys, no more, no less.
     expect(Object.keys(body).sort()).toEqual(
-      ['checks', 'commit', 'service', 'status', 'timestamp', 'version'].sort()
+      ['checks', 'commit', 'service', 'status', 'timestamp', 'version'].sort(),
     );
 
     expect(body['status']).toBe('ok');

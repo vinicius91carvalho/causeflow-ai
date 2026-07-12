@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { LLMClient, CompletionResult } from '../../../../src/shared/application/ports/llm-client.port.js';
+import type {
+  LLMClient,
+  CompletionResult,
+} from '../../../../src/shared/application/ports/llm-client.port.js';
 import type { Tracer, Span } from '../../../../src/shared/application/ports/tracer.port.js';
 import type { MetricRecorder } from '../../../../src/shared/application/ports/metric-recorder.port.js';
 
@@ -80,7 +83,12 @@ describe('ObservedAnthropicClient', () => {
       maxTokens: 100,
     });
 
-    expect(mockTracer.startSpan).toHaveBeenCalledWith('llm.complete', expect.any(Object), undefined, 'generation');
+    expect(mockTracer.startSpan).toHaveBeenCalledWith(
+      'llm.complete',
+      expect.any(Object),
+      undefined,
+      'generation',
+    );
     expect(mockSpan.setInput).toHaveBeenCalled();
     expect(mockSpan.setUsage).toHaveBeenCalledWith({
       model: 'claude-haiku-4-5-20251001',
@@ -128,7 +136,10 @@ describe('ObservedAnthropicClient', () => {
         maxTokens: 100,
       });
 
-      expect(mockSpan.setAttribute).toHaveBeenCalledWith('otelTraceId', 'abcdef1234567890abcdef1234567890');
+      expect(mockSpan.setAttribute).toHaveBeenCalledWith(
+        'otelTraceId',
+        'abcdef1234567890abcdef1234567890',
+      );
     });
 
     it('should not set otelTraceId attribute when no OTel span is active', async () => {
@@ -140,8 +151,9 @@ describe('ObservedAnthropicClient', () => {
         maxTokens: 100,
       });
 
-      const calls = vi.mocked(mockSpan.setAttribute).mock.calls
-        .filter(([key]) => key === 'otelTraceId');
+      const calls = vi
+        .mocked(mockSpan.setAttribute)
+        .mock.calls.filter(([key]) => key === 'otelTraceId');
       expect(calls).toHaveLength(0);
     });
   });

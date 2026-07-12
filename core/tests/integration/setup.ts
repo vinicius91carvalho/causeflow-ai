@@ -9,7 +9,8 @@
 import { Pool } from 'pg';
 import Redis from 'ioredis';
 
-const DATABASE_URL = process.env['DATABASE_URL'] ?? 'postgresql://causeflow:causeflow@localhost:5439/causeflow';
+const DATABASE_URL =
+  process.env['DATABASE_URL'] ?? 'postgresql://causeflow:causeflow@localhost:5439/causeflow';
 const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6380';
 
 let pgPool: Pool | null = null;

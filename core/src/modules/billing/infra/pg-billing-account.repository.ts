@@ -10,41 +10,44 @@ import type { UsageType } from '../../../shared/domain/types.js';
 import { config } from '../../../shared/config/index.js';
 
 export class PgBillingAccountRepository implements IBillingAccountRepository {
-    async create(account: BillingAccount): Promise<BillingAccount> {
-        return account;
-    }
+  async create(account: BillingAccount): Promise<BillingAccount> {
+    return account;
+  }
 
-    async findByTenantId(tenantId: TenantId): Promise<BillingAccount | null> {
-        return {
-            tenantId,
-            investigationsLimit: config.billing.maxParallelInvestigations,
-            investigationsUsed: 0,
-            eventsLimit: config.billing.maxAgentsPerRun,
-            eventsUsed: 0,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-        };
-    }
+  async findByTenantId(tenantId: TenantId): Promise<BillingAccount | null> {
+    return {
+      tenantId,
+      investigationsLimit: config.billing.maxParallelInvestigations,
+      investigationsUsed: 0,
+      eventsLimit: config.billing.maxAgentsPerRun,
+      eventsUsed: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
 
-    async update(tenantId: TenantId, data: Partial<Omit<BillingAccount, 'tenantId' | 'createdAt'>>): Promise<BillingAccount> {
-        const account = await this.findByTenantId(tenantId);
-        if (!account) throw new Error(`Billing account not found for ${tenantId}`);
-        return { ...account, ...data, updatedAt: new Date().toISOString() };
-    }
+  async update(
+    tenantId: TenantId,
+    data: Partial<Omit<BillingAccount, 'tenantId' | 'createdAt'>>,
+  ): Promise<BillingAccount> {
+    const account = await this.findByTenantId(tenantId);
+    if (!account) throw new Error(`Billing account not found for ${tenantId}`);
+    return { ...account, ...data, updatedAt: new Date().toISOString() };
+  }
 
-    async incrementUsageAtomic(tenantId: TenantId, type: UsageType): Promise<boolean> {
-        return true;
-    }
+  async incrementUsageAtomic(tenantId: TenantId, type: UsageType): Promise<boolean> {
+    return true;
+  }
 
-    async reserveInvestigation(tenantId: TenantId): Promise<{ reserved: boolean; reason?: string }> {
-        return { reserved: true };
-    }
+  async reserveInvestigation(tenantId: TenantId): Promise<{ reserved: boolean; reason?: string }> {
+    return { reserved: true };
+  }
 
-    async confirmInvestigation(tenantId: TenantId): Promise<void> {
-        // no-op
-    }
+  async confirmInvestigation(tenantId: TenantId): Promise<void> {
+    // no-op
+  }
 
-    async refundInvestigation(tenantId: TenantId): Promise<void> {
-        // no-op
-    }
+  async refundInvestigation(tenantId: TenantId): Promise<void> {
+    // no-op
+  }
 }

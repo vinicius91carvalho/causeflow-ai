@@ -17,7 +17,10 @@ import { TenantEntity } from './shared/infra/db/entities/TenantEntity.js';
 import { RelayRegistry } from './shared/infra/relay/relay-registry.js';
 import { WssRelayGateway } from './shared/infra/relay/relay-gateway.js';
 import { createRelayWSServer } from './shared/infra/relay/relay-ws-server.js';
-import { InvestigationRelayRegistry, createInvestigationRelayServer } from './shared/infra/relay/investigation-relay-server.js';
+import {
+  InvestigationRelayRegistry,
+  createInvestigationRelayServer,
+} from './shared/infra/relay/investigation-relay-server.js';
 
 async function main() {
   logger.info({ env: config.env, runtime: config.runtime }, 'Starting CauseFlow...');
@@ -98,15 +101,26 @@ async function main() {
       execute: async () => {
         const pairs = [
           { dlq: config.sqs.alertDlqUrl, target: config.sqs.alertQueueUrl, name: 'alerts' },
-          { dlq: config.sqs.investigationDlqUrl, target: config.sqs.investigationQueueUrl, name: 'investigation' },
-          { dlq: config.sqs.remediationDlqUrl, target: config.sqs.remediationQueueUrl, name: 'remediation' },
+          {
+            dlq: config.sqs.investigationDlqUrl,
+            target: config.sqs.investigationQueueUrl,
+            name: 'investigation',
+          },
+          {
+            dlq: config.sqs.remediationDlqUrl,
+            target: config.sqs.remediationQueueUrl,
+            name: 'remediation',
+          },
         ];
         for (const pair of pairs) {
           if (pair.dlq && pair.target) {
             try {
               const result = await redriveDLQ(pair.dlq, pair.target, 5);
               if (result.moved > 0 || result.failed > 0) {
-                logger.info({ queue: pair.name, moved: result.moved, failed: result.failed }, 'DLQ redrive completed');
+                logger.info(
+                  { queue: pair.name, moved: result.moved, failed: result.failed },
+                  'DLQ redrive completed',
+                );
               }
             } catch (err) {
               logger.error({ err, queue: pair.name }, 'DLQ redrive failed');
@@ -125,7 +139,9 @@ async function main() {
         try {
           const now = new Date();
           const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-          const dayStart = new Date(Date.UTC(yesterday.getUTCFullYear(), yesterday.getUTCMonth(), yesterday.getUTCDate()));
+          const dayStart = new Date(
+            Date.UTC(yesterday.getUTCFullYear(), yesterday.getUTCMonth(), yesterday.getUTCDate()),
+          );
           const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
           const dayLabel = dayStart.toISOString().slice(0, 10);
 
@@ -136,8 +152,12 @@ async function main() {
           for (const tenant of tenants) {
             const tenantId = tenant.tenantId;
             // Query usage records for this tenant (all types except existing rollups)
-            const usageScan = await UsageRecordEntity.query.byType({ tenantId, type: 'investigation' }).go();
-            const eventScan = await UsageRecordEntity.query.byType({ tenantId, type: 'event' }).go();
+            const usageScan = await UsageRecordEntity.query
+              .byType({ tenantId, type: 'investigation' })
+              .go();
+            const eventScan = await UsageRecordEntity.query
+              .byType({ tenantId, type: 'event' })
+              .go();
             const records = [...usageScan.data, ...eventScan.data];
 
             // Filter records within yesterday
@@ -152,8 +172,12 @@ async function main() {
             const totalCostUsd = dayRecords.reduce((sum, r) => sum + (r.costUsd ?? 0), 0);
 
             // Check if a daily_rollup already exists for this tenant+day
-            const existingRollup = await UsageRecordEntity.query.byType({ tenantId, type: 'daily_rollup' }).go();
-            const alreadyRolledUp = existingRollup.data.some((r) => r.createdAt.startsWith(dayLabel));
+            const existingRollup = await UsageRecordEntity.query
+              .byType({ tenantId, type: 'daily_rollup' })
+              .go();
+            const alreadyRolledUp = existingRollup.data.some((r) =>
+              r.createdAt.startsWith(dayLabel),
+            );
             if (alreadyRolledUp) continue;
 
             // Write the daily_rollup record
@@ -167,7 +191,10 @@ async function main() {
               createdAt: dayStart.toISOString(),
             }).go();
 
-            logger.info({ tenantId, day: dayLabel, totalCostUsd, recordCount: dayRecords.length }, 'Cost rollup written');
+            logger.info(
+              { tenantId, day: dayLabel, totalCostUsd, recordCount: dayRecords.length },
+              'Cost rollup written',
+            );
           }
         } catch (err) {
           logger.error({ err }, 'Cost rollup job failed');
@@ -201,7 +228,10 @@ async function main() {
   // Then SSE manager (close SSE connections)
   lifecycle.register({
     name: 'sse-manager',
-    shutdown: () => { ctx.sseManager.shutdown(); return Promise.resolve(); },
+    shutdown: () => {
+      ctx.sseManager.shutdown();
+      return Promise.resolve();
+    },
   });
 
   // Finally close Redis (used by rate limiter etc.)
@@ -243,7 +273,7 @@ async function main() {
       config.bullmq.investigationQueueName,
       config.bullmq.remediationQueueName,
     ];
-    const workerCounts = config.isOss() ? 'worker=1' : 'worker=0 (SQS)';  // In OSS mode each queue has 1 worker; in AWS mode workers are separate processes.
+    const workerCounts = config.isOss() ? 'worker=1' : 'worker=0 (SQS)'; // In OSS mode each queue has 1 worker; in AWS mode workers are separate processes.
     logger.info(
       {
         queues: queueNames.map((name) => `${name} (${workerCounts})`),
@@ -261,7 +291,10 @@ async function main() {
 
     lifecycle.register({
       name: 'relay-registry',
-      shutdown: () => { registry.shutdown(); return Promise.resolve(); },
+      shutdown: () => {
+        registry.shutdown();
+        return Promise.resolve();
+      },
     });
   }
 
@@ -271,13 +304,25 @@ async function main() {
   // sends guidance but no worker is currently connected for the session.
   if (config.ecs.cluster) {
     investigationRelay.setDispatcher(async (tid, iid) => {
-      const { dispatchInvestigation } = await import('./shared/infra/investigation/ecs-task-dispatcher.js');
-      await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
+      const { dispatchInvestigation } =
+        await import('./shared/infra/investigation/ecs-task-dispatcher.js');
+      await dispatchInvestigation({
+        incidentId: iid,
+        tenantId: tid,
+        suggestedAgents: [],
+        mode: 'followup',
+      });
     });
   } else if (config.isOss()) {
     investigationRelay.setDispatcher(async (tid, iid) => {
-      const { dispatchInvestigation } = await import('./shared/infra/investigation/local-task-dispatcher.js');
-      await dispatchInvestigation({ incidentId: iid, tenantId: tid, suggestedAgents: [], mode: 'followup' });
+      const { dispatchInvestigation } =
+        await import('./shared/infra/investigation/local-task-dispatcher.js');
+      await dispatchInvestigation({
+        incidentId: iid,
+        tenantId: tid,
+        suggestedAgents: [],
+        mode: 'followup',
+      });
     });
   }
   createInvestigationRelayServer(
@@ -290,7 +335,10 @@ async function main() {
 
   lifecycle.register({
     name: 'investigation-relay',
-    shutdown: () => { investigationRelay.shutdown(); return Promise.resolve(); },
+    shutdown: () => {
+      investigationRelay.shutdown();
+      return Promise.resolve();
+    },
   });
 }
 

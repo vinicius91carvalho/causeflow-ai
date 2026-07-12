@@ -43,14 +43,25 @@ describe('IngestAlertUseCase', () => {
     registry = new ProviderRegistry();
     messageQueue = createMockMessageQueue();
     registry.registerAlertParser('datadog', new DatadogParser());
-    useCase = new IngestAlertUseCase(repo, eventBus, registry, messageQueue, 'http://localhost:4566/queue/alerts');
+    useCase = new IngestAlertUseCase(
+      repo,
+      eventBus,
+      registry,
+      messageQueue,
+      'http://localhost:4566/queue/alerts',
+    );
   });
 
   it('should ingest alert and create incident', async () => {
     const incident = await useCase.execute(tenantId('tenant-1'), {
       source: 'datadog',
       externalId: 'alert-123',
-      payload: { alert_type: 'error', title: 'CPU High', body: 'CPU at 95%', tags: ['env:production', 'service:api'] },
+      payload: {
+        alert_type: 'error',
+        title: 'CPU High',
+        body: 'CPU at 95%',
+        tags: ['env:production', 'service:api'],
+      },
     });
 
     expect(incident.title).toBe('CPU High');

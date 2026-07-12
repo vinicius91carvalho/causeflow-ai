@@ -7,7 +7,9 @@ vi.mock('../../../../src/shared/infra/logger.js', () => ({
 // Mock Sentry captureException so we can assert it was called with the Error instance
 const mockCaptureException = vi.fn();
 vi.mock('../../../../src/shared/infra/observability/sentry.js', () => ({
-  captureException: (...args: unknown[]): void => { mockCaptureException(...args); },
+  captureException: (...args: unknown[]): void => {
+    mockCaptureException(...args);
+  },
 }));
 
 const mockRedriveDLQ = vi.fn();
@@ -48,7 +50,11 @@ const mockIncidentRepo = { findAll: vi.fn() } as unknown as IIncidentRepository;
 const mockIngestAlertExecute = vi.fn();
 const mockIngestAlert = { execute: mockIngestAlertExecute } as unknown as IngestAlertUseCase;
 const mockCreateManualIncident = { execute: vi.fn() } as unknown as CreateManualIncidentUseCase;
-const adminDeps = { incidentRepo: mockIncidentRepo, ingestAlert: mockIngestAlert, createManualIncident: mockCreateManualIncident };
+const adminDeps = {
+  incidentRepo: mockIncidentRepo,
+  ingestAlert: mockIngestAlert,
+  createManualIncident: mockCreateManualIncident,
+};
 const app = createTestApp(() => createAdminRoutes(adminDeps), {} as any, { userRoles: ['admin'] });
 
 describe('admin.routes', () => {
@@ -111,7 +117,9 @@ describe('admin.routes', () => {
   });
 
   it('POST /test/queues/redrive with non-admin role returns 403', async () => {
-    const nonAdminApp = createTestApp(() => createAdminRoutes(adminDeps), {} as any, { userRoles: ['viewer'] });
+    const nonAdminApp = createTestApp(() => createAdminRoutes(adminDeps), {} as any, {
+      userRoles: ['viewer'],
+    });
     const res = await nonAdminApp.request('/test/queues/redrive', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -135,7 +143,7 @@ describe('admin.routes', () => {
 
     it('response body has NO extra fields beyond error and traceId', async () => {
       const res = await app.request('/test/fire-test-errors', { method: 'POST' });
-      const body = await res.json() as Record<string, unknown>;
+      const body = (await res.json()) as Record<string, unknown>;
       expect(Object.keys(body).sort()).toEqual(['error', 'traceId'].sort());
     });
 
@@ -159,7 +167,9 @@ describe('admin.routes', () => {
     });
 
     it('returns 403 for non-admin role', async () => {
-      const nonAdminApp = createTestApp(() => createAdminRoutes(adminDeps), {} as any, { userRoles: ['viewer'] });
+      const nonAdminApp = createTestApp(() => createAdminRoutes(adminDeps), {} as any, {
+        userRoles: ['viewer'],
+      });
 
       const res = await nonAdminApp.request('/test/fire-test-errors', { method: 'POST' });
 

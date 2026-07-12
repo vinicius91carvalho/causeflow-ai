@@ -3,7 +3,11 @@
  * Targets llama.cpp (Ornith 9B) at LLM_BASE_URL — never imports @anthropic-ai/sdk.
  */
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import type { LLMClient, CompletionParams, CompletionResult } from '../../application/ports/llm-client.port.js';
+import type {
+  LLMClient,
+  CompletionParams,
+  CompletionResult,
+} from '../../application/ports/llm-client.port.js';
 import { instrumentedCall } from '../observability/outbound.js';
 import { resolveActiveLlmEndpoint } from './llm-connector-profile.js';
 import {
@@ -75,11 +79,10 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
       const response = await instrumentedCall(
         'local-llm',
         'chat.completions.structured',
-        () => this.call(() => this.requestCompletion(
-          { ...params, systemPrompt, userPrompt },
-          endpoint,
-          true,
-        )),
+        () =>
+          this.call(() =>
+            this.requestCompletion({ ...params, systemPrompt, userPrompt }, endpoint, true),
+          ),
         { attributes: { model, connector: endpoint.connectorId, ...(params.attributes ?? {}) } },
       );
       const text = response.choices[0]?.message?.content ?? '';
@@ -153,7 +156,7 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
         }
         throw new Error(`Local LLM request failed (${res.status}): ${snippet.slice(0, 300)}`);
       }
-      return await res.json() as ChatCompletionResponse;
+      return (await res.json()) as ChatCompletionResponse;
     } finally {
       clearTimeout(timeout);
     }

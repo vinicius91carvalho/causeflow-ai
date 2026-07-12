@@ -1,6 +1,9 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { z } from 'zod';
-import { extractJsonObject, OpenAiCompatibleLlmClient } from '../../../../src/shared/infra/llm/openai-compatible-llm-client.js';
+import {
+  extractJsonObject,
+  OpenAiCompatibleLlmClient,
+} from '../../../../src/shared/infra/llm/openai-compatible-llm-client.js';
 
 vi.mock('../../../../src/shared/config/index.js', () => ({
   config: {

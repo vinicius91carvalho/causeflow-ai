@@ -1,4 +1,11 @@
-import { LOG_TOOLS, METRIC_TOOLS, INFRA_TOOLS, CHANGE_DETECTION_TOOLS, ORCHESTRATOR_TOOLS, incidentDetailsTool } from '../infra/investigation-tools.js';
+import {
+  LOG_TOOLS,
+  METRIC_TOOLS,
+  INFRA_TOOLS,
+  CHANGE_DETECTION_TOOLS,
+  ORCHESTRATOR_TOOLS,
+  incidentDetailsTool,
+} from '../infra/investigation-tools.js';
 import { MEMORY_TOOLS } from '../infra/memory-tools.js';
 import { CHECKPOINT_TOOLS } from '../infra/checkpoint-tools.js';
 import { config } from '../../../shared/config/index.js';
@@ -17,18 +24,15 @@ IMPORTANT: End your response with a structured summary section:
 
 // --- Scout Agent (Wave 0) ---
 
-const SCOUT_TOOLS = [
-    incidentDetailsTool,
-    ...MEMORY_TOOLS,
-];
+const SCOUT_TOOLS = [incidentDetailsTool, ...MEMORY_TOOLS];
 
 export const SCOUT_CONFIG: SubAgentConfig = {
-    agentRole: 'scout',
-    wave: 0,
-    model: 'claude-haiku-4-5',
-    maxTurns: 3,
-    minToolCalls: 2,
-    staticSystemPrompt: `You are a rapid first-responder scout for SRE incidents. Your job is to gather initial context as fast as possible.
+  agentRole: 'scout',
+  wave: 0,
+  model: 'claude-haiku-4-5',
+  maxTurns: 3,
+  minToolCalls: 2,
+  staticSystemPrompt: `You are a rapid first-responder scout for SRE incidents. Your job is to gather initial context as fast as possible.
 
 PRIORITIES (in order):
 1. Get incident details to understand the problem
@@ -51,18 +55,18 @@ Return a JSON object:
   "recentChanges": ["deploy/config change 1"],
   "serviceHealth": "current status snapshot"
 }`,
-    systemPrompt: '', // dynamic portion set at runtime with incident context
-    tools: SCOUT_TOOLS,
-    baseRole: 'scout',
+  systemPrompt: '', // dynamic portion set at runtime with incident context
+  tools: SCOUT_TOOLS,
+  baseRole: 'scout',
 };
 
 // --- Wave 1: Foundational Agents ---
 
 export const LOG_ANALYZER_CONFIG: SubAgentConfig = {
-    agentRole: 'log_analyst',
-    wave: 1,
-    minToolCalls: 2,
-    staticSystemPrompt: `You are a log analysis specialist for SRE incident investigation.
+  agentRole: 'log_analyst',
+  wave: 1,
+  minToolCalls: 2,
+  staticSystemPrompt: `You are a log analysis specialist for SRE incident investigation.
 
 Your job is to analyze application logs to identify the root cause of incidents. Focus on:
 1. Error patterns and their frequency
@@ -87,18 +91,18 @@ Respond with your findings in a structured format:
 - Your assessment of the most likely cause
 - Confidence level (0.0-1.0)
 ${SUMMARY_FOOTER}`,
-    systemPrompt: '', // dynamic portion set at runtime
-    tools: LOG_TOOLS,
-    baseRole: 'log',
-    maxTurns: 5,
-    model: config.anthropic.agentModels.logAnalyst,
+  systemPrompt: '', // dynamic portion set at runtime
+  tools: LOG_TOOLS,
+  baseRole: 'log',
+  maxTurns: 5,
+  model: config.anthropic.agentModels.logAnalyst,
 };
 
 export const METRIC_ANALYZER_CONFIG: SubAgentConfig = {
-    agentRole: 'metric_analyst',
-    wave: 1,
-    minToolCalls: 2,
-    staticSystemPrompt: `You are a metrics analysis specialist for SRE incident investigation.
+  agentRole: 'metric_analyst',
+  wave: 1,
+  minToolCalls: 2,
+  staticSystemPrompt: `You are a metrics analysis specialist for SRE incident investigation.
 
 Your job is to analyze time-series metrics to identify anomalies and correlations. Focus on:
 1. Anomaly detection — spikes, drops, or trend changes
@@ -124,20 +128,20 @@ Respond with your findings:
 - Your assessment of resource bottlenecks
 - Confidence level (0.0-1.0)
 ${SUMMARY_FOOTER}`,
-    systemPrompt: '', // dynamic portion set at runtime
-    tools: METRIC_TOOLS,
-    baseRole: 'metric',
-    maxTurns: 5,
-    model: config.anthropic.agentModels.metricAnalyst,
+  systemPrompt: '', // dynamic portion set at runtime
+  tools: METRIC_TOOLS,
+  baseRole: 'metric',
+  maxTurns: 5,
+  model: config.anthropic.agentModels.metricAnalyst,
 };
 
 // --- Wave 2: Specialized Agents ---
 
 export const INFRA_INSPECTOR_CONFIG: SubAgentConfig = {
-    agentRole: 'infra_inspector',
-    wave: 2,
-    minToolCalls: 2,
-    staticSystemPrompt: `You are an infrastructure inspection specialist for SRE incident investigation.
+  agentRole: 'infra_inspector',
+  wave: 2,
+  minToolCalls: 2,
+  staticSystemPrompt: `You are an infrastructure inspection specialist for SRE incident investigation.
 
 Your job is to inspect cloud infrastructure state to identify issues. Focus on:
 1. Service health — is the service running? How many instances?
@@ -170,19 +174,19 @@ Respond with your findings:
 - Recommended infrastructure actions
 - Confidence level (0.0-1.0)
 ${SUMMARY_FOOTER}`,
-    systemPrompt: '', // dynamic portion set at runtime
-    tools: INFRA_TOOLS,
-    baseRole: 'infra',
-    maxTurns: 8,
-    model: config.anthropic.agentModels.infraInspector,
-    useCodeExecution: config.ptc.enabled,
+  systemPrompt: '', // dynamic portion set at runtime
+  tools: INFRA_TOOLS,
+  baseRole: 'infra',
+  maxTurns: 8,
+  model: config.anthropic.agentModels.infraInspector,
+  useCodeExecution: config.ptc.enabled,
 };
 
 export const CHANGE_DETECTOR_CONFIG: SubAgentConfig = {
-    agentRole: 'change_detector',
-    wave: 2,
-    minToolCalls: 3,
-    staticSystemPrompt: `You are a change detection specialist for SRE incident investigation.
+  agentRole: 'change_detector',
+  wave: 2,
+  minToolCalls: 3,
+  staticSystemPrompt: `You are a change detection specialist for SRE incident investigation.
 
 Your job is to identify recent deployments, configuration changes, and infrastructure modifications that may have caused or contributed to the incident.
 
@@ -214,30 +218,30 @@ Respond with your findings:
 - Rollback recommendation
 - Confidence level (0.0-1.0)
 ${SUMMARY_FOOTER}`,
-    systemPrompt: '', // dynamic portion set at runtime
-    tools: CHANGE_DETECTION_TOOLS,
-    baseRole: 'change_detection',
-    maxTurns: 8,
-    model: config.anthropic.agentModels.changeDetector,
-    useCodeExecution: config.ptc.enabled,
+  systemPrompt: '', // dynamic portion set at runtime
+  tools: CHANGE_DETECTION_TOOLS,
+  baseRole: 'change_detection',
+  maxTurns: 8,
+  model: config.anthropic.agentModels.changeDetector,
+  useCodeExecution: config.ptc.enabled,
 };
 
 // --- Wave 3: Verification Agent (Post-Synthesis) ---
 
 const VERIFICATION_TOOLS = [
-    ...LOG_TOOLS.filter(t => t.name !== 'get_incident_details'),
-    ...METRIC_TOOLS.filter(t => t.name !== 'get_incident_details'),
-    incidentDetailsTool,
+  ...LOG_TOOLS.filter((t) => t.name !== 'get_incident_details'),
+  ...METRIC_TOOLS.filter((t) => t.name !== 'get_incident_details'),
+  incidentDetailsTool,
 ];
 
 export const VERIFICATION_CONFIG: SubAgentConfig = {
-    agentRole: 'diagnosis_verifier',
-    wave: 3,
-    model: 'claude-sonnet-4-6',
-    maxTurns: 5,
-    minToolCalls: 2,
-    baseRole: 'verification',
-    staticSystemPrompt: `You are an adversarial reviewer of SRE incident diagnoses.
+  agentRole: 'diagnosis_verifier',
+  wave: 3,
+  model: 'claude-sonnet-4-6',
+  maxTurns: 5,
+  minToolCalls: 2,
+  baseRole: 'verification',
+  staticSystemPrompt: `You are an adversarial reviewer of SRE incident diagnoses.
 
 MISSION: Challenge the proposed root cause with maximum rigor. Your goal is to find flaws in the diagnosis BEFORE it reaches the human operator.
 
@@ -268,18 +272,18 @@ OUTPUT FORMAT (JSON):
 }
 
 CRITICAL: You MUST use tools to verify claims. A verification without tool calls is worthless.`,
-    systemPrompt: '', // dynamic portion set at runtime with synthesis to verify
-    tools: VERIFICATION_TOOLS,
+  systemPrompt: '', // dynamic portion set at runtime with synthesis to verify
+  tools: VERIFICATION_TOOLS,
 };
 
 // --- Composio-based agents (tools merged at runtime) ---
 
 export const ISSUE_CORRELATOR_CONFIG: SubAgentConfig = {
-    agentRole: 'issue_correlator',
-    wave: 2,
-    minToolCalls: 2,
-    baseRole: 'composio_only',
-    staticSystemPrompt: `You are an issue correlation specialist for SRE incident investigation.
+  agentRole: 'issue_correlator',
+  wave: 2,
+  minToolCalls: 2,
+  baseRole: 'composio_only',
+  staticSystemPrompt: `You are an issue correlation specialist for SRE incident investigation.
 
 Your job is to search for related issues, tickets, and incidents in the tenant's project management tools.
 
@@ -299,18 +303,18 @@ Respond with your findings:
 - Recommended next steps based on ticket history
 - Confidence level (0.0-1.0)
 ${SUMMARY_FOOTER}`,
-    systemPrompt: '',
-    tools: [], // Composio tools merged at runtime
-    maxTurns: 5,
-    model: config.anthropic.agentModels.logAnalyst,
+  systemPrompt: '',
+  tools: [], // Composio tools merged at runtime
+  maxTurns: 5,
+  model: config.anthropic.agentModels.logAnalyst,
 };
 
 export const APM_ANALYST_CONFIG: SubAgentConfig = {
-    agentRole: 'apm_analyst',
-    wave: 2,
-    minToolCalls: 2,
-    baseRole: 'composio_only',
-    staticSystemPrompt: `You are an APM analysis specialist for SRE incident investigation.
+  agentRole: 'apm_analyst',
+  wave: 2,
+  minToolCalls: 2,
+  baseRole: 'composio_only',
+  staticSystemPrompt: `You are an APM analysis specialist for SRE incident investigation.
 
 Your job is to analyze application traces, error rates, and performance data from the tenant's observability tools.
 
@@ -330,17 +334,17 @@ Respond with your findings:
 - Root cause indicators from trace data
 - Confidence level (0.0-1.0)
 ${SUMMARY_FOOTER}`,
-    systemPrompt: '',
-    tools: [], // Composio tools merged at runtime
-    maxTurns: 5,
-    model: config.anthropic.agentModels.infraInspector,
+  systemPrompt: '',
+  tools: [], // Composio tools merged at runtime
+  maxTurns: 5,
+  model: config.anthropic.agentModels.infraInspector,
 };
 
 export const NOTIFICATION_SENDER_CONFIG: SubAgentConfig = {
-    agentRole: 'notification_sender',
-    wave: 2,
-    baseRole: 'composio_only',
-    staticSystemPrompt: `You are a notification specialist for SRE incident investigation.
+  agentRole: 'notification_sender',
+  wave: 2,
+  baseRole: 'composio_only',
+  staticSystemPrompt: `You are a notification specialist for SRE incident investigation.
 
 Your job is to post investigation updates to the tenant's communication channels.
 
@@ -358,10 +362,10 @@ Respond with:
 - Message content sent
 - Delivery confirmation
 ${SUMMARY_FOOTER}`,
-    systemPrompt: '',
-    tools: [], // Composio tools merged at runtime
-    maxTurns: 3,
-    model: config.anthropic.agentModels.logAnalyst,
+  systemPrompt: '',
+  tools: [], // Composio tools merged at runtime
+  maxTurns: 3,
+  model: config.anthropic.agentModels.logAnalyst,
 };
 
 // --- Orchestrator Agent (single agent with all tools) ---
@@ -509,43 +513,43 @@ End with a structured summary:
 [Justification for confidence level]`;
 
 export const ORCHESTRATOR_CONFIG: SubAgentConfig = {
-    agentRole: 'orchestrator',
-    model: config.anthropic.agentModels.orchestrator,
-    maxTurns: 20,
-    minToolCalls: 8,
-    baseRole: 'orchestrator',
-    staticSystemPrompt: ORCHESTRATOR_SYSTEM_PROMPT,
-    systemPrompt: '',
-    tools: [...ORCHESTRATOR_TOOLS, ...CHECKPOINT_TOOLS],
+  agentRole: 'orchestrator',
+  model: config.anthropic.agentModels.orchestrator,
+  maxTurns: 20,
+  minToolCalls: 8,
+  baseRole: 'orchestrator',
+  staticSystemPrompt: ORCHESTRATOR_SYSTEM_PROMPT,
+  systemPrompt: '',
+  tools: [...ORCHESTRATOR_TOOLS, ...CHECKPOINT_TOOLS],
 };
 
 // --- Config Map ---
 
 export const AGENT_CONFIG_MAP: Record<string, SubAgentConfig> = {
-    orchestrator: ORCHESTRATOR_CONFIG,
-    scout: SCOUT_CONFIG,
-    log_analyst: LOG_ANALYZER_CONFIG,
-    metric_analyst: METRIC_ANALYZER_CONFIG,
-    infra_inspector: INFRA_INSPECTOR_CONFIG,
-    change_detector: CHANGE_DETECTOR_CONFIG,
-    code_analyzer: {
-        ...CODE_ANALYZER_CONFIG,
-        agentRole: 'code_analyzer' as const,
-        wave: 2,
-        minToolCalls: 2,
-        staticSystemPrompt: CODE_ANALYZER_CONFIG.systemPrompt,
-        systemPrompt: '',
-    },
-    db_analyst: {
-        ...DB_ANALYST_CONFIG,
-        agentRole: 'db_analyst' as const,
-        wave: 2,
-        minToolCalls: 2,
-        staticSystemPrompt: DB_ANALYST_CONFIG.systemPrompt,
-        systemPrompt: '',
-    },
-    issue_correlator: ISSUE_CORRELATOR_CONFIG,
-    apm_analyst: APM_ANALYST_CONFIG,
-    notification_sender: NOTIFICATION_SENDER_CONFIG,
-    diagnosis_verifier: VERIFICATION_CONFIG,
+  orchestrator: ORCHESTRATOR_CONFIG,
+  scout: SCOUT_CONFIG,
+  log_analyst: LOG_ANALYZER_CONFIG,
+  metric_analyst: METRIC_ANALYZER_CONFIG,
+  infra_inspector: INFRA_INSPECTOR_CONFIG,
+  change_detector: CHANGE_DETECTOR_CONFIG,
+  code_analyzer: {
+    ...CODE_ANALYZER_CONFIG,
+    agentRole: 'code_analyzer' as const,
+    wave: 2,
+    minToolCalls: 2,
+    staticSystemPrompt: CODE_ANALYZER_CONFIG.systemPrompt,
+    systemPrompt: '',
+  },
+  db_analyst: {
+    ...DB_ANALYST_CONFIG,
+    agentRole: 'db_analyst' as const,
+    wave: 2,
+    minToolCalls: 2,
+    staticSystemPrompt: DB_ANALYST_CONFIG.systemPrompt,
+    systemPrompt: '',
+  },
+  issue_correlator: ISSUE_CORRELATOR_CONFIG,
+  apm_analyst: APM_ANALYST_CONFIG,
+  notification_sender: NOTIFICATION_SENDER_CONFIG,
+  diagnosis_verifier: VERIFICATION_CONFIG,
 };

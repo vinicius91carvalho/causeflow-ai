@@ -4,7 +4,11 @@
  *
  * Promoted from tests/e2e/stubs/deterministic-llm-client.ts for AC-046.
  */
-import type { LLMClient, CompletionParams, CompletionResult } from '../../application/ports/llm-client.port.js';
+import type {
+  LLMClient,
+  CompletionParams,
+  CompletionResult,
+} from '../../application/ports/llm-client.port.js';
 
 const DEFAULT_TRIAGE: Record<string, unknown> = {
   priority: 'high',

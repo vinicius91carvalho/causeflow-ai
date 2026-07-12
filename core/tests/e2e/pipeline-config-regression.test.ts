@@ -18,7 +18,8 @@ describe('E2E Pipeline: Config Regression with Code Analysis', () => {
     payload: {
       AlarmName: 'payment-service-latency-high',
       NewStateValue: 'ALARM',
-      NewStateReason: 'Threshold Crossed: Request timeout errors increased 500%. Average latency exceeded 3000ms.',
+      NewStateReason:
+        'Threshold Crossed: Request timeout errors increased 500%. Average latency exceeded 3000ms.',
       Trigger: { Namespace: 'Custom/App' },
       Region: 'us-east-1',
       AlarmArn: 'arn:aws:cloudwatch:us-east-1:000000000000:alarm:payment-service-latency-high',
@@ -32,9 +33,13 @@ describe('E2E Pipeline: Config Regression with Code Analysis', () => {
 
     // Configure change_detector to find the config change
     harness.stubAgent.setAgentResponse('change_detector', {
-      response: 'Change detection: Commit cr02bbbb changed requestTimeoutMs from 30000 to 3000 in config.ts — a typo that reduced timeout from 30s to 3s, causing request failures.',
+      response:
+        'Change detection: Commit cr02bbbb changed requestTimeoutMs from 30000 to 3000 in config.ts — a typo that reduced timeout from 30s to 3s, causing request failures.',
       toolCallsToMake: [
-        { name: 'describe_service', input: { serviceName: 'payment-service', region: 'us-east-1' } },
+        {
+          name: 'describe_service',
+          input: { serviceName: 'payment-service', region: 'us-east-1' },
+        },
         { name: 'get_recent_changes', input: { service: 'payment-service' } },
         { name: 'get_file_content', input: { service: 'payment-service', path: 'src/config.ts' } },
       ],
@@ -45,18 +50,26 @@ describe('E2E Pipeline: Config Regression with Code Analysis', () => {
       triage: {
         priority: 'critical',
         suggestedAgents: ['log_analyst', 'metric_analyst', 'infra_inspector', 'change_detector'],
-        summary: 'Payment service experiencing high latency and timeout errors after recent deployment',
+        summary:
+          'Payment service experiencing high latency and timeout errors after recent deployment',
         confidence: 0.95,
         category: 'application',
         investigationMode: 'orchestrator',
       },
       synthesis: {
-        potentialRootCause: 'Configuration regression — requestTimeoutMs changed from 30000 to 3000 (typo) in commit cr02bbbb, causing all requests longer than 3s to timeout',
+        potentialRootCause:
+          'Configuration regression — requestTimeoutMs changed from 30000 to 3000 (typo) in commit cr02bbbb, causing all requests longer than 3s to timeout',
         recommendedActions: [
-          { action: 'restart_service', params: { service: 'payment-service', cluster: 'production' } },
+          {
+            action: 'restart_service',
+            params: { service: 'payment-service', cluster: 'production' },
+          },
         ],
         findings: [
-          { text: 'Commit cr02bbbb changed REQUEST_TIMEOUT_MS default from 30000 to 3000', evidenceIds: ['ev-1'] },
+          {
+            text: 'Commit cr02bbbb changed REQUEST_TIMEOUT_MS default from 30000 to 3000',
+            evidenceIds: ['ev-1'],
+          },
           { text: 'This is a typo: 3s timeout instead of 30s', evidenceIds: ['ev-2'] },
           { text: 'All database queries > 3s now fail with timeout error', evidenceIds: ['ev-3'] },
         ],

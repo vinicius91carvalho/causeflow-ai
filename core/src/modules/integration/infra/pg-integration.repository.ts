@@ -56,7 +56,7 @@ export class PgIntegrationRepository implements IIntegrationRepository {
   async findByProvider(tenantId: TenantId, provider: string): Promise<IntegrationRecord | null> {
     const rows = await pgQuery(
       TABLE,
-      'tenant_id = $1 AND data->>\'provider\' = $2',
+      "tenant_id = $1 AND data->>'provider' = $2",
       [String(tenantId), provider],
       { limit: 1 },
     );
@@ -65,16 +65,17 @@ export class PgIntegrationRepository implements IIntegrationRepository {
   }
 
   async listByTenant(tenantId: TenantId): Promise<IntegrationRecord[]> {
-    const rows = await pgQuery(
-      TABLE,
-      'tenant_id = $1',
-      [String(tenantId)],
-      { orderBy: 'created_at DESC' },
-    );
+    const rows = await pgQuery(TABLE, 'tenant_id = $1', [String(tenantId)], {
+      orderBy: 'created_at DESC',
+    });
     return rows.map(toDomain);
   }
 
-  async updateHealthCheck(tenantId: TenantId, integrationId: string, checkedAt: string): Promise<void> {
+  async updateHealthCheck(
+    tenantId: TenantId,
+    integrationId: string,
+    checkedAt: string,
+  ): Promise<void> {
     await pgUpdate(TABLE, String(tenantId), integrationId, { lastHealthCheck: checkedAt });
   }
 }

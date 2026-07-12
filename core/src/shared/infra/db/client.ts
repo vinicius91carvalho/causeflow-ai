@@ -20,19 +20,20 @@ import { instrumentedCall } from '../observability/outbound.js';
  * a v3 client, but never instantiates the real DynamoDBClient SDK.
  */
 function createOssStubClient(): DynamoDBClient {
-    return {
-        send: () => Promise.reject(
-            new Error(
-                'DynamoDB is not available in the OSS runtime (CAUSEFLOW_RUNTIME=oss). ' +
-                'All persistence goes through Postgres (AC-040). If you are seeing this ' +
-                'error, a code path is attempting to use a DynamoDB-backed repository ' +
-                'that has not been ported to Postgres yet.',
-            ),
+  return {
+    send: () =>
+      Promise.reject(
+        new Error(
+          'DynamoDB is not available in the OSS runtime (CAUSEFLOW_RUNTIME=oss). ' +
+            'All persistence goes through Postgres (AC-040). If you are seeing this ' +
+            'error, a code path is attempting to use a DynamoDB-backed repository ' +
+            'that has not been ported to Postgres yet.',
         ),
-        config: {},
-        middlewareStack: { use: () => {}, clone: () => ({}) },
-        destroy: () => {},
-    } as unknown as DynamoDBClient;
+      ),
+    config: {},
+    middlewareStack: { use: () => {}, clone: () => ({}) },
+    destroy: () => {},
+  } as unknown as DynamoDBClient;
 }
 
 let client: DynamoDBClient | null = null;
@@ -46,19 +47,19 @@ let client: DynamoDBClient | null = null;
  * error pointing to the Postgres migration requirement.
  */
 export function getDynamoClient(): DynamoDBClient {
-    if (config.isOss()) {
-        return createOssStubClient();
-    }
+  if (config.isOss()) {
+    return createOssStubClient();
+  }
 
-    if (!client) {
-        client = new DynamoDBClient({
-            region: config.aws.region,
-            ...(config.aws.dynamoEndpoint && {
-                endpoint: config.aws.dynamoEndpoint,
-            }),
-        });
-    }
-    return client;
+  if (!client) {
+    client = new DynamoDBClient({
+      region: config.aws.region,
+      ...(config.aws.dynamoEndpoint && {
+        endpoint: config.aws.dynamoEndpoint,
+      }),
+    });
+  }
+  return client;
 }
 
 /**
@@ -67,12 +68,12 @@ export function getDynamoClient(): DynamoDBClient {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function dynamoSend(cmd: { constructor: { name: string } }, opts?: unknown): Promise<any> {
-    const operation = cmd.constructor.name.replace('Command', '').toLowerCase();
-    return instrumentedCall(
-        'dynamodb',
-        operation,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        () => (getDynamoClient() as any).send(cmd, opts),
-        { attributes: { tableName: config.aws.tableName, operation } },
-    );
+  const operation = cmd.constructor.name.replace('Command', '').toLowerCase();
+  return instrumentedCall(
+    'dynamodb',
+    operation,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => (getDynamoClient() as any).send(cmd, opts),
+    { attributes: { tableName: config.aws.tableName, operation } },
+  );
 }

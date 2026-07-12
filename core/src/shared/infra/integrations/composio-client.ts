@@ -37,33 +37,33 @@ export async function getComposioClient(): Promise<any> {
  * Mapping of CauseFlow integration types to Composio app names.
  */
 export const COMPOSIO_APP_MAP = {
-    // Communication
-    slack: 'slack',
-    teams: 'microsoft-teams',
-    discord: 'discord',
-    // Code
-    github: 'github',
-    gitlab: 'gitlab',
-    bitbucket: 'bitbucket',
-    // Project Management
-    jira: 'jira',
-    linear: 'linear',
-    trello: 'trello',
-    shortcut: 'shortcut',
-    clickup: 'clickup',
-    asana: 'asana',
-    // Monitoring & Observability
-    datadog: 'datadog',
-    sentry: 'sentry',
-    pagerduty: 'pagerduty',
-    newrelic: 'new_relic',
-    // Knowledge
-    notion: 'notion',
-    confluence: 'confluence',
-    // CRM & Support
-    hubspot: 'hubspot',
-    zendesk: 'zendesk',
-    intercom: 'intercom',
+  // Communication
+  slack: 'slack',
+  teams: 'microsoft-teams',
+  discord: 'discord',
+  // Code
+  github: 'github',
+  gitlab: 'gitlab',
+  bitbucket: 'bitbucket',
+  // Project Management
+  jira: 'jira',
+  linear: 'linear',
+  trello: 'trello',
+  shortcut: 'shortcut',
+  clickup: 'clickup',
+  asana: 'asana',
+  // Monitoring & Observability
+  datadog: 'datadog',
+  sentry: 'sentry',
+  pagerduty: 'pagerduty',
+  newrelic: 'new_relic',
+  // Knowledge
+  notion: 'notion',
+  confluence: 'confluence',
+  // CRM & Support
+  hubspot: 'hubspot',
+  zendesk: 'zendesk',
+  intercom: 'intercom',
 };
 
 /**
@@ -75,11 +75,11 @@ export const COMPOSIO_PROVIDERS = new Set(Object.keys(COMPOSIO_APP_MAP));
  * Providers handled by our own infra (IAM roles, connection strings, API keys).
  */
 export const DIY_PROVIDERS = new Set([
-    'cloudwatch',
-    'postgresql',
-    'mongodb',
-    'grafana',
-    'webhooks',
+  'cloudwatch',
+  'postgresql',
+  'mongodb',
+  'grafana',
+  'webhooks',
 ]);
 
 /**

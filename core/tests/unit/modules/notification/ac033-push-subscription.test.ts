@@ -79,7 +79,7 @@ describe('AC-033: Push Subscription Routes', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-token',
+          Authorization: 'Bearer test-token',
         },
         body: JSON.stringify({
           endpoint: 'https://fcm.googleapis.com/fcm/send/test-123',
@@ -95,7 +95,10 @@ describe('AC-033: Push Subscription Routes', () => {
       expect(pushSubscriptionRepo.upsert).toHaveBeenCalledWith(
         expect.any(String),
         'https://fcm.googleapis.com/fcm/send/test-123',
-        { p256dh: 'BNdSfKneKQMtPBbJ6Jq9KjqXG6qZzXqLHKyYX1PHvSXnNg7QWYqNxJQqH3-Q_Is3vZYzWOk', auth: 'test-auth-val' },
+        {
+          p256dh: 'BNdSfKneKQMtPBbJ6Jq9KjqXG6qZzXqLHKyYX1PHvSXnNg7QWYqNxJQqH3-Q_Is3vZYzWOk',
+          auth: 'test-auth-val',
+        },
       );
     });
 
@@ -147,7 +150,7 @@ describe('AC-033: Push Subscription Routes', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-token',
+          Authorization: 'Bearer test-token',
         },
         body: JSON.stringify({
           endpoint: 'https://example.com/push',
@@ -221,7 +224,7 @@ describe('AC-033: Push Subscription Routes', () => {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-token',
+          Authorization: 'Bearer test-token',
         },
         body: JSON.stringify({ endpoint: 'https://example.com/push' }),
       });
@@ -240,9 +243,14 @@ describe('AC-033: Push notification payload on incident.severity_changed', () =>
 
   it('should use the incident title from the event payload, not a fallback', () => {
     // The severity_changed event now carries the 'title' field (AC-033 fix)
-    const eventPayload = { incidentId: 'inc-001', severity: 'high', previousSeverity: 'medium', title: 'CPU spike in production' };
-    const incidentId = (eventPayload['incidentId'] as string) ?? '';
-    const incidentTitle = (eventPayload['title'] as string) ?? 'Incident updated';
+    const eventPayload = {
+      incidentId: 'inc-001',
+      severity: 'high',
+      previousSeverity: 'medium',
+      title: 'CPU spike in production',
+    };
+    const incidentId = eventPayload['incidentId'] ?? '';
+    const incidentTitle = eventPayload['title'] ?? 'Incident updated';
 
     const pushPayload = {
       title: incidentTitle,
@@ -281,9 +289,15 @@ describe('AC-033: Push notification payload on incident.severity_changed', () =>
 
   it('should construct push payload from a status_changed event with title', () => {
     // The status_changed events now also include title for audit trail purposes
-    const eventPayload = { incidentId: 'inc-001', from: 'open', to: 'triaging', title: 'Memory leak in payment service', severity: 'high' };
-    const incidentId = (eventPayload['incidentId'] as string) ?? '';
-    const incidentTitle = (eventPayload['title'] as string) ?? 'Incident updated';
+    const eventPayload = {
+      incidentId: 'inc-001',
+      from: 'open',
+      to: 'triaging',
+      title: 'Memory leak in payment service',
+      severity: 'high',
+    };
+    const incidentId = eventPayload['incidentId'] ?? '';
+    const incidentTitle = eventPayload['title'] ?? 'Incident updated';
 
     // Verify the status_changed payload structure is preserved
     expect(eventPayload.from).toBe('open');

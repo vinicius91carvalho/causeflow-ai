@@ -477,6 +477,5 @@ test.describe('Animations', () => {
     const textContent = await auditSection.textContent();
     expect(textContent).toBeTruthy();
     expect(textContent?.length).toBeGreaterThan(0);
-
   });
 });

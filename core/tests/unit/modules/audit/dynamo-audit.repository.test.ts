@@ -81,7 +81,10 @@ describe('DynamoAuditRepository', () => {
       data: [sampleAuditData],
       cursor: 'next-cursor',
     });
-    mockEntity.query.byCreatedAt.mockReturnValue({ go: mockGo, where: vi.fn(() => ({ go: mockGo })) });
+    mockEntity.query.byCreatedAt.mockReturnValue({
+      go: mockGo,
+      where: vi.fn(() => ({ go: mockGo })),
+    });
 
     const result = await repo.findByTenant(tenantId('tenant-1'), { limit: 10 });
 
@@ -93,7 +96,10 @@ describe('DynamoAuditRepository', () => {
 
   it('findByTenant() should call .go() with order: "desc"', async () => {
     const mockGo = vi.fn().mockResolvedValue({ data: [], cursor: null });
-    mockEntity.query.byCreatedAt.mockReturnValue({ go: mockGo, where: vi.fn(() => ({ go: mockGo })) });
+    mockEntity.query.byCreatedAt.mockReturnValue({
+      go: mockGo,
+      where: vi.fn(() => ({ go: mockGo })),
+    });
 
     await repo.findByTenant(tenantId('tenant-1'));
 
@@ -168,9 +174,7 @@ describe('DynamoAuditRepository', () => {
 
   // AC-3: evidences round-trip in repository
   it('create() should serialize evidences to JSON string when present', async () => {
-    const evidences = [
-      { type: 'log', content: 'Error spike', source: 'cloudwatch' },
-    ];
+    const evidences = [{ type: 'log', content: 'Error spike', source: 'cloudwatch' }];
     mockEntity.create.mockReturnValue({
       go: vi.fn().mockResolvedValue({
         data: { ...sampleAuditData, evidences: JSON.stringify(evidences) },
@@ -219,9 +223,7 @@ describe('DynamoAuditRepository', () => {
   });
 
   it('toDomain() should deserialize evidences JSON string to array', async () => {
-    const evidences = [
-      { type: 'metric', content: 'p99=3200ms' },
-    ];
+    const evidences = [{ type: 'metric', content: 'p99=3200ms' }];
     mockEntity.create.mockReturnValue({
       go: vi.fn().mockResolvedValue({
         data: { ...sampleAuditData, evidences: JSON.stringify(evidences) },
@@ -276,8 +278,13 @@ describe('DynamoAuditRepository', () => {
   // ---------------------------------------------------------------------------
 
   it('findByTenant() should only query with the provided tenantId (no cross-tenant leak)', async () => {
-    const mockGoTenantA = vi.fn().mockResolvedValue({ data: [{ ...sampleAuditData, tenantId: 'tenant-A' }], cursor: null });
-    const mockGoTenantB = vi.fn().mockResolvedValue({ data: [{ ...sampleAuditData, tenantId: 'tenant-B', entryId: 'audit-B' }], cursor: null });
+    const mockGoTenantA = vi
+      .fn()
+      .mockResolvedValue({ data: [{ ...sampleAuditData, tenantId: 'tenant-A' }], cursor: null });
+    const mockGoTenantB = vi.fn().mockResolvedValue({
+      data: [{ ...sampleAuditData, tenantId: 'tenant-B', entryId: 'audit-B' }],
+      cursor: null,
+    });
 
     mockEntity.query.byCreatedAt
       .mockReturnValueOnce({ go: mockGoTenantA, where: vi.fn(() => ({ go: mockGoTenantA })) })
@@ -305,7 +312,10 @@ describe('DynamoAuditRepository', () => {
   it('findByTenant() for tenant-A should never return rows seeded for tenant-B', async () => {
     const tenantAData = { ...sampleAuditData, tenantId: 'tenant-A', entryId: 'entry-A1' };
     const mockGo = vi.fn().mockResolvedValue({ data: [tenantAData], cursor: null });
-    mockEntity.query.byCreatedAt.mockReturnValue({ go: mockGo, where: vi.fn(() => ({ go: mockGo })) });
+    mockEntity.query.byCreatedAt.mockReturnValue({
+      go: mockGo,
+      where: vi.fn(() => ({ go: mockGo })),
+    });
 
     const result = await repo.findByTenant(tenantId('tenant-A'));
 
@@ -344,10 +354,14 @@ describe('DynamoAuditRepository', () => {
   it('getLastEntry() queries are not cross-contaminated between tenants', async () => {
     mockEntity.query.byCreatedAt
       .mockReturnValueOnce({
-        go: vi.fn().mockResolvedValue({ data: [{ ...sampleAuditData, tenantId: 'tenant-A', entryId: 'last-A' }] }),
+        go: vi.fn().mockResolvedValue({
+          data: [{ ...sampleAuditData, tenantId: 'tenant-A', entryId: 'last-A' }],
+        }),
       })
       .mockReturnValueOnce({
-        go: vi.fn().mockResolvedValue({ data: [{ ...sampleAuditData, tenantId: 'tenant-B', entryId: 'last-B' }] }),
+        go: vi.fn().mockResolvedValue({
+          data: [{ ...sampleAuditData, tenantId: 'tenant-B', entryId: 'last-B' }],
+        }),
       });
 
     const lastA = await repo.getLastEntry(tenantId('tenant-A'));

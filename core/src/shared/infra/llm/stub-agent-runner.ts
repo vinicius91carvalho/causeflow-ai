@@ -12,7 +12,10 @@ import type {
 } from '../../application/ports/agent-runner.port.js';
 import { LOCAL_LLM_UNAVAILABLE_MESSAGE, probeLocalLlmReachable } from './local-llm-guard.js';
 
-const DEFAULT_TOOL_CALLS: Record<string, Array<{ name: string; input: Record<string, unknown> }>> = {
+const DEFAULT_TOOL_CALLS: Record<
+  string,
+  Array<{ name: string; input: Record<string, unknown> }>
+> = {
   log_analyst: [
     {
       name: 'query_logs',
@@ -95,7 +98,9 @@ export class StubAgentRunner implements AgentRunner {
     if (this.options.failClosed) {
       const reachable = await probeLocalLlmReachable();
       if (!reachable) {
-        throw new Error(`${LOCAL_LLM_UNAVAILABLE_MESSAGE} — investigation agents require the local LLM connector`);
+        throw new Error(
+          `${LOCAL_LLM_UNAVAILABLE_MESSAGE} — investigation agents require the local LLM connector`,
+        );
       }
     }
     // Prefer the agent system prompts (not user/memory context) so shared
@@ -108,7 +113,9 @@ export class StubAgentRunner implements AgentRunner {
       'unknown';
 
     const toolNames = new Set(config.tools.map((t) => t.name));
-    const toolCallsToMake = [...(DEFAULT_TOOL_CALLS[role] ?? [])].filter((c) => toolNames.has(c.name));
+    const toolCallsToMake = [...(DEFAULT_TOOL_CALLS[role] ?? [])].filter((c) =>
+      toolNames.has(c.name),
+    );
     if (toolCallsToMake.length === 0 && config.tools.length > 0) {
       for (const tool of config.tools.slice(0, 2)) {
         toolCallsToMake.push({ name: tool.name, input: stubInputForTool(tool.name) });
@@ -159,10 +166,16 @@ function inferRole(systemPrompt: string): string | null {
   const lower = systemPrompt.toLowerCase();
   // Prefer explicit specialist titles (capabilities prompts can mention other domains).
   if (lower.includes('log analysis specialist')) return 'log_analyst';
-  if (lower.includes('metric analysis specialist') || lower.includes('metrics analysis specialist')) {
+  if (
+    lower.includes('metric analysis specialist') ||
+    lower.includes('metrics analysis specialist')
+  ) {
     return 'metric_analyst';
   }
-  if (lower.includes('infrastructure inspection specialist') || lower.includes('infrastructure inspector')) {
+  if (
+    lower.includes('infrastructure inspection specialist') ||
+    lower.includes('infrastructure inspector')
+  ) {
     return 'infra_inspector';
   }
   if (lower.includes('change detection specialist') || lower.includes('change detector')) {
@@ -197,7 +210,11 @@ function inferRoleFromTools(toolNames: string[]): string | null {
 function stubInputForTool(name: string): Record<string, unknown> {
   switch (name) {
     case 'aws_api_call':
-      return { service: 'ecs', action: 'DescribeServices', params: { services: ['order-service'] } };
+      return {
+        service: 'ecs',
+        action: 'DescribeServices',
+        params: { services: ['order-service'] },
+      };
     case 'query_logs':
       return {
         service: 'order-service',

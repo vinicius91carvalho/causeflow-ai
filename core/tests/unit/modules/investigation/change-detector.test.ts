@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { CHANGE_DETECTOR_CONFIG, AGENT_CONFIG_MAP } from '../../../../src/modules/investigation/application/agent-configs.js';
+import {
+  CHANGE_DETECTOR_CONFIG,
+  AGENT_CONFIG_MAP,
+} from '../../../../src/modules/investigation/application/agent-configs.js';
 import { CHANGE_DETECTION_TOOLS } from '../../../../src/modules/investigation/infra/investigation-tools.js';
 
 describe('Change Detector Sub-Agent', () => {
@@ -9,14 +12,15 @@ describe('Change Detector Sub-Agent', () => {
     });
 
     it('should have a static system prompt focused on change detection', () => {
-      const prompt = CHANGE_DETECTOR_CONFIG.staticSystemPrompt ?? CHANGE_DETECTOR_CONFIG.systemPrompt;
+      const prompt =
+        CHANGE_DETECTOR_CONFIG.staticSystemPrompt ?? CHANGE_DETECTOR_CONFIG.systemPrompt;
       expect(prompt).toContain('change detection');
       expect(prompt).toContain('deployments');
       expect(prompt).toContain('configuration changes');
     });
 
     it('should include CHANGE_DETECTION_TOOLS', () => {
-      const toolNames = CHANGE_DETECTOR_CONFIG.tools.map(t => t.name);
+      const toolNames = CHANGE_DETECTOR_CONFIG.tools.map((t) => t.name);
       // Must include all base change detection tools
       for (const tool of CHANGE_DETECTION_TOOLS) {
         expect(toolNames).toContain(tool.name);

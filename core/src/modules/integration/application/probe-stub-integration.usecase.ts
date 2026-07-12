@@ -34,15 +34,21 @@ export class ProbeStubIntegrationUseCase {
       body: JSON.stringify({ tenantId: String(input.tenantId) }),
       signal: AbortSignal.timeout(10_000),
     });
-    const body = await res.json().catch(() => ({})) as Record<string, unknown>;
+    const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     if (!res.ok) {
       throw new ValidationError(
-        typeof body['error'] === 'string' ? body['error'] : `Stub probe failed with HTTP ${res.status}`,
+        typeof body['error'] === 'string'
+          ? body['error']
+          : `Stub probe failed with HTTP ${res.status}`,
       );
     }
 
     const probedAt = new Date().toISOString();
-    await this.integrationRepo.updateHealthCheck(input.tenantId, integration.integrationId, probedAt);
+    await this.integrationRepo.updateHealthCheck(
+      input.tenantId,
+      integration.integrationId,
+      probedAt,
+    );
 
     const stubState = (body['state'] as Record<string, unknown>) ?? {};
     const probeCount = Number(body['probeCount'] ?? stubState['probeCount'] ?? 0);

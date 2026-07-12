@@ -101,7 +101,13 @@ describe('runJob', () => {
     const msg = makeMessage();
     const boom = new Error('handler failed');
     await expect(
-      runJob(msg, async () => { throw boom; }, { jobType: 'triage', queueName: 'triage-queue' }),
+      runJob(
+        msg,
+        async () => {
+          throw boom;
+        },
+        { jobType: 'triage', queueName: 'triage-queue' },
+      ),
     ).rejects.toThrow('handler failed');
 
     const events = logCalls.map((l) => l.obj.event);
@@ -117,7 +123,13 @@ describe('runJob', () => {
     const err = new Error('something broke');
     err.name = 'SomeError';
     await expect(
-      runJob(msg, async () => { throw err; }, { jobType: 'remediation', queueName: 'remediation-queue' }),
+      runJob(
+        msg,
+        async () => {
+          throw err;
+        },
+        { jobType: 'remediation', queueName: 'remediation-queue' },
+      ),
     ).rejects.toThrow();
 
     const failedLog = logCalls.find((l) => l.obj.event === 'job.failed');
@@ -136,7 +148,13 @@ describe('runJob', () => {
     const msg = makeMessage();
     const originalError = new TypeError('type failure');
     await expect(
-      runJob(msg, async () => { throw originalError; }, { jobType: 'triage', queueName: 'triage-queue' }),
+      runJob(
+        msg,
+        async () => {
+          throw originalError;
+        },
+        { jobType: 'triage', queueName: 'triage-queue' },
+      ),
     ).rejects.toBe(originalError);
   });
 

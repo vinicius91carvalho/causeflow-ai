@@ -61,10 +61,7 @@ export class PgPushSubscriptionRepository implements IPushSubscriptionRepository
   async deleteAllByTenant(tenantId: TenantId): Promise<void> {
     try {
       const pool = await getPgPool();
-      await pool.query(
-        'DELETE FROM causeflow.push_subscriptions WHERE tenant_id = $1',
-        [tenantId],
-      );
+      await pool.query('DELETE FROM causeflow.push_subscriptions WHERE tenant_id = $1', [tenantId]);
     } catch (err) {
       logger.error({ err, tenantId }, 'Failed to delete all push subscriptions');
       throw err;
