@@ -112,3 +112,10 @@
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/290ae292-3968-4744-9835-1ced5afb5d90/monorepo-root-oss-dx/WI-AC-066-1-integration_qa-4b69d7f1a4cb1ee2.log
 - NextAction: next Ready Work Item
+
+## 2026-07-12T20:34:00.840Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-067
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
