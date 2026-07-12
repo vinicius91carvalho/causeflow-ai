@@ -1463,3 +1463,12 @@ Defects 1-2 are in the dashboard's OSS auth integration code. Defects 3-4 are on
 [?25h
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/62057391-b31c-47e0-bd63-c95373d7882b/open-source-local-runtime/WI-AC-061-2-integration_qa-418275d678517fe0.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-12T01:10:07.479Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-061
+- Outcome: coding agent failed three times
+- Defects: ActionRequiredError: Increase limits for faster responses You're out of usage. Switch to Auto, or ask your admin to increase your limit to continue.
+[?25h
+- NextAction: User reviews evidence and explicitly resumes with guidance
