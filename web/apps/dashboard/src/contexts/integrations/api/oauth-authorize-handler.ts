@@ -21,6 +21,9 @@ const _getHandler = withAuth(async (request: NextRequest, _ctx, params) => {
   const redirectUrl = `${origin}/api/integrations/oauth/${provider}/callback`;
 
   const { authUrl } = await getApiClient().initiateOAuthConnect(provider, redirectUrl);
+  if (!authUrl) {
+    return NextResponse.json({ error: 'OAuth authorization URL unavailable' }, { status: 502 });
+  }
   return NextResponse.redirect(authUrl);
 });
 

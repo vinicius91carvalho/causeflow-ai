@@ -19,6 +19,12 @@ passes.
 3. Pass path is compose Core + test app + Ornith (DeepSeek credentials for the
    configure stage only). Not a pass path: Clerk, `.env.staging`, `page.route`
    BFF mocks, DeterministicLLMClient.
+4. Session cookie Secure flag follows request HTTPS (or `x-forwarded-proto`),
+   not `NODE_ENV===production`. Compose serves the production Next build over
+   plain HTTP; Secure `__session` cookies are dropped by Playwright's
+   `APIRequestContext` on `http://` (Chromium's localhost exception does not
+   apply), which caused Goal Review failures at `GET /api/integrations` → 401
+   after a green auth-setup.
 
 ## Command (Goal Review evidence)
 
@@ -26,9 +32,9 @@ passes.
 # Shared infra (postgres/redis) already healthy — reuse Core api/worker/test-app.
 # Ornith on :8081. Host dashboard against Core :3099:
 CORE_API_URL=http://127.0.0.1:3099 JWT_SECRET=oss-dev-jwt-secret-change-me \
-  CAUSEFLOW_RUNTIME=oss pnpm --filter dashboard exec next dev --hostname 127.0.0.1 -p 5170
+  CAUSEFLOW_RUNTIME=oss pnpm --filter dashboard exec next start -H 127.0.0.1 -p 5171
 
-PLAYWRIGHT_OSS=1 SKIP_WEB_SERVER=1 OSS_DASHBOARD_URL=http://127.0.0.1:5170 \
+PLAYWRIGHT_OSS=1 SKIP_WEB_SERVER=1 OSS_DASHBOARD_URL=http://127.0.0.1:5171 \
   pnpm exec playwright test --project=dashboard-oss-e2e tests/oss/ac-061-capstone.spec.ts
 ```
 

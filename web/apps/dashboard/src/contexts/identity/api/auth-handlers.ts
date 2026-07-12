@@ -16,17 +16,32 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 const SESSION_COOKIE = '__session';
 const COOKIE_MAX_AGE = 60 * 60; // 1 hour — Core JWTs are short-lived
-const IS_PROD = process.env.NODE_ENV === 'production';
 
 function coreApiUrl(): string | null {
   const url = process.env.CORE_API_URL;
   return url && url.trim() !== '' ? url : null;
 }
 
-function setSessionCookie(response: NextResponse, token: string): void {
+/**
+ * Whether `__session` may carry the Secure flag.
+ *
+ * OSS compose serves the production Next build over plain HTTP (:3001).
+ * `Secure` cookies are dropped by Playwright's APIRequestContext on `http://`
+ * (Chromium's localhost exception does not apply to the Node request client),
+ * which breaks AC-061 after auth-setup (page navigations may still work).
+ * Prefer the request protocol; never force Secure solely from NODE_ENV.
+ */
+function sessionCookieSecure(request: NextRequest): boolean {
+  const forwarded = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  if (forwarded === 'https') return true;
+  if (forwarded === 'http') return false;
+  return request.nextUrl.protocol === 'https:';
+}
+
+function setSessionCookie(response: NextResponse, token: string, request: NextRequest): void {
   response.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: IS_PROD,
+    secure: sessionCookieSecure(request),
     sameSite: 'lax',
     path: '/',
     maxAge: COOKIE_MAX_AGE,
@@ -100,7 +115,7 @@ export async function loginHandler(request: NextRequest) {
     }
 
     const response = NextResponse.json({ ok: true, user: data.user ?? null });
-    setSessionCookie(response, token);
+    setSessionCookie(response, token, request);
     return response;
   } catch (err) {
     return NextResponse.json(
@@ -184,7 +199,7 @@ export async function registerHandler(request: NextRequest) {
 
     const response = NextResponse.json({ ok: true, user: data.user ?? null });
     if (token) {
-      setSessionCookie(response, token);
+      setSessionCookie(response, token, request);
     }
     return response;
   } catch (err) {

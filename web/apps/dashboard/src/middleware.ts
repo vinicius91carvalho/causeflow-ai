@@ -149,12 +149,18 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Match auth-handlers: Secure only on real HTTPS. OSS compose runs the
+  // production build over plain HTTP; Secure cookies break Playwright's
+  // APIRequestContext on http:// (AC-061 Goal Review defect).
+  const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  const isHttps =
+    forwardedProto === 'https' ||
+    (forwardedProto !== 'http' && request.nextUrl.protocol === 'https:');
   const cookieOptions = {
     maxAge: COOKIE_MAX_AGE,
     sameSite: 'lax' as const,
     path: '/',
-    ...(isProduction ? { secure: true } : {}),
+    ...(isHttps ? { secure: true } : {}),
   };
 
   // Public routes — no auth required; run i18n middleware.

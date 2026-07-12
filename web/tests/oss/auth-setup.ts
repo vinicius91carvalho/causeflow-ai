@@ -64,6 +64,11 @@ setup('authenticate via Core local register/login', async ({ page }) => {
     session?.value,
     'expected __session cookie from dashboard BFF after Core register/login',
   ).toBeTruthy();
+  // AC-061: production compose over HTTP must not mark __session Secure —
+  // Playwright APIRequestContext drops Secure cookies on http:// origins.
+  if (new URL(page.url()).protocol === 'http:') {
+    expect(session?.secure, '__session must not be Secure on plain HTTP OSS').toBeFalsy();
+  }
 
   fs.mkdirSync(path.dirname(AUTH_FILE), { recursive: true });
   await page.context().storageState({ path: AUTH_FILE });
