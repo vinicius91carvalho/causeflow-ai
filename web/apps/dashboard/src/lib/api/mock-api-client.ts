@@ -463,8 +463,12 @@ export class MockApiClient implements ICoreApiClient {
     return ok({ integrations: [] });
   }
 
-  initiateOAuthConnect(_provider: string, redirectUrl: string): Promise<{ authUrl: string }> {
-    return ok({ authUrl: redirectUrl });
+  initiateOAuthConnect(
+    _provider: string,
+    _redirectUrl: string,
+  ): Promise<{ authUrl?: string }> {
+    // OSS stub: 200 with deterministic empty data (AC-051) — no OAuth redirect.
+    return ok({});
   }
 
   revokeOAuthConnection(_provider: string): Promise<any> {
