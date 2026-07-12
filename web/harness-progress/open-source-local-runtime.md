@@ -1443,3 +1443,12 @@ Defects 1-2 are in the dashboard's OSS auth integration code. Defects 3-4 are on
 - WorkItem: WI-AC-061
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-12T01:09:48.172Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-061
+- Defects: I'll run Integrated Verification for WI-AC-061 myself: first read the specs and AC mapping, then execute the Playwright OSS e2e against compose.Core and test-app are healthy; dashboard is down. Checking Playwright config and how to bring up the compose dashboard.Core and test-app are healthy; dashboard is down. Checking Playwright config and how to bring up the compose dashboard.Starting the host dashboard on :5171 against compose Core, then running the AC-061 capstone suite.Starting the host dashboard on :5171 against compose Core, then running the AC-061 capstone suite.ActionRequiredError: Increase limits for faster responses You're out of usage. Switch to Auto, or ask your admin to increase your limit to continue.
+[?25h
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/62057391-b31c-47e0-bd63-c95373d7882b/open-source-local-runtime/WI-AC-061-2-integration_qa-418275d678517fe0.log
+- NextAction: Repair Plan
