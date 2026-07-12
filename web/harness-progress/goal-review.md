@@ -15,3 +15,11 @@
 - Defects: expected AC-014 /get-started (and /pt-br/get-started) to redirect to the OSS compose dashboard sign-up (NEXT_PUBLIC_DASHBOARD_URL=http://localhost:3001 → http://localhost:3001/auth/sign-up); observed 308 Location https://dashboard-staging.causeflow.ai/auth/sign-up from causeflow-website on :3000, and live homepage CSP/connect-src plus header Dashboard links also bake dashboard-staging; evidence web/.harness/goal-review-final-probes.json + curl http://127.0.0.1:3000/get-started (Dockerfile build does not pass NEXT_PUBLIC_DASHBOARD_URL as build-arg)
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/c7764d1d-a020-4669-a2ec-d6441e8108d3/goal-review/goal-1-goal_review-cac59c04148dcd36.log
 - NextAction: repair affected Work Items
+
+## 2026-07-12T03:35:20.669Z — Goal Review passed
+
+- Outcome: On plan/opensource-docker, OSS compose Project Goal verified black-box: website :3000 (started for review) EN+PT routes/headers/middleware/get-started→http://localhost:3001/auth/sign-up; dashboard :3001 local JWT auth/register, unauth→sign-in, settings+subscription, billing checkout 410; Core :3099 health llm ok; AC-045..052 OSS cleanup greps pass; AC-061 Playwright capstone 2 passed (PLAYWRIGHT_OSS=1) chaining AC-054..060 against dashboard+Core+test-app+Ornith. Website container torn down after probes; shared Core/dashboard infra left running.
+- AcceptanceChecks: AC-001; AC-002; AC-003; AC-004; AC-005; AC-006; AC-007; AC-008; AC-009; AC-010; AC-011; AC-012; AC-013; AC-014; AC-015; AC-016; AC-017; AC-018; AC-019; AC-020; AC-021; AC-022; AC-023; AC-024; AC-025; AC-026; AC-027; AC-028; AC-029; AC-030; AC-031; AC-032; AC-033; AC-034; AC-035; AC-036; AC-037; AC-038; AC-039; AC-040; AC-041; AC-042; AC-043; AC-044; AC-045; AC-046; AC-047; AC-048; AC-049; AC-050; AC-051; AC-052; AC-053; AC-054; AC-055; AC-056; AC-057; AC-058; AC-059; AC-060; AC-061
+- Defects: 
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/0e673374-6ff7-4f85-9c56-2fde9b71754d/goal-review/goal-1-goal_review-18dc7827fe86d73b.log
+- NextAction: Project Goal complete
