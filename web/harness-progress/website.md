@@ -443,3 +443,10 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - RepairPlan: AC-014 redirects work, but compose website image bakes staging dashboard URL at build time, so /get-started ignores runtime NEXT_PUBLIC_DASHBOARD_URL=http://localhost:3001.; Add ARG/ENV NEXT_PUBLIC_DASHBOARD_URL (and optionally NEXT_PUBLIC_DEPLOYMENT_STAGE) to apps/website/Dockerfile builder stage before pnpm website build; Pass build.args NEXT_PUBLIC_DASHBOARD_URL=http://localhost:3001 under causeflow-website in docker-compose.yml; Document NEXT_PUBLIC_DASHBOARD_URL in apps/website/.env.example; Rebuild website image with --no-cache and recreate the container
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/933fbee2-fc3c-4c25-8a97-0b91f529850e/website/WI-AC-014-2-integration_qa-f3f16f2683f83f82.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-12T03:21:32.163Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-014
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
