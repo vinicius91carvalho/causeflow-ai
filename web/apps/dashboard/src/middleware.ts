@@ -209,7 +209,7 @@ export default async function middleware(request: NextRequest) {
       return response;
     }
     const response = NextResponse.next();
-    response.cookies.set(COOKIE_NAME, 'en', cookieOptions);
+    response.cookies.set(COOKIE_NAME, detected, cookieOptions);
     return response;
   }
 

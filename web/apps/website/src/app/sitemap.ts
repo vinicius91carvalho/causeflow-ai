@@ -8,6 +8,7 @@ const pages = [
   '/security',
   '/integrations',
   '/pricing',
+  '/about',
   '/from-opsgenie',
   '/use-cases',
   '/use-cases/stale-pricing',
