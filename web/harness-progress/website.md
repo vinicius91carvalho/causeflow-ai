@@ -426,3 +426,11 @@ No defects. integration=true, implementation=true, qa=true for WI-AC-017.
 - WorkItem: WI-AC-014
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-12T03:17:38.338Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-014
+- Defects: expected AC-014 /get-started and /pt-br/get-started on compose website :3000 to 307/308 with Location http://localhost:3001/auth/sign-up (docker-compose NEXT_PUBLIC_DASHBOARD_URL); observed both return 308 Location https://dashboard-staging.causeflow.ai/auth/sign-up because apps/website/Dockerfile builds without NEXT_PUBLIC_DASHBOARD_URL build-arg so next.config.mjs redirects bake the non-production fallback; evidence web/.harness/wi-ac-014-iv-http.json + curl -sI http://127.0.0.1:3000/get-started + docker inspect causeflow-website env
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/933fbee2-fc3c-4c25-8a97-0b91f529850e/website/WI-AC-014-2-integration_qa-f3f16f2683f83f82.log
+- NextAction: Repair Plan
