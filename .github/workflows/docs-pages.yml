@@ -1,5 +1,5 @@
 # Build public-docs with `mint export` and publish the static artifact to GitHub Pages.
-# PD-PAGES-WORKFLOW / AC-065: static export only — no Mintlify-hosted deployment commands.
+# PD-PAGES-WORKFLOW / AC-065: static export only - no Mintlify-hosted deployment commands.
 name: Docs Pages
 
 on:
@@ -32,7 +32,7 @@ jobs:
           node-version: "22"
 
       - name: Install mint CLI
-        # Same pin as public-docs/Dockerfile — open-source CLI, no Mintlify account.
+        # Same pin as public-docs/Dockerfile - open-source CLI, no Mintlify account.
         run: npm install -g mint@4.2.666
 
       - name: Export public-docs (mint export)
