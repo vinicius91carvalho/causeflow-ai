@@ -1,5 +1,5 @@
 # Build public-docs with `mint export` and publish the static artifact to GitHub Pages.
-# Intentionally does NOT run `mint deploy` or `mintlify deploy` (PD-PAGES-WORKFLOW / AC-065).
+# PD-PAGES-WORKFLOW / AC-065: static export only — no Mintlify-hosted deployment commands.
 name: Docs Pages
 
 on:
