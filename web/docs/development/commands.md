@@ -5,6 +5,9 @@ All commands use `pnpm`. Never use `npm`, `npx`, or `pnpm dlx playwright` (see t
 ## Development
 
 ```bash
+# Start the full OSS stack (website, dashboard, Core, worker, Postgres, Redis, Hindsight)
+docker compose up -d
+
 # Start all apps (Webpack, not Turbopack)
 pnpm dev
 
@@ -76,23 +79,14 @@ pnpm exec biome check --write .
 pnpm turbo check-types
 ```
 
-## Deployment (SST v3)
+## Deployment
 
 ```bash
-# Website — staging
-(cd apps/website && sst deploy --stage staging)
-
-# Website — production
-(cd apps/website && sst deploy --stage production)
-
-# Dashboard — staging
-(cd apps/dashboard && sst deploy --stage staging)
-
-# Dashboard — production
-(cd apps/dashboard && sst deploy --stage production)
+# Build the Docker images used by the OSS runtime
+docker compose build causeflow-website causeflow-dashboard
 ```
 
-> All `sst` commands must be run from the respective `apps/` directory, not the project root.
+Hosted deployments are handled by GitHub Actions using the app Dockerfiles.
 
 ## Maintenance
 

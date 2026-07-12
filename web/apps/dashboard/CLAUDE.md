@@ -7,20 +7,18 @@ Product application for incident investigation. Next.js 15 App Router with SSR (
 ## App Overview
 
 - **Purpose**: Incident investigation, root cause analysis, team collaboration, integration management
-- **Rendering**: Server-Side Rendering (SSR) with Clerk session management
-- **Auth**: Clerk (`@clerk/nextjs` v7) — Clerk-hosted sign-in/sign-up, Clerk organizations → multi-tenancy, Google/GitHub/email social providers configured in the Clerk dashboard
-- **Database**: None owned by the dashboard — all data lives behind the Core API (`CORE_API_URL`). The dashboard is a Clerk-authenticated proxy/UI. No DynamoDB, no KMS, no SQS in this app.
-- **Hosting**: AWS CloudFront + Lambda@Edge via SST (Clerk is hosted by Clerk)
+- **Rendering**: Server-Side Rendering (SSR) with Core-backed local session management
+- **Auth**: Local JWT auth in OSS. The dashboard calls Core `/v1/auth/*`, stores `__session`, and verifies through Core `/v1/auth/me`.
+- **Database**: None owned by the dashboard — all data lives behind the Core API (`CORE_API_URL`). No dashboard-owned DynamoDB, KMS, or SQS.
+- **Hosting**: Docker image from `apps/dashboard/Dockerfile`
 
 ## Routes
 
 ### Authentication
 | Route | Purpose |
 |---|---|
-| `/auth/sign-in` | Clerk `<SignIn>` component (email, Google, GitHub) |
-| `/auth/sign-up` | Clerk `<SignUp>` component |
-| `/auth/forgot-password` | Clerk-managed password reset |
-| `/auth/verify-email` | Clerk-managed email verification |
+| `/auth/sign-in` | Local sign-in form backed by Core `/v1/auth/login` |
+| `/auth/sign-up` | Local registration form backed by Core `/v1/auth/register` |
 
 ### Onboarding
 | Route | Purpose |
@@ -240,13 +238,15 @@ The `lib/db/` directory has been **removed entirely**. The dashboard owns no sto
 
 Slack, GitHub, Jira, AWS CloudWatch, HubSpot, Trello, PostgreSQL, Linear, Sentry, MongoDB, Datadog, PagerDuty, Grafana, Confluence, Webhooks
 
-Each has type-specific Zod validation for credentials. Credentials are forwarded to the Core API, which handles encryption (KMS envelope) and DynamoDB storage — the dashboard never holds credentials at rest.
+Each has type-specific Zod validation for credentials. Credentials are forwarded
+to the Core API, which handles encryption and storage — the dashboard never
+holds credentials at rest.
 
 ## Middleware Pipeline
 
 1. **Staging auth** — cookie check (`staging-authorized:<base64_password>`)
 2. **Public routes bypass** — `/auth/*`, `/api/health`, `/staging-auth`, `/api/billing/webhook`
-3. **Clerk session check** — `clerkMiddleware()` redirects to `/auth/sign-in` if missing
+3. **Local session check** — verifies `__session` through Core and redirects to `/auth/sign-in` if missing
 4. **Profile completion guard** — incomplete → `/onboarding/complete-profile` or `/onboarding/choose-plan`; complete → block onboarding access
 5. **Locale detection** — Accept-Language + NEXT_LOCALE cookie
 
@@ -268,9 +268,13 @@ Sentry wired via Next.js instrumentation hook at three runtime boundaries:
 
 ## Data Models
 
-The dashboard does **not** own any persisted data. All entities (`Tenant`, `User`, `Incident`, `Remediation`, `Pattern`, `ApiKey`, `BillingAccount`, `Invite`, `UserSettings`, `Integration`, `AuditEntry`, etc.) live in the Core API's DynamoDB single-table design (table `causeflow-<stage>`) and are modeled with ElectroDB. The full authoritative schema is in the Core repository at `causeflow/core/docs/product/05-data-model.md` and `causeflow/core/src/shared/infra/db/entities/`.
+The dashboard does **not** own any persisted data. All entities (`Tenant`,
+`User`, `Incident`, `Remediation`, `Pattern`, `ApiKey`, `BillingAccount`,
+`Invite`, `UserSettings`, `Integration`, `AuditEntry`, etc.) live behind the
+Core API. Core uses Postgres in the OSS runtime and may use DynamoDB in
+AWS-backed deployments.
 
-Clerk owns user identity + organization membership; the Core API mirrors the Clerk `user_id` → its own `User`/`Tenant` records keyed by email.
+Core owns local OSS identity and tenant membership.
 
 ## Environment Variables
 
@@ -312,7 +316,10 @@ Dev mode uses the mock Core API client when `CORE_API_URL` is blank — nothing 
 pnpm --filter dashboard run credits:add -- --tenant <tenantId> --amount <n> [--reason "reason"]
 ```
 
-Scripts live in `apps/dashboard/scripts/`. The commercial `stripe:setup` and `users:delete` CLIs were removed with the OSS Stripe/AWS purge (AC-048 / AC-049). Run from the project root using `pnpm --filter dashboard run <script>`.
+Scripts live in `apps/dashboard/scripts/`. The commercial `stripe:setup` and
+`users:delete` CLIs were removed with the OSS Stripe/AWS purge (AC-048 /
+AC-049). Run from the project root using
+`pnpm --filter @causeflow/dashboard run <script>`.
 
 ## Verification Protocol for Dashboard Changes
 

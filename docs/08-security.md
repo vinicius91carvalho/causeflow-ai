@@ -10,10 +10,10 @@ CauseFlow handles access to clients' production infrastructure. Security is not 
 
 ```mermaid
 graph TD
-    L1["1. AUTHENTICATION — Who are you?\nClerk OAuth (JWT via @clerk/backend)\nAPI Keys (SHA-256 hashed): widgets + webhooks\nWebhook signatures: HMAC / Stripe / Svix"]
-    L2["2. AUTHORIZATION — What can you do?\nRBAC mapped from Clerk org roles\nTenant isolation (org_id from verified JWT)"]
+    L1["1. AUTHENTICATION — Who are you?\nLocal JWT in OSS; Clerk JWT in hosted deployments\nAPI Keys (SHA-256 hashed): widgets + webhooks\nWebhook signatures: HMAC / Stripe / Svix"]
+    L2["2. AUTHORIZATION — What can you do?\nRBAC mapped from session roles\nTenant isolation from verified token claims"]
     L3["3. CREDENTIALS — How do we access client infrastructure?\nSTS AssumeRole (temporary, 15min)\nSession policies (least privilege per agent)"]
-    L4["4. ENCRYPTION — Sensitive data protected?\nKMS envelope encryption\n(cloud creds + Composio tokens)"]
+    L4["4. ENCRYPTION — Sensitive data protected?\nAES-GCM locally; KMS in AWS-backed deployments\n(cloud creds + Composio tokens)"]
     L5["5. COMPLIANCE — Legal posture\nTerms & Privacy acceptance tracking\nImmutable audit hash chain"]
     L6["6. RATE LIMITING — Protection against abuse\nPer-tenant, per-plan, fail-closed"]
     L7["7. INPUT VALIDATION — Valid data?\nZod schemas on all input"]
@@ -26,12 +26,14 @@ graph TD
 
 ## 1. Authentication
 
-CauseFlow exposes **six distinct security schemes**, each matched to the threat model of its surface. These map 1:1 to the schemes declared in `openapi.yaml`.
+CauseFlow exposes distinct security schemes, each matched to the threat model of
+its surface. The route files are the source of truth for which scheme a route
+accepts.
 
 | Scheme               | Header                  | Used by                                       | Verification                          |
 | -------------------- | ----------------------- | --------------------------------------------- | ------------------------------------- |
-| `bearerAuth`         | `Authorization: Bearer` | Dashboard / API clients (Clerk JWT)           | `@clerk/backend` verifyToken          |
-| `apiKeyAuth`         | `X-API-Key`             | Widget + webhook ingest                       | SHA-256 hash lookup in DynamoDB       |
+| `bearerAuth`         | `Authorization: Bearer` | Dashboard / API clients (local JWT in OSS, Clerk JWT in hosted deployments) | JWT verification          |
+| `apiKeyAuth`         | `X-API-Key`             | Widget + webhook ingest                       | SHA-256 hash lookup       |
 | `webhookSecret`      | `X-Webhook-Signature`   | Generic webhook ingest (HMAC)                 | HMAC-SHA256(body, secret) + timingSafeEqual |
 | `webhookSignature`   | `X-Composio-Signature`  | Composio integration callbacks                | HMAC-SHA256(body, composioSecret)     |
 | `stripeSignature`    | `stripe-signature`      | Stripe billing webhooks                       | `stripe.webhooks.constructEvent`      |
@@ -264,7 +266,7 @@ Read-only agents receive IAM policies that literally omit mutating verbs — not
 
 ---
 
-## 4. KMS Envelope Encryption
+## 4. Token Encryption
 
 Used for **all sensitive secrets at rest**:
 - Cloud provider credentials (AWS/GCP/Azure secret keys where not STS)
@@ -273,7 +275,9 @@ Used for **all sensitive secrets at rest**:
 
 ### How It Works
 
-Implementation: `src/shared/infra/credentials/kms-token-encryption.ts`
+Implementation: OSS local runtime uses
+`src/shared/infra/credentials/aes-gcm-token-encryption.ts`; AWS-backed
+deployments can use KMS envelope encryption.
 
 ```
 encrypt(plaintext):
@@ -297,12 +301,15 @@ decrypt(payload):
 
 ### Security Guarantees
 
-- Token is **never** stored in plaintext — DynamoDB only holds the ciphertext
+- Token is **never** stored in plaintext — persistence only holds ciphertext
 - DEK is **never** persisted in plaintext — only the KMS-encrypted version is stored
 - Plaintext DEK exists in process memory ONLY during encrypt/decrypt, then is zeroed
 - AES-256-GCM provides **authenticated encryption** — any tampering with the ciphertext fails the auth tag check at decrypt time
 - Even with full DynamoDB access, tokens are unreadable without KMS `Decrypt` permission on the CMK
 - Composio tokens reuse the exact same pipeline — there is no separate, weaker path for integration secrets
+
+In OSS mode, the `TOKEN_ENCRYPTION_KEY` env var supplies the AES-256-GCM key and
+Postgres stores only ciphertext.
 
 ---
 
@@ -395,11 +402,11 @@ Structured logging (pino) applies a redaction allow-list: Authorization headers,
 
 ## Security Checklist (for maintenance)
 
-- [ ] `CLERK_SECRET_KEY` set and rotated; no default
-- [ ] `CLERK_WEBHOOK_SIGNING_SECRET` set (svix verification)
+- [ ] Hosted auth secrets set and rotated; OSS `JWT_SECRET` is not the default
+- [ ] Clerk webhook signing secret set when Clerk webhooks are enabled
 - [ ] `STRIPE_WEBHOOK_SECRET` set (Stripe signature verification)
 - [ ] `WEBHOOK_SECRET` is strong (>32 random chars)
-- [ ] `KMS_TOKEN_ENCRYPTION_KEY_ID` points to a real CMK; IAM grants `kms:Decrypt` only to API roles
+- [ ] `TOKEN_ENCRYPTION_KEY` is strong in OSS; KMS CMK/IAM are configured in AWS-backed deployments
 - [ ] CORS `ALLOWED_ORIGINS` has no wildcard
 - [ ] Rate limiting active (Redis UP or fallback working)
 - [ ] STS session TTL ≤ 15 min; read-only roles cannot mutate

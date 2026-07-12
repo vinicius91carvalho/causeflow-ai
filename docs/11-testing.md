@@ -11,7 +11,7 @@ CauseFlow has 5 testing levels, from fastest to most comprehensive:
 ```mermaid
 graph LR
     U["UNIT<br/>(~95 files)<br/>No I/O, all mocked<br/>< 10s"]
-    I["INTEGRATION<br/>(~3 files)<br/>DynamoDB/Redis/SQS<br/>real (Local)"]
+    I["INTEGRATION<br/>(~3 files)<br/>Postgres/Redis/BullMQ<br/>real (Local)"]
     E["E2E<br/>(~6 files)<br/>Real API<br/>~2m"]
     S["SMOKE<br/>(~3 files)<br/>Everything real<br/>~5m"]
     EV["EVAL<br/>(LLM)<br/>Promptfoo"]
@@ -126,12 +126,12 @@ evals; filling those gaps is tracked as ongoing work.
 
 ## 2. Integration Tests
 
-**What they test:** Real interaction with DynamoDB, Redis, and SQS (via LocalStack).
+**What they test:** Real interaction with Postgres, Redis, and BullMQ in the OSS runtime.
 **Framework:** Vitest
 **Location:** `tests/integration/`
 **Count:** ~3 files
 **Time:** ~30 seconds
-**Requires:** Docker (LocalStack)
+**Requires:** Docker
 
 ### How to Run
 
@@ -145,32 +145,29 @@ pnpm test:integration
 
 ### What Is Tested
 
-- **DynamoDB:** Real CRUD of entities (create, query, update, delete)
+- **Postgres:** Real CRUD of entities (create, query, update, delete)
 - **Redis:** Real rate limiting (set, incr, expire)
-- **SQS:** Real message sending and receiving
+- **BullMQ:** Real job enqueue/dequeue paths
 
 ### Example
 
 ```typescript
-// tests/integration/dynamodb.test.ts
+// tests/integration/postgres.test.ts
 
-describe('DynamoDB Integration', () => {
+describe('Postgres Integration', () => {
   it('should create and retrieve an incident', async () => {
-    // Uses LOCAL DynamoDB (LocalStack)
-    await IncidentEntity.create({
+    // Uses local Postgres from docker-compose.yml
+    await incidentRepository.save({
       tenantId: 't_test',
       incidentId: 'inc_test',
       title: 'Test Incident',
       severity: 'high',
       status: 'open',
-    }).go();
+    });
 
-    const result = await IncidentEntity.get({
-      tenantId: 't_test',
-      incidentId: 'inc_test',
-    }).go();
+    const result = await incidentRepository.findById('t_test', 'inc_test');
 
-    expect(result.data.title).toBe('Test Incident');
+    expect(result?.title).toBe('Test Incident');
   });
 });
 ```
@@ -300,10 +297,10 @@ tests/
 │       ├── skills/              # dynamic skill selection
 │       └── widget/
 │
-├── integration/                   # Real DynamoDB/Redis/SQS
-│   ├── dynamodb.test.ts
+├── integration/                   # Real Postgres/Redis/BullMQ
+│   ├── postgres.test.ts
 │   ├── redis.test.ts
-│   └── sqs.test.ts
+│   └── queue.test.ts
 │
 ├── e2e/                          # Complete pipeline
 │   └── scenarios/

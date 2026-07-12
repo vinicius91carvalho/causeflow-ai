@@ -7,6 +7,7 @@ This guide covers everything you need to get CauseFlow AI running locally.
 - Node.js >= 24
 - pnpm 10.30.1
 - Git
+- Docker + Compose for the full OSS stack
 
 ## Clone and Install
 
@@ -18,19 +19,18 @@ pnpm install
 
 ## Environment Setup
 
-Copy the root example file and fill in your values:
+Copy the root example file:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Required values in `.env.local`:
+Optional root values:
 
 | Variable | Description |
 |---|---|
 | `NEXT_PUBLIC_GA4_MEASUREMENT_ID` | Google Analytics 4 measurement ID |
-| `NEXT_PUBLIC_CLARITY_PROJECT_ID` | Microsoft Clarity project ID |
-| `LOOPS_API_KEY` | Loops.so API key (optional for local development) |
+| `NEXT_PUBLIC_CLARITY_ID` | Microsoft Clarity project ID |
 
 For the website app, also copy its env file:
 
@@ -44,9 +44,34 @@ For the dashboard app:
 cp apps/dashboard/.env.example apps/dashboard/.env.local
 ```
 
-> **Important:** `.env.staging` and `.env.production` do not exist in this project. SST injects stage-specific environment variables at deploy time via `sst.config.ts`. Never search for or create these files.
+> **Important:** `.env.staging` and `.env.production` do not exist in this
+> project. Hosted deployments inject environment variables through CI; never
+> search for or create those files.
 
-## Starting Development Servers
+The open-source runtime does not require Clerk, Stripe, AWS, Sentry, Loops.so,
+or SST variables. The dashboard uses `JWT_SECRET` shared with Core and
+`CAUSEFLOW_RUNTIME=oss`; `apps/dashboard/.env.example` contains the defaults.
+
+## Full Docker Stack
+
+From the web repo root:
+
+```bash
+docker compose up -d
+```
+
+This starts:
+
+| Service | URL |
+|---|---|
+| Website | `http://127.0.0.1:3000` |
+| Dashboard | `http://127.0.0.1:3001` |
+| Core API | `http://127.0.0.1:3099` |
+| Hindsight | `http://127.0.0.1:8888` |
+
+Set `CORE_CONTEXT=/abs/path/to/core` if Core is not checked out at `../core`.
+
+## Starting Development Servers Without Docker
 
 Start the website only (port 3000):
 
@@ -92,7 +117,7 @@ causeflow-ai/
 │   ├── shared/              # Types, utils, constants, i18n keys
 │   ├── ui/                  # Reusable UI components (design system)
 │   ├── analytics/           # GA4, Microsoft Clarity, tracking events
-│   ├── auth/                # Authentication: Auth.js v5, Cognito OIDC
+│   ├── auth/                # Legacy Auth.js/Cognito helpers
 │   └── forms/               # Form logic and validation
 ├── docs/                    # Project documentation
 ├── tests/                   # E2E Playwright test files

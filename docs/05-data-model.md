@@ -4,6 +4,16 @@
 
 ---
 
+## Runtime Persistence
+
+The OSS Docker runtime uses Postgres. The authoritative local schema is
+`core/infra/postgres/migrations/001_create_causeflow_schema.sql`, and the
+runtime repositories live under `core/src/modules/**/infra/pg-*.repository.ts`
+plus shared helpers in `core/src/shared/infra/db/pg-client.ts`.
+
+AWS-backed deployments may still use the DynamoDB single-table model described
+below.
+
 ## DynamoDB Single Table Design
 
 CauseFlow uses **a single DynamoDB table** for ALL data. This may seem strange if you come

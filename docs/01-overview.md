@@ -185,14 +185,14 @@ permanently lost — they're either auto-charged or queued for purchase.
 | Language | TypeScript (strict) | Type-safety, same frontend/backend ecosystem |
 | Runtime | Node.js 22 | Mature ecosystem, official Anthropic SDK |
 | Web Framework | Hono | Ultra-lightweight (~14KB), native typing, native SSE |
-| Database | DynamoDB (via ElectroDB) | Serverless, pay-per-use, < 10ms latency |
+| Database | Postgres in OSS/local; DynamoDB in AWS-backed deployments | Local durability without AWS; serverless option for hosted deployments |
 | Cache | Redis (ioredis) | Rate limiting, session cache |
-| Queues | SQS | Decouple sync/async, native DLQ |
-| AI | Claude (Anthropic) | Haiku/Sonnet/Opus by complexity |
-| Agent Framework | Mastra (`@mastra/core`) | Multi-step agentic loop, DynamoDB memory, Langfuse observability |
+| Queues | BullMQ/Redis in OSS/local; SQS in AWS-backed deployments | Decouple sync/async investigation work |
+| AI | Local OpenAI-compatible connector by default; Anthropic override supported | Runs without paid credentials locally |
+| Agent Framework | Enhanced runner / local worker path; Mastra optional | Multi-step agentic investigation loop |
 | LLM Observability | Langfuse | Tracing for every AI call |
 | IaC | AWS CDK | Infrastructure as code, same TS ecosystem |
-| Local Dev | LocalStack | Emulates AWS locally in Docker |
+| Local Dev | Docker OSS runtime | Postgres, Redis, Hindsight, Core API, worker |
 | Testing | Vitest + Promptfoo | Unit/integration/e2e + LLM quality evaluation |
 | Package Manager | **pnpm** (NEVER npm) | 3x faster, saves disk space |
 
@@ -205,11 +205,11 @@ in detail in the following documents:
 
 - **Clean Architecture** — how code is organized in layers (doc 02)
 - **Modular Monolith (Modlito)** — a monolith divided into **15 modules** (doc 02): tenant, auth (Clerk), user, billing (Stripe), ingestion, triage, investigation, remediation, memory (chat + agent long-term recall), code-intelligence, skills (custom tenant runbooks), widget (embeddable customer portal), notification, integration, audit
-- **Single Table Design** — how DynamoDB works with a single table (doc 05)
+- **Persistence models** — how Postgres and DynamoDB repositories map domain entities (doc 05)
 - **EventBus** — how modules communicate without depending on each other (doc 02)
 - **Ports & Adapters** — how interfaces abstract implementations (doc 02)
 - **Branded Types** — TypeScript types that prevent ID confusion bugs (doc 05)
 - **HMAC** — how webhooks are validated (doc 08)
-- **STS/KMS** — how AWS credentials are managed (doc 08)
+- **STS/KMS/AES-GCM** — how cloud credentials and local tokens are managed (doc 08)
 
 [Next: Architecture >](./02-architecture.md)

@@ -4,11 +4,11 @@
 
 The website is a **Next.js 15 App Router** application using **Static Site Generation (SSG)** for all content pages. It serves as the marketing site for the CauseFlow AI incident investigation platform, targeting engineering teams of 2–50 engineers.
 
-- **Hosting:** AWS via SST v3 + CloudFront
+- **Hosting:** Docker image from `apps/website/Dockerfile`
 - **Framework:** Next.js 15 (App Router, SSG)
 - **Styling:** Tailwind CSS v4 + Shadcn/ui components
 - **i18n:** next-intl (EN default, PT-BR at `/pt-br/` prefix)
-- **Forms:** Loops.so (contact/early access)
+- **Forms:** Zod-validated UI forms; no external form service required in OSS
 - **Analytics:** Google Analytics 4 + Microsoft Clarity
 
 ---
@@ -24,11 +24,10 @@ All routes are locale-aware. English is the default (no prefix). Portuguese (Bra
 | `/security` | Security & Compliance | Commitment cards, LGPD/GDPR compliance badges, encryption details |
 | `/integrations` | Integration Partners | Filter by category, 8+ integration cards (Datadog, PagerDuty, GitHub, Slack, etc.) |
 | `/pricing` | Pricing Plans | Annual/monthly toggle, plan comparison table, ROI calculator |
-| `/get-started` | Sign Up / Early Access | Mock sign-up form (ComingSoonOverlay) with honeypot |
+| `/get-started` | Sign Up / Early Access | Redirect/CTA into the dashboard sign-up flow |
 | `/privacy` | Privacy Policy | Legal privacy page |
 | `/terms` | Terms of Service | Legal terms page |
 | `/staging-auth` | Staging Password Gate | Not localized — only active when `NEXT_PUBLIC_DEPLOYMENT_STAGE=staging` |
-| `/api/notify` | Email Notification API | POST endpoint — Loops.so integration with Zod validation |
 
 ---
 
@@ -105,21 +104,6 @@ Configured in `apps/website/next.config.mjs` via `headers()`:
 
 ---
 
-## API Route: POST /api/notify
-
-Located at `apps/website/src/app/api/notify/route.ts`.
-
-**Purpose:** Proxies early-access/contact form submissions to Loops.so and optionally sends internal Slack/email notifications.
-
-**Validations:**
-- **Zod schema** — validates `name`, `email`, `company`, `message` fields
-- **Honeypot field** — rejects submissions with a filled `website` field (bot trap)
-- **Rate limiting** — 5 requests per minute per IP address
-
-**Environment variable required:** `LOOPS_API_KEY` (set in `apps/website/.env.local`)
-
----
-
 ## Local Development
 
 ```bash
@@ -151,14 +135,12 @@ pnpm turbo check-types
 # Lint + format
 pnpm exec biome check .
 
-# Deploy to staging (from apps/website)
-cd apps/website && sst deploy --stage staging
-
-# Deploy to production
-cd apps/website && sst deploy --stage production
+# Build the Docker image used by the OSS runtime
+docker compose build causeflow-website
 ```
 
-**SST v3** compiles the Next.js app into a CloudFront + Lambda@Edge distribution. Environment variables are injected at deploy time via `apps/website/sst.config.ts` — no `.env.staging` or `.env.production` files exist.
+Hosted deployments are CI-owned and build the same Dockerfile. Do not deploy
+manually from a developer machine.
 
 ---
 
@@ -171,7 +153,6 @@ cd apps/website && sst deploy --stage production
 | `@causeflow/analytics` | GA4 + Microsoft Clarity initialization and event tracking |
 | `@causeflow/forms` | Form validation schemas (Zod), submission helpers |
 | `next-intl` | Internationalization routing and message lookup |
-| `sst` | AWS deployment (CloudFront, Lambda@Edge) |
 
 ---
 
@@ -179,12 +160,10 @@ cd apps/website && sst deploy --stage production
 
 | Variable | Location | Purpose |
 |---|---|---|
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Root `.env.local` | Google Analytics 4 Measurement ID |
-| `NEXT_PUBLIC_CLARITY_PROJECT_ID` | Root `.env.local` | Microsoft Clarity project ID |
-| `LOOPS_API_KEY` | `apps/website/.env.local` | Loops.so API key for `/api/notify` |
-| `NEXT_PUBLIC_DEPLOYMENT_STAGE` | Injected by SST | `staging` or `production` — controls noindex, staging auth |
-| `NEXT_PUBLIC_STAGING_PASSWORD` | Injected by SST | Base64 password for staging gate (`causeflow-staging-2026`) |
-| `NEXT_PUBLIC_DASHBOARD_URL` | Injected by SST | Dashboard app URL (switches per stage) |
+| `NEXT_PUBLIC_GA4_MEASUREMENT_ID` | Root/app `.env.local` | Optional Google Analytics 4 Measurement ID |
+| `NEXT_PUBLIC_CLARITY_ID` | Root/app `.env.local` | Optional Microsoft Clarity project ID |
+| `NEXT_PUBLIC_DEPLOYMENT_STAGE` | `.env.local` or CI | `development`, `staging`, or `production`; staging controls noindex/staging auth |
+| `NEXT_PUBLIC_DASHBOARD_URL` | `.env.local`, compose build arg, or CI | Dashboard app URL |
 
 ---
 

@@ -4,11 +4,10 @@
 
 ---
 
-> **Source of truth:** The complete machine-readable API contract lives in
-> [`docs/openapi.yaml`](../openapi.yaml) — an OpenAPI 3.1 spec with **99 paths**
-> and **112 operations**. This document is the human-readable companion: it
-> groups endpoints by module, explains auth schemes, and highlights quirks. If
-> the two ever disagree, `openapi.yaml` wins.
+> **Source of truth:** Route registration in `core/src/app.ts` and the module
+> route files under `core/src/modules/**/infra/*.routes.ts` are authoritative.
+> This document is the human-readable companion: it groups endpoints by module,
+> explains auth schemes, and highlights quirks.
 
 ## Servers
 
@@ -25,30 +24,33 @@ Most endpoints sit under the `/v1` prefix. Two notable exceptions:
 - The Composio webhook receiver lives at `/webhooks/composio` (not
   `/v1/webhooks/...`) so the public path is stable for the provider.
 
+The open-source local runtime publishes Core on `http://localhost:3099`; the
+container listens on port `5171`.
+
 ---
 
 ## Authentication & Security Schemes
 
-The API defines **6 security schemes**. Each operation in `openapi.yaml`
-declares which one(s) it accepts.
+The API uses the security schemes below. Route files declare which one(s) each
+operation accepts.
 
 | Scheme | Type | Header | Used by |
 |---|---|---|---|
-| `bearerAuth` | HTTP Bearer (JWT) | `Authorization: Bearer <jwt>` | Default for all dashboard endpoints. Clerk-issued JWT; tenant context derived from the `o.id` (organization) claim. |
+| `bearerAuth` | HTTP Bearer (JWT) | `Authorization: Bearer <jwt>` | Default for dashboard endpoints. Production uses Clerk-issued JWTs; the OSS runtime uses local JWT auth with the same tenant-scoped contract. |
 | `apiKeyAuth` | API key | `X-API-Key` | Tenant-scoped programmatic access and the embeddable Widget. |
 | `webhookSecret` | API key | `X-Webhook-Secret` | Shared webhook secret accepted on ingestion endpoints (`POST /v1/webhooks/{tenantId}/{provider}`) as an alternative to `apiKeyAuth`. |
 | `webhookSignature` | API key | `webhook-signature` | HMAC signature emitted by Composio when calling our trigger webhook. |
 | `stripeSignature` | API key | `stripe-signature` | Stripe billing webhooks. |
 | `svixSignature` | API key | `svix-signature` (+ `svix-id`, `svix-timestamp`) | Svix-signed Clerk webhooks. |
 
-The global default in `openapi.yaml` is `security: [{ bearerAuth: [] }]`;
-operations that need a different scheme override it locally.
+Bearer auth is the default for dashboard/API routes; operations that need a
+different scheme override it locally.
 
 ### Roles (RBAC)
 
-Roles are carried inside the Clerk JWT. The system has two roles: `admin` and
-`member`. Endpoints annotate which roles they require in their summary (e.g.
-*"admin"*).
+Roles are carried in the authenticated session token. Hosted deployments use
+Clerk organization claims; the OSS runtime uses local JWT claims. The system
+has two roles: `admin` and `member`.
 
 | Role | What they can do |
 |---|---|
@@ -57,8 +59,8 @@ Roles are carried inside the Clerk JWT. The system has two roles: `admin` and
 
 ### Public routes (no auth)
 
-These operations declare `security: []` and are reachable without a JWT or
-API key. They are still rate-limited and several rely on signed payloads.
+These operations are reachable without a dashboard bearer token or API key.
+They are still rate-limited and several rely on signed payloads.
 
 | Method | Path | How it is protected |
 |---|---|---|
@@ -79,8 +81,8 @@ custom domain configured for the widget portal.
 
 ## Endpoint Catalogue
 
-The catalogue below mirrors the `tags` block in `openapi.yaml`. For request
-bodies, response shapes, and error envelopes refer to the OpenAPI document.
+The catalogue below mirrors the route modules. For exact request and response
+shapes, read the Zod schemas in the corresponding route/handler files.
 
 ### Health
 
@@ -100,6 +102,9 @@ Clerk integration: webhook receiver and current-user lookup.
 |---|---|---|---|
 | `POST` | `/v1/auth/clerk-webhook` | svixSignature | Clerk webhook receiver (Svix signed) |
 | `GET`  | `/v1/auth/me`            | bearerAuth    | Current authenticated user (whoami) |
+| `POST` | `/v1/auth/login`         | public        | OSS/local sign-in; returns a local session token |
+| `POST` | `/v1/auth/register`      | public        | OSS/local self-service registration |
+| `POST` | `/v1/auth/logout`        | bearerAuth    | OSS/local session logout |
 
 ### Tenant
 
@@ -124,7 +129,7 @@ Team members, profiles, settings, and cross-tenant lookup for OAuth linking.
 | `DELETE` | `/v1/users/{userId}`              | bearerAuth (admin, not self) | Remove team member |
 | `GET`    | `/v1/users/{userId}/settings`     | bearerAuth | Get user settings, profile, company |
 | `PATCH`  | `/v1/users/{userId}/settings`     | bearerAuth | Update user settings |
-| `GET`    | `/v1/users/by-email/{email}`      | bearerAuth | Find a user by email (cross-tenant; Auth.js OAuth linking) |
+| `GET`    | `/v1/users/by-email/{email}`      | bearerAuth | Find a user by email for account/session linking |
 | `GET`    | `/v1/users/{userId}/profile`      | bearerAuth | Get user profile |
 
 ### Invite
@@ -282,6 +287,8 @@ Unified surface over both credential-based and Composio-OAuth integrations.
 |---|---|---|---|
 | `GET`    | `/v1/integrations`                       | bearerAuth | Unified list of integrations (credential + Composio OAuth) |
 | `GET`    | `/v1/integrations/catalog`               | bearerAuth | Catalog of supported providers with metadata |
+| `POST`   | `/v1/integrations/stub/enable`           | bearerAuth (admin) | Enable the OSS stub integration |
+| `POST`   | `/v1/integrations/stub/connect`          | bearerAuth (admin) | Connect and probe the OSS stub integration |
 | `POST`   | `/v1/integrations/credentials`           | bearerAuth (admin) | Connect a credential-based integration |
 | `DELETE` | `/v1/integrations/credentials/{type}`    | bearerAuth (admin) | Disconnect a credential-based integration |
 | `POST`   | `/v1/integrations/test-connection`       | bearerAuth (admin) | Test an AWS AssumeRole |
@@ -307,6 +314,15 @@ Status of the on-prem relay agent and the resources it exposes.
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `GET` | `/v1/relay/status` | bearerAuth | Relay connection status and available resources |
+
+### OSS
+
+Open-source runtime settings that replace SaaS-only configuration locally.
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/v1/oss/llm-connector` | bearerAuth | Read the active OSS LLM connector profile |
+| `PUT` | `/v1/oss/llm-connector` | bearerAuth (admin) | Update the OpenAI-compatible LLM connector used by triage/investigation |
 
 ### CodeKnowledge
 
@@ -415,9 +431,7 @@ List endpoints accept `limit` and `cursor` query parameters and return:
 { "items": [ ... ], "cursor": "opaque-token-or-null" }
 ```
 
-The exact parameter definitions live under
-`#/components/parameters/Limit` and `#/components/parameters/Cursor` in
-`openapi.yaml`.
+Exact cursor semantics are defined by each list route's request schema.
 
 ---
 

@@ -11,12 +11,12 @@
 | 2 | [02-architecture.md](./02-architecture.md) | Clean Architecture, Modular Monolith, how the layers connect |
 | 3 | [03-modules.md](./03-modules.md) | The 10 business modules — what each one does |
 | 4 | [04-complete-flow.md](./04-complete-flow.md) | Step by step: from tenant registration to incident resolution |
-| 5 | [05-data-model.md](./05-data-model.md) | All entities, DynamoDB Single Table, how data is written |
+| 5 | [05-data-model.md](./05-data-model.md) | All entities and persistence models |
 | 6 | [06-api-endpoints.md](./06-api-endpoints.md) | All HTTP endpoints, authentication, request/response examples |
 | 7 | [07-ai-system.md](./07-ai-system.md) | How AI agents work, models used, tools, costs |
-| 8 | [08-security.md](./08-security.md) | JWT, RBAC, HMAC, KMS, STS cross-account, audit trail |
+| 8 | [08-security.md](./08-security.md) | JWT, RBAC, HMAC, encryption, STS cross-account, audit trail |
 | 9 | [09-aws-infrastructure.md](./09-aws-infrastructure.md) | AWS services, CDK, SQS queues, deployment |
-| 10 | [10-local-environment.md](./10-local-environment.md) | How to run locally, Docker, LocalStack |
+| 10 | [10-local-environment.md](./10-local-environment.md) | How to run locally with Docker OSS runtime |
 | 11 | [11-testing.md](./11-testing.md) | 5 levels of testing, how to run them, what each level covers |
 | 12 | [12-production-maintenance.md](./12-production-maintenance.md) | Maintenance guide: monitoring, troubleshooting, runbooks |
 | 13 | [13-relay-integration.md](./13-relay-integration.md) | Secure database relay: architecture, protocol, agent integration |

@@ -4,6 +4,10 @@
 
 ---
 
+> **Runtime note:** The OSS Docker runtime uses Postgres repositories and
+> BullMQ/Redis queues. AWS-backed deployments may still use DynamoDB,
+> ElectroDB, KMS, and SQS adapters where called out below.
+
 ## Module Map
 
 CauseFlow is a modular monolith (Modlito) organized as 15 bounded contexts under `src/modules/`. Each module owns its domain, application, and infra layers and communicates with other modules exclusively via the in-process **EventBus** or by importing *types* from another module's `domain/` layer. No module ever reaches into another module's use cases or infra.

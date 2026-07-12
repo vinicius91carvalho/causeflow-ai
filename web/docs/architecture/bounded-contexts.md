@@ -20,7 +20,7 @@ src/contexts/<context-name>/
 │   ├── i18n/            # Per-context translation files
 │   │   ├── en.json      # English translations owned by this context
 │   │   └── pt-br.json   # Portuguese translations owned by this context
-│   ├── *-repository.ts  # Data access objects (DynamoDB, etc.)
+│   ├── *-repository.ts  # Data access objects / Core API adapters
 │   ├── api-schema.ts    # Zod validation schemas for API inputs
 │   └── __tests__/       # Infrastructure-layer tests
 ├── presentation/        # React components and UI
@@ -31,9 +31,7 @@ src/contexts/<context-name>/
 ├── api/                 # API route handler implementations (dashboard only)
 │                        # Moved from app/api/... — app/api/ files are thin re-exports
 └── lib/                 # Special exception — files that cannot fit DDD layers
-    │                    # (e.g., Auth.js configs constrained by Next.js edge runtime)
-    ├── auth.ts          # Full Auth.js config (server-only, NOT used in middleware)
-    └── auth-edge.ts     # Edge-safe Auth.js config for middleware only
+    │                    # (e.g., SDK wrappers constrained by Next.js edge runtime)
 ```
 
 **Layer dependency rule (enforced by convention):**
@@ -42,7 +40,7 @@ src/contexts/<context-name>/
 |---|---|
 | `domain/` | Nothing (pure TypeScript, no app imports) |
 | `application/` | `domain/` only |
-| `infrastructure/` | `domain/`, `application/`, external libs, `@/lib/db/client` directly |
+| `infrastructure/` | `domain/`, `application`, external libs, Core API clients |
 | `presentation/` | `domain/`, `application/`, `infrastructure/` |
 
 ### i18n: Per-Context Files with a Composer
@@ -71,7 +69,7 @@ Context `index.ts` barrel files have been removed from all contexts in both apps
 // CORRECT — direct deep path to the owning context
 import type { Incident } from '@/contexts/investigation/domain/types';
 import { analysisRepository } from '@/contexts/investigation/infrastructure/analysis-repository';
-import { docClient } from '@/lib/db/client';
+import { getApiClient } from '@/lib/api/get-api-client';
 
 // WRONG — deleted barrel/aggregation files
 import { Incident } from '@/contexts/investigation';
@@ -79,13 +77,14 @@ import type { Incident } from '@/lib/db/types';
 import { analysisRepository } from '@/lib/db';
 ```
 
-Only shared utilities remain in `lib/db/`: `client.ts` (DynamoDB singleton), `encryption.ts` (KMS), and `base-repository.ts`.
+The dashboard no longer owns a `lib/db` persistence layer; product data is
+loaded through the Core API client.
 
-Repositories in `infrastructure/` must import the DynamoDB client directly:
+Handlers that need product data should use the Core API client:
 
 ```typescript
-// GOOD: import the singleton directly
-import { docClient } from '@/lib/db/client';
+// GOOD: route product data through Core
+import { getApiClient } from '@/lib/api/get-api-client';
 ```
 
 ---
@@ -97,7 +96,7 @@ import { docClient } from '@/lib/db/client';
 3. **Page implementations live in `presentation/pages/`.** Server and client page components move from `app/[locale]/...` into the owning context's `presentation/pages/` directory (dashboard only).
 4. **API handler implementations live in `api/`.** Route handler logic moves from `app/api/...` into the owning context's `api/` directory (dashboard only). The `app/api/` file re-exports the named HTTP method exports.
 5. **Next.js config exports must be inlined in route files.** `export const dynamic`, `export const runtime`, and similar Next.js static config cannot be re-exported from context files — the Next.js static analyzer only reads them from the `app/` route file directly.
-6. **`lib/` at the app level is shared infrastructure only.** Examples: `lib/db/client.ts`, `lib/api/with-auth.ts`, `lib/rate-limit.ts`. Context-specific logic (Stripe, repositories) belongs in its context's `infrastructure/` layer.
+6. **`lib/` at the app level is shared infrastructure only.** Examples: `lib/api/with-auth.ts`, `lib/api/get-api-client.ts`, `lib/rate-limit.ts`. Context-specific logic belongs in its context's `infrastructure/` layer.
 7. **Tests are colocated per layer.** Application tests go in `application/__tests__/`, infrastructure tests in `infrastructure/__tests__/`, component tests in `presentation/components/__tests__/`.
 
 ---
@@ -142,18 +141,16 @@ Audit trail and compliance views. Surfaces the structured event log produced by 
 
 ### `identity`
 
-Authentication, onboarding, and user profile management. Owns RBAC definitions and the Auth.js configuration files.
+Authentication, onboarding, and user profile management. Owns RBAC definitions
+and local session-facing pages/handlers.
 
 | Layer | Contents |
 |---|---|
 | `domain/` | `types.ts` — user/session types; `rbac/permissions.ts` — role definitions, `PERMISSIONS` map, `usePermission` hook, `RoleGuard` |
 | `infrastructure/` | `user-repository.ts`, `i18n/` |
 | `presentation/components/` | Sign-in form, sign-up form, onboarding steps, profile form, session skeleton (5 total) |
-| `presentation/pages/` | `sign-in-page`, `sign-up-page`, `forgot-password-page`, `verify-email-page`, `complete-profile-page` |
+| `presentation/pages/` | `sign-in-page`, `sign-up-page`, `complete-profile-page`, waitlist/invitation pages |
 | `api/` | `complete-profile-handler`, `connect-integration-handler` |
-| `lib/` | `auth.ts` (Auth.js v5 full config — server-only), `auth-edge.ts` (edge-safe config for middleware) |
-
-> **Note:** `src/middleware.ts` imports from `identity/lib/auth-edge.ts` (NOT `identity/lib/auth.ts`) to avoid edge bundling issues with server-only imports.
 
 ### `team`
 
@@ -267,16 +264,17 @@ The `lib/` directory at the app root is reserved for shared infrastructure that 
 
 | File | Belongs to |
 |---|---|
-| `lib/db/client.ts` | DynamoDB Document Client singleton (dashboard) |
-| `lib/db/encryption.ts` | KMS encryption/decryption (dashboard) |
-| `lib/db/base-repository.ts` | Base repository utilities (dashboard) |
 | `lib/api/with-auth.ts` | `withAuth()` HOC for API routes — session + RBAC + rate limit (dashboard) |
+| `lib/api/get-api-client.ts` | Selects HTTP Core client or mock client |
+| `lib/api/http-api-client.ts` | HTTP Core API client |
+| `lib/api/mock-api-client.ts` | App-only local development client |
 | `lib/api/schemas.ts` | Shared Zod schemas for API inputs (dashboard) |
 | `lib/i18n/compose.ts` | Deep-merges per-context i18n JSON files into a single next-intl message object |
 | `lib/rate-limit.ts` | Per-user rate limiting (dashboard + website) |
 | `lib/metadata.ts` | `generatePageMetadata()` SEO helper (website) |
 
-> **Important:** Context `infrastructure/` layers import `lib/db/client.ts` directly. The former `lib/db/index.ts` barrel has been removed.
+> **Important:** Context `infrastructure/` layers should use the Core API
+> client for product data. The former `lib/db/index.ts` barrel has been removed.
 
 ---
 

@@ -15,9 +15,9 @@ AI-powered incident investigation platform for engineering teams (2-50 engineers
 | Unit/Integration Tests | Vitest |
 | E2E Tests | Playwright (chromium, 4 viewports) |
 | i18n | next-intl (EN + PT-BR) |
-| Auth (Dashboard) | Clerk (OAuth + credentials) |
-| Billing | Stripe |
-| Hosting | SST on AWS |
+| Auth (Dashboard) | Local JWT auth in OSS; Clerk for hosted deployments |
+| Billing | Stub billing in OSS; Stripe for hosted deployments |
+| Hosting | Docker for OSS runtime; GitHub Actions/Docker images for hosted deployments |
 | Analytics | Google Analytics 4 + Microsoft Clarity |
 | Forms | Loops.so + Zod validation |
 
@@ -27,17 +27,17 @@ AI-powered incident investigation platform for engineering teams (2-50 engineers
 causeflow-ai/
 ├── apps/
 │   ├── website/                 # Next.js marketing site (SSG)
-│   └── dashboard/               # Next.js product app (SSR, Clerk auth, Stripe billing)
+│   └── dashboard/               # Next.js product app (SSR, local JWT auth in OSS)
 ├── packages/
 │   ├── shared/                  # Types, utils, constants, i18n messages
 │   ├── ui/                      # Design system (Radix UI + CVA + Tailwind)
 │   ├── analytics/               # GA4, Microsoft Clarity, tracking events
-│   ├── auth/                    # Authentication: Auth.js v5, Cognito OIDC, OAuth providers
+│   ├── auth/                    # Legacy auth helpers; dashboard auth now lives in app contexts
 │   └── forms/                   # Form logic and Zod validation schemas
 ├── docs/                        # Architecture, app docs, packages, deployment, development
 │   ├── apps/                    # Per-app documentation (website, dashboard)
 │   ├── architecture/            # Architecture overview, tech stack, bounded contexts
-│   ├── deployment/              # SST deploy guides (website, dashboard)
+│   ├── deployment/              # Deployment notes
 │   ├── development/             # Getting started, commands, testing, troubleshooting
 │   ├── packages/                # Package documentation
 │   ├── solutions/               # Institutional knowledge base (solved problems)
@@ -62,6 +62,7 @@ Each package and app follows **Clean Architecture** with DDD bounded contexts:
 
 - **Node.js** >= 24
 - **pnpm** 10.x (`corepack enable && corepack prepare pnpm@10.30.1 --activate`)
+- **Docker + Compose** for the full OSS stack
 - **chromium** (for Playwright E2E tests)
 
 > **Important:** `npm` and `npx` are forbidden in this project. Use `pnpm` and `pnpm dlx` exclusively.
@@ -93,13 +94,24 @@ cp apps/dashboard/.env.example apps/dashboard/.env.local
 
 Edit each `.env.local` and fill in your values. See [Environment Variables](#environment-variables) for details.
 
-### 4. Build all packages
+### 4. Start the full OSS stack
+
+```bash
+docker compose up -d
+```
+
+This starts the website (`http://localhost:3000`), dashboard
+(`http://localhost:3001`), Core API (`http://localhost:3099`), worker,
+Postgres, Redis, and Hindsight. Set `CORE_CONTEXT=/abs/path/to/core` if the
+Core checkout is not at `../core`.
+
+### 5. Build all packages
 
 ```bash
 pnpm turbo build
 ```
 
-### 5. Start the dev servers
+### 6. Start dev servers without Docker
 
 ```bash
 pnpm turbo dev
@@ -109,6 +121,7 @@ pnpm turbo dev
 |---|---|
 | Website | `http://localhost:3000` |
 | Dashboard | `http://localhost:3001` |
+| Core API (Docker) | `http://localhost:3099` |
 
 ## CLI Commands
 
@@ -154,8 +167,7 @@ pnpm --filter @causeflow/dashboard build     # Build dashboard only
 ### Dashboard CLI Scripts
 
 ```bash
-pnpm --filter dashboard run credits:add -- --tenant <id> --amount <n>   # Add credits manually
-pnpm --filter dashboard run stripe:setup                                 # Initialize Stripe products
+pnpm --filter @causeflow/dashboard run credits:add -- --tenant <id> --amount <n>   # Add credits manually
 ```
 
 ## Playwright E2E Tests
@@ -185,32 +197,26 @@ pnpm exec playwright install chromium
 | Variable | Type | Description |
 |---|---|---|
 | `NEXT_PUBLIC_GA4_MEASUREMENT_ID` | Public | Google Analytics 4 measurement ID |
-| `NEXT_PUBLIC_CLARITY_PROJECT_ID` | Public | Microsoft Clarity project ID |
-| `LOOPS_API_KEY` | Server | Loops.so API key for form submissions |
+| `NEXT_PUBLIC_CLARITY_ID` | Public | Microsoft Clarity project ID |
 
 ### Dashboard
 
 | Variable | Type | Description |
 |---|---|---|
-| `CLERK_SECRET_KEY` | Server | Clerk secret key |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Public | Clerk publishable key |
 | `CORE_API_URL` | Server | Core API base URL (blank for mock mode) |
-| `CORE_API_KEY` | Server | Core API authentication key |
-| `STRIPE_SECRET_KEY` | Server | Stripe secret key |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Public | Stripe publishable key |
-| `STRIPE_WEBHOOK_SECRET` | Server | Stripe webhook signing secret |
-| `STRIPE_STARTER_PRICE_ID` | Server | Stripe Price ID for Starter plan |
-| `STRIPE_PRO_PRICE_ID` | Server | Stripe Price ID for Pro plan |
-| `STRIPE_BUSINESS_PRICE_ID` | Server | Stripe Price ID for Business plan |
+| `JWT_SECRET` | Server | Local JWT secret shared with Core |
+| `CAUSEFLOW_RUNTIME` | Server | Set to `oss` for local stub billing/auth behavior |
 | `NEXT_PUBLIC_GA4_MEASUREMENT_ID` | Public | Google Analytics 4 measurement ID |
 | `NEXT_PUBLIC_CLARITY_ID` | Public | Microsoft Clarity project ID |
-| `NEXT_PUBLIC_DEPLOYMENT_STAGE` | Public | `staging` or `production` |
+| `NEXT_PUBLIC_DEPLOYMENT_STAGE` | Public | `development`, `staging`, or `production` |
 
-SST injects stage-specific env vars at deploy time. No `.env.staging` or `.env.production` files exist.
+The OSS runtime does not require Clerk, Stripe, AWS, Sentry, Loops.so, or
+SST-injected variables.
 
 ## Deployment
 
-Deployed using [SST v3](https://sst.dev) on AWS.
+The open-source runtime runs as Docker services. Hosted environments deploy
+the same Next.js apps from their Dockerfiles.
 
 | Environment | Website | Dashboard |
 |---|---|---|
@@ -250,7 +256,7 @@ PT-BR mirrors all routes with `/pt-br/` prefix.
 
 | Route | Page |
 |---|---|
-| `/auth/sign-in` | Sign in (Clerk) |
+| `/auth/sign-in` | Sign in (local JWT in OSS; Clerk in hosted deployments) |
 | `/auth/sign-up` | Register |
 | `/onboarding/complete-profile` | Company setup |
 | `/onboarding/choose-plan` | Plan selection |
@@ -273,11 +279,11 @@ See [Dashboard Documentation](docs/apps/dashboard/README.md) for full details.
 | Package | Description |
 |---|---|
 | `@causeflow/website` | Next.js marketing site (SSG) |
-| `@causeflow/dashboard` | Next.js product app (SSR, Clerk auth, Stripe billing) |
+| `@causeflow/dashboard` | Next.js product app (SSR, local JWT auth in OSS) |
 | `@causeflow/shared` | Shared types, utilities, constants, i18n messages |
 | `@causeflow/ui` | Design system — Radix UI + CVA + Tailwind components |
 | `@causeflow/analytics` | GA4 + Microsoft Clarity tracking wrappers |
-| `@causeflow/auth` | Auth.js v5, Cognito, session types, RBAC utils (legacy — dashboard uses Clerk directly) |
+| `@causeflow/auth` | Legacy Auth.js/Cognito helpers; dashboard auth is app-owned |
 | `@causeflow/forms` | Form logic with Zod validation schemas |
 
 ## Documentation

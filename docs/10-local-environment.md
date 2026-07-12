@@ -10,7 +10,7 @@
 |------|----------------|---------|
 | Node.js | 22+ | Application runtime |
 | pnpm | 8+ | Package manager (NEVER use npm) |
-| Docker + Docker Compose | 20+ | LocalStack (emulates AWS) |
+| Docker + Docker Compose | 20+ | OSS local runtime (Postgres, Redis, Hindsight, Core, worker) |
 | Git | 2.30+ | Version control |
 
 ---
@@ -40,26 +40,41 @@ pnpm install
 cp .env.example .env
 ```
 
-Edit `.env` and fill in at least:
+The default `.env.example` is enough for the open-source Docker runtime. It
+uses Postgres, Redis, bundled Hindsight, local JWT auth, AES-GCM token
+encryption, and the local Ornith-compatible LLM connector. `ANTHROPIC_API_KEY`
+is optional; when unset, triage and investigation use the OpenAI-compatible
+local connector configured by compose.
+
+Edit `.env` only when you need an override:
 
 ```bash
-# Required for AI to work (triage, investigation, memory/chat):
+# Optional Anthropic override for AI:
 ANTHROPIC_API_KEY=sk-ant-...
 
-# The rest works with default values for dev
-NODE_ENV=development
-PORT=3000
+# The local API is published on 3099; PORT is the in-container port.
+PORT=5171
 ```
 
-> **Note:** `ANTHROPIC_API_KEY` is shared across triage, investigation, and the
-> memory/chat endpoints — not just the investigation pipeline.
+> **Note:** For local Docker, keep `JWT_SECRET` aligned between Core and the
+> dashboard. The defaults already match.
 
 #### Environment Variables Reference
 
-All external integrations below **stub gracefully when their credentials are absent**
-(empty strings resolve to no-op clients), so you can run the backend locally with
-only `ANTHROPIC_API_KEY` set and still boot every module. Fill in the ones you
-need for the flow you're working on.
+All SaaS integrations below **stub gracefully when their credentials are absent**,
+so the OSS runtime boots without AWS, Stripe, Clerk, Sentry, Langfuse, Svix,
+Slack, Composio, or Mastra credentials. Fill in only the services you are
+working on.
+
+**OSS runtime**
+
+| Var | Required? | Purpose |
+|-----|-----------|---------|
+| `DATABASE_URL` | Required in containers | Postgres connection string |
+| `REDIS_URL` | Required in containers | Redis/BullMQ connection string |
+| `JWT_SECRET` | Required | Local JWT signing secret shared with the dashboard |
+| `TOKEN_ENCRYPTION_KEY` | Required | 32-byte hex AES-GCM key for token encryption |
+| `LLM_BASE_URL` / `LLM_MODEL` | Optional | OpenAI-compatible local LLM connector override |
 
 **Auth — Clerk** (required for authenticated routes, webhooks)
 
@@ -102,11 +117,11 @@ need for the flow you're working on.
 | `LANGFUSE_SECRET_KEY` | Optional | Langfuse secret |
 | `LANGFUSE_BASE_URL` | Optional | Self-hosted Langfuse URL (`LANGFUSE_HOST` equivalent) |
 
-**AI — Anthropic**
+**AI — Anthropic or OpenAI-compatible connector**
 
 | Var | Required? | Purpose |
 |-----|-----------|---------|
-| `ANTHROPIC_API_KEY` | **Required** | Used by triage, investigation, memory/chat, and all sub-agents |
+| `ANTHROPIC_API_KEY` | Optional in OSS | When set, overrides the local connector for triage, investigation, memory/chat, and sub-agents |
 | `ANTHROPIC_TRIAGE_MODEL` / `ANTHROPIC_INVESTIGATION_MODEL` / `ANTHROPIC_SYNTHESIS_MODEL` | Optional | Model overrides (default: `claude-sonnet-4-6`) |
 
 **Runner feature flags — Enhanced Runner** (all optional, default `false`)
@@ -120,16 +135,19 @@ need for the flow you're working on.
 | `ORCHESTRATOR_MODE_ENABLED` | Optional | Single-agent orchestrator mode instead of wave pipeline |
 | `MASTRA_ENABLED` | Optional | When `true`, the investigation worker uses `MastraAgentRunner` instead of `EnhancedPTCRunner` (drop-in Phase 1 replacement — same tools, same cost math, no PTC code execution). Default `false`. |
 
-### 4. Start Local Infrastructure (LocalStack)
+### 4. Start the OSS Runtime
 
 ```bash
 docker-compose up -d
 ```
 
 This starts:
-- **DynamoDB Local** (port 8000)
-- **Redis** (port 6379)
-- **LocalStack** (ports 4566, 4592) — emulates SQS, STS, KMS, CloudWatch
+- **Postgres** (host port 5439)
+- **Redis** (host port 6380)
+- **Hindsight** (ports 8888, 9999)
+- **Core API** (host port 3099, container port 5171)
+- **Core worker** (BullMQ consumer)
+- **Test app** (host port 5190)
 
 Verify everything is running:
 ```bash
@@ -162,17 +180,17 @@ What it does:
 4. Creates the DynamoDB `causeflow-staging` table + SQS queues
 5. Kills anything on port 3000 and launches the backend with `tsx src/main.ts`
 
-Use `pnpm dev` for the pure-local (LocalStack docker-compose) loop; use
-`local-up.sh` when you need Hindsight + real staging secrets.
+Use `pnpm dev` for the host development loop; use `local-up.sh` only when you
+need its staging-like MiniStack path.
 
 ### 6. Verify It Works
 
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:3099/health
 # → { "status": "ok" }
 
-curl http://localhost:3000/health/detailed
-# → { "status": "healthy", "services": { "dynamodb": { "status": "healthy" }, ... } }
+curl http://localhost:3099/health/detailed
+# → { "status": "healthy", "services": { "postgres": { "status": "healthy" }, ... } }
 ```
 
 ---
@@ -181,42 +199,21 @@ curl http://localhost:3000/health/detailed
 
 ```yaml
 services:
-  dynamodb-local:
-    image: amazon/dynamodb-local:latest
-    ports: ["8000:8000"]
+  causeflow-postgres:
+    image: postgres:16-alpine
+    ports: ["5439:5432"]
 
   redis:
     image: redis:7-alpine
-    ports: ["6379:6379"]
+    ports: ["6380:6379"]
 
-  localstack:
-    image: localstack/localstack:latest
-    ports: ["4566:4566"]
-    environment:
-      - SERVICES=sqs,sts,kms,cloudwatch,logs
-    volumes:
-      - ./infra/localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
+  causeflow-api:
+    build: .
+    ports: ["3099:5171"]
 ```
 
-### What the init script does (`infra/localstack/init/01-create-resources.sh`):
-
-```bash
-# Creates the SQS queues (4 queues + 4 DLQs)
-awslocal sqs create-queue --queue-name causeflow-alerts
-awslocal sqs create-queue --queue-name causeflow-alerts-dlq
-awslocal sqs create-queue --queue-name causeflow-investigation
-awslocal sqs create-queue --queue-name causeflow-investigation-dlq
-awslocal sqs create-queue --queue-name causeflow-remediation
-awslocal sqs create-queue --queue-name causeflow-remediation-dlq
-awslocal sqs create-queue --queue-name causeflow-progress
-awslocal sqs create-queue --queue-name causeflow-progress-dlq
-
-# Creates the KMS key
-awslocal kms create-alias --alias-name alias/causeflow-token-encryption \
-  --target-key-id $(awslocal kms create-key --query 'KeyMetadata.KeyId' --output text)
-
-# Creates the DynamoDB table (if it doesn't exist — ElectroDB handles it in the app)
-```
+For AWS-backed development, use `docker-compose.aws.yml`; the default compose
+file is intentionally AWS-free.
 
 ---
 
@@ -243,7 +240,7 @@ pnpm test:smoke       # Smoke tests
 ### Infrastructure
 
 ```bash
-docker-compose up -d      # Start LocalStack + Redis + DynamoDB
+docker-compose up -d      # Start Postgres + Redis + Hindsight + API + worker
 docker-compose down       # Stop everything
 docker-compose logs -f    # View logs
 docker-compose ps         # Container status
@@ -260,13 +257,13 @@ pnpm eval:pipeline        # Full pipeline evaluation
 
 ## Common Issues
 
-### "Cannot connect to DynamoDB"
+### "Cannot connect to Postgres"
 ```
-Cause: Docker is not running or DynamoDB Local failed to start
+Cause: Docker is not running or the Postgres container failed to start
 Fix: docker-compose up -d && docker-compose ps
 ```
 
-### "ECONNREFUSED 127.0.0.1:6379" (Redis)
+### "ECONNREFUSED 127.0.0.1:6380" (Redis)
 ```
 Cause: Redis is not running
 Fix: docker-compose up -d redis

@@ -8,6 +8,10 @@
 > in the system, from the first moment a customer signs up to the resolution of a real
 > incident. Read slowly and follow what happens in the backend at each step.
 
+> **Runtime note:** Persistence examples in older sections may name DynamoDB.
+> In the OSS Docker runtime, the same domain operations are backed by Postgres
+> repositories and BullMQ/Redis queues.
+
 ---
 
 ## Part 1: Tenant Registration and Configuration

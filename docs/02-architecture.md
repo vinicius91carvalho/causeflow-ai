@@ -4,6 +4,10 @@
 
 ---
 
+> **Runtime note:** Examples may show DynamoDB/ElectroDB adapters because those
+> remain valid AWS-backed adapters. The OSS Docker runtime uses Postgres
+> repository adapters and BullMQ/Redis queue adapters behind the same ports.
+
 ## Two Fundamental Decisions
 
 CauseFlow uses two architectural decisions that define how all code is organized:

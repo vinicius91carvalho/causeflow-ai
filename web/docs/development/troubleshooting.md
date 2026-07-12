@@ -89,11 +89,13 @@ npx playwright test
 
 **Cause:** Searching for or creating `.env.staging` or `.env.production`, which do not exist.
 
-**Solution:** This project uses `.env.local` exclusively for local and manual configuration. SST injects stage-specific variables at deploy time via `sst.config.ts`. There is no `.env.staging` or `.env.production`.
+**Solution:** This project uses `.env.local` exclusively for local and manual
+configuration. Hosted deployments inject stage-specific variables through CI.
+There is no `.env.staging` or `.env.production`.
 
 ```bash
 # Correct local env files
-.env.local                        # Root — GA4, Clarity, Loops.so
+.env.local                        # Root — optional GA4, Clarity
 apps/website/.env.local           # Website-specific vars
 apps/dashboard/.env.local         # Dashboard-specific vars
 

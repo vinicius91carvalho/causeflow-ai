@@ -88,15 +88,15 @@ pnpm exec biome check --write .   # Auto-fix lint + format
 - `apps/website/next.config.mjs` — `transpilePackages`, security headers, image domains, redirects
 - `apps/dashboard/next.config.mjs` — `transpilePackages`, security headers, auth middleware integration
 
-**Website rendering strategy:** SSG — all pages statically generated at build time, served from CloudFront. No server runtime in production.
+**Website rendering strategy:** SSG — all pages statically generated at build time and served by the website container.
 
-**Dashboard rendering strategy:** SSR — pages rendered server-side with live DynamoDB data. Lambda@Edge handles the Node.js runtime.
+**Dashboard rendering strategy:** SSR — pages rendered server-side with data fetched from the Core API. The dashboard owns no product database.
 
 **Dev server constraint:** Must use `--hostname 127.0.0.1` in PRoot containers. Turbopack (`--turbo`) crashes in PRoot — Webpack is used instead.
 
 **Production server constraint:** `next start` must run with CWD at `apps/website` or `apps/dashboard`, not the project root.
 
-**Relationship:** Next.js consumes packages from `ui`, `shared`, `analytics`, `auth`, `forms`. Auth.js v5 integrates via Next.js middleware. SST deploys Next.js apps to AWS using OpenNext.
+**Relationship:** Next.js consumes packages from `ui`, `shared`, `analytics`, `auth`, and `forms`. The apps ship as Docker images for the OSS runtime and hosted deployments.
 
 ---
 
@@ -207,77 +207,59 @@ BASE_URL=http://127.0.0.1:4000 pnpm exec playwright test  # Custom base URL
 
 ## Authentication
 
-### Auth.js v5 (NextAuth v5)
+### Local JWT Auth
 
-**Rationale:** Handles the complexity of OAuth flows, session management, CSRF protection, and token rotation. v5 is built for the App Router with first-class RSC and middleware support. Eliminates manual JWT handling.
+**Rationale:** The OSS runtime must boot without Clerk, Cognito, AWS, or any paid
+identity provider. Core signs local JWTs with `JWT_SECRET`; the dashboard stores
+the token in the `__session` cookie and verifies it through Core `/v1/auth/me`.
 
-**Configuration:** `packages/auth/src/infrastructure/auth-config.ts`
+**Configuration:** `apps/dashboard/.env.example` (`JWT_SECRET`,
+`CAUSEFLOW_RUNTIME=oss`) and Core `.env.example` must use the same secret.
 
-**Providers:**
-- **Cognito OIDC** — primary identity provider (user pool hosted on AWS)
-- **Google OAuth** — social sign-in
-- **GitHub OAuth** — developer-focused social sign-in
-
-**Features used:** JWT sessions, RBAC role attachment to session, email verification callbacks, custom sign-in pages
-
-**Relationship:** Depends on `packages/shared` for types. Consumed only by `apps/dashboard`. Session types extended in TypeScript via module augmentation.
-
-### AWS Cognito
-
-**Rationale:** Managed user pool removes the burden of password hashing, MFA, email verification, and account recovery. Integrates with Auth.js via OIDC — standard protocol, not vendor lock-in at the application layer.
-
-**Configuration:** SST provisions the Cognito User Pool. Client IDs and endpoints injected as environment variables at deploy time.
-
-**Relationship:** Auth.js v5 uses Cognito as the OIDC provider. Cognito issues tokens; Auth.js validates and manages sessions.
+**Relationship:** `apps/dashboard/src/middleware.ts` and
+`src/lib/api/with-auth.ts` protect routes/API handlers. Hosted deployments can
+still use Core-issued tokens backed by Clerk, but the dashboard does not own the
+identity provider.
 
 ---
 
-## Database
+## Data Access
 
-### DynamoDB (AWS)
+### Core API Client
 
-**Rationale:** Serverless, infinitely scalable, no connection pool management (critical for Lambda functions). Single-table design supports all dashboard entities (users, analyses, integrations, team members) with consistent sub-millisecond reads.
+**Rationale:** The dashboard is a BFF/UI over Core. Product data, tenant
+records, incidents, integrations, audit entries, billing state, and secrets are
+owned by Core.
 
-**Design:** Single-table with composite keys (`PK`, `SK`) and GSIs for access patterns. Entity types: `USER`, `ANALYSIS`, `INTEGRATION`, `TEAM_MEMBER`, `INVITE`.
+**Configuration:** `CORE_API_URL` points to Core. Blank local dev uses
+`mock-api-client.ts`; Docker uses `http://causeflow-api:5171`.
 
-**Configuration:** SST provisions the DynamoDB table. Table name injected as environment variable.
-
-**SDK:** AWS SDK v3 (`@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`)
-
-**Relationship:** Accessed only from the Infrastructure layer of `apps/dashboard`. Never queried directly from React components or API handlers — always through repository classes.
-
-### AWS KMS
-
-**Rationale:** Managed encryption service for integration credentials (Slack tokens, PagerDuty API keys, etc.). Keys never leave AWS infrastructure. Automatic key rotation. Envelope encryption pattern keeps DynamoDB items compact.
-
-**Configuration:** SST provisions a KMS key per stage. Key ARN injected as environment variable.
-
-**Relationship:** KMS wrap/unwrap operations happen in `packages/auth` infrastructure adapters before credentials are stored to or read from DynamoDB.
+**Relationship:** `src/lib/api/http-api-client.ts` calls Core with the current
+session token. `src/lib/api/mock-api-client.ts` supports app-only development.
 
 ---
 
 ## Infrastructure & Hosting
 
-### SST v3.19.0
+### Docker
 
-**Rationale:** Infrastructure as Code built specifically for serverless applications. Provides type-safe resource bindings — no string-based environment variable guessing. Handles CloudFront, Lambda, DynamoDB, Cognito, S3, Route 53, and ACM in one config. Live Lambda development mode.
+**Rationale:** The OSS runtime must run locally with one command and no cloud
+dependencies. Docker Compose starts Core, worker, Postgres, Redis, Hindsight,
+the website, and the dashboard.
 
 **Configuration:**
-- `apps/website/sst.config.ts` — website infrastructure (CloudFront + S3 + WAF + redirects)
-- `apps/dashboard/sst.config.ts` — dashboard infrastructure (Lambda + DynamoDB + Cognito + KMS)
+- `docker-compose.yml` — full OSS stack
+- `apps/website/Dockerfile` — website image
+- `apps/dashboard/Dockerfile` — dashboard image
 
-**Deploy commands (run from respective app directory):**
+**Build commands:**
 ```bash
-(cd apps/website && sst deploy --stage staging)
-(cd apps/website && sst deploy --stage production)
-(cd apps/dashboard && sst deploy --stage staging)
+docker compose up -d
+docker compose build causeflow-website causeflow-dashboard
 ```
 
-**AWS Account:** 409171461008, region us-east-2
-
-**PRoot workaround:** SST uses Bun internally. A wrapper at `~/.config/sst/bin/bun` delegates to `bun-real` with `--backend=copyfile` to work around PRoot symlink limitations.
-
-**Relationship:** SST wraps OpenNext to deploy Next.js apps. Provisions all AWS resources and injects environment variables at deploy time — `.env.staging` and `.env.production` do not exist in this project.
+**Relationship:** Hosted deployments build the same app Dockerfiles through
+GitHub Actions.
 
 ### CloudFront + WAF
 
@@ -349,16 +331,6 @@ BASE_URL=http://127.0.0.1:4000 pnpm exec playwright test  # Custom base URL
 
 **Relationship:** Used in `packages/forms` for all form schemas. Consumed by `apps/website` contact and waitlist forms.
 
-### Loops.so
-
-**Rationale:** Email marketing and automation platform with waitlist / form submission APIs. Handles contact form submissions, email notifications, and audience management.
-
-**Configuration:** `apps/website/.env.local` (`LOOPS_API_KEY`)
-
-**Relationship:** `/api/notify` integrates with Loops.so API for form submissions. Used only in `apps/website`.
-
----
-
 ## CI/CD
 
 ### GitHub Actions
@@ -367,7 +339,8 @@ BASE_URL=http://127.0.0.1:4000 pnpm exec playwright test  # Custom base URL
 - `.github/workflows/website-deploy.yml` — build, test, deploy website to staging and production
 - `.github/workflows/dashboard-deploy.yml` — build, test, deploy dashboard to staging
 
-**Relationship:** Calls pnpm + Turborepo commands. Triggers SST deploy after tests pass.
+**Relationship:** Calls pnpm + Turborepo commands, builds the app Dockerfiles,
+and deploys hosted environments.
 
 ---
 
@@ -383,16 +356,15 @@ pnpm (package manager)
               ├── Tailwind CSS 4 (styling)
               ├── Shadcn/ui → Radix primitives (components)
               ├── next-intl (i18n)
-              ├── Auth.js v5 → Cognito (auth, dashboard only)
-              ├── AWS SDK v3 → DynamoDB (data, dashboard only)
-              └── AWS KMS (encryption, dashboard only)
+              ├── local JWT middleware (auth, dashboard)
+              └── Core API client (data, dashboard)
 
-SST v3 (IaC — deploys Next.js via OpenNext)
-  ├── CloudFront + WAF (CDN + security)
-  ├── Route 53 + ACM (DNS + SSL)
-  ├── Cognito (user pool)
-  ├── DynamoDB (database)
-  └── KMS (encryption)
+Docker Compose (OSS runtime)
+  ├── causeflow-website
+  ├── causeflow-dashboard
+  ├── causeflow-api / worker
+  ├── Postgres / Redis
+  └── Hindsight
 
 Playwright (E2E tests — runs against deployed or local Next.js)
 GA4 + Clarity (analytics — loaded in both apps, blocked in tests)

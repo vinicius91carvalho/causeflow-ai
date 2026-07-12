@@ -338,12 +338,7 @@ Additional types used for Core API communication are in `src/lib/api/core-api-ty
 
 ## Legacy: DynamoDB Single-Table Design
 
-The dashboard previously used a DynamoDB single-table design with composite keys (`pk` + `sk`) and two GSIs. This has been replaced by the Core API backend. Some legacy infrastructure remains in `src/lib/db/`:
-
-| File | Status | Purpose |
-|---|---|---|
-| `client.ts` | Active | DynamoDB Document Client singleton (used by some repositories) |
-| `encryption.ts` | Active | KMS encryption/decryption for credentials |
-| `base-repository.ts` | Active | Base repository utilities |
-
-The previous `lib/db/types.ts`, `lib/db/index.ts`, and `lib/db/repositories/` have been removed. Domain types and repositories now live exclusively in their owning bounded context.
+The dashboard previously used a DynamoDB single-table design with composite
+keys (`pk` + `sk`) and two GSIs. This has been replaced by the Core API
+backend. The dashboard no longer owns `src/lib/db/`; domain types live in their
+owning bounded context and persistence goes through the Core API client.

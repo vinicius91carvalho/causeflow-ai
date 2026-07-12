@@ -8,7 +8,7 @@ Marketing site for CauseFlow AI. Next.js 15 App Router with SSG (Static Site Gen
 
 - **Purpose**: Marketing, SEO, lead generation for the incident investigation platform
 - **Rendering**: Static Site Generation (SSG) — all pages pre-rendered at build time
-- **Hosting**: AWS CloudFront via SST, with WAF protection
+- **Hosting**: Docker image from `apps/website/Dockerfile`
 - **i18n**: English (default, no prefix) + Portuguese (/pt-br/ prefix) via next-intl
 
 ## Routes
