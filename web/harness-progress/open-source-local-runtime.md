@@ -1472,3 +1472,10 @@ Defects 1-2 are in the dashboard's OSS auth integration code. Defects 3-4 are on
 - Defects: ActionRequiredError: Increase limits for faster responses You're out of usage. Switch to Auto, or ask your admin to increase your limit to continue.
 [?25h
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-12T02:02:09.035Z — Explicit Resume
+
+- WorkItem: WI-AC-061
+- Outcome: user authorized a new Attempt cycle
+- Guidance: VERIFY-FIRST / do not re-code WI-AC-061 from scratch.
+- NextAction: Coding Attempt 1
