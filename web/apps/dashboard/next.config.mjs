@@ -8,10 +8,8 @@ const isDev = process.env.NODE_ENV === 'development';
 const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   images: {
-    remotePatterns: [
-      { hostname: 'logos.composio.dev', protocol: 'https' },
-      { hostname: 'backend.composio.dev', protocol: 'https' },
-    ],
+    // AC-051: Composio CDN removed from the OSS build — local SVG icons only.
+    remotePatterns: [],
   },
   transpilePackages: [
     '@causeflow/auth',

@@ -38,7 +38,7 @@ interface CatalogProvider {
   category: string;
   type: 'oauth' | 'credential';
   description: string;
-  /** Logo URL from Composio CDN */
+  /** Optional logo URL (local icons preferred; Composio CDN stripped in OSS) */
   logo?: string;
   setup?: {
     accountId: string;
@@ -60,7 +60,7 @@ interface ApiIntegration {
 }
 
 /** Icon and brand color mapping for known providers */
-/** Local icons for providers where we have SVGs. Composio CDN is used as fallback. */
+/** Local icons for providers where we have SVGs. Never fall back to Composio CDN (AC-051). */
 const PROVIDER_ICONS: Record<string, { icon: string; color: string }> = {
   aws: { icon: '/icons/integrations/aws-cloudwatch.svg', color: '#FF9900' },
   slack: { icon: '/icons/integrations/slack.svg', color: '#4A154B' },
@@ -107,7 +107,7 @@ function mapCategory(backendCategory: string): IntegrationCategory {
 /**
  * Client component for the integrations management page.
  * Fetches the integration catalog from the backend and renders cards dynamically.
- * All integrations except AWS use Composio OAuth.
+ * OAuth connect proxies to Core (OSS stub when Composio is absent — AC-051).
  */
 export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps) {
   const t = useTranslations('dashboard.integrations');
@@ -249,8 +249,10 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
   const allCards = catalog.map((provider) => {
     const { status, lastTestedAt, connectedBy } = getConnectionStatus(provider.id);
     const visual = PROVIDER_ICONS[provider.id];
-    // Prefer local icon (guaranteed to work), fallback to backend logo (Composio CDN)
-    const icon = visual?.icon ?? provider.logo ?? DEFAULT_ICON.icon;
+    // Prefer local icon; never use Composio CDN logos (AC-051).
+    const remoteLogo =
+      provider.logo && !provider.logo.includes('composio.dev') ? provider.logo : undefined;
+    const icon = visual?.icon ?? remoteLogo ?? DEFAULT_ICON.icon;
     const color = visual?.color ?? DEFAULT_ICON.color;
     return {
       id: provider.id,
@@ -309,8 +311,42 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
       return;
     }
 
-    // All OAuth integrations — open Composio popup
-    openOAuthPopup(`/api/integrations/oauth/${id}/authorize`);
+    // OAuth integrations — POST to Core via BFF (OSS stub returns 200 empty; AC-051).
+    void handleOAuthConnect(id);
+  }
+
+  async function handleOAuthConnect(id: string) {
+    try {
+      const res = await fetch('/api/integrations/connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: id === 'cloudwatch' ? 'aws' : id,
+          redirectUrl: `${window.location.origin}/dashboard/integrations`,
+        }),
+      });
+      if (!res.ok) {
+        let message = `Failed to connect (HTTP ${res.status})`;
+        try {
+          const data = (await res.json()) as { error?: string };
+          if (data.error) message = data.error;
+        } catch {
+          // keep default
+        }
+        addToast(t('connectErrorToast', { message }), 'error');
+        return;
+      }
+      const data = (await res.json().catch(() => ({}))) as { authUrl?: string };
+      if (data.authUrl) {
+        openOAuthPopup(data.authUrl);
+        return;
+      }
+      // OSS Core stub: 200 with deterministic empty data (no Composio redirect).
+      addToast(t('connectedToast', { provider: id }), 'success');
+      await fetchIntegrations();
+    } catch {
+      addToast(t('connectErrorToast', { message: 'network error' }), 'error');
+    }
   }
 
   async function handleStubConnect() {

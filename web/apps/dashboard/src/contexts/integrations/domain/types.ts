@@ -101,8 +101,6 @@ export interface Integration {
   status: IntegrationStatus;
   /** KMS-encrypted JSON blob of provider credentials */
   encryptedCredentials?: string;
-  /** Composio trigger ID for this connection */
-  composioTriggerId?: string;
   lastTestedAt?: string;
   connectedBy?: string;
   createdAt: string;

@@ -164,11 +164,14 @@ export interface ICoreApiClient {
   getIntegrationCatalog(): Promise<any>;
   listIntegrations(): Promise<any>;
 
-  // Integrations — Composio OAuth
-  initiateOAuthConnect(provider: string, redirectUrl: string): Promise<{ authUrl: string }>;
+  // Integrations — OAuth connect (Core stub may return empty in OSS — AC-051)
+  initiateOAuthConnect(
+    provider: string,
+    redirectUrl: string,
+  ): Promise<{ authUrl?: string }>;
   revokeOAuthConnection(provider: string): Promise<any>;
 
-  // Integrations — Composio callback finalization (server-side redirect flow)
+  // Integrations — OAuth callback finalization (server-side redirect flow)
   finalizeComposioConnection(
     provider: string,
     params: { connectedAccountId?: string },

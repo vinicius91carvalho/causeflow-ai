@@ -519,15 +519,18 @@ export class HttpApiClient implements ICoreApiClient {
     return this.request('/v1/integrations');
   }
 
-  // Integrations — Composio OAuth connect (returns { authUrl })
-  async initiateOAuthConnect(provider: string, redirectUrl: string): Promise<{ authUrl: string }> {
-    return this.request<{ authUrl: string }>('/v1/integrations/connect', {
+  // Integrations — OAuth connect (OSS Core stub returns 200 empty — AC-051)
+  async initiateOAuthConnect(
+    provider: string,
+    redirectUrl: string,
+  ): Promise<{ authUrl?: string }> {
+    return this.request<{ authUrl?: string }>('/v1/integrations/connect', {
       method: 'POST',
       body: JSON.stringify({ provider, redirectUrl }),
     });
   }
 
-  // Integrations — revoke Composio OAuth
+  // Integrations — revoke OAuth connection
   async revokeOAuthConnection(provider: string): Promise<any> {
     return this.request(`/v1/integrations/connect/${encodeURIComponent(provider)}`, {
       method: 'DELETE',
