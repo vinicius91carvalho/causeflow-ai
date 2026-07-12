@@ -151,6 +151,10 @@ services:
     build:
       context: .
       dockerfile: apps/website/Dockerfile
+      args:
+        # next.config.mjs resolves DASHBOARD_URL at `next build` (redirects/CSP).
+        NEXT_PUBLIC_DASHBOARD_URL: http://localhost:3001
+        NEXT_PUBLIC_DEPLOYMENT_STAGE: development
     container_name: causeflow-website
     depends_on:
       causeflow-api:

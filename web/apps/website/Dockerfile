@@ -18,6 +18,13 @@ RUN corepack enable
 
 COPY . .
 
+# Bake redirect destinations (next.config.mjs reads these at build time).
+# Runtime env alone cannot change permanent redirects already compiled into the image.
+ARG NEXT_PUBLIC_DASHBOARD_URL=http://localhost:3001
+ARG NEXT_PUBLIC_DEPLOYMENT_STAGE=development
+ENV NEXT_PUBLIC_DASHBOARD_URL=$NEXT_PUBLIC_DASHBOARD_URL
+ENV NEXT_PUBLIC_DEPLOYMENT_STAGE=$NEXT_PUBLIC_DEPLOYMENT_STAGE
+
 RUN pnpm install --frozen-lockfile
 
 RUN pnpm --filter @causeflow/website build
