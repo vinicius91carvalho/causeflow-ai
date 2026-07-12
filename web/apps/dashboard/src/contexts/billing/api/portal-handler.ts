@@ -6,14 +6,6 @@ import { withAuth } from '@/lib/api/with-auth';
 import { logger as dashLogger } from '@/lib/logger';
 
 /**
- * Replace loopback hostnames with `lvh.me` so Stripe return URLs pass the
- * Core WAF SSRF filter in local dev. No-op for production hostnames.
- */
-function rewriteLoopbackForWaf(url: string): string {
-  return url.replace(/\b(?:localhost|127\.0\.0\.1|0\.0\.0\.0)\b/g, 'lvh.me');
-}
-
-/**
  * POST /api/billing/portal
  * Delegates to backend to create a Stripe Customer Portal session.
  *
@@ -29,7 +21,7 @@ function rewriteLoopbackForWaf(url: string): string {
 export const POST = withAuth(async (request: NextRequest, ctx) => {
   const start = Date.now();
   const origin = request.nextUrl.origin;
-  const returnUrl = rewriteLoopbackForWaf(`${origin}/dashboard/billing`);
+  const returnUrl = `${origin}/dashboard/billing`;
 
   try {
     const api = getApiClient();

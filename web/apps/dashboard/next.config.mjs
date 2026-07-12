@@ -29,10 +29,6 @@ const nextConfig = {
     pagesBufferLength: 8, // keep last 8 pages in memory (default: 2)
   },
   experimental: {
-    // Dev-only: build initURL from the Host header so an lvh.me → localhost
-    // middleware redirect stays absolute (Next otherwise relativizes Location
-    // when initURL is the bind hostname from `next dev --hostname localhost`).
-    ...(isDev ? { trustHostHeader: true } : {}),
     // `optimizePackageImports` rewrites top-level imports into per-subpath
     // imports so Webpack only compiles the modules actually used. Every
     // heavy package we pull in should live here — especially Clerk (invoked

@@ -74,7 +74,7 @@ const nextConfig = {
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "img-src 'self' data: https:",
             "font-src 'self' https://fonts.gstatic.com",
-            `connect-src 'self' https://www.google-analytics.com https://*.clarity.ms https://app.loops.so ${DASHBOARD_URL}${isDev ? ' ws://127.0.0.1:* ws://localhost:*' : ''}`,
+            `connect-src 'self' https://www.google-analytics.com https://*.clarity.ms ${DASHBOARD_URL}${isDev ? ' ws://127.0.0.1:* ws://localhost:*' : ''}`,
             "frame-src 'self'",
             "worker-src 'self' blob:",
           ].join('; '),
