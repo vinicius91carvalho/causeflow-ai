@@ -144,13 +144,16 @@ if [ ! -f "$COMPOSE_FILE" ]; then
   exit 1
 fi
 
+# Refuse foreign listeners before any Ready short-circuit. A process that
+# answers the health URLs on :3000/:3001/:3099/:5181 is not enough — the
+# matching umbrella compose service must own the publish (AC-067 / AC-063).
+check_ports_free_for_unhealthy
+
 if stack_ready; then
   echo "Ready (already up)"
   print_url_matrix
   exit 0
 fi
-
-check_ports_free_for_unhealthy
 
 echo "Starting CauseFlow OSS umbrella stack (relay excluded)..."
 if ! docker compose -f "$COMPOSE_FILE" up -d; then

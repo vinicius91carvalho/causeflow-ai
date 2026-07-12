@@ -36,6 +36,26 @@ From the monorepo root:
 It does **not** start the relay.
 Relay remains optional — see [`relay/README.md`](./relay/README.md) and `relay/init.sh`.
 
+Fail-closed edge cases (no `Ready` on failure):
+
+- Missing Docker / Compose plugin: exits non-zero with an install hint (`https://docs.docker.com/get-docker/`) before any `docker compose up`.
+- Required ports already in use (`3000`, `3001`, `3099`, `5181`) by a non-umbrella listener: exits non-zero listing the conflicting ports.
+- Partial compose failure: exits non-zero, prints `docker compose ps` and recent logs, and never prints `Ready`.
+
+### Reclaim conflicting ports
+
+```bash
+# Stop umbrella app containers that may still hold binds
+docker compose -f docker-compose.yml rm -sf causeflow-website causeflow-dashboard causeflow-api causeflow-docs
+
+# If a standalone Core stack still owns :3099
+docker compose -f core/docker-compose.yml stop causeflow-api
+docker compose -f core/docker-compose.yml down
+
+# Inspect who is listening
+ss -tlnp | grep -E ':(3000|3001|3099|5181)\b'
+```
+
 ## Local URLs
 
 | Service | URL |
