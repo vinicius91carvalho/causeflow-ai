@@ -1,0 +1,64 @@
+# Build public-docs with `mint export` and publish the static artifact to GitHub Pages.
+# Intentionally does NOT run `mint deploy` or `mintlify deploy` (PD-PAGES-WORKFLOW / AC-065).
+name: Docs Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "public-docs/**"
+      - ".github/workflows/docs-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: docs-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build mint export
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install mint CLI
+        # Same pin as public-docs/Dockerfile — open-source CLI, no Mintlify account.
+        run: npm install -g mint@4.2.666
+
+      - name: Export public-docs (mint export)
+        working-directory: public-docs
+        run: |
+          mint export --output export.zip --telemetry false
+          mkdir -p ../_site
+          unzip -q export.zip -d ../_site
+          rm -f export.zip
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
