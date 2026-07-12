@@ -1160,9 +1160,9 @@
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
-    "observation_method": "cli",
+    "observation_method": "http",
     "observation_methods": [
-      "cli"
+      "http"
     ]
   },
   {
@@ -1752,6 +1752,206 @@
       "AC-058",
       "AC-059",
       "AC-060"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-062",
+    "context": "monorepo-root-oss-dx",
+    "category": "foundation",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "At the monorepo root, `docker-compose.yml` exists and `docker compose -f docker-compose.yml config` exits 0. The rendered compose config includes the existing OSS platform services, maps website host :3000 as before, and maps the docs service from host :5181 to container :3000.",
+    "steps": [
+      "Verify AC-062: At the monorepo root, `docker-compose.yml` exists and `docker compose -f docker-compose.yml config` exits 0. The rendered compose config includes the existing OSS platform services, maps website host :3000 as before, and maps the docs service from host :5181 to container :3000."
+    ],
+    "acceptance_checks": [
+      "AC-062"
+    ],
+    "planning_decision_ids": [
+      "PD-MONOREPO-OWNER",
+      "PD-DOCS-LOCAL-PORT",
+      "PD-UMBRELLA-COMPOSE"
+    ],
+    "depends_on": [],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-063",
+    "context": "monorepo-root-oss-dx",
+    "category": "foundation",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "Running `./init.sh` from the monorepo root exits 0 only after the compose stack is ready, prints a URL matrix containing http://localhost:3000, http://localhost:3001, http://localhost:3099, and http://localhost:5181 with health URLs where applicable, and does not start the relay service.",
+    "steps": [
+      "Verify AC-063: Running `./init.sh` from the monorepo root exits 0 only after the compose stack is ready, prints a URL matrix containing http://localhost:3000, http://localhost:3001, http://localhost:3099, and http://localhost:5181 with health URLs where applicable, and does not start the relay service."
+    ],
+    "acceptance_checks": [
+      "AC-063"
+    ],
+    "planning_decision_ids": [
+      "PD-MONOREPO-OWNER",
+      "PD-DOCS-LOCAL-PORT",
+      "PD-UMBRELLA-COMPOSE"
+    ],
+    "depends_on": [
+      "AC-062"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-064",
+    "context": "monorepo-root-oss-dx",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "The monorepo-root `README.md` exists and explains the CauseFlow monorepo, quickstart via `./init.sh`, local URLs, the published GitHub Pages docs URL, API health, links to the core, web, public-docs, and relay READMEs, and links to `docs/00-index.md`.",
+    "steps": [
+      "Verify AC-064: The monorepo-root `README.md` exists and explains the CauseFlow monorepo, quickstart via `./init.sh`, local URLs, the published GitHub Pages docs URL, API health, links to the core, web, public-docs, and relay READMEs, and links to `docs/00-index.md`."
+    ],
+    "acceptance_checks": [
+      "AC-064"
+    ],
+    "planning_decision_ids": [
+      "PD-MONOREPO-OWNER",
+      "PD-UMBRELLA-COMPOSE"
+    ],
+    "depends_on": [
+      "AC-062"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-065",
+    "context": "monorepo-root-oss-dx",
+    "category": "ops",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "At the monorepo root, `.github/workflows/docs-pages.yml` exists, builds `public-docs` using `mint export`, and deploys the generated static artifact to GitHub Pages. The workflow does not run `mint deploy` or `mintlify deploy`.",
+    "steps": [
+      "Verify AC-065: At the monorepo root, `.github/workflows/docs-pages.yml` exists, builds `public-docs` using `mint export`, and deploys the generated static artifact to GitHub Pages. The workflow does not run `mint deploy` or `mintlify deploy`."
+    ],
+    "acceptance_checks": [
+      "AC-065"
+    ],
+    "planning_decision_ids": [
+      "PD-MONOREPO-OWNER",
+      "PD-DOCS-PAGES-URL",
+      "PD-PAGES-WORKFLOW"
+    ],
+    "depends_on": [
+      "AC-062"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-066",
+    "context": "monorepo-root-oss-dx",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "The website header, footer, shared navigation constants, and homepage main-page Docs CTA/link all point to https://vinicius91carvalho.github.io/causeflow-ai/ instead of docs.causeflow.ai, and the unit/navigation tests are updated to assert that URL.",
+    "steps": [
+      "Verify AC-066: The website header, footer, shared navigation constants, and homepage main-page Docs CTA/link all point to https://vinicius91carvalho.github.io/causeflow-ai/ instead of docs.causeflow.ai, and the unit/navigation tests are updated to assert that URL."
+    ],
+    "acceptance_checks": [
+      "AC-066"
+    ],
+    "planning_decision_ids": [
+      "PD-MONOREPO-OWNER",
+      "PD-DOCS-PAGES-URL",
+      "PD-HOMEPAGE-DOCS-LINK"
+    ],
+    "depends_on": [
+      "AC-065"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-067",
+    "context": "monorepo-root-oss-dx",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "If Docker is missing, root `./init.sh` exits non-zero with an install hint before running compose. If ports 3000, 3001, 3099, or 5181 are already in use, it exits non-zero with the explicit conflicting ports or documented reclaim instructions. If compose partially fails, it exits non-zero, prints compose `ps` and relevant logs, and does not print `Ready`.",
+    "steps": [
+      "Verify AC-067: If Docker is missing, root `./init.sh` exits non-zero with an install hint before running compose. If ports 3000, 3001, 3099, or 5181 are already in use, it exits non-zero with the explicit conflicting ports or documented reclaim instructions. If compose partially fails, it exits non-zero, prints compose `ps` and relevant logs, and does not print `Ready`."
+    ],
+    "acceptance_checks": [
+      "AC-067"
+    ],
+    "planning_decision_ids": [
+      "PD-MONOREPO-OWNER",
+      "PD-ROOT-INIT-EDGES"
+    ],
+    "depends_on": [
+      "AC-063"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-068",
+    "context": "monorepo-root-oss-dx",
+    "category": "foundation",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "AC-044 still holds from the monorepo root after the umbrella stack starts: `curl` of the website root and dashboard auth/sign-in route returns HTTP 200, and the docs site is also reachable on http://localhost:5181.",
+    "steps": [
+      "Verify AC-068: AC-044 still holds from the monorepo root after the umbrella stack starts: `curl` of the website root and dashboard auth/sign-in route returns HTTP 200, and the docs site is also reachable on http://localhost:5181."
+    ],
+    "acceptance_checks": [
+      "AC-068"
+    ],
+    "planning_decision_ids": [
+      "PD-MONOREPO-OWNER",
+      "PD-DOCS-LOCAL-PORT",
+      "PD-UMBRELLA-COMPOSE"
+    ],
+    "depends_on": [
+      "AC-062",
+      "AC-063"
     ],
     "verify_first": false,
     "implementation": false,

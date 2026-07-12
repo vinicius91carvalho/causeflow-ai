@@ -216,6 +216,14 @@
       - `docker compose up -d` from the monorepo root brings up: `causeflow-postgres`, `redis`, `hindsight`, `causeflow-api`, `causeflow-worker`, `causeflow-website` (port 3000), `causeflow-dashboard` (port 3001), plus the customer sample services from the Core's OSS compose. No SST, no `sst deploy`, no AWS credentials are loaded.
       - The 43 original web acceptance checks still pass against the open-source stack: marketing site, RBAC, credits, plan gate, 44 API routes, integrations, billing, audit, intelligence, topology, memory, notifications, approvals, observability.
     </open-source-local-runtime>
+
+    <monorepo-root-oss-dx>
+      - Monorepo root `docker-compose.yml` becomes the umbrella OSS platform stack: website on host :3000, dashboard on host :3001, Core API on host :3099, postgres, redis, hindsight, and worker exactly as today, plus `causeflow-docs` published on host :5181 and container :3000. This supersedes the public-docs acceptance-check note that umbrella docs were on :3000.
+      - Root `init.sh` is fail-closed: it requires Docker plus the Docker Compose plugin before doing anything, starts `docker compose up -d` from the monorepo root, waits until the stack is healthy, prints a local URL matrix, and never starts the relay. Relay startup remains documented only in the relay README and relay `init.sh`.
+      - Root `README.md` explains the CauseFlow monorepo, quickstart via `./init.sh`, the local URL matrix, links to `core`/`web`/`public-docs`/`relay` READMEs, `docs/00-index.md`, the published GitHub Pages docs URL, and API health.
+      - Monorepo-root `.github/workflows/docs-pages.yml` builds `public-docs` with `mint export`, not `mint deploy`, and publishes GitHub Pages at https://vinicius91carvalho.github.io/causeflow-ai/.
+      - Website Docs links in the header, footer, shared navigation constants, and a homepage main-page Docs CTA/link point to https://vinicius91carvalho.github.io/causeflow-ai/ instead of the hardcoded docs.causeflow.ai URL.
+    </monorepo-root-oss-dx>
   </core_features>
 
   <non_goals>
@@ -835,6 +843,78 @@
         <step>Step 3: Suite exits 0; artifacts/logs retained under the harness evidence path for Goal Review.</step>
       </steps>
     </acceptance_check>
+
+
+    <acceptance_check id="AC-062" context="monorepo-root-oss-dx" category="foundation" depends_on="">
+      <title>Root compose umbrella includes platform and docs services</title>
+      <description>At the monorepo root, `docker-compose.yml` exists and `docker compose -f docker-compose.yml config` exits 0. The rendered compose config includes the existing OSS platform services, maps website host :3000 as before, and maps the docs service from host :5181 to container :3000.</description>
+      <steps>
+        <step>Step 1: From the monorepo root, confirm `docker-compose.yml` exists.</step>
+        <step>Step 2: Run `docker compose -f docker-compose.yml config` and confirm it exits 0.</step>
+        <step>Step 3: Inspect the rendered config and confirm website host :3000 is still present and `causeflow-docs` maps `5181:3000`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-063" context="monorepo-root-oss-dx" category="foundation" depends_on="AC-062">
+      <title>Root init starts the OSS stack and prints URLs without relay</title>
+      <description>Running `./init.sh` from the monorepo root exits 0 only after the compose stack is ready, prints a URL matrix containing http://localhost:3000, http://localhost:3001, http://localhost:3099, and http://localhost:5181 with health URLs where applicable, and does not start the relay service.</description>
+      <steps>
+        <step>Step 1: From the monorepo root, run `./init.sh` on a host with Docker and the Docker Compose plugin installed.</step>
+        <step>Step 2: Confirm the script waits for service readiness and exits 0 only after the stack is available.</step>
+        <step>Step 3: Confirm the printed URL matrix includes website :3000, dashboard :3001, API :3099, docs :5181, and health URLs where applicable.</step>
+        <step>Step 4: Confirm no relay container or relay startup command is launched by the root init path.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-064" context="monorepo-root-oss-dx" category="functional" depends_on="AC-062">
+      <title>Root README documents monorepo quickstart and required links</title>
+      <description>The monorepo-root `README.md` exists and explains the CauseFlow monorepo, quickstart via `./init.sh`, local URLs, the published GitHub Pages docs URL, API health, links to the core, web, public-docs, and relay READMEs, and links to `docs/00-index.md`.</description>
+      <steps>
+        <step>Step 1: Open the monorepo-root `README.md`.</step>
+        <step>Step 2: Confirm it describes the monorepo purpose and quickstart via `./init.sh`.</step>
+        <step>Step 3: Confirm it lists local URLs, API health, the Pages docs URL, subproject README links, and `docs/00-index.md`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-065" context="monorepo-root-oss-dx" category="ops" depends_on="AC-062">
+      <title>GitHub Pages workflow exports Mint docs without deploying Mintlify</title>
+      <description>At the monorepo root, `.github/workflows/docs-pages.yml` exists, builds `public-docs` using `mint export`, and deploys the generated static artifact to GitHub Pages. The workflow does not run `mint deploy` or `mintlify deploy`.</description>
+      <steps>
+        <step>Step 1: Open monorepo-root `.github/workflows/docs-pages.yml`.</step>
+        <step>Step 2: Confirm the workflow builds `public-docs` with `mint export` and publishes through GitHub Pages.</step>
+        <step>Step 3: Confirm no workflow step invokes `mint deploy` or `mintlify deploy`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-066" context="monorepo-root-oss-dx" category="functional" depends_on="AC-065">
+      <title>Website Docs links point to published GitHub Pages docs</title>
+      <description>The website header, footer, shared navigation constants, and homepage main-page Docs CTA/link all point to https://vinicius91carvalho.github.io/causeflow-ai/ instead of docs.causeflow.ai, and the unit/navigation tests are updated to assert that URL.</description>
+      <steps>
+        <step>Step 1: Inspect website header, footer, shared navigation constants, and homepage main-page CTA/link definitions.</step>
+        <step>Step 2: Confirm every Docs link uses https://vinicius91carvalho.github.io/causeflow-ai/ and no website Docs link still targets docs.causeflow.ai.</step>
+        <step>Step 3: Run the relevant unit/navigation tests and confirm they assert the Pages URL.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-067" context="monorepo-root-oss-dx" category="edge-case" depends_on="AC-063">
+      <title>Root init fails closed for Docker, port, and compose failures</title>
+      <description>If Docker is missing, root `./init.sh` exits non-zero with an install hint before running compose. If ports 3000, 3001, 3099, or 5181 are already in use, it exits non-zero with the explicit conflicting ports or documented reclaim instructions. If compose partially fails, it exits non-zero, prints compose `ps` and relevant logs, and does not print `Ready`.</description>
+      <steps>
+        <step>Step 1: Run root `./init.sh` without Docker available and confirm non-zero exit plus install hint before any compose command.</step>
+        <step>Step 2: Occupy one or more required ports among 3000, 3001, 3099, and 5181, then confirm non-zero exit with explicit port reporting or documented reclaim instructions.</step>
+        <step>Step 3: Force a compose service failure and confirm non-zero exit, compose status/log output, and no `Ready` message.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-068" context="monorepo-root-oss-dx" category="foundation" depends_on="AC-062,AC-063">
+      <title>Monorepo-root smoke preserves website and dashboard while docs are up</title>
+      <description>AC-044 still holds from the monorepo root after the umbrella stack starts: `curl` of the website root and dashboard auth/sign-in route returns HTTP 200, and the docs site is also reachable on http://localhost:5181.</description>
+      <steps>
+        <step>Step 1: Start the stack from the monorepo root through the root compose/init path.</step>
+        <step>Step 2: Run `curl` against website `/` on :3000 and dashboard auth/sign-in on :3001 and confirm HTTP 200 responses.</step>
+        <step>Step 3: Run `curl` against docs on :5181 and confirm it responds successfully.</step>
+      </steps>
+    </acceptance_check>
   </acceptance_checks>
 
   <planning_decisions>
@@ -879,6 +959,56 @@
       <choice>A Core-owned runnable test application the user connects from `/dashboard/integrations`, which can emit alerts and answer investigation probes.</choice>
       <rationale>Validates connectors and evidence gathering the way a real customer app would.</rationale>
       <acceptance_checks>AC-058,AC-060,AC-061</acceptance_checks>
+    </decision>
+
+
+    <decision id="PD-MONOREPO-OWNER" topic="ambiguous-requirement">
+      <question>Which project owns a monorepo-root OSS developer-experience goal that touches compose, docs, README, and website links?</question>
+      <choice>The web project owns this goal and its Acceptance Checks, even though implementation may touch monorepo-root files and sibling project documentation.</choice>
+      <rationale>The visible operator experience is website/dashboard/docs entrypoints, and the existing web spec already owns OSS local-runtime acceptance.</rationale>
+      <acceptance_checks>AC-062,AC-063,AC-064,AC-065,AC-066,AC-067,AC-068</acceptance_checks>
+    </decision>
+
+    <decision id="PD-DOCS-LOCAL-PORT" topic="architectural-tradeoff">
+      <question>Which local host port should published docs use inside the umbrella compose stack?</question>
+      <choice>Serve `causeflow-docs` on host :5181 with container :3000.</choice>
+      <rationale>Website already owns host :3000, so docs need a stable non-conflicting local port while keeping the docs container's native port.</rationale>
+      <acceptance_checks>AC-062,AC-063,AC-068</acceptance_checks>
+    </decision>
+
+    <decision id="PD-DOCS-PAGES-URL" topic="architectural-tradeoff">
+      <question>What public docs URL should the website use for OSS delivery?</question>
+      <choice>Use https://vinicius91carvalho.github.io/causeflow-ai/ and replace the hardcoded docs.causeflow.ai website links.</choice>
+      <rationale>GitHub Pages is the requested open-source publishing target and matches the root docs workflow.</rationale>
+      <acceptance_checks>AC-065,AC-066</acceptance_checks>
+    </decision>
+
+    <decision id="PD-UMBRELLA-COMPOSE" topic="architectural-tradeoff">
+      <question>Should local startup remain scattered by project, or should the monorepo root own an umbrella compose and init path?</question>
+      <choice>Use a root `docker-compose.yml` plus a thin fail-closed root `init.sh`. Relay is excluded from root startup and remains documented in relay-specific docs only.</choice>
+      <rationale>A single root command is the simplest OSS operator path while relay remains an optional component with its own lifecycle.</rationale>
+      <acceptance_checks>AC-062,AC-063,AC-064,AC-068</acceptance_checks>
+    </decision>
+
+    <decision id="PD-PAGES-WORKFLOW" topic="architectural-tradeoff">
+      <question>Should docs publishing use Mintlify deployment or static export through GitHub Pages?</question>
+      <choice>The monorepo-root workflow uses `mint export` only and publishes the resulting static artifact through GitHub Pages.</choice>
+      <rationale>Static GitHub Pages publishing is auditable in the OSS repo and avoids Mintlify-hosted deployment credentials or side effects.</rationale>
+      <acceptance_checks>AC-065</acceptance_checks>
+    </decision>
+
+    <decision id="PD-ROOT-INIT-EDGES" topic="edge-case">
+      <question>How should root startup behave when Docker, ports, or compose readiness fail?</question>
+      <choice>Fail closed: missing Docker exits with an install hint before compose; required port conflicts exit with explicit ports or documented reclaim; partial compose failure exits non-zero with `ps`/logs and never prints `Ready`.</choice>
+      <rationale>Operators should not see a successful quickstart message when the stack is unavailable or ambiguous.</rationale>
+      <acceptance_checks>AC-067</acceptance_checks>
+    </decision>
+
+    <decision id="PD-HOMEPAGE-DOCS-LINK" topic="ambiguous-requirement">
+      <question>Does replacing website Docs links include only shared navigation, or also the homepage body?</question>
+      <choice>It includes the homepage main-page Docs CTA/link in addition to header, footer, and shared navigation constants.</choice>
+      <rationale>The homepage is a primary conversion surface, so the published docs path must be discoverable outside navigation chrome.</rationale>
+      <acceptance_checks>AC-066</acceptance_checks>
     </decision>
   </planning_decisions>
 </project_specification>
