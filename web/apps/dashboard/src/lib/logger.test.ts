@@ -141,4 +141,27 @@ describe('logger redaction (AC-042)', () => {
     expect(raw).not.toContain('whsec_secret');
     expect(raw).not.toContain('sk_live_secret');
   });
+
+  it('redacts PII (email, name) at nested levels, not just top-level', () => {
+    const sink: string[] = [];
+    const log = makeCapturingLogger(sink);
+    log.info({
+      email: 'top@example.com',
+      name: 'Top User',
+      user: { email: 'nested@example.com', name: 'Nested User' },
+      body: { email: 'body@example.com', name: 'Body User' },
+    });
+
+    const parsed = JSON.parse(sink.join(''));
+    expect(parsed.email).toBe('[Redacted]');
+    expect(parsed.name).toBe('[Redacted]');
+    expect(parsed.user.email).toBe('[Redacted]');
+    expect(parsed.user.name).toBe('[Redacted]');
+    expect(parsed.body.email).toBe('[Redacted]');
+    expect(parsed.body.name).toBe('[Redacted]');
+
+    const raw = sink.join('');
+    expect(raw).not.toContain('@example.com');
+    expect(raw).not.toContain('User');
+  });
 });

@@ -56,9 +56,9 @@ const REDACT_PATHS = [
   'body.apiKey',
   'body.credentials',
   'body.credentials.*',
-  // PII — email and name are redacted to prevent accidental info-level logging
-  'email',
-  'name',
+  // PII — email and name redacted at every nesting level fast-redact matches
+  // (e.g. user.email, body.email) to match the depth applied to secrets below.
+  ...['email', 'name'].flatMap(secretPaths),
   // AC-042: Stripe / Clerk secrets at every nesting level fast-redact matches.
   ...SECRET_KEYS.flatMap(secretPaths),
 ];
