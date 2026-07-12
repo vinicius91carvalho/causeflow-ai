@@ -125,6 +125,8 @@ services:
       dockerfile: Dockerfile.worker
     container_name: causeflow-worker
     depends_on:
+      causeflow-postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     extra_hosts:
@@ -133,9 +135,17 @@ services:
       CAUSEFLOW_RUNTIME: oss
       NODE_ENV: development
       LOG_LEVEL: info
+      # The BullMQ consumer uses the Postgres repositories — same DB as the API.
+      DATABASE_URL: postgresql://${POSTGRES_USER:-causeflow}:${POSTGRES_PASSWORD:-causeflow}@causeflow-postgres:5432/${POSTGRES_DB:-causeflow}
+      POSTGRES_HOST: causeflow-postgres
+      POSTGRES_PORT: '5432'
       REDIS_URL: redis://redis:6379
       HINDSIGHT_BASE_URL: http://hindsight:8888
       HINDSIGHT_API_KEY: ${HINDSIGHT_API_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:-oss-dev-jwt-secret-change-me}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-oss-dev-webhook-secret}
+      # AesGcmTokenEncryption hard-requires this at bootstrap — must match the API's.
+      TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       # AC-057: worker triage/investigation uses the same Ornith connector as the API.
       LLM_CONNECTOR: ornith
