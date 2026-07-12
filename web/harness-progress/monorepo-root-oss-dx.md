@@ -48,3 +48,10 @@
 - RepairPlan: WI-AC-063 fails because init.sh treats any healthy :3099/health as non-conflicting, then docker compose still binds umbrella causeflow-api to 3099 and exits via fail_compose before Ready/URL matrix; relay exclusion is already correct.; In init.sh, treat port_in_use as a conflict unless the listener is the matching umbrella service (causeflow-api/website/dashboard/docs via docker compose ps / publish filter); do not skip binds solely because a foreign /health is 200; Keep stack_ready early-exit only when all four umbrella probes pass; on foreign 3099 fail closed with explicit port + reclaim (e.g. stop core compose) before compose up; Optional: extend reclaim hints to mention core/docker-compose.yml down; no compose/relay changes needed for this defect
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bff305ef-95e7-4a5f-9ffd-94a32a80b309/monorepo-root-oss-dx/WI-AC-063-1-qa-f91968c398b41d6e.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-12T20:17:40.880Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-063
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
