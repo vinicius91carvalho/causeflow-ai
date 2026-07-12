@@ -71,3 +71,12 @@
 - WorkItem: WI-AC-064
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-12T20:21:21.841Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-064
+- AcceptanceChecks: AC-064
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/bff305ef-95e7-4a5f-9ffd-94a32a80b309/monorepo-root-oss-dx/WI-AC-064-1-integration_qa-cd868d96c883ab8a.log
+- NextAction: next Ready Work Item
