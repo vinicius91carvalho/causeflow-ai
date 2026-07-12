@@ -86,25 +86,44 @@ port_in_use() {
   return 1
 }
 
-# Ports whose health probe is not yet passing must be free for compose to bind.
+# True when this umbrella compose project already has `service` running and
+# publishing host `port`. Foreign stacks (e.g. core-causeflow-api-1 on :3099)
+# must NOT count - a healthy /health alone is not ownership.
+umbrella_service_owns_port() {
+  local port="$1"
+  local service="$2"
+  local line
+  line="$(
+    docker compose -f "$COMPOSE_FILE" ps --status running --format '{{.Service}} {{.Ports}}' 2>/dev/null \
+      | awk -v svc="$service" '$1 == svc { print; exit }'
+  )"
+  [ -n "$line" ] || return 1
+  # Match host publish forms: 0.0.0.0:3099->..., [::]:3099->...
+  echo "$line" | grep -qE ":${port}->"
+}
+
+# Any listener on a required port is a conflict unless it is the matching
+# umbrella service. Do not skip solely because a foreign /health returns 200.
 check_ports_free_for_unhealthy() {
   local conflicts=()
-  if ! http_ok "$WEBSITE_HEALTH_URL" && port_in_use 3000; then
+  if port_in_use 3000 && ! umbrella_service_owns_port 3000 causeflow-website; then
     conflicts+=(3000)
   fi
-  if ! http_ok "$DASHBOARD_HEALTH_URL" && port_in_use 3001; then
+  if port_in_use 3001 && ! umbrella_service_owns_port 3001 causeflow-dashboard; then
     conflicts+=(3001)
   fi
-  if ! http_ok "$API_HEALTH_URL" && port_in_use 3099; then
+  if port_in_use 3099 && ! umbrella_service_owns_port 3099 causeflow-api; then
     conflicts+=(3099)
   fi
-  if ! http_ok "$DOCS_HEALTH_URL" && port_in_use 5181; then
+  if port_in_use 5181 && ! umbrella_service_owns_port 5181 causeflow-docs; then
     conflicts+=(5181)
   fi
   if [ "${#conflicts[@]}" -gt 0 ]; then
     echo "ERROR: required ports already in use: ${conflicts[*]}" >&2
     echo "Stop the conflicting listeners and retry, for example:" >&2
     echo "  docker compose -f \"${COMPOSE_FILE}\" rm -sf causeflow-website causeflow-dashboard causeflow-api causeflow-docs" >&2
+    echo "  docker compose -f \"${ROOT}/core/docker-compose.yml\" stop causeflow-api" >&2
+    echo "  docker compose -f \"${ROOT}/core/docker-compose.yml\" down" >&2
     echo "  ss -tlnp | grep -E ':(${conflicts[*]// /|})\\b'" >&2
     exit 1
   fi
