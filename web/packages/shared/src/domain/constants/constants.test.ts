@@ -22,6 +22,10 @@ describe('SITE', () => {
   it('url equals "https://causeflow.ai"', () => {
     expect(SITE.url).toBe('https://causeflow.ai');
   });
+
+  it('docsUrl points to GitHub Pages', () => {
+    expect(SITE.docsUrl).toBe('https://vinicius91carvalho.github.io/causeflow-ai/');
+  });
 });
 
 describe('PRICING_PLANS', () => {

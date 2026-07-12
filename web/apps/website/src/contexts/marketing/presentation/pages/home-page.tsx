@@ -17,7 +17,7 @@
  * Footer: kept as-is via <PageLayout footer={<Footer/>}>
  */
 
-import { ROUTES } from '@causeflow/shared/constants';
+import { ROUTES, SITE } from '@causeflow/shared/constants';
 import { PageLayout } from '@causeflow/ui/layouts';
 import { AnimateOnScroll } from '@causeflow/ui/themes';
 import type { Metadata } from 'next';
@@ -475,6 +475,7 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
           description={t('ctaStop.description')}
           primaryCta={{ label: t('ctaStop.cta1'), href: `${dashboardUrl}/sign-up`, external: true }}
           secondaryCta={{ label: t('ctaStop.cta2'), href: ROUTES.PRICING }}
+          docsCta={{ label: t('ctaStop.ctaDocs'), href: SITE.docsUrl }}
         />
       </AnimateOnScroll>
     </PageLayout>

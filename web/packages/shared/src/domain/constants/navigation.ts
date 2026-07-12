@@ -7,7 +7,7 @@ export const HEADER_NAV_ITEMS: NavItem[] = [
   { label: 'Integrations', href: ROUTES.INTEGRATIONS },
   { label: 'Pricing', href: ROUTES.PRICING },
   { label: 'Security', href: ROUTES.SECURITY },
-  { label: 'Docs', href: 'https://docs.causeflow.ai' },
+  { label: 'Docs', href: SITE.docsUrl },
 ];
 
 export const FOOTER_PRODUCT_LINKS: NavItem[] = [
@@ -15,7 +15,7 @@ export const FOOTER_PRODUCT_LINKS: NavItem[] = [
   { label: 'Integrations', href: ROUTES.INTEGRATIONS },
   { label: 'Security', href: ROUTES.SECURITY },
   { label: 'Pricing', href: ROUTES.PRICING },
-  { label: 'Docs', href: 'https://docs.causeflow.ai' },
+  { label: 'Docs', href: SITE.docsUrl },
 ];
 
 export const FOOTER_COMPANY_LINKS: NavItem[] = [

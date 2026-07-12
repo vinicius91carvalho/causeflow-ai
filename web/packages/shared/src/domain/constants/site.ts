@@ -5,6 +5,8 @@ export const SITE = {
   url: 'https://causeflow.ai',
   // Falls back to production URL; override via NEXT_PUBLIC_DASHBOARD_URL env var.
   dashboardUrl: process.env.NEXT_PUBLIC_DASHBOARD_URL || 'https://dashboard.causeflow.ai',
+  /** Published OSS docs (GitHub Pages). */
+  docsUrl: 'https://vinicius91carvalho.github.io/causeflow-ai/',
   email: 'adm@causeflow.ai',
   social: {
     github: 'https://github.com/causeflow',

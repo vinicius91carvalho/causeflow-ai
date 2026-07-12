@@ -2,15 +2,13 @@ import { ROUTES, SITE } from '@causeflow/shared/constants';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
-const DOCS_URL = 'https://docs.causeflow.ai';
-
 const productLinks = [
   { label: 'Product', href: ROUTES.PRODUCT, external: false },
   { label: 'Integrations', href: ROUTES.INTEGRATIONS, external: false },
   { label: 'Security', href: ROUTES.SECURITY, external: false },
   { label: 'Pricing', href: ROUTES.PRICING, external: false },
   { label: 'About', href: ROUTES.ABOUT, external: false },
-  { label: 'Docs', href: DOCS_URL, external: true },
+  { label: 'Docs', href: SITE.docsUrl, external: true },
 ];
 
 const legalLinks = [

@@ -610,7 +610,8 @@
         "h2": "Start building product.",
         "description": "Connect your stack in minutes and investigate real incidents on your infra. No contract, no card.",
         "cta1": "Start free →",
-        "cta2": "See pricing"
+        "cta2": "See pricing",
+        "ctaDocs": "Read the docs →"
       },
       "reasoning": {
         "eyebrow": "Knowledge bank",

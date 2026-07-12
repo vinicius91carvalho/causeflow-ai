@@ -1,6 +1,6 @@
 'use client';
 
-import { ROUTES } from '@causeflow/shared/constants';
+import { ROUTES, SITE } from '@causeflow/shared/constants';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -9,8 +9,6 @@ import { getDashboardUrl } from '@/lib/dashboard-url';
 import { LanguageSelector } from './language-selector';
 import { MobileMenu } from './mobile-menu';
 
-const DOCS_URL = 'https://docs.causeflow.ai';
-
 const navItems = [
   { label: 'Product', href: ROUTES.PRODUCT },
   { label: 'Integrations', href: ROUTES.INTEGRATIONS },
@@ -18,7 +16,7 @@ const navItems = [
   { label: 'Usecases', href: ROUTES.USE_CASES },
   { label: 'Security', href: ROUTES.SECURITY },
   { label: 'About', href: ROUTES.ABOUT },
-  { label: 'Docs', href: DOCS_URL, external: true },
+  { label: 'Docs', href: SITE.docsUrl, external: true },
 ];
 
 export function Header() {

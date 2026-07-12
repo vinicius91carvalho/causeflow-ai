@@ -21,6 +21,8 @@ interface CtaStopHuntingSectionProps {
   description: string;
   primaryCta: { label: string; href: string; external?: boolean };
   secondaryCta: { label: string; href: string };
+  /** Docs CTA — published GitHub Pages docs (outside nav chrome). */
+  docsCta?: { label: string; href: string };
 }
 
 export function CtaStopHuntingSection({
@@ -28,6 +30,7 @@ export function CtaStopHuntingSection({
   description,
   primaryCta,
   secondaryCta,
+  docsCta,
 }: CtaStopHuntingSectionProps) {
   return (
     <section className="bg-background px-4 py-[120px] sm:px-6 lg:px-8">
@@ -80,6 +83,19 @@ export function CtaStopHuntingSection({
               {secondaryCta.label}
             </Link>
           </div>
+
+          {docsCta ? (
+            <p className="relative mt-6">
+              <a
+                href={docsCta.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[14px] font-medium text-background/65 underline-offset-4 transition-colors hover:text-accent hover:underline"
+              >
+                {docsCta.label}
+              </a>
+            </p>
+          ) : null}
         </div>
       </div>
     </section>

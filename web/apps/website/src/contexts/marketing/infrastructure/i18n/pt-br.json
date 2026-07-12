@@ -610,7 +610,8 @@
         "h2": "Comece a construir produto.",
         "description": "Conecte sua stack em minutos e investigue incidentes reais na sua infra. Sem contrato, sem cartão.",
         "cta1": "Começar grátis →",
-        "cta2": "Ver preços"
+        "cta2": "Ver preços",
+        "ctaDocs": "Ler a documentação →"
       },
       "reasoning": {
         "eyebrow": "Banco de conhecimento",
