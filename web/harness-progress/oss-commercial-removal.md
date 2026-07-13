@@ -245,3 +245,12 @@
 - WorkItem: WI-AC-075
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-13T04:45:43.061Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-075
+- AcceptanceChecks: AC-075
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/5dc17bff-f85b-4421-acde-417406b8052a/oss-commercial-removal/WI-AC-075-3-integration_qa-23939dda55f62a56.log
+- NextAction: next Ready Work Item
