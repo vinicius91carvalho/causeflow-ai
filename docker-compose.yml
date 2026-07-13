@@ -1,9 +1,12 @@
-# CauseFlow — monorepo-root umbrella OSS platform stack (AC-062).
+# CauseFlow — monorepo-root umbrella OSS platform stack (AC-062 / AC-069).
 #
 # Brings up the existing web OSS platform services plus public docs:
-#   causeflow-postgres, redis, hindsight, causeflow-api, causeflow-worker,
-#   causeflow-website (host :3000), causeflow-dashboard (host :3001),
-#   causeflow-docs (host :5181 → container :3000).
+#   causeflow-postgres, redis, hindsight, causeflow-test-app, causeflow-api,
+#   causeflow-worker, causeflow-website (host :3000), causeflow-dashboard
+#   (host :3001), causeflow-docs (host :5181 → container :3000).
+#
+# AC-069: web compose always starts causeflow-test-app and sets Core
+# STUB_UPSTREAM_BASE_URL to http://causeflow-test-app:5190 (service DNS).
 #
 # Paths inside included Compose files resolve relative to those files
 # (web/ → ../core, public-docs/ → its own Dockerfile). Relay is intentionally
