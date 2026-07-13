@@ -62,3 +62,10 @@
 - RepairPlan: AC-072 fails on Test (not Connect): pre-fix Test used generic /api/integrations/test → Core /test-connection always returns success for non-AWS, so stub-upstream can toast success and set lastTestedAt while test-app is down. Scaffold (feature_list.json, init.sh) is present; on-disk WIP already adds stub/probe BFF + Core ProbeStubIntegrationUseCase + handleTest branch, but WI flags remain false and behavior is unverified.; Keep stub-upstream Test on POST /api/integrations/stub/probe → Core POST /v1/integrations/stub/probe (ProbeStubIntegrationUseCase fetch ${stubBaseUrl}/v1/probe); never /api/integrations/test for stub-upstream; Defense-in-depth: in Core integration.routes.ts /test-connection, reject type stub-upstream with clear unreachable/not-supported error instead of Format validation passed; Ensure probe/connect errors surface message containing unreachable (no success toast, no lastTestedAt/connected upsert) and cover stub-probe-handler + probe usecase unit tests; Add or extend OSS Playwright (PORT=5170 compose): stop causeflow-test-app, assert Connect and Test show clear error and no healthy/connected state; Re-run WI-AC-072 integration QA on this tree; set feature_list.json WI-AC-072 implementation/qa/integration true only after pass
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/989bcc86-12b5-4e03-a5f6-a4e92cf8f720/oss-commercial-removal/WI-AC-072-1-integration_qa-8be7c91c859398d0.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-13T02:00:04.322Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-072
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
