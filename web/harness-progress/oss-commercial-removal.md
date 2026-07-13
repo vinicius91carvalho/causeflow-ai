@@ -165,3 +165,10 @@
 - RepairPlan: WI-AC-074 fails because the OSS BFF still runs the AC-022 local credits ledger (3 free credits) on create and still exposes creditsRemaining via metrics/subscription; WIP only partially removed the create gate.; Keep consumeCredit removed from incidents-create-handler (and analyses-handler); do not reintroduce a local ledger gate before Core proxy; Purge or OSS-disable credits-ledger.ts (consumeCredit/resolveCredits) so no in-memory 3-credit free tier remains; Strip creditsTotal/creditsRemaining/creditsUsed from metrics-handler and subscription-handler (prefer 410 Gone per AC-076, not free-plan stub payloads); Remove/neutralize FREE_PLAN_MONTHLY_CREDITS runtime use and update billing/metrics unit tests that assert creditsRemaining=3; Rebuild/restart dashboard on PORT=5170 so IV no longer hits a stale process with the old create gate
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/5dc17bff-f85b-4421-acde-417406b8052a/oss-commercial-removal/WI-AC-074-1-integration_qa-84f8d2e7dd782c46.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-13T03:13:34.882Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-074
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
