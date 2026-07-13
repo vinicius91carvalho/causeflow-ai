@@ -86,3 +86,10 @@
 - RepairPlan: AC-072 failed because stub-upstream Test used generic `/api/integrations/test` (no dashboard stub/probe BFF) and Connect hid Core unreachable text via http-api-client mapping only `body.error`. WIP now adds stub/probe route+handler, handleTest branch, message preference, Core defense, and ac-072 E2E; revalidate after fixing container name default.; Align `tests/oss/ac-072-test-app-unreachable.spec.ts` default `OSS_TEST_APP_CONTAINER` with compose `container_name: causeflow-test-app` (or env for umbrella naming).; Confirm WIP complete: `stub/probe` route+handler, `integrations-client` stub-upstream Test→`/api/integrations/stub/probe`, Connect→stub/connect, `http-api-client` prefers `body.message`, Core rejects stub-upstream on `/test-connection`.; Run vitest for stub-probe/stub-connect handlers and http-api-client message mapping.; Restart OSS stack on PORT=5170 so dashboard serves the WIP (avoid stale 404 on stub/probe).; Run `pnpm exec playwright test --project=dashboard-oss-e2e tests/oss/ac-072-test-app-unreachable.spec.ts` then harness IV; flip WI-AC-072 flags only on pass.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/989bcc86-12b5-4e03-a5f6-a4e92cf8f720/oss-commercial-removal/WI-AC-072-2-integration_qa-15c1ff71e3bb8fe0.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-13T02:16:26.994Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-072
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
