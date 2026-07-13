@@ -1,0 +1,26 @@
+{
+  "coding": [
+    { "harness": "agent", "model": "composer-2.5" },
+    { "harness": "agent", "model": "grok-4.5-high" },
+    { "harness": "agent", "model": "grok-4.5-xhigh" }
+  ],
+  "validation": [
+    { "harness": "agent", "model": "composer-2.5" },
+    { "harness": "agent", "model": "grok-4.5-high" },
+    { "harness": "agent", "model": "grok-4.5-xhigh" }
+  ],
+  "repairPlanning": [
+    { "harness": "agent", "model": "grok-4.5-xhigh" },
+    { "harness": "agent", "model": "grok-4.5-high" },
+    { "harness": "agent", "model": "composer-2.5" }
+  ],
+  "goalReview": [
+    { "harness": "agent", "model": "grok-4.5-xhigh" },
+    { "harness": "agent", "model": "grok-4.5-high" },
+    { "harness": "agent", "model": "composer-2.5" }
+  ],
+  "noCredits": [
+    { "harness": "agent", "model": "composer-2.5" },
+    { "harness": "agent", "model": "grok-4.5-medium" }
+  ]
+}
