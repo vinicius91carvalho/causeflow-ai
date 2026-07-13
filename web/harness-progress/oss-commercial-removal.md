@@ -196,3 +196,12 @@
 - WorkItem: WI-AC-074
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-13T03:36:02.107Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-074
+- AcceptanceChecks: AC-074
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/5dc17bff-f85b-4421-acde-417406b8052a/oss-commercial-removal/WI-AC-074-3-integration_qa-fc9c416dbcb6e7e4.log
+- NextAction: next Ready Work Item
