@@ -214,3 +214,10 @@
 - RepairPlan: AC-075 fails only on unauthenticated Core POST /v1/billing/checkout: global auth returns 401 before OSS billing 410 handlers. Authenticated Core and dashboard proxies already return 410. Scaffold artifacts present.; In Core, short-circuit OSS billing checkout/portal (and related former commercial paths) to 410 Gone before authMiddleware when config.isOss(), or equivalent early middleware in app.ts/auth.middleware.ts; Add Core unit/integration coverage: unauthenticated POST /v1/billing/checkout and portal → 410 (not 401); Do not change ac-075-commercial-purge.spec.ts to accept 401; keep 404|410 contract; Optional web parity: return ossBillingGoneResponse before withAuth on dashboard checkout/portal handlers
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/5dc17bff-f85b-4421-acde-417406b8052a/oss-commercial-removal/WI-AC-075-1-qa-77b6db6aaf03f070.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-13T04:29:41.636Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-075
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
