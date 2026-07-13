@@ -1,5 +1,1 @@
-export {
-  default,
-  dynamic,
-  generateMetadata,
-} from '@/contexts/billing/presentation/pages/billing-page';
+export { default, dynamic } from '@/contexts/billing/presentation/pages/billing-page';

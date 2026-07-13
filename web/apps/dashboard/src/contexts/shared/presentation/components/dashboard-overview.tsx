@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { selectEmptyStateBranch } from '../lib/empty-state-branch';
 import { BranchAEmptyState } from './branch-a-empty-state';
 import { BranchBEmptyState } from './branch-b-empty-state';
-import { CreditsBanner } from './credits-banner';
 import { MetricsCard } from './metrics-card';
 import { NetworkAnimation } from './network-animation';
 
@@ -17,13 +16,6 @@ interface DashboardOverviewMessages {
     totalAnalyses: string;
     activeIntegrations: string;
     teamMembers: string;
-  };
-  credits: {
-    remaining: string;
-    renews: string;
-    upgrade: string;
-    warning: string;
-    critical: string;
   };
   emptyState: {
     branchA: {
@@ -49,7 +41,6 @@ interface DashboardOverviewMessages {
 
 interface DashboardOverviewProps {
   messages: DashboardOverviewMessages;
-  renewDate?: string;
 }
 
 // ─── Metrics & integrations data shape ────────────────────────────────────
@@ -58,14 +49,11 @@ interface MetricsData {
   totalAnalyses: number;
   activeIntegrations: number;
   teamMembers: number;
-  creditsTotal: number;
-  creditsUsed: number;
-  creditsRemaining: number;
 }
 
 // ─── Main component ────────────────────────────────────────────────────────
 
-export function DashboardOverview({ messages, renewDate }: DashboardOverviewProps) {
+export function DashboardOverview({ messages }: DashboardOverviewProps) {
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [integrationCount, setIntegrationCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -171,22 +159,6 @@ export function DashboardOverview({ messages, renewDate }: DashboardOverviewProp
                 loading={loading}
               />
             </div>
-          </section>
-
-          {/* Credits banner */}
-          <section aria-label="Credits">
-            <CreditsBanner
-              creditsTotal={metrics?.creditsTotal ?? 5}
-              creditsUsed={metrics?.creditsUsed ?? 0}
-              creditsRemaining={metrics?.creditsRemaining ?? 5}
-              renewDate={renewDate}
-              upgradeLabel={messages.credits.upgrade}
-              renewsLabel={messages.credits.renews}
-              creditsRemainingLabel={messages.credits.remaining}
-              warningLabel={messages.credits.warning}
-              criticalLabel={messages.credits.critical}
-              loading={loading}
-            />
           </section>
         </>
       )}

@@ -37,10 +37,10 @@ describe('DashboardOverview — source invariants', () => {
     expect(source).toContain("branch === 'B'");
   });
 
-  it('renders Branch C layout with metrics and credits banner', () => {
+  it('renders Branch C layout with metrics and no credits banner', () => {
     expect(source).toContain("branch === 'C'");
     expect(source).toContain('MetricsCard');
-    expect(source).toContain('CreditsBanner');
+    expect(source).not.toContain('CreditsBanner');
   });
 
   it('does not render the 7 removed sections', () => {

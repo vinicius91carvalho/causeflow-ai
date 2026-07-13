@@ -25,13 +25,6 @@ export default async function OverviewPage({ params }: Props) {
       activeIntegrations: t('home.metrics.activeIntegrations'),
       teamMembers: t('home.metrics.teamMembers'),
     },
-    credits: {
-      remaining: t.raw('home.credits.remaining') as string,
-      renews: t.raw('home.credits.renews') as string,
-      upgrade: t('home.credits.upgrade'),
-      warning: t('home.credits.warning'),
-      critical: t('home.credits.critical'),
-    },
     emptyState: {
       title: t('home.emptyState.title'),
       subtitle: t('home.emptyState.subtitle'),

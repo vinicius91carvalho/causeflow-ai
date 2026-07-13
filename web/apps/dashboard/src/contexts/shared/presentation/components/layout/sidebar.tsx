@@ -4,7 +4,6 @@ import { cn } from '@causeflow/ui/lib';
 import {
   Brain,
   ChevronLeft,
-  CreditCard,
   LayoutDashboard,
   Plug,
   Radio,
@@ -18,7 +17,6 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { useCredits } from './use-credits';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -33,6 +31,7 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
+/** OSS commercial removal (AC-073): Billing nav entry intentionally omitted. */
 const navItems: NavItem[] = [
   { key: 'overview', href: '/dashboard', icon: LayoutDashboard },
   { key: 'incidents', href: '/dashboard/incidents', icon: ShieldAlert },
@@ -41,14 +40,12 @@ const navItems: NavItem[] = [
   { key: 'relay', href: '/dashboard/relay', icon: Radio },
   { key: 'audit', href: '/dashboard/audit', icon: ScrollText },
   { key: 'team', href: '/dashboard/team', icon: Users },
-  { key: 'billing', href: '/dashboard/billing', icon: CreditCard },
   { key: 'settings', href: '/dashboard/settings', icon: Settings },
 ];
 
 export function Sidebar({ collapsed, mobileOpen, onCollapse, onMobileClose }: SidebarProps) {
   const t = useTranslations('dashboard');
   const pathname = usePathname();
-  const { credits, loading: creditsLoading, error: creditsError } = useCredits();
 
   const isActive = (href: string) => {
     if (href === '/dashboard') {
@@ -165,59 +162,6 @@ export function Sidebar({ collapsed, mobileOpen, onCollapse, onMobileClose }: Si
             );
           })}
         </nav>
-
-        {/* Credits badge */}
-        <div className="shrink-0 border-t border-border p-3">
-          <div
-            className={cn(
-              'flex flex-col gap-1.5 rounded-md bg-muted px-2 py-2',
-              collapsed && 'items-center',
-            )}
-            title={collapsed ? t('sidebar.credits') : undefined}
-          >
-            <div className={cn('flex items-center gap-2', collapsed && 'justify-center')}>
-              <CreditCard className="h-4 w-4 shrink-0 text-muted-foreground" />
-              {!collapsed && (
-                <span className="truncate text-muted-foreground text-xs font-medium">
-                  {creditsLoading
-                    ? t('sidebar.creditsLoading')
-                    : creditsError || credits === null
-                      ? t('sidebar.creditsError')
-                      : t('sidebar.creditsValue', { count: credits.creditsRemaining })}
-                </span>
-              )}
-            </div>
-            {!collapsed && !creditsLoading && credits !== null && !creditsError && (
-              <>
-                {/* Usage bar */}
-                <div className="h-1.5 w-full rounded-full bg-background overflow-hidden">
-                  <div
-                    className={cn(
-                      'h-full rounded-full transition-all duration-500',
-                      credits.creditsTotal > 0 &&
-                        credits.creditsRemaining / credits.creditsTotal <= 0.15
-                        ? 'bg-destructive'
-                        : credits.creditsTotal > 0 &&
-                            credits.creditsRemaining / credits.creditsTotal <= 0.35
-                          ? 'bg-warning'
-                          : 'bg-accent',
-                    )}
-                    style={{
-                      width:
-                        credits.creditsTotal > 0
-                          ? `${(credits.creditsRemaining / credits.creditsTotal) * 100}%`
-                          : '0%',
-                    }}
-                  />
-                </div>
-                {/* Plan label */}
-                <span className="text-[10px] text-muted-foreground/70 truncate capitalize">
-                  {credits.plan ?? 'free'} — {credits.creditsUsed}/{credits.creditsTotal} used
-                </span>
-              </>
-            )}
-          </div>
-        </div>
       </aside>
     </>
   );
