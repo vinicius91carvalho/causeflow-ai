@@ -144,6 +144,25 @@
       (2) docs/architecture/tech-stack.md and apps/website/.env.example (LOOPS_API_KEY) describe a Loops.so email-marketing integration exposed via the website's /api/notify route. The implementation has no /api directory under apps/website/src/app — the Loops.so integration has no current consumer in this codebase. The only Loops.so reference is in the CSP `connect-src` allow-list at apps/website/next.config.mjs. Concretely: Loops.so is declared as a planned integration in docs and env templates but no runtime code path consumes it.
       (3) docs/architecture/tech-stack.md names pnpm 10.30.1 as the package manager version. The implementation pins `packageManager: pnpm@10.33.0` in package.json. Concretely: use pnpm 10.33.0 as the active version; the docs reference 10.30.1 which is stale.
     </contradictions>
+
+    <integration name="CauseFlow Test Application (OSS stub upstream)">
+      <responsibility>Default OSS compose service `causeflow-test-app` that backs the Integrations catalog card Test Application (OSS). Core connects via STUB_UPSTREAM_BASE_URL; dashboard Connect/Test proxy to Core stub connect and stub probe endpoints.</responsibility>
+      <availability>required for OSS local runtime integrations golden path</availability>
+      <configuration>Compose service causeflow-test-app; Core env STUB_UPSTREAM_BASE_URL=http://causeflow-test-app:5190 (service DNS). No Stripe/Clerk/AWS credentials.</configuration>
+      <security>Local-only mock upstream; no customer credentials. Fail closed when unreachable.</security>
+      <failure_behavior>Connect/Test return a clear unreachable error; no false healthy state (AC-072).</failure_behavior>
+      <deployment>Always started with the default OSS umbrella/web compose path (AC-069).</deployment>
+      <affected_surfaces>Dashboard integrations page; Core stub connect/probe; compose files at web and monorepo root as needed for AC pass.</affected_surfaces>
+    </integration>
+    <integration name="Commercial billing (removed)">
+      <responsibility>Stripe, plan catalog checkout, credits ledger, billing account reservation, and paid marketing checkout are removed from the OSS product runtime (web + Core). Former stub billing ("Billing disabled in OSS build" plus free-plan credits) is superseded by full removal.</responsibility>
+      <availability>removed</availability>
+      <configuration>removed</configuration>
+      <security>No Stripe secrets in web or Core OSS runtime.</security>
+      <failure_behavior>Billing UI redirects; billing APIs 410 Gone or absent; investigation create ignores credits (AC-073..AC-076).</failure_behavior>
+      <deployment>removed from OSS compose and product paths</deployment>
+      <affected_surfaces>Dashboard billing context, sidebar credits, website pricing CTAs, Core billing module, shared plans credits constants.</affected_surfaces>
+    </integration>
   </integrations>
 
   <prerequisites>
@@ -224,6 +243,19 @@
       - Monorepo-root `.github/workflows/docs-pages.yml` builds `public-docs` with `mint export`, not `mint deploy`, and publishes GitHub Pages at https://vinicius91carvalho.github.io/causeflow-ai/.
       - Website Docs links in the header, footer, shared navigation constants, and a homepage main-page Docs CTA/link point to https://vinicius91carvalho.github.io/causeflow-ai/ instead of the hardcoded docs.causeflow.ai URL.
     </monorepo-root-oss-dx>
+
+    <oss-commercial-removal>
+      - Goal: finish open-source product cleanup by deleting commercial billing/quota surfaces and making Test Application (OSS) work on the default compose path. Web owns Acceptance Checks; Core and monorepo-root compose changes are required for those checks to pass.
+      - Billing purge (web): remove dashboard Billing nav/link, billing page commercial UI (plan cards, quota packs, Buy more, invoices, payment modals), sidebar "investigations left" / credits widget, credits ledger, plan-gate that depends on Stripe period end, and CLI `add-credits.ts`. Visiting `/dashboard/billing` redirects to the dashboard home without rendering plan tiers or quota copy.
+      - Billing purge (APIs): dashboard billing checkout/portal/subscription/credits routes are removed or return 410 Gone. Investigation create no longer returns 402 CREDITS_EXHAUSTED from a local credits ledger.
+      - Billing purge (Core, required for pass): remove Stripe clients, checkout/portal/webhook billing use cases, credits reservation, and billing-account runtime from the OSS product path so Core does not enforce commercial investigation quotas.
+      - Marketing: replace paid plan/checkout CTAs with self-host / open-source messaging; no live Stripe checkout from the website.
+      - Shared plans catalog: remove or stop using commercial plan/credits constants as runtime product behavior (no FREE_PLAN_MONTHLY_CREDITS UX).
+      - Test Application (OSS): default OSS compose (web and/or monorepo-root umbrella used by operators) always starts `causeflow-test-app` and sets `STUB_UPSTREAM_BASE_URL` to the Docker service hostname so Core can reach it. Integrations catalog still injects Test Application (OSS) in OSS runtime.
+      - Connect: one-click Connect for stub-upstream succeeds when the stack is healthy and persists a connected Test Application (OSS) integration.
+      - Test action: the Integrations Test control for Test Application calls Core stub probe (`/v1/integrations/stub/probe` via the dashboard BFF), not AWS-style generic test-connection.
+      - Unreachable upstream: Connect/Test show a clear unreachable error and never claim healthy/connected success when the test app is down.
+    </oss-commercial-removal>
   </core_features>
 
   <non_goals>
@@ -915,6 +947,86 @@
         <step>Step 3: Run `curl` against docs on :5181 and confirm it responds successfully.</step>
       </steps>
     </acceptance_check>
+
+    <acceptance_check id="AC-069" context="oss-commercial-removal" category="foundation" depends_on="AC-044">
+      <title>Default OSS compose includes causeflow-test-app with correct stub upstream URL</title>
+      <description>After starting the operator OSS stack used by the dashboard (monorepo-root and/or web compose path covered by AC-044), `causeflow-test-app` is running and Core is configured with `STUB_UPSTREAM_BASE_URL` pointing at that Docker service (not container `127.0.0.1`). A health check against the test app succeeds from the compose network.</description>
+      <steps>
+        <step>Step 1: Start the OSS stack via the documented root/web compose path.</step>
+        <step>Step 2: Confirm `causeflow-test-app` is listed as running in compose ps and answers health on its published/internal port.</step>
+        <step>Step 3: Confirm the API service env includes `STUB_UPSTREAM_BASE_URL` using the Docker service hostname (for example `http://causeflow-test-app:5190`), not `http://127.0.0.1:5190`.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-070" context="oss-commercial-removal" category="functional" depends_on="AC-069,AC-055,AC-058">
+      <title>Integrations page connects Test Application (OSS) successfully</title>
+      <description>On the running OSS dashboard, an authenticated user opens Integrations, sees Test Application (OSS), clicks Connect, and the flow completes without an error toast. The integration appears connected with display name Test Application (OSS).</description>
+      <steps>
+        <step>Step 1: Sign in to the OSS dashboard and open /dashboard/integrations.</step>
+        <step>Step 2: Locate the Test Application (OSS) card and click Connect.</step>
+        <step>Step 3: Confirm success UI (no Failed to connect toast) and a connected credential/card for Test Application (OSS).</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-071" context="oss-commercial-removal" category="functional" depends_on="AC-070">
+      <title>Test Application Test action uses Core stub probe</title>
+      <description>After connecting Test Application (OSS), the Integrations Test control exercises Core stub probe behavior (dashboard BFF to Core `/v1/integrations/stub/probe` or equivalent stub probe path), not the AWS-oriented generic test-connection path. A healthy test app yields a successful Test result in the UI.</description>
+      <steps>
+        <step>Step 1: With Test Application (OSS) connected, click Test on that integration.</step>
+        <step>Step 2: Confirm the UI reports success while the test app is healthy.</step>
+        <step>Step 3: Confirm the request path is the stub probe (BFF/Core stub probe), not AWS test-connection semantics.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-072" context="oss-commercial-removal" category="edge-case" depends_on="AC-069">
+      <title>Unreachable test app shows a clear Connect/Test error</title>
+      <description>If `causeflow-test-app` is stopped or unreachable while the dashboard and API remain up, Connect or Test for Test Application (OSS) fails with a clear unreachable/error message and does not mark the integration as successfully connected/healthy.</description>
+      <steps>
+        <step>Step 1: Stop or block `causeflow-test-app` while leaving dashboard and API running.</step>
+        <step>Step 2: Attempt Connect or Test for Test Application (OSS).</step>
+        <step>Step 3: Confirm a clear failure message and no false healthy/connected success state.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-073" context="oss-commercial-removal" category="functional" depends_on="AC-044">
+      <title>Dashboard billing UI and credits chrome are fully removed</title>
+      <description>On the OSS dashboard, sidebar/nav has no Billing entry and no "investigations left" / credits remaining chrome. Navigating to /dashboard/billing redirects to the dashboard home (or equivalent non-billing landing) and never renders plan cards, quota packs, Buy more, invoices, or payment modals.</description>
+      <steps>
+        <step>Step 1: Open the authenticated dashboard shell and confirm Billing is absent from navigation and no credits/investigations-left widget is shown.</step>
+        <step>Step 2: Visit /dashboard/billing directly.</step>
+        <step>Step 3: Confirm redirect away from billing and that plan/quota/payment commercial UI is not rendered.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-074" context="oss-commercial-removal" category="functional" depends_on="AC-073">
+      <title>Investigation create is not blocked by credits exhaustion</title>
+      <description>Creating an investigation/incident through the OSS dashboard never fails with 402 CREDITS_EXHAUSTED from a local credits ledger or commercial quota gate. Operators can create investigations without purchasing credits or seeing remaining-credit limits.</description>
+      <steps>
+        <step>Step 1: Authenticate on the OSS dashboard with a fresh or previously "free plan" tenant.</step>
+        <step>Step 2: Create an investigation/incident through the normal UI path.</step>
+        <step>Step 3: Confirm creation succeeds without 402 CREDITS_EXHAUSTED and without a credits-exhausted blocking modal driven by a 3-credit free tier.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-075" context="oss-commercial-removal" category="functional" depends_on="AC-073">
+      <title>Commercial Stripe/plan/credits codepaths are purged from web and Core product runtime</title>
+      <description>The OSS product no longer ships usable Stripe SDKs, add-credits CLI, commercial billing checkout/portal clients, or credits-ledger enforcement in web or Core runtime paths required by the dashboard. Dashboard/Core billing checkout and portal endpoints are absent or return 410 Gone. Marketing paid checkout CTAs are replaced with self-host / open-source messaging (no live Stripe checkout).</description>
+      <steps>
+        <step>Step 1: Confirm dashboard package/runtime has no Stripe SDK dependency and `add-credits.ts` is removed.</step>
+        <step>Step 2: Call former checkout/portal (or dashboard proxies) and confirm 410 Gone or route absence; confirm Core OSS path has no Stripe client / credits reservation for investigations.</step>
+        <step>Step 3: Open marketing pricing/plan CTAs and confirm self-host/OSS messaging with no live paid checkout.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-076" context="oss-commercial-removal" category="edge-case" depends_on="AC-073">
+      <title>Bookmarked billing and billing API calls stay non-commercial</title>
+      <description>A bookmarked /dashboard/billing URL never shows "3 investigations left", plan upgrade cards, or Buy more. Any remaining dashboard billing API routes used by old clients return 410 Gone (or 404 if fully removed) rather than stub free-plan subscription payloads that reintroduce quota UX.</description>
+      <steps>
+        <step>Step 1: Hit /dashboard/billing as a signed-in user and confirm no investigations-left or plan-card UI.</step>
+        <step>Step 2: Request former dashboard billing subscription/checkout/portal endpoints if still routed.</step>
+        <step>Step 3: Confirm 410 Gone or 404, and that responses are not consumed to render commercial quota chrome.</step>
+      </steps>
+    </acceptance_check>
   </acceptance_checks>
 
   <planning_decisions>
@@ -1009,6 +1121,48 @@
       <choice>It includes the homepage main-page Docs CTA/link in addition to header, footer, and shared navigation constants.</choice>
       <rationale>The homepage is a primary conversion surface, so the published docs path must be discoverable outside navigation chrome.</rationale>
       <acceptance_checks>AC-066</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-BILLING-PURGE" topic="ambiguous-requirement">
+      <question>After Stripe removal, should OSS keep free-tier credits UI or delete billing entirely?</question>
+      <choice>Delete billing and quota entirely from the OSS product: purge Stripe/plan/credits codepaths in web and Core, remove Billing nav and credits chrome, redirect /dashboard/billing, and stop 402 credit gates. Marketing becomes self-host/OSS oriented with no live paid checkout.</choice>
+      <rationale>Stripe is already gone; leftover "3 investigations left" and plan cards are false commercial UX. Operators need a clean self-hosted product, not a stub storefront.</rationale>
+      <acceptance_checks>AC-073,AC-074,AC-075,AC-076</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-OWNER-WEB" topic="architectural-tradeoff">
+      <question>Which harness project owns a goal that changes both web and Core?</question>
+      <choice>web owns the Acceptance Checks and Work Item catalog; Core/compose changes are required implementation for those checks. No aggregate root specification and no cross-project queue dependency.</choice>
+      <rationale>Harness requires one owning project; dashboard symptoms are the operator-visible contract.</rationale>
+      <acceptance_checks>AC-069,AC-070,AC-071,AC-072,AC-073,AC-074,AC-075,AC-076</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-TEST-APP-DEFAULT-COMPOSE" topic="architectural-tradeoff">
+      <question>Should causeflow-test-app be optional or part of the default OSS compose path?</question>
+      <choice>Always start causeflow-test-app on the default OSS compose path and set STUB_UPSTREAM_BASE_URL to the Docker service hostname.</choice>
+      <rationale>Connect currently fails when Core defaults to 127.0.0.1:5190 inside the API container; the integrations golden path requires the test app by default.</rationale>
+      <acceptance_checks>AC-069,AC-070</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-STUB-PROBE" topic="architectural-tradeoff">
+      <question>Which Test path should Test Application (OSS) use?</question>
+      <choice>Dashboard Test routes to Core stub probe (/v1/integrations/stub/probe), not AWS-style generic test-connection.</choice>
+      <rationale>Stub upstream health is distinct from AWS credential format checks.</rationale>
+      <acceptance_checks>AC-071</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-TEST-APP-DOWN" topic="edge-case">
+      <question>What happens when the test app is unreachable during Connect/Test?</question>
+      <choice>Show a clear unreachable error and never mark connected/healthy success.</choice>
+      <rationale>Silent success or opaque 500s hide compose/env miswiring.</rationale>
+      <acceptance_checks>AC-072</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-BILLING-BOOKMARK" topic="edge-case">
+      <question>What should old /dashboard/billing bookmarks and billing API clients see?</question>
+      <choice>Redirect UI away from commercial billing; APIs return 410 Gone or 404; never rehydrate free-plan quota chrome like "3 investigations left".</choice>
+      <rationale>Bookmarks and stale clients must not resurrect commercial UX after the purge.</rationale>
+      <acceptance_checks>AC-073,AC-076</acceptance_checks>
     </decision>
   </planning_decisions>
 </project_specification>

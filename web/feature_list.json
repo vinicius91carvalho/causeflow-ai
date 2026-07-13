@@ -1958,5 +1958,233 @@
     "qa": false,
     "integration": false,
     "retries": 0
+  },
+  {
+    "id": "WI-AC-069",
+    "context": "oss-commercial-removal",
+    "category": "foundation",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "After starting the operator OSS stack used by the dashboard (monorepo-root and/or web compose path covered by AC-044), `causeflow-test-app` is running and Core is configured with `STUB_UPSTREAM_BASE_URL` pointing at that Docker service (not container `127.0.0.1`). A health check against the test app succeeds from the compose network.",
+    "steps": [
+      "Verify AC-069: After starting the operator OSS stack used by the dashboard (monorepo-root and/or web compose path covered by AC-044), `causeflow-test-app` is running and Core is configured with `STUB_UPSTREAM_BASE_URL` pointing at that Docker service (not container `127.0.0.1`). A health check against the test app succeeds from the compose network."
+    ],
+    "acceptance_checks": [
+      "AC-069"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-OWNER-WEB",
+      "PD-OSS-TEST-APP-DEFAULT-COMPOSE"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-070",
+    "context": "oss-commercial-removal",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "On the running OSS dashboard, an authenticated user opens Integrations, sees Test Application (OSS), clicks Connect, and the flow completes without an error toast. The integration appears connected with display name Test Application (OSS).",
+    "steps": [
+      "Verify AC-070: On the running OSS dashboard, an authenticated user opens Integrations, sees Test Application (OSS), clicks Connect, and the flow completes without an error toast. The integration appears connected with display name Test Application (OSS)."
+    ],
+    "acceptance_checks": [
+      "AC-070"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-OWNER-WEB",
+      "PD-OSS-TEST-APP-DEFAULT-COMPOSE"
+    ],
+    "depends_on": [
+      "AC-069",
+      "AC-055",
+      "AC-058"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-071",
+    "context": "oss-commercial-removal",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "After connecting Test Application (OSS), the Integrations Test control exercises Core stub probe behavior (dashboard BFF to Core `/v1/integrations/stub/probe` or equivalent stub probe path), not the AWS-oriented generic test-connection path. A healthy test app yields a successful Test result in the UI.",
+    "steps": [
+      "Verify AC-071: After connecting Test Application (OSS), the Integrations Test control exercises Core stub probe behavior (dashboard BFF to Core `/v1/integrations/stub/probe` or equivalent stub probe path), not the AWS-oriented generic test-connection path. A healthy test app yields a successful Test result in the UI."
+    ],
+    "acceptance_checks": [
+      "AC-071"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-OWNER-WEB",
+      "PD-OSS-STUB-PROBE"
+    ],
+    "depends_on": [
+      "AC-070"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-072",
+    "context": "oss-commercial-removal",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "If `causeflow-test-app` is stopped or unreachable while the dashboard and API remain up, Connect or Test for Test Application (OSS) fails with a clear unreachable/error message and does not mark the integration as successfully connected/healthy.",
+    "steps": [
+      "Verify AC-072: If `causeflow-test-app` is stopped or unreachable while the dashboard and API remain up, Connect or Test for Test Application (OSS) fails with a clear unreachable/error message and does not mark the integration as successfully connected/healthy."
+    ],
+    "acceptance_checks": [
+      "AC-072"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-OWNER-WEB",
+      "PD-OSS-TEST-APP-DOWN"
+    ],
+    "depends_on": [
+      "AC-069"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-073",
+    "context": "oss-commercial-removal",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "On the OSS dashboard, sidebar/nav has no Billing entry and no \"investigations left\" / credits remaining chrome. Navigating to /dashboard/billing redirects to the dashboard home (or equivalent non-billing landing) and never renders plan cards, quota packs, Buy more, invoices, or payment modals.",
+    "steps": [
+      "Verify AC-073: On the OSS dashboard, sidebar/nav has no Billing entry and no \"investigations left\" / credits remaining chrome. Navigating to /dashboard/billing redirects to the dashboard home (or equivalent non-billing landing) and never renders plan cards, quota packs, Buy more, invoices, or payment modals."
+    ],
+    "acceptance_checks": [
+      "AC-073"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-BILLING-PURGE",
+      "PD-OSS-OWNER-WEB",
+      "PD-OSS-BILLING-BOOKMARK"
+    ],
+    "depends_on": [
+      "AC-044"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-074",
+    "context": "oss-commercial-removal",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "Creating an investigation/incident through the OSS dashboard never fails with 402 CREDITS_EXHAUSTED from a local credits ledger or commercial quota gate. Operators can create investigations without purchasing credits or seeing remaining-credit limits.",
+    "steps": [
+      "Verify AC-074: Creating an investigation/incident through the OSS dashboard never fails with 402 CREDITS_EXHAUSTED from a local credits ledger or commercial quota gate. Operators can create investigations without purchasing credits or seeing remaining-credit limits."
+    ],
+    "acceptance_checks": [
+      "AC-074"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-BILLING-PURGE",
+      "PD-OSS-OWNER-WEB"
+    ],
+    "depends_on": [
+      "AC-073"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-075",
+    "context": "oss-commercial-removal",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "The OSS product no longer ships usable Stripe SDKs, add-credits CLI, commercial billing checkout/portal clients, or credits-ledger enforcement in web or Core runtime paths required by the dashboard. Dashboard/Core billing checkout and portal endpoints are absent or return 410 Gone. Marketing paid checkout CTAs are replaced with self-host / open-source messaging (no live Stripe checkout).",
+    "steps": [
+      "Verify AC-075: The OSS product no longer ships usable Stripe SDKs, add-credits CLI, commercial billing checkout/portal clients, or credits-ledger enforcement in web or Core runtime paths required by the dashboard. Dashboard/Core billing checkout and portal endpoints are absent or return 410 Gone. Marketing paid checkout CTAs are replaced with self-host / open-source messaging (no live Stripe checkout)."
+    ],
+    "acceptance_checks": [
+      "AC-075"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-BILLING-PURGE",
+      "PD-OSS-OWNER-WEB"
+    ],
+    "depends_on": [
+      "AC-073"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-076",
+    "context": "oss-commercial-removal",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "A bookmarked /dashboard/billing URL never shows \"3 investigations left\", plan upgrade cards, or Buy more. Any remaining dashboard billing API routes used by old clients return 410 Gone (or 404 if fully removed) rather than stub free-plan subscription payloads that reintroduce quota UX.",
+    "steps": [
+      "Verify AC-076: A bookmarked /dashboard/billing URL never shows \"3 investigations left\", plan upgrade cards, or Buy more. Any remaining dashboard billing API routes used by old clients return 410 Gone (or 404 if fully removed) rather than stub free-plan subscription payloads that reintroduce quota UX."
+    ],
+    "acceptance_checks": [
+      "AC-076"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-BILLING-PURGE",
+      "PD-OSS-OWNER-WEB",
+      "PD-OSS-BILLING-BOOKMARK"
+    ],
+    "depends_on": [
+      "AC-073"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
   }
 ]
