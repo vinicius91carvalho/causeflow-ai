@@ -221,3 +221,11 @@
 - WorkItem: WI-AC-075
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-13T04:35:45.959Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-075
+- Defects: expected apps/dashboard/scripts/add-credits.ts removed per AC-075 Step 1; observed file still present with credits:add script in apps/dashboard/package.json; evidence test -f web/apps/dashboard/scripts/add-credits.ts → yes; expected core/src/shared/infra/http/middleware/oss-billing-gone.middleware.ts committed on plan/opensource-docker (Repair Plan); observed source file missing from branch while only rebuilt core-causeflow-api-1 container has ossBillingGoneMiddleware; evidence test -f core/src/shared/infra/http/middleware/oss-billing-gone.middleware.ts → no, docker exec core-causeflow-api-1 grep ossBillingGoneMiddleware /app/dist/app.js → mounted; expected tests/oss/ac-075-commercial-purge.spec.ts present (isolated QA scaffold); observed spec absent from repository; evidence test -f web/tests/oss/ac-075-commercial-purge.spec.ts → no; expected dashboard POST /api/billing/checkout and /api/billing/portal without session to return 410 Gone or be absent; observed 401 {"error":"Authentication required."}; evidence curl -X POST http://127.0.0.1:5170/api/billing/checkout (no Cookie) → 401, authenticated same endpoints → 410; expected marketing /pricing plan CTAs replaced with self-host/open-source messaging (no live paid checkout UX); observed commercial Monthly/Annual toggle, Create Account CTAs to dashboard sign-up (href=http://localhost:3001/sign-up), no open-core/self-host plan CTA copy in rendered HTML; evidence curl http://127.0.0.1:3000/pricing audit: monthly=true, createAccount=true, plan hrefs sign-up only, stripe checkout URLs absent
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/5dc17bff-f85b-4421-acde-417406b8052a/oss-commercial-removal/WI-AC-075-2-integration_qa-6367b20be94c3cf3.log
+- NextAction: Repair Plan
