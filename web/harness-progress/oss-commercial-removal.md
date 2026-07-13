@@ -148,3 +148,11 @@
 - WorkItem: WI-AC-074
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-13T03:04:12.255Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-074
+- Defects: expected POST /api/incidents to succeed without 402 CREDITS_EXHAUSTED for a fresh OSS tenant creating investigations beyond a 3-credit free tier; observed attempts 1-3 returned 201 then attempts 4-5 returned 402 with body {"code":"CREDITS_EXHAUSTED"}; evidence .harness/wi-ac-074-iv-http.json create_incidents.creates[3].status=402 and creates[4].status=402; expected no local credits ledger or commercial quota gate on investigation create (PD-OSS-BILLING-PURGE); observed incidents-create-handler.ts still calls consumeCredit() from credits-ledger.ts before proxying to Core; evidence apps/dashboard/src/contexts/investigation/api/incidents-create-handler.ts lines 50-53; expected operators not to see remaining-credit limits on OSS; observed GET /api/metrics returned creditsTotal=3 creditsRemaining=3 creditsUsed=0 for fresh tenant and subscription endpoint returned creditsRemaining=3; evidence .harness/wi-ac-074-iv-http.json steps metrics.body.metrics and subscription.body
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/5dc17bff-f85b-4421-acde-417406b8052a/oss-commercial-removal/WI-AC-074-1-integration_qa-84f8d2e7dd782c46.log
+- NextAction: Repair Plan
