@@ -238,3 +238,10 @@
 - RepairPlan: WI-AC-075 repairs exist in the dirty worktree (add-credits deleted, oss-billing-gone middleware + handlers, pricing OSS CTAs, ac-075 Playwright spec) but were not committed/redeployed to integration surfaces; QA defects match that stale runtime, not current source.; Commit and keep on gen/web-oss-commercial-removal: deleted add-credits.ts + credits:add, core oss-billing-gone.middleware.ts (+ app.ts wire + unit test), dashboard ossBillingGoneResponse before withAuth, pricing self-host/GitHub CTAs, tests/oss/ac-075-commercial-purge.spec.ts; Ensure compose dashboard has CAUSEFLOW_RUNTIME=oss (or no Stripe publishable key) so isOssRuntime() yields 410 for unauthenticated checkout/portal; Rebuild/restart dashboard :5170, website :3000, and Core from that commit so runtime matches source; Optionally scrub residual commercial pricing chrome (monthly/annual toggle, ROI, $ prices) only if AC-075 Step 3 is interpreted beyond CTA replacement; Reconcile stale project_specs AC-048/049 text that still requires add-credits.ts (contradicts AC-075 Step 1)
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/5dc17bff-f85b-4421-acde-417406b8052a/oss-commercial-removal/WI-AC-075-2-integration_qa-6367b20be94c3cf3.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-13T04:42:39.211Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-075
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
