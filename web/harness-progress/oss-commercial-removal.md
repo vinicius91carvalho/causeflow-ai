@@ -69,3 +69,11 @@
 - WorkItem: WI-AC-072
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-13T02:03:35.084Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-072
+- Defects: expected dashboard BFF `POST /api/integrations/stub/probe` and `handleTest` branch for stub-upstream; observed grep `stub/probe|probeStubIntegration` under apps/dashboard returns no matches, `integrations-client.tsx` handleTest always posts to `/api/integrations/test`, and `POST /api/integrations/stub/probe` returns HTTP 404; evidence .harness/wi-ac-072-iv-http.json stub_probe_down status 404; expected Connect with causeflow-test-app stopped to surface a clear unreachable message in the dashboard; observed Core `POST /v1/integrations/stub/connect` returns message `Stub upstream unreachable at http://causeflow-test-app:5190/health: fetch failed` but dashboard BFF returns HTTP 500 `{"error":"VALIDATION_ERROR"}` without the unreachable detail because http-api-client maps only body.error not body.message; evidence HTTP probe coreConnect vs dashConnect in .harness/wi-ac-072-iv-verify run; expected Test with test-app stopped after a connected stub-upstream to fail via stub probe with unreachable error and not mark healthy; observed UI/API Test still uses generic `/api/integrations/test` → Core `/test-connection` which returns `success:false` with `does not support generic test-connection` (not an unreachable probe), while Core `POST /v1/integrations/stub/probe` correctly returns unreachable when test-app is down but has no dashboard route; evidence coreProbe message `Stub upstream unreachable` vs dashTest message `does not support generic test-connection`; expected no false connected/healthy state when test-app is down; observed Connect correctly does not persist integration on failure (stub_connect_down HTTP 500, connect only succeeds when test-app healthy), and generic Test does not set success:true, but AC-072 Test reachability requirement is unmet because stub probe is not wired through the dashboard
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/989bcc86-12b5-4e03-a5f6-a4e92cf8f720/oss-commercial-removal/WI-AC-072-2-integration_qa-15c1ff71e3bb8fe0.log
+- NextAction: Repair Plan
