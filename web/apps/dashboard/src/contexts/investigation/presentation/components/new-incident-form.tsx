@@ -79,8 +79,6 @@ export function NewIncidentForm() {
         body.investigationMode = investigationMode;
       }
 
-      // Prefer POST /api/incidents (AC-022 credits ledger + Core persist).
-      // Fall back to /api/analyses which shares the same createIncident client.
       const res = await fetch('/api/incidents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -88,11 +86,7 @@ export function NewIncidentForm() {
       });
 
       if (!res.ok) {
-        const data = (await res.json()) as { error?: string; code?: string };
-        if (res.status === 402 || data.code === 'CREDITS_EXHAUSTED') {
-          addToast('Credits exhausted. Free plan allows 3 analyses per month.', 'error');
-          return;
-        }
+        const data = (await res.json()) as { error?: string };
         addToast(data.error ?? 'Failed to create incident. Please try again.', 'error');
         return;
       }

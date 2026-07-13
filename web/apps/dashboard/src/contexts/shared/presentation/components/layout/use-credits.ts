@@ -1,6 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+/**
+ * OSS builds: credits quota chrome is removed (AC-074 / PD-OSS-BILLING-PURGE).
+ * Hook retained as a no-op so stale imports never surface remaining-credit limits.
+ */
 
 interface CreditsData {
   creditsRemaining: number;
@@ -16,73 +19,13 @@ interface CreditsState {
 }
 
 interface UseCreditsOptions {
-  /** Pre-fetched value (avoids duplicate fetch). */
+  /** Pre-fetched value (ignored in OSS — quota chrome is disabled). */
   initialCreditsRemaining?: number;
 }
 
 /**
- * Fetches credit info from /api/metrics (core API).
- * Returns remaining, total, used credits and the current plan name.
- * Used by the sidebar badge to show remaining quota.
+ * Always returns empty credits state. Does not call /api/metrics.
  */
-export function useCredits(options?: UseCreditsOptions): CreditsState {
-  const initialValue = options?.initialCreditsRemaining;
-  const hasInitial = initialValue !== undefined;
-
-  const [credits, setCredits] = useState<CreditsData | null>(
-    hasInitial
-      ? { creditsRemaining: initialValue, creditsTotal: 0, creditsUsed: 0, plan: null }
-      : null,
-  );
-  const [loading, setLoading] = useState(!hasInitial);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    if (initialValue !== undefined) {
-      setCredits((prev) => ({ ...prev!, creditsRemaining: initialValue }));
-      setLoading(false);
-      setError(false);
-    }
-  }, [initialValue]);
-
-  useEffect(() => {
-    if (hasInitial) return;
-
-    let cancelled = false;
-
-    async function fetchCredits() {
-      try {
-        const res = await fetch('/api/metrics');
-        if (cancelled) return;
-        if (!res.ok) throw new Error('Failed to fetch metrics');
-        const json = (await res.json()) as {
-          metrics: {
-            creditsTotal: number;
-            creditsUsed: number;
-            creditsRemaining: number;
-            plan: string | null;
-          };
-        };
-        if (cancelled) return;
-        setCredits({
-          creditsRemaining: json.metrics.creditsRemaining,
-          creditsTotal: json.metrics.creditsTotal,
-          creditsUsed: json.metrics.creditsUsed,
-          plan: json.metrics.plan ?? null,
-        });
-      } catch {
-        if (!cancelled) setError(true);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    void fetchCredits();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [hasInitial]);
-
-  return { credits, loading, error };
+export function useCredits(_options?: UseCreditsOptions): CreditsState {
+  return { credits: null, loading: false, error: false };
 }

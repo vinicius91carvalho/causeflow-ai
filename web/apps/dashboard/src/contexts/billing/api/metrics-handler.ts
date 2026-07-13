@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { resolveCredits } from '@/contexts/billing/application/credits-ledger';
 import type { IncidentAnalytics } from '@/lib/api/core-api-types';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
@@ -7,6 +6,7 @@ import { withAuth } from '@/lib/api/with-auth';
 /**
  * GET /api/metrics
  * Returns dashboard overview metrics for the authenticated user's tenant.
+ * OSS builds omit commercial credits quota fields (AC-074 / PD-OSS-BILLING-PURGE).
  */
 export const GET = withAuth(async (_request: NextRequest, ctx) => {
   const api = getApiClient();
@@ -41,18 +41,8 @@ export const GET = withAuth(async (_request: NextRequest, ctx) => {
   const hoursSaved = resolvedAnalyses * HOURS_PER_ANALYSIS;
 
   const sub = subscription as Record<string, unknown>;
-  const credits = resolveCredits(
-    ctx.tenantId,
-    {
-      plan: (sub.plan as string) ?? tenant?.plan ?? 'free',
-      status: (sub.status as string) ?? null,
-      investigationsLimit: sub.investigationsLimit as number | undefined,
-      investigationsUsed: sub.investigationsUsed as number | undefined,
-      currentPeriodEnd: (sub.currentPeriodEnd as string | null) ?? null,
-      renewDate: (sub.renewDate as string | null) ?? null,
-    },
-    { renew: true },
-  );
+  const plan = (sub.plan as string) ?? tenant?.plan ?? 'free';
+  const subscriptionStatus = (sub.status as string) ?? null;
 
   // Core API returns `{ integrations: [...] }`; back-compat tolerates a raw array.
   // Only count integrations whose status is `connected` or `active` to match
@@ -75,17 +65,11 @@ export const GET = withAuth(async (_request: NextRequest, ctx) => {
       monthlyAnalyses: totalAnalyses,
       activeIntegrations: integrationList.length,
       teamMembers: 1,
-      creditsTotal: credits.creditsTotal,
-      creditsUsed: credits.creditsUsed,
-      creditsRemaining: Number.isFinite(credits.creditsRemaining)
-        ? credits.creditsRemaining
-        : credits.creditsTotal,
       hoursSaved,
-      plan: credits.plan,
-      subscriptionStatus: credits.subscriptionStatus,
-      currentPeriodEnd: credits.currentPeriodEnd,
+      plan,
+      subscriptionStatus,
+      currentPeriodEnd: (sub.currentPeriodEnd as string | null) ?? null,
       cancelAtPeriodEnd: (sub.cancelAtPeriodEnd as boolean) ?? false,
-      renewDate: credits.renewDate,
     },
   });
 });

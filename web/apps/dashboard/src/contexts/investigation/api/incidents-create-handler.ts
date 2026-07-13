@@ -1,7 +1,6 @@
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { consumeCredit } from '@/contexts/billing/application/credits-ledger';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { CoreApiError } from '@/lib/api/http-api-client';
 import { parseBody } from '@/lib/api/parse-body';
@@ -27,8 +26,8 @@ const createIncidentSchema = z.object({
 
 /**
  * POST /api/incidents
- * Create a new incident/analysis. Enforces the local free-plan credits ledger
- * before proxying to Core POST /v1/incidents.
+ * Create a new incident/analysis and proxy to Core POST /v1/incidents.
+ * OSS builds do not enforce a local credits ledger or commercial quota gate.
  */
 export const POST = withAuth(async (request: NextRequest, ctx) => {
   const start = Date.now();
@@ -37,20 +36,6 @@ export const POST = withAuth(async (request: NextRequest, ctx) => {
 
   const forwarded = ctx.isStaff ? data : { ...data, investigationMode: undefined };
   const client = getApiClient();
-
-  const sub = (await client.getSubscription()) as {
-    plan?: string;
-    status?: string;
-    investigationsLimit?: number;
-    investigationsUsed?: number;
-    currentPeriodEnd?: string | null;
-    renewDate?: string | null;
-  };
-
-  const creditResult = consumeCredit(ctx.tenantId, sub);
-  if (!creditResult.ok) {
-    return NextResponse.json({ code: creditResult.code }, { status: 402 });
-  }
 
   try {
     const result = await client.createIncident(forwarded);
