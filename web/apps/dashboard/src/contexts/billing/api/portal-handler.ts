@@ -1,8 +1,9 @@
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { billingDisabledResponse } from '@/contexts/billing/application/billing-disabled';
+import { ossBillingGoneResponse } from '@/contexts/billing/application/oss-billing-gone';
 import { getApiClient } from '@/lib/api/get-api-client';
-import { withAuth } from '@/lib/api/with-auth';
+import { withAuth, type RouteContext } from '@/lib/api/with-auth';
 import { logger as dashLogger } from '@/lib/logger';
 
 /**
@@ -18,7 +19,7 @@ import { logger as dashLogger } from '@/lib/logger';
  * Response: { url: string } — redirect the user to this URL
  * OSS (AC-048): Core returns 410 Gone → clear "billing disabled" message.
  */
-export const POST = withAuth(async (request: NextRequest, ctx) => {
+const postPortal = withAuth(async (request: NextRequest, ctx) => {
   const start = Date.now();
   const origin = request.nextUrl.origin;
   const returnUrl = `${origin}/dashboard/billing`;
@@ -45,3 +46,12 @@ export const POST = withAuth(async (request: NextRequest, ctx) => {
     return NextResponse.json({ error: 'Failed to create billing portal session' }, { status: 500 });
   }
 });
+
+export async function POST(
+  request: NextRequest,
+  routeContext: RouteContext,
+): Promise<NextResponse> {
+  const ossGone = ossBillingGoneResponse();
+  if (ossGone) return ossGone;
+  return postPortal(request, routeContext);
+}

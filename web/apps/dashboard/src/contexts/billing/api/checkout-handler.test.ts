@@ -2,6 +2,12 @@ import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CoreApiError } from '@/lib/api/http-api-client';
 
+const mockIsOssRuntime = vi.fn(() => false);
+
+vi.mock('@/contexts/billing/application/oss-runtime', () => ({
+  isOssRuntime: () => mockIsOssRuntime(),
+}));
+
 vi.mock('@/lib/api/with-auth', () => ({
   withAuth: (handler: (req: unknown, ctx: unknown) => Promise<unknown>) => (req: unknown) =>
     handler(req, { tenantId: 't1', role: 'admin', email: 'a@b.com', userId: 'u1' }),
@@ -19,6 +25,7 @@ import { POST } from './checkout-handler';
 
 describe('POST /api/billing/checkout', () => {
   beforeEach(() => {
+    mockIsOssRuntime.mockReturnValue(false);
     mockCreateCheckout.mockReset();
     mockCreateCheckout.mockResolvedValue({ url: 'https://checkout.stripe.com/pay/cs_test' });
   });
@@ -63,6 +70,19 @@ describe('POST /api/billing/checkout', () => {
 
     const res = await (POST as any)(req);
     expect(res.status).toBe(400);
+  });
+
+  it('returns 410 in OSS runtime without calling Core (AC-075)', async () => {
+    mockIsOssRuntime.mockReturnValue(true);
+    const req = new NextRequest('http://localhost:3001/api/billing/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ planId: 'starter', from: 'billing' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const res = await (POST as any)(req);
+    expect(res.status).toBe(410);
+    expect(mockCreateCheckout).not.toHaveBeenCalled();
   });
 
   it('surfaces Core 410 as billing disabled message (AC-048)', async () => {

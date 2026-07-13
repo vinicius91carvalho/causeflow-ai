@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { ossBillingGoneResponse } from '@/contexts/billing/application/oss-billing-gone';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { parseBody } from '@/lib/api/parse-body';
 import { withAuth } from '@/lib/api/with-auth';
@@ -19,6 +20,9 @@ const subscribeSchema = z.object({
  */
 export const POST = withAuth(
   async (request: NextRequest, ctx) => {
+    const ossGone = ossBillingGoneResponse();
+    if (ossGone) return ossGone;
+
     const start = Date.now();
     const { data, error } = await parseBody(request, subscribeSchema);
     if (error) return error;

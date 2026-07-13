@@ -1,4 +1,4 @@
-import { PRICING_PLANS } from '@causeflow/shared/constants';
+import { PRICING_PLANS, SITE } from '@causeflow/shared/constants';
 import { PageLayout, SectionLayout } from '@causeflow/ui/layouts';
 import { AnimateOnScroll } from '@causeflow/ui/themes';
 import type { Metadata } from 'next';
@@ -11,7 +11,6 @@ import { HeroSection } from '@/contexts/marketing/presentation/components/sectio
 import type { PricingPlanRenderData } from '@/contexts/marketing/presentation/components/sections/pricing-interactive';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
-import { getDashboardUrl } from '@/lib/dashboard-url';
 import { generatePageMetadata } from '@/lib/metadata';
 
 // Skeleton placeholders to prevent CLS during dynamic import hydration
@@ -93,7 +92,11 @@ export default function PricingPage({ params }: { params: Promise<{ locale: stri
       description: descriptionParts.join(' · '),
       rateLimit: plan.rateLimit,
       features: plan.features,
-      cta: { label: plan.cta, href: `${getDashboardUrl()}/sign-up` },
+      cta: {
+        label: plan.id === 'enterprise' ? t('oss.ctaGitHub') : t('oss.ctaSelfHost'),
+        href: plan.id === 'enterprise' ? SITE.social.github : SITE.docsUrl,
+        external: true,
+      },
       highlighted: plan.highlighted,
       badge: plan.highlighted ? t('plans.mostPopular') : undefined,
     };
@@ -165,6 +168,14 @@ export default function PricingPage({ params }: { params: Promise<{ locale: stri
 
       {/* Section 2: Pricing Cards + ROI Calculator (interactive) */}
       <SectionLayout id="plans" className="pt-4 sm:pt-6 lg:pt-8">
+        <AnimateOnScroll>
+          <div className="mx-auto mb-10 max-w-3xl rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-6 text-center">
+            <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+              {t('oss.bannerTitle')}
+            </p>
+            <p className="mt-2 text-muted-foreground">{t('oss.bannerBody')}</p>
+          </div>
+        </AnimateOnScroll>
         <PricingInteractive
           plans={plans}
           roiTitle={t('roi.title')}
@@ -178,26 +189,6 @@ export default function PricingPage({ params }: { params: Promise<{ locale: stri
             perSeatCost: t('roi.perSeatCost'),
             platformCost: t('roi.platformCost'),
             annualSavings: t('roi.annualSavings'),
-          }}
-          billingLabels={{
-            monthly: t('plans.monthly'),
-            annual: t('plans.annual'),
-            annualDiscount: t('plans.annualDiscount'),
-          }}
-          overageLabels={{
-            title: t('overage.title'),
-            subtitle: t('overage.subtitle'),
-            investigationRate: t('overage.investigationRate'),
-            investigationLabel: t('overage.investigationLabel'),
-            eventRate: t('overage.eventRate'),
-            eventLabel: t('overage.eventLabel'),
-            or: t('overage.or'),
-            pack1Name: t('overage.pack1Name'),
-            pack1Price: t('overage.pack1Price'),
-            pack1Unit: t('overage.pack1Unit'),
-            pack2Name: t('overage.pack2Name'),
-            pack2Price: t('overage.pack2Price'),
-            pack2Unit: t('overage.pack2Unit'),
           }}
         />
       </SectionLayout>

@@ -6,6 +6,7 @@ import { requestId } from 'hono/request-id';
 import { config } from './shared/config/index.js';
 import { errorHandler } from './shared/infra/http/middleware/error-handler.js';
 import { authMiddleware } from './shared/infra/http/middleware/auth.middleware.js';
+import { ossBillingGoneMiddleware } from './shared/infra/http/middleware/oss-billing-gone.middleware.js';
 import { tenantMiddleware } from './shared/infra/http/middleware/tenant.middleware.js';
 import { rateLimitMiddleware } from './shared/infra/http/middleware/rate-limit.middleware.js';
 import { auditMiddleware } from './shared/infra/http/middleware/audit.middleware.js';
@@ -65,6 +66,7 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, '/'> {
   );
   app.use('*', requestId());
   app.use('*', otelLangfuseBridge());
+  app.use('*', ossBillingGoneMiddleware);
   app.use('*', authMiddleware);
   app.use('*', tenantMiddleware);
   app.use('*', rateLimitMiddleware);

@@ -1039,8 +1039,14 @@
   },
   "pricing": {
     "hero": {
-      "title": "Simple pricing.\nPay for what you use.",
-      "subtitle": "Now in Early Access. Join the list and be among the first to try CauseFlow."
+      "title": "Open-source incident investigation.\nSelf-host on your stack.",
+      "subtitle": "Deploy CauseFlow with Docker Compose on your infrastructure. No Stripe checkout, no per-seat billing — follow the docs to run locally."
+    },
+    "oss": {
+      "bannerTitle": "Open-source · self-hosted",
+      "bannerBody": "CauseFlow is open-core. Clone the repo, run docker compose up, and investigate incidents without a commercial checkout flow.",
+      "ctaSelfHost": "Self-host",
+      "ctaGitHub": "View on GitHub"
     },
     "plans": {
       "free": "Free",
@@ -1106,7 +1112,7 @@
       },
       "q3": {
         "question": "Is there a free trial?",
-        "answer": "Contact us for Early Access — we'll work with you to evaluate CauseFlow for your team."
+        "answer": "The open-source build is self-hosted — clone the repo and run the bundled Docker Compose stack locally. See the docs for the quickstart."
       },
       "q4": {
         "question": "Is there an annual discount?",
@@ -1114,11 +1120,11 @@
       },
       "q5": {
         "question": "What if I exceed the limit?",
-        "answer": "You can enable auto-charge ($8.99/investigation, $0.20/event) or purchase quota packs from the Dashboard. No surprises — you configure consumption alerts at 80% and 100%."
+        "answer": "The self-hosted OSS build does not enforce commercial credit quotas or paid overage. Scale investigations on your own infrastructure."
       },
       "q6": {
         "question": "How does it work for Brazilian companies?",
-        "answer": "We accept international payment via Stripe. LGPD compliant since launch."
+        "answer": "Self-host CauseFlow inside your environment. Data stays on your stack — LGPD compliant by architecture, not by vendor policy."
       }
     },
     "overage": {

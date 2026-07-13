@@ -20,7 +20,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       'RBAC',
       'Email support',
     ],
-    cta: 'Create Account',
+    cta: 'Self-host',
   },
   {
     id: 'pro',
@@ -41,7 +41,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       'RBAC',
       'Email + WhatsApp support',
     ],
-    cta: 'Create Account',
+    cta: 'Self-host',
     highlighted: true,
   },
   {
@@ -63,7 +63,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       'RBAC',
       'Email + WhatsApp support',
     ],
-    cta: 'Create Account',
+    cta: 'Self-host',
   },
   {
     id: 'enterprise',
@@ -84,7 +84,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       'RBAC + SSO/SAML',
       'Email + WhatsApp + Dedicated support + SLA',
     ],
-    cta: 'Talk to Sales',
+    cta: 'View on GitHub',
   },
 ];
 

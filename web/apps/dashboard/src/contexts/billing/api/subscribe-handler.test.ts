@@ -1,5 +1,11 @@
 import { NextRequest } from 'next/server';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const mockIsOssRuntime = vi.fn(() => false);
+
+vi.mock('@/contexts/billing/application/oss-runtime', () => ({
+  isOssRuntime: () => mockIsOssRuntime(),
+}));
 
 vi.mock('@/lib/api/with-auth', () => ({
   withAuth: (handler: (req: unknown, ctx: unknown) => Promise<unknown>) => (req: unknown) =>
@@ -19,6 +25,22 @@ vi.mock('@/lib/api/get-api-client', () => ({
 import { POST } from './subscribe-handler';
 
 describe('POST /api/billing/subscribe', () => {
+  beforeEach(() => {
+    mockIsOssRuntime.mockReturnValue(false);
+  });
+
+  it('returns 410 in OSS runtime without calling Core (AC-075)', async () => {
+    mockIsOssRuntime.mockReturnValue(true);
+    const req = new NextRequest('http://localhost/api/billing/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ planId: 'starter' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const res = await (POST as any)(req);
+    expect(res.status).toBe(410);
+  });
+
   it('returns subscriptionId and clientSecret from Core API', async () => {
     const req = new NextRequest('http://localhost/api/billing/subscribe', {
       method: 'POST',

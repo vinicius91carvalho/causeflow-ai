@@ -19,7 +19,7 @@ interface PricingCardProps {
   description: string;
   rateLimit?: string;
   features: string[];
-  cta: { label: string; href: string };
+  cta: { label: string; href: string; external?: boolean };
   highlighted?: boolean;
   badge?: string;
   className?: string;
@@ -143,6 +143,25 @@ export function PricingCard({
             }}
           >
             {cta.label}
+          </Button>
+        ) : cta.external ? (
+          <Button
+            asChild
+            variant={highlighted ? 'default' : 'outline'}
+            className={cn(
+              'w-full transition-colors duration-300 group-hover:bg-accent-foreground group-hover:text-accent group-hover:border-accent-foreground',
+              highlighted &&
+                'border-white bg-white text-emerald-700 hover:bg-white/90 hover:text-emerald-800',
+            )}
+          >
+            <a
+              href={cta.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {cta.label}
+            </a>
           </Button>
         ) : (
           <Link href={cta.href} className="w-full" onClick={(e) => e.stopPropagation()}>

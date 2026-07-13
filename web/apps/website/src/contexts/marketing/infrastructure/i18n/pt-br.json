@@ -1039,8 +1039,14 @@
   },
   "pricing": {
     "hero": {
-      "title": "Preços simples.\nPague pelo que usar.",
-      "subtitle": "Agora em Acesso Antecipado. Junte-se aos times que já investigam incidentes com IA."
+      "title": "Investigação de incidentes open-source.\nSelf-host na sua stack.",
+      "subtitle": "Implante o CauseFlow com Docker Compose na sua infraestrutura. Sem checkout Stripe, sem cobrança por assento — siga a documentação para rodar localmente."
+    },
+    "oss": {
+      "bannerTitle": "Open-source · self-host",
+      "bannerBody": "O CauseFlow é open-core. Clone o repositório, rode docker compose up e investigue incidentes sem um fluxo comercial de checkout.",
+      "ctaSelfHost": "Self-host",
+      "ctaGitHub": "Ver no GitHub"
     },
     "plans": {
       "free": "Gratuito",
@@ -1106,7 +1112,7 @@
       },
       "q3": {
         "question": "Existe período de teste gratuito?",
-        "answer": "Oferecemos demos personalizadas e onboarding de Acesso Antecipado. Fale conosco para saber mais sobre como começar."
+        "answer": "A build open-source é self-hosted — clone o repositório e rode o stack Docker Compose incluído localmente. Veja a documentação para o quickstart."
       },
       "q4": {
         "question": "Existe desconto anual?",
@@ -1114,11 +1120,11 @@
       },
       "q5": {
         "question": "E se eu exceder o limite?",
-        "answer": "Você pode ativar cobrança automática ($8.99/investigação, $0.20/evento) ou comprar pacotes de quota pelo Dashboard. Sem surpresas — você configura alertas de consumo em 80% e 100%."
+        "answer": "A build OSS self-hosted não impõe cotas comerciais de crédito nem overage pago. Escale investigações na sua própria infraestrutura."
       },
       "q6": {
         "question": "Como funciona para empresas brasileiras?",
-        "answer": "Aceitamos pagamento internacional via Stripe. Em conformidade com a LGPD desde o lançamento."
+        "answer": "Self-host do CauseFlow no seu ambiente. Os dados ficam na sua stack — LGPD por arquitetura, não por promessa de fornecedor."
       }
     },
     "overage": {

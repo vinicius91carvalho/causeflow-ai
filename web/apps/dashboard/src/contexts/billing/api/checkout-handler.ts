@@ -1,10 +1,11 @@
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { billingDisabledResponse } from '@/contexts/billing/application/billing-disabled';
+import { ossBillingGoneResponse } from '@/contexts/billing/application/oss-billing-gone';
 import { checkoutSchema } from '@/contexts/billing/infrastructure/api-schema';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { parseBody } from '@/lib/api/parse-body';
-import { withAuth } from '@/lib/api/with-auth';
+import { withAuth, type RouteContext } from '@/lib/api/with-auth';
 import { logger as dashLogger } from '@/lib/logger';
 
 /**
@@ -18,7 +19,7 @@ import { logger as dashLogger } from '@/lib/logger';
  * Response: { url: string } — redirect the user to this URL
  * OSS (AC-048): Core returns 410 Gone → clear "billing disabled" message.
  */
-export const POST = withAuth(
+const postCheckout = withAuth(
   async (request: NextRequest, ctx) => {
     const start = Date.now();
     const { data, error } = await parseBody(request, checkoutSchema);
@@ -66,3 +67,12 @@ export const POST = withAuth(
   },
   { adminOnly: true },
 );
+
+export async function POST(
+  request: NextRequest,
+  routeContext: RouteContext,
+): Promise<NextResponse> {
+  const ossGone = ossBillingGoneResponse();
+  if (ossGone) return ossGone;
+  return postCheckout(request, routeContext);
+}

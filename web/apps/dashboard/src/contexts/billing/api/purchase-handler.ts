@@ -1,11 +1,16 @@
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
+import { billingDisabledResponse } from '@/contexts/billing/application/billing-disabled';
+import { ossBillingGoneResponse } from '@/contexts/billing/application/oss-billing-gone';
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
 import { logger as dashLogger } from '@/lib/logger';
 
 export const POST = withAuth(
   async (request: NextRequest, ctx) => {
+    const ossGone = ossBillingGoneResponse();
+    if (ossGone) return ossGone;
+
     const start = Date.now();
     let body: { packType: string; quantity: number };
     try {
@@ -34,6 +39,10 @@ export const POST = withAuth(
       const result = await getApiClient().purchaseQuotaPack({ packType, quantity });
       return NextResponse.json(result);
     } catch (err) {
+      const disabled = billingDisabledResponse(err);
+      if (disabled) {
+        return NextResponse.json({ error: disabled.error }, { status: disabled.status });
+      }
       const logPath = new URL(request.url).pathname;
       const logPayload = {
         method: request.method,

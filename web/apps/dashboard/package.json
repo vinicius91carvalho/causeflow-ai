@@ -11,8 +11,7 @@
     "check-types": "tsc --noEmit --project tsconfig.build.json",
     "test": "cd ../.. && vitest run --project dashboard",
     "test:watch": "cd ../.. && vitest --project dashboard",
-    "clean": "rm -rf .next",
-    "credits:add": "tsx scripts/add-credits.ts"
+    "clean": "rm -rf .next"
   },
   "dependencies": {
     "@causeflow/analytics": "workspace:*",
