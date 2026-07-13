@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/nextjs';
 import { type NextRequest, NextResponse } from 'next/server';
 import { getApiClient } from '@/lib/api/get-api-client';
+import { CoreApiError } from '@/lib/api/http-api-client';
 import { withAuth } from '@/lib/api/with-auth';
 import { logger as dashLogger } from '@/lib/logger';
 
@@ -37,9 +38,12 @@ export const POST = withAuth(
         duration: Date.now() - start,
       };
       dashLogger.error({ err, ...logPayload }, 'Stub connect failed');
-      Sentry.captureException(err, { extra: logPayload });
+      if (err instanceof CoreApiError && err.status >= 500) {
+        Sentry.captureException(err, { extra: logPayload });
+      }
       const message = err instanceof Error ? err.message : 'Failed to connect stub integration';
-      return NextResponse.json({ error: message }, { status: 500 });
+      const status = err instanceof CoreApiError ? err.status : 500;
+      return NextResponse.json({ error: message }, { status });
     }
   },
   { adminOnly: true },

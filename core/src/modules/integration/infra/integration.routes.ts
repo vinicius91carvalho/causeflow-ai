@@ -240,6 +240,15 @@ export function createIntegrationRoutes(useCases: IntegrationUseCases) {
   app.post('/test-connection', requireRole('admin'), async (c) => {
     const tid = c.get('tenantId')!;
     const body = await c.req.json();
+    // AC-072: stub-upstream must use POST /v1/integrations/stub/probe — never the
+    // AWS-oriented generic test-connection short-circuit.
+    if (body.type === 'stub-upstream') {
+      return c.json({
+        success: false,
+        message:
+          'Test Application (OSS) does not support generic test-connection. Use POST /v1/integrations/stub/probe to verify stub upstream reachability.',
+      });
+    }
     if (body.type !== 'cloudwatch' && body.type !== 'aws') {
       return c.json({ success: true, message: 'Format validation passed' });
     }

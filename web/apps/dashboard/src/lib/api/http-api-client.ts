@@ -114,10 +114,14 @@ export class HttpApiClient implements ICoreApiClient {
       } catch {
         body = { error: res.statusText };
       }
+      // Core AppError responses use `{ error: CODE, message: human text }`.
+      // Prefer `message` so unreachable stub-upstream errors surface clearly (AC-072).
       const errMsg =
-        typeof body.error === 'string'
-          ? body.error
-          : JSON.stringify(body.error) || `API error: ${res.status}`;
+        typeof body.message === 'string' && body.message.length > 0
+          ? body.message
+          : typeof body.error === 'string'
+            ? body.error
+            : JSON.stringify(body.error) || `API error: ${res.status}`;
       logger.error(
         {
           type: 'core_api_error',
@@ -569,6 +573,20 @@ export class HttpApiClient implements ICoreApiClient {
     return this.request('/v1/integrations/stub/enable', {
       method: 'POST',
       body: JSON.stringify(body),
+    });
+  }
+
+  // Integrations — OSS stub upstream probe (AC-071 / AC-072)
+  async probeStubIntegration(): Promise<{
+    success: boolean;
+    message: string;
+    probeCount: number;
+    stubState: Record<string, unknown>;
+    probedAt: string;
+  }> {
+    return this.request('/v1/integrations/stub/probe', {
+      method: 'POST',
+      body: JSON.stringify({}),
     });
   }
 

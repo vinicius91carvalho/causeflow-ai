@@ -206,6 +206,18 @@ export interface ICoreApiClient {
     connectedAt: string;
   }>;
 
+  /**
+   * OSS stub upstream probe (AC-071 / AC-072).
+   * POSTs to Core `POST /v1/integrations/stub/probe` — fails when test app is unreachable.
+   */
+  probeStubIntegration(): Promise<{
+    success: boolean;
+    message: string;
+    probeCount: number;
+    stubState: Record<string, unknown>;
+    probedAt: string;
+  }>;
+
   // Legacy aliases
   connectIntegration(body: { type: string; [key: string]: unknown }): Promise<any>;
   getOAuthAuthorizeUrl(provider: string): Promise<string>;

@@ -16,4 +16,16 @@ describe('integration.routes — role guard configuration', () => {
         expect(src).not.toContain("'owner'");
         expect(src).not.toContain("'operator'");
     });
+
+    it('rejects stub-upstream on generic test-connection (AC-072)', () => {
+        const src = fs.readFileSync(
+            path.resolve(__dirname, 'integration.routes.ts'),
+            'utf8',
+        );
+        expect(src).toContain("body.type === 'stub-upstream'");
+        expect(src).toContain('stub/probe');
+        expect(src).not.toMatch(
+            /body\.type === 'stub-upstream'[\s\S]*Format validation passed/,
+        );
+    });
 });

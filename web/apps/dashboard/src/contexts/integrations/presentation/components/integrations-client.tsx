@@ -446,6 +446,35 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
   }
 
   async function handleTest(id: string, name: string) {
+    // Test Application (OSS) must use Core stub probe — not generic test-connection
+    // which returns a false success for non-AWS types (AC-071 / AC-072).
+    if (id === 'stub-upstream') {
+      try {
+        const res = await fetch('/api/integrations/stub/probe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        });
+        const data = (await res.json()) as { success?: boolean; message?: string };
+        if (res.ok && data.success) {
+          setIntegrations((prev) =>
+            prev.map((i) =>
+              i.type === id || i.provider === id
+                ? { ...i, lastTestedAt: new Date().toISOString() }
+                : i,
+            ),
+          );
+          addToast(t('testResult.success', { name }), 'success');
+        } else {
+          const message = data.message ?? t('testResult.error', { name });
+          addToast(message, 'error');
+        }
+      } catch {
+        addToast(t('testResult.error', { name }), 'error');
+      }
+      return;
+    }
+
     try {
       const res = await fetch('/api/integrations/test', {
         method: 'POST',

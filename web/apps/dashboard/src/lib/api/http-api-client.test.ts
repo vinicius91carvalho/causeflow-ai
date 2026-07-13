@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { IncidentAnalytics } from './core-api-types';
-import { HttpApiClient } from './http-api-client';
+import { CoreApiError, HttpApiClient } from './http-api-client';
 
 /**
  * Tests for HttpApiClient — focused on the Core wire → dashboard domain
@@ -122,6 +122,24 @@ describe('HttpApiClient.healthCheck', () => {
       status: 'ok',
       version: '1.2.3',
       timestamp: '2026-04-07T00:00:00.000Z',
+    });
+  });
+});
+
+describe('HttpApiClient.request — Core error messages (AC-072)', () => {
+  it('prefers body.message over body.error for ValidationError responses', async () => {
+    mockFetchText(
+      {
+        error: 'VALIDATION_ERROR',
+        message: 'Stub upstream unreachable at http://causeflow-test-app:5190: ECONNREFUSED',
+      },
+      { ok: false, status: 400 },
+    );
+
+    await expect(createClient().probeStubIntegration()).rejects.toMatchObject({
+      name: 'CoreApiError',
+      status: 400,
+      message: 'Stub upstream unreachable at http://causeflow-test-app:5190: ECONNREFUSED',
     });
   });
 });

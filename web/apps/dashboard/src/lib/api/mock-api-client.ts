@@ -519,6 +519,22 @@ export class MockApiClient implements ICoreApiClient {
     });
   }
 
+  probeStubIntegration(): Promise<{
+    success: boolean;
+    message: string;
+    probeCount: number;
+    stubState: Record<string, unknown>;
+    probedAt: string;
+  }> {
+    return ok({
+      success: true,
+      message: 'Stub upstream probe succeeded',
+      probeCount: 0,
+      stubState: {},
+      probedAt: new Date().toISOString(),
+    });
+  }
+
   disconnectCredential(_type: string): Promise<any> {
     return ok({ success: true });
   }

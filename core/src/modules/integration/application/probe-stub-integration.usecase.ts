@@ -28,12 +28,18 @@ export class ProbeStubIntegrationUseCase {
       throw new ValidationError('Stub integration is missing stubBaseUrl');
     }
 
-    const res = await fetch(`${stubBaseUrl}/v1/probe`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tenantId: String(input.tenantId) }),
-      signal: AbortSignal.timeout(10_000),
-    });
+    let res: Response;
+    try {
+      res = await fetch(`${stubBaseUrl}/v1/probe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tenantId: String(input.tenantId) }),
+        signal: AbortSignal.timeout(10_000),
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new ValidationError(`Stub upstream unreachable at ${stubBaseUrl}: ${message}`);
+    }
     const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     if (!res.ok) {
       throw new ValidationError(
