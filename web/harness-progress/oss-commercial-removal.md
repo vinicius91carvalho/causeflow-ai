@@ -189,3 +189,10 @@
 - RepairPlan: AC-074 failed because the OSS dashboard still enforced the AC-022 in-memory 3-credit ledger and returned free-tier credit counters; WIP already deletes that gate, but IV must re-run against a restarted PORT=5170 process with the purged handlers.; Keep/finish WIP: no consumeCredit on POST /api/incidents; delete credits-ledger.ts; metrics omit creditsTotal/Remaining/Used; subscription return 410 without credit fields; Kill and restart dashboard on PORT=5170 so IV does not hit a stale pre-purge Next process; Strip or hard-disable remaining-credit chrome on create path (use-credits/credits-banner/new-incident CREDITS_EXHAUSTED modal) so operators never see 3-credit limits; Add/keep handler + OSS E2E coverage: 5+ creates all non-402; metrics has no credit fields; subscription 410
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/5dc17bff-f85b-4421-acde-417406b8052a/oss-commercial-removal/WI-AC-074-2-integration_qa-2aaac661c206b4d5.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-13T03:22:51.164Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-074
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
