@@ -6,7 +6,6 @@ const productLinks = [
   { label: 'Product', href: ROUTES.PRODUCT, external: false },
   { label: 'Integrations', href: ROUTES.INTEGRATIONS, external: false },
   { label: 'Security', href: ROUTES.SECURITY, external: false },
-  { label: 'Pricing', href: ROUTES.PRICING, external: false },
   { label: 'About', href: ROUTES.ABOUT, external: false },
   { label: 'Docs', href: SITE.docsUrl, external: true },
 ];

@@ -12,7 +12,6 @@ import { MobileMenu } from './mobile-menu';
 const navItems = [
   { label: 'Product', href: ROUTES.PRODUCT },
   { label: 'Integrations', href: ROUTES.INTEGRATIONS },
-  { label: 'Pricing', href: ROUTES.PRICING },
   { label: 'Usecases', href: ROUTES.USE_CASES },
   { label: 'Security', href: ROUTES.SECURITY },
   { label: 'About', href: ROUTES.ABOUT },

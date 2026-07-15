@@ -7,6 +7,11 @@ describe('HEADER_NAV_ITEMS', () => {
     expect(docs).toBeDefined();
     expect(docs?.href).toBe('https://vinicius91carvalho.github.io/causeflow-ai/');
   });
+
+  it('does not include Pricing (AC-077)', () => {
+    expect(HEADER_NAV_ITEMS.some((item) => item.label === 'Pricing')).toBe(false);
+    expect(HEADER_NAV_ITEMS.some((item) => item.href.includes('/pricing'))).toBe(false);
+  });
 });
 
 describe('FOOTER_PRODUCT_LINKS', () => {
@@ -14,6 +19,11 @@ describe('FOOTER_PRODUCT_LINKS', () => {
     const docs = FOOTER_PRODUCT_LINKS.find((item) => item.label === 'Docs');
     expect(docs).toBeDefined();
     expect(docs?.href).toBe('https://vinicius91carvalho.github.io/causeflow-ai/');
+  });
+
+  it('does not include Pricing (AC-077)', () => {
+    expect(FOOTER_PRODUCT_LINKS.some((item) => item.label === 'Pricing')).toBe(false);
+    expect(FOOTER_PRODUCT_LINKS.some((item) => item.href.includes('/pricing'))).toBe(false);
   });
 });
 
