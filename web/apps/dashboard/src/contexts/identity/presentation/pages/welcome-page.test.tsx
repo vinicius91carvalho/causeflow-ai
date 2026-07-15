@@ -16,24 +16,44 @@ describe('WelcomePage', () => {
 
   it('shows Set Up Integrations step (not Connect AWS)', async () => {
     const fs = await import('node:fs');
-    const source = fs.readFileSync(new URL('./welcome-page.tsx', import.meta.url), 'utf-8');
+    const source = fs.readFileSync(new URL('./welcome-setup-steps.ts', import.meta.url), 'utf-8');
     expect(source).toContain('Set Up Integrations');
     expect(source).not.toContain("title: 'Connect AWS'");
   });
 
   it('shows Complete Business Profile step linking to /onboarding/business-profile', async () => {
     const fs = await import('node:fs');
-    const source = fs.readFileSync(new URL('./welcome-page.tsx', import.meta.url), 'utf-8');
+    const source = fs.readFileSync(new URL('./welcome-setup-steps.ts', import.meta.url), 'utf-8');
     expect(source).toContain('Complete Business Profile');
     expect(source).toContain('/onboarding/business-profile');
   });
 
-  it('omits choose-plan step in OSS builds (AC-083)', async () => {
+  it('keeps Choose Your Plan literals out of the OSS welcome module path (AC-083)', async () => {
     const fs = await import('node:fs');
-    const source = fs.readFileSync(new URL('./welcome-page.tsx', import.meta.url), 'utf-8');
-    expect(source).toContain('isOssBuildClient');
-    expect(source).toContain("!step.href.includes('/onboarding/choose-plan')");
-    expect(source).toContain('Choose Your Plan');
+    const welcomeSource = fs.readFileSync(new URL('./welcome-page.tsx', import.meta.url), 'utf-8');
+    const baseSource = fs.readFileSync(
+      new URL('./welcome-setup-steps.ts', import.meta.url),
+      'utf-8',
+    );
+    const commercialSource = fs.readFileSync(
+      new URL('./welcome-setup-steps-commercial.ts', import.meta.url),
+      'utf-8',
+    );
+
+    expect(welcomeSource).toContain('isOssBuildClient');
+    expect(welcomeSource).toContain('BASE_SETUP_STEPS');
+    expect(welcomeSource).toContain("import('./welcome-setup-steps-commercial')");
+    expect(welcomeSource).not.toContain('Choose Your Plan');
+    expect(welcomeSource).not.toContain('Select a plan');
+    expect(welcomeSource).not.toContain('/onboarding/choose-plan');
+
+    expect(baseSource).not.toContain('Choose Your Plan');
+    expect(baseSource).not.toContain('Select a plan');
+    expect(baseSource).not.toContain('/onboarding/choose-plan');
+
+    expect(commercialSource).toContain('Choose Your Plan');
+    expect(commercialSource).toContain('Select a plan');
+    expect(commercialSource).toContain('/onboarding/choose-plan');
   });
 
   it('has a Get Started CTA button (no skip-to-dashboard link)', async () => {

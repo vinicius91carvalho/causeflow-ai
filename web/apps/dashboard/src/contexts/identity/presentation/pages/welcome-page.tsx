@@ -2,23 +2,16 @@
 
 import { cn } from '@causeflow/ui/lib';
 import { Button } from '@causeflow/ui/primitives';
-import { ArrowRight, Briefcase, CreditCard, Plug } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { isOssBuildClient } from '@/contexts/billing/application/oss-runtime';
+import { BASE_SETUP_STEPS, type SetupStep } from './welcome-setup-steps';
 
 /* ------------------------------------------------------------------ */
 /*  Setup step card                                                    */
 /* ------------------------------------------------------------------ */
-
-interface SetupStep {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  href: string;
-  completed?: boolean;
-}
 
 function StepCard({ icon: Icon, title, description, href, completed }: SetupStep) {
   return (
@@ -53,35 +46,24 @@ function StepCard({ icon: Icon, title, description, href, completed }: SetupStep
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
 
-const SETUP_STEPS: SetupStep[] = [
-  {
-    icon: Plug,
-    title: 'Set Up Integrations',
-    description: 'Connect your tools to get the most out of CauseFlow.',
-    href: '/onboarding/integrations',
-  },
-  {
-    icon: Briefcase,
-    title: 'Complete Business Profile',
-    description: 'Tell us about your team so we can tailor your experience.',
-    href: '/onboarding/business-profile',
-  },
-  {
-    icon: CreditCard,
-    title: 'Choose Your Plan',
-    description: 'Select a plan that fits your team size and usage needs.',
-    href: '/onboarding/choose-plan',
-  },
-];
-
+/**
+ * Welcome page (AC-083): OSS path only ever references BASE_SETUP_STEPS.
+ * Commercial choose-plan literals live in welcome-setup-steps-commercial.ts and
+ * are loaded dynamically so they never exist in the OSS module / initial HTML.
+ */
 export default function WelcomePage() {
-  const steps = useMemo(
-    () =>
-      isOssBuildClient()
-        ? SETUP_STEPS.filter((step) => !step.href.includes('/onboarding/choose-plan'))
-        : SETUP_STEPS,
-    [],
-  );
+  const [steps, setSteps] = useState<SetupStep[]>(BASE_SETUP_STEPS);
+
+  useEffect(() => {
+    if (isOssBuildClient()) return;
+    let cancelled = false;
+    void import('./welcome-setup-steps-commercial').then((mod) => {
+      if (!cancelled) setSteps(mod.getCommercialSetupSteps());
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
