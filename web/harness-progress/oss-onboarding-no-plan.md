@@ -47,3 +47,10 @@
 - RepairPlan: AC-081 IV failed on stale integration tree (PORT 5170): create-organization still redirects to choose-plan and 307-loops via locale rewrite; worktree already has OSS post-org → /dashboard plus choose-plan server redirect.; Ensure create-organization uses resolvePostOrganizationRedirect so OSS always lands on /dashboard (never /onboarding/choose-plan); Keep server-side OSS redirect on app/[locale]/onboarding/choose-plan/page.tsx so GET choose-plan never returns 200 plan HTML; Break the /create-organization 307 loop: keep middleware LOCALE_REWRITE_ONLY bypass and remove or stop relying on next.config rewrite /create-organization→/en/create-organization if it still loops; Keep dashboard layout + use-subscription-guard + choose-plan-page 410 paths from gating OSS users onto choose-plan; Re-integrate worktree delta into the IV integrationDir (or point IV at this worktree) and restart dashboard on PORT 5170 before re-QA
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/db6524ef-d6c0-44eb-873f-2851df0e3b96/oss-onboarding-no-plan/WI-AC-081-2-integration_qa-cc064dd6bedf275e.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-15T18:02:43.963Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-081
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
