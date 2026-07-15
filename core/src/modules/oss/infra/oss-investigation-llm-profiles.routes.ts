@@ -1,7 +1,10 @@
 /**
- * OSS Investigation LLM profile HTTP routes (AC-084, AC-085, AC-086, AC-088).
+ * OSS Investigation LLM profile HTTP routes (AC-084, AC-085, AC-086, AC-088, AC-089).
  * Admins create, edit, activate, and delete named OpenAI-compatible profiles; list is tenant-scoped.
  */
+
+export const ACTIVE_INVESTIGATION_LLM_PROFILE_DELETE_ERROR =
+  'Cannot delete the active Investigation LLM profile. Activate another profile first.';
 import { randomUUID } from 'node:crypto';
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
@@ -138,6 +141,11 @@ export function createOssInvestigationLlmProfilesRoutes(): Hono<AppEnv> {
   routes.delete('/:id', requireRole('admin'), async (c) => {
     const tenantId = String(c.get('tenantId'));
     const profileId = c.req.param('id');
+    const activeProfileId = await getActiveInvestigationLlmProfileId(tenantId);
+    if (activeProfileId === profileId) {
+      return c.json({ error: ACTIVE_INVESTIGATION_LLM_PROFILE_DELETE_ERROR }, 409);
+    }
+
     const deleted = await getRepo().delete(tenantId, profileId);
     if (!deleted) {
       return c.json({ error: 'Investigation LLM profile not found' }, 404);

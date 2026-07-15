@@ -28,3 +28,21 @@ describe('oss-investigation-llm-profiles.routes (AC-091)', () => {
     expect(src).toContain("routes.post('/:id/activate', requireRole('admin'), async (c) =>");
   });
 });
+
+describe('oss-investigation-llm-profiles.routes (AC-089)', () => {
+  const src = fs.readFileSync(
+    path.resolve(
+      process.cwd(),
+      'src/modules/oss/infra/oss-investigation-llm-profiles.routes.ts',
+    ),
+    'utf8',
+  );
+
+  it('blocks deleting the active profile with a clear 409 error', () => {
+    expect(src).toContain('getActiveInvestigationLlmProfileId(tenantId)');
+    expect(src).toContain('if (activeProfileId === profileId)');
+    expect(src).toContain('ACTIVE_INVESTIGATION_LLM_PROFILE_DELETE_ERROR');
+    expect(src).toContain('Activate another profile first');
+    expect(src).toMatch(/return c\.json\(\{ error: ACTIVE_INVESTIGATION_LLM_PROFILE_DELETE_ERROR \}, 409\)/);
+  });
+});

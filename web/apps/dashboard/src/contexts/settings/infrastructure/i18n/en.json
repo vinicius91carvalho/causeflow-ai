@@ -121,6 +121,8 @@
         "deleteConfirm": "Delete Investigation LLM profile \"{label}\"?",
         "errorUpdate": "Failed to update Investigation LLM profile.",
         "errorDelete": "Failed to delete Investigation LLM profile.",
+        "errorDeleteActive": "Cannot delete the active Investigation LLM profile. Activate another profile first.",
+        "deleteActiveHint": "Activate another profile before deleting this one.",
         "empty": "No Investigation LLM profiles yet.",
         "errorLoad": "Failed to load Investigation LLM profiles from Core.",
         "errorCreate": "Failed to create Investigation LLM profile.",

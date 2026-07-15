@@ -91,3 +91,23 @@ describe('InvestigationLlmProfilesCard validation (AC-091)', () => {
     expect(source).not.toMatch(/apiKey.*required/i);
   });
 });
+
+describe('InvestigationLlmProfilesCard active delete guard (AC-089)', () => {
+  async function readSource(): Promise<string> {
+    const fs = await import('node:fs');
+    return fs.readFileSync(
+      new URL('./investigation-llm-profiles-card.tsx', import.meta.url),
+      'utf-8',
+    );
+  }
+
+  it('blocks deleting the active profile in the UI with a clear error', async () => {
+    const source = await readSource();
+    expect(source).toContain('function isProfileActive');
+    expect(source).toContain("t('errorDeleteActive')");
+    expect(source).toContain('if (isProfileActive(profile))');
+    expect(source).toContain('disabled={deletingId === profile.id || isActive}');
+    expect(source).toContain("data-delete-blocked={isActive ? 'active-profile' : undefined}");
+    expect(source).toContain("t('deleteActiveHint')");
+  });
+});

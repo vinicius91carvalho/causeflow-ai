@@ -121,6 +121,8 @@
         "deleteConfirm": "Excluir o perfil de LLM de investigação \"{label}\"?",
         "errorUpdate": "Falha ao atualizar perfil de LLM de investigação.",
         "errorDelete": "Falha ao excluir perfil de LLM de investigação.",
+        "errorDeleteActive": "Não é possível excluir o perfil de LLM de investigação ativo. Ative outro perfil primeiro.",
+        "deleteActiveHint": "Ative outro perfil antes de excluir este.",
         "empty": "Nenhum perfil de LLM de investigação ainda.",
         "errorLoad": "Falha ao carregar perfis de LLM de investigação do Core.",
         "errorCreate": "Falha ao criar perfil de LLM de investigação.",

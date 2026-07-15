@@ -32,7 +32,7 @@ const EMPTY_FORM: ProfileFormState = {
 };
 
 /**
- * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085, AC-086, AC-087, AC-088, AC-091).
+ * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085, AC-086, AC-087, AC-088, AC-089, AC-091).
  */
 export function InvestigationLlmProfilesCard() {
   const t = useTranslations('dashboard.settings.investigationLlmProfiles');
@@ -209,8 +209,16 @@ export function InvestigationLlmProfilesCard() {
     }
   }
 
+  function isProfileActive(profile: InvestigationLlmProfile): boolean {
+    return profile.isActive === true || activeProfileId === profile.id;
+  }
+
   async function handleDelete(profile: InvestigationLlmProfile) {
     if (!canManage) return;
+    if (isProfileActive(profile)) {
+      addToast(t('errorDeleteActive'), 'error');
+      return;
+    }
     if (!window.confirm(t('deleteConfirm', { label: profile.label }))) return;
 
     setDeletingId(profile.id);
@@ -434,7 +442,7 @@ export function InvestigationLlmProfilesCard() {
             </li>
           ) : (
             items.map((profile) => {
-              const isActive = profile.isActive === true || activeProfileId === profile.id;
+              const isActive = isProfileActive(profile);
               return (
                 <li
                   key={profile.id}
@@ -495,9 +503,12 @@ export function InvestigationLlmProfilesCard() {
                         <button
                           type="button"
                           onClick={() => void handleDelete(profile)}
-                          disabled={deletingId === profile.id}
+                          disabled={deletingId === profile.id || isActive}
+                          title={isActive ? t('deleteActiveHint') : undefined}
+                          aria-disabled={isActive ? true : undefined}
                           className="inline-flex items-center gap-1 rounded-md border border-destructive/40 px-2 py-1 text-[11px] font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
                           data-testid={`investigation-llm-profile-delete-${profile.id}`}
+                          data-delete-blocked={isActive ? 'active-profile' : undefined}
                         >
                           {deletingId === profile.id ? (
                             <Loader2 className="h-3 w-3 animate-spin" />

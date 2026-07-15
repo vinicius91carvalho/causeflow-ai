@@ -1,0 +1,58 @@
+{
+  "id": "WI-AC-089",
+  "base": "http://127.0.0.1:5170",
+  "steps": [
+    {
+      "step": "core_blocks_active_delete",
+      "ok": true,
+      "checks": [
+        {
+          "label": "DELETE checks active profile id",
+          "ok": true
+        },
+        {
+          "label": "DELETE returns 409 with clear message",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "step": "ui_blocks_active_delete",
+      "ok": true,
+      "checks": [
+        {
+          "label": "isProfileActive helper",
+          "ok": true
+        },
+        {
+          "label": "handleDelete guards active profile",
+          "ok": true
+        },
+        {
+          "label": "delete button disabled for active profile",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "step": "dashboard_unit_tests",
+      "exitCode": 0
+    },
+    {
+      "step": "core_unit_tests",
+      "exitCode": 0
+    },
+    {
+      "step": "http_flow",
+      "ok": true,
+      "deleteActiveStatus": 409,
+      "deleteActiveError": "Cannot delete the active Investigation LLM profile. Activate another profile first.",
+      "activeAfterBlockedDelete": "e2f77092-35e3-4823-93a0-c6c50d5487c0",
+      "deleteFormerActiveStatus": 200,
+      "remainingIds": [
+        "62406d3e-bdb9-4eab-9885-850c8ebb924b"
+      ]
+    }
+  ],
+  "pass": true
+}
