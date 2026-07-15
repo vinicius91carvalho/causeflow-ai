@@ -139,3 +139,12 @@ remove the file manually to continue.
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/80e91ba0-9d18-4fdd-b09c-833cbd124d10/oss-custom-investigation-llm/WI-AC-089-1-integration_qa-c8d6efbdb8bc7962.log
 - NextAction: next Ready Work Item
+
+## 2026-07-15T22:58:42.551Z — QA defect and Repair Plan
+
+- Attempt: 1/3
+- WorkItem: WI-AC-090
+- DefectReport: expected POST /api/analyses/{id}/triage and /investigate with zero active Investigation LLM profiles to return HTTP >=400 with error containing 'Configure an Investigation LLM in Settings'; observed HTTP 404 {error:'Not Found'} for both endpoints; evidence .harness/wi-ac-090-http.json http_flow triageStatus=404 investigateStatus=404 and core dev.log POST /v1/investigation/{id}/triage 404; expected dashboard BFF to proxy triage/investigate to Core routes that exist; observed http-api-client.ts calls /v1/investigation/{id}/triage and /v1/investigation/{id}/investigate but Core mounts POST /v1/triage/{id} and POST /v1/investigation/{id}; evidence apps/dashboard/src/lib/api/http-api-client.ts lines 472-481 vs core/src/app.ts routes; expected operator-facing continue-investigation actions to surface configure-LLM message; observed useIncidentActions triage/investigation toasts receive generic 'Not Found' from broken BFF proxy; evidence manual HTTP bff triage 404 after incident create 201 with activeProfileId=null
+- RepairPlan: AC-090 HTTP flow fails because dashboard http-api-client posts to non-existent Core paths (/v1/investigation/{id}/triage|/investigate) yielding 404 Not Found before fail-closed LLM checks run; Core fail-closed message exists but is unreachable. Scaffold OK.; Fix http-api-client triggerTriage → POST /v1/triage/{id}; Fix http-api-client triggerInvestigation → POST /v1/investigation/{id}; In triage-incident.usecase wrap NoActiveInvestigationLlmError as TriageFailedError (or AppError >=400) preserving Configure an Investigation LLM in Settings; Ensure investigate path keeps InvestigationFailedError message passthrough (already wraps assert); Re-run .harness/wi-ac-090 verify / http_flow with activeProfileId=null
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/80e91ba0-9d18-4fdd-b09c-833cbd124d10/oss-custom-investigation-llm/WI-AC-090-1-qa-2e39e60819d2a8b5.log
+- NextAction: Coding Attempt 2
