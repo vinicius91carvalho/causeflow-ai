@@ -42,6 +42,7 @@ import {
 } from './modules/billing/infra/billing.routes.js';
 import { createUserRoutes } from './modules/user/infra/user.routes.js';
 import { createOssLlmConnectorRoutes } from './modules/oss/infra/oss-llm-connector.routes.js';
+import { createOssInvestigationLlmProfilesRoutes } from './modules/oss/infra/oss-investigation-llm-profiles.routes.js';
 import type { AppContext } from './bootstrap.js';
 import type { AppEnv } from './shared/infra/http/hono-types.js';
 import type { BlankSchema } from 'hono/types';
@@ -185,6 +186,10 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, '/'> {
     const ossAuthRouter = (ctx as any).ossAuthRouter;
     app.route('/v1/auth', ossAuthRouter);
     app.route('/v1/oss/llm-connector', createOssLlmConnectorRoutes());
+    app.route(
+      '/v1/oss/investigation-llm-profiles',
+      createOssInvestigationLlmProfilesRoutes(),
+    );
   } else {
     app.route('/v1/auth', createAuthRoutes(ctx.authUseCases));
   }
