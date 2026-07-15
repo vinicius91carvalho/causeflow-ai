@@ -148,3 +148,10 @@ remove the file manually to continue.
 - RepairPlan: AC-090 HTTP flow fails because dashboard http-api-client posts to non-existent Core paths (/v1/investigation/{id}/triage|/investigate) yielding 404 Not Found before fail-closed LLM checks run; Core fail-closed message exists but is unreachable. Scaffold OK.; Fix http-api-client triggerTriage → POST /v1/triage/{id}; Fix http-api-client triggerInvestigation → POST /v1/investigation/{id}; In triage-incident.usecase wrap NoActiveInvestigationLlmError as TriageFailedError (or AppError >=400) preserving Configure an Investigation LLM in Settings; Ensure investigate path keeps InvestigationFailedError message passthrough (already wraps assert); Re-run .harness/wi-ac-090 verify / http_flow with activeProfileId=null
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/80e91ba0-9d18-4fdd-b09c-833cbd124d10/oss-custom-investigation-llm/WI-AC-090-1-qa-2e39e60819d2a8b5.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-15T23:09:09.194Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-090
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
