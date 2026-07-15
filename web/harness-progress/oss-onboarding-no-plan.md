@@ -103,3 +103,10 @@
 - RepairPlan: WI-AC-083 failed integration QA because the OSS no-plan purge lives only in the dirty gen/web-oss-onboarding-no-plan worktree; HEAD/plan/opensource-docker and PORT 5170 still ship Choose Your Plan plus the billing tutorial step.; Commit all AC-083 WIP: oss-runtime(+test), types(+getTutorialSteps/tests), onboarding-orchestrator(+tests), welcome-page(+tests), step-highlights(+tests), company-tab, choose-plan tests, ac-082/ac-083 Playwright specs; Merge/ff onto plan/opensource-docker (or re-integrate harness checkpoint) so git grep finds the helpers; Kill and rebuild/restart OSS dashboard on PORT 5170 without NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY; Mark feature_list.json WI-AC-083 implemented and re-run integration QA against the rebuilt server
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/0a7ad32d-4904-47a5-b638-c6c43f30a029/oss-onboarding-no-plan/WI-AC-083-1-integration_qa-2419af84915d3fcb.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-15T18:36:37.550Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-083
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
