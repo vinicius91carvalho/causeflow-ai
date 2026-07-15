@@ -8,9 +8,8 @@ const source = readFileSync(
 );
 
 describe('CtaStopHuntingSection', () => {
-  it('renders optional docsCta as an external GitHub Pages link', () => {
-    expect(source).toMatch(/docsCta\?/);
-    expect(source).toMatch(/docsCta\.href/);
+  it('renders external secondary CTA for GitHub (AC-079)', () => {
+    expect(source).toMatch(/secondaryCta\.external/);
     expect(source).toMatch(/target="_blank"/);
   });
 });

@@ -68,12 +68,10 @@ describe('Cascading500Page full implementation contract', () => {
     expect(source).toMatch(/cascading500/);
   });
 
-  it('uses ROUTES.PRICING for the secondary CTA', () => {
-    expect(source).toMatch(/ROUTES\.PRICING/);
-  });
-
-  it('passes external:true for the primary CTA (dashboard link)', () => {
-    expect(source).toMatch(/external:\s*true/);
-    expect(source).toMatch(/dashboard\.causeflow\.ai/);
+  it('uses OSS docs and GitHub for primary CTAs (AC-079)', () => {
+    expect(source).toMatch(/ossMarketingDocsCta/);
+    expect(source).toMatch(/ossMarketingGitHubCta/);
+    expect(source).not.toMatch(/ROUTES\.PRICING/);
+    expect(source).not.toMatch(/dashboard\.causeflow\.ai/);
   });
 });

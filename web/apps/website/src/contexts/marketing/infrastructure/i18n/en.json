@@ -5,7 +5,7 @@
       "headline": "Investigate production incidents in minutes, not hours",
       "subheadline": "Most incident resolution time is investigation, not fixing. CauseFlow deploys 6 specialized AI agents in parallel — root cause identified in ~3 minutes, end-to-end resolution in ~35 minutes vs. 2–4 hours manual. Root cause identified in minutes. Human approves. Fix deployed.",
       "metaDescription": "AI-powered incident investigation bridging engineering and L2/L3 support. CauseFlow cross-references Slack, GitHub, Jira, CloudWatch and HubSpot to find root causes in minutes.",
-      "ctaPrimary": "Get Early Access",
+      "ctaPrimary": "Read the docs",
       "ctaSecondary": "See How It Works",
       "trustText": "Now in Early Access — limited spots for teams that want to shape the product.",
       "vizRootCause": "Root Cause Identified",
@@ -142,7 +142,7 @@
     "ctaFinal": {
       "title": "Stop losing engineering hours to incident investigation",
       "subtitle": "Get Early Access — investigate incidents with AI while your team focuses on building.",
-      "ctaPrimary": "Get Early Access",
+      "ctaPrimary": "Read the docs",
       "ctaSecondary": "Or contact us for a personalized walkthrough"
     },
     "whyNow": {
@@ -609,8 +609,8 @@
         "em": "chasing logs.",
         "h2": "Start building product.",
         "description": "Connect your stack in minutes and investigate real incidents on your infra. No contract, no card.",
-        "cta1": "Start free →",
-        "cta2": "See pricing",
+        "cta1": "Read the docs",
+        "cta2": "View on GitHub",
         "ctaDocs": "Read the docs →"
       },
       "reasoning": {
@@ -700,7 +700,7 @@
       "title": "How CauseFlow Solves\nIncident Investigation",
       "subtitle": "Stop spending 2–4 hours per incident switching tools. CauseFlow connects to your monitoring, code, and infrastructure tools, deploys 6 specialized agents in parallel, and delivers root cause with fix recommendations in ~3 minutes.",
       "metaDescription": "CauseFlow deploys 6 specialized AI agents across your monitoring, code, and infrastructure tools to deliver root cause and fix recommendations in ~3 minutes.",
-      "ctaPrimary": "Get Early Access",
+      "ctaPrimary": "Read the docs",
       "ctaSecondary": "Explore the Product"
     },
     "phases": {
@@ -974,7 +974,7 @@
     },
     "cta": {
       "title": "Enterprise Security for Teams That Move Fast",
-      "ctaPrimary": "Get Early Access",
+      "ctaPrimary": "Read the docs",
       "ctaSecondary": "Contact Us"
     }
   },
@@ -1147,7 +1147,7 @@
     "hero": {
       "title": "Migrating from Opsgenie?",
       "subtitle": "Atlassian is sunsetting Opsgenie in April 2027. Don't just replace your alerting tool — upgrade to AI-powered incident investigation.",
-      "ctaPrimary": "Get Early Access"
+      "ctaPrimary": "Read the docs"
     },
     "whatsHappening": {
       "title": "What's Happening",
@@ -1182,8 +1182,8 @@
     "finalCta": {
       "title": "Don't Wait Until April 2027",
       "subtitle": "Be among the first to investigate incidents with AI. Apply for Early Access and start solving incidents faster.",
-      "ctaPrimary": "Get Early Access",
-      "ctaSecondary": "Talk to the Co-Founder"
+      "ctaPrimary": "Read the docs",
+      "ctaSecondary": "View on GitHub"
     },
     "meta": {
       "title": "Migrating from Opsgenie",
@@ -1399,8 +1399,8 @@
         "em": "chasing logs.",
         "h2": "Start building product.",
         "description": "Connect your stack in minutes and investigate real incidents on your infra. No contract, no card.",
-        "cta1": "Start free →",
-        "cta2": "See pricing"
+        "cta1": "Read the docs",
+        "cta2": "View on GitHub"
       }
     },
     "brokenImages": {
@@ -1491,8 +1491,8 @@
         "headlineEm": "hunting logs.",
         "headlineP2": "Start shipping product.",
         "description": "Connect your stack in minutes and investigate real incidents on your infra. No contract, no card.",
-        "primaryLabel": "Open the dashboard",
-        "secondaryLabel": "See pricing"
+        "primaryLabel": "Read the docs",
+        "secondaryLabel": "View on GitHub"
       }
     },
     "cascading500": {
@@ -1578,8 +1578,8 @@
         "headlineEm": "under pressure",
         "headlineP2": "— let CauseFlow find it.",
         "description": "CauseFlow correlates DynamoDB records, Lambda logs, and CloudWatch metrics automatically — no manual log triage, no post-mortem archaeology.",
-        "primaryLabel": "Start Investigating Free",
-        "secondaryLabel": "See Pricing"
+        "primaryLabel": "Read the docs",
+        "secondaryLabel": "View on GitHub"
       }
     }
   }

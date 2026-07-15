@@ -7,8 +7,8 @@ interface HeroSectionProps {
   badge?: string;
   title: string;
   subtitle: string;
-  primaryCta?: { label: string; href: string };
-  secondaryCta?: { label: string; href: string; onClick?: () => void };
+  primaryCta?: { label: string; href: string; external?: boolean };
+  secondaryCta?: { label: string; href: string; onClick?: () => void; external?: boolean };
   trustText?: string;
   variant?: 'dark' | 'light';
   children?: React.ReactNode;
@@ -80,18 +80,31 @@ export function HeroSection({
             </p>
             {(primaryCta || secondaryCta) && (
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
-                {primaryCta && (
-                  <Link href={primaryCta.href}>
-                    <Button size="lg" className="w-full sm:w-auto">
-                      {primaryCta.label}
-                    </Button>
-                  </Link>
-                )}
+                {primaryCta &&
+                  (primaryCta.external ? (
+                    <a href={primaryCta.href} target="_blank" rel="noopener noreferrer">
+                      <Button size="lg" className="w-full sm:w-auto">
+                        {primaryCta.label}
+                      </Button>
+                    </a>
+                  ) : (
+                    <Link href={primaryCta.href}>
+                      <Button size="lg" className="w-full sm:w-auto">
+                        {primaryCta.label}
+                      </Button>
+                    </Link>
+                  ))}
                 {secondaryCta &&
                   (secondaryCta.onClick ? (
                     <CTAButtonClient onClick={secondaryCta.onClick} className="w-full sm:w-auto">
                       {secondaryCta.label}
                     </CTAButtonClient>
+                  ) : secondaryCta.external ? (
+                    <a href={secondaryCta.href} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                        {secondaryCta.label}
+                      </Button>
+                    </a>
                   ) : (
                     <Link href={secondaryCta.href}>
                       <Button variant="outline" size="lg" className="w-full sm:w-auto">

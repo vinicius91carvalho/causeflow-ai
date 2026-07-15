@@ -24,7 +24,9 @@
       "createAccount": "Create Account",
       "talkToSales": "Talk to Sales",
       "learnMore": "Learn More About the Product",
-      "startNow": "Join the Beta"
+      "startNow": "Join the Beta",
+      "readDocs": "Read the docs",
+      "viewOnGitHub": "View on GitHub"
     },
     "footer": {
       "description": "Intelligent incident investigation for engineering and L2/L3 support teams.",

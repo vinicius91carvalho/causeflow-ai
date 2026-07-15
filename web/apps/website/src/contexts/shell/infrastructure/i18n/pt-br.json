@@ -24,7 +24,9 @@
       "createAccount": "Criar Conta",
       "talkToSales": "Falar com Vendas",
       "learnMore": "Saiba Mais Sobre o Produto",
-      "startNow": "Acesso Antecipado"
+      "startNow": "Acesso Antecipado",
+      "readDocs": "Ler a documentação",
+      "viewOnGitHub": "Ver no GitHub"
     },
     "footer": {
       "description": "Investigação inteligente de incidentes para times de engenharia e suporte L2/L3.",

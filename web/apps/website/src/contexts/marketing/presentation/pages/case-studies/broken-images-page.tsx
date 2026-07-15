@@ -28,9 +28,8 @@ import { SelfHealLogDiff } from '@/contexts/marketing/presentation/components/ca
 import { CtaStopHuntingSection } from '@/contexts/marketing/presentation/components/sections/cta-stop-hunting-section';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
+import { ossMarketingDocsCta, ossMarketingGitHubCta } from '@/lib/oss-marketing-ctas';
 import { generatePageMetadata } from '@/lib/metadata';
-
-const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL ?? 'https://dashboard.causeflow.ai';
 
 export async function generateMetadata({
   params,
@@ -227,15 +226,8 @@ export default function BrokenImagesPage({ params }: { params: Promise<{ locale:
           p2: bi('ctaSection.headlineP2'),
         }}
         description={bi('ctaSection.description')}
-        primaryCta={{
-          label: bi('ctaSection.primaryLabel'),
-          href: `${DASHBOARD_URL}/sign-up`,
-          external: true,
-        }}
-        secondaryCta={{
-          label: bi('ctaSection.secondaryLabel'),
-          href: ROUTES.PRICING,
-        }}
+        primaryCta={ossMarketingDocsCta(bi('ctaSection.primaryLabel'))}
+        secondaryCta={ossMarketingGitHubCta(bi('ctaSection.secondaryLabel'))}
       />
     </PageLayout>
   );

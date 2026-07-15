@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  Button,
   Sheet,
   SheetContent,
   SheetDescription,
@@ -67,11 +66,6 @@ export function MobileMenu({ open, onClose, navItems }: MobileMenuProps) {
             className="flex w-full items-center gap-2 rounded-md px-3 py-3 text-left text-base font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             {t('nav.dashboard')}
-          </a>
-        </div>
-        <div className="mt-4 px-3">
-          <a href={dashboardUrl} onClick={onClose} rel="noopener noreferrer">
-            <Button className="w-full">{t('cta.getStartedFree')}</Button>
           </a>
         </div>
       </SheetContent>

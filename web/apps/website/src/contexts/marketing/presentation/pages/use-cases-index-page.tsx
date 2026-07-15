@@ -10,8 +10,8 @@ import { CtaStopHuntingSection } from '@/contexts/marketing/presentation/compone
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
 import { Link } from '@/i18n/navigation';
-import { getDashboardUrl } from '@/lib/dashboard-url';
 import { generatePageMetadata } from '@/lib/metadata';
+import { ossMarketingDocsCta, ossMarketingGitHubCta } from '@/lib/oss-marketing-ctas';
 
 export async function generateMetadata({
   params,
@@ -34,7 +34,6 @@ export default function UseCasesIndexPage({ params }: { params: Promise<{ locale
 
   const t = useTranslations('caseStudies');
   const tCta = useTranslations('home.newTemplate.ctaStop');
-  const dashboardUrl = getDashboardUrl();
 
   return (
     <PageLayout header={<Header />} footer={<Footer />}>
@@ -138,12 +137,8 @@ export default function UseCasesIndexPage({ params }: { params: Promise<{ locale
         <CtaStopHuntingSection
           headline={{ p1: tCta('h1'), em: tCta('em'), p2: tCta('h2') }}
           description={tCta('description')}
-          primaryCta={{
-            label: tCta('cta1'),
-            href: `${dashboardUrl}/sign-up`,
-            external: true,
-          }}
-          secondaryCta={{ label: tCta('cta2'), href: ROUTES.PRICING }}
+          primaryCta={ossMarketingDocsCta(tCta('cta1'))}
+          secondaryCta={ossMarketingGitHubCta(tCta('cta2'))}
         />
       </AnimateOnScroll>
     </PageLayout>

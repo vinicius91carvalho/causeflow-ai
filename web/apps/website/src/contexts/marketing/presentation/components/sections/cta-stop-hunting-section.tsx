@@ -12,17 +12,14 @@ import { Link } from '@/i18n/navigation';
  *   - h2 color: hsl(var(--bg-tone)) = cream #f9f7f1
  *   - em in h2: text-accent
  *
- * Self-service platform — primary CTA sends user to the dashboard,
- * secondary points to pricing. No "Schedule a demo".
+ * OSS marketing — primary CTA is published docs; secondary is GitHub (self-host).
  */
 
 interface CtaStopHuntingSectionProps {
   headline: { p1: string; em: string; p2: string };
   description: string;
   primaryCta: { label: string; href: string; external?: boolean };
-  secondaryCta: { label: string; href: string };
-  /** Docs CTA — published GitHub Pages docs (outside nav chrome). */
-  docsCta?: { label: string; href: string };
+  secondaryCta: { label: string; href: string; external?: boolean };
 }
 
 export function CtaStopHuntingSection({
@@ -30,7 +27,6 @@ export function CtaStopHuntingSection({
   description,
   primaryCta,
   secondaryCta,
-  docsCta,
 }: CtaStopHuntingSectionProps) {
   return (
     <section className="bg-background px-4 py-[120px] sm:px-6 lg:px-8">
@@ -76,26 +72,24 @@ export function CtaStopHuntingSection({
                 {primaryCta.label}
               </Link>
             )}
-            <Link
-              href={secondaryCta.href}
-              className="inline-flex h-12 items-center justify-center rounded-xl border border-background/25 bg-transparent px-6 text-[15px] font-semibold text-background transition-all hover:border-accent hover:text-accent hover:shadow-[0_0_0_4px_hsl(var(--accent)/0.12)]"
-            >
-              {secondaryCta.label}
-            </Link>
-          </div>
-
-          {docsCta ? (
-            <p className="relative mt-6">
+            {secondaryCta.external ? (
               <a
-                href={docsCta.href}
+                href={secondaryCta.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[14px] font-medium text-background/65 underline-offset-4 transition-colors hover:text-accent hover:underline"
+                className="inline-flex h-12 items-center justify-center rounded-xl border border-background/25 bg-transparent px-6 text-[15px] font-semibold text-background transition-all hover:border-accent hover:text-accent hover:shadow-[0_0_0_4px_hsl(var(--accent)/0.12)]"
               >
-                {docsCta.label}
+                {secondaryCta.label}
               </a>
-            </p>
-          ) : null}
+            ) : (
+              <Link
+                href={secondaryCta.href}
+                className="inline-flex h-12 items-center justify-center rounded-xl border border-background/25 bg-transparent px-6 text-[15px] font-semibold text-background transition-all hover:border-accent hover:text-accent hover:shadow-[0_0_0_4px_hsl(var(--accent)/0.12)]"
+              >
+                {secondaryCta.label}
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </section>

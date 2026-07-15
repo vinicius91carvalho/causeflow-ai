@@ -12,8 +12,7 @@
  *   shell      → notFound, common (nav, cta, footer, languageSelector)
  *
  * The `engagement` context has been retired as part of the cleric redesign —
- * all marketing CTAs now route directly to the dashboard via
- * `@/lib/dashboard-url`.
+ * marketing CTAs route to published docs and GitHub via `@/lib/oss-marketing-ctas`.
  */
 
 import { deepMerge } from '@causeflow/shared/domain/utils/deep-merge';

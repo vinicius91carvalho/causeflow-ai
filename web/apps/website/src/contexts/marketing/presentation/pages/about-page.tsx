@@ -1,4 +1,3 @@
-import { ROUTES } from '@causeflow/shared/constants';
 import { PageLayout } from '@causeflow/ui/layouts';
 import { AnimateOnScroll } from '@causeflow/ui/themes';
 import type { Metadata } from 'next';
@@ -8,8 +7,8 @@ import { use } from 'react';
 import { CtaStopHuntingSection } from '@/contexts/marketing/presentation/components/sections/cta-stop-hunting-section';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
-import { getDashboardUrl } from '@/lib/dashboard-url';
 import { generatePageMetadata } from '@/lib/metadata';
+import { ossMarketingDocsCta, ossMarketingGitHubCta } from '@/lib/oss-marketing-ctas';
 
 export async function generateMetadata({
   params,
@@ -34,7 +33,6 @@ export default function AboutPage({ params }: { params: Promise<{ locale: string
 
   const t = useTranslations('about');
   const tCta = useTranslations('home.newTemplate.ctaStop');
-  const dashboardUrl = getDashboardUrl();
 
   const storyParagraphs = [0, 1, 2, 3].map((i) => t(`story.paragraphs.${i}`));
   const differentCards = [0, 1, 2].map((i) => ({
@@ -250,8 +248,8 @@ export default function AboutPage({ params }: { params: Promise<{ locale: string
         <CtaStopHuntingSection
           headline={{ p1: tCta('h1'), em: tCta('em'), p2: tCta('h2') }}
           description={tCta('description')}
-          primaryCta={{ label: tCta('cta1'), href: `${dashboardUrl}/sign-up`, external: true }}
-          secondaryCta={{ label: tCta('cta2'), href: ROUTES.PRICING }}
+          primaryCta={ossMarketingDocsCta(tCta('cta1'))}
+          secondaryCta={ossMarketingGitHubCta(tCta('cta2'))}
         />
       </AnimateOnScroll>
     </PageLayout>

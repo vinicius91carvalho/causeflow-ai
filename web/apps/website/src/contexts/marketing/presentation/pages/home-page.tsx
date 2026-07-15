@@ -17,7 +17,6 @@
  * Footer: kept as-is via <PageLayout footer={<Footer/>}>
  */
 
-import { ROUTES, SITE } from '@causeflow/shared/constants';
 import { PageLayout } from '@causeflow/ui/layouts';
 import { AnimateOnScroll } from '@causeflow/ui/themes';
 import type { Metadata } from 'next';
@@ -43,7 +42,7 @@ import {
 } from '@/contexts/marketing/presentation/components/structured-data';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
-import { getDashboardUrl } from '@/lib/dashboard-url';
+import { ossMarketingDocsCta, ossMarketingGitHubCta } from '@/lib/oss-marketing-ctas';
 import { generatePageMetadata } from '@/lib/metadata';
 
 // ---------------------------------------------------------------------------
@@ -143,7 +142,6 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
   const t = useTranslations('home.newTemplate');
   const tHero = useTranslations('home.hero');
   const tFaq = useTranslations('home.faq');
-  const dashboardUrl = getDashboardUrl();
 
   const faqItems = [
     { question: tFaq('q1.question'), answer: tFaq('q1.answer') },
@@ -473,9 +471,8 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
             p2: t('ctaStop.h2'),
           }}
           description={t('ctaStop.description')}
-          primaryCta={{ label: t('ctaStop.cta1'), href: `${dashboardUrl}/sign-up`, external: true }}
-          secondaryCta={{ label: t('ctaStop.cta2'), href: ROUTES.PRICING }}
-          docsCta={{ label: t('ctaStop.ctaDocs'), href: SITE.docsUrl }}
+          primaryCta={ossMarketingDocsCta(t('ctaStop.cta1'))}
+          secondaryCta={ossMarketingGitHubCta(t('ctaStop.cta2'))}
         />
       </AnimateOnScroll>
     </PageLayout>

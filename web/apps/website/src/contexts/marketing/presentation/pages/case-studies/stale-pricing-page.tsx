@@ -28,9 +28,8 @@ import { TwoBugsDiagram } from '@/contexts/marketing/presentation/components/cas
 import { CtaStopHuntingSection } from '@/contexts/marketing/presentation/components/sections/cta-stop-hunting-section';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
+import { ossMarketingDocsCta, ossMarketingGitHubCta } from '@/lib/oss-marketing-ctas';
 import { generatePageMetadata } from '@/lib/metadata';
-
-const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL ?? 'https://dashboard.causeflow.ai';
 
 export async function generateMetadata({
   params,
@@ -241,15 +240,8 @@ await revalidatePath(newImage.path.S);`}
           p2: sp('cta.h2'),
         }}
         description={sp('cta.description')}
-        primaryCta={{
-          label: sp('cta.cta1'),
-          href: `${DASHBOARD_URL}/sign-up`,
-          external: true,
-        }}
-        secondaryCta={{
-          label: sp('cta.cta2'),
-          href: ROUTES.PRICING,
-        }}
+        primaryCta={ossMarketingDocsCta(sp('cta.cta1'))}
+        secondaryCta={ossMarketingGitHubCta(sp('cta.cta2'))}
       />
     </PageLayout>
   );

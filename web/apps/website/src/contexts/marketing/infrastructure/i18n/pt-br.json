@@ -5,7 +5,7 @@
       "headline": "Investigue incidentes de produção em minutos, não horas",
       "subheadline": "A maior parte do tempo de resolução de incidentes é investigação, não correção. O CauseFlow usa múltiplos agentes de IA em paralelo — causa raiz em ~3 minutos, resolução completa em ~30 minutos vs. 2–4 horas. Novos agentes são adicionados continuamente (documentação, runbooks e mais).",
       "metaDescription": "Investigação de incidentes com IA conectando engenharia e suporte L2/L3. CauseFlow cruza Slack, GitHub, Jira, CloudWatch e HubSpot para encontrar causas raiz em minutos.",
-      "ctaPrimary": "Acesso Antecipado",
+      "ctaPrimary": "Ler a documentação",
       "ctaSecondary": "Veja Como Funciona",
       "trustText": "Agora em Acesso Antecipado — vagas limitadas para times que querem co-criar o produto.",
       "vizRootCause": "Causa Raiz Identificada",
@@ -142,7 +142,7 @@
     "ctaFinal": {
       "title": "Pare de perder horas de engenharia com investigação de incidentes",
       "subtitle": "Participe do Acesso Antecipado — investigue incidentes com IA enquanto sua equipe foca em construir.",
-      "ctaPrimary": "Acesso Antecipado",
+      "ctaPrimary": "Ler a documentação",
       "ctaSecondary": "Ou fale conosco para uma demonstração personalizada"
     },
     "whyNow": {
@@ -609,8 +609,8 @@
         "em": "caçar logs.",
         "h2": "Comece a construir produto.",
         "description": "Conecte sua stack em minutos e investigue incidentes reais na sua infra. Sem contrato, sem cartão.",
-        "cta1": "Começar grátis →",
-        "cta2": "Ver preços",
+        "cta1": "Ler a documentação",
+        "cta2": "Ver no GitHub",
         "ctaDocs": "Ler a documentação →"
       },
       "reasoning": {
@@ -700,7 +700,7 @@
       "title": "Como o CauseFlow Resolve\na Investigação de Incidentes",
       "subtitle": "Pare de gastar 2-4 horas por incidente trocando de ferramenta. O CauseFlow conecta ao Slack, GitHub, Jira e CloudWatch, investiga em paralelo e entrega a causa raiz com recomendações — em minutos.",
       "metaDescription": "O CauseFlow implanta 6 agentes de IA especializados em suas ferramentas de monitoramento, código e infraestrutura e entrega causa raiz e recomendações em ~3 minutos.",
-      "ctaPrimary": "Acesso Antecipado",
+      "ctaPrimary": "Ler a documentação",
       "ctaSecondary": "Explore o Produto"
     },
     "phases": {
@@ -974,7 +974,7 @@
     },
     "cta": {
       "title": "Segurança Enterprise para Times que se Movem Rápido",
-      "ctaPrimary": "Acesso Antecipado",
+      "ctaPrimary": "Ler a documentação",
       "ctaSecondary": "Fale Conosco"
     }
   },
@@ -1182,8 +1182,8 @@
     "finalCta": {
       "title": "Não Espere Até Abril de 2027",
       "subtitle": "Seja um dos primeiros a investigar incidentes com IA. Junte-se ao Acesso Antecipado — vagas limitadas para equipes prontas para modernizar seu fluxo de incidentes.",
-      "ctaPrimary": "Acesso Antecipado",
-      "ctaSecondary": "Fale com o Co-Fundador"
+      "ctaPrimary": "Ler a documentação",
+      "ctaSecondary": "Ver no GitHub"
     },
     "meta": {
       "title": "Migrando do Opsgenie",
@@ -1399,8 +1399,8 @@
         "em": "caçar logs.",
         "h2": "Comece a construir produto.",
         "description": "Conecte sua stack em minutos e investigue incidentes reais na sua infraestrutura. Sem contrato, sem cartão.",
-        "cta1": "Começar grátis →",
-        "cta2": "Ver preços"
+        "cta1": "Ler a documentação",
+        "cta2": "Ver no GitHub"
       }
     },
     "brokenImages": {
@@ -1491,8 +1491,8 @@
         "headlineEm": "de caçar logs.",
         "headlineP2": "Comece a entregar produto.",
         "description": "Conecte sua stack em minutos e investigue incidentes reais na sua infra. Sem contrato, sem cartão.",
-        "primaryLabel": "Abrir o dashboard",
-        "secondaryLabel": "Ver preços"
+        "primaryLabel": "Ler a documentação",
+        "secondaryLabel": "Ver no GitHub"
       }
     },
     "cascading500": {
@@ -1578,8 +1578,8 @@
         "headlineEm": "sob pressão",
         "headlineP2": "— deixe o CauseFlow encontrar.",
         "description": "O CauseFlow correlaciona registros do DynamoDB, logs do Lambda e métricas do CloudWatch automaticamente — sem triagem manual de logs, sem arqueologia de post-mortem.",
-        "primaryLabel": "Comece a Investigar Grátis",
-        "secondaryLabel": "Ver Planos"
+        "primaryLabel": "Ler a documentação",
+        "secondaryLabel": "Ver no GitHub"
       }
     }
   }

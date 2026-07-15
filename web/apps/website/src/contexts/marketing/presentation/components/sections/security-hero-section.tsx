@@ -3,27 +3,23 @@ import { HeroSection } from './hero-section';
 interface SecurityHeroSectionProps {
   title: string;
   subtitle: string;
-  primaryCtaLabel: string;
-  primaryCtaHref: string;
-  secondaryCtaLabel: string;
-  secondaryCtaHref: string;
+  primaryCta: { label: string; href: string; external?: boolean };
+  secondaryCta: { label: string; href: string; external?: boolean };
 }
 
 export function SecurityHeroSection({
   title,
   subtitle,
-  primaryCtaLabel,
-  primaryCtaHref,
-  secondaryCtaLabel,
-  secondaryCtaHref,
+  primaryCta,
+  secondaryCta,
 }: SecurityHeroSectionProps) {
   return (
     <HeroSection
       title={title}
       subtitle={subtitle}
       variant="dark"
-      primaryCta={{ label: primaryCtaLabel, href: primaryCtaHref }}
-      secondaryCta={{ label: secondaryCtaLabel, href: secondaryCtaHref }}
+      primaryCta={primaryCta}
+      secondaryCta={secondaryCta}
     />
   );
 }

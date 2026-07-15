@@ -2,7 +2,7 @@
 
 import { Button } from '@causeflow/ui/primitives';
 import { useTranslations } from 'next-intl';
-import { getDashboardUrl } from '@/lib/dashboard-url';
+import { ossMarketingDocsCta } from '@/lib/oss-marketing-ctas';
 
 interface StatCardProps {
   value: string;
@@ -68,7 +68,7 @@ export function CategoryIsRealSection({ className }: { className?: string }) {
             {t('statement')}
           </p>
           <div className="mt-6">
-            <a href={getDashboardUrl()} rel="noopener noreferrer">
+            <a href={ossMarketingDocsCta(t('cta')).href} target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
                 {t('cta')}
               </Button>

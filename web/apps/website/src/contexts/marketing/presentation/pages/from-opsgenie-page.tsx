@@ -14,8 +14,8 @@ import {
 } from '@/contexts/marketing/presentation/components/sections/page-icons';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
-import { getDashboardUrl } from '@/lib/dashboard-url';
 import { generatePageMetadata } from '@/lib/metadata';
+import { ossMarketingDocsCta, ossMarketingGitHubCta } from '@/lib/oss-marketing-ctas';
 
 export async function generateMetadata({
   params,
@@ -75,16 +75,13 @@ export default function FromOpsgeniePage({ params }: { params: Promise<{ locale:
     },
   ];
 
-  const dashboardUrl = getDashboardUrl();
-  const ctaHref = `${dashboardUrl}/sign-up`;
-
   return (
     <PageLayout header={<Header />} footer={<Footer />}>
       {/* Section 1: Hero */}
       <HeroSection
         title={t('hero.title')}
         subtitle={t('hero.subtitle')}
-        primaryCta={{ label: t('hero.ctaPrimary'), href: ctaHref }}
+        primaryCta={ossMarketingDocsCta(t('hero.ctaPrimary'))}
         variant="dark"
       />
 
@@ -162,11 +159,8 @@ export default function FromOpsgeniePage({ params }: { params: Promise<{ locale:
           emphasis: t('finalCta.title'),
         }}
         description={t('finalCta.subtitle')}
-        primaryCta={{ label: t('finalCta.ctaPrimary'), href: ctaHref }}
-        secondaryCta={{
-          label: t('finalCta.ctaSecondary'),
-          href: `${dashboardUrl}/contact`,
-        }}
+        primaryCta={ossMarketingDocsCta(t('finalCta.ctaPrimary'))}
+        secondaryCta={ossMarketingGitHubCta(t('finalCta.ctaSecondary'))}
       />
     </PageLayout>
   );

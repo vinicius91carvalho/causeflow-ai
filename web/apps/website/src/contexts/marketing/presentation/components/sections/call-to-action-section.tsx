@@ -4,15 +4,13 @@ import { Link } from '@/i18n/navigation';
 /**
  * Final CTA card — cleric-inspired clone of `section.cta-section`.
  *
- * Large centered card with bold headline, supporting copy and a single
- * primary CTA pointing to the dashboard. No forms, no email capture —
- * the waiting list has been retired in favour of direct dashboard sign-up.
+ * Final CTA card — primary actions are published docs and GitHub (OSS self-host).
  */
 interface CallToActionSectionProps {
   headline: { lead: string; emphasis: string; tail?: string };
   description: string;
   primaryCta: { label: string; href: string; external?: boolean };
-  secondaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string; external?: boolean };
 }
 
 export function CallToActionSection({
@@ -61,13 +59,20 @@ export function CallToActionSection({
                 </Button>
               </Link>
             )}
-            {secondaryCta && (
-              <Link href={secondaryCta.href}>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  {secondaryCta.label}
-                </Button>
-              </Link>
-            )}
+            {secondaryCta &&
+              (secondaryCta.external ? (
+                <a href={secondaryCta.href} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                    {secondaryCta.label}
+                  </Button>
+                </a>
+              ) : (
+                <Link href={secondaryCta.href}>
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                    {secondaryCta.label}
+                  </Button>
+                </Link>
+              ))}
           </div>
         </div>
       </div>

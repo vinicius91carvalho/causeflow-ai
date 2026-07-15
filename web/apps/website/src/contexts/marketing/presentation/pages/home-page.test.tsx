@@ -25,8 +25,8 @@ describe('home-page.tsx dynamic-import skeletons', () => {
     expect(block?.[0] ?? '').toMatch(/animate-pulse/);
   });
 
-  it('wires Docs CTA to GitHub Pages docs URL', () => {
-    expect(source).toMatch(/docsCta=\{\{[\s\S]*SITE\.docsUrl/);
-    expect(source).toMatch(/SITE\.docsUrl/);
+  it('wires final CTA to OSS docs and GitHub', () => {
+    expect(source).toMatch(/ossMarketingDocsCta/);
+    expect(source).toMatch(/ossMarketingGitHubCta/);
   });
 });

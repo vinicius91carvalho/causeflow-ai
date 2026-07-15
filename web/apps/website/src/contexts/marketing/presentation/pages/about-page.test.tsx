@@ -25,7 +25,11 @@ describe('AboutPage source contract', () => {
     expect(source).toMatch(/linkedinLabel/);
   });
 
-  it('links to the dashboard for the final CTA', () => {
-    expect(source).toMatch(/getDashboardUrl/);
+  it('links final CTA to OSS docs and GitHub (AC-079)', () => {
+    expect(source).toMatch(/ossMarketingDocsCta/);
+    expect(source).toMatch(/ossMarketingGitHubCta/);
+    expect(source).not.toMatch(/getDashboardUrl/);
+    expect(source).not.toMatch(/sign-up/);
+    expect(source).not.toMatch(/ROUTES\.PRICING/);
   });
 });

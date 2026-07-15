@@ -33,6 +33,7 @@ import { CtaStopHuntingSection } from '@/contexts/marketing/presentation/compone
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
 import { generatePageMetadata } from '@/lib/metadata';
+import { ossMarketingDocsCta, ossMarketingGitHubCta } from '@/lib/oss-marketing-ctas';
 
 export async function generateMetadata({
   params,
@@ -248,15 +249,8 @@ async function fetchWithFallback() {
           p2: tc('cta.headlineP2'),
         }}
         description={tc('cta.description')}
-        primaryCta={{
-          label: tc('cta.primaryLabel'),
-          href: 'https://dashboard.causeflow.ai',
-          external: true,
-        }}
-        secondaryCta={{
-          label: tc('cta.secondaryLabel'),
-          href: ROUTES.PRICING,
-        }}
+        primaryCta={ossMarketingDocsCta(tc('cta.primaryLabel'))}
+        secondaryCta={ossMarketingGitHubCta(tc('cta.secondaryLabel'))}
       />
     </PageLayout>
   );

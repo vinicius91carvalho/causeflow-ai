@@ -1,4 +1,3 @@
-import { ROUTES } from '@causeflow/shared/constants';
 import { PageLayout, SectionLayout } from '@causeflow/ui/layouts';
 import { AnimateOnScroll } from '@causeflow/ui/themes';
 import type { Metadata } from 'next';
@@ -21,7 +20,7 @@ import { ParanoidByDesignSection } from '@/contexts/marketing/presentation/compo
 import { SecurityHeroSection } from '@/contexts/marketing/presentation/components/sections/security-hero-section';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
-import { getDashboardUrl } from '@/lib/dashboard-url';
+import { ossMarketingDocsCta, ossMarketingGitHubCta } from '@/lib/oss-marketing-ctas';
 import { generatePageMetadata } from '@/lib/metadata';
 
 export async function generateMetadata({
@@ -71,10 +70,8 @@ export default function SecurityPage({ params }: { params: Promise<{ locale: str
       <SecurityHeroSection
         title={t('hero.title')}
         subtitle={t('hero.subtitle')}
-        primaryCtaLabel={tCta('getStartedFree')}
-        primaryCtaHref={getDashboardUrl()}
-        secondaryCtaLabel={t('cta.ctaSecondary')}
-        secondaryCtaHref={ROUTES.PRODUCT}
+        primaryCta={ossMarketingDocsCta(tCta('readDocs'))}
+        secondaryCta={ossMarketingGitHubCta(tCta('viewOnGitHub'))}
       />
 
       {/* Shared "Paranoid by design" summary — same content as homepage for brand coherence */}
@@ -225,15 +222,8 @@ export default function SecurityPage({ params }: { params: Promise<{ locale: str
             emphasis: t('cta.ctaPrimary') ?? 'Open dashboard',
           }}
           description={t('hero.subtitle')}
-          primaryCta={{
-            label: tCta('getStartedFree'),
-            href: getDashboardUrl(),
-            external: true,
-          }}
-          secondaryCta={{
-            label: tCta('learnMore'),
-            href: ROUTES.PRODUCT,
-          }}
+          primaryCta={ossMarketingDocsCta(tCta('readDocs'))}
+          secondaryCta={ossMarketingGitHubCta(tCta('viewOnGitHub'))}
         />
       </AnimateOnScroll>
     </PageLayout>

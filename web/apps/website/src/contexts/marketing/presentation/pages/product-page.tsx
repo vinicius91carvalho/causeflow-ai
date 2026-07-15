@@ -29,7 +29,7 @@ import {
 } from '@/contexts/marketing/presentation/components/structured-data';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
-import { getDashboardUrl } from '@/lib/dashboard-url';
+import { ossMarketingDocsCta } from '@/lib/oss-marketing-ctas';
 import { generatePageMetadata } from '@/lib/metadata';
 
 const DeploymentApproachesSection = dynamic(
@@ -169,10 +169,7 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
         title={t('hero.title')}
         subtitle={t('hero.subtitle')}
         variant="dark"
-        primaryCta={{
-          label: t('hero.ctaPrimary'),
-          href: getDashboardUrl(),
-        }}
+        primaryCta={ossMarketingDocsCta(t('hero.ctaPrimary'))}
         secondaryCta={{
           label: t('hero.ctaSecondary'),
           href: '#demo',
