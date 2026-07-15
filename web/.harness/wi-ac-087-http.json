@@ -1,0 +1,44 @@
+{
+  "id": "WI-AC-087",
+  "base": "http://127.0.0.1:5170",
+  "email": "ac087-1784154139560@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200
+    },
+    {
+      "step": "example_presets_api",
+      "status": 200,
+      "count": 2,
+      "localPreset": {
+        "id": "ornith-local",
+        "label": "Ornith (local)",
+        "baseUrl": "http://127.0.0.1:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "contextWindowTokens": 32768
+      },
+      "apiPreset": {
+        "id": "ornith-api",
+        "label": "Ornith (API)",
+        "baseUrl": "https://your-ornith-host.example.com/v1",
+        "model": "Ornith-1.0-9B",
+        "contextWindowTokens": 262144
+      },
+      "hasLocalDefaults": true,
+      "hasApiDefaults": true
+    },
+    {
+      "step": "settings_html",
+      "status": 200,
+      "hasProfilesCard": true,
+      "hasExamplePresetsCopy": true,
+      "hasThreeProviderCatalogOnly": false
+    },
+    {
+      "step": "unit_tests",
+      "exitCode": 0
+    }
+  ],
+  "pass": true
+}

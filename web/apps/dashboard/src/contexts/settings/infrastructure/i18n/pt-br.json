@@ -139,7 +139,10 @@
         "contextWindowField": "Tokens da janela de contexto (opcional)",
         "contextWindowPlaceholder": "32768",
         "apiKeyConfigured": "Chave de API configurada",
-        "adminOnly": "Somente administradores podem criar ou editar perfis de LLM de investigação."
+        "adminOnly": "Somente administradores podem criar ou editar perfis de LLM de investigação.",
+        "examplePresetsTitle": "Presets de exemplo",
+        "examplePresetsHint": "Preencha o formulário com padrões OpenAI-compatíveis comuns. Você pode editar todos os campos antes de salvar.",
+        "applyPreset": "Usar {label}"
       },
       "apiKeys": {
         "title": "Chaves de API",

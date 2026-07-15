@@ -9,6 +9,10 @@ import type {
   InvestigationLlmProfile,
   InvestigationLlmProfilesResponse,
 } from '@/contexts/settings/domain/investigation-llm-profile';
+import {
+  INVESTIGATION_LLM_PROFILE_PRESETS,
+  type InvestigationLlmProfilePreset,
+} from '@/contexts/settings/domain/investigation-llm-profile-presets';
 import { useToast } from '@/contexts/shared/presentation/components/toast-provider';
 
 interface ProfileFormState {
@@ -28,7 +32,7 @@ const EMPTY_FORM: ProfileFormState = {
 };
 
 /**
- * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085, AC-086).
+ * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085, AC-086, AC-087).
  */
 export function InvestigationLlmProfilesCard() {
   const t = useTranslations('dashboard.settings.investigationLlmProfiles');
@@ -85,6 +89,18 @@ export function InvestigationLlmProfilesCard() {
     setEditingId(null);
     setForm(EMPTY_FORM);
     setShowForm(true);
+  }
+
+  function applyPreset(preset: InvestigationLlmProfilePreset) {
+    setEditingId(null);
+    setShowForm(true);
+    setForm({
+      label: preset.label,
+      baseUrl: preset.baseUrl,
+      model: preset.model,
+      apiKey: '',
+      contextWindowTokens: preset.contextWindowTokens ? String(preset.contextWindowTokens) : '',
+    });
   }
 
   function startEdit(profile: InvestigationLlmProfile) {
@@ -253,6 +269,35 @@ export function InvestigationLlmProfilesCard() {
           className="rounded-lg border border-border bg-muted/20 p-4 space-y-3"
           data-testid="investigation-llm-profile-form"
         >
+          <div
+            className="rounded-md border border-dashed border-border/80 bg-background/60 p-3 space-y-2"
+            data-testid="investigation-llm-profile-presets"
+          >
+            <div>
+              <p className="text-xs font-medium text-foreground">{t('examplePresetsTitle')}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{t('examplePresetsHint')}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {INVESTIGATION_LLM_PROFILE_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => applyPreset(preset)}
+                  className="inline-flex items-center rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-medium hover:bg-accent transition-colors"
+                  data-testid={`investigation-llm-preset-${preset.id}`}
+                  data-preset-id={preset.id}
+                  data-preset-label={preset.label}
+                  data-preset-base-url={preset.baseUrl}
+                  data-preset-model={preset.model}
+                  data-preset-context-window={
+                    preset.contextWindowTokens ? String(preset.contextWindowTokens) : ''
+                  }
+                >
+                  {t('applyPreset', { label: preset.label })}
+                </button>
+              ))}
+            </div>
+          </div>
           {editingId && (
             <p
               className="text-xs font-medium text-muted-foreground"
