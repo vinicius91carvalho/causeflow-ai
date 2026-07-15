@@ -86,3 +86,11 @@
 - WorkItem: WI-AC-083
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-15T18:22:39.506Z — Integrated Verification defect
+
+- Attempt: 1/3
+- WorkItem: WI-AC-083
+- Defects: expected /onboarding/welcome to omit paid-plan selection as operator-facing copy; observed HTTP 200 page renders a visible "Choose Your Plan" card with description "Select a plan that fits your team size and usage needs" and href="/onboarding/choose-plan"; evidence GET http://127.0.0.1:5170/onboarding/welcome (wi-ac-083-iv-http.json routes.onboarding_welcome); expected post-signup onboarding tutorial on /dashboard to omit plan upgrade / paid-tier instructions; observed dashboard RSC payload still ships onboarding.steps.billing ("Credits & Plans" / "upgrade your plan" / "manage your subscription from the Billing page") and TUTORIAL_STEPS still includes the billing step shown in the modal wizard; evidence apps/dashboard/src/contexts/onboarding/domain/types.ts TUTORIAL_STEPS billing entry + apps/dashboard/src/contexts/onboarding/infrastructure/i18n/en.json + GET http://127.0.0.1:5170/dashboard HTML contains upgrade-your-plan tutorial copy; expected coding checkpoint WI-AC-083 implementation (isOssBuildClient/getTutorialSteps, welcome-page OSS purge, ac-083-no-plan-copy.spec.ts) on plan/opensource-docker; observed none of those artifacts exist in the integrated branch despite isolated QA reporting implementation=true; evidence git grep isOssBuildClient/ac-083-no-plan-copy → no matches; welcome-page.tsx lines 68-73 still hard-code Choose Your Plan
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/0a7ad32d-4904-47a5-b638-c6c43f30a029/oss-onboarding-no-plan/WI-AC-083-1-integration_qa-2419af84915d3fcb.log
+- NextAction: Repair Plan
