@@ -54,3 +54,12 @@
 - WorkItem: WI-AC-081
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-15T18:05:47.780Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-081
+- AcceptanceChecks: AC-081
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/db6524ef-d6c0-44eb-873f-2851df0e3b96/oss-onboarding-no-plan/WI-AC-081-3-integration_qa-0362675d0f0fa7e9.log
+- NextAction: next Ready Work Item
