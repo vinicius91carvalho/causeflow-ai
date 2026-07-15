@@ -127,3 +127,10 @@
 - RepairPlan: WI-AC-083 attempt 2: visible OSS UI omits plan cards/steps, but HTTP/RSC still embeds commercial billing i18n and welcome SETUP_STEPS literals on every onboarding/settings surface.; In apps/dashboard/src/i18n/request.ts, when isOssRuntime(), strip commercial keys from messages before return (dashboard.choosePlan, dashboard.billing commercial strings, onboarding.steps.billing, settings.company.upgradePlan/plan, home.credits.upgrade, overviewTour.billing*).; Split welcome-page SETUP_STEPS so Choose Your Plan / Select a plan literals never exist in the OSS module path (no filter-after-define).; Add unit coverage for the OSS message stripper and keep/extend HTTP marker scan used by IV (.harness/wi-ac-083-iv-http.json).; Rebuild/restart OSS dashboard on PORT without NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, then re-run WI-AC-083 integration QA.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/0a7ad32d-4904-47a5-b638-c6c43f30a029/oss-onboarding-no-plan/WI-AC-083-2-integration_qa-6524da265397947f.log
 - NextAction: Coding Attempt 3
+
+## 2026-07-15T18:59:04.765Z — Checkpoint ready
+
+- Attempt: 3/3
+- WorkItem: WI-AC-083
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
