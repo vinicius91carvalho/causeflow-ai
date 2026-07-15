@@ -256,6 +256,33 @@
       - Test action: the Integrations Test control for Test Application calls Core stub probe (`/v1/integrations/stub/probe` via the dashboard BFF), not AWS-style generic test-connection.
       - Unreachable upstream: Connect/Test show a clear unreachable error and never claim healthy/connected success when the test app is down.
     </oss-commercial-removal>
+
+    <oss-free-marketing>
+      - Goal: make the public marketing site tell a free open-source story with GitHub Pages docs as the source of truth for product guidance, without Pricing or paid conversion CTAs. Web owns Acceptance Checks; public-docs content changes required for plan-citation checks.
+      - Remove Pricing from header/footer and shared navigation (EN + PT-BR).
+      - `/pricing` and `/pt-br/pricing` redirect to the published docs URL (GitHub Pages) instead of rendering paid plan cards.
+      - Primary marketing CTAs are Docs and/or GitHub (self-host) only; no sign-up/trial/pricing conversion CTAs on home and product surfaces.
+      - Dashboard may remain as a quiet operator link in chrome, not a sales conversion CTA.
+      - public-docs billing/plan pages no longer document paid tiers, Stripe checkout, or "choose a plan"; they describe free self-host OSS instead.
+    </oss-free-marketing>
+
+    <oss-onboarding-no-plan>
+      - Goal: remove plan selection from OSS signup/onboarding because there is no plan product.
+      - After create-organization (or equivalent org bootstrap), route to the dashboard (or the next non-plan onboarding step) — never `/onboarding/choose-plan`.
+      - `/onboarding/choose-plan` redirects away in OSS and never shows commercial Starter/Pro/Business cards.
+      - No remaining dashboard onboarding/settings copy that requires selecting a paid plan.
+    </oss-onboarding-no-plan>
+
+    <oss-custom-investigation-llm>
+      - Goal: let OSS admins manage custom OpenAI-compatible Investigation LLM providers in Settings instead of selecting from a fixed three-id enum.
+      - Admins CRUD named profiles: label, baseUrl, model, optional API key, optional contextWindowTokens.
+      - One profile is active for investigations; Core persists profiles and the active id (web BFF proxies).
+      - Optional API key is stored server-side by Core and never returned in plaintext on GET (masked/redacted).
+      - UI offers Ornith (local) and Ornith (API) example presets that prefill the create form; they are helpers, not a mandatory seeded catalog.
+      - Non-admins can view the active provider label but cannot mutate profiles.
+      - Cannot delete the active profile until another is activated; with zero/no active profile, investigation fails with a clear configure-LLM error.
+      - Required-field validation rejects incomplete creates/edits with observable errors; connectivity probe is optional/soft (activate allowed without live probe so local Ornith-down first-run still configures).
+    </oss-custom-investigation-llm>
   </core_features>
 
   <non_goals>
@@ -1027,6 +1054,156 @@
         <step>Step 3: Confirm 410 Gone or 404, and that responses are not consumed to render commercial quota chrome.</step>
       </steps>
     </acceptance_check>
+
+    <acceptance_check id="AC-077" context="oss-free-marketing" category="functional" depends_on="AC-066,AC-075">
+      <title>Pricing removed from marketing navigation</title>
+      <description>On the marketing website (EN and PT-BR), header and footer navigation no longer include a Pricing item. Shared navigation constants do not list Pricing as a public nav destination.</description>
+      <steps>
+        <step>Step 1: Open the marketing homepage in EN and inspect header + footer nav.</step>
+        <step>Step 2: Repeat for PT-BR (`/pt-br`) header + footer.</step>
+        <step>Step 3: Confirm Pricing is absent from nav chrome and shared nav constants used by the site.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-078" context="oss-free-marketing" category="functional" depends_on="AC-077,AC-066">
+      <title>Legacy /pricing routes redirect to published docs</title>
+      <description>Visiting `/pricing` and `/pt-br/pricing` does not render paid plan cards. Both redirect (or equivalent hard navigation) to the published GitHub Pages docs URL used by the website (`SITE.docsUrl`). This supersedes AC-010's commercial "pricing routes return 200 with plan content" for the free OSS surface.</description>
+      <steps>
+        <step>Step 1: Request `/pricing` and `/pt-br/pricing`.</step>
+        <step>Step 2: Confirm redirect/navigation to the published docs URL, not a 200 pricing page with paid tiers.</step>
+        <step>Step 3: Confirm no Starter/Pro/Business price cards are rendered.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-079" context="oss-free-marketing" category="functional" depends_on="AC-077,AC-066">
+      <title>Marketing primary CTAs are Docs and GitHub only</title>
+      <description>Homepage and primary product marketing surfaces use Docs and/or GitHub (self-host) as the primary call-to-action group. They do not present sign-up, free trial, or pricing conversion CTAs. A quiet Dashboard link may remain in chrome for operators, but it is not the primary conversion CTA.</description>
+      <steps>
+        <step>Step 1: Open the marketing homepage hero/primary CTA group.</step>
+        <step>Step 2: Open at least one primary product marketing page that previously pushed sign-up.</step>
+        <step>Step 3: Confirm primary CTAs are Docs and/or GitHub; no pricing/sign-up/trial conversion CTA is the primary action.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-080" context="oss-free-marketing" category="functional" depends_on="AC-077">
+      <title>Public docs no longer cite paid plans or Stripe checkout</title>
+      <description>public-docs pages that previously documented paid billing tiers (for example billing/plans, usage-and-credits, quickstart "choose a plan") no longer present paid plan prices or Stripe checkout as the product path. They describe free self-host / open-source usage and point to GitHub Pages docs or self-host instructions instead of causeflow.ai/pricing paid tiers.</description>
+      <steps>
+        <step>Step 1: Open the public-docs billing/plan (or successor) pages in the docs tree.</step>
+        <step>Step 2: Confirm paid tier tables / Stripe checkout / choose-a-plan commercial narrative are gone or replaced with free self-host OSS copy.</step>
+        <step>Step 3: Confirm no remaining primary link funnels readers to a paid marketing pricing page.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-081" context="oss-onboarding-no-plan" category="functional" depends_on="AC-073,AC-044">
+      <title>Signup onboarding skips plan selection</title>
+      <description>In the OSS dashboard, after a user completes create-organization (or the equivalent first org bootstrap after sign-up), they are routed to the dashboard home or the next non-plan onboarding step. They never land on `/onboarding/choose-plan` as a required step.</description>
+      <steps>
+        <step>Step 1: Complete OSS sign-up and create-organization through the normal UI.</step>
+        <step>Step 2: Observe the post-org destination URL and UI.</step>
+        <step>Step 3: Confirm the user is not required to visit choose-plan and does not see commercial plan cards as a gate.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-082" context="oss-onboarding-no-plan" category="edge-case" depends_on="AC-081">
+      <title>Bookmarked choose-plan redirects away without plan cards</title>
+      <description>Visiting `/onboarding/choose-plan` directly in OSS redirects to the dashboard (or next non-plan step) and never renders Starter/Pro/Business commercial plan cards or checkout actions.</description>
+      <steps>
+        <step>Step 1: As a signed-in OSS user, navigate directly to `/onboarding/choose-plan`.</step>
+        <step>Step 2: Confirm redirect away from choose-plan.</step>
+        <step>Step 3: Confirm commercial plan cards and checkout CTAs are not rendered.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-083" context="oss-onboarding-no-plan" category="functional" depends_on="AC-081,AC-073">
+      <title>Dashboard has no remaining paid-plan selection references</title>
+      <description>OSS dashboard onboarding and settings surfaces do not instruct the user to select a paid plan, upgrade a plan, or complete plan checkout. Any leftover plan-selection copy or controls are removed.</description>
+      <steps>
+        <step>Step 1: Walk post-signup onboarding and Settings in the OSS dashboard.</step>
+        <step>Step 2: Search visible UI for plan selection / upgrade / paid tier instructions.</step>
+        <step>Step 3: Confirm none remain as operator-facing product copy.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-084" context="oss-custom-investigation-llm" category="functional" depends_on="AC-059,AC-044">
+      <title>Admin can create a custom Investigation LLM profile</title>
+      <description>On OSS Settings, an admin can create a named OpenAI-compatible Investigation LLM profile with label, baseUrl, model, optional API key, and optional contextWindowTokens. The profile is persisted via the dashboard BFF to Core and appears in the managed list afterward.</description>
+      <steps>
+        <step>Step 1: Sign in as an OSS admin and open Settings Investigation LLM.</step>
+        <step>Step 2: Create a profile with required fields (and optional key/context window).</step>
+        <step>Step 3: Confirm the profile appears in the managed list and persists across reload.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-085" context="oss-custom-investigation-llm" category="functional" depends_on="AC-084">
+      <title>Admin can edit/delete profiles; API keys stay redacted</title>
+      <description>An admin can edit and delete Investigation LLM profiles from Settings. GET responses and UI never return the raw API key after save; the UI may show configured/masked state only.</description>
+      <steps>
+        <step>Step 1: Edit an existing profile's label/model/baseUrl and save.</step>
+        <step>Step 2: Inspect API/UI representations of a profile that has a key configured.</step>
+        <step>Step 3: Confirm raw secret is not shown; delete a non-active profile successfully.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-086" context="oss-custom-investigation-llm" category="functional" depends_on="AC-084">
+      <title>Admin can activate one Investigation LLM profile</title>
+      <description>An admin can mark exactly one saved profile as active. Subsequent investigations use that active OpenAI-compatible endpoint/model (replacing the fixed ornith/deepseek-opencode/deepseek-nim enum selection as the product path).</description>
+      <steps>
+        <step>Step 1: With at least two profiles saved, activate one of them.</step>
+        <step>Step 2: Confirm Settings shows that profile as active.</step>
+        <step>Step 3: Confirm Core/dashboard active-connector state reflects the chosen profile id (not the old three-id enum-only path).</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-087" context="oss-custom-investigation-llm" category="functional" depends_on="AC-084">
+      <title>Ornith local and API example presets prefill create form</title>
+      <description>Settings offers example presets such as Ornith (local) and Ornith (API) that prefill the create form with sensible OpenAI-compatible defaults. Presets are helpers for operators; they do not force a hardcoded three-provider catalog as the only options.</description>
+      <steps>
+        <step>Step 1: Open the create Investigation LLM flow.</step>
+        <step>Step 2: Apply the Ornith (local) example preset and confirm baseUrl/model defaults suitable for local Ornith.</step>
+        <step>Step 3: Apply the Ornith (API) example preset and confirm remote/API-oriented defaults appear without locking out custom fields.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-088" context="oss-custom-investigation-llm" category="edge-case" depends_on="AC-084">
+      <title>Non-admin cannot mutate Investigation LLM profiles</title>
+      <description>A signed-in non-admin user cannot create, edit, delete, or activate Investigation LLM profiles. Mutating API calls fail closed (403 or equivalent) and mutating controls are absent or disabled in the UI.</description>
+      <steps>
+        <step>Step 1: Sign in as a non-admin OSS user and open Settings.</step>
+        <step>Step 2: Attempt a mutating LLM profile action via UI and/or API.</step>
+        <step>Step 3: Confirm mutation is denied and no successful write occurs.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-089" context="oss-custom-investigation-llm" category="edge-case" depends_on="AC-086">
+      <title>Active Investigation LLM profile cannot be deleted until replaced</title>
+      <description>Deleting the currently active Investigation LLM profile is blocked until another profile is activated. The UI/API returns a clear error and the active profile remains unchanged.</description>
+      <steps>
+        <step>Step 1: With one active profile, attempt to delete it without activating another.</step>
+        <step>Step 2: Confirm the delete is rejected with a clear message.</step>
+        <step>Step 3: Activate a different profile, then delete the former active profile successfully.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-090" context="oss-custom-investigation-llm" category="edge-case" depends_on="AC-086">
+      <title>No active Investigation LLM yields a clear investigation error</title>
+      <description>When no Investigation LLM profile is active (or none exist), starting or continuing an investigation fails closed with a clear operator-facing message to configure an Investigation LLM in Settings. The path does not silently fall back to DeterministicLLMClient or a hidden commercial provider.</description>
+      <steps>
+        <step>Step 1: Ensure the OSS tenant has zero active Investigation LLM profiles.</step>
+        <step>Step 2: Attempt to create/run an investigation that requires an LLM.</step>
+        <step>Step 3: Confirm a clear configure-LLM error and no silent stub/commercial fallback success.</step>
+      </steps>
+    </acceptance_check>
+
+    <acceptance_check id="AC-091" context="oss-custom-investigation-llm" category="edge-case" depends_on="AC-084">
+      <title>Invalid Investigation LLM profile fields are rejected</title>
+      <description>Creating or editing a profile without required label, baseUrl, or model fails with an observable validation error and does not persist a partial invalid profile. Optional API key may be omitted (for local Ornith). Connectivity probe is soft/optional and does not block save/activate when the endpoint is temporarily unreachable.</description>
+      <steps>
+        <step>Step 1: Submit a create/edit with missing required fields.</step>
+        <step>Step 2: Confirm validation error and no invalid persistence.</step>
+        <step>Step 3: Save a valid local Ornith-style profile without an API key successfully even if a live probe would fail.</step>
+      </steps>
+    </acceptance_check>
   </acceptance_checks>
 
   <planning_decisions>
@@ -1163,6 +1340,62 @@
       <choice>Redirect UI away from commercial billing; APIs return 410 Gone or 404; never rehydrate free-plan quota chrome like "3 investigations left".</choice>
       <rationale>Bookmarks and stale clients must not resurrect commercial UX after the purge.</rationale>
       <acceptance_checks>AC-073,AC-076</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-MARKETING-KEEP-SITE" topic="ambiguous-requirement">
+      <question>Should the marketing website move onto GitHub Pages, or stay where it is while Pages docs remain the OSS source of truth?</question>
+      <choice>Keep the marketing site; strip commercial UX. GitHub Pages docs remain the published OSS source of truth for product guidance. Full marketing→Pages migration is deferred.</choice>
+      <rationale>Fixes product truth now without blocking on a hosting migration. Docs Pages already exist and are linked from the site.</rationale>
+      <acceptance_checks>AC-077,AC-078,AC-079,AC-080</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-CTA-DOCS-GITHUB" topic="ambiguous-requirement">
+      <question>What public CTAs remain on the free OSS marketing site?</question>
+      <choice>Docs and GitHub (self-host) only as primary CTAs. Remove Pricing and signup/trial conversion CTAs. Dashboard may stay as a quiet operator chrome link, not a sales CTA.</choice>
+      <rationale>The project is free/open-source; conversion funnels imply a commercial product that no longer exists.</rationale>
+      <acceptance_checks>AC-077,AC-079</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-PRICING-REDIRECT-DOCS" topic="edge-case">
+      <question>What should bookmarked /pricing URLs do after Pricing is removed?</question>
+      <choice>Redirect `/pricing` and `/pt-br/pricing` to the published GitHub Pages docs URL. Do not keep a 200 paid plan page. This supersedes AC-010 for the free OSS surface.</choice>
+      <rationale>Old links must not resurrect paid plan cards; docs are the source of truth.</rationale>
+      <acceptance_checks>AC-078</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-FULL-PLAN-PURGE-SCOPE" topic="ambiguous-requirement">
+      <question>How far does "no plans" go beyond choose-plan?</question>
+      <choice>Full free-surface purge: marketing Pricing/CTAs, dashboard choose-plan/plan copy, and public-docs paid billing/plan citations. Web owns the Acceptance Checks; sibling public-docs changes are required for AC-080.</choice>
+      <rationale>Leftover Pricing/plan citations contradict the free OSS story the operator is testing.</rationale>
+      <acceptance_checks>AC-077,AC-078,AC-079,AC-080,AC-081,AC-082,AC-083</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-SKIP-CHOOSE-PLAN" topic="ambiguous-requirement">
+      <question>What happens after create-organization when there is no plan product?</question>
+      <choice>Skip plan selection entirely. Route to dashboard or the next non-plan onboarding step. choose-plan bookmarks redirect away and never show commercial cards.</choice>
+      <rationale>There is no plan to select; the step should not exist in OSS.</rationale>
+      <acceptance_checks>AC-081,AC-082,AC-083</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-CUSTOM-LLM-PROFILES" topic="architectural-tradeoff">
+      <question>How do operators configure Investigation LLMs in OSS Settings?</question>
+      <choice>Custom OpenAI-compatible profile CRUD (label, baseUrl, model, optional key, optional context window) with one active profile. Replace the fixed three-id enum as the product path. Ship Ornith local and Ornith API example presets that prefill the form.</choice>
+      <rationale>Operators need to bring their own providers; Ornith remains an example, not the only option.</rationale>
+      <acceptance_checks>AC-084,AC-085,AC-086,AC-087</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-LLM-SECRET-IN-SETTINGS" topic="architectural-tradeoff">
+      <question>Where do custom Investigation LLM API keys live?</question>
+      <choice>Optional API key entered in Settings, stored server-side by Core, never returned in plaintext on GET. Local Ornith may omit the key.</choice>
+      <rationale>Self-hosted admins expect to manage providers in Settings without editing compose env for every model change.</rationale>
+      <acceptance_checks>AC-084,AC-085,AC-091</acceptance_checks>
+    </decision>
+
+    <decision id="PD-OSS-LLM-RBAC-AND-EDGES" topic="edge-case">
+      <question>Who can mutate profiles, and what happens on delete-active / no-active / invalid fields?</question>
+      <choice>Admin-only mutations. Block delete of the active profile until another is activated. Zero/no active profile fails investigations closed with a clear configure-LLM error (no silent stub). Required fields validated; connectivity probe is soft/optional so unreachable local Ornith does not block save.</choice>
+      <rationale>Prevents accidental lockout, secret leakage to non-admins, and silent fake investigation success.</rationale>
+      <acceptance_checks>AC-088,AC-089,AC-090,AC-091</acceptance_checks>
     </decision>
   </planning_decisions>
 </project_specification>

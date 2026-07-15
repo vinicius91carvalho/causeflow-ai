@@ -2186,5 +2186,429 @@
     "qa": false,
     "integration": false,
     "retries": 0
+  },
+  {
+    "id": "WI-AC-077",
+    "context": "oss-free-marketing",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "On the marketing website (EN and PT-BR), header and footer navigation no longer include a Pricing item. Shared navigation constants do not list Pricing as a public nav destination.",
+    "steps": [
+      "Verify AC-077: On the marketing website (EN and PT-BR), header and footer navigation no longer include a Pricing item. Shared navigation constants do not list Pricing as a public nav destination."
+    ],
+    "acceptance_checks": [
+      "AC-077"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-MARKETING-KEEP-SITE",
+      "PD-OSS-CTA-DOCS-GITHUB",
+      "PD-OSS-FULL-PLAN-PURGE-SCOPE"
+    ],
+    "depends_on": [
+      "AC-066",
+      "AC-075"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-078",
+    "context": "oss-free-marketing",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "Visiting `/pricing` and `/pt-br/pricing` does not render paid plan cards. Both redirect (or equivalent hard navigation) to the published GitHub Pages docs URL used by the website (`SITE.docsUrl`). This supersedes AC-010's commercial \"pricing routes return 200 with plan content\" for the free OSS surface.",
+    "steps": [
+      "Verify AC-078: Visiting `/pricing` and `/pt-br/pricing` does not render paid plan cards. Both redirect (or equivalent hard navigation) to the published GitHub Pages docs URL used by the website (`SITE.docsUrl`). This supersedes AC-010's commercial \"pricing routes return 200 with plan content\" for the free OSS surface."
+    ],
+    "acceptance_checks": [
+      "AC-078"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-MARKETING-KEEP-SITE",
+      "PD-OSS-PRICING-REDIRECT-DOCS",
+      "PD-OSS-FULL-PLAN-PURGE-SCOPE"
+    ],
+    "depends_on": [
+      "AC-077",
+      "AC-066"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-079",
+    "context": "oss-free-marketing",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "Homepage and primary product marketing surfaces use Docs and/or GitHub (self-host) as the primary call-to-action group. They do not present sign-up, free trial, or pricing conversion CTAs. A quiet Dashboard link may remain in chrome for operators, but it is not the primary conversion CTA.",
+    "steps": [
+      "Verify AC-079: Homepage and primary product marketing surfaces use Docs and/or GitHub (self-host) as the primary call-to-action group. They do not present sign-up, free trial, or pricing conversion CTAs. A quiet Dashboard link may remain in chrome for operators, but it is not the primary conversion CTA."
+    ],
+    "acceptance_checks": [
+      "AC-079"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-MARKETING-KEEP-SITE",
+      "PD-OSS-CTA-DOCS-GITHUB",
+      "PD-OSS-FULL-PLAN-PURGE-SCOPE"
+    ],
+    "depends_on": [
+      "AC-077",
+      "AC-066"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-080",
+    "context": "oss-free-marketing",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "public-docs pages that previously documented paid billing tiers (for example billing/plans, usage-and-credits, quickstart \"choose a plan\") no longer present paid plan prices or Stripe checkout as the product path. They describe free self-host / open-source usage and point to GitHub Pages docs or self-host instructions instead of causeflow.ai/pricing paid tiers.",
+    "steps": [
+      "Verify AC-080: public-docs pages that previously documented paid billing tiers (for example billing/plans, usage-and-credits, quickstart \"choose a plan\") no longer present paid plan prices or Stripe checkout as the product path. They describe free self-host / open-source usage and point to GitHub Pages docs or self-host instructions instead of causeflow.ai/pricing paid tiers."
+    ],
+    "acceptance_checks": [
+      "AC-080"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-MARKETING-KEEP-SITE",
+      "PD-OSS-FULL-PLAN-PURGE-SCOPE"
+    ],
+    "depends_on": [
+      "AC-077"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-081",
+    "context": "oss-onboarding-no-plan",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "In the OSS dashboard, after a user completes create-organization (or the equivalent first org bootstrap after sign-up), they are routed to the dashboard home or the next non-plan onboarding step. They never land on `/onboarding/choose-plan` as a required step.",
+    "steps": [
+      "Verify AC-081: In the OSS dashboard, after a user completes create-organization (or the equivalent first org bootstrap after sign-up), they are routed to the dashboard home or the next non-plan onboarding step. They never land on `/onboarding/choose-plan` as a required step."
+    ],
+    "acceptance_checks": [
+      "AC-081"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-FULL-PLAN-PURGE-SCOPE",
+      "PD-OSS-SKIP-CHOOSE-PLAN"
+    ],
+    "depends_on": [
+      "AC-073",
+      "AC-044"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-082",
+    "context": "oss-onboarding-no-plan",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "Visiting `/onboarding/choose-plan` directly in OSS redirects to the dashboard (or next non-plan step) and never renders Starter/Pro/Business commercial plan cards or checkout actions.",
+    "steps": [
+      "Verify AC-082: Visiting `/onboarding/choose-plan` directly in OSS redirects to the dashboard (or next non-plan step) and never renders Starter/Pro/Business commercial plan cards or checkout actions."
+    ],
+    "acceptance_checks": [
+      "AC-082"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-FULL-PLAN-PURGE-SCOPE",
+      "PD-OSS-SKIP-CHOOSE-PLAN"
+    ],
+    "depends_on": [
+      "AC-081"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-083",
+    "context": "oss-onboarding-no-plan",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "OSS dashboard onboarding and settings surfaces do not instruct the user to select a paid plan, upgrade a plan, or complete plan checkout. Any leftover plan-selection copy or controls are removed.",
+    "steps": [
+      "Verify AC-083: OSS dashboard onboarding and settings surfaces do not instruct the user to select a paid plan, upgrade a plan, or complete plan checkout. Any leftover plan-selection copy or controls are removed."
+    ],
+    "acceptance_checks": [
+      "AC-083"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-FULL-PLAN-PURGE-SCOPE",
+      "PD-OSS-SKIP-CHOOSE-PLAN"
+    ],
+    "depends_on": [
+      "AC-081",
+      "AC-073"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-084",
+    "context": "oss-custom-investigation-llm",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "On OSS Settings, an admin can create a named OpenAI-compatible Investigation LLM profile with label, baseUrl, model, optional API key, and optional contextWindowTokens. The profile is persisted via the dashboard BFF to Core and appears in the managed list afterward.",
+    "steps": [
+      "Verify AC-084: On OSS Settings, an admin can create a named OpenAI-compatible Investigation LLM profile with label, baseUrl, model, optional API key, and optional contextWindowTokens. The profile is persisted via the dashboard BFF to Core and appears in the managed list afterward."
+    ],
+    "acceptance_checks": [
+      "AC-084"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-CUSTOM-LLM-PROFILES",
+      "PD-OSS-LLM-SECRET-IN-SETTINGS"
+    ],
+    "depends_on": [
+      "AC-059",
+      "AC-044"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-085",
+    "context": "oss-custom-investigation-llm",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "An admin can edit and delete Investigation LLM profiles from Settings. GET responses and UI never return the raw API key after save; the UI may show configured/masked state only.",
+    "steps": [
+      "Verify AC-085: An admin can edit and delete Investigation LLM profiles from Settings. GET responses and UI never return the raw API key after save; the UI may show configured/masked state only."
+    ],
+    "acceptance_checks": [
+      "AC-085"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-CUSTOM-LLM-PROFILES",
+      "PD-OSS-LLM-SECRET-IN-SETTINGS"
+    ],
+    "depends_on": [
+      "AC-084"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-086",
+    "context": "oss-custom-investigation-llm",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "An admin can mark exactly one saved profile as active. Subsequent investigations use that active OpenAI-compatible endpoint/model (replacing the fixed ornith/deepseek-opencode/deepseek-nim enum selection as the product path).",
+    "steps": [
+      "Verify AC-086: An admin can mark exactly one saved profile as active. Subsequent investigations use that active OpenAI-compatible endpoint/model (replacing the fixed ornith/deepseek-opencode/deepseek-nim enum selection as the product path)."
+    ],
+    "acceptance_checks": [
+      "AC-086"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-CUSTOM-LLM-PROFILES"
+    ],
+    "depends_on": [
+      "AC-084"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-087",
+    "context": "oss-custom-investigation-llm",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "Settings offers example presets such as Ornith (local) and Ornith (API) that prefill the create form with sensible OpenAI-compatible defaults. Presets are helpers for operators; they do not force a hardcoded three-provider catalog as the only options.",
+    "steps": [
+      "Verify AC-087: Settings offers example presets such as Ornith (local) and Ornith (API) that prefill the create form with sensible OpenAI-compatible defaults. Presets are helpers for operators; they do not force a hardcoded three-provider catalog as the only options."
+    ],
+    "acceptance_checks": [
+      "AC-087"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-CUSTOM-LLM-PROFILES"
+    ],
+    "depends_on": [
+      "AC-084"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-088",
+    "context": "oss-custom-investigation-llm",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "A signed-in non-admin user cannot create, edit, delete, or activate Investigation LLM profiles. Mutating API calls fail closed (403 or equivalent) and mutating controls are absent or disabled in the UI.",
+    "steps": [
+      "Verify AC-088: A signed-in non-admin user cannot create, edit, delete, or activate Investigation LLM profiles. Mutating API calls fail closed (403 or equivalent) and mutating controls are absent or disabled in the UI."
+    ],
+    "acceptance_checks": [
+      "AC-088"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-LLM-RBAC-AND-EDGES"
+    ],
+    "depends_on": [
+      "AC-084"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-089",
+    "context": "oss-custom-investigation-llm",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "Deleting the currently active Investigation LLM profile is blocked until another profile is activated. The UI/API returns a clear error and the active profile remains unchanged.",
+    "steps": [
+      "Verify AC-089: Deleting the currently active Investigation LLM profile is blocked until another profile is activated. The UI/API returns a clear error and the active profile remains unchanged."
+    ],
+    "acceptance_checks": [
+      "AC-089"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-LLM-RBAC-AND-EDGES"
+    ],
+    "depends_on": [
+      "AC-086"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-090",
+    "context": "oss-custom-investigation-llm",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "When no Investigation LLM profile is active (or none exist), starting or continuing an investigation fails closed with a clear operator-facing message to configure an Investigation LLM in Settings. The path does not silently fall back to DeterministicLLMClient or a hidden commercial provider.",
+    "steps": [
+      "Verify AC-090: When no Investigation LLM profile is active (or none exist), starting or continuing an investigation fails closed with a clear operator-facing message to configure an Investigation LLM in Settings. The path does not silently fall back to DeterministicLLMClient or a hidden commercial provider."
+    ],
+    "acceptance_checks": [
+      "AC-090"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-LLM-RBAC-AND-EDGES"
+    ],
+    "depends_on": [
+      "AC-086"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
+  },
+  {
+    "id": "WI-AC-091",
+    "context": "oss-custom-investigation-llm",
+    "category": "edge-case",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "Creating or editing a profile without required label, baseUrl, or model fails with an observable validation error and does not persist a partial invalid profile. Optional API key may be omitted (for local Ornith). Connectivity probe is soft/optional and does not block save/activate when the endpoint is temporarily unreachable.",
+    "steps": [
+      "Verify AC-091: Creating or editing a profile without required label, baseUrl, or model fails with an observable validation error and does not persist a partial invalid profile. Optional API key may be omitted (for local Ornith). Connectivity probe is soft/optional and does not block save/activate when the endpoint is temporarily unreachable."
+    ],
+    "acceptance_checks": [
+      "AC-091"
+    ],
+    "planning_decision_ids": [
+      "PD-OSS-LLM-SECRET-IN-SETTINGS",
+      "PD-OSS-LLM-RBAC-AND-EDGES"
+    ],
+    "depends_on": [
+      "AC-084"
+    ],
+    "verify_first": false,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0
   }
 ]
