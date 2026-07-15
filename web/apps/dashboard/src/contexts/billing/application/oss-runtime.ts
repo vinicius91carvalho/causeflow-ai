@@ -7,6 +7,17 @@
  */
 export function isOssRuntime(): boolean {
   if (process.env.CAUSEFLOW_RUNTIME === 'oss') return true;
+  return isOssBuildClient();
+}
+
+/**
+ * Client-safe OSS build detection (AC-083).
+ *
+ * `CAUSEFLOW_RUNTIME` is server-only; in the browser we rely on the absence of
+ * `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, matching the commercial/OSS split used
+ * by {@link isOssRuntime} on the server.
+ */
+export function isOssBuildClient(): boolean {
   const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
   return !stripeKey || stripeKey.trim() === '';
 }

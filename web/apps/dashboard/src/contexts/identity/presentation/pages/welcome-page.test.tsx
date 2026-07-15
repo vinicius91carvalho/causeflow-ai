@@ -28,11 +28,12 @@ describe('WelcomePage', () => {
     expect(source).toContain('/onboarding/business-profile');
   });
 
-  it('shows Choose Your Plan step linking to /onboarding/choose-plan', async () => {
+  it('omits choose-plan step in OSS builds (AC-083)', async () => {
     const fs = await import('node:fs');
     const source = fs.readFileSync(new URL('./welcome-page.tsx', import.meta.url), 'utf-8');
+    expect(source).toContain('isOssBuildClient');
+    expect(source).toContain("!step.href.includes('/onboarding/choose-plan')");
     expect(source).toContain('Choose Your Plan');
-    expect(source).toContain('/onboarding/choose-plan');
   });
 
   it('has a Get Started CTA button (no skip-to-dashboard link)', async () => {

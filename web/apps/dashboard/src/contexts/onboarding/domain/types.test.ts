@@ -1,13 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import {
   createInitialProgress,
+  getTutorialSteps,
   type OnboardingProgress,
   type OnboardingStepStatus,
   STEP_CONFIG,
   STEP_KEYS,
+  TUTORIAL_STEPS,
 } from './types';
 
 describe('Onboarding Domain Types', () => {
+  it('omits billing step in OSS tutorial flow (AC-083)', () => {
+    const ossSteps = getTutorialSteps(true);
+    expect(ossSteps.map((s) => s.key)).not.toContain('billing');
+    expect(ossSteps).toHaveLength(TUTORIAL_STEPS.length - 1);
+    expect(getTutorialSteps(false)).toEqual(TUTORIAL_STEPS);
+  });
+
   it('defines all step keys', () => {
     expect(STEP_KEYS).toEqual([
       'welcome',

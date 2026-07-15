@@ -1,8 +1,9 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { TUTORIAL_STEPS } from '../../domain/types';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isOssBuildClient } from '@/contexts/billing/application/oss-runtime';
+import { getTutorialSteps } from '../../domain/types';
 import { useOnboardingProgress } from '../hooks/use-onboarding-progress';
 import { OnboardingModal } from './onboarding-modal';
 import './onboarding.css';
@@ -18,6 +19,7 @@ import './onboarding.css';
 export function OnboardingOrchestrator() {
   const searchParams = useSearchParams();
   const { progress, loading, startOnboarding, resetOnboarding, skipAll } = useOnboardingProgress();
+  const tutorialSteps = useMemo(() => getTutorialSteps(isOssBuildClient()), []);
 
   const [showWizard, setShowWizard] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -60,8 +62,8 @@ export function OnboardingOrchestrator() {
 
   // Auto-show wizard for brand-new users (progress === null).
   // This is a safety net in case the ?welcome=1 param is lost during the
-  // sign-up → create-org → choose-plan → Stripe → /dashboard redirect chain
-  // (e.g., middleware locale rewrites, Stripe session expiry, manual nav).
+  // sign-up → create-org → /dashboard redirect chain (OSS skips choose-plan).
+  // (e.g., middleware locale rewrites, manual nav).
   // Once the user starts, skips, or completes onboarding, localStorage has
   // a progress entry and this effect no-ops on subsequent mounts.
   useEffect(() => {
@@ -75,10 +77,10 @@ export function OnboardingOrchestrator() {
   }, [loading, progress, showWizard, startOnboarding]);
 
   const handleNext = useCallback(() => {
-    if (currentStep < TUTORIAL_STEPS.length - 1) {
+    if (currentStep < tutorialSteps.length - 1) {
       setCurrentStep((prev) => prev + 1);
     }
-  }, [currentStep]);
+  }, [currentStep, tutorialSteps.length]);
 
   const handlePrevious = useCallback(() => {
     if (currentStep > 0) {
@@ -97,13 +99,14 @@ export function OnboardingOrchestrator() {
 
   if (!showWizard) return null;
 
-  const step = TUTORIAL_STEPS[currentStep]!;
+  const step = tutorialSteps[currentStep];
+  if (!step) return null;
 
   return (
     <OnboardingModal
       step={step}
       stepIndex={currentStep}
-      totalSteps={TUTORIAL_STEPS.length}
+      totalSteps={tutorialSteps.length}
       onNext={handleNext}
       onPrevious={handlePrevious}
       onSkip={handleSkip}

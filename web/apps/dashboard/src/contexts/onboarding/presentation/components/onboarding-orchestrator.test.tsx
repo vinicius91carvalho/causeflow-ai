@@ -63,6 +63,16 @@ describe('OnboardingOrchestrator', () => {
     expect(source).toContain('currentStep');
   });
 
+  it('filters billing tutorial step in OSS builds (AC-083)', async () => {
+    const fs = await import('node:fs');
+    const source = fs.readFileSync(
+      new URL('./onboarding-orchestrator.tsx', import.meta.url),
+      'utf-8',
+    );
+    expect(source).toContain('getTutorialSteps');
+    expect(source).toContain('isOssBuildClient');
+  });
+
   it('auto-shows the tutorial for brand-new users when no progress exists', async () => {
     // Regression: tutorial previously relied solely on ?welcome=1 URL param,
     // which can be lost through Stripe redirects / middleware locale rewrites.

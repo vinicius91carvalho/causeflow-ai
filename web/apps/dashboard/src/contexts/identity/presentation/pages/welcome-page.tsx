@@ -5,6 +5,8 @@ import { Button } from '@causeflow/ui/primitives';
 import { ArrowRight, Briefcase, CreditCard, Plug } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useMemo } from 'react';
+import { isOssBuildClient } from '@/contexts/billing/application/oss-runtime';
 
 /* ------------------------------------------------------------------ */
 /*  Setup step card                                                    */
@@ -51,27 +53,35 @@ function StepCard({ icon: Icon, title, description, href, completed }: SetupStep
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
 
+const SETUP_STEPS: SetupStep[] = [
+  {
+    icon: Plug,
+    title: 'Set Up Integrations',
+    description: 'Connect your tools to get the most out of CauseFlow.',
+    href: '/onboarding/integrations',
+  },
+  {
+    icon: Briefcase,
+    title: 'Complete Business Profile',
+    description: 'Tell us about your team so we can tailor your experience.',
+    href: '/onboarding/business-profile',
+  },
+  {
+    icon: CreditCard,
+    title: 'Choose Your Plan',
+    description: 'Select a plan that fits your team size and usage needs.',
+    href: '/onboarding/choose-plan',
+  },
+];
+
 export default function WelcomePage() {
-  const steps: SetupStep[] = [
-    {
-      icon: Plug,
-      title: 'Set Up Integrations',
-      description: 'Connect your tools to get the most out of CauseFlow.',
-      href: '/onboarding/integrations',
-    },
-    {
-      icon: Briefcase,
-      title: 'Complete Business Profile',
-      description: 'Tell us about your team so we can tailor your experience.',
-      href: '/onboarding/business-profile',
-    },
-    {
-      icon: CreditCard,
-      title: 'Choose Your Plan',
-      description: 'Select a plan that fits your team size and usage needs.',
-      href: '/onboarding/choose-plan',
-    },
-  ];
+  const steps = useMemo(
+    () =>
+      isOssBuildClient()
+        ? SETUP_STEPS.filter((step) => !step.href.includes('/onboarding/choose-plan'))
+        : SETUP_STEPS,
+    [],
+  );
 
   return (
     <div className="space-y-6">

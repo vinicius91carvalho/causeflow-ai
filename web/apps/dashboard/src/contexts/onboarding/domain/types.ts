@@ -26,6 +26,15 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   { key: 'complete', icon: 'Trophy' },
 ];
 
+/** Tutorial steps that mention paid plans / billing — omitted in OSS (AC-083). */
+export const OSS_EXCLUDED_TUTORIAL_STEP_KEYS = ['billing'] as const;
+
+/** Returns tutorial steps for the current runtime (commercial vs OSS). */
+export function getTutorialSteps(oss: boolean): TutorialStep[] {
+  if (!oss) return TUTORIAL_STEPS;
+  return TUTORIAL_STEPS.filter((step) => step.key !== 'billing');
+}
+
 // ---------------------------------------------------------------------------
 // Legacy types (kept for repository/hook compatibility)
 // ---------------------------------------------------------------------------

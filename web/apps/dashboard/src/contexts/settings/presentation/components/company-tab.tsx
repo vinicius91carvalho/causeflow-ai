@@ -3,6 +3,7 @@
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { isOssBuildClient } from '@/contexts/billing/application/oss-runtime';
 import { PERMISSION } from '@/contexts/identity/domain/rbac/permissions';
 import { RoleGuard } from '@/contexts/identity/domain/rbac/role-guard';
 import { useToast } from '@/contexts/shared/presentation/components/toast-provider';
@@ -203,19 +204,21 @@ function CompanyForm({
         <p className="text-sm text-muted-foreground">{teamSize}</p>
       </div>
 
-      {/* Plan + upgrade */}
-      <div className="flex items-center justify-between rounded-lg border border-border bg-muted/50 px-4 py-3">
-        <div>
-          <p className="text-sm font-medium text-foreground">{t('plan')}</p>
-          <p className="text-sm text-muted-foreground capitalize">{plan}</p>
+      {/* Plan + upgrade — commercial only (AC-083) */}
+      {!isOssBuildClient() && (
+        <div className="flex items-center justify-between rounded-lg border border-border bg-muted/50 px-4 py-3">
+          <div>
+            <p className="text-sm font-medium text-foreground">{t('plan')}</p>
+            <p className="text-sm text-muted-foreground capitalize">{plan}</p>
+          </div>
+          <Link
+            href="/pricing"
+            className="inline-flex items-center rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            {t('upgradePlan')}
+          </Link>
         </div>
-        <Link
-          href="/pricing"
-          className="inline-flex items-center rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          {t('upgradePlan')}
-        </Link>
-      </div>
+      )}
 
       {/* Save */}
       <div className="pt-2">

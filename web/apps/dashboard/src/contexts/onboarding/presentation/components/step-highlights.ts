@@ -47,11 +47,4 @@ export const STEP_HIGHLIGHT_CONFIGS: Record<string, StepHighlightConfig> = {
     side: 'right',
     align: 'center',
   },
-  billing: {
-    element: '[data-tour="nav-billing"]',
-    title: 'Review Field Office',
-    description: 'Check your plan details, remaining credits, and billing information.',
-    side: 'right',
-    align: 'center',
-  },
 };

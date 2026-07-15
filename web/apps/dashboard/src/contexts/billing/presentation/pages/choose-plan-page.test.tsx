@@ -14,4 +14,14 @@ describe('choose-plan-page module', () => {
     const expectedActiveRedirect = '/dashboard';
     expect(expectedActiveRedirect).toBe('/dashboard');
   });
+
+  it('redirects away on OSS subscription 410 instead of rendering plan cards (AC-082)', async () => {
+    const fs = await import('node:fs');
+    const source = fs.readFileSync(new URL('./choose-plan-page.tsx', import.meta.url), 'utf-8');
+    expect(source).toContain('res.status === 410');
+    expect(source).toContain("window.location.replace('/dashboard')");
+    const oss410Block = source.match(/if \(res\.status === 410\) \{[\s\S]*?\n\s*\}/);
+    expect(oss410Block?.[0]).toContain("window.location.replace('/dashboard')");
+    expect(oss410Block?.[0]).not.toContain('setReady(true)');
+  });
 });

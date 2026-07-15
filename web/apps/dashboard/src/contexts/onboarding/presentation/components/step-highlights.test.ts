@@ -11,7 +11,7 @@ describe('Step Highlights', () => {
     expect(STEP_HIGHLIGHT_CONFIGS.relay).toBeDefined();
     expect(STEP_HIGHLIGHT_CONFIGS.firstIncident).toBeDefined();
     expect(STEP_HIGHLIGHT_CONFIGS.receiveEvents).toBeDefined();
-    expect(STEP_HIGHLIGHT_CONFIGS.billing).toBeDefined();
+    expect(STEP_HIGHLIGHT_CONFIGS.billing).toBeUndefined();
   });
 
   it('each config has element, title, description', () => {
