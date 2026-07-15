@@ -1,3 +1,4 @@
+import { isOssRuntime } from '@/contexts/billing/application/oss-runtime';
 import { getPlanStatus } from '@/contexts/billing/application/plan-status';
 import { ClientRedirect } from '@/contexts/shared/presentation/components/client-redirect';
 import { DashboardLayout } from '@/contexts/shared/presentation/components/layout/dashboard-layout';
@@ -27,9 +28,11 @@ import { DashboardLayout } from '@/contexts/shared/presentation/components/layou
  * longer calls syncLocaleFromServer() — that helper has been deleted.
  */
 export default async function DashboardShellLayout({ children }: { children: React.ReactNode }) {
-  const plan = await getPlanStatus();
-  if (!plan.hasActivePlan) {
-    return <ClientRedirect to="/onboarding/choose-plan" />;
+  if (!isOssRuntime()) {
+    const plan = await getPlanStatus();
+    if (!plan.hasActivePlan) {
+      return <ClientRedirect to="/onboarding/choose-plan" />;
+    }
   }
 
   return <DashboardLayout>{children}</DashboardLayout>;

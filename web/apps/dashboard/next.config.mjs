@@ -172,25 +172,13 @@ const nextConfig = {
         destination: '/en/onboarding/:path*',
       },
       {
-        source: '/auth/:path*',
-        destination: '/en/auth/:path*',
-      },
-      {
         source: '/create-organization',
         destination: '/en/create-organization',
       },
-      {
-        source: '/accept-invitation',
-        destination: '/en/accept-invitation',
-      },
-      {
-        source: '/beta-waitlist',
-        destination: '/en/beta-waitlist',
-      },
-      {
-        source: '/waitlist',
-        destination: '/en/waitlist',
-      },
+      // Public auth/waitlist routes are locale-routed by next-intl
+      // (localePrefix: as-needed). /create-organization uses the rewrite
+      // above plus middleware LOCALE_REWRITE_ONLY bypass so next-intl does
+      // not 307-loop against the rewrite (AC-081).
     ];
   },
   webpack(config, { dev }) {

@@ -134,6 +134,11 @@ export default function ChoosePlanPage() {
       try {
         const res = await fetch('/api/billing/subscription');
         if (cancelled) return;
+        // OSS subscription proxy returns 410 — skip commercial plan cards (AC-081).
+        if (res.status === 410) {
+          window.location.replace('/dashboard');
+          return;
+        }
         if (res.ok) {
           const data = await res.json();
           const sub = data.subscriptionStatus ?? data.status;

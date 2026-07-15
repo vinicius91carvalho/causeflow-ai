@@ -85,6 +85,16 @@ function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTE_PATTERNS.some((re) => re.test(pathname));
 }
 
+/** Routes rewritten to /en/... in next.config — skip next-intl redirect (AC-081). */
+const LOCALE_REWRITE_ONLY_PATTERNS: RegExp[] = [
+  /^\/create-organization(\/.*)?$/,
+  /^\/(en|pt-br)\/create-organization(\/.*)?$/,
+];
+
+function isLocaleRewriteOnlyRoute(pathname: string): boolean {
+  return LOCALE_REWRITE_ONLY_PATTERNS.some((re) => re.test(pathname));
+}
+
 function hasOrganization(payload: Record<string, unknown>): boolean {
   const tenantId = payload.tenantId ?? payload.tenant_id ?? payload.orgId;
   return typeof tenantId === 'string' && tenantId.trim() !== '';
@@ -136,6 +146,13 @@ export default async function middleware(request: NextRequest) {
   // `withAuth` (which reads the __session cookie + Core whoami), not here.
   if (pathname.startsWith('/api/')) {
     return;
+  }
+
+  // Internal locale rewrite only — next.config maps unprefixed paths to /en/...
+  // Do NOT run next-intl middleware here; it 307-redirects back to the
+  // unprefixed URL and loops (AC-081 / AC-055 dashboard pattern).
+  if (isLocaleRewriteOnlyRoute(pathname)) {
+    return NextResponse.next();
   }
 
   // Honor NEXT_LOCALE cookie for non-prefixed paths (mirrors previous behavior).

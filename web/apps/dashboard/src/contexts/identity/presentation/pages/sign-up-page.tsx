@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 /**
@@ -11,15 +10,13 @@ import { useState } from 'react';
  * local registration endpoint and sets the `__session` httpOnly cookie.
  */
 export default function SignUpPage() {
-  const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function submitSignUp() {
     setError(null);
     setSubmitting(true);
     try {
@@ -34,11 +31,17 @@ export default function SignUpPage() {
         setSubmitting(false);
         return;
       }
-      router.replace('/create-organization');
+      // Register provisions the tenant on Core; skip plan selection (AC-081).
+      window.location.replace('/dashboard');
     } catch {
       setError('Unable to reach the server. Please try again.');
       setSubmitting(false);
     }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await submitSignUp();
   }
 
   return (
@@ -51,7 +54,13 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void handleSubmit(e);
+          }}
+          className="space-y-4"
+        >
           <div className="space-y-1.5">
             <label htmlFor="name" className="text-sm font-medium text-foreground">
               Name
@@ -104,8 +113,9 @@ export default function SignUpPage() {
           ) : null}
 
           <button
-            type="submit"
+            type="button"
             disabled={submitting}
+            onClick={() => void submitSignUp()}
             className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {submitting ? 'Creating account…' : 'Sign up'}

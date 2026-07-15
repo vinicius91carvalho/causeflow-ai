@@ -19,6 +19,12 @@ export function useSubscriptionGuard(): { ready: boolean } {
         const res = await fetch('/api/billing/subscription');
         if (cancelled) return;
 
+        // OSS billing proxy returns 410 — do not bounce to choose-plan (AC-081).
+        if (res.status === 410) {
+          if (!cancelled) setReady(true);
+          return;
+        }
+
         if (res.ok) {
           const data = await res.json();
           const status = data.subscriptionStatus;
