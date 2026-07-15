@@ -130,3 +130,12 @@ remove the file manually to continue.
 - WorkItem: WI-AC-089
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-15T22:48:18.347Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-089
+- AcceptanceChecks: AC-089
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/80e91ba0-9d18-4fdd-b09c-833cbd124d10/oss-custom-investigation-llm/WI-AC-089-1-integration_qa-c8d6efbdb8bc7962.log
+- NextAction: next Ready Work Item
