@@ -30,3 +30,11 @@
 - WorkItem: WI-AC-081
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-15T17:49:20.077Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-081
+- Defects: expected post create-organization route to /dashboard or next non-plan onboarding step without requiring /onboarding/choose-plan; observed create-organization-page.tsx unconditionally calls redirect('/onboarding/choose-plan') on both branches (lines 17 and 21); evidence static audit apps/dashboard/src/contexts/identity/presentation/pages/create-organization-page.tsx; expected sign-up flow POST /api/auth/register then GET /create-organization to reach dashboard or non-plan onboarding; observed redirect loop on /create-organization (307 to same URL, x-middleware-rewrite to /en/create-organization while Location stays /create-organization); evidence .harness/wi-ac-081-iv-http.json create_organization_redirect_chain finalUrl=http://localhost:5170/create-organization; expected post-org bootstrap never gates on commercial plan selection; observed GET /onboarding/choose-plan returns HTTP 200 with Starter/Pro/Business plan cards (hasCommercialPlanCards=true) because subscription 410 does not redirect away; evidence .harness/wi-ac-081-iv-http.json choose_plan_direct_chain; expected AC-081 HTTP eval post_create_org_lands_dashboard_or_non_plan_onboarding and choose_plan_not_required_intermediate true; observed both false (pass=false); evidence .harness/wi-ac-081-iv-http.json eval
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/db6524ef-d6c0-44eb-873f-2851df0e3b96/oss-onboarding-no-plan/WI-AC-081-2-integration_qa-cc064dd6bedf275e.log
+- NextAction: Repair Plan
