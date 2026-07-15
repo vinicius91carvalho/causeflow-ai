@@ -19,6 +19,7 @@ import {
   connectorEvidenceLabel,
   resolveActiveLlmEndpoint,
 } from '../../../shared/infra/llm/llm-connector-profile.js';
+import { assertActiveInvestigationLlmProfile } from '../../oss/infra/resolve-investigation-llm-profile.js';
 import type { IIncidentRepository } from '../../ingestion/domain/incident.repository.js';
 import type { IEvidenceRepository } from '../domain/evidence.repository.js';
 import type { IEventBus } from '../../../shared/domain/events.js';
@@ -189,6 +190,9 @@ export class TriageIncidentUseCase {
       });
 
       await this.incidentRepo.updateStatus(tenantId, incidentId, 'triaging');
+      if (usesLocalLlmConnector()) {
+        await assertActiveInvestigationLlmProfile(String(tenantId));
+      }
       // Build integration-aware prompt
       const systemPrompt = await this.buildSmartPrompt(tenantId);
       let result: TriageResult;

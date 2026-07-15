@@ -2,7 +2,16 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('../../../../src/shared/infra/llm/llm-factory.js', () => ({
   isLocalLlmFailClosedMode: () => true,
+  usesLocalLlmConnector: () => true,
 }));
+
+vi.mock('../../../../src/modules/oss/infra/resolve-investigation-llm-profile.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../../src/modules/oss/infra/resolve-investigation-llm-profile.js')>();
+  return {
+    ...actual,
+    assertActiveInvestigationLlmProfile: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 import { TriageIncidentUseCase } from '../../../../src/modules/triage/application/triage-incident.usecase.js';
 import { TriageFailedError } from '../../../../src/modules/triage/domain/triage.errors.js';

@@ -83,7 +83,8 @@ export function useIncidentActions({
         method: 'POST',
       });
       if (!res.ok) {
-        addToast(t('actions.triageFailed'), 'error');
+        const err = (await res.json()) as { error?: string };
+        addToast(err.error ?? t('actions.triageFailed'), 'error');
         return;
       }
       addToast(t('actions.triageStarted'), 'success');
@@ -103,7 +104,8 @@ export function useIncidentActions({
         { method: 'POST' },
       );
       if (!res.ok) {
-        addToast(t('actions.investigationFailed'), 'error');
+        const err = (await res.json()) as { error?: string };
+        addToast(err.error ?? t('actions.investigationFailed'), 'error');
         return;
       }
       addToast(t('actions.investigationStarted'), 'success');
@@ -133,7 +135,8 @@ export function useIncidentActions({
           },
         );
         if (!res.ok) {
-          addToast(t('actions.investigationFailed'), 'error');
+          const err = (await res.json()) as { error?: string };
+          addToast(err.error ?? t('actions.investigationFailed'), 'error');
           return;
         }
         addToast(t('actions.investigationStarted'), 'success');

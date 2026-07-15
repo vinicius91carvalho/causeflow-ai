@@ -46,10 +46,28 @@ export async function resolveInvestigationLlmProfileEndpoint(
   };
 }
 
+export const NO_ACTIVE_INVESTIGATION_LLM_ERROR =
+  'No Investigation LLM profile is active. Configure an Investigation LLM in Settings before starting an investigation.';
+
+export class NoActiveInvestigationLlmError extends Error {
+  constructor() {
+    super(NO_ACTIVE_INVESTIGATION_LLM_ERROR);
+    this.name = 'NoActiveInvestigationLlmError';
+  }
+}
+
 export async function resolveActiveInvestigationLlmProfileEndpoint(
   tenantId: string,
 ): Promise<ResolvedLlmEndpoint | null> {
   const activeId = await getActiveInvestigationLlmProfileId(tenantId);
   if (!activeId) return null;
   return resolveInvestigationLlmProfileEndpoint(tenantId, activeId);
+}
+
+/** AC-090: fail closed when OSS investigations have no active tenant profile. */
+export async function assertActiveInvestigationLlmProfile(tenantId: string): Promise<void> {
+  const endpoint = await resolveActiveInvestigationLlmProfileEndpoint(tenantId);
+  if (!endpoint) {
+    throw new NoActiveInvestigationLlmError();
+  }
 }

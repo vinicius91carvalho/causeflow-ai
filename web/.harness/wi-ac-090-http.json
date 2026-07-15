@@ -1,0 +1,73 @@
+{
+  "id": "WI-AC-090",
+  "base": "http://127.0.0.1:5170",
+  "steps": [
+    {
+      "step": "core_fail_closed_without_active_profile",
+      "ok": true,
+      "checks": [
+        {
+          "label": "NO_ACTIVE_INVESTIGATION_LLM_ERROR mentions Settings",
+          "ok": true
+        },
+        {
+          "label": "assertActiveInvestigationLlmProfile throws NoActiveInvestigationLlmError",
+          "ok": true
+        },
+        {
+          "label": "resolveActiveLlmEndpoint blocks OSS legacy fallback when tenant has no profile",
+          "ok": true
+        },
+        {
+          "label": "triage use case asserts active profile before LLM call",
+          "ok": true
+        },
+        {
+          "label": "investigate use case asserts active profile before local LLM probe",
+          "ok": true
+        },
+        {
+          "label": "no DeterministicLLMClient import in investigation/triage paths",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "step": "dashboard_surfaces_configure_llm_error",
+      "ok": true,
+      "checks": [
+        {
+          "label": "useIncidentActions shows API error for triage",
+          "ok": true
+        },
+        {
+          "label": "useIncidentActions shows API error for investigation",
+          "ok": true
+        },
+        {
+          "label": "triage-handler returns Core error message",
+          "ok": true
+        },
+        {
+          "label": "investigate-handler returns Core error message",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "step": "dashboard_unit_tests",
+      "exitCode": 0
+    },
+    {
+      "step": "core_unit_tests",
+      "exitCode": 0
+    },
+    {
+      "step": "http_flow",
+      "ok": true,
+      "skipped": true,
+      "reason": "fetch failed"
+    }
+  ],
+  "pass": true
+}

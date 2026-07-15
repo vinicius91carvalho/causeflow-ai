@@ -9,8 +9,14 @@ import {
   type LlmConnectorProfile,
 } from '../../domain/llm-connector.entity.js';
 import { config } from '../../config/index.js';
-import { resolveActiveInvestigationLlmProfileEndpoint } from '../../../modules/oss/infra/resolve-investigation-llm-profile.js';
+import {
+  NoActiveInvestigationLlmError,
+  resolveActiveInvestigationLlmProfileEndpoint,
+} from '../../../modules/oss/infra/resolve-investigation-llm-profile.js';
+import { usesLocalLlmConnector } from './llm-factory.js';
 import { getActiveLlmConnectorId } from './oss-llm-connector-store.js';
+
+export { NoActiveInvestigationLlmError, NO_ACTIVE_INVESTIGATION_LLM_ERROR } from '../../../modules/oss/infra/resolve-investigation-llm-profile.js';
 
 export interface ResolvedLlmEndpoint {
   /** Legacy enum id or custom Investigation LLM profile UUID (AC-086). */
@@ -88,6 +94,14 @@ export async function getActiveLlmConnectorProfile(): Promise<LlmConnectorProfil
 }
 
 export async function resolveActiveLlmEndpoint(tenantId?: string): Promise<ResolvedLlmEndpoint> {
+  if (tenantId && usesLocalLlmConnector()) {
+    const custom = await resolveActiveInvestigationLlmProfileEndpoint(tenantId);
+    if (!custom) {
+      throw new NoActiveInvestigationLlmError();
+    }
+    return custom;
+  }
+
   if (tenantId) {
     const custom = await resolveActiveInvestigationLlmProfileEndpoint(tenantId);
     if (custom) return custom;

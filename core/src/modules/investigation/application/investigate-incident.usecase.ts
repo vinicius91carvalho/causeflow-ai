@@ -22,6 +22,7 @@ import {
   connectorEvidenceLabel,
   resolveActiveLlmEndpoint,
 } from '../../../shared/infra/llm/llm-connector-profile.js';
+import { assertActiveInvestigationLlmProfile } from '../../oss/infra/resolve-investigation-llm-profile.js';
 import { AGENT_CONFIG_MAP, ORCHESTRATOR_CONFIG } from './agent-configs.js';
 import { AWS_API_CALL_TOOL } from '../infra/aws-api-tool.js';
 import { config } from '../../../shared/config/index.js';
@@ -900,6 +901,7 @@ export class InvestigateIncidentUseCase {
     }
     if (isLocalLlmFailClosedMode()) {
       try {
+        await assertActiveInvestigationLlmProfile(String(tenantId));
         await assertLocalLlmReachable(this.circuitBreaker);
       } catch (err) {
         throw new InvestigationFailedError(
