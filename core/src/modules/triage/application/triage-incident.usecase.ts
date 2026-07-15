@@ -173,6 +173,18 @@ export class TriageIncidentUseCase {
         span.end();
         throw new NotFoundError('Incident', incidentId);
       }
+      if (usesLocalLlmConnector()) {
+        try {
+          await assertActiveInvestigationLlmProfile(String(tenantId));
+        } catch (err) {
+          const reason =
+            err instanceof Error ? err.message : 'No active Investigation LLM profile';
+          if (incident.status === 'open') {
+            await this.incidentRepo.updateStatus(tenantId, incidentId, 'failed');
+          }
+          throw new TriageFailedError(String(incidentId), reason);
+        }
+      }
       if (incident.status !== 'open') {
         span.setOutput({ error: 'Incident not in open status', status: incident.status });
         span.setStatus('error', 'Incident not in open status');
@@ -190,9 +202,6 @@ export class TriageIncidentUseCase {
       });
 
       await this.incidentRepo.updateStatus(tenantId, incidentId, 'triaging');
-      if (usesLocalLlmConnector()) {
-        await assertActiveInvestigationLlmProfile(String(tenantId));
-      }
       // Build integration-aware prompt
       const systemPrompt = await this.buildSmartPrompt(tenantId);
       let result: TriageResult;

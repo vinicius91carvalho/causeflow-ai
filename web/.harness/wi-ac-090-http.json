@@ -65,8 +65,11 @@
     {
       "step": "http_flow",
       "ok": true,
-      "skipped": true,
-      "reason": "fetch failed"
+      "triageStatus": 500,
+      "investigateStatus": 500,
+      "triageError": "Triage failed for incident 9971535e-0067-484a-8f04-044952c8fbc4: No Investigation LLM profile is active. Configure an Investigation LLM in Settings before starting an investigation.",
+      "investigateError": "Investigation failed for 9971535e-0067-484a-8f04-044952c8fbc4: No Investigation LLM profile is active. Configure an Investigation LLM in Settings before starting an investigation.",
+      "activeProfileId": null
     }
   ],
   "pass": true

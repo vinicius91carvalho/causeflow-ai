@@ -470,13 +470,13 @@ export class HttpApiClient implements ICoreApiClient {
   }
 
   async triggerInvestigation(incidentId: string): Promise<any> {
-    return this.request(`/v1/investigation/${encodeURIComponent(incidentId)}/investigate`, {
+    return this.request(`/v1/investigation/${encodeURIComponent(incidentId)}`, {
       method: 'POST',
     });
   }
 
   async triggerTriage(incidentId: string): Promise<any> {
-    return this.request(`/v1/investigation/${encodeURIComponent(incidentId)}/triage`, {
+    return this.request(`/v1/triage/${encodeURIComponent(incidentId)}`, {
       method: 'POST',
     });
   }
