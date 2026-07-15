@@ -1,6 +1,6 @@
 /**
- * OSS custom Investigation LLM profile types (AC-084).
- * Mirrors Core GET/POST /v1/oss/investigation-llm-profiles — no framework imports.
+ * OSS custom Investigation LLM profile types (AC-084, AC-085).
+ * Mirrors Core GET/POST/PATCH/DELETE /v1/oss/investigation-llm-profiles — no framework imports.
  */
 
 export interface InvestigationLlmProfile {
@@ -24,4 +24,12 @@ export interface CreateInvestigationLlmProfileInput {
   model: string;
   apiKey?: string;
   contextWindowTokens?: number;
+}
+
+export interface UpdateInvestigationLlmProfileInput {
+  label?: string;
+  baseUrl?: string;
+  model?: string;
+  apiKey?: string;
+  contextWindowTokens?: number | null;
 }

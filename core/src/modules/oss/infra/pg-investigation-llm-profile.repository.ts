@@ -3,9 +3,11 @@
  */
 import type { EncryptedPayload } from '../../../shared/application/ports/token-encryption.port.js';
 import {
+  pgDelete,
   pgGet,
   pgInsert,
   pgQuery,
+  pgUpdate,
   type PgEntityRow,
 } from '../../../shared/infra/db/postgres/pg-utils.js';
 import type { InvestigationLlmProfile } from '../domain/investigation-llm-profile.entity.js';
@@ -53,5 +55,45 @@ export class PgInvestigationLlmProfileRepository {
   async listByTenant(tenantId: string): Promise<InvestigationLlmProfile[]> {
     const rows = await pgQuery(TABLE, 'tenant_id = $1', [tenantId]);
     return rows.map(toDomain).sort((a, b) => a.label.localeCompare(b.label));
+  }
+
+  async update(
+    tenantId: string,
+    profileId: string,
+    patch: {
+      label?: string;
+      baseUrl?: string;
+      model?: string;
+      apiKeyEncrypted?: EncryptedPayload | null;
+      contextWindowTokens?: number | null;
+    },
+  ): Promise<InvestigationLlmProfile> {
+    const data: Record<string, unknown> = {};
+    if (patch.label !== undefined) data['label'] = patch.label;
+    if (patch.baseUrl !== undefined) data['baseUrl'] = patch.baseUrl;
+    if (patch.model !== undefined) data['model'] = patch.model;
+    if (patch.apiKeyEncrypted !== undefined) {
+      if (patch.apiKeyEncrypted === null) {
+        data['apiKeyEncrypted'] = null;
+      } else {
+        data['apiKeyEncrypted'] = patch.apiKeyEncrypted;
+      }
+    }
+    if (patch.contextWindowTokens !== undefined) {
+      if (patch.contextWindowTokens === null) {
+        data['contextWindowTokens'] = null;
+      } else {
+        data['contextWindowTokens'] = patch.contextWindowTokens;
+      }
+    }
+    const row = await pgUpdate(TABLE, tenantId, profileId, data);
+    return toDomain(row);
+  }
+
+  async delete(tenantId: string, profileId: string): Promise<boolean> {
+    const existing = await this.findById(tenantId, profileId);
+    if (!existing) return false;
+    await pgDelete(TABLE, tenantId, profileId);
+    return true;
   }
 }

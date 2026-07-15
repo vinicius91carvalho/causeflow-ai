@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2, Plus } from 'lucide-react';
+import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { PERMISSION } from '@/contexts/identity/domain/rbac/permissions';
@@ -11,7 +11,7 @@ import type {
 } from '@/contexts/settings/domain/investigation-llm-profile';
 import { useToast } from '@/contexts/shared/presentation/components/toast-provider';
 
-interface CreateFormState {
+interface ProfileFormState {
   label: string;
   baseUrl: string;
   model: string;
@@ -19,7 +19,7 @@ interface CreateFormState {
   contextWindowTokens: string;
 }
 
-const EMPTY_FORM: CreateFormState = {
+const EMPTY_FORM: ProfileFormState = {
   label: '',
   baseUrl: '',
   model: '',
@@ -28,7 +28,7 @@ const EMPTY_FORM: CreateFormState = {
 };
 
 /**
- * OSS settings surface for custom Investigation LLM profiles (AC-084).
+ * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085).
  */
 export function InvestigationLlmProfilesCard() {
   const t = useTranslations('dashboard.settings.investigationLlmProfiles');
@@ -39,8 +39,10 @@ export function InvestigationLlmProfilesCard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState<CreateFormState>(EMPTY_FORM);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [form, setForm] = useState<ProfileFormState>(EMPTY_FORM);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -66,20 +68,41 @@ export function InvestigationLlmProfilesCard() {
     void load();
   }, [load]);
 
-  function updateForm<K extends keyof CreateFormState>(key: K, value: CreateFormState[K]) {
+  function resetFormState() {
+    setForm(EMPTY_FORM);
+    setEditingId(null);
+    setShowForm(false);
+  }
+
+  function updateForm<K extends keyof ProfileFormState>(key: K, value: ProfileFormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!canManage) return;
+  function startCreate() {
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    setShowForm(true);
+  }
 
+  function startEdit(profile: InvestigationLlmProfile) {
+    setEditingId(profile.id);
+    setShowForm(true);
+    setForm({
+      label: profile.label,
+      baseUrl: profile.baseUrl,
+      model: profile.model,
+      apiKey: '',
+      contextWindowTokens: profile.contextWindowTokens ? String(profile.contextWindowTokens) : '',
+    });
+  }
+
+  function buildPayload(): Record<string, string | number> | null {
     const label = form.label.trim();
     const baseUrl = form.baseUrl.trim();
     const model = form.model.trim();
     if (!label || !baseUrl || !model) {
       addToast(t('validationRequired'), 'error');
-      return;
+      return null;
     }
 
     const payload: Record<string, string | number> = { label, baseUrl, model };
@@ -90,31 +113,73 @@ export function InvestigationLlmProfilesCard() {
       const tokens = Number.parseInt(tokensRaw, 10);
       if (!Number.isInteger(tokens) || tokens <= 0) {
         addToast(t('validationContextWindow'), 'error');
-        return;
+        return null;
       }
       payload.contextWindowTokens = tokens;
     }
+    return payload;
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!canManage) return;
+
+    const payload = buildPayload();
+    if (!payload) return;
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/settings/investigation-llm-profiles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const isEdit = Boolean(editingId);
+      const res = await fetch(
+        isEdit
+          ? `/api/settings/investigation-llm-profiles/${encodeURIComponent(editingId!)}`
+          : '/api/settings/investigation-llm-profiles',
+        {
+          method: isEdit ? 'PATCH' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        },
+      );
       const body = (await res.json()) as InvestigationLlmProfile & { error?: string };
       if (!res.ok) {
-        addToast(body.error ?? t('errorCreate'), 'error');
+        addToast(body.error ?? (isEdit ? t('errorUpdate') : t('errorCreate')), 'error');
         return;
       }
-      addToast(t('created', { label: body.label }), 'success');
-      setForm(EMPTY_FORM);
-      setShowForm(false);
+      addToast(
+        isEdit ? t('updated', { label: body.label }) : t('created', { label: body.label }),
+        'success',
+      );
+      resetFormState();
       await load();
     } catch {
-      addToast(t('errorCreate'), 'error');
+      addToast(editingId ? t('errorUpdate') : t('errorCreate'), 'error');
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleDelete(profile: InvestigationLlmProfile) {
+    if (!canManage) return;
+    if (!window.confirm(t('deleteConfirm', { label: profile.label }))) return;
+
+    setDeletingId(profile.id);
+    try {
+      const res = await fetch(
+        `/api/settings/investigation-llm-profiles/${encodeURIComponent(profile.id)}`,
+        { method: 'DELETE' },
+      );
+      const body = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        addToast(body.error ?? t('errorDelete'), 'error');
+        return;
+      }
+      addToast(t('deleted', { label: profile.label }), 'success');
+      if (editingId === profile.id) resetFormState();
+      await load();
+    } catch {
+      addToast(t('errorDelete'), 'error');
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -131,12 +196,12 @@ export function InvestigationLlmProfilesCard() {
         {canManage && (
           <button
             type="button"
-            onClick={() => setShowForm((open) => !open)}
+            onClick={() => (showForm && !editingId ? resetFormState() : startCreate())}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent transition-colors"
             data-testid="investigation-llm-profile-toggle-form"
           >
             <Plus className="h-3.5 w-3.5" />
-            {showForm ? t('cancel') : t('create')}
+            {showForm && !editingId ? t('cancel') : t('create')}
           </button>
         )}
       </div>
@@ -158,10 +223,18 @@ export function InvestigationLlmProfilesCard() {
 
       {showForm && canManage && (
         <form
-          onSubmit={(e) => void handleCreate(e)}
+          onSubmit={(e) => void handleSubmit(e)}
           className="rounded-lg border border-border bg-muted/20 p-4 space-y-3"
           data-testid="investigation-llm-profile-form"
         >
+          {editingId && (
+            <p
+              className="text-xs font-medium text-muted-foreground"
+              data-testid="investigation-llm-profile-editing"
+            >
+              {t('editing', { label: form.label || editingId })}
+            </p>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1 text-xs">
               <span className="font-medium text-foreground">{t('labelField')}</span>
@@ -205,11 +278,23 @@ export function InvestigationLlmProfilesCard() {
                 type="password"
                 value={form.apiKey}
                 onChange={(e) => updateForm('apiKey', e.target.value)}
-                placeholder={t('apiKeyPlaceholder')}
+                placeholder={
+                  editingId && items.find((item) => item.id === editingId)?.apiKeyConfigured
+                    ? t('apiKeyMaskedPlaceholder')
+                    : t('apiKeyPlaceholder')
+                }
                 autoComplete="off"
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-mono"
                 data-testid="investigation-llm-profile-api-key"
               />
+              {editingId && items.find((item) => item.id === editingId)?.apiKeyConfigured && (
+                <span
+                  className="text-[11px] text-muted-foreground"
+                  data-testid="investigation-llm-profile-api-key-masked"
+                >
+                  {t('apiKeyMaskedHint')}
+                </span>
+              )}
             </label>
             <label className="space-y-1 text-xs">
               <span className="font-medium text-foreground">{t('contextWindowField')}</span>
@@ -223,15 +308,29 @@ export function InvestigationLlmProfilesCard() {
               />
             </label>
           </div>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            data-testid="investigation-llm-profile-create"
-          >
-            {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-            {submitting ? t('creating') : t('saveProfile')}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              data-testid={
+                editingId ? 'investigation-llm-profile-save' : 'investigation-llm-profile-create'
+              }
+            >
+              {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              {submitting ? t('saving') : t('saveProfile')}
+            </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetFormState}
+                className="rounded-md border border-border px-3 py-2 text-xs font-medium hover:bg-accent"
+                data-testid="investigation-llm-profile-cancel-edit"
+              >
+                {t('cancel')}
+              </button>
+            )}
+          </div>
         </form>
       )}
 
@@ -252,13 +351,44 @@ export function InvestigationLlmProfilesCard() {
                 data-testid={`investigation-llm-profile-item-${profile.id}`}
                 data-profile-label={profile.label}
               >
-                <div className="font-medium text-foreground">{profile.label}</div>
-                <div className="text-xs text-muted-foreground mt-0.5 font-mono">
-                  {profile.model} · {profile.baseUrl}
-                  {profile.contextWindowTokens
-                    ? ` · ${profile.contextWindowTokens.toLocaleString()} tokens`
-                    : ''}
-                  {profile.apiKeyConfigured ? ` · ${t('apiKeyConfigured')}` : ''}
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="font-medium text-foreground">{profile.label}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5 font-mono">
+                      {profile.model} · {profile.baseUrl}
+                      {profile.contextWindowTokens
+                        ? ` · ${profile.contextWindowTokens.toLocaleString()} tokens`
+                        : ''}
+                      {profile.apiKeyConfigured ? ` · ${t('apiKeyConfigured')}` : ''}
+                    </div>
+                  </div>
+                  {canManage && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(profile)}
+                        className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium hover:bg-accent"
+                        data-testid={`investigation-llm-profile-edit-${profile.id}`}
+                      >
+                        <Pencil className="h-3 w-3" />
+                        {t('edit')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(profile)}
+                        disabled={deletingId === profile.id}
+                        className="inline-flex items-center gap-1 rounded-md border border-destructive/40 px-2 py-1 text-[11px] font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                        data-testid={`investigation-llm-profile-delete-${profile.id}`}
+                      >
+                        {deletingId === profile.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3 w-3" />
+                        )}
+                        {t('delete')}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </li>
             ))
