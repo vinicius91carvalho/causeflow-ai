@@ -24,12 +24,14 @@ export interface InvestigationLlmProfilePublic {
   model: string;
   apiKeyConfigured: boolean;
   contextWindowTokens?: number;
+  isActive?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export function toPublicInvestigationLlmProfile(
   profile: InvestigationLlmProfile,
+  options?: { isActive?: boolean },
 ): InvestigationLlmProfilePublic {
   return {
     id: profile.id,
@@ -38,6 +40,7 @@ export function toPublicInvestigationLlmProfile(
     model: profile.model,
     apiKeyConfigured: Boolean(profile.apiKeyEncrypted),
     contextWindowTokens: profile.contextWindowTokens,
+    isActive: options?.isActive,
     createdAt: profile.createdAt,
     updatedAt: profile.updatedAt,
   };

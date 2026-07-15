@@ -14,6 +14,7 @@ import { withAuth } from '@/lib/api/with-auth';
  * POST   /api/settings/investigation-llm-profiles          → Core POST   /v1/oss/investigation-llm-profiles
  * PATCH  /api/settings/investigation-llm-profiles/[id]     → Core PATCH  /v1/oss/investigation-llm-profiles/:id
  * DELETE /api/settings/investigation-llm-profiles/[id]     → Core DELETE /v1/oss/investigation-llm-profiles/:id
+ * POST   /api/settings/investigation-llm-profiles/[id]/activate → Core POST /v1/oss/investigation-llm-profiles/:id/activate
  */
 
 export const CORE_INVESTIGATION_LLM_PROFILES_PATH = '/v1/oss/investigation-llm-profiles';

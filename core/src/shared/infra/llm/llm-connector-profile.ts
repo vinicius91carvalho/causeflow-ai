@@ -9,14 +9,19 @@ import {
   type LlmConnectorProfile,
 } from '../../domain/llm-connector.entity.js';
 import { config } from '../../config/index.js';
+import { resolveActiveInvestigationLlmProfileEndpoint } from '../../../modules/oss/infra/resolve-investigation-llm-profile.js';
 import { getActiveLlmConnectorId } from './oss-llm-connector-store.js';
 
 export interface ResolvedLlmEndpoint {
-  connectorId: LlmConnectorId;
+  /** Legacy enum id or custom Investigation LLM profile UUID (AC-086). */
+  connectorId: string;
+  profileId?: string;
+  label?: string;
   baseUrl: string;
   model: string;
   apiKey: string;
   contextWindowTokens: number;
+  credentialsConfigured?: boolean;
 }
 
 function hasCredential(value: string | undefined): boolean {
@@ -82,7 +87,12 @@ export async function getActiveLlmConnectorProfile(): Promise<LlmConnectorProfil
   return getLlmConnectorProfile(id);
 }
 
-export async function resolveActiveLlmEndpoint(): Promise<ResolvedLlmEndpoint> {
+export async function resolveActiveLlmEndpoint(tenantId?: string): Promise<ResolvedLlmEndpoint> {
+  if (tenantId) {
+    const custom = await resolveActiveInvestigationLlmProfileEndpoint(tenantId);
+    if (custom) return custom;
+  }
+
   const profile = await getActiveLlmConnectorProfile();
   const apiKey =
     profile.id === 'deepseek-opencode'
@@ -92,20 +102,24 @@ export async function resolveActiveLlmEndpoint(): Promise<ResolvedLlmEndpoint> {
         : config.llm.ornithApiKey;
   return {
     connectorId: profile.id,
+    label: profile.label,
     baseUrl: profile.baseUrl,
     model: profile.model,
     apiKey,
     contextWindowTokens: profile.contextWindowTokens,
+    credentialsConfigured: profile.credentialsConfigured,
   };
 }
 
-export function connectorEvidenceLabel(connectorId: LlmConnectorId): string {
+export function connectorEvidenceLabel(connectorId: string): string {
   switch (connectorId) {
     case 'deepseek-opencode':
       return 'deepseek-opencode';
     case 'deepseek-nim':
       return 'deepseek-nim';
-    default:
+    case 'ornith':
       return 'local';
+    default:
+      return connectorId;
   }
 }

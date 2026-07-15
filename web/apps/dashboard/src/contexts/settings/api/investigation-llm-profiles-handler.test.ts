@@ -19,7 +19,7 @@ vi.mock('@/lib/api/get-backend-token', () => ({
   getBackendToken: vi.fn().mockResolvedValue('test-session-token'),
 }));
 
-describe('investigation-llm-profiles-handler — proxy to Core (AC-084, AC-085)', () => {
+describe('investigation-llm-profiles-handler — proxy to Core (AC-084, AC-085, AC-086)', () => {
   const CORE_URL = 'https://core-api.test';
 
   beforeEach(() => {
@@ -39,6 +39,17 @@ describe('investigation-llm-profiles-handler — proxy to Core (AC-084, AC-085)'
       POST: mod.POST as unknown as (req: Request) => Promise<Response>,
       redactInvestigationLlmPayload: mod.redactInvestigationLlmPayload,
       validateUpdateInput: mod.validateUpdateInput,
+    };
+  }
+
+  async function loadActivateHandler() {
+    vi.resetModules();
+    const mod = await import('./investigation-llm-profile-activate-handler');
+    return {
+      POST: mod.POST as unknown as (
+        req: Request,
+        ctx: { params: Promise<{ id: string }> },
+      ) => Promise<Response>,
     };
   }
 
@@ -214,6 +225,43 @@ describe('investigation-llm-profiles-handler — proxy to Core (AC-084, AC-085)'
     const json = await res.json();
     expect(json.label).toBe('Updated');
     expect(json.apiKey).toBeUndefined();
+  });
+
+  it('POST activate proxies to Core profile activate path (AC-086)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      status: 200,
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      text: () =>
+        Promise.resolve(
+          JSON.stringify({
+            activeProfileId: 'p-active',
+            profile: {
+              id: 'p-active',
+              label: 'Active Profile',
+              baseUrl: 'http://127.0.0.1:8082/v1',
+              model: 'active-model',
+              apiKeyConfigured: false,
+              isActive: true,
+            },
+          }),
+        ),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { POST } = await loadActivateHandler();
+    const res = await POST(
+      new Request('http://localhost/api/settings/investigation-llm-profiles/p-active/activate', {
+        method: 'POST',
+      }),
+      { params: Promise.resolve({ id: 'p-active' }) },
+    );
+    expect(res.status).toBe(200);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(`${CORE_URL}/v1/oss/investigation-llm-profiles/p-active/activate`);
+    expect(init.method).toBe('POST');
+    const json = await res.json();
+    expect(json.activeProfileId).toBe('p-active');
+    expect(json.profile.isActive).toBe(true);
   });
 
   it('DELETE proxies to Core profile id path', async () => {

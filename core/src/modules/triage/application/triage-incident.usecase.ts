@@ -206,7 +206,7 @@ export class TriageIncidentUseCase {
         });
         result = completion.content;
         triageLlmModel = completion.model;
-        const endpoint = await resolveActiveLlmEndpoint();
+        const endpoint = await resolveActiveLlmEndpoint(String(tenantId));
         triageLlmConnector = connectorEvidenceLabel(endpoint.connectorId);
         // Guard against stub/LLM bodies that parse loosely but omit fields
         // required to dispatch investigation (AC-046).

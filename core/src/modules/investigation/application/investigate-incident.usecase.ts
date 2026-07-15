@@ -439,7 +439,9 @@ export class InvestigateIncidentUseCase {
     llmConnector?: string;
   }): Promise<void> {
     try {
-      const endpoint = params.llmConnector ? null : await resolveActiveLlmEndpoint();
+      const endpoint = params.llmConnector
+        ? null
+        : await resolveActiveLlmEndpoint(String(params.tenantId));
       const llmConnector =
         params.llmConnector ?? (endpoint ? connectorEvidenceLabel(endpoint.connectorId) : 'local');
       await this.evidenceRepo.create({

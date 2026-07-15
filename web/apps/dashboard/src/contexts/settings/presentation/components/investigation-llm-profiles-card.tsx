@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Check, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { PERMISSION } from '@/contexts/identity/domain/rbac/permissions';
@@ -28,7 +28,7 @@ const EMPTY_FORM: ProfileFormState = {
 };
 
 /**
- * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085).
+ * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085, AC-086).
  */
 export function InvestigationLlmProfilesCard() {
   const t = useTranslations('dashboard.settings.investigationLlmProfiles');
@@ -36,12 +36,14 @@ export function InvestigationLlmProfilesCard() {
   const canManage = usePermission(PERMISSION.MANAGE_SETTINGS);
 
   const [items, setItems] = useState<InvestigationLlmProfile[]>([]);
+  const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [activatingId, setActivatingId] = useState<string | null>(null);
   const [form, setForm] = useState<ProfileFormState>(EMPTY_FORM);
 
   const load = useCallback(async () => {
@@ -56,6 +58,7 @@ export function InvestigationLlmProfilesCard() {
         return;
       }
       setItems(body.items ?? []);
+      setActiveProfileId(body.activeProfileId ?? null);
     } catch {
       setError(t('errorLoad'));
       setItems([]);
@@ -155,6 +158,29 @@ export function InvestigationLlmProfilesCard() {
       addToast(editingId ? t('errorUpdate') : t('errorCreate'), 'error');
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleActivate(profile: InvestigationLlmProfile) {
+    if (!canManage || profile.isActive || activeProfileId === profile.id) return;
+
+    setActivatingId(profile.id);
+    try {
+      const res = await fetch(
+        `/api/settings/investigation-llm-profiles/${encodeURIComponent(profile.id)}/activate`,
+        { method: 'POST' },
+      );
+      const body = (await res.json()) as { error?: string; activeProfileId?: string };
+      if (!res.ok) {
+        addToast(body.error ?? t('errorActivate'), 'error');
+        return;
+      }
+      addToast(t('activated', { label: profile.label }), 'success');
+      await load();
+    } catch {
+      addToast(t('errorActivate'), 'error');
+    } finally {
+      setActivatingId(null);
     }
   }
 
@@ -344,54 +370,85 @@ export function InvestigationLlmProfilesCard() {
               {t('empty')}
             </li>
           ) : (
-            items.map((profile) => (
-              <li
-                key={profile.id}
-                className="rounded-lg border border-border px-3 py-2 text-sm"
-                data-testid={`investigation-llm-profile-item-${profile.id}`}
-                data-profile-label={profile.label}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="font-medium text-foreground">{profile.label}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5 font-mono">
-                      {profile.model} · {profile.baseUrl}
-                      {profile.contextWindowTokens
-                        ? ` · ${profile.contextWindowTokens.toLocaleString()} tokens`
-                        : ''}
-                      {profile.apiKeyConfigured ? ` · ${t('apiKeyConfigured')}` : ''}
-                    </div>
-                  </div>
-                  {canManage && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => startEdit(profile)}
-                        className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium hover:bg-accent"
-                        data-testid={`investigation-llm-profile-edit-${profile.id}`}
-                      >
-                        <Pencil className="h-3 w-3" />
-                        {t('edit')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void handleDelete(profile)}
-                        disabled={deletingId === profile.id}
-                        className="inline-flex items-center gap-1 rounded-md border border-destructive/40 px-2 py-1 text-[11px] font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
-                        data-testid={`investigation-llm-profile-delete-${profile.id}`}
-                      >
-                        {deletingId === profile.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3 w-3" />
+            items.map((profile) => {
+              const isActive = profile.isActive === true || activeProfileId === profile.id;
+              return (
+                <li
+                  key={profile.id}
+                  className="rounded-lg border border-border px-3 py-2 text-sm"
+                  data-testid={`investigation-llm-profile-item-${profile.id}`}
+                  data-profile-label={profile.label}
+                  data-profile-active={isActive ? 'true' : 'false'}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <div className="font-medium text-foreground">{profile.label}</div>
+                        {isActive && (
+                          <span
+                            className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary"
+                            data-testid={`investigation-llm-profile-active-badge-${profile.id}`}
+                          >
+                            <Check className="h-3 w-3" />
+                            {t('activeBadge')}
+                          </span>
                         )}
-                        {t('delete')}
-                      </button>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5 font-mono">
+                        {profile.model} · {profile.baseUrl}
+                        {profile.contextWindowTokens
+                          ? ` · ${profile.contextWindowTokens.toLocaleString()} tokens`
+                          : ''}
+                        {profile.apiKeyConfigured ? ` · ${t('apiKeyConfigured')}` : ''}
+                      </div>
                     </div>
-                  )}
-                </div>
-              </li>
-            ))
+                    {canManage && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        {!isActive && (
+                          <button
+                            type="button"
+                            onClick={() => void handleActivate(profile)}
+                            disabled={activatingId === profile.id}
+                            className="inline-flex items-center gap-1 rounded-md border border-primary/40 px-2 py-1 text-[11px] font-medium text-primary hover:bg-primary/10 disabled:opacity-50"
+                            data-testid={`investigation-llm-profile-activate-${profile.id}`}
+                          >
+                            {activatingId === profile.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Check className="h-3 w-3" />
+                            )}
+                            {t('activate')}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => startEdit(profile)}
+                          className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium hover:bg-accent"
+                          data-testid={`investigation-llm-profile-edit-${profile.id}`}
+                        >
+                          <Pencil className="h-3 w-3" />
+                          {t('edit')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleDelete(profile)}
+                          disabled={deletingId === profile.id}
+                          className="inline-flex items-center gap-1 rounded-md border border-destructive/40 px-2 py-1 text-[11px] font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                          data-testid={`investigation-llm-profile-delete-${profile.id}`}
+                        >
+                          {deletingId === profile.id ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3 w-3" />
+                          )}
+                          {t('delete')}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })
           )}
         </ul>
       )}

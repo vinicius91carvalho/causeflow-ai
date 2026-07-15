@@ -1,6 +1,6 @@
 /**
- * OSS Investigation LLM profile HTTP routes (AC-084, AC-085).
- * Admins create, edit, and delete named OpenAI-compatible profiles; list is tenant-scoped.
+ * OSS Investigation LLM profile HTTP routes (AC-084, AC-085, AC-086).
+ * Admins create, edit, activate, and delete named OpenAI-compatible profiles; list is tenant-scoped.
  */
 import { randomUUID } from 'node:crypto';
 import { Hono } from 'hono';
@@ -9,7 +9,12 @@ import { z } from 'zod';
 import { requireRole } from '../../../shared/infra/http/middleware/rbac.middleware.js';
 import type { AppEnv } from '../../../shared/infra/http/hono-types.js';
 import { AesGcmTokenEncryption } from '../../../shared/infra/credentials/aes-gcm-token-encryption.js';
+import { resetOssLlmCircuitBreaker } from '../../../shared/infra/llm/oss-llm-circuit-breaker.js';
 import { toPublicInvestigationLlmProfile } from '../domain/investigation-llm-profile.entity.js';
+import {
+  getActiveInvestigationLlmProfileId,
+  setActiveInvestigationLlmProfileId,
+} from './investigation-llm-profile-active.store.js';
 import { PgInvestigationLlmProfileRepository } from './pg-investigation-llm-profile.repository.js';
 
 const createProfileSchema = z.object({
@@ -55,10 +60,16 @@ export function createOssInvestigationLlmProfilesRoutes(): Hono<AppEnv> {
   const routes = new Hono<AppEnv>();
 
   routes.get('/', async (c) => {
-    const tenantId = c.get('tenantId');
-    const profiles = await getRepo().listByTenant(String(tenantId));
+    const tenantId = String(c.get('tenantId'));
+    const profiles = await getRepo().listByTenant(tenantId);
+    const activeProfileId = await getActiveInvestigationLlmProfileId(tenantId);
     return c.json({
-      items: profiles.map(toPublicInvestigationLlmProfile),
+      activeProfileId,
+      items: profiles.map((profile) =>
+        toPublicInvestigationLlmProfile(profile, {
+          isActive: activeProfileId !== null && profile.id === activeProfileId,
+        }),
+      ),
     });
   });
 
@@ -80,6 +91,23 @@ export function createOssInvestigationLlmProfilesRoutes(): Hono<AppEnv> {
     });
 
     return c.json(toPublicInvestigationLlmProfile(profile), 201);
+  });
+
+  routes.post('/:id/activate', requireRole('admin'), async (c) => {
+    const tenantId = String(c.get('tenantId'));
+    const profileId = c.req.param('id');
+    const existing = await getRepo().findById(tenantId, profileId);
+    if (!existing) {
+      return c.json({ error: 'Investigation LLM profile not found' }, 404);
+    }
+
+    await setActiveInvestigationLlmProfileId(tenantId, profileId);
+    resetOssLlmCircuitBreaker();
+
+    return c.json({
+      activeProfileId: profileId,
+      profile: toPublicInvestigationLlmProfile(existing, { isActive: true }),
+    });
   });
 
   routes.patch('/:id', requireRole('admin'), zValidator('json', updateProfileSchema), async (c) => {

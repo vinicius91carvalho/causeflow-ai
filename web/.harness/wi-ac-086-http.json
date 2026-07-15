@@ -1,0 +1,68 @@
+{
+  "id": "WI-AC-086",
+  "base": "http://127.0.0.1:5170",
+  "core": "http://127.0.0.1:3099",
+  "email": "ac086-1784153658577@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200
+    },
+    {
+      "step": "create_a",
+      "status": 201,
+      "id": "e369c0fa-2a18-4eea-a6c0-27f116f9238d"
+    },
+    {
+      "step": "create_b",
+      "status": 201,
+      "id": "077f542f-3472-4d4a-b510-62fc8369de64"
+    },
+    {
+      "step": "activate_b",
+      "status": 200,
+      "activeProfileId": "077f542f-3472-4d4a-b510-62fc8369de64"
+    },
+    {
+      "step": "list_after_activate",
+      "status": 200,
+      "activeProfileId": "077f542f-3472-4d4a-b510-62fc8369de64",
+      "activeCount": 1,
+      "activeIds": [
+        "077f542f-3472-4d4a-b510-62fc8369de64"
+      ]
+    },
+    {
+      "step": "bff_llm_connector",
+      "status": 200,
+      "activeId": "077f542f-3472-4d4a-b510-62fc8369de64",
+      "activeModel": "model-b",
+      "activeSource": "investigation-llm-profile"
+    },
+    {
+      "step": "core_llm_connector",
+      "status": 200,
+      "activeId": "077f542f-3472-4d4a-b510-62fc8369de64",
+      "activeModel": "model-b",
+      "activeSource": "investigation-llm-profile"
+    },
+    {
+      "step": "activate_a_switch",
+      "status": 200,
+      "activeProfileId": "e369c0fa-2a18-4eea-a6c0-27f116f9238d"
+    },
+    {
+      "step": "list_after_switch",
+      "status": 200,
+      "activeProfileId": "e369c0fa-2a18-4eea-a6c0-27f116f9238d",
+      "onlyOneActive": true
+    },
+    {
+      "step": "settings_html",
+      "status": 200,
+      "hasActiveBadge": true,
+      "hasProfileBLabel": false
+    }
+  ],
+  "pass": true
+}

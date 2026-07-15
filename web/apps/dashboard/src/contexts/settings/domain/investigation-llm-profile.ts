@@ -10,12 +10,19 @@ export interface InvestigationLlmProfile {
   model: string;
   apiKeyConfigured: boolean;
   contextWindowTokens?: number;
+  isActive?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface InvestigationLlmProfilesResponse {
   items: InvestigationLlmProfile[];
+  activeProfileId?: string | null;
+}
+
+export interface ActivateInvestigationLlmProfileResponse {
+  activeProfileId: string;
+  profile: InvestigationLlmProfile;
 }
 
 export interface CreateInvestigationLlmProfileInput {

@@ -42,7 +42,9 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
   }
 
   async complete<T>(params: CompletionParams): Promise<CompletionResult<T>> {
-    const endpoint = await resolveActiveLlmEndpoint();
+    const tenantId =
+      typeof params.attributes?.tenantId === 'string' ? params.attributes.tenantId : undefined;
+    const endpoint = await resolveActiveLlmEndpoint(tenantId);
     const model = endpoint.model;
     if (params.responseSchema) {
       return this.completeStructured(params, endpoint);
