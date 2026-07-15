@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS causeflow.slack_oauth_states (tenant_id TEXT NOT NULL
 CREATE TABLE IF NOT EXISTS causeflow.oauth_tokens (tenant_id TEXT NOT NULL, entity_id TEXT NOT NULL, data JSONB NOT NULL DEFAULT '{}', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (tenant_id, entity_id));
 CREATE TABLE IF NOT EXISTS causeflow.hypotheses (tenant_id TEXT NOT NULL, entity_id TEXT NOT NULL, data JSONB NOT NULL DEFAULT '{}', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (tenant_id, entity_id));
 CREATE TABLE IF NOT EXISTS causeflow.runbook_registry (tenant_id TEXT NOT NULL, entity_id TEXT NOT NULL, data JSONB NOT NULL DEFAULT '{}', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (tenant_id, entity_id));
+CREATE TABLE IF NOT EXISTS causeflow.investigation_llm_profiles (tenant_id TEXT NOT NULL, entity_id TEXT NOT NULL, data JSONB NOT NULL DEFAULT '{}', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (tenant_id, entity_id));
 
 CREATE INDEX IF NOT EXISTS idx_incidents_created_at ON causeflow.incidents (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_entries_created_at ON causeflow.audit_entries (created_at DESC);
