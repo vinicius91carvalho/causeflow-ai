@@ -23,3 +23,10 @@
 - RepairPlan: AC-081 fails: post-org flow still reaches commercial choose-plan (or loops on create-organization). WIP already routes create-org via resolvePostOrganizationRedirect→/dashboard in OSS, but choose-plan still renders FALLBACK_PLANS on subscription 410, and next.config rewrite fights next-intl as-needed locale stripping.; Align or remove apps/dashboard/next.config.mjs rewrite for /create-organization (and verify sibling auth/onboarding rewrites) with next-intl localePrefix as-needed so /create-organization does not bounce to /en/create-organization; Add server-side OSS guard on apps/dashboard/src/app/[locale]/onboarding/choose-plan/page.tsx (or choose-plan-page server entry): if isOssRuntime() redirect('/dashboard') — satisfies AC-081/AC-082; In choose-plan-page.tsx subscription check, treat 410/OSS as redirect to /dashboard instead of setReady(true)+FALLBACK_PLANS; Confirm create-organization-page + post-organization-redirect.ts OSS→/dashboard path stays; keep commercial→choose-plan; Audit dashboard layout plan gate and use-subscription-guard.ts for any remaining OSS bounce to choose-plan; skip or fail-open only in OSS; Keep/finish tests/oss/ac-081-post-org-onboarding.spec.ts covering register→dashboard, no choose-plan gate, no locale loop
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/db6524ef-d6c0-44eb-873f-2851df0e3b96/oss-onboarding-no-plan/WI-AC-081-1-integration_qa-702f8f6bc1706f9f.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-15T17:46:37.420Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-081
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
