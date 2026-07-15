@@ -46,3 +46,10 @@
 - RepairPlan: WI-AC-078 fails Integrated Verification because AC-078 redirects/pricing retirement exist only as uncommitted worktree changes; plan/opensource-docker still serves commercial /pricing (HTTP 200 + plan cards).; Commit AC-078 worktree deltas: apps/website/next.config.mjs (/pricing + /:locale(pt-br)/pricing → DOCS_URL), pricing-page.tsx redirect(SITE.docsUrl), locale pricing page, tests/oss/ac-078-pricing-redirect.spec.ts, and related pricing/AC-075 test updates; Merge gen/web-oss-free-marketing into plan/opensource-docker (or ensure checkpoint includes these files); Rebuild website from merged tree (pnpm --filter website build) so SSG does not retain old /pricing HTML; Restart IV server on PORT=5170 from the rebuilt artifact; Re-run Integration QA HTTP checks for /pricing and /pt-br/pricing
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/c2b3f611-ee8d-441d-b52f-d363144691a9/oss-free-marketing/WI-AC-078-1-integration_qa-39b36e8e6c197887.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-15T16:25:04.343Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-078
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
