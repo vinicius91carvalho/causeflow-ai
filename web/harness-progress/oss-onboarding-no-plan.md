@@ -110,3 +110,11 @@
 - WorkItem: WI-AC-083
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-15T18:40:33.236Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-083
+- Defects: expected no paid-plan selection/upgrade/checkout copy in HTTP responses for onboarding_welcome; observed markers choose_your_plan, select_a_plan, upgrade_plan_button, upgrade_your_plan, manage_subscription, start_trial, commercial_plan_cards (choose_plan_href absent — visible card filtered); evidence GET http://127.0.0.1:5170/onboarding/welcome finalStatus=200 (.harness/wi-ac-083-iv-http.json); expected no paid-plan copy in HTTP responses for onboarding_business_profile, onboarding_integrations, dashboard_home, dashboard_settings, dashboard_settings_company_tab; observed same commercial i18n markers in RSC/Flight payloads on every surface; evidence .harness/wi-ac-083-iv-http.json all routes clean=false; expected OSS onboarding tutorial and settings to omit plan-upgrade instructions end-to-end per AC-083 HTTP observation; observed serialized message trees still ship billing.choosePlan.title, onboarding.steps.billing (upgrade your plan / manage your subscription), and settings upgradePlan strings in HTML while client-side isOssBuildClient() filters visible UI; evidence browser walkthrough Step 1–5 of 5 with no billing vs HTTP scan hits in bundled i18n at /tmp/welcome.html context strings
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/0a7ad32d-4904-47a5-b638-c6c43f30a029/oss-onboarding-no-plan/WI-AC-083-2-integration_qa-6524da265397947f.log
+- NextAction: Repair Plan
