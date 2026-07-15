@@ -134,3 +134,14 @@
 - WorkItem: WI-AC-083
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-15T18:59:05.440Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-083
+- Outcome: integration could not complete
+- Defects: error: The following untracked working tree files would be overwritten by merge:
+	web/.harness/wi-ac-083-iv-verify.mjs
+Please move or remove them before you merge.
+Aborting
+- NextAction: User reviews evidence and explicitly resumes with guidance
