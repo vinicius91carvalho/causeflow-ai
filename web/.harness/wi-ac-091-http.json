@@ -1,0 +1,50 @@
+{
+  "id": "WI-AC-091",
+  "base": "http://127.0.0.1:5170",
+  "core": "http://127.0.0.1:3099",
+  "email": "ac091-1784154836436@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200
+    },
+    {
+      "step": "list_before",
+      "status": 200,
+      "count": 0
+    },
+    {
+      "step": "create_missing_required",
+      "status": 400,
+      "error": "label, baseUrl, and model are required"
+    },
+    {
+      "step": "list_after_invalid_create",
+      "status": 200,
+      "count": 0,
+      "noPartialPersist": true
+    },
+    {
+      "step": "create_valid_no_api_key_unreachable",
+      "status": 201,
+      "id": "312ce723-cde5-42f6-9bf0-9407d40a0448",
+      "apiKeyConfigured": false
+    },
+    {
+      "step": "patch_empty_label",
+      "status": 400,
+      "error": "label must be a non-empty string when provided"
+    },
+    {
+      "step": "list_after_invalid_patch",
+      "status": 200,
+      "labelUnchanged": true
+    },
+    {
+      "step": "activate_unreachable_endpoint",
+      "status": 200,
+      "activeProfileId": "312ce723-cde5-42f6-9bf0-9407d40a0448"
+    }
+  ],
+  "pass": true
+}

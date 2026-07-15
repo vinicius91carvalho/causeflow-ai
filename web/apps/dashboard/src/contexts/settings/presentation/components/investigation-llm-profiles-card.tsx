@@ -32,7 +32,7 @@ const EMPTY_FORM: ProfileFormState = {
 };
 
 /**
- * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085, AC-086, AC-087, AC-088).
+ * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085, AC-086, AC-087, AC-088, AC-091).
  */
 export function InvestigationLlmProfilesCard() {
   const t = useTranslations('dashboard.settings.investigationLlmProfiles');
@@ -49,6 +49,7 @@ export function InvestigationLlmProfilesCard() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [activatingId, setActivatingId] = useState<string | null>(null);
   const [form, setForm] = useState<ProfileFormState>(EMPTY_FORM);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -77,11 +78,13 @@ export function InvestigationLlmProfilesCard() {
 
   function resetFormState() {
     setForm(EMPTY_FORM);
+    setFormError(null);
     setEditingId(null);
     setShowForm(false);
   }
 
   function updateForm<K extends keyof ProfileFormState>(key: K, value: ProfileFormState[K]) {
+    setFormError(null);
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -120,7 +123,9 @@ export function InvestigationLlmProfilesCard() {
     const baseUrl = form.baseUrl.trim();
     const model = form.model.trim();
     if (!label || !baseUrl || !model) {
-      addToast(t('validationRequired'), 'error');
+      const message = t('validationRequired');
+      setFormError(message);
+      addToast(message, 'error');
       return null;
     }
 
@@ -131,7 +136,9 @@ export function InvestigationLlmProfilesCard() {
     if (tokensRaw) {
       const tokens = Number.parseInt(tokensRaw, 10);
       if (!Number.isInteger(tokens) || tokens <= 0) {
-        addToast(t('validationContextWindow'), 'error');
+        const message = t('validationContextWindow');
+        setFormError(message);
+        addToast(message, 'error');
         return null;
       }
       payload.contextWindowTokens = tokens;
@@ -161,7 +168,9 @@ export function InvestigationLlmProfilesCard() {
       );
       const body = (await res.json()) as InvestigationLlmProfile & { error?: string };
       if (!res.ok) {
-        addToast(body.error ?? (isEdit ? t('errorUpdate') : t('errorCreate')), 'error');
+        const message = body.error ?? (isEdit ? t('errorUpdate') : t('errorCreate'));
+        setFormError(message);
+        addToast(message, 'error');
         return;
       }
       addToast(
@@ -304,6 +313,15 @@ export function InvestigationLlmProfilesCard() {
               data-testid="investigation-llm-profile-editing"
             >
               {t('editing', { label: form.label || editingId })}
+            </p>
+          )}
+          {formError && (
+            <p
+              className="text-sm text-destructive"
+              role="alert"
+              data-testid="investigation-llm-profile-validation-error"
+            >
+              {formError}
             </p>
           )}
           <div className="grid gap-3 sm:grid-cols-2">

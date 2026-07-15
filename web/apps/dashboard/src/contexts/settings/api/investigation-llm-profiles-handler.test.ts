@@ -38,6 +38,7 @@ describe('investigation-llm-profiles-handler — proxy to Core (AC-084, AC-085, 
       GET: mod.GET as unknown as (req: Request) => Promise<Response>,
       POST: mod.POST as unknown as (req: Request) => Promise<Response>,
       redactInvestigationLlmPayload: mod.redactInvestigationLlmPayload,
+      validateCreateInput: mod.validateCreateInput,
       validateUpdateInput: mod.validateUpdateInput,
     };
   }
@@ -300,5 +301,116 @@ describe('investigation-llm-profiles-handler — proxy to Core (AC-084, AC-085, 
     const json = await res.json();
     expect(json.apiKeyEncrypted).toBeUndefined();
     expect(json.apiKeyConfigured).toBe(true);
+  });
+});
+
+describe('investigation-llm-profiles-handler — validation (AC-091)', () => {
+  const CORE_URL = 'https://core-api.test';
+
+  beforeEach(() => {
+    process.env.CORE_API_URL = CORE_URL;
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  async function loadHandlers() {
+    vi.resetModules();
+    const mod = await import('./investigation-llm-profiles-handler');
+    return {
+      POST: mod.POST as unknown as (req: Request) => Promise<Response>,
+      validateCreateInput: mod.validateCreateInput,
+      validateUpdateInput: mod.validateUpdateInput,
+    };
+  }
+
+  async function loadIdHandlers() {
+    vi.resetModules();
+    const mod = await import('./investigation-llm-profile-id-handler');
+    return {
+      PATCH: mod.PATCH as unknown as (
+        req: Request,
+        ctx: { params: Promise<{ id: string }> },
+      ) => Promise<Response>,
+    };
+  }
+
+  it('validateCreateInput rejects missing label, baseUrl, or model', async () => {
+    const { validateCreateInput } = await loadHandlers();
+    expect(validateCreateInput({ label: 'x' })).toEqual({
+      error: 'label, baseUrl, and model are required',
+    });
+    expect(validateCreateInput({ label: 'x', baseUrl: 'http://127.0.0.1:8081/v1' })).toEqual({
+      error: 'label, baseUrl, and model are required',
+    });
+    expect(
+      validateCreateInput({
+        label: ' ',
+        baseUrl: 'http://127.0.0.1:8081/v1',
+        model: 'm',
+      }),
+    ).toEqual({ error: 'label, baseUrl, and model are required' });
+  });
+
+  it('validateCreateInput allows optional apiKey to be omitted', async () => {
+    const { validateCreateInput } = await loadHandlers();
+    expect(
+      validateCreateInput({
+        label: 'Local Ornith',
+        baseUrl: 'http://127.0.0.1:8081/v1',
+        model: 'Ornith-1.0-9B-code',
+      }),
+    ).toEqual({
+      label: 'Local Ornith',
+      baseUrl: 'http://127.0.0.1:8081/v1',
+      model: 'Ornith-1.0-9B-code',
+    });
+  });
+
+  it('validateUpdateInput rejects clearing required fields to whitespace', async () => {
+    const { validateUpdateInput } = await loadHandlers();
+    expect(validateUpdateInput({ label: '   ' })).toEqual({
+      error: 'label must be a non-empty string when provided',
+    });
+    expect(validateUpdateInput({ model: '' })).toEqual({
+      error: 'model must be a non-empty string when provided',
+    });
+  });
+
+  it('POST rejects invalid create without calling Core', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const { POST } = await loadHandlers();
+    const res = await POST(
+      new Request('http://localhost/api/settings/investigation-llm-profiles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: 'Only label' }),
+      }),
+    );
+    expect(res.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+    const json = await res.json();
+    expect(json.error).toBe('label, baseUrl, and model are required');
+  });
+
+  it('PATCH rejects invalid edit without calling Core', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const { PATCH } = await loadIdHandlers();
+    const res = await PATCH(
+      new Request('http://localhost/api/settings/investigation-llm-profiles/p1', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ baseUrl: '   ' }),
+      }),
+      { params: Promise.resolve({ id: 'p1' }) },
+    );
+    expect(res.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+    const json = await res.json();
+    expect(json.error).toBe('baseUrl must be a non-empty string when provided');
   });
 });

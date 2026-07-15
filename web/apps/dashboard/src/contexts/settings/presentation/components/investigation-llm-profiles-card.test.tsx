@@ -67,3 +67,27 @@ describe('InvestigationLlmProfilesCard RBAC (AC-088)', () => {
     expect(source).toContain("{t('adminOnly')}");
   });
 });
+
+describe('InvestigationLlmProfilesCard validation (AC-091)', () => {
+  async function readSource(): Promise<string> {
+    const fs = await import('node:fs');
+    return fs.readFileSync(
+      new URL('./investigation-llm-profiles-card.tsx', import.meta.url),
+      'utf-8',
+    );
+  }
+
+  it('surfaces observable inline validation errors for required fields', async () => {
+    const source = await readSource();
+    expect(source).toContain('data-testid="investigation-llm-profile-validation-error"');
+    expect(source).toContain("t('validationRequired')");
+    expect(source).toContain('setFormError(message)');
+    expect(source).toContain('if (!label || !baseUrl || !model)');
+  });
+
+  it('allows optional apiKey to be omitted in create payload', async () => {
+    const source = await readSource();
+    expect(source).toContain('if (apiKey) payload.apiKey = apiKey');
+    expect(source).not.toMatch(/apiKey.*required/i);
+  });
+});
