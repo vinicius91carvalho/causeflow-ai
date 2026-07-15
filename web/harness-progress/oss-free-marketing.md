@@ -85,3 +85,12 @@
 - WorkItem: WI-AC-080
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-15T16:58:11.957Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-080
+- AcceptanceChecks: AC-080
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/c2b3f611-ee8d-441d-b52f-d363144691a9/oss-free-marketing/WI-AC-080-1-integration_qa-331d85b3a8cca9ef.log
+- NextAction: next Ready Work Item
