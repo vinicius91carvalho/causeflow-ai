@@ -152,3 +152,10 @@ Aborting
 - Outcome: user authorized a new Attempt cycle
 - Guidance: Operator unblocked attempt-3 merge: removed untracked web/.harness/wi-ac-083-iv-verify.mjs from the plan/opensource-docker checkout so gen/web-oss-onboarding-no-plan can merge. Finish WI-AC-083 only (WI-AC-082 already integrated). Product fix: strip commercial billing/plan i18n in OSS via apps/dashboard/src/i18n/request.ts when isOssRuntime(); split welcome-page SETUP_STEPS so Choose Your Plan literals never ship in OSS; commit ALL WIP including .harness/wi-ac-083-iv-verify.mjs into the gen branch before checkpoint; merge cleanly into plan/opensource-docker; rebuild/restart dashboard on PORT without NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY; re-run IV until HTTP markers (choose_your_plan, select_a_plan, upgrade_plan_button, upgrade_your_plan, manage_subscription, start_trial, commercial_plan_cards) are absent on welcome/business-profile/integrations/dashboard/settings.
 - NextAction: Coding Attempt 1
+
+## 2026-07-15T21:31:30.023Z — Resumed
+
+- WorkItem: WI-AC-083
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
