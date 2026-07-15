@@ -1,14 +1,20 @@
 ---
 title: "List plans"
 api: "GET /v1/billing/plans"
-description: "Retrieve available subscription plans and their included quotas."
+description: "Retrieve the open-source plan catalog (single free tier in OSS deployments)."
 ---
 
 ## Overview
 
-Returns all available CauseFlow subscription plans with their included quotas, pricing, and feature limits. Use this to display plan options in your own UI or to check what's included in each tier.
+Returns the plan catalog exposed by your CauseFlow Core API.
+In **open-source / self-hosted** deployments, this is a single **Community** plan with no monthly price — commercial Stripe tiers are not part of the OSS product path.
 
 **Authentication:** Public endpoint — no JWT required.
+
+<Note>
+  Mutating billing endpoints (`POST /v1/billing/checkout`, `POST /v1/billing/portal`, credit purchase, and similar) return **410 Gone** in the OSS runtime.
+  Deploy CauseFlow with `./init.sh` from the [CauseFlow monorepo](https://github.com/causeflow) instead of purchasing a hosted plan.
+</Note>
 
 ## Response
 
@@ -18,48 +24,12 @@ Returns `200 OK`.
 {
   "plans": [
     {
-      "planId": "plan_starter",
-      "name": "Starter",
-      "priceMonthlyUsd": 99,
+      "planId": "plan_community",
+      "name": "Community",
+      "priceMonthlyUsd": 0,
       "features": {
-        "investigationsPerMonth": 15,
-        "eventsPerMonth": 500,
-        "apiRateLimitPerMinute": 100,
-        "customSkills": false,
-        "relayAccess": false
-      }
-    },
-    {
-      "planId": "plan_pro",
-      "name": "Pro",
-      "priceMonthlyUsd": 349,
-      "features": {
-        "investigationsPerMonth": 60,
-        "eventsPerMonth": 3000,
-        "apiRateLimitPerMinute": 500,
-        "customSkills": true,
-        "relayAccess": true
-      }
-    },
-    {
-      "planId": "plan_business",
-      "name": "Business",
-      "priceMonthlyUsd": 899,
-      "features": {
-        "investigationsPerMonth": 200,
-        "eventsPerMonth": 10000,
-        "apiRateLimitPerMinute": 2000,
-        "customSkills": true,
-        "relayAccess": true
-      }
-    },
-    {
-      "planId": "plan_enterprise",
-      "name": "Enterprise",
-      "priceMonthlyUsd": null,
-      "features": {
-        "investigationsPerMonth": "custom",
-        "eventsPerMonth": "custom",
+        "investigationsPerMonth": "unlimited",
+        "eventsPerMonth": "unlimited",
         "apiRateLimitPerMinute": 2000,
         "customSkills": true,
         "relayAccess": true
@@ -71,12 +41,12 @@ Returns `200 OK`.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `planId` | string | Unique plan identifier used for subscription calls |
+| `planId` | string | Unique plan identifier |
 | `name` | string | Human-readable plan name |
-| `priceMonthlyUsd` | number \| null | Monthly price in USD. `null` for Enterprise (custom pricing, minimum $2,000/mo) |
-| `features.investigationsPerMonth` | integer \| `"custom"` | Monthly AI investigation quota |
-| `features.eventsPerMonth` | integer \| `"custom"` | Monthly ingested events quota |
-| `features.apiRateLimitPerMinute` | integer | API rate limit |
+| `priceMonthlyUsd` | number | Monthly price in USD (`0` for OSS Community) |
+| `features.investigationsPerMonth` | integer \| `"unlimited"` | Investigation quota (unmetered in OSS) |
+| `features.eventsPerMonth` | integer \| `"unlimited"` | Ingested events quota (unmetered in OSS) |
+| `features.apiRateLimitPerMinute` | integer | API rate limit enforced by Core |
 | `features.customSkills` | boolean | Custom investigation skills available |
 | `features.relayAccess` | boolean | Relay deployment included |
 
@@ -91,25 +61,25 @@ Returns `200 OK`.
 <CodeGroup>
 
 ```bash curl
-curl https://api.causeflow.ai/v1/billing/plans
+curl http://localhost:3099/v1/billing/plans
 ```
 
 ```typescript TypeScript
-const response = await fetch("https://api.causeflow.ai/v1/billing/plans");
+const response = await fetch("http://localhost:3099/v1/billing/plans");
 const { plans } = await response.json();
 
 plans.forEach((p: { name: string; priceMonthlyUsd: number }) =>
-  console.log(`${p.name}: $${p.priceMonthlyUsd}/mo`)
+  console.log(`${p.name}: ${p.priceMonthlyUsd === 0 ? "free (OSS)" : `$${p.priceMonthlyUsd}/mo`}`)
 );
 ```
 
 </CodeGroup>
 
 <CardGroup cols={2}>
-  <Card title="Subscription" href="/api-reference/billing/subscription">
-    View or change your active subscription
+  <Card title="Usage" href="/api-reference/billing/usage">
+    Read investigation and event consumption metrics
   </Card>
-  <Card title="Purchase credits" href="/api-reference/billing/purchase">
-    Buy additional investigation credits
+  <Card title="Open-source usage" href="/billing/plans">
+    Self-host CauseFlow with Docker Compose
   </Card>
 </CardGroup>

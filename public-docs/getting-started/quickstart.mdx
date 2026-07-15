@@ -4,10 +4,12 @@ description: "Create your account and investigate your first incident in under 5
 ---
 
 <Steps>
-  <Step title="Create your account">
-    Go to [dashboard.causeflow.ai](https://dashboard.causeflow.ai) and sign up with your email, Google, or GitHub account.
+  <Step title="Self-host CauseFlow">
+    Clone the [CauseFlow monorepo](https://github.com/causeflow) and run `./init.sh` from the repository root.
+    This starts the open-source stack locally with Docker Compose — no paid plan selection or Stripe checkout.
 
-    Choose a plan that fits your team. See [Plans and pricing](/billing/plans) for details.
+    When the script prints **Ready**, open the dashboard at `http://localhost:3001`, register your account, and create your organization.
+    See [Open-source usage](/billing/plans) and the [published docs](https://vinicius91carvalho.github.io/causeflow-ai/) for full self-host instructions.
   </Step>
 
   <Step title="Complete your profile">

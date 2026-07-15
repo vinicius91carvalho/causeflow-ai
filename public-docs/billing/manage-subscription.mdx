@@ -1,83 +1,56 @@
 ---
-title: "Manage subscription"
-description: "Upgrade, downgrade, or cancel your CauseFlow subscription."
+title: "Billing in open source"
+sidebarTitle: "Billing"
+description: "What to expect from billing screens and APIs in the self-hosted OSS build."
 ---
 
-All subscription management is handled through **Dashboard > Billing**. Payments are processed securely via Stripe.
+The open-source CauseFlow distribution does **not** sell subscriptions or process payments.
+There is no Stripe checkout, customer portal, or paid plan upgrade path.
 
-## Upgrading your plan
+## Dashboard behavior
 
-1. Go to **Dashboard > Billing**.
-2. Click **Upgrade plan**.
-3. Select your new plan and click **Continue to checkout**.
-4. Complete the Stripe checkout with your payment details.
+In a self-hosted deployment:
 
-Plan upgrades take effect **immediately**. You are charged a prorated amount for the remainder of your current billing cycle, and your new investigation and event allowance is applied right away.
+- Sign-up and organization creation do **not** gate on plan selection.
+- **Dashboard > Billing** may display usage summaries for operators.
+- Checkout, billing portal, credit purchase, and subscription mutation actions return **410 Gone** with a message that billing is disabled in the OSS build.
 
-<Tip>
-  If you are approaching your monthly investigation limit, upgrading mid-cycle is the fastest way to increase capacity without waiting for the next billing period.
-</Tip>
+This is intentional.
+Commercial billing secrets stay out of the dashboard; any future hosted billing would live in a separate deployment profile.
 
-## Downgrading your plan
+## What is not available
 
-1. Go to **Dashboard > Billing**.
-2. Click **Change plan** and select a lower-tier plan.
-3. Confirm the downgrade.
+The following commercial flows are **not** part of the OSS product path:
 
-Plan downgrades take effect at the **end of the current billing period**. You retain your current plan's features and allowance until then. At renewal, your plan switches to the lower tier.
+- Choosing Starter, Pro, Business, or Enterprise tiers
+- Stripe checkout or saved payment methods
+- Monthly or annual subscription invoices
+- Quota pack purchases or overage auto-charge
+- Self-serve plan upgrades, downgrades, or cancellations through a payment provider
 
-<Note>
-  If your current usage exceeds the limits of the downgraded plan, you will be notified before the downgrade is confirmed.
-</Note>
+Do not expect these flows when following the [Quickstart](/getting-started/quickstart) or [Open-source usage](/billing/plans) guides.
 
-## Viewing invoices
+## APIs
 
-1. Go to **Dashboard > Billing**.
-2. Click **Billing Portal**.
+Billing API routes may still exist for compatibility, but mutating endpoints (checkout, portal, purchase, subscribe, cancel, and similar) respond with **410 Gone** in the OSS runtime.
+Read-only usage endpoints may continue to return metrics for monitoring.
 
-This opens the Stripe customer portal, where you can:
+See the [API reference](/api-reference/billing/plans) for endpoint shapes.
 
-- View and download past invoices
-- Update your payment method
-- Update your billing address and tax information
+## Running CauseFlow
 
-## Cancelling your subscription
+Deploy the full stack from the [CauseFlow monorepo](https://github.com/causeflow):
 
-1. Go to **Dashboard > Billing**.
-2. Click **Cancel subscription**.
-3. Confirm the cancellation.
+```bash
+git clone https://github.com/causeflow
+cd causeflow
+./init.sh
+```
 
-Your access continues until the end of the current billing period. After that, your account is deactivated. Your data, incidents, and investigation history are preserved — reactivate at any time by choosing a new plan.
+When `./init.sh` reports **Ready**, open the dashboard at `http://localhost:3001` and continue with the [Quickstart](/getting-started/quickstart).
 
-<Warning>
-  Cancelling does not delete your account or data. If you want to delete your account entirely, contact [support@causeflow.ai](mailto:support@causeflow.ai).
-</Warning>
+For documentation mirrors and deep dives, use the [GitHub Pages docs](https://vinicius91carvalho.github.io/causeflow-ai/).
 
-## Quota packs
+## Questions
 
-If you need additional investigations or events beyond your plan allowance, you can purchase quota packs upfront at a reduced per-unit rate. Quota packs are consumed before overage charges apply and do not expire within the calendar year.
-
-To purchase quota packs, go to **Dashboard > Billing > Buy Quota** or [contact sales](mailto:sales@causeflow.ai).
-
-## Enterprise plans
-
-Enterprise plan changes — upgrades, custom quota volumes, contract renewals — are managed directly with the CauseFlow sales team. The self-serve billing portal does not apply to Enterprise accounts.
-
-[Contact sales](mailto:sales@causeflow.ai) for Enterprise billing inquiries.
-
-## Frequently asked questions
-
-<AccordionGroup>
-  <Accordion title="What happens to unused allowance at the end of the month?">
-    Monthly investigation and event allowances reset at the start of each billing cycle. Unused allowance does not roll over. Quota packs are the exception — they do not expire within the calendar year.
-  </Accordion>
-  <Accordion title="Can I change plans more than once in a billing cycle?">
-    Yes. Upgrades take effect immediately with prorated billing. Downgrades take effect at the end of the current period — so if you downgrade and then upgrade again, the downgrade is cancelled and only the upgrade applies.
-  </Accordion>
-  <Accordion title="Do you offer refunds?">
-    Prorated refunds are available within 7 days of an accidental upgrade. Contact [support@causeflow.ai](mailto:support@causeflow.ai) with your invoice number.
-  </Accordion>
-  <Accordion title="What payment methods are accepted?">
-    CauseFlow accepts all major credit and debit cards via Stripe. Annual Enterprise plans can be invoiced with NET-30 payment terms.
-  </Accordion>
-</AccordionGroup>
+If you need help with a self-hosted deployment, open a discussion or issue on [GitHub](https://github.com/causeflow) or email [support@causeflow.ai](mailto:support@causeflow.ai).

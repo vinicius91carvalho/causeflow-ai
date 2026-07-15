@@ -1,10 +1,11 @@
 ---
 title: "Usage and quotas"
 sidebarTitle: "Usage"
-description: "Understand how investigations and events are consumed and how to track your usage."
+description: "Understand how investigations and events are consumed in a self-hosted deployment."
 ---
 
-Every CauseFlow plan includes a monthly allowance of **investigations** and **events**. This page explains how each is consumed, how to monitor your usage, and what happens when you reach your limit.
+In the open-source distribution, CauseFlow does not meter usage against paid plan tiers or bill through Stripe.
+This page explains how **investigations** and **events** are counted so you can monitor load on your own infrastructure.
 
 ## Events vs investigations
 
@@ -13,7 +14,7 @@ Every CauseFlow plan includes a monthly allowance of **investigations** and **ev
     Every incoming alert consumes **1 event**. An event covers AI triage — severity classification and initial evidence gathering.
   </Card>
   <Card title="Investigations" icon="magnifying-glass">
-    If an alert's severity meets your threshold (default: **high** or above), CauseFlow automatically launches a full investigation. This consumes **1 investigation** from your monthly allowance.
+    If an alert's severity meets your threshold (default: **high** or above), CauseFlow automatically launches a full investigation. This consumes **1 investigation**.
   </Card>
 </CardGroup>
 
@@ -32,53 +33,30 @@ flowchart TD
 ```
 
 <Tip>
-  You can adjust the severity threshold that triggers a full investigation in **Dashboard > Settings > Investigation Policy**. Raising the threshold to `critical` reduces investigation usage on lower-priority alerts.
+  You can adjust the severity threshold that triggers a full investigation in **Dashboard > Settings > Investigation Policy**. Raising the threshold to `critical` reduces investigation volume on lower-priority alerts.
 </Tip>
 
-## Monthly allowances by plan
+## Open-source limits
 
-| Plan | Investigations / mo | Events / mo |
-|------|---------------------|-------------|
-| Starter | 15 | 500 |
-| Pro | 60 | 3,000 |
-| Business | 200 | 10,000 |
-| Enterprise | Custom | Custom |
+Self-hosted CauseFlow does **not** enforce Starter / Pro / Business monthly allowances or overage billing.
+Your practical limits come from:
 
-## Viewing your usage
+- CPU, memory, and storage on the machines running Core, the worker, and the dashboard
+- LLM provider rate limits and API keys you configure
+- Database and Redis capacity in your Docker Compose stack
 
-Your current usage is always visible in the dashboard.
+Tune these in your deployment instead of purchasing quota packs or upgrading a commercial plan.
 
-**Dashboard > Billing** shows:
+## Viewing usage
 
-- Investigations used this billing cycle
-- Events used this billing cycle
-- Remaining allowance for each
-- Next reset date
-- Overage charges accrued (if any)
+**Dashboard > Billing** (when enabled in your build) may show investigations and events consumed in the current period for operational visibility.
+There is no Stripe payment method, overage charge, or **Buy Quota** purchase path in the OSS runtime.
 
-You will also see a usage bar on the main dashboard header when you are within 20% of your limit.
+You can also query usage through the API. See [GET /v1/billing/usage](/api-reference/billing/usage).
 
-## Monthly reset
+## Deploying CauseFlow
 
-Investigations and events reset at the start of each billing cycle. Unused allowance does not roll over to the next month.
+To run CauseFlow locally or on your own servers, clone the [CauseFlow monorepo](https://github.com/causeflow) and follow the root **Quickstart** (`./init.sh`).
+Full setup instructions live in the [published docs](https://vinicius91carvalho.github.io/causeflow-ai/) and the repository README.
 
-Your billing cycle start date is shown in **Dashboard > Billing**.
-
-## When you reach your limit
-
-You have two options to continue using CauseFlow beyond your monthly allowance:
-
-- **Overage (auto-charge)** — Additional usage is billed automatically at the end of the billing cycle via your Stripe payment method on file. You can review accrued overage at any time in **Dashboard > Billing**.
-- **Quota packs (manual purchase)** — Buy additional investigations or events upfront at a reduced per-unit rate from **Dashboard > Billing > Buy Quota**. Quota packs are consumed before overage charges apply.
-
-For pricing details, visit [causeflow.ai/pricing](https://causeflow.ai/pricing).
-
-## Avoiding unexpected charges
-
-<Tip>
-  Monitor your usage in **Dashboard > Billing** regularly. You can set up email notifications when you reach 80% of your monthly limit — go to **Dashboard > Settings > Notifications**.
-</Tip>
-
-If you consistently hit your limit, consider upgrading your plan. The per-investigation cost is lower on higher plans than the overage rate.
-
-Upgrading mid-cycle takes effect immediately. You are charged a prorated amount for the remainder of the billing period. See [Manage subscription](/billing/manage-subscription) for details.
+For deployment architecture and environment variables, see [Open-source usage](/billing/plans).

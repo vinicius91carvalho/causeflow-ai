@@ -1,76 +1,58 @@
 ---
-title: "Plans and pricing"
-sidebarTitle: "Plans"
-description: "Choose the right CauseFlow plan for your team."
+title: "Open-source usage"
+sidebarTitle: "Open source"
+description: "Run CauseFlow for free with the open-source self-host stack."
 ---
 
-CauseFlow offers four plans to match your team's investigation volume. All plans include every integration in the catalog — plans differ in how many investigations and events you use per month and the level of support you receive.
+CauseFlow is available as **free, open-source software** you run on your own infrastructure.
+There are no paid tiers, Stripe checkout flows, or hosted plan selection in this distribution.
 
-For full pricing details, visit [causeflow.ai/pricing](https://causeflow.ai/pricing).
+## Get started
 
-## Plan comparison
+<CardGroup cols={2}>
+  <Card title="Self-host with Docker" icon="docker" href="https://github.com/causeflow">
+    Clone the [CauseFlow monorepo](https://github.com/causeflow) and run `./init.sh` from the repository root to start the local stack (website, dashboard, Core API, and docs).
+  </Card>
+  <Card title="Read the docs" icon="book" href="https://vinicius91carvalho.github.io/causeflow-ai/">
+    Browse the published documentation on [GitHub Pages](https://vinicius91carvalho.github.io/causeflow-ai/) for quickstart, integrations, API reference, and Relay setup.
+  </Card>
+</CardGroup>
 
-| Plan | Monthly | Annual (15% off) | Investigations / mo | Events / mo | Rate limit |
-|------|---------|------------------|---------------------|-------------|------------|
-| **Starter** | **$99** | $84 / mo | 15 | 500 | 100 req/min |
-| **Pro** | **$349** | $297 / mo | 60 | 3,000 | 500 req/min |
-| **Business** | **$899** | $719 / mo | 200 | 10,000 | 2,000 req/min |
-| **Enterprise** | Custom (min $2,000) | Negotiated | Custom | Custom | Custom |
+After `./init.sh` completes, use these local URLs:
 
-<Note>
-  All plans include access to every integration in the catalog. Plans differ in investigation and event volume and support level — not in which tools you can connect.
-</Note>
+| Service | URL |
+|---------|-----|
+| Dashboard | `http://localhost:3001` |
+| Core API | `http://localhost:3099` |
+| Docs (local compose) | `http://localhost:5181` |
 
-## What counts as an investigation?
+Sign in through the local dashboard, create your organization, and connect integrations.
+No plan selection or payment step is required.
 
-One investigation covers a complete incident investigation cycle — from alert ingestion through AI analysis to remediation proposals.
+## What's included
 
-## What counts as an event?
+Every self-hosted deployment includes the full product surface:
 
-Every incoming alert consumes **1 event**. Events cover AI triage — severity classification and initial evidence gathering. If the alert meets your severity threshold, it also triggers a full investigation.
+| Capability | Included |
+|------------|----------|
+| All integrations in the catalog | Yes |
+| AI triage and investigations | Yes |
+| Knowledge base and memory | Yes |
+| Remediation proposals | Yes |
+| RBAC and audit trail | Yes |
+| CauseFlow Relay (optional) | Yes |
 
-Each plan includes a monthly allowance of both investigations and events. If you reach your limit, you can purchase more.
+Capacity is bounded by the compute and LLM providers you configure, not by a commercial quota table.
 
-## Features by plan
+## Billing in open source
 
-| Feature | Starter | Pro | Business | Enterprise |
-|---------|---------|-----|----------|------------|
-| All integrations | Yes | Yes | Yes | Yes |
-| Knowledge base | Yes | Yes | Yes | Yes |
-| Remediation (PRs) | Yes | Yes | Yes | Yes |
-| RBAC | Yes | Yes | Yes | Yes |
-| Audit trail | Yes | Yes | Yes | Yes |
-| Email support | Yes | Yes | Yes | Yes |
-| WhatsApp support | No | Yes | Yes | Yes |
-| SSO / SAML | No | No | No | Yes |
-| Dedicated support | No | No | No | Yes |
-| SLA | No | No | No | Yes |
-| Custom integrations | No | No | No | Yes |
+Commercial subscription management, Stripe checkout, and paid plan upgrades are **not part of the open-source path**.
+Dashboard billing screens may show usage metrics for operators, but checkout, portal, and credit purchase endpoints return **410 Gone** in the OSS runtime.
 
-## Exceeding your limits
+See [Usage and quotas](/billing/usage-and-credits) for how investigations and events are counted, and [Billing in open source](/billing/manage-subscription) for what to expect in the dashboard.
 
-When you reach your monthly investigation or event allowance, you have two options:
+## Need help?
 
-- **Overage (auto-charge)** — Additional usage is billed automatically via Stripe at the end of the billing cycle.
-- **Quota packs (manual purchase)** — Buy additional investigations or events upfront at a reduced per-unit rate from **Dashboard > Billing > Buy Quota**.
-
-See [Usage and quotas](/billing/usage-and-credits) for details on how consumption works.
-
-## Enterprise
-
-Enterprise plans are available for organizations with 50 or more developers. Enterprise includes:
-
-- Custom investigation and event volumes
-- SSO / SAML for your identity provider
-- Dedicated support engineer
-- Custom SLA
-- Custom integrations
-- Negotiated overage pricing
-
-[Contact sales](mailto:sales@causeflow.ai) to discuss an Enterprise plan.
-
-## Billing and payments
-
-All payments are processed securely via **Stripe**. You can view invoices, update your payment method, and manage your subscription from **Dashboard > Billing**.
-
-Annual plans offer a **15% discount** compared to monthly billing. See [Manage subscription](/billing/manage-subscription) for upgrade and downgrade instructions.
+- **Documentation:** [GitHub Pages docs](https://vinicius91carvalho.github.io/causeflow-ai/)
+- **Source and issues:** [github.com/causeflow](https://github.com/causeflow)
+- **Questions:** [support@causeflow.ai](mailto:support@causeflow.ai)
