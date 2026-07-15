@@ -38,3 +38,12 @@
 - WorkItem: WI-AC-086
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-15T22:18:16.921Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-086
+- AcceptanceChecks: AC-086
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/web/1ff04538-5c4d-41c8-ba4e-c5179fbc9933/oss-custom-investigation-llm/WI-AC-086-1-integration_qa-572329c2723e7009.log
+- NextAction: next Ready Work Item
