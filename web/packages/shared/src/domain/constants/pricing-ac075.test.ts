@@ -28,16 +28,11 @@ describe('PRICING_PLANS (AC-075 OSS marketing)', () => {
   });
 });
 
-describe('pricing-page (AC-075 OSS marketing)', () => {
-  it('links plan CTAs to docs/GitHub instead of dashboard sign-up', () => {
+describe('pricing-page (AC-078 OSS marketing)', () => {
+  it('redirects legacy /pricing traffic to published docs', () => {
     expect(pricingPageSource).toContain('SITE.docsUrl');
-    expect(pricingPageSource).toContain('SITE.social.github');
-    expect(pricingPageSource).not.toContain('getDashboardUrl');
-    expect(pricingPageSource).not.toContain('/sign-up');
-  });
-
-  it('surfaces OSS self-host banner copy', () => {
-    expect(pricingPageSource).toContain("t('oss.bannerTitle')");
-    expect(pricingPageSource).toContain("t('oss.ctaSelfHost')");
+    expect(pricingPageSource).toContain('redirect(SITE.docsUrl)');
+    expect(pricingPageSource).not.toContain('PricingInteractive');
+    expect(pricingPageSource).not.toContain('PRICING_PLANS');
   });
 });

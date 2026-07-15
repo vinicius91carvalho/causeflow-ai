@@ -10,6 +10,10 @@ const DASHBOARD_URL =
     ? 'https://dashboard.causeflow.ai'
     : 'https://dashboard-staging.causeflow.ai');
 
+/** Must match SITE.docsUrl in packages/shared/src/domain/constants/site.ts */
+const DOCS_URL =
+  process.env.NEXT_PUBLIC_DOCS_URL ?? 'https://vinicius91carvalho.github.io/causeflow-ai/';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
@@ -24,6 +28,19 @@ const nextConfig = {
     {
       source: '/:locale(pt-br)/get-started',
       destination: `${DASHBOARD_URL}/auth/sign-up`,
+      permanent: true,
+      locale: false,
+    },
+    // AC-078: retired pricing page — send bookmarked URLs to published OSS docs.
+    {
+      source: '/pricing',
+      destination: DOCS_URL,
+      permanent: true,
+      locale: false,
+    },
+    {
+      source: '/:locale(pt-br)/pricing',
+      destination: DOCS_URL,
       permanent: true,
       locale: false,
     },
