@@ -32,7 +32,7 @@ const EMPTY_FORM: ProfileFormState = {
 };
 
 /**
- * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085, AC-086, AC-087).
+ * OSS settings surface for custom Investigation LLM profiles (AC-084, AC-085, AC-086, AC-087, AC-088).
  */
 export function InvestigationLlmProfilesCard() {
   const t = useTranslations('dashboard.settings.investigationLlmProfiles');

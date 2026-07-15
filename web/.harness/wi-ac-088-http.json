@@ -1,0 +1,84 @@
+{
+  "id": "WI-AC-088",
+  "steps": [
+    {
+      "step": "core_mutations_require_admin",
+      "ok": true,
+      "checks": [
+        {
+          "label": "POST create uses requireRole(admin)",
+          "ok": true
+        },
+        {
+          "label": "POST activate uses requireRole(admin)",
+          "ok": true
+        },
+        {
+          "label": "PATCH uses requireRole(admin)",
+          "ok": true
+        },
+        {
+          "label": "DELETE uses requireRole(admin)",
+          "ok": true
+        },
+        {
+          "label": "GET list has no requireRole(admin)",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "step": "bff_mutations_admin_only",
+      "ok": true,
+      "checks": [
+        {
+          "label": "POST handler uses adminOnly",
+          "ok": true
+        },
+        {
+          "label": "PATCH handler uses adminOnly",
+          "ok": true
+        },
+        {
+          "label": "DELETE handler uses adminOnly",
+          "ok": true
+        },
+        {
+          "label": "activate handler uses adminOnly",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "step": "ui_mutations_hidden_for_members",
+      "ok": true,
+      "checks": [
+        {
+          "label": "uses MANAGE_SETTINGS permission",
+          "ok": true
+        },
+        {
+          "label": "create toggle gated by canManage",
+          "ok": true
+        },
+        {
+          "label": "form gated by canManage",
+          "ok": true
+        },
+        {
+          "label": "row actions gated by canManage",
+          "ok": true
+        },
+        {
+          "label": "admin-only helper copy for members",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "step": "unit_tests",
+      "exitCode": 0
+    }
+  ],
+  "pass": true
+}

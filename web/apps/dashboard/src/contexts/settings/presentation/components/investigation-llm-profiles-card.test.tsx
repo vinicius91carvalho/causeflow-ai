@@ -40,3 +40,30 @@ describe('InvestigationLlmProfilesCard (AC-087 presets)', () => {
     expect(source).not.toContain('LlmConnectorId');
   });
 });
+
+describe('InvestigationLlmProfilesCard RBAC (AC-088)', () => {
+  async function readSource(): Promise<string> {
+    const fs = await import('node:fs');
+    return fs.readFileSync(
+      new URL('./investigation-llm-profiles-card.tsx', import.meta.url),
+      'utf-8',
+    );
+  }
+
+  it('gates create/edit/delete/activate controls behind MANAGE_SETTINGS permission', async () => {
+    const source = await readSource();
+    expect(source).toContain('usePermission(PERMISSION.MANAGE_SETTINGS)');
+    expect(source).toContain('if (!canManage) return');
+    expect(source).toContain('{canManage && (');
+    expect(source).toContain('data-testid="investigation-llm-profile-toggle-form"');
+    expect(source).toContain('data-testid={`investigation-llm-profile-activate-${profile.id}`}');
+    expect(source).toContain('data-testid={`investigation-llm-profile-edit-${profile.id}`}');
+    expect(source).toContain('data-testid={`investigation-llm-profile-delete-${profile.id}`}');
+  });
+
+  it('shows admin-only helper copy for non-admin viewers', async () => {
+    const source = await readSource();
+    expect(source).toContain("{!canManage && <p");
+    expect(source).toContain("{t('adminOnly')}");
+  });
+});

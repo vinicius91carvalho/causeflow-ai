@@ -1,5 +1,5 @@
 /**
- * OSS Investigation LLM profile HTTP routes (AC-084, AC-085, AC-086).
+ * OSS Investigation LLM profile HTTP routes (AC-084, AC-085, AC-086, AC-088).
  * Admins create, edit, activate, and delete named OpenAI-compatible profiles; list is tenant-scoped.
  */
 import { randomUUID } from 'node:crypto';
