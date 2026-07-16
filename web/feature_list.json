@@ -342,16 +342,17 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 1,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "browser",
     "observation_methods": [
       "browser"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-007",
@@ -372,16 +373,17 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 1,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "grep",
     "observation_methods": [
       "grep"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-009",
@@ -402,16 +404,17 @@
       "AC-001"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 2,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-017",
@@ -645,13 +648,15 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0,
+    "retries": 2,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false,
+    "updatedAt": "2026-07-12T02:42:38.121Z"
   },
   {
     "id": "WI-AC-015",
@@ -703,15 +708,16 @@
     ],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
-    "integration": false,
-    "retries": 0,
+    "qa": true,
+    "integration": true,
+    "retries": 2,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-018",
@@ -732,16 +738,17 @@
       "AC-002"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "browser",
     "observation_methods": [
       "browser"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-019",
@@ -793,9 +800,9 @@
     ],
     "verify_first": true,
     "implementation": true,
-    "qa": false,
-    "integration": false,
-    "retries": 1,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
     "attempts": 1,
     "status": "implemented",
     "implemented_at": "2026-07-09T16:55:00Z",
@@ -803,7 +810,8 @@
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-034",
@@ -824,16 +832,17 @@
       "AC-007"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 2,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "grep",
     "observation_methods": [
       "grep"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-011",
@@ -854,16 +863,17 @@
       "AC-010"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-020",
@@ -884,16 +894,17 @@
       "AC-019"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 1,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-021",
@@ -914,16 +925,17 @@
       "AC-019"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "grep",
     "observation_methods": [
       "grep"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-022",
@@ -944,16 +956,17 @@
       "AC-019"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 1,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-024",
@@ -974,16 +987,17 @@
       "AC-019"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-029",
@@ -1004,16 +1018,17 @@
       "AC-019"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-030",
@@ -1034,16 +1049,17 @@
       "AC-019"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "browser",
     "observation_methods": [
       "browser"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-023",
@@ -1064,16 +1080,17 @@
       "AC-022"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-025",
@@ -1094,16 +1111,17 @@
       "AC-024"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-026",
@@ -1124,16 +1142,17 @@
       "AC-024"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-031",
@@ -1154,16 +1173,17 @@
       "AC-024"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 1,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-035",
@@ -1184,16 +1204,17 @@
       "AC-024"
     ],
     "verify_first": true,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "attempts": 0,
     "status": "verify-first",
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-040",
@@ -1371,14 +1392,15 @@
       "AC-046"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "observation_method": "grep",
     "observation_methods": [
       "grep"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-048",
@@ -1395,14 +1417,15 @@
       "AC-046"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-049",
@@ -1470,11 +1493,12 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0,
+    "retries": 1,
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-052",
@@ -1494,11 +1518,12 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0,
+    "retries": 1,
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-053",
@@ -1518,14 +1543,15 @@
       "AC-049"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
+    "implementation": true,
+    "qa": true,
+    "integration": true,
     "retries": 0,
     "observation_method": "http",
     "observation_methods": [
       "http"
-    ]
+    ],
+    "blocked": false
   },
   {
     "id": "WI-AC-054",
@@ -1551,10 +1577,11 @@
       "AC-051"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-055",
@@ -1579,10 +1606,11 @@
       "AC-051"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-056",
@@ -1607,10 +1635,11 @@
       "AC-055"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-057",
@@ -1634,10 +1663,11 @@
       "AC-056"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-058",
@@ -1663,10 +1693,11 @@
       "AC-055"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-059",
@@ -1692,10 +1723,11 @@
       "AC-057"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-060",
@@ -1722,10 +1754,11 @@
       "AC-059"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-061",
@@ -1754,10 +1787,11 @@
       "AC-060"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-062",
@@ -1781,10 +1815,11 @@
     ],
     "depends_on": [],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 1,
+    "blocked": false
   },
   {
     "id": "WI-AC-063",
@@ -1810,10 +1845,11 @@
       "AC-062"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 1,
+    "blocked": false
   },
   {
     "id": "WI-AC-064",
@@ -1838,10 +1874,11 @@
       "AC-062"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-065",
@@ -1867,10 +1904,11 @@
       "AC-062"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-066",
@@ -1896,10 +1934,11 @@
       "AC-065"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-067",
@@ -1924,10 +1963,11 @@
       "AC-063"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-068",
@@ -1954,10 +1994,11 @@
       "AC-063"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-069",
@@ -1982,10 +2023,11 @@
       "AC-044"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-070",
@@ -2012,10 +2054,11 @@
       "AC-058"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-071",
@@ -2040,10 +2083,11 @@
       "AC-070"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-072",
@@ -2068,10 +2112,11 @@
       "AC-069"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 2,
+    "blocked": false
   },
   {
     "id": "WI-AC-073",
@@ -2097,10 +2142,11 @@
       "AC-044"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-074",
@@ -2125,10 +2171,11 @@
       "AC-073"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 2,
+    "blocked": false
   },
   {
     "id": "WI-AC-075",
@@ -2153,10 +2200,11 @@
       "AC-073"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 2,
+    "blocked": false
   },
   {
     "id": "WI-AC-076",
@@ -2182,10 +2230,11 @@
       "AC-073"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-077",
@@ -2212,10 +2261,11 @@
       "AC-075"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-078",
@@ -2242,10 +2292,11 @@
       "AC-066"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 1,
+    "blocked": false
   },
   {
     "id": "WI-AC-079",
@@ -2272,10 +2323,11 @@
       "AC-066"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-080",
@@ -2300,10 +2352,11 @@
       "AC-077"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-081",
@@ -2329,10 +2382,11 @@
       "AC-044"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 2,
+    "blocked": false
   },
   {
     "id": "WI-AC-082",
@@ -2357,10 +2411,11 @@
       "AC-081"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-083",
@@ -2386,10 +2441,11 @@
       "AC-073"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-084",
@@ -2415,10 +2471,11 @@
       "AC-044"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-085",
@@ -2443,10 +2500,11 @@
       "AC-084"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-086",
@@ -2470,10 +2528,11 @@
       "AC-084"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-087",
@@ -2497,10 +2556,11 @@
       "AC-084"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-088",
@@ -2524,10 +2584,11 @@
       "AC-084"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   },
   {
     "id": "WI-AC-089",
@@ -2551,10 +2612,11 @@
       "AC-086"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 1,
+    "blocked": false
   },
   {
     "id": "WI-AC-090",
@@ -2578,10 +2640,11 @@
       "AC-086"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 1,
+    "blocked": false
   },
   {
     "id": "WI-AC-091",
@@ -2606,9 +2669,10 @@
       "AC-084"
     ],
     "verify_first": false,
-    "implementation": false,
-    "qa": false,
-    "integration": false,
-    "retries": 0
+    "implementation": true,
+    "qa": true,
+    "integration": true,
+    "retries": 0,
+    "blocked": false
   }
 ]
