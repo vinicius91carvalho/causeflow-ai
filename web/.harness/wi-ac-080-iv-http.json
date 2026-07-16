@@ -1,0 +1,35 @@
+{
+  "allPass": true,
+  "results": [
+    {
+      "path": "/billing/plans",
+      "status": 200,
+      "pass": true,
+      "defects": []
+    },
+    {
+      "path": "/billing/usage-and-credits",
+      "status": 200,
+      "pass": true,
+      "defects": []
+    },
+    {
+      "path": "/billing/manage-subscription",
+      "status": 200,
+      "pass": true,
+      "defects": []
+    },
+    {
+      "path": "/getting-started/quickstart",
+      "status": 200,
+      "pass": true,
+      "defects": []
+    },
+    {
+      "path": "/api-reference/billing/plans",
+      "status": 200,
+      "pass": true,
+      "defects": []
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "base": "http://127.0.0.1:5170",
+  "pages": [
+    {
+      "path": "/",
+      "status": 200,
+      "headerHasPricingText": false,
+      "footerHasPricingText": false,
+      "headerHasPricingHref": false,
+      "footerHasPricingHref": false,
+      "chromeHasPricingHref": false
+    },
+    {
+      "path": "/pt-br",
+      "status": 200,
+      "headerHasPricingText": false,
+      "footerHasPricingText": false,
+      "headerHasPricingHref": false,
+      "footerHasPricingHref": false,
+      "chromeHasPricingHref": false
+    }
+  ],
+  "constants": {
+    "headerHasPricing": false,
+    "footerHasPricing": false
+  },
+  "eval": {
+    "all_pages_ok": true,
+    "constants_ok": true,
+    "page_fails": [],
+    "constant_fails": []
+  }
+}

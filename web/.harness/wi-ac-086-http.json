@@ -2,7 +2,7 @@
   "id": "WI-AC-086",
   "base": "http://127.0.0.1:5170",
   "core": "http://127.0.0.1:3099",
-  "email": "ac086-1784153658577@causeflow.local",
+  "email": "ac086-1784153878702@causeflow.local",
   "steps": [
     {
       "step": "register",
@@ -11,50 +11,50 @@
     {
       "step": "create_a",
       "status": 201,
-      "id": "e369c0fa-2a18-4eea-a6c0-27f116f9238d"
+      "id": "4e5ec68d-40cb-40a3-b48e-8d1f3d3d59d0"
     },
     {
       "step": "create_b",
       "status": 201,
-      "id": "077f542f-3472-4d4a-b510-62fc8369de64"
+      "id": "c6a183e2-3b5f-4a29-9511-edcefa72718d"
     },
     {
       "step": "activate_b",
       "status": 200,
-      "activeProfileId": "077f542f-3472-4d4a-b510-62fc8369de64"
+      "activeProfileId": "c6a183e2-3b5f-4a29-9511-edcefa72718d"
     },
     {
       "step": "list_after_activate",
       "status": 200,
-      "activeProfileId": "077f542f-3472-4d4a-b510-62fc8369de64",
+      "activeProfileId": "c6a183e2-3b5f-4a29-9511-edcefa72718d",
       "activeCount": 1,
       "activeIds": [
-        "077f542f-3472-4d4a-b510-62fc8369de64"
+        "c6a183e2-3b5f-4a29-9511-edcefa72718d"
       ]
     },
     {
       "step": "bff_llm_connector",
       "status": 200,
-      "activeId": "077f542f-3472-4d4a-b510-62fc8369de64",
+      "activeId": "c6a183e2-3b5f-4a29-9511-edcefa72718d",
       "activeModel": "model-b",
       "activeSource": "investigation-llm-profile"
     },
     {
       "step": "core_llm_connector",
       "status": 200,
-      "activeId": "077f542f-3472-4d4a-b510-62fc8369de64",
+      "activeId": "c6a183e2-3b5f-4a29-9511-edcefa72718d",
       "activeModel": "model-b",
       "activeSource": "investigation-llm-profile"
     },
     {
       "step": "activate_a_switch",
       "status": 200,
-      "activeProfileId": "e369c0fa-2a18-4eea-a6c0-27f116f9238d"
+      "activeProfileId": "4e5ec68d-40cb-40a3-b48e-8d1f3d3d59d0"
     },
     {
       "step": "list_after_switch",
       "status": 200,
-      "activeProfileId": "e369c0fa-2a18-4eea-a6c0-27f116f9238d",
+      "activeProfileId": "4e5ec68d-40cb-40a3-b48e-8d1f3d3d59d0",
       "onlyOneActive": true
     },
     {

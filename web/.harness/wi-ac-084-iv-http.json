@@ -1,0 +1,108 @@
+{
+  "base": "http://localhost:5171",
+  "core": "http://127.0.0.1:3099",
+  "email": "iv-ac084-1784152507888@causeflow.local",
+  "profileLabel": "AC084 IV Profile 1784152507888",
+  "steps": [
+    {
+      "step": "dashboard_register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "2840d34b-6407-4ce2-ac1f-2cc4e36157f2",
+          "email": "iv-ac084-1784152507888@causeflow.local",
+          "name": "AC084 IV Admin"
+        }
+      }
+    },
+    {
+      "step": "list_before",
+      "status": 200,
+      "body": {
+        "items": []
+      }
+    },
+    {
+      "step": "create_profile",
+      "status": 201,
+      "body": {
+        "id": "52da288f-511d-429e-bd6c-9629ca416371",
+        "label": "AC084 IV Profile 1784152507888",
+        "baseUrl": "https://api.openai.com/v1",
+        "model": "gpt-4o-mini",
+        "apiKeyConfigured": true,
+        "contextWindowTokens": 128000,
+        "createdAt": "Wed Jul 15 2026 21:55:15 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Wed Jul 15 2026 21:55:15 GMT+0000 (Coordinated Universal Time)"
+      }
+    },
+    {
+      "step": "list_after",
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "52da288f-511d-429e-bd6c-9629ca416371",
+            "label": "AC084 IV Profile 1784152507888",
+            "baseUrl": "https://api.openai.com/v1",
+            "model": "gpt-4o-mini",
+            "apiKeyConfigured": true,
+            "contextWindowTokens": 128000,
+            "createdAt": "Wed Jul 15 2026 21:55:15 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Wed Jul 15 2026 21:55:15 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      }
+    },
+    {
+      "step": "list_reload",
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "52da288f-511d-429e-bd6c-9629ca416371",
+            "label": "AC084 IV Profile 1784152507888",
+            "baseUrl": "https://api.openai.com/v1",
+            "model": "gpt-4o-mini",
+            "apiKeyConfigured": true,
+            "contextWindowTokens": 128000,
+            "createdAt": "Wed Jul 15 2026 21:55:15 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Wed Jul 15 2026 21:55:15 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      }
+    },
+    {
+      "step": "core_list_direct",
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "52da288f-511d-429e-bd6c-9629ca416371",
+            "label": "AC084 IV Profile 1784152507888",
+            "baseUrl": "https://api.openai.com/v1",
+            "model": "gpt-4o-mini",
+            "apiKeyConfigured": true,
+            "contextWindowTokens": 128000,
+            "createdAt": "Wed Jul 15 2026 21:55:15 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Wed Jul 15 2026 21:55:15 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      }
+    }
+  ],
+  "eval": {
+    "register_ok": true,
+    "list_before_ok": true,
+    "create_ok": true,
+    "create_has_required_fields": true,
+    "create_has_optional_fields": true,
+    "create_no_raw_api_key": true,
+    "list_after_contains_profile": true,
+    "list_reload_persists": true,
+    "core_direct_contains_profile": true
+  },
+  "pass": true,
+  "defects": []
+}

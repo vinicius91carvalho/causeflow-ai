@@ -1,0 +1,32 @@
+{
+  "moduleId": "harness",
+  "files": [
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/.cursor-plugin/plugin.json",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/assets/banner.svg",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/.mcp.json",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/AGENTS.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/skills/evaluator",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/commands/harness-evaluator.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/skills/generator",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/commands/harness-generator.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/skills/grilling",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/commands/harness-grilling.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/skills/learning-loop",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/commands/harness-learning-loop.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/skills/monorepo-supervisor-ops",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/commands/harness-monorepo-supervisor-ops.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/skills/planner",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/commands/harness-planner.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/skills/setup",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/commands/harness-setup.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/skills/supervisor",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/commands/harness-supervisor.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/skills/update-project",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/commands/harness-update-project.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/skills/worktree-git-recovery",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/commands/harness-worktree-git-recovery.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/agents/coding-agent.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/agents/initializer.md",
+    "/home/vinicius/projects/causeflow-ai/.cursor/plugins/local/harness/agents/qa-agent.md"
+  ]
+}

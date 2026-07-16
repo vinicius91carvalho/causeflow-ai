@@ -1,0 +1,15 @@
+{
+  "moduleId": "harness",
+  "files": [
+    "evaluator",
+    "generator",
+    "grilling",
+    "learning-loop",
+    "monorepo-supervisor-ops",
+    "planner",
+    "setup",
+    "supervisor",
+    "update-project",
+    "worktree-git-recovery"
+  ]
+}

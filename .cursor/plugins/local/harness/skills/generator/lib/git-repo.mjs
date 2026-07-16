@@ -1,0 +1,70 @@
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { isAbsolute, resolve, dirname } from 'node:path'
+import { randomUUID } from 'node:crypto'
+import { spawnSync } from 'node:child_process'
+import { integrationBranchName } from './integration-branch.mjs'
+import { processAlive as sharedProcessAlive } from '../../supervisor/lib/orphan-claims.mjs'
+
+export function git(repo, args, { allowFailure = false } = {}) {
+  const result = spawnSync('git', ['-C', repo, ...args], { encoding: 'utf8' })
+  if (!allowFailure && result.status !== 0) {
+    throw new Error((result.stderr || result.stdout || 'git failed').trim())
+  }
+  return result
+}
+
+export function gitCommonDir(repo) {
+  const raw = git(repo, ['rev-parse', '--git-common-dir']).stdout.trim()
+  return isAbsolute(raw) ? raw : resolve(repo, raw)
+}
+
+export function gitRoot(repo) {
+  return git(repo, ['rev-parse', '--show-toplevel']).stdout.trim()
+}
+
+export function projectPrefix(repo) {
+  return git(repo, ['rev-parse', '--show-prefix']).stdout.trim()
+}
+
+const featureListCache = new Map()
+
+export function readFeatureListFromIntegration(repo) {
+  const prefix = projectPrefix(repo)
+  const branch = integrationBranchName(repo)
+  const tipResult = git(repo, ['rev-parse', branch], { allowFailure: true })
+  const tip = tipResult.status === 0 ? tipResult.stdout.trim() : ''
+  const cacheKey = `${resolve(repo)}\0${branch}\0${prefix}`
+  const hit = featureListCache.get(cacheKey)
+  if (hit && tip && hit.tip === tip) return hit.data
+  const spec = prefix ? `${branch}:${prefix}feature_list.json` : `${branch}:feature_list.json`
+  const result = git(repo, ['show', spec], { allowFailure: true })
+  if (result.status !== 0) {
+    featureListCache.delete(cacheKey)
+    return null
+  }
+  const data = JSON.parse(result.stdout)
+  if (tip) featureListCache.set(cacheKey, { tip, data })
+  return data
+}
+
+export function portInUse(port) {
+  const result = spawnSync('bash', ['-c', `echo >/dev/tcp/127.0.0.1/${port}`], { encoding: 'utf8' })
+  return result.status === 0
+}
+
+export const processAlive = sharedProcessAlive
+
+export function readJsonFile(file, fallback = null) {
+  try {
+    return JSON.parse(readFileSync(file, 'utf8'))
+  } catch {
+    return fallback
+  }
+}
+
+export function writeJsonAtomic(file, value) {
+  mkdirSync(dirname(file), { recursive: true })
+  const temporary = `${file}.tmp.${process.pid}.${randomUUID()}`
+  writeFileSync(temporary, `${JSON.stringify(value, null, 2)}\n`)
+  renameSync(temporary, file)
+}

@@ -67,8 +67,8 @@
       "ok": true,
       "triageStatus": 500,
       "investigateStatus": 500,
-      "triageError": "Triage failed for incident 9971535e-0067-484a-8f04-044952c8fbc4: No Investigation LLM profile is active. Configure an Investigation LLM in Settings before starting an investigation.",
-      "investigateError": "Investigation failed for 9971535e-0067-484a-8f04-044952c8fbc4: No Investigation LLM profile is active. Configure an Investigation LLM in Settings before starting an investigation.",
+      "triageError": "Triage failed for incident b68d09b9-93bc-49fb-b540-2434f9fd2f7e: No Investigation LLM profile is active. Configure an Investigation LLM in Settings before starting an investigation.",
+      "investigateError": "Investigation failed for b68d09b9-93bc-49fb-b540-2434f9fd2f7e: No Investigation LLM profile is active. Configure an Investigation LLM in Settings before starting an investigation.",
       "activeProfileId": null
     }
   ],

@@ -1,0 +1,55 @@
+---
+name: update-project
+description: Back up sanitized, restorable configuration for every detected Claude Code, Codex, OpenCode, and Cursor Agent host without copying credentials, caches, histories, or sessions.
+---
+
+# Update project
+
+Back up each detected host independently. Never infer that one host's schema is
+valid for another. Locate the plugin root through `CLAUDE_PLUGIN_ROOT` (Claude),
+`PLUGIN_ROOT` (Codex), or this installed skill directory (OpenCode).
+
+## Safety boundary
+
+Before writing, show the source and destination inventory and ask through the
+active host's native question facility. Never read or copy credentials, tokens,
+history, conversations, sessions, caches, logs, indexes, telemetry, or installed
+plugin payloads. Preserve `${PLACEHOLDER}` values in committed host MCP backups.
+
+## Host backups
+
+- Claude Code: sanitize the shareable subset of `~/.claude/settings.json`; record
+  enabled marketplace plugins; copy only user-authored `skills/`, `commands/`,
+  `agents/`, `hooks/`, `keybindings.json`, and `CLAUDE.md` to
+  `config/home/claude/`. Sanitize user/local MCP entries from `~/.claude.json`.
+- Codex: sanitize `~/.codex/config.toml`; copy user-authored skills, agents,
+  hooks, and instruction files to `config/home/codex/`. Exclude auth files,
+  session/history directories, logs, caches, and marketplace snapshots.
+- OpenCode: sanitize `~/.config/opencode/opencode.json` (or `.jsonc`, retaining a
+  pre-normalization backup outside the committed tree); copy only user-authored
+  `skills/`, `agents/`, `commands/`, `tools/`, and instruction files to
+  `config/home/opencode/`. Exclude auth, storage, logs, caches, and sessions.
+
+Keep host MCP shapes distinct: Claude uses `mcpServers`, Codex uses TOML
+`mcp_servers`/native `codex mcp`, and OpenCode uses `mcp` entries whose local
+`command` is an array.
+
+## Reconciliation
+
+Reconcile the Claude and Codex marketplace catalogs, both installers, README,
+AGENTS.md, and CLAUDE.md. Optional tools absent from a live setup are not automatic
+deletions; ask before removing an offering. Never reintroduce host-specific plugins
+as marketplace entries.
+
+Run the same checks as CI:
+
+```sh
+jq empty .claude-plugin/*.json .codex-plugin/*.json .cursor-plugin/*.json .agents/plugins/marketplace.json opencode.json config/*.json
+sh -n install.sh && bash -n skills/generator/claim.sh scripts/*.sh
+node --check skills/generator/orchestrator.mjs && node --check skills/generator/reconcile.mjs && node --check skills/supervisor/scripts/harness-control.mjs
+bash tests/install_test.sh && bash tests/reconcile_test.sh && bash tests/orchestrator_test.sh && bash tests/supervisor_test.sh && bash tests/site_test.sh && bash tests/claim_test.sh
+node tests/spec_review_test.mjs && node tests/spec_review_browser_test.mjs  # browser E2E requires chromium/chrome
+bash scripts/statusline.sh --selftest && bash scripts/sync-config.sh --selftest
+```
+
+Report changed paths and verification results. Do not commit unless asked.

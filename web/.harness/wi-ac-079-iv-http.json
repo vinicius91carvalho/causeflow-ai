@@ -1,0 +1,146 @@
+{
+  "base": "http://127.0.0.1:5170",
+  "docs_url": "https://vinicius91carvalho.github.io/causeflow-ai/",
+  "github_url": "https://github.com/causeflow",
+  "pages": [
+    {
+      "path": "/",
+      "status": 200,
+      "hasDocsInMain": true,
+      "hasGitHubInMain": true,
+      "heroButtons": [],
+      "finalButtons": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "View on GitHub"
+        }
+      ],
+      "allProminent": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "View on GitHub"
+        }
+      ],
+      "primaryHasDocsOrGithub": true,
+      "primaryHasConversion": false,
+      "conversionTextHits": [],
+      "conversionHrefHits": [],
+      "headerHasDashboard": true,
+      "headerHasConversionCta": false
+    },
+    {
+      "path": "/product",
+      "status": 200,
+      "hasDocsInMain": true,
+      "hasGitHubInMain": false,
+      "heroButtons": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        }
+      ],
+      "finalButtons": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        }
+      ],
+      "allProminent": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        }
+      ],
+      "primaryHasDocsOrGithub": true,
+      "primaryHasConversion": false,
+      "conversionTextHits": [],
+      "conversionHrefHits": [],
+      "headerHasDashboard": true,
+      "headerHasConversionCta": false
+    },
+    {
+      "path": "/pt-br",
+      "status": 200,
+      "hasDocsInMain": true,
+      "hasGitHubInMain": true,
+      "heroButtons": [],
+      "finalButtons": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documentação"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "Ver no GitHub"
+        }
+      ],
+      "allProminent": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documentação"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "Ver no GitHub"
+        }
+      ],
+      "primaryHasDocsOrGithub": true,
+      "primaryHasConversion": false,
+      "conversionTextHits": [
+        "Acesso Antecipado"
+      ],
+      "conversionHrefHits": [],
+      "headerHasDashboard": true,
+      "headerHasConversionCta": false
+    },
+    {
+      "path": "/pt-br/product",
+      "status": 200,
+      "hasDocsInMain": true,
+      "hasGitHubInMain": false,
+      "heroButtons": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documentação"
+        }
+      ],
+      "finalButtons": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documentação"
+        }
+      ],
+      "allProminent": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documentação"
+        }
+      ],
+      "primaryHasDocsOrGithub": true,
+      "primaryHasConversion": false,
+      "conversionTextHits": [],
+      "conversionHrefHits": [],
+      "headerHasDashboard": true,
+      "headerHasConversionCta": false
+    }
+  ],
+  "eval": {
+    "all_pages_200": true,
+    "homepage_primary_docs_github": true,
+    "product_primary_docs_github": true,
+    "no_conversion_text_in_main": false,
+    "no_conversion_href_in_main": true,
+    "no_primary_conversion_ctas": true,
+    "quiet_dashboard_in_header_ok": true,
+    "docs_and_github_present": false,
+    "pass": false
+  }
+}

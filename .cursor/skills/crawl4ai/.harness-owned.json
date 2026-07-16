@@ -1,0 +1,16 @@
+{
+  "moduleId": "crawl4ai",
+  "files": [
+    "SKILL.md",
+    "references/complete-sdk-reference.md",
+    "scripts/basic_crawler.py",
+    "scripts/batch_crawler.py",
+    "scripts/extraction_pipeline.py",
+    "tests/README.md",
+    "tests/run_all_tests.py",
+    "tests/test_advanced_patterns.py",
+    "tests/test_basic_crawling.py",
+    "tests/test_data_extraction.py",
+    "tests/test_markdown_generation.py"
+  ]
+}

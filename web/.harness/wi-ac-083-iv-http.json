@@ -1,0 +1,65 @@
+{
+  "base": "http://127.0.0.1:5170",
+  "core": "http://127.0.0.1:3099",
+  "email": "iv-ac083-1784151779616@causeflow.local",
+  "routes": [
+    {
+      "surface": "onboarding_welcome",
+      "finalUrl": "http://127.0.0.1:5170/onboarding/welcome",
+      "finalStatus": 200,
+      "paid_plan_markers": [],
+      "clean": true
+    },
+    {
+      "surface": "onboarding_business_profile",
+      "finalUrl": "http://127.0.0.1:5170/onboarding/business-profile",
+      "finalStatus": 200,
+      "paid_plan_markers": [],
+      "clean": true
+    },
+    {
+      "surface": "onboarding_integrations",
+      "finalUrl": "http://127.0.0.1:5170/onboarding/integrations",
+      "finalStatus": 200,
+      "paid_plan_markers": [],
+      "clean": true
+    },
+    {
+      "surface": "dashboard_home",
+      "finalUrl": "http://127.0.0.1:5170/dashboard",
+      "finalStatus": 200,
+      "paid_plan_markers": [],
+      "clean": true
+    },
+    {
+      "surface": "dashboard_settings",
+      "finalUrl": "http://127.0.0.1:5170/dashboard/settings",
+      "finalStatus": 200,
+      "paid_plan_markers": [],
+      "clean": true
+    },
+    {
+      "surface": "dashboard_settings_company_tab",
+      "finalUrl": "http://127.0.0.1:5170/dashboard/settings?tab=company",
+      "finalStatus": 200,
+      "paid_plan_markers": [],
+      "clean": true
+    }
+  ],
+  "steps": [
+    {
+      "step": "dashboard_register",
+      "status": 200
+    }
+  ],
+  "cookie": "__session=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjNWRjYjQ5ZS0wOTZhLTRmODUtODQ3Ny05NzM2ODFkNjE1M2UiLCJlbWFpbCI6Iml2LWFjMDgzLTE3ODQxNTE3Nzk2MTZAY2F1c2VmbG93LmxvY2FsIiwidGVuYW50X2lkIjoiNmE0YWMyMDktYTE3ZC00Nzg4LWIxMGUtZjZmZjc1NWQwNmExIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzg0MTUxNzg1LCJleHAiOjE3ODQyMzgxODUsImlzcyI6ImNhdXNlZmxvdyIsImF1ZCI6ImNhdXNlZmxvdy1hcGkifQ.u9gJs-ogDVY0AosGJMxOjeaI4dtu8k4_YUpeMJSkvys",
+  "eval": {
+    "register_ok": true,
+    "no_paid_plan_on_onboarding_welcome": true,
+    "no_paid_plan_on_settings": true,
+    "no_paid_plan_on_dashboard": true,
+    "all_surfaces_clean": true
+  },
+  "pass": true,
+  "defects": []
+}

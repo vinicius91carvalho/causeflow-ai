@@ -1,0 +1,75 @@
+{
+  "base": "http://127.0.0.1:5170",
+  "core": "http://127.0.0.1:3099",
+  "email": "iv-ac081-1784138710666@causeflow.local",
+  "steps": [
+    {
+      "step": "dashboard_register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "6818b9b6-3537-4858-9017-4f79a97c3c05",
+          "email": "iv-ac081-1784138710666@causeflow.local",
+          "name": "AC081 IV Admin"
+        }
+      }
+    },
+    {
+      "step": "create_organization_redirect_chain",
+      "chain": [
+        {
+          "url": "http://127.0.0.1:5170/create-organization",
+          "status": 307,
+          "location": "/dashboard"
+        },
+        {
+          "url": "http://127.0.0.1:5170/dashboard",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalUrl": "http://127.0.0.1:5170/dashboard",
+      "finalStatus": 200
+    },
+    {
+      "step": "dashboard_redirect_chain",
+      "chain": [
+        {
+          "url": "http://127.0.0.1:5170/dashboard",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalUrl": "http://127.0.0.1:5170/dashboard",
+      "finalStatus": 200
+    },
+    {
+      "step": "choose_plan_direct_chain",
+      "chain": [
+        {
+          "url": "http://127.0.0.1:5170/onboarding/choose-plan",
+          "status": 307,
+          "location": "/dashboard"
+        },
+        {
+          "url": "http://127.0.0.1:5170/dashboard",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalUrl": "http://127.0.0.1:5170/dashboard",
+      "finalStatus": 200,
+      "hasCommercialPlanCards": true
+    }
+  ],
+  "cookie": "__session=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2ODE4YjliNi0zNTM3LTQ4NTgtOTAxNy00Zjc5YTk3YzNjMDUiLCJlbWFpbCI6Iml2LWFjMDgxLTE3ODQxMzg3MTA2NjZAY2F1c2VmbG93LmxvY2FsIiwidGVuYW50X2lkIjoiM2VhNDIxZWEtMGU2YS00MDE2LTk5MzEtOTMyNDM1ZTgwYTU2Iiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzg0MTM4NzEyLCJleHAiOjE3ODQyMjUxMTIsImlzcyI6ImNhdXNlZmxvdyIsImF1ZCI6ImNhdXNlZmxvdy1hcGkifQ.12lHDjSb2twUdxHwzbT4sjL0Br1L5azsFDDdTOGLbSA",
+  "eval": {
+    "register_ok": true,
+    "post_create_org_skips_choose_plan": true,
+    "post_create_org_lands_dashboard_or_non_plan_onboarding": true,
+    "dashboard_access_without_choose_plan_gate": true,
+    "choose_plan_not_required_intermediate": true
+  },
+  "pass": true
+}

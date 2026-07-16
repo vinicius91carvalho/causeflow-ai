@@ -1,0 +1,37 @@
+{
+  "base": "http://127.0.0.1:5170",
+  "docs_url": "https://vinicius91carvalho.github.io/causeflow-ai/",
+  "routes": [
+    {
+      "path": "/pricing",
+      "status": 308,
+      "location": "https://vinicius91carvalho.github.io/causeflow-ai/",
+      "redirect_to_docs": true,
+      "body_len": 50,
+      "has_starter": false,
+      "has_pro": false,
+      "has_business": false,
+      "has_99_price": false,
+      "body_has_docs_url": true,
+      "has_paid_plan_cards": false
+    },
+    {
+      "path": "/pt-br/pricing",
+      "status": 308,
+      "location": "https://vinicius91carvalho.github.io/causeflow-ai/",
+      "redirect_to_docs": true,
+      "body_len": 50,
+      "has_starter": false,
+      "has_pro": false,
+      "has_business": false,
+      "has_99_price": false,
+      "body_has_docs_url": true,
+      "has_paid_plan_cards": false
+    }
+  ],
+  "eval": {
+    "all_redirect_to_docs": true,
+    "no_paid_plan_cards": true,
+    "no_200_pricing_page": true
+  }
+}

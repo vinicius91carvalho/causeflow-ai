@@ -1,0 +1,79 @@
+{
+  "base": "http://127.0.0.1:5170",
+  "email": "iv-ac072-1783909306038@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 201,
+      "body": {
+        "user": {
+          "id": "1b189dd9-0df1-47df-9889-ea1a4f86b056",
+          "email": "iv-ac072-1783909306038@causeflow.local",
+          "name": "AC072 Admin"
+        },
+        "tenant": {
+          "id": "ef263c74-7287-4149-acdf-b485475ab7b8",
+          "name": "AC072 IV Tenant",
+          "slug": "ac072-iv-tenant"
+        },
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxYjE4OWRkOS0wZGYxLTQ3ZGYtOTg4OS1lYTFhNGY4NmIwNTYiLCJlbWFpbCI6Iml2LWFjMDcyLTE3ODM5MDkzMDYwMzhAY2F1c2VmbG93LmxvY2FsIiwidGVuYW50X2lkIjoiZWYyNjNjNzQtNzI4Ny00MTQ5LWFjZGYtYjQ4NTQ3NWFiN2I4Iiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzgzOTA5MzExLCJleHAiOjE3ODM5OTU3MTEsImlzcyI6ImNhdXNlZmxvdyIsImF1ZCI6ImNhdXNlZmxvdy1hcGkifQ.c-fv3q80PbnxYMqSJ0wl21YiHVaFvLVqgVkw8x8iw5k"
+      }
+    },
+    {
+      "step": "stop_test_app",
+      "stopped": true
+    },
+    {
+      "step": "stub_connect_down",
+      "status": 400,
+      "body": {
+        "error": "Stub upstream unreachable at http://causeflow-test-app:5190/health: fetch failed"
+      }
+    },
+    {
+      "step": "generic_test_down",
+      "status": 200,
+      "body": {
+        "success": false,
+        "message": "Test Application (OSS) does not support generic test-connection. Use POST /v1/integrations/stub/probe to verify stub upstream reachability."
+      }
+    },
+    {
+      "step": "stub_probe_down",
+      "status": 200,
+      "body": {
+        "success": false,
+        "message": "Stub upstream integration is not connected for this tenant"
+      }
+    },
+    {
+      "step": "stub_connect_up",
+      "status": 201,
+      "body": {
+        "integrationId": "stub-upstream-credential",
+        "provider": "stub-upstream",
+        "status": "active",
+        "stubConnectionId": "test-app-conn-ef263c74-7287-4149-acdf-b485475ab7b8-1783909327678",
+        "stubBaseUrl": "http://causeflow-test-app:5190",
+        "connectedAt": "2026-07-13T02:22:07.679Z"
+      }
+    },
+    {
+      "step": "stop_test_app_again",
+      "stopped": true
+    },
+    {
+      "step": "connected_flow_error",
+      "error": "fetch failed"
+    }
+  ],
+  "grep_dashboard_stub_probe": "apps/dashboard/src/lib/api/mock-api-client.ts\napps/dashboard/src/lib/api/http-api-client.test.ts\napps/dashboard/src/lib/api/http-api-client.ts\napps/dashboard/src/contexts/integrations/presentation/components/integrations-client.tsx\napps/dashboard/src/lib/api/core-api-client.ts\napps/dashboard/src/contexts/integrations/api/stub-probe-handler.ts\napps/dashboard/src/contexts/integrations/api/stub-probe-handler.test.ts",
+  "handleTest_has_stub_branch": true,
+  "handleTest_uses_generic_only": true,
+  "eval": {
+    "connect_fail_with_unreachable": true,
+    "test_false_success_when_down": false,
+    "stub_probe_route_missing": false,
+    "dashboard_has_stub_probe_grep": true
+  }
+}

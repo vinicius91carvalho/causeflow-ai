@@ -1,0 +1,96 @@
+{
+  "base": "http://127.0.0.1:5170",
+  "core": "http://127.0.0.1:3099",
+  "website": "http://127.0.0.1:3000",
+  "email": "iv-ac075-1783917887010@causeflow.local",
+  "steps": [
+    {
+      "step": "core_unauth_/v1/billing/checkout",
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in the OSS build. Checkout is not available."
+      }
+    },
+    {
+      "step": "core_unauth_/v1/billing/portal",
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in the OSS build. Portal is not available."
+      }
+    },
+    {
+      "step": "dashboard_unauth_/api/billing/checkout",
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in this build."
+      }
+    },
+    {
+      "step": "dashboard_unauth_/api/billing/portal",
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in this build."
+      }
+    },
+    {
+      "step": "register",
+      "status": 201,
+      "body": {
+        "user": {
+          "id": "5f30940e-0f50-4ee2-9003-c50098a769e4",
+          "email": "iv-ac075-1783917887010@causeflow.local",
+          "name": "AC075 Admin"
+        },
+        "tenant": {
+          "id": "65c3b947-0ae6-4f05-9cd3-bab5bdfa8538",
+          "name": "AC075 IV Tenant",
+          "slug": "ac075-iv-tenant"
+        },
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1ZjMwOTQwZS0wZjUwLTRlZTItOTAwMy1jNTAwOThhNzY5ZTQiLCJlbWFpbCI6Iml2LWFjMDc1LTE3ODM5MTc4ODcwMTBAY2F1c2VmbG93LmxvY2FsIiwidGVuYW50X2lkIjoiNjVjM2I5NDctMGFlNi00ZjA1LTljZDMtYmFiNWJkZmE4NTM4Iiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzgzOTE3ODk0LCJleHAiOjE3ODQwMDQyOTQsImlzcyI6ImNhdXNlZmxvdyIsImF1ZCI6ImNhdXNlZmxvdy1hcGkifQ.2y2vRZcZq_l-UjpKBgorFGleVtB6qqh7c2r6_nEtXQs"
+      }
+    },
+    {
+      "step": "dashboard_auth_/api/billing/checkout",
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in this build."
+      }
+    },
+    {
+      "step": "dashboard_auth_/api/billing/portal",
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in this build."
+      }
+    },
+    {
+      "step": "website_pricing",
+      "status": 200,
+      "htmlLength": 95787
+    }
+  ],
+  "static": {
+    "dashboard_has_stripe_dep": false,
+    "add_credits_exists": false,
+    "core_oss_billing_middleware_exists": true,
+    "ac075_spec_exists": true
+  },
+  "pricing_audit": {
+    "has_stripe_checkout_url": false,
+    "has_self_host_copy": true,
+    "has_paid_monthly_toggle": true,
+    "has_create_account_cta": true
+  },
+  "eval": {
+    "core_checkout_unauth_410": true,
+    "core_portal_unauth_410": true,
+    "dashboard_checkout_unauth_410": true,
+    "dashboard_portal_unauth_410": true,
+    "dashboard_checkout_auth_410": true,
+    "dashboard_portal_auth_410": true,
+    "add_credits_removed": true,
+    "core_middleware_in_source": true,
+    "pricing_no_stripe_checkout": true,
+    "pricing_has_oss_messaging": true
+  }
+}

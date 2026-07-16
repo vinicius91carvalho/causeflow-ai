@@ -1,0 +1,60 @@
+{
+  "base": "http://127.0.0.1:5170",
+  "email": "iv-ac070-1783907044756@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "850226b7-5ab9-458b-b1fd-a969ec005f76",
+          "email": "iv-ac070-1783907044756@causeflow.local",
+          "name": "IV AC070 Admin"
+        }
+      }
+    },
+    {
+      "step": "catalog",
+      "status": 200,
+      "stubFound": true,
+      "stubName": "Test Application (OSS)",
+      "providerCount": 16
+    },
+    {
+      "step": "stub_connect",
+      "status": 201,
+      "body": {
+        "integrationId": "stub-upstream-credential",
+        "provider": "stub-upstream",
+        "status": "active",
+        "stubConnectionId": "test-app-conn-fd60de73-5959-4c04-9c77-a89f45d13b86-1783907053067",
+        "stubBaseUrl": "http://causeflow-test-app:5190",
+        "connectedAt": "2026-07-13T01:44:13.069Z"
+      }
+    },
+    {
+      "step": "integrations_list",
+      "status": 200,
+      "connectedFound": true,
+      "connectedName": "Test Application (OSS)",
+      "connectedDisplayName": "Test Application (OSS)",
+      "connectedStatus": "active",
+      "integrations": [
+        {
+          "provider": "stub-upstream",
+          "source": "credential",
+          "status": "active",
+          "displayName": "Test Application (OSS)",
+          "connectedBy": "850226b7-5ab9-458b-b1fd-a969ec005f76",
+          "createdAt": "Mon Jul 13 2026 01:44:13 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Mon Jul 13 2026 01:44:13 GMT+0000 (Coordinated Universal Time)",
+          "type": "stub-upstream",
+          "name": "Test Application (OSS)"
+        }
+      ]
+    }
+  ],
+  "cookie": "__session=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI4NTAyMjZiNy01YWI5LTQ1OGItYjFmZC1hOTY5ZWMwMDVmNzYiLCJlbWFpbCI6Iml2LWFjMDcwLTE3ODM5MDcwNDQ3NTZAY2F1c2VmbG93LmxvY2FsIiwidGVuYW50X2lkIjoiZmQ2MGRlNzMtNTk1OS00YzA0LTljNzctYTg5ZjQ1ZDEzYjg2Iiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzgzOTA3MDUwLCJleHAiOjE3ODM5OTM0NTAsImlzcyI6ImNhdXNlZmxvdyIsImF1ZCI6ImNhdXNlZmxvdy1hcGkifQ.KHUA2nsxSBwwRgVxH1BofojyGJ0mpqH1GfwyrHosCFg",
+  "pass": true
+}

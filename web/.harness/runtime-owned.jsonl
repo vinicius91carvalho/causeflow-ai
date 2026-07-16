@@ -1,0 +1,9 @@
+{"resource":"dashboard-dev","pid":92831,"port":5170,"wi":"WI-AC-083"}
+{"wi":"WI-AC-084","type":"docker","names":["causeflow-api","causeflow-postgres","redis","causeflow-test-app"],"started":"2026-07-15T21:53:00Z"}
+{"wi":"WI-AC-084","type":"process","pid":812606,"port":5171,"started":"2026-07-15T21:53:40Z"}
+{"resource":"dashboard-dev","pid":1101609,"port":5170,"wi":"WI-AC-085"}
+{"wi":"WI-AC-085","type":"docker","names":["core-causeflow-api-1","core-causeflow-postgres-1","core-redis-1","core-hindsight-1","core-causeflow-test-app-1"],"started":"2026-07-15T22:08:00Z"}
+{"resource":"dashboard-dev","pid":1473612,"port":5170,"wi":"WI-AC-087"}
+{"resource":"dashboard-dev","pid":1671573,"port":5170,"wi":"WI-AC-091"}
+{"resource":"dashboard-dev","pid":1699275,"port":5170,"wi":"WI-AC-091"}
+{"resource":"dashboard-dev","pid":2354356,"port":5170,"wi":"WI-AC-090"}

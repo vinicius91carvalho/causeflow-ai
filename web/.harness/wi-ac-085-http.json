@@ -1,0 +1,59 @@
+{
+  "id": "WI-AC-085",
+  "base": "http://127.0.0.1:5170",
+  "core": "http://127.0.0.1:3099",
+  "email": "ac085-1784153271674@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200
+    },
+    {
+      "step": "create_primary",
+      "status": 201,
+      "leaked": false,
+      "apiKeyConfigured": true
+    },
+    {
+      "step": "create_secondary",
+      "status": 201
+    },
+    {
+      "step": "list_after_create",
+      "status": 200,
+      "count": 2,
+      "leaked": false
+    },
+    {
+      "step": "patch_primary",
+      "status": 200,
+      "label": "AC085 Primary Updated",
+      "leaked": false
+    },
+    {
+      "step": "list_after_patch",
+      "status": 200,
+      "patchedLabel": "AC085 Primary Updated",
+      "leaked": false
+    },
+    {
+      "step": "delete_secondary",
+      "status": 200
+    },
+    {
+      "step": "list_after_delete",
+      "status": 200,
+      "remainingIds": [
+        "5bd62825-c531-471e-9ff0-5d31ddaeac0b"
+      ],
+      "leaked": false
+    },
+    {
+      "step": "settings_html",
+      "status": 200,
+      "leakedSecretInHtml": false,
+      "hasMaskedConfiguredCopy": true
+    }
+  ],
+  "pass": true
+}

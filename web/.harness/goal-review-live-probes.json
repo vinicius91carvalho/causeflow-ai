@@ -1,0 +1,195 @@
+{
+  "at": "2026-07-13T05:23:21.362Z",
+  "website": {
+    "en": {
+      "/": 200,
+      "/product": 200,
+      "/security": 200,
+      "/integrations": 200,
+      "/pricing": 200,
+      "/use-cases": 200,
+      "/from-opsgenie": 200,
+      "/privacy": 200,
+      "/terms": 200
+    },
+    "pt": {
+      "/": 200,
+      "/product": 200,
+      "/security": 200,
+      "/integrations": 200,
+      "/pricing": 200,
+      "/use-cases": 200,
+      "/from-opsgenie": 200,
+      "/privacy": 200,
+      "/terms": 200
+    },
+    "headers": {
+      "xfo": "DENY",
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://*.clarity.ms http://localhost:3001; frame-src 'self'; worker-src 'self' blob:",
+      "hsts": "max-age=63072000; includeSubDomains; preload",
+      "referrer": "strict-origin-when-cross-origin"
+    },
+    "hreflang": true,
+    "docsLink": false,
+    "loopsInCsp": false,
+    "googlebot": {
+      "status": 200,
+      "location": null
+    },
+    "getStarted": {
+      "status": 308,
+      "location": "http://localhost:3001/auth/sign-up"
+    },
+    "getStartedPt": {
+      "status": 308,
+      "location": "http://localhost:3001/auth/sign-up"
+    },
+    "robots": 200,
+    "sitemap": 200
+  },
+  "dashboard": {
+    "unauthDash": {
+      "status": 307,
+      "location": "http://127.0.0.1:3001/auth/sign-in?redirect_url=%2Fdashboard"
+    },
+    "signIn": {
+      "status": 200,
+      "hasClerk": false,
+      "hasForm": true
+    },
+    "unauthApi": {
+      "status": 401,
+      "body": {
+        "error": "Authentication required."
+      }
+    },
+    "health": {
+      "health": 200,
+      "detailed": 200
+    },
+    "authedHome": {
+      "status": 200,
+      "location": null,
+      "len": 2500
+    },
+    "billingPage": {
+      "status": 307,
+      "location": "/dashboard"
+    },
+    "billingRedirectOk": true,
+    "/api/billing/checkout": {
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in this build."
+      }
+    },
+    "/api/billing/portal": {
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in this build."
+      }
+    },
+    "catalog": {
+      "status": 200,
+      "snippet": "{\"providers\":[{\"id\":\"stub-upstream\",\"name\":\"Test Application (OSS)\",\"category\":\"monitoring\",\"type\":\"credential\",\"description\":\"Core-owned runnable test application for open-source connector verification. Connects via Core stub API — Composio is not used.\"},{\"id\":\"aws\",\"name\":\"Amazon Web Services\",\"category\":\"cloud\",\"type\":\"credential\",\"description\":\"CloudWatch logs & metrics, ECS, EC2, Lambda, RDS, S3 — read-only access via IAM AssumeRole\"},{\"id\":\"github\",\"name\":\"GitHub\",\"category\":\"code\",\"type\":\"oauth\",\"description\":\"\"},{\"id\":\"slack\",\"name\":\"Slack\",\"category\":\"communication\",\"type\":\"oauth\",\"d"
+    },
+    "catalogHasStub": true,
+    "catalogHasComposio": false,
+    "connect": {
+      "status": 201,
+      "body": {
+        "integrationId": "stub-upstream-credential",
+        "provider": "stub-upstream",
+        "status": "active",
+        "stubConnectionId": "test-app-conn-a32eba9f-b9a0-4d79-8765-b9e4bf9631aa-1783920206692",
+        "stubBaseUrl": "http://causeflow-test-app:5190",
+        "connectedAt": "2026-07-13T05:23:26.692Z"
+      }
+    },
+    "probe": {
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "Stub upstream probe succeeded",
+        "probeCount": 15,
+        "probedAt": "2026-07-13T05:23:26.706Z"
+      }
+    }
+  },
+  "core": {
+    "health": {
+      "status": 200,
+      "body": {
+        "postgres": "ok",
+        "redis": "ok",
+        "llm": "ok",
+        "anthropic": "ok",
+        "queues": "ok"
+      }
+    },
+    "/v1/billing/checkout": {
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in the OSS build. Checkout is not available."
+      }
+    },
+    "/v1/billing/portal": {
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in the OSS build. Portal is not available."
+      }
+    }
+  },
+  "static": {
+    "clerk": false,
+    "stripe": false,
+    "aws": false,
+    "addCredits": false,
+    "sstWeb": false,
+    "sstDash": false,
+    "sentryWrap": false,
+    "composioCfg": false,
+    "composioType": false,
+    "loopsEnv": false,
+    "lvh": false,
+    "stubUrl": true,
+    "pkgMgr": "pnpm@10.33.0",
+    "rootCompose": true,
+    "init": true,
+    "readme": true,
+    "docsWf": true
+  },
+  "defects": [
+    {
+      "id": "AC-066",
+      "expected": "GitHub Pages docs URL",
+      "observed": "missing",
+      "evidence": "homepage"
+    }
+  ],
+  "docs": {
+    "status": 200
+  },
+  "auth": {
+    "email": "gr-1783920201572@causeflow.local",
+    "status": 201,
+    "hasToken": true
+  },
+  "incident": {
+    "status": 201,
+    "body": {
+      "incidentId": "fe795665-6fde-440a-a639-8dadc7b04873",
+      "status": "open",
+      "message": "Incident created and queued for triage"
+    },
+    "any402": false
+  },
+  "testApp": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "service": "causeflow-test-app",
+      "app": "causeflow-test-app"
+    }
+  }
+}

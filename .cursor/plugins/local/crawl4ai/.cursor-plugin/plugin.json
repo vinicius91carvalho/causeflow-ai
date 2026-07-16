@@ -1,0 +1,6 @@
+{
+  "name": "crawl4ai",
+  "description": "Crawl4AI web extraction skill",
+  "version": "0.0.0",
+  "skills": "./skills/"
+}

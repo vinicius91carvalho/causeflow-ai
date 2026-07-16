@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# init.sh — monorepo-root OSS umbrella bring-up (AC-063 / AC-067).
+# init.sh — monorepo-root OSS umbrella lifecycle (AC-063 / AC-067).
 #
 # Fail-closed: requires Docker + the Docker Compose plugin before any compose
-# work. Starts `docker compose up -d` from this directory, waits until the
-# stack is ready, prints a local URL matrix, and exits 0.
+# work. Subcommands: start (default), stop, restart, status, help.
 #
 # Does NOT start the relay. Relay remains optional via relay/README.md and
 # relay/init.sh only.
@@ -136,43 +135,98 @@ fail_compose() {
   exit 1
 }
 
-# --- main ---
-require_docker
+require_compose_file() {
+  if [ ! -f "$COMPOSE_FILE" ]; then
+    echo "ERROR: missing ${COMPOSE_FILE}" >&2
+    exit 1
+  fi
+}
 
-if [ ! -f "$COMPOSE_FILE" ]; then
-  echo "ERROR: missing ${COMPOSE_FILE}" >&2
-  exit 1
-fi
+usage() {
+  cat <<EOF
+Usage: ./init.sh [start|stop|restart|status|help]
 
-# Refuse foreign listeners before any Ready short-circuit. A process that
-# answers the health URLs on :3000/:3001/:3099/:5181 is not enough — the
-# matching umbrella compose service must own the publish (AC-067 / AC-063).
-check_ports_free_for_unhealthy
+  start    (default) bring up the umbrella stack and wait until Ready
+  stop     stop umbrella compose services (idempotent)
+  restart  stop then start
+  status   exit 0 when all health URLs respond; print compose ps
+  help     show this usage and the local URL matrix
 
-if stack_ready; then
-  echo "Ready (already up)"
+Relay is not managed here — see relay/README.md and relay/init.sh.
+EOF
   print_url_matrix
-  exit 0
-fi
+}
 
-echo "Starting CauseFlow OSS umbrella stack (relay excluded)..."
-if ! docker compose -f "$COMPOSE_FILE" up -d; then
-  fail_compose
-fi
+cmd_start() {
+  require_docker
+  require_compose_file
 
-deadline=$((SECONDS + WAIT_SECONDS))
-while (( SECONDS < deadline )); do
+  # Refuse foreign listeners before any Ready short-circuit. A process that
+  # answers the health URLs on :3000/:3001/:3099/:5181 is not enough — the
+  # matching umbrella compose service must own the publish (AC-067 / AC-063).
+  check_ports_free_for_unhealthy
+
   if stack_ready; then
-    echo "Ready"
+    echo "Ready (already up)"
     print_url_matrix
-    # Confirm relay was not started by this path.
-    if docker compose -f "$COMPOSE_FILE" ps -a --format '{{.Name}} {{.Service}}' 2>/dev/null | grep -qi relay; then
-      echo "ERROR: relay service present in root compose runtime; root init must not start relay." >&2
-      exit 1
-    fi
     exit 0
   fi
-  sleep 2
-done
 
-fail_compose
+  echo "Starting CauseFlow OSS umbrella stack (relay excluded)..."
+  if ! docker compose -f "$COMPOSE_FILE" up -d; then
+    fail_compose
+  fi
+
+  deadline=$((SECONDS + WAIT_SECONDS))
+  while (( SECONDS < deadline )); do
+    if stack_ready; then
+      echo "Ready"
+      print_url_matrix
+      # Confirm relay was not started by this path.
+      if docker compose -f "$COMPOSE_FILE" ps -a --format '{{.Name}} {{.Service}}' 2>/dev/null | grep -qi relay; then
+        echo "ERROR: relay service present in root compose runtime; root init must not start relay." >&2
+        exit 1
+      fi
+      exit 0
+    fi
+    sleep 2
+  done
+
+  fail_compose
+}
+
+cmd_stop() {
+  require_docker
+  require_compose_file
+
+  echo "Stopping CauseFlow OSS umbrella stack..."
+  docker compose -f "$COMPOSE_FILE" stop || true
+  docker compose -f "$COMPOSE_FILE" ps -a 2>/dev/null || true
+}
+
+cmd_status() {
+  require_docker
+  require_compose_file
+
+  local ready=0
+  if stack_ready; then
+    ready=1
+  fi
+  echo "ready=${ready}"
+  docker compose -f "$COMPOSE_FILE" ps 2>/dev/null || true
+  print_url_matrix
+  [ "$ready" -eq 1 ]
+}
+
+cmd="${1:-start}"
+case "$cmd" in
+  start) cmd_start ;;
+  stop) cmd_stop ;;
+  restart) cmd_stop; cmd_start ;;
+  status) cmd_status ;;
+  help|-h|--help) usage ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac

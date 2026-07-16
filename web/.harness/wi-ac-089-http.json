@@ -44,15 +44,9 @@
     },
     {
       "step": "http_flow",
-      "ok": true,
-      "deleteActiveStatus": 409,
-      "deleteActiveError": "Cannot delete the active Investigation LLM profile. Activate another profile first.",
-      "activeAfterBlockedDelete": "e2f77092-35e3-4823-93a0-c6c50d5487c0",
-      "deleteFormerActiveStatus": 200,
-      "remainingIds": [
-        "62406d3e-bdb9-4eab-9885-850c8ebb924b"
-      ]
+      "ok": false,
+      "error": "fetch failed"
     }
   ],
-  "pass": true
+  "pass": false
 }

@@ -1,0 +1,120 @@
+{
+  "base": "http://127.0.0.1:5170",
+  "email": "iv-ac074-1783913742519@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 201,
+      "body": {
+        "user": {
+          "id": "9e0d958c-686f-403f-9627-4570f636ae8d",
+          "email": "iv-ac074-1783913742519@causeflow.local",
+          "name": "AC074 Admin"
+        },
+        "tenant": {
+          "id": "1d7e7499-65e1-4d46-8060-63dc14c1de91",
+          "name": "AC074 IV Tenant",
+          "slug": "ac074-iv-tenant"
+        },
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5ZTBkOTU4Yy02ODZmLTQwM2YtOTYyNy00NTcwZjYzNmFlOGQiLCJlbWFpbCI6Iml2LWFjMDc0LTE3ODM5MTM3NDI1MTlAY2F1c2VmbG93LmxvY2FsIiwidGVuYW50X2lkIjoiMWQ3ZTc0OTktNjVlMS00ZDQ2LTgwNjAtNjNkYzE0YzFkZTkxIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzgzOTEzNzQ3LCJleHAiOjE3ODQwMDAxNDcsImlzcyI6ImNhdXNlZmxvdyIsImF1ZCI6ImNhdXNlZmxvdy1hcGkifQ.NA0d77tQLTBd3Yd7P3aW5YkA_8v9MBI1wlfvYzz4IBY"
+      }
+    },
+    {
+      "step": "metrics",
+      "status": 200,
+      "body": {
+        "metrics": {
+          "totalAnalyses": 0,
+          "monthlyAnalyses": 0,
+          "activeIntegrations": 0,
+          "teamMembers": 1,
+          "hoursSaved": 0,
+          "plan": "free",
+          "subscriptionStatus": "active",
+          "currentPeriodEnd": null,
+          "cancelAtPeriodEnd": false
+        }
+      }
+    },
+    {
+      "step": "subscription",
+      "status": 410,
+      "body": {
+        "error": "Billing is disabled in this build."
+      }
+    },
+    {
+      "step": "create_incidents",
+      "creates": [
+        {
+          "attempt": 1,
+          "status": 201,
+          "body": {
+            "incidentId": "b244f934-6fbc-49c1-9519-7331ecd23e52",
+            "status": "triaging",
+            "message": "Incident created and queued for investigation"
+          }
+        },
+        {
+          "attempt": 2,
+          "status": 201,
+          "body": {
+            "incidentId": "0bdc0868-b2c7-4039-941d-011021edeae7",
+            "status": "triaging",
+            "message": "Incident created and queued for investigation"
+          }
+        },
+        {
+          "attempt": 3,
+          "status": 201,
+          "body": {
+            "incidentId": "db1a03d4-57de-4f33-b553-868ab88a8ee4",
+            "status": "triaging",
+            "message": "Incident created and queued for investigation"
+          }
+        },
+        {
+          "attempt": 4,
+          "status": 201,
+          "body": {
+            "incidentId": "2b6687b7-5f62-46a0-b6ce-881966d89729",
+            "status": "triaging",
+            "message": "Incident created and queued for investigation"
+          }
+        },
+        {
+          "attempt": 5,
+          "status": 201,
+          "body": {
+            "incidentId": "4f2d053c-dbd6-44eb-924e-38dfef693938",
+            "status": "triaging",
+            "message": "Incident created and queued for investigation"
+          }
+        }
+      ]
+    },
+    {
+      "step": "metrics_after",
+      "status": 200,
+      "body": {
+        "metrics": {
+          "totalAnalyses": 5,
+          "monthlyAnalyses": 5,
+          "activeIntegrations": 0,
+          "teamMembers": 1,
+          "hoursSaved": 0,
+          "plan": "free",
+          "subscriptionStatus": "active",
+          "currentPeriodEnd": null,
+          "cancelAtPeriodEnd": false
+        }
+      }
+    }
+  ],
+  "eval": {
+    "any_402": false,
+    "all_create_success": true,
+    "metrics_show_credit_limits": false,
+    "subscription_has_quota_fields": false
+  }
+}
