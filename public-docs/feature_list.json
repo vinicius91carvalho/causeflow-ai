@@ -21,7 +21,11 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "verify_notes": "VERIFY-FIRST pass at real HTTP boundary: `mint dev --port 3000` from project root served http://localhost:3000/ with HTTP 200; response body contains <title>CauseFlow AI Documentation - CauseFlow AI</title> and the Quickstart intro Card (href=/getting-started/quickstart, title=Quickstart). Zero code diff (existing-codebase checkpoint)."
+    "verify_notes": "VERIFY-FIRST pass at real HTTP boundary: `mint dev --port 3000` from project root served http://localhost:3000/ with HTTP 200; response body contains <title>CauseFlow AI Documentation - CauseFlow AI</title> and the Quickstart intro Card (href=/getting-started/quickstart, title=Quickstart). Zero code diff (existing-codebase checkpoint).",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ]
   },
   {
     "id": "WI-AC-002",
@@ -42,7 +46,11 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "verify_notes": "VERIFY-FIRST pass at real boundary: `mint broken-links` from project root exited 0 with 'success no broken links found'. Root cause of prior failure: harness artifact dirs (plans/, tasks/, docs/, harness-progress/) contain .md planning/spec files with non-backtick JSX-like tokens (<40, <Note>, <ParamField>, <Integration Name>) that broke MDX parsing; these are not docs pages (none in docs.json navigation). Fix: added plans/, tasks/, docs/, harness-progress/, session-learnings.md, INVARIANTS.md, CLAUDE.md to .mintignore. Diff = .mintignore only; no docs source/content changed."
+    "verify_notes": "VERIFY-FIRST pass at real boundary: `mint broken-links` from project root exited 0 with 'success no broken links found'. Root cause of prior failure: harness artifact dirs (plans/, tasks/, docs/, harness-progress/) contain .md planning/spec files with non-backtick JSX-like tokens (<40, <Note>, <ParamField>, <Integration Name>) that broke MDX parsing; these are not docs pages (none in docs.json navigation). Fix: added plans/, tasks/, docs/, harness-progress/, session-learnings.md, INVARIANTS.md, CLAUDE.md to .mintignore. Diff = .mintignore only; no docs source/content changed.",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-003",
@@ -62,7 +70,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-004",
@@ -84,7 +96,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-005",
@@ -107,7 +123,11 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "verify_notes": "Integrated Verification passed on main. 133 MDX files audited; zero descriptions exceed 160 chars (max=153). HTTP boundary confirmed on PORT=5170."
+    "verify_notes": "Integrated Verification passed on main. 133 MDX files audited; zero descriptions exceed 160 chars (max=153). HTTP boundary confirmed on PORT=5170.",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-006",
@@ -129,7 +149,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ]
   },
   {
     "id": "WI-AC-007",
@@ -151,7 +175,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-008",
@@ -173,7 +201,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-009",
@@ -195,7 +227,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-010",
@@ -217,7 +253,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-011",
@@ -239,7 +279,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-012",
@@ -261,7 +305,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-013",
@@ -283,7 +331,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-014",
@@ -306,7 +358,11 @@
     "qa": true,
     "integration": true,
     "retries": 1,
-    "verify_notes": "VERIFY-FIRST PASS: mint dev on port 5174 — GET /api-reference/authentication returns 200; rendered Playwright-captured body contains all three sections (JWT Bearer token with h2, curl + TypeScript examples; API key authentication with X-API-Key header example; Webhook HMAC signature with h2, bash + TypeScript examples including verifyWebhookSignature function); verifyWebhookSignature function passes node --check; Bash HMAC example produces correct HMAC (cross-verified with Node.js crypto.createHmac); verifyWebhookSignature logic end-to-end (valid, invalid, empty body) all PASS. Zero defects. Feature_list.json status corrected from stale false to true."
+    "verify_notes": "VERIFY-FIRST PASS: mint dev on port 5174 — GET /api-reference/authentication returns 200; rendered Playwright-captured body contains all three sections (JWT Bearer token with h2, curl + TypeScript examples; API key authentication with X-API-Key header example; Webhook HMAC signature with h2, bash + TypeScript examples including verifyWebhookSignature function); verifyWebhookSignature function passes node --check; Bash HMAC example produces correct HMAC (cross-verified with Node.js crypto.createHmac); verifyWebhookSignature logic end-to-end (valid, invalid, empty body) all PASS. Zero defects. Feature_list.json status corrected from stale false to true.",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-015",
@@ -329,7 +385,11 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "verify_notes": "INTEGRATED VERIFICATION PASS 2026-07-09: required scaffold exists (133 MDX files and required top-level directories); existing Mintlify preview on port 5174 returned HTTP 200 for / and /api-reference/errors-and-pagination. Rendered target page contains the JSON error envelope, all required status codes (400/401/403/404/409/429/500/503), and cursor-pagination fields items, cursor, and count. Evidence: .harness-evidence/api-reference/WI-AC-015-2026-07-09-errors-and-pagination-rendered.html. Zero defects."
+    "verify_notes": "INTEGRATED VERIFICATION PASS 2026-07-09: required scaffold exists (133 MDX files and required top-level directories); existing Mintlify preview on port 5174 returned HTTP 200 for / and /api-reference/errors-and-pagination. Rendered target page contains the JSON error envelope, all required status codes (400/401/403/404/409/429/500/503), and cursor-pagination fields items, cursor, and count. Evidence: .harness-evidence/api-reference/WI-AC-015-2026-07-09-errors-and-pagination-rendered.html. Zero defects.",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-016",
@@ -352,7 +412,11 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "verify_notes": "Independent QA PASS 2026-07-09: project_specs.xml read and required scaffold present; 133 MDX files total, 84 under api-reference. Exact AC-016 command `grep -rE 'api\\.causeflow\\.(io|dev|local|prod)' --include='*.mdx' .` exited 1 with no output, confirming zero forbidden CauseFlow API hosts. Zero defects."
+    "verify_notes": "Independent QA PASS 2026-07-09: project_specs.xml read and required scaffold present; 133 MDX files total, 84 under api-reference. Exact AC-016 command `grep -rE 'api\\.causeflow\\.(io|dev|local|prod)' --include='*.mdx' .` exited 1 with no output, confirming zero forbidden CauseFlow API hosts. Zero defects.",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-017",
@@ -374,7 +438,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-018",
@@ -396,7 +464,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-019",
@@ -418,7 +490,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-020",
@@ -440,7 +516,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-021",
@@ -463,7 +543,11 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "verify_notes": "Integrated Verification passed on main. Required scaffold present; `mint dev --port 5170` served `/relay/overview` with HTTP 200; rendered HTML contains 'What the Relay is not', 'Not a proxy', 'Not a tunnel', and 'Not a replication agent'; source grep returned exactly three matches."
+    "verify_notes": "Integrated Verification passed on main. Required scaffold present; `mint dev --port 5170` served `/relay/overview` with HTTP 200; rendered HTML contains 'What the Relay is not', 'Not a proxy', 'Not a tunnel', and 'Not a replication agent'; source grep returned exactly three matches.",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-022",
@@ -485,7 +569,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-023",
@@ -508,7 +596,11 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "verify_notes": "Integrated Verification passed on main. Required scaffold present with 133 MDX files; AC-023 grep for dismissed/failed JSON statuses returned zero matches; pending occurrences are step-level or approval-level/invite text, not Incident.status; check-invariants.sh --quiet passed; mint dev --port 5180 served / and /api-reference/remediation/list-remediations with HTTP 200 and no parse markers."
+    "verify_notes": "Integrated Verification passed on main. Required scaffold present with 133 MDX files; AC-023 grep for dismissed/failed JSON statuses returned zero matches; pending occurrences are step-level or approval-level/invite text, not Incident.status; check-invariants.sh --quiet passed; mint dev --port 5180 served / and /api-reference/remediation/list-remediations with HTTP 200 and no parse markers.",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-024",
@@ -531,7 +623,11 @@
     "qa": true,
     "integration": true,
     "retries": 1,
-    "verify_notes": "Integrated Verification PASS 2026-07-09: AC-024 audit grep returned zero matches across 133 MDX files for all forbidden patterns (AWS ARNs, .internal hostnames, SQS URLs, 12-digit account IDs, KMS key IDs, LangFuse URLs, Hindsight URLs, internal DynamoDB table names, ECS cluster/task-definition names); check-invariants.sh --quiet exit 0. Zero defects."
+    "verify_notes": "Integrated Verification PASS 2026-07-09: AC-024 audit grep returned zero matches across 133 MDX files for all forbidden patterns (AWS ARNs, .internal hostnames, SQS URLs, 12-digit account IDs, KMS key IDs, LangFuse URLs, Hindsight URLs, internal DynamoDB table names, ECS cluster/task-definition names); check-invariants.sh --quiet exit 0. Zero defects.",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-025",
@@ -553,7 +649,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-026",
@@ -571,7 +671,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-027",
@@ -591,7 +695,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "cli",
+    "observation_methods": [
+      "cli"
+    ]
   },
   {
     "id": "WI-AC-028",
@@ -611,7 +719,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-029",
@@ -631,7 +743,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-030",
@@ -651,7 +767,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-031",
@@ -672,7 +792,11 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "verify_notes": "REGRESSION PASS on docker-compose stack (PORT=5179, clean rebuild). Fixed two defects: (1) export serve.js ignored docs.json#redirects and Mintlify <dir>/index/index.html layout -> /quickstart (redirect) and /changelog (tab landing) 404'd; added repo-root serve-docs.js (pure Node, PORT only) wired via Dockerfile runtime stage (COPY docs.json + serve-docs.js as serve.js) so redirects resolve as 200 internal rewrites and directory-index pages serve. (2) AC-024 AWS-ARN invariant violated across 8 MDX (19 lines incl. real 12-digit account id 409171461008) -> replaced all arn:aws: literals with compliant placeholder tokens per INVARIANTS.md. Added frontmatter to 2 orphaned snippets so AC-004 holds. Verified: / ->200 CauseFlow AI+Quickstart; /quickstart ->200 lands Quickstart; /changelog ->200; 4 tabs render; Relay Mermaid via Mermaid component (no raw <pre>); Auth JWT/API-key/HMAC; 20 events; all 82 API ref pages + 125 nav pages 200; mint broken-links exit 0; AC-022/23/24/25, AC-016/17 grep zero; AC-004/005 frontmatter ok; 133 MDX. forbidden-host log grep=0."
+    "verify_notes": "REGRESSION PASS on docker-compose stack (PORT=5179, clean rebuild). Fixed two defects: (1) export serve.js ignored docs.json#redirects and Mintlify <dir>/index/index.html layout -> /quickstart (redirect) and /changelog (tab landing) 404'd; added repo-root serve-docs.js (pure Node, PORT only) wired via Dockerfile runtime stage (COPY docs.json + serve-docs.js as serve.js) so redirects resolve as 200 internal rewrites and directory-index pages serve. (2) AC-024 AWS-ARN invariant violated across 8 MDX (19 lines incl. real 12-digit account id 409171461008) -> replaced all arn:aws: literals with compliant placeholder tokens per INVARIANTS.md. Added frontmatter to 2 orphaned snippets so AC-004 holds. Verified: / ->200 CauseFlow AI+Quickstart; /quickstart ->200 lands Quickstart; /changelog ->200; 4 tabs render; Relay Mermaid via Mermaid component (no raw <pre>); Auth JWT/API-key/HMAC; 20 events; all 82 API ref pages + 125 nav pages 200; mint broken-links exit 0; AC-022/23/24/25, AC-016/17 grep zero; AC-004/005 frontmatter ok; 133 MDX. forbidden-host log grep=0.",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-032",
@@ -693,7 +817,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 2
+    "retries": 2,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-033",
@@ -714,6 +842,10 @@
     "qa": true,
     "integration": true,
     "retries": 0,
-    "verify_notes": "VERIFY-FIRST (AC-033). No source changes required: the `docker-compose.yml` shipped in WI-AC-026 already satisfies every clause. Black-box verification on assigned port 5179 (host 3000 occupied by relay-control-plane-stub; ran the built `causeflow-docs:local` image as `causeflow-docs-ac033` with `-p 5179:3000 -e PORT=3000`; canonical compose stays `3000:3000`). Clauses: (1) `docker compose config --services` returns only `causeflow-docs`, ports `3000:3000`; (2) `grep -Eni 'aws|stripe|clerk|sentry|langfuse|svix|slack|composio|mintlify|amazonaws|anthropic|openai|chatgpt|claude' docker-compose.yml` -> 0 matches (no SaaS endpoints); (3) `docker compose config` exits 0; (4) resolved compose config has no `depends_on`/`links`/`external_links`/`healthcheck` -> service depends on no other service; (5) portable: runtime `Env` is just `PORT=3000` (+ base-image PATH/NODE_VERSION/YARN_VERSION), build context is local, no external networks, no healthcheck dependency -> the service is self-contained, requires no additional env vars, and starts in parallel with other subprojects' services when the monorepo root compose (owned by core/web contexts WI-AC-039/WI-AC-044) includes `public-docs`. Live: `GET http://localhost:5179/` -> 200, body has `CauseFlow AI` (x4) and `Quickstart` (x3); boot log `Serving docs at http://localhost:3000`; `docker logs | grep -cE` forbidden-host pattern (mintlify.com|...|composio.dev) -> 0."
+    "verify_notes": "VERIFY-FIRST (AC-033). No source changes required: the `docker-compose.yml` shipped in WI-AC-026 already satisfies every clause. Black-box verification on assigned port 5179 (host 3000 occupied by relay-control-plane-stub; ran the built `causeflow-docs:local` image as `causeflow-docs-ac033` with `-p 5179:3000 -e PORT=3000`; canonical compose stays `3000:3000`). Clauses: (1) `docker compose config --services` returns only `causeflow-docs`, ports `3000:3000`; (2) `grep -Eni 'aws|stripe|clerk|sentry|langfuse|svix|slack|composio|mintlify|amazonaws|anthropic|openai|chatgpt|claude' docker-compose.yml` -> 0 matches (no SaaS endpoints); (3) `docker compose config` exits 0; (4) resolved compose config has no `depends_on`/`links`/`external_links`/`healthcheck` -> service depends on no other service; (5) portable: runtime `Env` is just `PORT=3000` (+ base-image PATH/NODE_VERSION/YARN_VERSION), build context is local, no external networks, no healthcheck dependency -> the service is self-contained, requires no additional env vars, and starts in parallel with other subprojects' services when the monorepo root compose (owned by core/web contexts WI-AC-039/WI-AC-044) includes `public-docs`. Live: `GET http://localhost:5179/` -> 200, body has `CauseFlow AI` (x4) and `Quickstart` (x3); boot log `Serving docs at http://localhost:3000`; `docker logs | grep -cE` forbidden-host pattern (mintlify.com|...|composio.dev) -> 0.",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   }
 ]

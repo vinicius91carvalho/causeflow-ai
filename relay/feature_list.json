@@ -18,7 +18,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-002",
@@ -41,7 +45,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-003",
@@ -64,7 +72,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-004",
@@ -87,7 +99,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-005",
@@ -110,7 +126,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-006",
@@ -133,7 +153,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-007",
@@ -156,7 +180,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-008",
@@ -179,7 +207,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-009",
@@ -202,7 +234,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-010",
@@ -225,7 +261,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-011",
@@ -248,7 +288,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-012",
@@ -271,7 +315,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-013",
@@ -294,7 +342,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-014",
@@ -317,7 +369,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-015",
@@ -340,7 +396,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-016",
@@ -363,7 +423,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-017",
@@ -386,7 +450,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-018",
@@ -409,7 +477,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 2
+    "retries": 2,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-019",
@@ -432,7 +504,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-020",
@@ -455,7 +531,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-021",
@@ -478,7 +558,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-022",
@@ -501,7 +585,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-023",
@@ -524,7 +612,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-024",
@@ -547,7 +639,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-025",
@@ -570,7 +666,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 2
+    "retries": 2,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-026",
@@ -593,7 +693,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-027",
@@ -616,7 +720,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-028",
@@ -639,7 +747,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-029",
@@ -662,7 +774,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-030",
@@ -685,7 +801,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-031",
@@ -708,7 +828,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-032",
@@ -731,7 +855,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-033",
@@ -754,7 +882,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-034",
@@ -777,7 +909,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-035",
@@ -800,7 +936,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-036",
@@ -823,7 +963,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-037",
@@ -846,7 +990,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-038",
@@ -869,7 +1017,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-039",
@@ -892,7 +1044,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-040",
@@ -915,7 +1071,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-041",
@@ -938,7 +1098,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-042",
@@ -961,7 +1125,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-043",
@@ -984,7 +1152,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-044",
@@ -1007,7 +1179,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 1
+    "retries": 1,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-045",
@@ -1030,7 +1206,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-046",
@@ -1053,7 +1233,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-047",
@@ -1076,7 +1260,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-048",
@@ -1099,7 +1287,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-049",
@@ -1122,7 +1314,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-050",
@@ -1145,7 +1341,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-051",
@@ -1163,7 +1363,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-052",
@@ -1183,7 +1387,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-053",
@@ -1204,7 +1412,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-054",
@@ -1225,7 +1437,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   },
   {
     "id": "WI-AC-055",
@@ -1245,7 +1461,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-056",
@@ -1266,7 +1486,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-057",
@@ -1286,7 +1510,11 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ]
   },
   {
     "id": "WI-AC-058",
@@ -1308,6 +1536,10 @@
     "implementation": true,
     "qa": true,
     "integration": true,
-    "retries": 0
+    "retries": 0,
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ]
   }
 ]

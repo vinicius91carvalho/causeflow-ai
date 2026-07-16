@@ -1,1 +1,24 @@
-{"projects":[{"id":"core","path":"core","description":"CauseFlow control-plane API and incident investigation runtime"},{"id":"web","path":"web","description":"CauseFlow marketing website and authenticated dashboard workspace"},{"id":"relay","path":"relay","description":"Customer-network read-only database relay agent"},{"id":"public-docs","path":"public-docs","description":"Public Mintlify product and API documentation site"}]}
+{
+  "projects": [
+    {
+      "id": "core",
+      "path": "core",
+      "description": "CauseFlow control-plane API and incident investigation runtime"
+    },
+    {
+      "id": "web",
+      "path": "web",
+      "description": "CauseFlow marketing website and authenticated dashboard workspace"
+    },
+    {
+      "id": "relay",
+      "path": "relay",
+      "description": "Customer-network read-only database relay agent"
+    },
+    {
+      "id": "public-docs",
+      "path": "public-docs",
+      "description": "Public Mintlify product and API documentation site"
+    }
+  ]
+}

@@ -5,113 +5,218 @@
       "name": "pnpm 10.33.0 workspaces",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "pnpm-workspace.yaml", "kind": "configuration" },
-        { "path": ".npmrc", "kind": "configuration" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "pnpm-workspace.yaml",
+          "kind": "configuration"
+        },
+        {
+          "path": ".npmrc",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "Turborepo 2.8.10",
       "section": "technology_stack",
       "evidence": [
-        { "path": "turbo.json", "kind": "configuration" },
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "turbo.json",
+          "kind": "configuration"
+        },
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "TypeScript 5.7.0 in strict mode",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "tsconfig.base.json", "kind": "configuration" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "tsconfig.base.json",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "Next.js 15.2.0 App Router",
       "section": "technology_stack",
       "evidence": [
-        { "path": "apps/website/package.json", "kind": "manifest" },
-        { "path": "apps/dashboard/package.json", "kind": "manifest" },
-        { "path": "apps/website/next.config.mjs", "kind": "configuration" },
-        { "path": "apps/dashboard/next.config.mjs", "kind": "configuration" }
+        {
+          "path": "apps/website/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "apps/dashboard/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "apps/website/next.config.mjs",
+          "kind": "configuration"
+        },
+        {
+          "path": "apps/dashboard/next.config.mjs",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "React 19",
       "section": "technology_stack",
       "evidence": [
-        { "path": "apps/website/package.json", "kind": "manifest" },
-        { "path": "apps/dashboard/package.json", "kind": "manifest" }
+        {
+          "path": "apps/website/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "apps/dashboard/package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "Tailwind CSS 4.0",
       "section": "technology_stack",
       "evidence": [
-        { "path": "apps/website/package.json", "kind": "manifest" },
-        { "path": "apps/dashboard/package.json", "kind": "manifest" },
-        { "path": "apps/website/postcss.config.mjs", "kind": "configuration" },
-        { "path": "apps/dashboard/postcss.config.mjs", "kind": "configuration" }
+        {
+          "path": "apps/website/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "apps/dashboard/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "apps/website/postcss.config.mjs",
+          "kind": "configuration"
+        },
+        {
+          "path": "apps/dashboard/postcss.config.mjs",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "Shadcn/ui",
       "section": "technology_stack",
       "evidence": [
-        { "path": "packages/ui/package.json", "kind": "manifest" },
-        { "path": "packages/ui/src/lib/utils.ts", "kind": "adapter" },
-        { "path": "packages/ui/src/presentation/primitives/dialog.tsx", "kind": "adapter" }
+        {
+          "path": "packages/ui/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "packages/ui/src/lib/utils.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "packages/ui/src/presentation/primitives/dialog.tsx",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "next-intl 4.1",
       "section": "technology_stack",
       "evidence": [
-        { "path": "apps/website/package.json", "kind": "manifest" },
-        { "path": "apps/dashboard/package.json", "kind": "manifest" },
-        { "path": "apps/website/src/i18n/routing.ts", "kind": "adapter" },
-        { "path": "apps/website/src/lib/i18n/compose.ts", "kind": "adapter" }
+        {
+          "path": "apps/website/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "apps/dashboard/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "apps/website/src/i18n/routing.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "apps/website/src/lib/i18n/compose.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Zod",
       "section": "technology_stack",
       "evidence": [
-        { "path": "apps/dashboard/package.json", "kind": "manifest" },
-        { "path": "packages/forms/package.json", "kind": "manifest" },
-        { "path": "apps/dashboard/src/lib/api/schemas.ts", "kind": "adapter" }
+        {
+          "path": "apps/dashboard/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "packages/forms/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "apps/dashboard/src/lib/api/schemas.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Biome 2.4.4",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "biome.json", "kind": "configuration" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "biome.json",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "Vitest 4.0.18",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "vitest.config.ts", "kind": "configuration" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "vitest.config.ts",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "Playwright 1.58.2",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "playwright.config.ts", "kind": "configuration" },
-        { "path": "tests/audit.spec.ts", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "playwright.config.ts",
+          "kind": "configuration"
+        },
+        {
+          "path": "tests/audit.spec.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "highlight.js",
       "section": "technology_stack",
       "evidence": [
-        { "path": "apps/website/package.json", "kind": "manifest" },
+        {
+          "path": "apps/website/package.json",
+          "kind": "manifest"
+        },
         {
           "path": "apps/website/src/contexts/marketing/presentation/components/case-studies/code-block.tsx",
           "kind": "adapter"
@@ -122,7 +227,10 @@
       "name": "react-markdown",
       "section": "technology_stack",
       "evidence": [
-        { "path": "apps/dashboard/package.json", "kind": "manifest" },
+        {
+          "path": "apps/dashboard/package.json",
+          "kind": "manifest"
+        },
         {
           "path": "apps/dashboard/src/contexts/shared/presentation/pages/intelligence-page.tsx",
           "kind": "adapter"
@@ -133,163 +241,289 @@
       "name": "lucide-react",
       "section": "technology_stack",
       "evidence": [
-        { "path": "apps/dashboard/package.json", "kind": "manifest" },
-        { "path": "packages/ui/package.json", "kind": "manifest" }
+        {
+          "path": "apps/dashboard/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "packages/ui/package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "canvas-confetti",
       "section": "technology_stack",
       "evidence": [
-        { "path": "apps/dashboard/src/contexts/shared/lib/confetti.ts", "kind": "adapter" }
+        {
+          "path": "apps/dashboard/src/contexts/shared/lib/confetti.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "pino",
       "section": "technology_stack",
-      "evidence": [{ "path": "apps/dashboard/src/lib/logger.ts", "kind": "adapter" }]
+      "evidence": [
+        {
+          "path": "apps/dashboard/src/lib/logger.ts",
+          "kind": "adapter"
+        }
+      ]
     },
     {
       "name": "Clean Architecture",
       "section": "technology_stack",
       "evidence": [
-        { "path": "docs/architecture/overview.md", "kind": "documentation" },
-        { "path": "docs/architecture/bounded-contexts.md", "kind": "documentation" }
+        {
+          "path": "docs/architecture/overview.md",
+          "kind": "documentation"
+        },
+        {
+          "path": "docs/architecture/bounded-contexts.md",
+          "kind": "documentation"
+        }
       ]
     },
     {
       "name": "Clerk",
       "section": "integrations",
       "evidence": [
-        { "path": "apps/dashboard/package.json", "kind": "manifest" },
-        { "path": "apps/dashboard/src/middleware.ts", "kind": "adapter" },
-        { "path": "apps/dashboard/src/lib/api/with-auth.ts", "kind": "adapter" }
+        {
+          "path": "apps/dashboard/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "apps/dashboard/src/middleware.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "apps/dashboard/src/lib/api/with-auth.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Auth.js v5 + AWS Cognito OIDC",
       "section": "integrations",
       "evidence": [
-        { "path": "packages/auth/package.json", "kind": "manifest" },
-        { "path": "packages/auth/src/infrastructure/auth-config.ts", "kind": "adapter" }
+        {
+          "path": "packages/auth/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "packages/auth/src/infrastructure/auth-config.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "CauseFlow Core API",
       "section": "integrations",
       "evidence": [
-        { "path": "apps/dashboard/src/lib/api/core-api-client.ts", "kind": "adapter" },
-        { "path": "apps/dashboard/src/lib/api/http-api-client.ts", "kind": "adapter" },
-        { "path": "apps/dashboard/src/lib/api/get-api-client.ts", "kind": "adapter" }
+        {
+          "path": "apps/dashboard/src/lib/api/core-api-client.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "apps/dashboard/src/lib/api/http-api-client.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "apps/dashboard/src/lib/api/get-api-client.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Stripe",
       "section": "integrations",
       "evidence": [
-        { "path": "apps/dashboard/package.json", "kind": "manifest" },
         {
           "path": "apps/dashboard/src/contexts/billing/presentation/components/payment-modal.tsx",
           "kind": "adapter"
         },
-        { "path": "apps/dashboard/scripts/setup-stripe.ts", "kind": "adapter" }
+        {
+          "path": "apps/dashboard/src/contexts/billing/application/oss-runtime.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Sentry",
       "section": "integrations",
       "evidence": [
-        { "path": "apps/dashboard/package.json", "kind": "manifest" },
-        { "path": "apps/dashboard/instrumentation.ts", "kind": "adapter" },
-        { "path": "apps/dashboard/next.config.mjs", "kind": "configuration" }
+        {
+          "path": "apps/dashboard/package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "apps/dashboard/instrumentation.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "apps/dashboard/next.config.mjs",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "Google Analytics 4",
       "section": "integrations",
       "evidence": [
-        { "path": "packages/analytics/src/infrastructure/ga4/index.ts", "kind": "adapter" },
-        { "path": "apps/website/src/app/[locale]/layout.tsx", "kind": "adapter" }
+        {
+          "path": "packages/analytics/src/infrastructure/ga4/index.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "apps/website/src/app/[locale]/layout.tsx",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Microsoft Clarity",
       "section": "integrations",
       "evidence": [
-        { "path": "packages/analytics/src/infrastructure/clarity/index.ts", "kind": "adapter" },
-        { "path": "apps/website/src/app/[locale]/layout.tsx", "kind": "adapter" }
+        {
+          "path": "packages/analytics/src/infrastructure/clarity/index.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "apps/website/src/app/[locale]/layout.tsx",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "AWS SDK v3",
       "section": "integrations",
       "evidence": [
-        { "path": "apps/dashboard/package.json", "kind": "manifest" },
         {
-          "path": "apps/dashboard/src/contexts/identity/infrastructure/tenant-provisioning-fallback.ts",
-          "kind": "adapter"
+          "path": "apps/website/package.json",
+          "kind": "manifest"
         },
-        { "path": "apps/dashboard/scripts/delete-user.ts", "kind": "adapter" }
+        {
+          "path": "apps/website/sst-env.d.ts",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "SST v3 on AWS",
       "section": "integrations",
       "evidence": [
-        { "path": "apps/website/sst.config.ts", "kind": "iac" },
-        { "path": "apps/dashboard/sst.config.ts", "kind": "iac" }
+        {
+          "path": "apps/website/sst-env.d.ts",
+          "kind": "configuration"
+        },
+        {
+          "path": ".github/workflows/website-deploy.yml",
+          "kind": "iac"
+        },
+        {
+          "path": ".github/workflows/dashboard-deploy.yml",
+          "kind": "iac"
+        },
+        {
+          "path": "docs/solutions/infrastructure/2026-02-28_sst-proot-bun-wrapper.md",
+          "kind": "documentation"
+        }
       ]
     },
     {
       "name": "GitHub Actions CI/CD",
       "section": "integrations",
       "evidence": [
-        { "path": ".github/workflows/website-deploy.yml", "kind": "iac" },
-        { "path": ".github/workflows/dashboard-deploy.yml", "kind": "iac" }
+        {
+          "path": ".github/workflows/website-deploy.yml",
+          "kind": "iac"
+        },
+        {
+          "path": ".github/workflows/dashboard-deploy.yml",
+          "kind": "iac"
+        }
       ]
     },
     {
       "name": "Composio",
       "section": "integrations",
       "evidence": [
-        { "path": "apps/dashboard/next.config.mjs", "kind": "configuration" },
-        { "path": "apps/dashboard/src/contexts/integrations/domain/types.ts", "kind": "adapter" }
+        {
+          "path": "apps/dashboard/next.config.mjs",
+          "kind": "configuration"
+        },
+        {
+          "path": "apps/dashboard/src/contexts/integrations/domain/types.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Node.js >= 24",
       "section": "prerequisites",
       "evidence": [
-        { "path": ".nvmrc", "kind": "configuration" },
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": ".nvmrc",
+          "kind": "configuration"
+        },
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "chromium",
       "section": "prerequisites",
-      "evidence": [{ "path": "playwright.config.ts", "kind": "configuration" }]
+      "evidence": [
+        {
+          "path": "playwright.config.ts",
+          "kind": "configuration"
+        }
+      ]
     },
     {
       "name": "SST-bun wrapper",
       "section": "prerequisites",
-      "evidence": [{ "path": "docs/architecture/tech-stack.md", "kind": "documentation" }]
+      "evidence": [
+        {
+          "path": "docs/architecture/tech-stack.md",
+          "kind": "documentation"
+        }
+      ]
     }
   ],
   "contradictions": [
     {
       "documentation": "docs/architecture/tech-stack.md, docs/architecture/overview.md and docs/packages/auth.md describe the dashboard authentication as Auth.js v5 + Cognito OIDC and the dashboard persistence layer as direct DynamoDB via AWS SDK v3 + KMS.",
-      "implementation": "apps/dashboard/src/middleware.ts and apps/dashboard/src/lib/api/with-auth.ts use Clerk (@clerk/nextjs) at runtime; apps/dashboard/src/lib/api/http-api-client.ts and get-backend-token.ts proxy all data through the CauseFlow Core API (CORE_API_URL); no Dashboard code path runs Auth.js, Cognito, DynamoDB, or KMS at runtime — only scripts/delete-user.ts and the temporary tenant-provisioning-fallback use DynamoDB directly.",
+      "implementation": "apps/dashboard/src/middleware.ts and apps/dashboard/src/lib/api/with-auth.ts use Clerk (@clerk/nextjs) at runtime; apps/dashboard/src/lib/api/http-api-client.ts and get-backend-token.ts proxy all data through the CauseFlow Core API (CORE_API_URL); no Dashboard code path runs Auth.js, Cognito, DynamoDB, or KMS at runtime \u2014 only scripts/delete-user.ts and the temporary tenant-provisioning-fallback use DynamoDB directly.",
       "resolution": "Concretely: dashboard auth = Clerk (not Auth.js/Cognito); dashboard data = Core API proxy (not direct DynamoDB); AWS SDK in this repo is limited to the tenant-provisioning-fallback and the user-deletion CLI script."
     },
     {
       "documentation": "docs/architecture/tech-stack.md and apps/website/.env.example (LOOPS_API_KEY) describe a Loops.so email-marketing integration exposed via the website's /api/notify route.",
-      "implementation": "apps/website/src/app has no /api directory — the Loops.so integration has no current consumer in this codebase. Only the CSP connect-src in apps/website/next.config.mjs references https://app.loops.so.",
+      "implementation": "apps/website/src/app has no /api directory \u2014 the Loops.so integration has no current consumer in this codebase. Only the CSP connect-src in apps/website/next.config.mjs references https://app.loops.so.",
       "resolution": "Concretely: Loops.so is declared as a planned integration in docs and env templates but no runtime code path consumes it."
     },
     {
       "documentation": "docs/architecture/tech-stack.md names pnpm 10.30.1 as the package manager version.",
       "implementation": "package.json pins packageManager: pnpm@10.33.0.",
       "resolution": "Use pnpm 10.33.0 as the active version; the docs reference 10.30.1 which is stale."
+    },
+    {
+      "documentation": "Older inventory listed apps/dashboard/scripts/setup-stripe.ts and Stripe SDKs in dashboard package.json",
+      "implementation": "Stripe React/server SDKs removed from dashboard; payment-modal.tsx is an OSS stub (AC-048/AC-075)",
+      "resolution": "Commercial CLI scripts `setup-stripe.ts`, `delete-user.ts`, and `add-credits.ts` are deleted (AC-075)."
+    },
+    {
+      "documentation": "Older inventory listed tenant-provisioning-fallback.ts and delete-user.ts as AWS SDK usage in the dashboard",
+      "implementation": "Those dashboard scripts/adapters are removed; website package.json still declares @aws-sdk DynamoDB clients and sst-env.d.ts remains",
+      "resolution": "both removed in OSS"
+    },
+    {
+      "documentation": "Older inventory listed apps/website/sst.config.ts and apps/dashboard/sst.config.ts",
+      "implementation": "sst.config.ts files are absent; SST remains documented via workflows, sst-env.d.ts, and ops docs while OSS runtime uses Docker Compose",
+      "resolution": "the OSS runtime uses Docker Compose instead"
     }
   ]
 }

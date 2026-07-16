@@ -5,498 +5,796 @@
       "name": "Hono",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "@hono/node-server",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/main.ts", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/main.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "@hono/zod-validator",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "TypeScript",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "pino",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "jose",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "ElectroDB",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "ioredis",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/shared/infra/cache/redis-client.ts", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/shared/infra/cache/redis-client.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Web Push (VAPID)",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": ".env.example", "kind": "configuration" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": ".env.example",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "Vitest",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
-      ]
-    },
-    {
-      "name": "aws-sdk-client-mock",
-      "section": "technology_stack",
-      "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "Promptfoo",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "OpenTelemetry SDK",
       "section": "technology_stack",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/shared/infra/observability/otel.ts", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/shared/infra/observability/otel.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "PTC Anthropic Agent Runner",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/llm/anthropic-ptc-agent-runner.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/llm/enhanced-ptc-runner.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/llm/anthropic-ptc-agent-runner.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/llm/enhanced-ptc-runner.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Anthropic Agent Runner",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/llm/anthropic-agent-runner.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/llm/anthropic-agent-runner.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Mastra Agent Runner",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/llm/mastra-agent-runner.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/llm/mastra-tool-adapter.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/llm/mastra-agent-runner.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/llm/mastra-tool-adapter.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Stub Cloud Provider",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/cloud/stub-cloud-provider.ts", "kind": "adapter" }
-      ]
-    },
-    {
-      "name": "AWS Cloud Provider",
-      "section": "technology_stack",
-      "evidence": [
-        { "path": "src/shared/infra/cloud/aws-cloud-provider.ts", "kind": "adapter" }
-      ]
-    },
-    {
-      "name": "Azure Cloud Provider Stub",
-      "section": "technology_stack",
-      "evidence": [
-        { "path": "src/shared/infra/cloud/azure-cloud-provider-stub.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/cloud/stub-cloud-provider.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "STS Credential Vendor",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/credentials/sts-credential-vendor.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/credentials/role-policy-builder.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/credentials/sts-credential-vendor.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/credentials/role-policy-builder.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Stub Credential Vendor",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/credentials/stub-credential-vendor.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/credentials/stub-credential-vendor.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
-      "name": "KMS Token Encryption",
+      "name": "AES-GCM Token Encryption",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/credentials/kms-token-encryption.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/credentials/aes-gcm-token-encryption.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/application/ports/token-encryption.port.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "SQS Client / Consumer / DLQ Redriver",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/queue/sqs-client.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/queue/sqs-consumer.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/queue/sqs-message-queue.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/queue/dlq-redriver.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/queue/sqs-client.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/queue/sqs-consumer.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/queue/sqs-message-queue.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/queue/dlq-redriver.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "In-process EventBus",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/domain/events.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/pubsub/progress-consumer.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/domain/events.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/pubsub/progress-consumer.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Redis PubSub",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/pubsub/redis-pubsub.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/pubsub/redis-pubsub.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "SQS Progress Publisher",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/pubsub/sqs-progress.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/pubsub/sqs-progress.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
-      "name": "ECS Investigation Task Dispatcher",
+      "name": "Investigation Task Dispatcher",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/ecs/ecs-client.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/ecs/task-dispatcher.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/investigation/ecs-task-dispatcher.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/investigation/local-task-dispatcher.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Relay WSS Gateway",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/relay/relay-ws-server.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/relay/relay-registry.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/relay/relay-auth.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/relay/relay-protocol.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/relay/relay-gateway.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/relay/relay-ws-server.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/relay/relay-registry.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/relay/relay-auth.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/relay/relay-protocol.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/relay/relay-gateway.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "SSE Manager",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/chat/sse-manager.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/chat/sse-manager.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Tenant middleware",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/http/middleware/tenant.middleware.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/http/middleware/rate-limit.middleware.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/http/middleware/tenant.middleware.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/http/middleware/rate-limit.middleware.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Auth middleware",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/http/middleware/auth.middleware.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/http/middleware/auth.middleware.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "RBAC middleware",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/http/middleware/rbac.middleware.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/http/middleware/staff.middleware.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/http/middleware/rbac.middleware.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/http/middleware/staff.middleware.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Webhook HMAC middleware",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/http/middleware/webhook-auth.middleware.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/http/middleware/webhook-auth.middleware.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Audit middleware",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/http/middleware/audit.middleware.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/http/middleware/audit.middleware.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Request logger middleware",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/http/middleware/request-logger.middleware.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/http/middleware/request-logger.middleware.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Widget auth + CORS middleware",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/http/middleware/widget-auth.middleware.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/http/middleware/widget-cors.middleware.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/http/middleware/widget-auth.middleware.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/http/middleware/widget-cors.middleware.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Cost tracking",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/domain/cost.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/domain/cost.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "HealthChecker",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/health/health-checker.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/health/checks/dynamodb-check.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/health/checks/redis-check.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/health/checks/sqs-check.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/health/health-checker.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/health/checks/dynamodb-check.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/health/checks/redis-check.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/health/checks/sqs-check.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Invariant linter",
       "section": "technology_stack",
       "evidence": [
-        { "path": "infra/scripts/check-invariants.ts", "kind": "adapter" },
-        { "path": "INVARIANTS.md", "kind": "documentation" }
+        {
+          "path": "infra/scripts/check-invariants.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "INVARIANTS.md",
+          "kind": "documentation"
+        }
       ]
     },
     {
       "name": "In-process scheduler",
       "section": "technology_stack",
       "evidence": [
-        { "path": "src/shared/infra/scheduler/scheduler.ts", "kind": "adapter" }
+        {
+          "path": "src/shared/infra/scheduler/scheduler.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "AWS SDK v3 (DynamoDB / DocumentClient)",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "AWS SDK v3 (SQS / STS / KMS)",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "AWS SDK v3 (CloudWatch / CloudWatch Logs / CloudTrail)",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "AWS SDK v3 (ECS / EC2 / EKS / ELBv2 / ElastiCache)",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "AWS SDK v3 (Lambda / SSM / EventBridge / SNS / RDS / Route53 / S3 / ApiGateway / ApiGatewayV2 / CloudFront / CodeCommit)",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "Clerk",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/shared/config/index.ts", "kind": "configuration" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/shared/config/index.ts",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "Stripe",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/modules/billing/", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/modules/billing/",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Composio",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/shared/infra/integrations/composio-client.ts", "kind": "adapter" },
-        { "path": "src/modules/integration/", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/shared/infra/integrations/composio-client.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/modules/integration/",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Slack Web API",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/shared/infra/chat/slack-chat-platform.ts", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/shared/infra/chat/slack-chat-platform.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Svix",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "Sentry",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/shared/infra/observability/sentry.ts", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/shared/infra/observability/sentry.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Langfuse",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/shared/infra/observability/langfuse-tracer.ts", "kind": "adapter" },
-        { "path": "src/shared/infra/observability/langfuse-metric-recorder.ts", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/shared/infra/observability/langfuse-tracer.ts",
+          "kind": "adapter"
+        },
+        {
+          "path": "src/shared/infra/observability/langfuse-metric-recorder.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Hindsight",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/shared/infra/memory/hindsight-agent-memory.ts", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/shared/infra/memory/hindsight-agent-memory.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Anthropic API",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "src/shared/infra/llm/anthropic-client.ts", "kind": "adapter" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "src/shared/infra/llm/anthropic-client.ts",
+          "kind": "adapter"
+        }
       ]
     },
     {
       "name": "Mastra",
       "section": "integrations",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "Node.js 22",
       "section": "prerequisites",
       "evidence": [
-        { "path": "Dockerfile", "kind": "manifest" },
-        { "path": "package.json", "kind": "manifest" }
+        {
+          "path": "Dockerfile",
+          "kind": "manifest"
+        },
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "pnpm 9.15.0",
       "section": "prerequisites",
       "evidence": [
-        { "path": "package.json", "kind": "manifest" },
-        { "path": "Dockerfile", "kind": "manifest" }
+        {
+          "path": "package.json",
+          "kind": "manifest"
+        },
+        {
+          "path": "Dockerfile",
+          "kind": "manifest"
+        }
       ]
     },
     {
       "name": "Docker",
       "section": "prerequisites",
       "evidence": [
-        { "path": "docker-compose.yml", "kind": "iac" }
+        {
+          "path": "docker-compose.yml",
+          "kind": "iac"
+        }
       ]
     },
     {
       "name": "Redis 7 Alpine",
       "section": "prerequisites",
       "evidence": [
-        { "path": "docker-compose.yml", "kind": "iac" }
+        {
+          "path": "docker-compose.yml",
+          "kind": "iac"
+        }
       ]
     },
     {
       "name": "DynamoDB Local / ministack (LocalStack)",
       "section": "prerequisites",
       "evidence": [
-        { "path": "docker-compose.yml", "kind": "iac" }
+        {
+          "path": "docker-compose.yml",
+          "kind": "iac"
+        }
       ]
     },
     {
       "name": "SQS / STS / KMS / CloudWatch",
       "section": "prerequisites",
       "evidence": [
-        { "path": "infra/localstack/init/01-create-resources.sh", "kind": "iac" }
+        {
+          "path": "infra/localstack/init/01-create-resources.sh",
+          "kind": "iac"
+        }
       ]
     },
     {
       "name": "Langfuse (local)",
       "section": "prerequisites",
       "evidence": [
-        { "path": "docker-compose.yml", "kind": "iac" }
+        {
+          "path": "docker-compose.yml",
+          "kind": "iac"
+        }
       ]
     },
     {
       "name": "AWS CDK",
       "section": "prerequisites",
       "evidence": [
-        { "path": "infra/cdk/package.json", "kind": "iac" },
-        { "path": "infra/cdk/lib/bootstrap-stack.ts", "kind": "iac" },
-        { "path": "infra/cdk/lib/causeflow-stack.ts", "kind": "iac" }
+        {
+          "path": "infra/cdk/package.json",
+          "kind": "iac"
+        },
+        {
+          "path": "infra/cdk/lib/bootstrap-stack.ts",
+          "kind": "iac"
+        },
+        {
+          "path": "infra/cdk/lib/causeflow-stack.ts",
+          "kind": "iac"
+        }
       ]
     },
     {
       "name": "GitHub Actions",
       "section": "prerequisites",
       "evidence": [
-        { "path": ".github/workflows/ci.yml", "kind": "configuration" },
-        { "path": ".github/workflows/deploy.yml", "kind": "configuration" },
-        { "path": ".github/workflows/eval.yml", "kind": "configuration" }
+        {
+          "path": ".github/workflows/ci.yml",
+          "kind": "configuration"
+        },
+        {
+          "path": ".github/workflows/deploy.yml",
+          "kind": "configuration"
+        },
+        {
+          "path": ".github/workflows/eval.yml",
+          "kind": "configuration"
+        }
       ]
     },
     {
       "name": "Env files: .env.example, .env.localstack, .env.e2e, .env.smoke, .envrc",
       "section": "prerequisites",
       "evidence": [
-        { "path": ".env.example", "kind": "configuration" },
-        { "path": ".env.localstack", "kind": "configuration" },
-        { "path": ".env.e2e", "kind": "configuration" },
-        { "path": ".env.smoke", "kind": "configuration" },
-        { "path": ".envrc", "kind": "configuration" }
+        {
+          "path": ".env.example",
+          "kind": "configuration"
+        },
+        {
+          "path": ".env.localstack",
+          "kind": "configuration"
+        },
+        {
+          "path": ".env.e2e",
+          "kind": "configuration"
+        },
+        {
+          "path": ".env.smoke",
+          "kind": "configuration"
+        },
+        {
+          "path": ".envrc",
+          "kind": "configuration"
+        }
       ]
     }
   ],
@@ -514,7 +812,7 @@
     {
       "documentation": "core/.env.example defaults to claude-sonnet-4-5-20250929 for triage and investigation models",
       "implementation": "core/src/shared/config/index.ts defaults to claude-sonnet-4-6 for all Claude model slots",
-      "resolution": "config wins (current implementation) — claude-sonnet-4-6 is the live default; .env.example is a pinned older snapshot"
+      "resolution": "config wins (current implementation) \u2014 claude-sonnet-4-6 is the live default; .env.example is a pinned older snapshot"
     },
     {
       "documentation": "core/.env.example defaults AWS_REGION=us-east-1 and core/.envrc exports AWS_DEFAULT_REGION=us-east-2",
@@ -525,6 +823,21 @@
       "documentation": "core/CLAUDE.md and README mention 'LocalStack' for the local AWS stack",
       "implementation": "core/docker-compose.yml uses the nahuelnucera/ministack image (not vanilla localstack)",
       "resolution": "ministack is the actual local image; document names diverged from implementation"
+    },
+    {
+      "documentation": "Older inventory/spec paths listed aws-cloud-provider.ts and azure-cloud-provider-stub.ts under technology_stack",
+      "implementation": "src/shared/infra/cloud/stub-cloud-provider.ts is the only cloud provider adapter; AwsCloudProvider and AzureCloudProviderStub are removed from the running code path (AC-047)",
+      "resolution": "StubCloudProvider` is the only cloud provider. `AwsCloudProvider` and `AzureCloudProviderStub` are removed"
+    },
+    {
+      "documentation": "Older inventory listed KMS Token Encryption at kms-token-encryption.ts",
+      "implementation": "src/shared/infra/credentials/aes-gcm-token-encryption.ts implements token encryption for OSS/local runtime",
+      "resolution": "AES-GCM Token Encryption (`src/shared/infra/credentials/aes-gcm-token-encryption.ts`) replaces KMS"
+    },
+    {
+      "documentation": "Older inventory listed ECS client at src/shared/infra/ecs/ecs-client.ts + task-dispatcher.ts",
+      "implementation": "Dispatchers live at src/shared/infra/investigation/ecs-task-dispatcher.ts and local-task-dispatcher.ts",
+      "resolution": "Investigation Task Dispatcher uses `src/shared/infra/investigation/ecs-task-dispatcher.ts` and `src/shared/infra/investigation/local-task-dispatcher.ts`"
     }
   ]
 }
