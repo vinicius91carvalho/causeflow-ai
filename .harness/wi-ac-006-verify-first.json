@@ -5,12 +5,14 @@
   "observation_method": "grep",
   "ac006_pass": true,
   "checks": {
-    "next_config_no_get_started_redirect_to_signup": true,
+    "redirects_array_no_executable_entries": true,
+    "no_get_started_redirect_source": true,
+    "no_commercial_signup_destination": true,
     "no_app_get_started_route": true,
     "no_product_href_to_get_started": true
   },
   "redirects_block_excerpt": "// Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.\n    // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.",
   "app_routes": [],
   "href_hits": [],
-  "notes": "Hard-remove: no /get-started App Router page; next.config redirects empty of commercial sign-up funnel; framework 404 for missing routes."
+  "notes": "Hard-remove: empty redirects(); no /get-started App Router page; no product href to /get-started; framework 404 for missing routes. Dead ROUTES.GET_STARTED unused in presentation is out of funnel scope."
 }

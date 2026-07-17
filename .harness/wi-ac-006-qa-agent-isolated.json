@@ -1,0 +1,20 @@
+{
+  "phase": "qa-agent-isolated",
+  "id": "WI-AC-006",
+  "ac": "AC-006",
+  "observation_method": "grep",
+  "ac006_pass": true,
+  "checks": {
+    "redirects_array_no_executable_entries": true,
+    "no_get_started_redirect_source": true,
+    "no_commercial_signup_destination": true,
+    "no_early_access_redirect_sources": true,
+    "no_app_get_started_route": true,
+    "no_product_href_to_get_started": true
+  },
+  "redirect_sources": [],
+  "redirect_destinations": [],
+  "app_get_started_routes": [],
+  "product_href_hits": [],
+  "notes": "Hard-remove: empty redirects(); no /get-started App Router page; no href to /get-started; framework 404 for missing routes. Dead ROUTES.GET_STARTED constant unused in presentation is out of funnel scope."
+}
