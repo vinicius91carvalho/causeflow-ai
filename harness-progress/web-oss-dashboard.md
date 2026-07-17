@@ -1404,3 +1404,13 @@ Evidence excerpt: {
 - WorkItem: WI-AC-022
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T04:24:01.874Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-022
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+  harness-progress/web-oss-dashboard.md
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
