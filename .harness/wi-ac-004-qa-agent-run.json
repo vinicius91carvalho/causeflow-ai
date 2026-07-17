@@ -1,5 +1,5 @@
 {
-  "phase": "isolated-qa",
+  "phase": "verify-first-coding",
   "id": "WI-AC-004",
   "ac": "AC-004",
   "port": 5171,
@@ -21,7 +21,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Dashboard"
         },
         {
@@ -58,7 +58,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Dashboard"
         },
         {
@@ -91,7 +91,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Dashboard"
         },
         {
@@ -120,7 +120,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Dashboard"
         },
         {
@@ -157,7 +157,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Dashboard"
         },
         {
@@ -202,7 +202,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Dashboard"
         },
         {
@@ -239,7 +239,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Dashboard"
         },
         {
@@ -280,7 +280,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Painel"
         },
         {
@@ -317,7 +317,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Painel"
         },
         {
@@ -350,7 +350,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Painel"
         },
         {
@@ -379,7 +379,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Painel"
         },
         {
@@ -416,7 +416,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Painel"
         },
         {
@@ -461,7 +461,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Painel"
         },
         {
@@ -498,7 +498,7 @@
           "text": "Docs"
         },
         {
-          "href": "https://dashboard-staging.causeflow.ai",
+          "href": "http://localhost:3001",
           "text": "Painel"
         },
         {

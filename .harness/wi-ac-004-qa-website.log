@@ -1,0 +1,38 @@
+   ▲ Next.js 15.5.12
+   - Local:        http://127.0.0.1:5171
+   - Network:      http://127.0.0.1:5171
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+ ✓ Starting...
+ ✓ Ready in 984ms
+ ✓ Compiled /middleware in 136ms (195 modules)
+(node:2287246) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ○ Compiling /[locale] ...
+ ✓ Compiled /[locale] in 1018ms (1415 modules)
+ GET /en 200 in 1838ms
+ ✓ Compiled /_not-found in 369ms (1421 modules)
+ GET /en/auth/sign-in 404 in 521ms
+ GET /en 200 in 320ms
+ GET /en 200 in 178ms
+ ✓ Compiled /[locale]/product in 339ms (1456 modules)
+ GET /en/product 200 in 944ms
+ ✓ Compiled /[locale]/integrations in 201ms (1469 modules)
+ GET /en/integrations 200 in 1139ms
+ ○ Compiling /[locale]/use-cases ...
+ ✓ Compiled /[locale]/use-cases in 746ms (1476 modules)
+ GET /en/use-cases 200 in 1201ms
+ ✓ Compiled /[locale]/security in 315ms (1484 modules)
+ GET /en/security 200 in 853ms
+ ✓ Compiled /[locale]/about in 231ms (1487 modules)
+ GET /en/about 200 in 718ms
+ ✓ Compiled /[locale]/from-opsgenie in 267ms (1493 modules)
+ GET /en/from-opsgenie 200 in 756ms
+ GET /pt-br 200 in 206ms
+ GET /pt-br/product 200 in 120ms
+ GET /pt-br/integrations 200 in 600ms
+ GET /pt-br/use-cases 200 in 104ms
+ GET /pt-br/security 200 in 132ms
+ GET /pt-br/about 200 in 80ms
+ GET /pt-br/from-opsgenie 200 in 77ms
