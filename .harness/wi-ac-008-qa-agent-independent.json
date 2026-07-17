@@ -1,8 +1,8 @@
 {
   "id": "WI-AC-008",
-  "phase": "qa-agent-independent-retest",
+  "phase": "qa-agent-independent",
   "base": "http://127.0.0.1:5170",
-  "email": "qa-ac008-ind-1784264345666@causeflow.local",
+  "email": "qa-ac008-ind-1784264601097@causeflow.local",
   "steps": [
     {
       "step": "smoke_sign_in",
@@ -18,8 +18,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "a408e6a5-1c64-4fc0-ad5c-e8474466c2a3",
-          "email": "qa-ac008-ind-1784264345666@causeflow.local",
+          "id": "e033c040-4f4f-4419-b930-324b608354f5",
+          "email": "qa-ac008-ind-1784264601097@causeflow.local",
           "name": "AC008 QA Independent"
         }
       }
@@ -52,7 +52,7 @@
       ],
       "finalUrl": "http://127.0.0.1:5170/dashboard",
       "finalStatus": 200,
-      "body_len": 90440,
+      "body_len": 90291,
       "snippet": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_14db65\" data-theme=\"cleric\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link"
     },
     {
@@ -71,15 +71,15 @@
     "no_commercial_gate_ui_on_dashboard": true,
     "choose_plan_is_404": true
   },
-  "pass": true,
   "gate_hits": {
     "/onboarding/choose-plan": false,
     "Choose your plan": false,
     "Buy more": false,
     "quota pack": false,
-    "data-testid=[\"\\']choose-plan": false,
+    "data-testid=[\"']choose-plan": false,
     "Start Free Trial": false,
     "Stripe Checkout": false
   },
-  "plan_cards": false
+  "plan_cards": false,
+  "pass": true
 }

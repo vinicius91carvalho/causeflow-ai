@@ -1,8 +1,8 @@
 {
   "id": "WI-AC-008",
-  "phase": "verify-first-existing-retry5",
+  "phase": "verify-first-existing-retry6",
   "base": "http://127.0.0.1:5170",
-  "email": "vf-ac008-1784264451988@causeflow.local",
+  "email": "vf-ac008-1784264803176011619@causeflow.local",
   "steps": [
     {
       "step": "smoke_sign_in",
@@ -18,8 +18,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "d1aac461-5f7d-4899-957b-cd02567faf47",
-          "email": "vf-ac008-1784264451988@causeflow.local",
+          "id": "7730952b-011e-4bf8-a673-58fba6b017f2",
+          "email": "vf-ac008-1784264803176011619@causeflow.local",
           "name": "AC008 VF Admin"
         }
       }
@@ -52,8 +52,8 @@
       ],
       "finalUrl": "http://127.0.0.1:5170/dashboard",
       "finalStatus": 200,
-      "body_len": 90307,
-      "snippet": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_14db65\" data-theme=\"cleric\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link"
+      "body_len": 90293,
+      "snippet": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_14db65\" data-theme=\"cleric\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewpo"
     },
     {
       "step": "choose_plan_boundary",
@@ -84,10 +84,10 @@
     "Choose your plan": false,
     "Buy more": false,
     "quota pack": false,
-    "data-testid=[\"\\']choose-plan": false,
+    "data-testid-choose-plan": false,
     "Start Free Trial": false,
     "Stripe Checkout": false
   },
   "plan_cards": false,
-  "notes": "Substring false positives discarded: Pro matched RSC payload tokens; Business matched businessProfile i18n; billing title strings are i18n keys not rendered gate UI. Redirect chain is authoritative for AC-008."
+  "notes": "Redirect chain is authoritative for AC-008; substring false positives discarded for Pro/Business RSC tokens."
 }
