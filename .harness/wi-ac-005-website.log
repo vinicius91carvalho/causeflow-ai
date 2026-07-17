@@ -19,3 +19,4 @@
  GET /pt-br/product 200 in 159ms
 
 {"at":"2026-07-17T05:16:37-03:00","kind":"wi-ac-005-website","port":5171,"pids":[2936067],"log":"/home/vinicius/projects/causeflow-ai-wt-root-web-oss-marketing/.harness/wi-ac-005-website.log"}
+{"at":"2026-07-17T05:16:44-03:00","kind":"wi-ac-005-website-stop","port":5171,"action":"kill-app.pid","pid":2936067}
