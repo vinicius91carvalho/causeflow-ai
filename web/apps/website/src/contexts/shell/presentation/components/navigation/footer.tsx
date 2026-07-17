@@ -22,19 +22,12 @@ export async function Footer() {
     <footer className="border-t border-border bg-muted/50">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Brand column */}
+          {/* Brand column — OSS project identity (no company-sales LLC chrome) */}
           <div>
             <div className="font-bold text-lg">
-              <span className="text-foreground">CauseFlow</span>{' '}
-              <span className="text-primary">AI</span>
+              <span className="text-foreground">CauseFlow</span>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">{t('footer.description')}</p>
-            <address className="mt-4 not-italic text-xs leading-relaxed text-muted-foreground">
-              <span className="block font-semibold text-foreground/80">CauseFlow AI, LLC</span>
-              <span className="block">A Delaware corporation</span>
-              <span className="mt-1 block">131 Continental Dr, Suite 305</span>
-              <span className="block">Newark, DE 19713, US</span>
-            </address>
           </div>
 
           {/* Product column */}
@@ -113,7 +106,7 @@ export async function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} CauseFlow AI. All rights reserved.
+            &copy; {new Date().getFullYear()} CauseFlow. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-2">
             <span className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">

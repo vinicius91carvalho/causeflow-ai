@@ -30,7 +30,6 @@ export function Header() {
         <Link href="/" className="flex items-center gap-2 text-xl font-bold">
           <Image src="/favicon.svg" alt="" width={28} height={28} aria-hidden="true" />
           <span className="text-foreground">CauseFlow</span>
-          <span className="text-accent">AI</span>
         </Link>
 
         {/* Desktop Nav */}

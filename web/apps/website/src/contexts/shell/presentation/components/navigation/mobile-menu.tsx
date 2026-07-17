@@ -28,8 +28,7 @@ export function MobileMenu({ open, onClose, navItems }: MobileMenuProps) {
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2 text-left">
             <Image src="/favicon.svg" alt="" width={24} height={24} aria-hidden="true" />
-            <span className="text-foreground">CauseFlow</span>{' '}
-            <span className="text-accent">AI</span>
+            <span className="text-foreground">CauseFlow</span>
           </SheetTitle>
           <SheetDescription className="sr-only">Navigation menu</SheetDescription>
         </SheetHeader>
