@@ -1,0 +1,48 @@
+{
+  "id": "WI-AC-017",
+  "phase": "verify-first",
+  "acceptance_check_id": "AC-017",
+  "observation_method": "grep",
+  "description": "(web + core) Active profile cannot be deleted until another is activated; clear error otherwise.",
+  "ac017_pass": true,
+  "checks": [
+    {
+      "id": "core DELETE compares activeProfileId === profileId before delete",
+      "pass": true,
+      "evidence": "180:    if (activeProfileId === profileId) {"
+    },
+    {
+      "id": "core DELETE returns 409 with clear Activate-another-profile error",
+      "pass": true,
+      "evidence": "6:export const ACTIVE_INVESTIGATION_LLM_PROFILE_DELETE_ERROR =\n181:      return c.json({ error: ACTIVE_INVESTIGATION_LLM_PROFILE_DELETE_ERROR }, 409);"
+    },
+    {
+      "id": "web UI handleDelete guards active profile with clear toast error",
+      "pass": true,
+      "evidence": "230:      addToast(t('errorDeleteActive'), 'error');"
+    },
+    {
+      "id": "web UI disables delete for active profile (data-delete-blocked)",
+      "pass": true,
+      "evidence": "540:                          data-delete-blocked={isActive ? 'active-profile' : undefined}"
+    },
+    {
+      "id": "EN + PT-BR clear errorDeleteActive copy",
+      "pass": true,
+      "evidence": "124:        \"errorDeleteActive\": \"Cannot delete the active Investigation LLM profile. Activate another profile first.\","
+    },
+    {
+      "id": "web BFF DELETE proxies to Core profile id path (preserves Core 409)",
+      "pass": true,
+      "evidence": "5:  proxyToCore,\n35:    const res = await proxyToCore(\n52:    const res = await proxyToCore("
+    },
+    {
+      "id": "unit source audits cover active-delete guard (core + web)",
+      "pass": true,
+      "evidence": "41:  it('blocks deleting the active profile with a clear 409 error', () => {"
+    }
+  ],
+  "defects": [],
+  "product_diff": false,
+  "notes": "VERIFY-FIRST grep/static audit only (feature_list observation_method=grep). No server/browser started. Existing Core DELETE 409 guard + web UI active-delete block already satisfy AC-017."
+}
