@@ -3278,3 +3278,16 @@ may have crashed in this repository earlier:
 remove the file manually to continue.
 fatal: Unable to write index.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T07:09:42.276Z — Explicit Resume
+
+- WorkItem: WI-AC-010
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-010",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
