@@ -5,18 +5,15 @@
      · optimizePackageImports
 
  ✓ Starting...
- ✓ Ready in 974ms
- ✓ Compiled /middleware in 135ms (195 modules)
-(node:2903760) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+ ✓ Ready in 969ms
+ ✓ Compiled /middleware in 137ms (195 modules)
+(node:2916624) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
 (Use `node --trace-deprecation ...` to show where the warning was created)
  ○ Compiling /[locale] ...
- ✓ Compiled /[locale] in 1004ms (1415 modules)
- GET /en 200 in 1813ms
- GET /en 200 in 185ms
- ✓ Compiled /[locale]/product in 304ms (1450 modules)
- GET /en/product 200 in 874ms
- GET /pt-br 200 in 205ms
+ ✓ Compiled /[locale] in 1005ms (1415 modules)
+ GET /en 200 in 1823ms
+ GET /en 200 in 189ms
+ ✓ Compiled /[locale]/product in 311ms (1450 modules)
+ GET /en/product 200 in 881ms
+ GET /pt-br 200 in 211ms
  GET /pt-br/product 200 in 101ms
-[?25h
-
-=== stop 2026-07-17T05:09:27-03:00 ===
