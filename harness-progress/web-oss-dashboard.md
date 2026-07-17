@@ -6053,3 +6053,16 @@ may have crashed in this repository earlier:
 remove the file manually to continue.
 fatal: Unable to write index.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T11:46:09.298Z — Explicit Resume
+
+- WorkItem: WI-AC-019
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: worker process exited; resume context after confirming worktree is healthy.
+Evidence excerpt: {
+  "id": "WI-AC-016",
+  "integration": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
