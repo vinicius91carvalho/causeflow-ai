@@ -5558,3 +5558,13 @@ Evidence excerpt: {
 - WorkItem: WI-AC-010
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T09:55:15.693Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-010
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+  harness-progress/web-oss-marketing.md
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
