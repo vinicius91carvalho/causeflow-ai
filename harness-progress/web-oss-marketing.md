@@ -2013,3 +2013,10 @@ Evidence excerpt: {
 - RepairPlan: False QA defect: AC-004 already passed on website :5171; root ./init.sh start cannot bind harness PORT.; Do not change marketing CTAs or other product code for this defect (VERIFY-FIRST zero-diff unless a real AC-004 HTTP failure appears).; Bring up only @causeflow/website on PORT=5171 via .harness/wi-ac-004-qa-start.sh or equivalent next dev; do not expect root ./init.sh start to listen on :5171.; Optionally use web/init.sh with PORT=5171 if a Ready line is required; never treat root compose :3000 as the harness probe target.; Re-run .harness/wi-ac-004-qa-probe.py (or equivalent HTTP audit) for EN+PT-BR homepage/primary surfaces; keep implementation=true only with ac004_pass.; After verdict, stop the exact harness PID in .harness/app.pid; do not docker compose down shared infra.
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/d3fd2879-f5d8-42ee-9d15-b2aeba2c33e5/web-oss-marketing/WI-AC-004-1-qa-42a1bc1877c999ea.log
 - NextAction: Coding Attempt 2
+
+## 2026-07-17T06:33:31.546Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-004
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
