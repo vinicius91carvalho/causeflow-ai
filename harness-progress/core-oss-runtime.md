@@ -56,3 +56,10 @@ Fix requirements:
 3. Unit + runtime proof: bad active + healthy Ornith fallbackProfileId → investigation proceeds (or clear chain-exhausted error). Rebuild compose api/worker images; do not claim green from grep-only IV.
 4. Leave AC-025/026 Ornith host.docker.internal presets alone unless a real regression appears.
 - NextAction: Coding
+
+## 2026-07-17T21:14:06.545Z — Checkpoint ready
+
+- Attempt: 2/3
+- WorkItem: WI-AC-018
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
