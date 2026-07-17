@@ -1,0 +1,37 @@
+{
+  "phase": "qa-agent-isolated",
+  "id": "WI-AC-006",
+  "ac": "AC-006",
+  "observation_method": "grep",
+  "ac006_pass": true,
+  "checks": {
+    "no_app_router_get_started": true,
+    "redirects_runtime_entries": 0,
+    "empty_or_no_gs_redirects": true,
+    "no_href_get_started": true,
+    "no_middleware_get_started": true,
+    "no_sitemap_get_started": true,
+    "no_getStartedSchema_website_usage": true,
+    "ROUTES_GET_STARTED_only_dead_constant_and_unit_test": true,
+    "no_commercial_signup_redirect_wiring": true
+  },
+  "evidence_summary": {
+    "app_router_get_started": [],
+    "gs_redirect_entries": [],
+    "redirects_excerpt": "// Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.\n    // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.",
+    "href_hits": [],
+    "middleware": [],
+    "sitemap": [],
+    "schema_usage": [],
+    "routes_usage": [
+      "web/packages/shared/src/domain/constants/routes.ts:9 (dead constant)",
+      "web/packages/shared/src/domain/constants/routes.test.ts:30 (unit test)"
+    ],
+    "commercial": [],
+    "case_study_narrative_only": [
+      "cascading-500-page.tsx CMS log path strings",
+      "cache-records-visual.tsx locale/get-started?v= visual labels"
+    ]
+  },
+  "notes": "Scaffold present (project_specs.xml, feature_list.json, init.sh, .harness). Grep-only per feature_list \u2014 no server/browser. Hard-remove confirmed."
+}
