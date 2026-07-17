@@ -3880,3 +3880,10 @@ Evidence excerpt: {
 - WorkItem: WI-AC-005
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T09:04:36.665Z — Resumed
+
+- WorkItem: WI-AC-005
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
