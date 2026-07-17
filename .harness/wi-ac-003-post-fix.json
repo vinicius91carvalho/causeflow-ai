@@ -1,0 +1,37 @@
+{
+  "phase": "post-fix",
+  "home_status": 200,
+  "routes": [
+    {
+      "pass": true,
+      "reason": "ok",
+      "url": "http://127.0.0.1:5171/pricing",
+      "status": 404,
+      "location": null,
+      "body_len": 21805,
+      "has_starter": false,
+      "has_business": false,
+      "has_dollar99": false,
+      "has_dollar349": false,
+      "has_not_found_ui": true,
+      "redirects_to_docs": false,
+      "snippet": "<!DOCTYPE html><!--j_oHoZo4bkKSQJnnnrrhi--><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-3ba38f55556a6dee.js\"/><script src=\"/_next/static/chunks/87c73c54-24122e7b92478d00.js\" async=\"\"></script><script src=\"/_next/static/chunks/18-b339bcfc88586b9e.js\" async=\"\"></script><script src=\"/_next/static/chunks/main-app-fb2915b5b3fa3177.js\" as"
+    },
+    {
+      "pass": true,
+      "reason": "ok",
+      "url": "http://127.0.0.1:5171/pt-br/pricing",
+      "status": 404,
+      "location": null,
+      "body_len": 22379,
+      "has_starter": false,
+      "has_business": false,
+      "has_dollar99": false,
+      "has_dollar349": false,
+      "has_not_found_ui": true,
+      "redirects_to_docs": false,
+      "snippet": "<!DOCTYPE html><!--j_oHoZo4bkKSQJnnnrrhi--><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-3ba38f55556a6dee.js\"/><script src=\"/_next/static/chunks/87c73c54-24122e7b92478d00.js\" async=\"\"></script><script src=\"/_next/static/chunks/18-b339bcfc88586b9e.js\" async=\"\"></script><script src=\"/_next/static/chunks/main-app-fb2915b5b3fa3177.js\" as"
+    }
+  ],
+  "ac003_pass": true
+}

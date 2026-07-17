@@ -15,3 +15,227 @@
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/71daefc8-12f5-420e-a62c-5e6abbbafbc7/web-oss-marketing/WI-AC-002-1-integration_qa-1b3c6bb363a3df2a.log
 - NextAction: next Ready Work Item
+
+## 2026-07-17T00:23:51.943Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T00:23:52.460Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: integration could not complete
+- Defects: error: Unable to create '/home/vinicius/projects/causeflow-ai/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+error: could not write index
+fatal: stash failed
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T00:23:54.078Z — Explicit Resume
+
+- WorkItem: WI-AC-003
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-003",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T00:41:42.025Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T00:41:42.460Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: integration could not complete
+- Defects: error: Unable to create '/home/vinicius/projects/causeflow-ai/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+error: could not write index
+fatal: stash failed
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T00:41:45.820Z — Explicit Resume
+
+- WorkItem: WI-AC-003
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-003",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T00:57:06.738Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T00:57:07.295Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: integration could not complete
+- Defects: error: Unable to create '/home/vinicius/projects/causeflow-ai/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+error: could not write index
+fatal: stash failed
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T01:07:15.264Z — Explicit Resume
+
+- WorkItem: WI-AC-003
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-003",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T01:15:25.281Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T01:15:25.858Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+  harness-progress/web-oss-dashboard.md
+fatal: Unable to create '/home/vinicius/projects/causeflow-ai/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+fatal: Unable to create '/home/vinicius/projects/causeflow-ai/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T02:15:25.920Z — Explicit Resume
+
+- WorkItem: WI-AC-003
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-003",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T02:22:28.268Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T02:22:28.699Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: integration could not complete
+- Defects: fatal: Unable to create '/home/vinicius/projects/causeflow-ai/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+fatal: stash failed
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T02:48:58.712Z — Explicit Resume
+
+- WorkItem: WI-AC-003
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-003",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T02:57:33.848Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T02:57:35.789Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+  harness-progress/web-oss-dashboard.md
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T02:57:37.005Z — Explicit Resume
+
+- WorkItem: WI-AC-003
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-003",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T03:01:54.193Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
