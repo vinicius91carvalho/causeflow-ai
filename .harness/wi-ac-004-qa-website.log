@@ -36,3 +36,4 @@
  GET /pt-br/security 200 in 132ms
  GET /pt-br/about 200 in 80ms
  GET /pt-br/from-opsgenie 200 in 77ms
+[?25h
