@@ -15,3 +15,10 @@
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/974971fa-5aa7-49ba-a1c3-5ac920b07614/core-oss-runtime/WI-AC-011-1-integration_qa-ea1d4b69c6348077.log
 - NextAction: next Ready Work Item
+
+## 2026-07-17T11:28:19.419Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-018
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
