@@ -10,9 +10,10 @@
     "no_sitemap_get_started": true,
     "no_middleware_get_started_funnel": true,
     "no_product_href_to_get_started": true,
-    "get_started_constant_unused_in_product": true
+    "get_started_constant_unused_in_product": true,
+    "no_commercial_early_access_redirect_wiring": true
   },
   "redirects_excerpt": "// Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.\n// Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.",
   "product_commit": "62f06f5e",
-  "notes": "Zero product diff. Hard-remove already on gen: empty redirects(); no App Router get-started page; no presentation href/middleware/sitemap funnel; framework 404 for missing routes. Dead ROUTES.GET_STARTED unused in presentation is out of funnel scope."
+  "notes": "Zero product diff after resume. Hard-remove already on gen: empty redirects(); no App Router get-started page; no presentation href/middleware/sitemap funnel; framework 404 for missing routes. Dead ROUTES.GET_STARTED unused in presentation is out of funnel scope. Committed untracked wi-ac-006 probe to avoid IV merge collision."
 }
