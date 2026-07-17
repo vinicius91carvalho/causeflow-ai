@@ -1,1 +1,30 @@
-{"phase":"qa-agent-isolated","id":"WI-AC-006","ac":"AC-006","observation_method":"grep","ac006_pass":true,"checks":{"redirects_runtime_entries":0,"no_app_get_started_route":true,"no_href_get_started":true,"no_middleware_get_started":true,"no_sitemap_get_started":true,"no_commercial_signup_redirect_wiring":true,"no_getStartedSchema_website_usage":true,"ROUTES_GET_STARTED_only_dead_constant_and_unit_test":true},"notes":"Scaffold: project_specs.xml, feature_list.json, init.sh present. Grep-only per feature_list observation_method. Case-study narrative/cache-visual path strings are not funnel entry points.","at":"2026-07-17T07:39:12-03:00"}
+{
+  "phase": "qa-agent-isolated",
+  "id": "WI-AC-006",
+  "ac": "AC-006",
+  "observation_method": "grep",
+  "ac006_pass": true,
+  "checks": {
+    "no_app_router_get_started": true,
+    "redirects_runtime_entries": 0,
+    "empty_or_no_gs_redirects": true,
+    "no_href_get_started": true,
+    "no_middleware_get_started": true,
+    "no_sitemap_get_started": true,
+    "no_getStartedSchema_website_usage": true,
+    "ROUTES_GET_STARTED_only_dead_constant_and_unit_test": true,
+    "no_commercial_signup_redirect_wiring": true
+  },
+  "evidence_summary": {
+    "app_router_get_started": [],
+    "gs_redirect_entries": [],
+    "redirects_excerpt": "import createNextIntlPlugin from 'next-intl/plugin';\n\nconst withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');\n\nconst isDev = process.env.NODE_ENV === 'development';\n\nconst DASHBOARD_URL =\n  process.env.NEXT_PUBLIC_DASHBOARD_URL ??\n  (process.env.NEXT_PUBLIC_DEPLOYMENT_STAGE === 'production'\n    ? 'https://dashboard.causeflow.ai'\n    : 'https://dashboard-staging.causeflow.ai');\n\n/** @type {import('next').NextConfig} */\nconst nextConfig = {\n  eslint: { ignoreDuringBuilds: true },\n  red",
+    "href_hits": [],
+    "middleware": [],
+    "sitemap": [],
+    "schema_usage": [],
+    "routes_usage": [],
+    "commercial": []
+  },
+  "notes": "Scaffold present. Grep-only per feature_list. Case-study narrative/CMS/cache-visual path strings excluded as non-funnel. Dead ROUTES.GET_STARTED + forms getStartedSchema unused under apps OK."
+}
