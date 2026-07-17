@@ -158,3 +158,13 @@ Evidence excerpt: {
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/54e1113e-084c-4ec7-9b31-411be81b453f/core-oss-runtime/WI-AC-018-1-integration_qa-c547e750c2b81ae8.log
 - NextAction: next Ready Work Item
+
+## 2026-07-17T21:42:00.794Z — Operator guidance
+
+- WorkItem: WI-AC-018
+- Outcome: retryQueue / Control Host guidance applied to coding Repair Plan
+- Guidance: Goal Review evidence (AC-018) — product repair in core-oss-runtime; NOT WI-AC-025 (golden path already passes). Prior MERGE/IV-only + grep green is insufficient.
+expected: when active Investigation LLM fails, Core follows fallbackProfileId to a healthy Ornith profile and investigation proceeds (or, if chain exhausted, fails closed with a clear configure/fix-LLM error); do NOT silently succeed via DeterministicLLMClient/Anthropic.
+observed: active bad baseUrl http://127.0.0.1:1/v1 + fallbackProfileId → http://host.docker.internal:8081/v1 still yields incident status=failed with empty evidenceByAgent while good-only Ornith completes (AC-025); api logs show local-llm.chat.completions.structured failed then CircuitBreakerOpenError for subsequent chain hops (incidents f7289013-1983-4764-a7e2-21a95eecf0ae / 679c473d-99d3-4132-95ba-fe259fd63dca); evidence .harness/goal-review-ac018-strict.json + docker logs causeflow-api.
+Fix: shared local-llm circuit breaker must NOT block fallbackProfileId hops to a different healthy endpoint/profile — use per-endpoint (or per-profile) breakers; prove with the same runtime probe GR used (strict AC-018), not grep-only. Forbid verify-first zero-diff pass. Implement coding (Repair Plan), then QA/IV, then Goal Review.
+- NextAction: Coding
