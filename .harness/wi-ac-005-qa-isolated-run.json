@@ -1,5 +1,5 @@
 {
-  "phase": "probe",
+  "phase": "qa-agent-isolated",
   "id": "WI-AC-005",
   "ac": "AC-005",
   "port": 5171,
@@ -15,8 +15,12 @@
       "has_docs": true,
       "has_github": true,
       "has_causeflow_brand": true,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
       "body_len": 459673
     },
     {
@@ -29,9 +33,13 @@
       "has_docs": true,
       "has_github": true,
       "has_causeflow_brand": true,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
       "header_ai_span": false,
       "footer_ai_span": false,
-      "body_len": 187305
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "body_len": 187321
     },
     {
       "path": "/pt-br",
@@ -43,9 +51,13 @@
       "has_docs": true,
       "has_github": true,
       "has_causeflow_brand": true,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
       "header_ai_span": false,
       "footer_ai_span": false,
-      "body_len": 461674
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "body_len": 461724
     },
     {
       "path": "/pt-br/product",
@@ -57,9 +69,14 @@
       "has_docs": true,
       "has_github": true,
       "has_causeflow_brand": true,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
       "body_len": 189346
     }
-  ]
+  ],
+  "defects": []
 }
