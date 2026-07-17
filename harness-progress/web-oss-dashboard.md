@@ -5986,3 +5986,21 @@ Evidence excerpt: {
 - WorkItem: WI-AC-016
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T11:40:31.677Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+  harness-progress/web-oss-dashboard.md
+fatal: Unable to create '/home/vinicius/projects/causeflow-ai/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+error: conflicts in index. Try without --index.
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
