@@ -1,0 +1,50 @@
+{
+  "id": "WI-AC-022",
+  "phase": "verify-first",
+  "acceptance_check_id": "AC-022",
+  "observation_method": "grep",
+  "description": "(web + core) When causeflow-test-app is stopped, Connect or Test fails with a clear unreachable message and does not mark the integration healthy/connected successfully.",
+  "ac022_pass": true,
+  "checks": [
+    {
+      "id": "core_connect_unreachable_before_upsert",
+      "pass": true,
+      "path": "core/src/modules/integration/application/connect-stub-integration.usecase.ts",
+      "evidence": "fetchJson throws ValidationError('Stub upstream unreachable...') on network failure; health/connect fetch runs before integrationRepo.upsert"
+    },
+    {
+      "id": "core_probe_unreachable_before_health",
+      "pass": true,
+      "path": "core/src/modules/integration/application/probe-stub-integration.usecase.ts",
+      "evidence": "probe catch throws ValidationError with unreachable; updateHealthCheck only after successful HTTP response"
+    },
+    {
+      "id": "web_bff_surfaces_unreachable",
+      "pass": true,
+      "paths": [
+        "web/apps/dashboard/src/contexts/integrations/api/stub-connect-handler.ts",
+        "web/apps/dashboard/src/contexts/integrations/api/stub-probe-handler.ts"
+      ],
+      "evidence": "connect returns { error: message }; probe returns { success: false, message } never false healthy"
+    },
+    {
+      "id": "ui_stub_paths_show_error_not_success",
+      "pass": true,
+      "path": "web/apps/dashboard/src/contexts/integrations/presentation/components/integrations-client.tsx",
+      "evidence": "stub-upstream Connect/Test use /api/integrations/stub/{connect,probe}; error toasts use API message; success toast/lastTestedAt only when res.ok && data.success"
+    },
+    {
+      "id": "unit_and_e2e_contract",
+      "pass": true,
+      "paths": [
+        "web/apps/dashboard/src/contexts/integrations/api/stub-connect-handler.test.ts",
+        "web/apps/dashboard/src/contexts/integrations/api/stub-probe-handler.test.ts",
+        "web/tests/oss/ac-072-test-app-unreachable.spec.ts"
+      ],
+      "evidence": "handler tests assert message contains 'unreachable'; Playwright AC-072 asserts /unreachable/i and no connected success"
+    }
+  ],
+  "defects": [],
+  "product_diff": false,
+  "notes": "VERIFY-FIRST grep/static audit only (feature_list observation_method=grep). No server/browser started. Existing Core + web BFF + UI contract already satisfies AC-022."
+}
