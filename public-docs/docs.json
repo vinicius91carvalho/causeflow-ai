@@ -72,6 +72,7 @@
             "group": "Integrations",
             "pages": [
               "integrations/overview",
+              "integrations/test-application",
               "integrations/monitoring",
               "integrations/github",
               "integrations/communication",

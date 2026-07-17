@@ -1,0 +1,23 @@
+{
+  "id": "WI-AC-023",
+  "phase": "verify",
+  "acceptance_check_id": "AC-023",
+  "observation_method": "http",
+  "ac023_pass": true,
+  "url": "http://127.0.0.1:5171/integrations/test-application",
+  "status": 200,
+  "markers": [
+    "Test Application (OSS)",
+    "scope",
+    "pool exhaustion",
+    "payment",
+    "timeout",
+    "CPU",
+    "latency",
+    "degraded",
+    "v2.4.1-ac058",
+    "Incidents",
+    "golden"
+  ],
+  "notes": "Canonical Test Application (OSS) docs page serves scope, fixed demo failure catalog (pool exhaustion, payment timeout, CPU/latency/health degradation, deploy v2.4.1-ac058), and Incidents golden-path steps."
+}

@@ -1,0 +1,78 @@
+---
+title: "Test Application (OSS)"
+sidebarTitle: "Test Application (OSS)"
+description: "Scope, fixed demo failure catalog, and golden-path steps for the CauseFlow open-source Test Application used with Incidents."
+---
+
+The **Test Application (OSS)** is the Core-owned runnable upstream (`causeflow-test-app`) that operators connect from **Dashboard > Integrations**. It is a real HTTP service on the local OSS stack — not a Playwright fixture, dashboard mock, or Composio demo. CauseFlow uses it to exercise Connect, probe, alert ingest, and investigation evidence against a fixed demo failure catalog.
+
+## Scope
+
+| Item | Detail |
+|---|---|
+| **Display name** | Test Application (OSS) |
+| **Service** | `causeflow-test-app` (default host port **5190**) |
+| **Role** | Deterministic upstream for connector verification and the Incidents golden path |
+| **Core wiring** | `STUB_UPSTREAM_BASE_URL` points at the Docker service hostname inside compose |
+| **Dashboard entry** | **Integrations** → Test Application (OSS) → **Connect** / **Test** |
+
+What it is for:
+
+- Prove Integrations Connect and Test against a healthy local upstream
+- Emit a signed demo alert into Core ingest
+- Return deterministic tool evidence (logs, metrics, deployments, health) during investigation
+
+What it is not:
+
+- A production monitoring vendor
+- A substitute for connecting your real stack
+- A random chaos playground — the failure set below is fixed and documented
+
+## Demo failure catalog
+
+Investigations against Test Application (OSS) are grounded in this fixed catalog. Root-cause and evidence should reference these intentional issues:
+
+| Failure | What the test app surfaces |
+|---|---|
+| **Order-service DB pool exhaustion** | Logs and health checks report the connection pool exhausted (max connections in use) on `order-service` |
+| **Payment-service upstream timeout** | Logs show upstream timeout calling `payment-service` (for example after 5000ms) |
+| **CPU / latency degradation** | Metrics show elevated CPU utilization and high `http.latency.p99` while the DB pool is saturated |
+| **Degraded health** | Service health is `degraded` with failing `db_pool` and degraded `upstream_payment` checks |
+| **Deploy `v2.4.1-ac058`** | Deployments list `v2.4.1-ac058` on `order-service` shortly before alert onset (about five minutes earlier) |
+
+Together these form the documented demo narrative: a recent deploy (`v2.4.1-ac058`) precedes pool exhaustion, payment timeouts, and CPU/latency/health degradation that Incidents investigations should cite as catalog-grounded evidence.
+
+## Golden path with Incidents
+
+Use this sequence on a healthy local OSS stack (compose up, Core API + worker, Test Application reachable, Investigation LLM configured — for example Ornith local):
+
+<Steps>
+  <Step title="Sign in with OSS local auth">
+    Open the dashboard and sign in with Core register/login (local JWT). Do not use Clerk staging for this path.
+  </Step>
+  <Step title="Connect Test Application (OSS)">
+    Go to **Dashboard > Integrations**, open **Test Application (OSS)**, and click **Connect**. Confirm the integration appears connected. Use **Test** to probe reachability when needed.
+  </Step>
+  <Step title="Confirm your Investigation LLM">
+    In **Settings**, ensure an Investigation LLM profile is active (Ornith local preset or another OpenAI-compatible endpoint), with an optional fallback if you use one.
+  </Step>
+  <Step title="Emit or ingest the demo alert">
+    Trigger the test-app demo alert / stub ingest so Core creates an incident tagged for `order-service` from Test Application (OSS).
+  </Step>
+  <Step title="Open the incident in Incidents">
+    Go to **Dashboard > Incidents** and open the new incident. Triage and investigation should run against the connected test app.
+  </Step>
+  <Step title="Review catalog-grounded outcomes">
+    Confirm investigation evidence, root cause, and remediation reference the demo failure catalog above — pool exhaustion, payment timeout, CPU/latency/health degradation, and deploy `v2.4.1-ac058` — rather than inventing unrelated causes.
+  </Step>
+</Steps>
+
+<Tip>
+  The Integrations card **Learn more** link targets this page. Keep this URL stable: `/integrations/test-application`.
+</Tip>
+
+## Related
+
+- [Integrations overview](/integrations/overview) — catalog and connect flow
+- [Incidents](/dashboard/incidents) — triage and investigation workspace
+- [Quickstart](/getting-started/quickstart) — first local run
