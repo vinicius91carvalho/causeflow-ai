@@ -1,0 +1,57 @@
+{
+  "id": "WI-AC-016",
+  "phase": "qa-agent-independent",
+  "acceptance_check_id": "AC-016",
+  "observation_method": "grep",
+  "description": "(web + core) Non-admin users cannot create/edit/delete/activate Investigation LLM profiles (UI disabled/absent and API 403 or equivalent).",
+  "ac016_pass": true,
+  "scaffold_ok": true,
+  "server_started": false,
+  "checks": [
+    {
+      "id": "ui_mutation_controls_admin_only",
+      "pass": true,
+      "path": "web/apps/dashboard/src/contexts/settings/presentation/components/investigation-llm-profiles-card.tsx",
+      "evidence": "canManage = usePermission(PERMISSION.MANAGE_SETTINGS); create button, form, and edit/delete/activate controls wrapped in {canManage && (...)}; handleSubmit/handleActivate/handleDelete early-return if (!canManage); non-admin sees t('adminOnly')"
+    },
+    {
+      "id": "member_lacks_manage_settings",
+      "pass": true,
+      "path": "web/apps/dashboard/src/contexts/identity/domain/rbac/permissions.ts",
+      "evidence": "admin ROLE_PERMISSIONS includes MANAGE_SETTINGS; member has VIEW_SETTINGS only (no MANAGE_SETTINGS)"
+    },
+    {
+      "id": "web_bff_mutate_admin_only_403",
+      "pass": true,
+      "paths": [
+        "web/apps/dashboard/src/contexts/settings/api/investigation-llm-profiles-handler.ts",
+        "web/apps/dashboard/src/contexts/settings/api/investigation-llm-profile-id-handler.ts",
+        "web/apps/dashboard/src/contexts/settings/api/investigation-llm-profile-activate-handler.ts",
+        "web/apps/dashboard/src/lib/api/with-auth.ts"
+      ],
+      "evidence": "POST create, PATCH, DELETE, activate use withAuth(..., { adminOnly: true }); GET has no adminOnly; withAuth returns 403 Admin access required. when role !== admin"
+    },
+    {
+      "id": "core_mutate_require_role_admin_403",
+      "pass": true,
+      "paths": [
+        "core/src/modules/oss/infra/oss-investigation-llm-profiles.routes.ts",
+        "core/src/shared/infra/http/middleware/rbac.middleware.ts",
+        "core/src/shared/domain/errors.ts"
+      ],
+      "evidence": "POST /, POST /:id/activate, PATCH /:id, DELETE /:id wrap requireRole('admin'); GET / is authenticated-tenant list only; requireRole throws ForbiddenError with statusCode 403"
+    },
+    {
+      "id": "unit_rbac_contract",
+      "pass": true,
+      "paths": [
+        "web/apps/dashboard/src/contexts/settings/api/investigation-llm-profiles-rbac.test.ts",
+        "web/apps/dashboard/src/contexts/settings/presentation/components/investigation-llm-profiles-card.test.tsx",
+        "core/tests/unit/modules/oss/oss-investigation-llm-profiles.routes.test.ts"
+      ],
+      "evidence": "BFF tests assert member POST/PATCH/DELETE/activate → 403 without Core call and member GET allowed; UI source audit for canManage gates; Core route source asserts requireRole('admin') on mutate"
+    }
+  ],
+  "defects": [],
+  "notes": "Independent QA grep/static audit only (feature_list observation_method=grep). No server/browser started. UI + BFF + Core RBAC already satisfy AC-016."
+}
