@@ -1,11 +1,11 @@
 {
   "id": "WI-AC-013",
-  "phase": "verify-first-existing",
+  "phase": "qa-independent",
   "base": "http://127.0.0.1:5170",
   "core": "http://127.0.0.1:3099",
-  "email": "vf-ac013-1784250513@causeflow.local",
-  "profileLabel": "AC013 VF Profile 1784250513",
-  "fallbackLabel": "AC013 Fallback 1784250513",
+  "email": "qa-ac013-1784250398@causeflow.local",
+  "profileLabel": "AC013 QA Profile 1784250398",
+  "fallbackLabel": "AC013 QA Fallback 1784250398",
   "steps": [
     {
       "step": "dashboard_register",
@@ -13,8 +13,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "1d7493bf-2a74-4e85-9768-3b7fbe81487c",
-          "email": "vf-ac013-1784250513@causeflow.local",
+          "id": "3b83aa5b-d334-41a9-a4c3-7718b35542d7",
+          "email": "qa-ac013-1784250398@causeflow.local",
           "name": "AC013 VF Admin"
         }
       }
@@ -28,28 +28,28 @@
       "step": "create_fallback_profile",
       "status": 201,
       "body": {
-        "id": "c6daa8e9-25e3-44d5-bfcd-e220665ab023",
-        "label": "AC013 Fallback 1784250513",
+        "id": "7edec3f4-cf30-4f42-ba76-5318e69df46a",
+        "label": "AC013 QA Fallback 1784250398",
         "baseUrl": "http://127.0.0.1:8081/v1",
         "model": "Ornith-1.0-9B-code",
         "apiKeyConfigured": false,
-        "createdAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)"
       }
     },
     {
       "step": "create_profile_with_fallback",
       "status": 201,
       "body": {
-        "id": "5ab76306-0c6c-4391-a17a-b9f19cfb3ef7",
-        "label": "AC013 VF Profile 1784250513",
+        "id": "a3466bc6-efda-44c0-9fe0-3622e71284d3",
+        "label": "AC013 QA Profile 1784250398",
         "baseUrl": "https://api.openai.com/v1",
         "model": "gpt-4o-mini",
         "apiKeyConfigured": true,
         "contextWindowTokens": 128000,
-        "fallbackProfileId": "c6daa8e9-25e3-44d5-bfcd-e220665ab023",
-        "createdAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)"
+        "fallbackProfileId": "7edec3f4-cf30-4f42-ba76-5318e69df46a",
+        "createdAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)"
       }
     },
     {
@@ -59,26 +59,26 @@
         "activeProfileId": null,
         "items": [
           {
-            "id": "c6daa8e9-25e3-44d5-bfcd-e220665ab023",
-            "label": "AC013 Fallback 1784250513",
+            "id": "7edec3f4-cf30-4f42-ba76-5318e69df46a",
+            "label": "AC013 QA Fallback 1784250398",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)"
           },
           {
-            "id": "5ab76306-0c6c-4391-a17a-b9f19cfb3ef7",
-            "label": "AC013 VF Profile 1784250513",
+            "id": "a3466bc6-efda-44c0-9fe0-3622e71284d3",
+            "label": "AC013 QA Profile 1784250398",
             "baseUrl": "https://api.openai.com/v1",
             "model": "gpt-4o-mini",
             "apiKeyConfigured": true,
             "contextWindowTokens": 128000,
-            "fallbackProfileId": "c6daa8e9-25e3-44d5-bfcd-e220665ab023",
+            "fallbackProfileId": "7edec3f4-cf30-4f42-ba76-5318e69df46a",
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       }
@@ -90,26 +90,26 @@
         "activeProfileId": null,
         "items": [
           {
-            "id": "c6daa8e9-25e3-44d5-bfcd-e220665ab023",
-            "label": "AC013 Fallback 1784250513",
+            "id": "7edec3f4-cf30-4f42-ba76-5318e69df46a",
+            "label": "AC013 QA Fallback 1784250398",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)"
           },
           {
-            "id": "5ab76306-0c6c-4391-a17a-b9f19cfb3ef7",
-            "label": "AC013 VF Profile 1784250513",
+            "id": "a3466bc6-efda-44c0-9fe0-3622e71284d3",
+            "label": "AC013 QA Profile 1784250398",
             "baseUrl": "https://api.openai.com/v1",
             "model": "gpt-4o-mini",
             "apiKeyConfigured": true,
             "contextWindowTokens": 128000,
-            "fallbackProfileId": "c6daa8e9-25e3-44d5-bfcd-e220665ab023",
+            "fallbackProfileId": "7edec3f4-cf30-4f42-ba76-5318e69df46a",
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       }
@@ -121,26 +121,26 @@
         "activeProfileId": null,
         "items": [
           {
-            "id": "c6daa8e9-25e3-44d5-bfcd-e220665ab023",
-            "label": "AC013 Fallback 1784250513",
+            "id": "7edec3f4-cf30-4f42-ba76-5318e69df46a",
+            "label": "AC013 QA Fallback 1784250398",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)"
           },
           {
-            "id": "5ab76306-0c6c-4391-a17a-b9f19cfb3ef7",
-            "label": "AC013 VF Profile 1784250513",
+            "id": "a3466bc6-efda-44c0-9fe0-3622e71284d3",
+            "label": "AC013 QA Profile 1784250398",
             "baseUrl": "https://api.openai.com/v1",
             "model": "gpt-4o-mini",
             "apiKeyConfigured": true,
             "contextWindowTokens": 128000,
-            "fallbackProfileId": "c6daa8e9-25e3-44d5-bfcd-e220665ab023",
+            "fallbackProfileId": "7edec3f4-cf30-4f42-ba76-5318e69df46a",
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:08:33 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 01:06:39 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       }

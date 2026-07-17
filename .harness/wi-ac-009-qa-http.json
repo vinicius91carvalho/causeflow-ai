@@ -1,0 +1,40 @@
+{
+  "id": "WI-AC-009",
+  "phase": "qa-independent",
+  "base": "http://127.0.0.1:5170",
+  "email": "qa-ac009-1784249306@causeflow.local",
+  "shell": {
+    "status": 200,
+    "nav_billing": false,
+    "credits_widget": false,
+    "visible_investigations_left_widget": false,
+    "i18n_creditsValue_payload_only": true
+  },
+  "billing_nofollow": {
+    "status": 404,
+    "body_len": 72846,
+    "location": null,
+    "plan_cards": false,
+    "buy_more": false,
+    "quota_packs": false,
+    "not_found_ui": true,
+    "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_n"
+  },
+  "billing_follow": {
+    "status": 404,
+    "body_len": 72846,
+    "location": null,
+    "plan_cards": false,
+    "buy_more": false,
+    "quota_packs": false,
+    "not_found_ui": true,
+    "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_n"
+  },
+  "ac009_pass": true,
+  "checks": {
+    "hard404": true,
+    "noBillingNav": true,
+    "noCreditsWidget": true,
+    "noCommercialBillingUi": true
+  }
+}
