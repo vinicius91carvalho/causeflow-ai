@@ -31,3 +31,10 @@
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/8e822405-884a-4bba-a2f4-4b9351c05a16/core-oss-runtime/WI-AC-018-1-integration_qa-c547e750c2b81ae8.log
 - NextAction: next Ready Work Item
+
+## 2026-07-17T21:13:38.965Z — Resumed
+
+- WorkItem: WI-AC-018
+- PreviousPhase: qa
+- Attempt: 2
+- NextAction: qa
