@@ -228,3 +228,16 @@ Defect: expected AC-026 documented Playwright/API gate exits 0 on local OSS stac
 - PreviousPhase: coding
 - Attempt: 1
 - NextAction: coding
+
+## 2026-07-17T20:27:06.067Z — Operator guidance
+
+- WorkItem: WI-AC-026
+- Outcome: retryQueue / Control Host guidance applied to coding Repair Plan
+- Guidance: Goal Review AC-026 repair only (NOT AC-025 product rewrite). WI-AC-025 already integrated on plan/opensource-docker: ORNITH_LOCAL_PRESET.baseUrl=http://host.docker.internal:8081/v1 (commit b541d87b) and INTEGRATION_QA green (WI-AC-025-3-integration_qa; .harness/wi-ac-025-iv-browser.json pass=true with shipped preset). Stale GR evidence (.harness/goal-review-ac025.json) still shows 127.0.0.1 from pre-fix probe — do not reopen AC-025 for that.
+
+Expected AC-026: documented Playwright/API gate (web/scripts/ac-025-browser-probe.mjs) exits 0 on local OSS compose stack with Ornith available and the shipped Ornith (local) preset.
+Observed: Goal Review ac-025-browser-probe reported pass=false under Ornith (local) when compose still served pre-fix 127.0.0.1:8081; evidence .harness/goal-review-ac025.json + .harness/goal-review-ac025.log.
+
+Actions: rebuild compose dashboard (and api/worker if needed) from current plan HEAD; run ac-025-browser-probe against :3001/:3099/:5190; confirm activate_ornith_local activeProfile.baseUrl is http://host.docker.internal:8081/v1 and investigation reaches awaiting_approval/succeeded with remCount>=1; document that gate as the AC-026 harness path; commit before implementation=true.
+FORBIDDEN: VERIFY-FIRST zero-diff, changing ORNITH_LOCAL_PRESET back to 127.0.0.1, manual baseUrl override only in probes, or re-coding AC-025 preset.
+- NextAction: Coding
