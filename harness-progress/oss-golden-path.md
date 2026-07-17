@@ -66,3 +66,11 @@
 - WorkItem: WI-AC-025
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T18:57:40.244Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-025
+- Defects: Integrated Verification failed
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/651b83db-b666-423a-bc52-87470d956cc4/oss-golden-path/WI-AC-025-2-integration_qa-e3b0c44298fc1c14.log
+- NextAction: Repair Plan
