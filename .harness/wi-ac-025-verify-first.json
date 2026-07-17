@@ -6,7 +6,7 @@
   "dashboard": "http://127.0.0.1:3001",
   "core": "http://127.0.0.1:3099",
   "testApp": "http://127.0.0.1:5190",
-  "email": "ac025-browser-1784317972196@causeflow.local",
+  "email": "ac025-browser-1784318047510@causeflow.local",
   "steps": [
     {
       "step": "register",
@@ -14,8 +14,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "fa7fed8d-a458-416f-8d0d-58993e6978f0",
-          "email": "ac025-browser-1784317972196@causeflow.local",
+          "id": "d2f78b22-dc08-4173-96f9-08c7de8c1f6e",
+          "email": "ac025-browser-1784318047510@causeflow.local",
           "name": "AC025 Browser"
         }
       },
@@ -40,17 +40,17 @@
     {
       "step": "activate_ornith_local",
       "status": 200,
-      "activeProfileId": "41ad075e-c0b6-4b3f-8b27-f04542d0c3b3",
+      "activeProfileId": "51209ca2-c5eb-494c-a608-04ab7ac6dce6",
       "active": {
-        "id": "41ad075e-c0b6-4b3f-8b27-f04542d0c3b3",
-        "label": "Ornith (local) 1784317972196",
+        "id": "51209ca2-c5eb-494c-a608-04ab7ac6dce6",
+        "label": "Ornith (local) 1784318047510",
         "baseUrl": "http://host.docker.internal:8081/v1",
         "model": "Ornith-1.0-9B-code",
         "apiKeyConfigured": false,
         "contextWindowTokens": 32768,
         "isActive": true,
-        "createdAt": "Fri Jul 17 2026 19:52:58 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 19:52:58 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 19:54:13 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 19:54:13 GMT+0000 (Coordinated Universal Time)"
       }
     },
     {
@@ -65,25 +65,321 @@
         "integrationId": "stub-upstream-credential",
         "provider": "stub-upstream",
         "status": "active",
-        "stubConnectionId": "test-app-conn-d945dedd-3813-444f-95f2-6ffe49017347-1784317984951",
+        "stubConnectionId": "test-app-conn-6253ec05-277e-4094-a9ba-2e2523750c9f-1784318060144",
         "stubBaseUrl": "http://causeflow-test-app:5190",
-        "connectedAt": "2026-07-17T19:53:04.951Z"
+        "connectedAt": "2026-07-17T19:54:20.144Z"
       },
-      "payload": {
-        "coreBaseUrl": "http://host.docker.internal:3099"
-      }
+      "payload": {}
     },
     {
       "step": "emit_ingest_demo_alert",
-      "status": 400,
+      "status": 202,
       "body": {
-        "error": "VALIDATION_ERROR",
-        "message": "Failed to emit webhook: fetch failed"
+        "emitted": true,
+        "incidentId": "22d3c063-0277-4754-8b84-da553856579a",
+        "stubState": {
+          "app": "causeflow-test-app",
+          "connectionCount": 1,
+          "connections": [
+            {
+              "tenantId": "6253ec05-277e-4094-a9ba-2e2523750c9f",
+              "connectionId": "test-app-conn-6253ec05-277e-4094-a9ba-2e2523750c9f-1784318060144",
+              "coreBaseUrl": "http://causeflow-api:5171",
+              "connectedAt": "2026-07-17T19:54:20.144Z"
+            }
+          ],
+          "probeCount": 0,
+          "ingestCount": 1,
+          "toolCallCount": 0,
+          "lastProbeAt": null,
+          "lastIngestAt": "2026-07-17T19:54:20.184Z",
+          "lastToolCallAt": null,
+          "lastEmitResult": {
+            "ok": true,
+            "webhookStatus": 202,
+            "webhookUrl": "http://causeflow-api:5171/v1/webhooks/6253ec05-277e-4094-a9ba-2e2523750c9f/datadog",
+            "incidentId": "22d3c063-0277-4754-8b84-da553856579a",
+            "alertId": "test-app-alert-1784318060162"
+          },
+          "availableTools": [
+            "query_logs",
+            "query_metrics",
+            "get_deployments",
+            "get_service_health"
+          ]
+        },
+        "ingestedAt": "2026-07-17T19:54:20.186Z"
       }
+    },
+    {
+      "step": "incidents_shows_incident",
+      "incidentId": "22d3c063-0277-4754-8b84-da553856579a",
+      "url": "http://127.0.0.1:3001/dashboard/incidents/22d3c063-0277-4754-8b84-da553856579a"
+    },
+    {
+      "step": "poll_investigation",
+      "i": 0,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 5,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 10,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 15,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 20,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 25,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 30,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 35,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 40,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 45,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 50,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 55,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 60,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 65,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 70,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 75,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 80,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 85,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 90,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 95,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 100,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 105,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 110,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 115,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 120,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 125,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 130,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 135,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 140,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 145,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 150,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 155,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 160,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 165,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 170,
+      "status": "awaiting_approval",
+      "remCount": 1,
+      "rootPreview": "The root cause is a combination of insufficient service capacity and a fragile connection pool design. The order-service"
+    },
+    {
+      "step": "catalog_grounded_evidence",
+      "evidenceOk": true,
+      "rootCausePreview": "The root cause is a combination of insufficient service capacity and a fragile connection pool design. The order-service runs with only 2 ECS tasks, which is undersized for the current load. Under high request volume, the fixed-size databas",
+      "evidenceBytes": 13918
+    },
+    {
+      "step": "remediation_visible",
+      "remCount": 1,
+      "remVisible": true,
+      "uiHasRemediationWord": true
     }
   ],
-  "pass": false,
-  "defects": [
-    "Error: ingest failed: 400 {\"error\":\"VALIDATION_ERROR\",\"message\":\"Failed to emit webhook: fetch failed\"}\n    at main (file:///home/vinicius/projects/causeflow-ai-wt-root-oss-golden-path/web/scripts/ac-025-browser-probe.mjs:244:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
-  ]
+  "pass": true,
+  "defects": [],
+  "incidentId": "22d3c063-0277-4754-8b84-da553856579a",
+  "final": {
+    "status": "awaiting_approval",
+    "rootCause": "The root cause is a combination of insufficient service capacity and a fragile connection pool design. The order-service runs with only 2 ECS tasks, which is undersized for the current load. Under high request volume, the fixed-size database connection pool (with no adaptive backoff) became fully exhausted — all connections checked out, none available for new requests. Because the code does not implement backoff or circuit-breaking on checkout failure, requests fail fast and pile up, preventing the pool from recovering. The sustained >90% CPU confirms the tasks are maxed out. No recent deployment changes rule out a code regression; this is a capacity and architectural resilience issue.",
+    "remCount": 1
+  }
 }
