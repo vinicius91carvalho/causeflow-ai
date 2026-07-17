@@ -1,0 +1,43 @@
+{
+  "id": "WI-AC-010",
+  "phase": "qa-agent-independent",
+  "base": "http://127.0.0.1:5170",
+  "observation_method": "real HTTP against rebuilt dashboard image on :5170",
+  "routes": [
+    {
+      "path": "/waitlist",
+      "status": 404,
+      "location": null,
+      "not_found_ui": true,
+      "visible_waitlist_ux": false
+    },
+    {
+      "path": "/pt-br/waitlist",
+      "status": 404,
+      "location": null,
+      "not_found_ui": true,
+      "visible_waitlist_ux": false
+    },
+    {
+      "path": "/beta-waitlist",
+      "status": 404,
+      "location": null,
+      "not_found_ui": true,
+      "visible_waitlist_ux": false
+    },
+    {
+      "path": "/pt-br/beta-waitlist",
+      "status": 404,
+      "location": null,
+      "not_found_ui": true,
+      "visible_waitlist_ux": false
+    }
+  ],
+  "notes": "HTTP 404 + __next_error__ on all locale routes. Pages call notFound(). Raw HTML still contains identity i18n betaAccessDenied strings in RSC payload; those are not rendered waitlist product UX (visible text has no Join the Waitlist / We're in beta / private beta / adm@).",
+  "ac010_pass": true,
+  "checks": {
+    "hard404": true,
+    "noVisibleWaitlistUx": true,
+    "sourceNotFound": true
+  }
+}
