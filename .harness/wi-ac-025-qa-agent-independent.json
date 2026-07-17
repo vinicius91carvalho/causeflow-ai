@@ -1,0 +1,266 @@
+{
+  "id": "WI-AC-025",
+  "phase": "verify-first-browser",
+  "acceptance_check_id": "AC-025",
+  "observation_method": "browser",
+  "dashboard": "http://127.0.0.1:3001",
+  "core": "http://127.0.0.1:3099",
+  "testApp": "http://127.0.0.1:5190",
+  "email": "ac025-browser-1784319244921@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "a978710f-1f74-4bbb-8e40-3c48bb9abcdd",
+          "email": "ac025-browser-1784319244921@causeflow.local",
+          "name": "AC025 Browser"
+        }
+      },
+      "url": "about:blank"
+    },
+    {
+      "step": "dashboard_home",
+      "url": "http://127.0.0.1:3001/dashboard",
+      "clerk": false
+    },
+    {
+      "step": "shipped_ornith_local_preset",
+      "status": 200,
+      "shippedLocal": {
+        "id": "ornith-local",
+        "label": "Ornith (local)",
+        "baseUrl": "http://host.docker.internal:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "contextWindowTokens": 32768
+      }
+    },
+    {
+      "step": "activate_ornith_local",
+      "status": 200,
+      "activeProfileId": "da28e406-75a1-424e-bbc2-ed8c4086b878",
+      "active": {
+        "id": "da28e406-75a1-424e-bbc2-ed8c4086b878",
+        "label": "Ornith (local) 1784319244921",
+        "baseUrl": "http://host.docker.internal:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "apiKeyConfigured": false,
+        "contextWindowTokens": 32768,
+        "isActive": true,
+        "createdAt": "Fri Jul 17 2026 20:14:11 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 20:14:11 GMT+0000 (Coordinated Universal Time)"
+      }
+    },
+    {
+      "step": "connect_test_application",
+      "connected": true,
+      "via": "browser"
+    },
+    {
+      "step": "core_stub_connect",
+      "status": 201,
+      "body": {
+        "integrationId": "stub-upstream-credential",
+        "provider": "stub-upstream",
+        "status": "active",
+        "stubConnectionId": "test-app-conn-c07122d6-75b1-4778-a832-bc8204bf2b02-1784319257633",
+        "stubBaseUrl": "http://causeflow-test-app:5190",
+        "connectedAt": "2026-07-17T20:14:17.634Z"
+      },
+      "payload": {}
+    },
+    {
+      "step": "emit_ingest_demo_alert",
+      "status": 202,
+      "body": {
+        "emitted": true,
+        "incidentId": "d2a3b240-f954-40f0-8661-abd735bc1bb4",
+        "stubState": {
+          "app": "causeflow-test-app",
+          "connectionCount": 1,
+          "connections": [
+            {
+              "tenantId": "c07122d6-75b1-4778-a832-bc8204bf2b02",
+              "connectionId": "test-app-conn-c07122d6-75b1-4778-a832-bc8204bf2b02-1784319257633",
+              "coreBaseUrl": "http://causeflow-api:5171",
+              "connectedAt": "2026-07-17T20:14:17.633Z"
+            }
+          ],
+          "probeCount": 0,
+          "ingestCount": 1,
+          "toolCallCount": 0,
+          "lastProbeAt": null,
+          "lastIngestAt": "2026-07-17T20:14:17.666Z",
+          "lastToolCallAt": null,
+          "lastEmitResult": {
+            "ok": true,
+            "webhookStatus": 202,
+            "webhookUrl": "http://causeflow-api:5171/v1/webhooks/c07122d6-75b1-4778-a832-bc8204bf2b02/datadog",
+            "incidentId": "d2a3b240-f954-40f0-8661-abd735bc1bb4",
+            "alertId": "test-app-alert-1784319257640"
+          },
+          "availableTools": [
+            "query_logs",
+            "query_metrics",
+            "get_deployments",
+            "get_service_health"
+          ]
+        },
+        "ingestedAt": "2026-07-17T20:14:17.667Z"
+      }
+    },
+    {
+      "step": "incidents_shows_incident",
+      "incidentId": "d2a3b240-f954-40f0-8661-abd735bc1bb4",
+      "url": "http://127.0.0.1:3001/dashboard/incidents/d2a3b240-f954-40f0-8661-abd735bc1bb4"
+    },
+    {
+      "step": "poll_investigation",
+      "i": 0,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 5,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 10,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 15,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 20,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 25,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 30,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 35,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 40,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 45,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 50,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 55,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 60,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 65,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 70,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 75,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 80,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 85,
+      "status": "awaiting_approval",
+      "remCount": 1,
+      "rootPreview": "The root cause is a combination of undersized infrastructure capacity and a brittle connection pool architecture. The or"
+    },
+    {
+      "step": "catalog_grounded_evidence",
+      "evidenceOk": true,
+      "rootCausePreview": "The root cause is a combination of undersized infrastructure capacity and a brittle connection pool architecture. The order-service runs on only 2 ECS tasks with a fixed-size database connection pool that has no adaptive backoff. Under the ",
+      "evidenceBytes": 16036
+    },
+    {
+      "step": "remediation_visible",
+      "remCount": 1,
+      "remVisible": true,
+      "uiHasRemediationWord": true
+    }
+  ],
+  "pass": true,
+  "defects": [],
+  "incidentId": "d2a3b240-f954-40f0-8661-abd735bc1bb4",
+  "final": {
+    "status": "awaiting_approval",
+    "rootCause": "The root cause is a combination of undersized infrastructure capacity and a brittle connection pool architecture. The order-service runs on only 2 ECS tasks with a fixed-size database connection pool that has no adaptive backoff. Under the current load, the pool reached its maximum active connections, causing all new checkout requests to queue and time out. Because the pool has no backoff mechanism, failed checkouts do not gracefully degrade — they accumulate, preventing the service from recovering even if load temporarily decreases. The 2-task fleet is insufficient to handle the request volume, and the fixed pool size cannot scale to meet demand. This is a capacity + architecture issue: the service was already at its operational limits before the load increase, and the lack of adaptive retry/backoff means it cannot self-heal.",
+    "remCount": 1
+  }
+}
