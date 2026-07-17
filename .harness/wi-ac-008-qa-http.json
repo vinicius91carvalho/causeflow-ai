@@ -1,8 +1,8 @@
 {
   "id": "WI-AC-008",
-  "phase": "verify-first-existing-retry",
+  "phase": "qa-agent-independent",
   "base": "http://127.0.0.1:5170",
-  "email": "vf-ac008-1784263427113@causeflow.local",
+  "email": "qa-ac008-1784263313064@causeflow.local",
   "steps": [
     {
       "step": "register",
@@ -10,9 +10,9 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "0eca46b6-4246-4e61-9f26-c80aebcaacb5",
-          "email": "vf-ac008-1784263427113@causeflow.local",
-          "name": "AC008 VF Admin"
+          "id": "c6830b7c-1f8b-4f5b-a7f7-d8386a5f1887",
+          "email": "qa-ac008-1784263313064@causeflow.local",
+          "name": "AC008 QA Admin"
         }
       }
     },
@@ -56,5 +56,6 @@
     "dashboard_home_reachable_without_gate": true,
     "no_commercial_gate_ui_on_dashboard": true
   },
-  "pass": true
+  "pass": true,
+  "defects": []
 }
