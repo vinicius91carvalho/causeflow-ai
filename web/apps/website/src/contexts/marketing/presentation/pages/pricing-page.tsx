@@ -1,7 +1,6 @@
-import { SITE } from '@causeflow/shared/constants';
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
-/** AC-078: legacy /pricing bookmarks redirect to published OSS docs (no paid plan cards). */
+/** Root AC-003: /pricing hard-removed — framework not-found (no redirect, no plan cards). */
 export default function PricingPage() {
-  redirect(SITE.docsUrl);
+  notFound();
 }

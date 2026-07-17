@@ -28,10 +28,11 @@ describe('PRICING_PLANS (AC-075 OSS marketing)', () => {
   });
 });
 
-describe('pricing-page (AC-078 OSS marketing)', () => {
-  it('redirects legacy /pricing traffic to published docs', () => {
-    expect(pricingPageSource).toContain('SITE.docsUrl');
-    expect(pricingPageSource).toContain('redirect(SITE.docsUrl)');
+describe('pricing-page (root AC-003 OSS marketing)', () => {
+  it('hard-removes /pricing via notFound (no redirect, no plan cards)', () => {
+    expect(pricingPageSource).toContain('notFound()');
+    expect(pricingPageSource).not.toContain('redirect(');
+    expect(pricingPageSource).not.toContain('SITE.docsUrl');
     expect(pricingPageSource).not.toContain('PricingInteractive');
     expect(pricingPageSource).not.toContain('PRICING_PLANS');
   });

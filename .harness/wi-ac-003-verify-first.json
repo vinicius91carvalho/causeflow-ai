@@ -1,0 +1,30 @@
+{
+  "phase": "verify-first-existing",
+  "routes": [
+    {
+      "url": "http://127.0.0.1:3000/pricing",
+      "status": 308,
+      "location": "https://vinicius91carvalho.github.io/causeflow-ai/",
+      "body_len": 50,
+      "has_starter": false,
+      "has_pro": false,
+      "has_business": false,
+      "has_dollar99": false,
+      "has_not_found": false,
+      "snippet": "https://vinicius91carvalho.github.io/causeflow-ai/"
+    },
+    {
+      "url": "http://127.0.0.1:3000/pt-br/pricing",
+      "status": 308,
+      "location": "https://vinicius91carvalho.github.io/causeflow-ai/",
+      "body_len": 50,
+      "has_starter": false,
+      "has_pro": false,
+      "has_business": false,
+      "has_dollar99": false,
+      "has_not_found": false,
+      "snippet": "https://vinicius91carvalho.github.io/causeflow-ai/"
+    }
+  ],
+  "ac003_pass": false
+}

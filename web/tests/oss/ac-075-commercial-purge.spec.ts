@@ -1,19 +1,18 @@
 /**
  * AC-075 — Commercial billing checkout/portal clients removed; marketing OSS CTAs.
- * AC-078 — /pricing routes redirect to SITE.docsUrl (pricing section updated).
+ * Root AC-003 — /pricing routes hard-removed (404).
  */
 import { expect, test } from '@playwright/test';
 import { blockTrackers, OSS_CORE_API_URL } from './helpers';
 
 const OSS_WEBSITE_URL = process.env.OSS_WEBSITE_URL || 'http://127.0.0.1:3000';
-const DOCS_URL = 'https://vinicius91carvalho.github.io/causeflow-ai/';
 
 test.describe('AC-075 — commercial billing purge', () => {
   test.beforeEach(async ({ page }) => {
     await blockTrackers(page);
   });
 
-  test('dashboard billing checkout/portal return 410; pricing redirects to docs', async ({
+  test('dashboard billing checkout/portal return 410; pricing returns 404', async ({
     page,
     request,
   }) => {
@@ -52,13 +51,11 @@ test.describe('AC-075 — commercial billing purge', () => {
 
     for (const path of ['/pricing', '/pt-br/pricing'] as const) {
       const pricingRes = await fetch(`${OSS_WEBSITE_URL}${path}`, { redirect: 'manual' });
-      expect(pricingRes.status, `${path} should redirect`).toBeGreaterThanOrEqual(300);
-      expect(pricingRes.status, `${path} should redirect`).toBeLessThan(400);
-      expect(pricingRes.headers.get('location')).toBe(DOCS_URL);
+      expect(pricingRes.status, `${path} should be hard-removed`).toBe(404);
+      expect(pricingRes.headers.get('location')).toBeNull();
     }
 
     await page.goto(`${OSS_WEBSITE_URL}/pricing`, { waitUntil: 'domcontentloaded' });
-    await expect(page).toHaveURL(/vinicius91carvalho\.github\.io\/causeflow-ai/);
     await expect(page.getByText(/\$99|\$349|\$899/)).toHaveCount(0);
   });
 });
