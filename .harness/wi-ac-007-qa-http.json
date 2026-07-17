@@ -1,0 +1,45 @@
+{
+  "id": "WI-AC-007",
+  "base": "http://127.0.0.1:5170",
+  "email": "vf-ac007-c-1784248552@causeflow.local",
+  "nofollow": {
+    "status": 404,
+    "body_len": 73070,
+    "markers": {
+      "Starter": false,
+      "Pro": false,
+      "Business": false,
+      "startTrial": false,
+      "ChooseYourPlan": false,
+      "checkout": false,
+      "Subscribe": false,
+      "BuyMore": false,
+      "notFoundUi": true
+    },
+    "has_commercial_plan_cards": false,
+    "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link rel=\"preload\" as=\"script\" fetchPrio"
+  },
+  "follow": {
+    "status": 404,
+    "body_len": 73070,
+    "markers": {
+      "Starter": false,
+      "Pro": false,
+      "Business": false,
+      "startTrial": false,
+      "ChooseYourPlan": false,
+      "checkout": false,
+      "Subscribe": false,
+      "BuyMore": false,
+      "notFoundUi": true
+    },
+    "has_commercial_plan_cards": false,
+    "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link rel=\"preload\" as=\"script\" fetchPrio"
+  },
+  "ac007_pass": true,
+  "checks": {
+    "hard404": true,
+    "noCards": true,
+    "statusOk": true
+  }
+}
