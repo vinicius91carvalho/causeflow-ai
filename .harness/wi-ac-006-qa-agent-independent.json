@@ -1,5 +1,5 @@
 {
-  "phase": "verify-first-coding",
+  "phase": "qa-agent-independent",
   "id": "WI-AC-006",
   "ac": "AC-006",
   "observation_method": "grep",
@@ -16,13 +16,11 @@
   },
   "redirect_sources": [],
   "redirect_destinations": [],
-  "executable_redirect_entries": [],
   "app_get_started_routes": [],
   "product_href_hits": [],
   "middleware_hits": [],
   "sitemap_hits": [],
   "routes_const_usage": [],
   "early_hits": [],
-  "redirects_excerpt": "// Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.\n    // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.",
-  "notes": "Hard-remove: empty redirects(); no /get-started App Router page; no product href to /get-started; framework 404 for missing routes. Dead ROUTES.GET_STARTED unused in presentation is out of funnel scope."
+  "redirects_excerpt": "// Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.\n    // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect."
 }
