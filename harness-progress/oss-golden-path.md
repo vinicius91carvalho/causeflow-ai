@@ -179,3 +179,11 @@ Defect: expected AC-025 on OSS compose: activate Ornith (local) preset → conne
 - Outcome: retryQueue / Control Host guidance applied to coding Repair Plan
 - Guidance: WI-AC-025 IV green — leave integrated. Work WI-AC-026 only: documented Playwright/API gate exit 0 with shipped Ornith host.docker.internal. Emit harness JSON verdict.
 - NextAction: Coding
+
+## 2026-07-17T20:24:42.237Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-025
+- Outcome: Attempt budget already exhausted
+- Defects: 
+- NextAction: User reviews evidence and explicitly resumes with guidance
