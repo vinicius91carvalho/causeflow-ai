@@ -113,3 +113,10 @@
 - PreviousPhase: qa
 - Attempt: 3
 - NextAction: qa
+
+## 2026-07-17T20:13:14.593Z — Operator guidance
+
+- WorkItem: WI-AC-025
+- Outcome: retryQueue / Control Host guidance applied to coding Repair Plan
+- Guidance: QA agent exited 130 (SIGINT); resume WI-AC-025 QA. Product coding already passed (implementation:true, Ornith host.docker.internal on plan). Prefer short compose ac-025-browser-probe verify and emit QA harness JSON verdict promptly.
+- NextAction: Coding
