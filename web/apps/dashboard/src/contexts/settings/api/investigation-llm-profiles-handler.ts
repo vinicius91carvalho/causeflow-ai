@@ -158,6 +158,13 @@ export function validateCreateInput(
     payload.contextWindowTokens = tokens;
   }
 
+  if (input.fallbackProfileId !== undefined && input.fallbackProfileId !== null && input.fallbackProfileId !== '') {
+    if (typeof input.fallbackProfileId !== 'string' || !input.fallbackProfileId.trim()) {
+      return { error: 'fallbackProfileId must be a non-empty string when provided' };
+    }
+    payload.fallbackProfileId = input.fallbackProfileId.trim();
+  }
+
   return payload;
 }
 
@@ -210,12 +217,23 @@ export function validateUpdateInput(
     }
   }
 
+  if (input.fallbackProfileId !== undefined) {
+    if (input.fallbackProfileId === null || input.fallbackProfileId === '') {
+      payload.fallbackProfileId = null;
+    } else if (typeof input.fallbackProfileId !== 'string' || !input.fallbackProfileId.trim()) {
+      return { error: 'fallbackProfileId must be a non-empty string when provided' };
+    } else {
+      payload.fallbackProfileId = input.fallbackProfileId.trim();
+    }
+  }
+
   if (
     payload.label === undefined &&
     payload.baseUrl === undefined &&
     payload.model === undefined &&
     payload.apiKey === undefined &&
-    payload.contextWindowTokens === undefined
+    payload.contextWindowTokens === undefined &&
+    payload.fallbackProfileId === undefined
   ) {
     return { error: 'At least one field is required to update a profile' };
   }

@@ -140,6 +140,8 @@
         "apiKeyMaskedHint": "Chave de API configurada. Informe um novo valor apenas para substituí-la.",
         "contextWindowField": "Tokens da janela de contexto (opcional)",
         "contextWindowPlaceholder": "32768",
+        "fallbackProfileField": "Perfil de fallback (opcional)",
+        "fallbackProfileNone": "Nenhum",
         "apiKeyConfigured": "Chave de API configurada",
         "adminOnly": "Somente administradores podem criar ou editar perfis de LLM de investigação.",
         "examplePresetsTitle": "Presets de exemplo",

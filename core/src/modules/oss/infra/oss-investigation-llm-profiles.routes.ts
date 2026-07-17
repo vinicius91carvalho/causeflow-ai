@@ -26,6 +26,7 @@ const createProfileSchema = z.object({
   model: z.string().trim().min(1, 'model is required').max(200),
   apiKey: z.string().trim().min(1).optional(),
   contextWindowTokens: z.number().int().positive().max(10_000_000).optional(),
+  fallbackProfileId: z.string().trim().min(1).optional().nullable(),
 });
 
 const updateProfileSchema = z
@@ -35,6 +36,7 @@ const updateProfileSchema = z
     model: z.string().trim().min(1, 'model is required').max(200).optional(),
     apiKey: z.string().trim().min(1).optional(),
     contextWindowTokens: z.number().int().positive().max(10_000_000).nullable().optional(),
+    fallbackProfileId: z.string().trim().min(1).optional().nullable(),
   })
   .refine(
     (value) =>
@@ -42,7 +44,8 @@ const updateProfileSchema = z
       value.baseUrl !== undefined ||
       value.model !== undefined ||
       value.apiKey !== undefined ||
-      value.contextWindowTokens !== undefined,
+      value.contextWindowTokens !== undefined ||
+      value.fallbackProfileId !== undefined,
     { message: 'At least one field is required to update a profile' },
   );
 
@@ -83,6 +86,20 @@ export function createOssInvestigationLlmProfilesRoutes(): Hono<AppEnv> {
       ? await getEncryption().encrypt(input.apiKey)
       : undefined;
 
+    const fallbackProfileId =
+      input.fallbackProfileId === null || input.fallbackProfileId === undefined
+        ? undefined
+        : input.fallbackProfileId;
+    if (fallbackProfileId) {
+      const fallback = await getRepo().findById(tenantId, fallbackProfileId);
+      if (!fallback) {
+        return c.json(
+          { error: 'fallbackProfileId must reference an existing Investigation LLM profile' },
+          400,
+        );
+      }
+    }
+
     const profile = await getRepo().create({
       id: randomUUID(),
       tenantId,
@@ -91,6 +108,7 @@ export function createOssInvestigationLlmProfilesRoutes(): Hono<AppEnv> {
       model: input.model,
       apiKeyEncrypted,
       contextWindowTokens: input.contextWindowTokens,
+      fallbackProfileId,
     });
 
     return c.json(toPublicInvestigationLlmProfile(profile), 201);
@@ -132,6 +150,23 @@ export function createOssInvestigationLlmProfilesRoutes(): Hono<AppEnv> {
     }
     if (input.contextWindowTokens !== undefined) {
       patch.contextWindowTokens = input.contextWindowTokens;
+    }
+    if (input.fallbackProfileId !== undefined) {
+      if (input.fallbackProfileId === null) {
+        patch.fallbackProfileId = null;
+      } else {
+        if (input.fallbackProfileId === profileId) {
+          return c.json({ error: 'fallbackProfileId cannot reference the same profile' }, 400);
+        }
+        const fallback = await getRepo().findById(tenantId, input.fallbackProfileId);
+        if (!fallback) {
+          return c.json(
+            { error: 'fallbackProfileId must reference an existing Investigation LLM profile' },
+            400,
+          );
+        }
+        patch.fallbackProfileId = input.fallbackProfileId;
+      }
     }
 
     const profile = await getRepo().update(tenantId, profileId, patch);

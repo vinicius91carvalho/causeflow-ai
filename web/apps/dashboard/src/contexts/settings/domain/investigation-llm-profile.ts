@@ -10,6 +10,7 @@ export interface InvestigationLlmProfile {
   model: string;
   apiKeyConfigured: boolean;
   contextWindowTokens?: number;
+  fallbackProfileId?: string;
   isActive?: boolean;
   createdAt: string;
   updatedAt: string;
@@ -31,6 +32,7 @@ export interface CreateInvestigationLlmProfileInput {
   model: string;
   apiKey?: string;
   contextWindowTokens?: number;
+  fallbackProfileId?: string;
 }
 
 export interface UpdateInvestigationLlmProfileInput {
@@ -39,4 +41,5 @@ export interface UpdateInvestigationLlmProfileInput {
   model?: string;
   apiKey?: string;
   contextWindowTokens?: number | null;
+  fallbackProfileId?: string | null;
 }

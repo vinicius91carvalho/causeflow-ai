@@ -21,6 +21,7 @@ interface ProfileFormState {
   model: string;
   apiKey: string;
   contextWindowTokens: string;
+  fallbackProfileId: string;
 }
 
 const EMPTY_FORM: ProfileFormState = {
@@ -29,6 +30,7 @@ const EMPTY_FORM: ProfileFormState = {
   model: '',
   apiKey: '',
   contextWindowTokens: '',
+  fallbackProfileId: '',
 };
 
 /**
@@ -103,6 +105,7 @@ export function InvestigationLlmProfilesCard() {
       model: preset.model,
       apiKey: '',
       contextWindowTokens: preset.contextWindowTokens ? String(preset.contextWindowTokens) : '',
+      fallbackProfileId: '',
     });
   }
 
@@ -115,10 +118,11 @@ export function InvestigationLlmProfilesCard() {
       model: profile.model,
       apiKey: '',
       contextWindowTokens: profile.contextWindowTokens ? String(profile.contextWindowTokens) : '',
+      fallbackProfileId: profile.fallbackProfileId ?? '',
     });
   }
 
-  function buildPayload(): Record<string, string | number> | null {
+  function buildPayload(): Record<string, string | number | null> | null {
     const label = form.label.trim();
     const baseUrl = form.baseUrl.trim();
     const model = form.model.trim();
@@ -129,7 +133,7 @@ export function InvestigationLlmProfilesCard() {
       return null;
     }
 
-    const payload: Record<string, string | number> = { label, baseUrl, model };
+    const payload: Record<string, string | number | null> = { label, baseUrl, model };
     const apiKey = form.apiKey.trim();
     if (apiKey) payload.apiKey = apiKey;
     const tokensRaw = form.contextWindowTokens.trim();
@@ -142,6 +146,13 @@ export function InvestigationLlmProfilesCard() {
         return null;
       }
       payload.contextWindowTokens = tokens;
+    }
+    const fallbackProfileId = form.fallbackProfileId.trim();
+    if (fallbackProfileId) {
+      payload.fallbackProfileId = fallbackProfileId;
+    } else if (editingId) {
+      // Clear optional fallback on edit when the select is emptied.
+      payload.fallbackProfileId = null;
     }
     return payload;
   }
@@ -405,6 +416,24 @@ export function InvestigationLlmProfilesCard() {
               />
             </label>
           </div>
+          <label className="block space-y-1 text-xs">
+            <span className="font-medium text-foreground">{t('fallbackProfileField')}</span>
+            <select
+              value={form.fallbackProfileId}
+              onChange={(e) => updateForm('fallbackProfileId', e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+              data-testid="investigation-llm-profile-fallback"
+            >
+              <option value="">{t('fallbackProfileNone')}</option>
+              {items
+                .filter((profile) => profile.id !== editingId)
+                .map((profile) => (
+                  <option key={profile.id} value={profile.id}>
+                    {profile.label}
+                  </option>
+                ))}
+            </select>
+          </label>
           <div className="flex items-center gap-2">
             <button
               type="submit"

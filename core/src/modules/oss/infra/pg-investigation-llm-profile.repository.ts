@@ -24,6 +24,7 @@ function toDomain(row: PgEntityRow): InvestigationLlmProfile {
     model: data['model'] as string,
     apiKeyEncrypted: data['apiKeyEncrypted'] as EncryptedPayload | undefined,
     contextWindowTokens: data['contextWindowTokens'] as number | undefined,
+    fallbackProfileId: data['fallbackProfileId'] as string | undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -41,6 +42,9 @@ export class PgInvestigationLlmProfileRepository {
     }
     if (profile.contextWindowTokens !== undefined) {
       data['contextWindowTokens'] = profile.contextWindowTokens;
+    }
+    if (profile.fallbackProfileId !== undefined) {
+      data['fallbackProfileId'] = profile.fallbackProfileId;
     }
     const row = await pgInsert(TABLE, profile.tenantId, profile.id, data);
     return toDomain(row);
@@ -66,6 +70,7 @@ export class PgInvestigationLlmProfileRepository {
       model?: string;
       apiKeyEncrypted?: EncryptedPayload | null;
       contextWindowTokens?: number | null;
+      fallbackProfileId?: string | null;
     },
   ): Promise<InvestigationLlmProfile> {
     const data: Record<string, unknown> = {};
@@ -85,6 +90,9 @@ export class PgInvestigationLlmProfileRepository {
       } else {
         data['contextWindowTokens'] = patch.contextWindowTokens;
       }
+    }
+    if (patch.fallbackProfileId !== undefined) {
+      data['fallbackProfileId'] = patch.fallbackProfileId;
     }
     const row = await pgUpdate(TABLE, tenantId, profileId, data);
     return toDomain(row);

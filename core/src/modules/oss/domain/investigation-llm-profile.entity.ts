@@ -12,6 +12,7 @@ export interface InvestigationLlmProfile {
   model: string;
   apiKeyEncrypted?: EncryptedPayload;
   contextWindowTokens?: number;
+  fallbackProfileId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,6 +25,7 @@ export interface InvestigationLlmProfilePublic {
   model: string;
   apiKeyConfigured: boolean;
   contextWindowTokens?: number;
+  fallbackProfileId?: string;
   isActive?: boolean;
   createdAt: string;
   updatedAt: string;
@@ -40,6 +42,7 @@ export function toPublicInvestigationLlmProfile(
     model: profile.model,
     apiKeyConfigured: Boolean(profile.apiKeyEncrypted),
     contextWindowTokens: profile.contextWindowTokens,
+    fallbackProfileId: profile.fallbackProfileId,
     isActive: options?.isActive,
     createdAt: profile.createdAt,
     updatedAt: profile.updatedAt,
