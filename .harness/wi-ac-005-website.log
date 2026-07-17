@@ -17,3 +17,4 @@
  GET /en/product 200 in 883ms
  GET /pt-br 200 in 212ms
  GET /pt-br/product 200 in 114ms
+[?25h
