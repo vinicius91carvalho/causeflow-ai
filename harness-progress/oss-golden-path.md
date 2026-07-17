@@ -199,3 +199,11 @@ Defect: expected AC-026 documented Playwright/API gate exits 0 on OSS with Ornit
 Defect: expected AC-025 on OSS compose: activate Ornith (local) preset → connect Test Application → ingest demo alert → investigation completes with catalog-grounded evidence + remediation; observed browser gate (web/scripts/ac-025-browser-probe.mjs) with preset baseUrl http://127.0.0.1:8081/v1 yields incident status=failed and empty evidenceByAgent (e.g. d3e1c0ee-ec01-4155-b188-6e22b5d6509a); same path with baseUrl http://host.docker.internal:8081/v1 reaches awaiting_approval/succeeded with remCount=1 and pool-exhaustion catalog evidence (7e0e393e-6281-4dde-b1af-ccc51da43732); evidence .harness/goal-review-ac025.json
 Defect: expected AC-026 documented Playwright/API gate exits 0 on local OSS stack with Ornith; observed ac-025-browser-probe against compose :3001/:3099/:5190 reports pass=false under Ornith (local) preset; evidence .harness/goal-review-ac025.json + .harness/goal-review-ac025.log
 - NextAction: Coding
+
+## 2026-07-17T20:25:00.445Z — Blocked Work Item
+
+- Attempt: 3/3
+- WorkItem: WI-AC-025
+- Outcome: Attempt budget already exhausted
+- Defects: 
+- NextAction: User reviews evidence and explicitly resumes with guidance
