@@ -5,30 +5,30 @@
      · optimizePackageImports
 
  ✓ Starting...
- ✓ Ready in 1080ms
- ✓ Compiled /middleware in 136ms (195 modules)
-(node:2315814) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+ ✓ Ready in 977ms
+ ✓ Compiled /middleware in 135ms (195 modules)
+(node:2531555) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
 (Use `node --trace-deprecation ...` to show where the warning was created)
  ○ Compiling /[locale] ...
- ✓ Compiled /[locale] in 1022ms (1415 modules)
- GET /en 200 in 1912ms
- GET /en 200 in 217ms
- ✓ Compiled /[locale]/product in 407ms (1450 modules)
- GET /en/product 200 in 1032ms
- ✓ Compiled /[locale]/integrations in 201ms (1463 modules)
- GET /en/integrations 200 in 1149ms
- ✓ Compiled /[locale]/use-cases in 431ms (1470 modules)
- GET /en/use-cases 200 in 897ms
- ✓ Compiled /[locale]/security in 241ms (1478 modules)
- GET /en/security 200 in 781ms
- ✓ Compiled /[locale]/about in 222ms (1481 modules)
- GET /en/about 200 in 717ms
- ✓ Compiled /[locale]/from-opsgenie in 264ms (1487 modules)
+ ✓ Compiled /[locale] in 1014ms (1415 modules)
+ GET /en 200 in 1854ms
+ GET /en 200 in 195ms
+ ✓ Compiled /[locale]/product in 398ms (1450 modules)
+ GET /en/product 200 in 995ms
+ ✓ Compiled /[locale]/integrations in 197ms (1463 modules)
+ GET /en/integrations 200 in 1146ms
+ ✓ Compiled /[locale]/use-cases in 485ms (1470 modules)
+ GET /en/use-cases 200 in 957ms
+ ✓ Compiled /[locale]/security in 231ms (1478 modules)
+ GET /en/security 200 in 761ms
+ ✓ Compiled /[locale]/about in 215ms (1481 modules)
+ GET /en/about 200 in 705ms
+ ✓ Compiled /[locale]/from-opsgenie in 247ms (1487 modules)
  GET /en/from-opsgenie 200 in 735ms
- GET /pt-br 200 in 208ms
- GET /pt-br/product 200 in 124ms
- GET /pt-br/integrations 200 in 454ms
- GET /pt-br/use-cases 200 in 112ms
- GET /pt-br/security 200 in 102ms
- GET /pt-br/about 200 in 85ms
- GET /pt-br/from-opsgenie 200 in 70ms
+ GET /pt-br 200 in 242ms
+ GET /pt-br/product 200 in 134ms
+ GET /pt-br/integrations 200 in 488ms
+ GET /pt-br/use-cases 200 in 68ms
+ GET /pt-br/security 200 in 94ms
+ GET /pt-br/about 200 in 106ms
+ GET /pt-br/from-opsgenie 200 in 78ms

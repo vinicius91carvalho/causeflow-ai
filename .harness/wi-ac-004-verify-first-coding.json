@@ -523,5 +523,6 @@
         }
       ]
     }
-  ]
+  ],
+  "notes": "VERIFY-FIRST zero-diff: AC-004 passes at HTTP boundary on :5171 for EN+PT-BR homepage and primary marketing surfaces. Primary CTAs are Docs/GitHub; quiet Dashboard/Painel allowed; no Get Early Access / Start Free / See Pricing / Talk to the Co-Founder (or PT-BR equivalents). No product code changes."
 }
