@@ -1,12 +1,12 @@
 {
   "id": "WI-AC-014",
-  "phase": "verify-first-existing-retry",
+  "phase": "verify-first-existing-resume",
   "base": "http://127.0.0.1:5170",
   "core": "http://127.0.0.1:3099",
-  "email": "vf-ac014-1784286588@causeflow.local",
-  "labelA": "AC014 Profile A 1784286588",
-  "labelB": "AC014 Profile B 1784286588",
-  "labelEdited": "AC014 Profile A Edited 1784286588",
+  "email": "vf-ac014-1784286795342@causeflow.local",
+  "labelA": "AC014 Profile A 1784286795342",
+  "labelB": "AC014 Profile B 1784286795342",
+  "labelEdited": "AC014 Profile A Edited 1784286795342",
   "steps": [
     {
       "step": "dashboard_register",
@@ -14,8 +14,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "8156ce50-00e1-49ce-9e2e-e006fb17345a",
-          "email": "vf-ac014-1784286588@causeflow.local",
+          "id": "6b619a5c-9d1d-40b8-88b9-831463b26828",
+          "email": "vf-ac014-1784286795342@causeflow.local",
           "name": "AC014 VF Admin"
         }
       }
@@ -24,13 +24,13 @@
       "step": "create_profile_a",
       "status": 201,
       "body": {
-        "id": "2a791db4-38e0-4e94-8fdc-914592fd97fc",
-        "label": "AC014 Profile A 1784286588",
+        "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+        "label": "AC014 Profile A 1784286795342",
         "baseUrl": "https://api.openai.com/v1",
         "model": "gpt-4o-mini",
         "apiKeyConfigured": true,
-        "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
       },
       "leaks_plaintext": false
     },
@@ -38,13 +38,13 @@
       "step": "create_profile_b",
       "status": 201,
       "body": {
-        "id": "ae4472ac-32a4-4836-9af6-e13add33736e",
-        "label": "AC014 Profile B 1784286588",
+        "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+        "label": "AC014 Profile B 1784286795342",
         "baseUrl": "http://127.0.0.1:8081/v1",
         "model": "Ornith-1.0-9B-code",
         "apiKeyConfigured": false,
-        "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
       },
       "leaks_plaintext": false
     },
@@ -52,13 +52,13 @@
       "step": "edit_profile_a",
       "status": 200,
       "body": {
-        "id": "2a791db4-38e0-4e94-8fdc-914592fd97fc",
-        "label": "AC014 Profile A Edited 1784286588",
+        "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+        "label": "AC014 Profile A Edited 1784286795342",
         "baseUrl": "https://api.openai.com/v1",
         "model": "gpt-4o",
         "apiKeyConfigured": true,
-        "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
       },
       "leaks_plaintext": false
     },
@@ -66,16 +66,16 @@
       "step": "activate_profile_a",
       "status": 200,
       "body": {
-        "activeProfileId": "2a791db4-38e0-4e94-8fdc-914592fd97fc",
+        "activeProfileId": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
         "profile": {
-          "id": "2a791db4-38e0-4e94-8fdc-914592fd97fc",
-          "label": "AC014 Profile A Edited 1784286588",
+          "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+          "label": "AC014 Profile A Edited 1784286795342",
           "baseUrl": "https://api.openai.com/v1",
           "model": "gpt-4o",
           "apiKeyConfigured": true,
           "isActive": true,
-          "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-          "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+          "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
         }
       }
     },
@@ -83,27 +83,27 @@
       "step": "list_after_activate_a",
       "status": 200,
       "body": {
-        "activeProfileId": "2a791db4-38e0-4e94-8fdc-914592fd97fc",
+        "activeProfileId": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
         "items": [
           {
-            "id": "2a791db4-38e0-4e94-8fdc-914592fd97fc",
-            "label": "AC014 Profile A Edited 1784286588",
+            "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+            "label": "AC014 Profile A Edited 1784286795342",
             "baseUrl": "https://api.openai.com/v1",
             "model": "gpt-4o",
             "apiKeyConfigured": true,
             "isActive": true,
-            "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
           },
           {
-            "id": "ae4472ac-32a4-4836-9af6-e13add33736e",
-            "label": "AC014 Profile B 1784286588",
+            "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+            "label": "AC014 Profile B 1784286795342",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       },
@@ -113,16 +113,16 @@
       "step": "activate_profile_b",
       "status": 200,
       "body": {
-        "activeProfileId": "ae4472ac-32a4-4836-9af6-e13add33736e",
+        "activeProfileId": "587c9d40-4d23-4d0a-a507-70eae2f37639",
         "profile": {
-          "id": "ae4472ac-32a4-4836-9af6-e13add33736e",
-          "label": "AC014 Profile B 1784286588",
+          "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+          "label": "AC014 Profile B 1784286795342",
           "baseUrl": "http://127.0.0.1:8081/v1",
           "model": "Ornith-1.0-9B-code",
           "apiKeyConfigured": false,
           "isActive": true,
-          "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-          "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+          "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
         }
       }
     },
@@ -130,27 +130,27 @@
       "step": "list_after_activate_b",
       "status": 200,
       "body": {
-        "activeProfileId": "ae4472ac-32a4-4836-9af6-e13add33736e",
+        "activeProfileId": "587c9d40-4d23-4d0a-a507-70eae2f37639",
         "items": [
           {
-            "id": "2a791db4-38e0-4e94-8fdc-914592fd97fc",
-            "label": "AC014 Profile A Edited 1784286588",
+            "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+            "label": "AC014 Profile A Edited 1784286795342",
             "baseUrl": "https://api.openai.com/v1",
             "model": "gpt-4o",
             "apiKeyConfigured": true,
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
           },
           {
-            "id": "ae4472ac-32a4-4836-9af6-e13add33736e",
-            "label": "AC014 Profile B 1784286588",
+            "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+            "label": "AC014 Profile B 1784286795342",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": true,
-            "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       },
@@ -161,24 +161,24 @@
       "status": 200,
       "body": {
         "success": true,
-        "id": "2a791db4-38e0-4e94-8fdc-914592fd97fc"
+        "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d"
       }
     },
     {
       "step": "list_after_delete_a",
       "status": 200,
       "body": {
-        "activeProfileId": "ae4472ac-32a4-4836-9af6-e13add33736e",
+        "activeProfileId": "587c9d40-4d23-4d0a-a507-70eae2f37639",
         "items": [
           {
-            "id": "ae4472ac-32a4-4836-9af6-e13add33736e",
-            "label": "AC014 Profile B 1784286588",
+            "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+            "label": "AC014 Profile B 1784286795342",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": true,
-            "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       },
@@ -188,17 +188,17 @@
       "step": "core_list_direct",
       "status": 200,
       "body": {
-        "activeProfileId": "ae4472ac-32a4-4836-9af6-e13add33736e",
+        "activeProfileId": "587c9d40-4d23-4d0a-a507-70eae2f37639",
         "items": [
           {
-            "id": "ae4472ac-32a4-4836-9af6-e13add33736e",
-            "label": "AC014 Profile B 1784286588",
+            "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+            "label": "AC014 Profile B 1784286795342",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": true,
-            "createdAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:09:53 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       },

@@ -3,10 +3,10 @@
   "phase": "qa-agent-independent",
   "base": "http://127.0.0.1:5170",
   "core": "http://127.0.0.1:3099",
-  "email": "qa-ac014-1784286486@causeflow.local",
-  "labelA": "QA AC014 Profile A 1784286486",
-  "labelB": "QA AC014 Profile B 1784286486",
-  "labelEdited": "QA AC014 Profile A Edited 1784286486",
+  "email": "qa-ac014-1784286695@causeflow.local",
+  "labelA": "QA AC014 Profile A 1784286695",
+  "labelB": "QA AC014 Profile B 1784286695",
+  "labelEdited": "QA AC014 Profile A Edited 1784286695",
   "steps": [
     {
       "step": "dashboard_register",
@@ -14,8 +14,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "9f9f9a9b-a36e-4875-9cef-2804d6127e09",
-          "email": "qa-ac014-1784286486@causeflow.local",
+          "id": "81934997-376f-4f84-9718-813d11141f51",
+          "email": "qa-ac014-1784286695@causeflow.local",
           "name": "AC014 VF Admin"
         }
       }
@@ -24,13 +24,13 @@
       "step": "create_profile_a",
       "status": 201,
       "body": {
-        "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
-        "label": "QA AC014 Profile A 1784286486",
+        "id": "b240ea79-5937-4dca-a0f7-8d78b06715c1",
+        "label": "QA AC014 Profile A 1784286695",
         "baseUrl": "https://api.openai.com/v1",
         "model": "gpt-4o-mini",
         "apiKeyConfigured": true,
-        "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
       },
       "leaks_plaintext": false
     },
@@ -38,13 +38,13 @@
       "step": "create_profile_b",
       "status": 201,
       "body": {
-        "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
-        "label": "QA AC014 Profile B 1784286486",
+        "id": "3f779da1-4f02-4458-8eb7-b04e84530d0c",
+        "label": "QA AC014 Profile B 1784286695",
         "baseUrl": "http://127.0.0.1:8081/v1",
         "model": "Ornith-1.0-9B-code",
         "apiKeyConfigured": false,
-        "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
       },
       "leaks_plaintext": false
     },
@@ -52,13 +52,13 @@
       "step": "edit_profile_a",
       "status": 200,
       "body": {
-        "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
-        "label": "QA AC014 Profile A Edited 1784286486",
+        "id": "b240ea79-5937-4dca-a0f7-8d78b06715c1",
+        "label": "QA AC014 Profile A Edited 1784286695",
         "baseUrl": "https://api.openai.com/v1",
         "model": "gpt-4o",
         "apiKeyConfigured": true,
-        "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
       },
       "leaks_plaintext": false
     },
@@ -66,16 +66,16 @@
       "step": "activate_profile_a",
       "status": 200,
       "body": {
-        "activeProfileId": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
+        "activeProfileId": "b240ea79-5937-4dca-a0f7-8d78b06715c1",
         "profile": {
-          "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
-          "label": "QA AC014 Profile A Edited 1784286486",
+          "id": "b240ea79-5937-4dca-a0f7-8d78b06715c1",
+          "label": "QA AC014 Profile A Edited 1784286695",
           "baseUrl": "https://api.openai.com/v1",
           "model": "gpt-4o",
           "apiKeyConfigured": true,
           "isActive": true,
-          "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-          "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+          "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
         }
       }
     },
@@ -83,27 +83,27 @@
       "step": "list_after_activate_a",
       "status": 200,
       "body": {
-        "activeProfileId": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
+        "activeProfileId": "b240ea79-5937-4dca-a0f7-8d78b06715c1",
         "items": [
           {
-            "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
-            "label": "QA AC014 Profile A Edited 1784286486",
+            "id": "b240ea79-5937-4dca-a0f7-8d78b06715c1",
+            "label": "QA AC014 Profile A Edited 1784286695",
             "baseUrl": "https://api.openai.com/v1",
             "model": "gpt-4o",
             "apiKeyConfigured": true,
             "isActive": true,
-            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
           },
           {
-            "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
-            "label": "QA AC014 Profile B 1784286486",
+            "id": "3f779da1-4f02-4458-8eb7-b04e84530d0c",
+            "label": "QA AC014 Profile B 1784286695",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       },
@@ -113,16 +113,16 @@
       "step": "activate_profile_b",
       "status": 200,
       "body": {
-        "activeProfileId": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+        "activeProfileId": "3f779da1-4f02-4458-8eb7-b04e84530d0c",
         "profile": {
-          "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
-          "label": "QA AC014 Profile B 1784286486",
+          "id": "3f779da1-4f02-4458-8eb7-b04e84530d0c",
+          "label": "QA AC014 Profile B 1784286695",
           "baseUrl": "http://127.0.0.1:8081/v1",
           "model": "Ornith-1.0-9B-code",
           "apiKeyConfigured": false,
           "isActive": true,
-          "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-          "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+          "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
         }
       }
     },
@@ -130,27 +130,27 @@
       "step": "list_after_activate_b",
       "status": 200,
       "body": {
-        "activeProfileId": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+        "activeProfileId": "3f779da1-4f02-4458-8eb7-b04e84530d0c",
         "items": [
           {
-            "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
-            "label": "QA AC014 Profile A Edited 1784286486",
+            "id": "b240ea79-5937-4dca-a0f7-8d78b06715c1",
+            "label": "QA AC014 Profile A Edited 1784286695",
             "baseUrl": "https://api.openai.com/v1",
             "model": "gpt-4o",
             "apiKeyConfigured": true,
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
           },
           {
-            "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
-            "label": "QA AC014 Profile B 1784286486",
+            "id": "3f779da1-4f02-4458-8eb7-b04e84530d0c",
+            "label": "QA AC014 Profile B 1784286695",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": true,
-            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       },
@@ -161,24 +161,24 @@
       "status": 200,
       "body": {
         "success": true,
-        "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd"
+        "id": "b240ea79-5937-4dca-a0f7-8d78b06715c1"
       }
     },
     {
       "step": "list_after_delete_a",
       "status": 200,
       "body": {
-        "activeProfileId": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+        "activeProfileId": "3f779da1-4f02-4458-8eb7-b04e84530d0c",
         "items": [
           {
-            "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
-            "label": "QA AC014 Profile B 1784286486",
+            "id": "3f779da1-4f02-4458-8eb7-b04e84530d0c",
+            "label": "QA AC014 Profile B 1784286695",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": true,
-            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       },
@@ -188,17 +188,17 @@
       "step": "core_list_direct",
       "status": 200,
       "body": {
-        "activeProfileId": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+        "activeProfileId": "3f779da1-4f02-4458-8eb7-b04e84530d0c",
         "items": [
           {
-            "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
-            "label": "QA AC014 Profile B 1784286486",
+            "id": "3f779da1-4f02-4458-8eb7-b04e84530d0c",
+            "label": "QA AC014 Profile B 1784286695",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": true,
-            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:11:40 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       },
