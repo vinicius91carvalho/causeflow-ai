@@ -7,13 +7,13 @@
       "metaDescription": "Investigação de incidentes com IA conectando engenharia e suporte L2/L3. CauseFlow cruza Slack, GitHub, Jira, CloudWatch e HubSpot para encontrar causas raiz em minutos.",
       "ctaPrimary": "Ler a documentação",
       "ctaSecondary": "Veja Como Funciona",
-      "trustText": "Agora em Acesso Antecipado — vagas limitadas para times que querem co-criar o produto.",
+      "trustText": "Open source — self-host gratuito. Docs e GitHub são o caminho principal.",
       "vizRootCause": "Causa Raiz Identificada",
       "vizConfidence": "97% confiança",
       "vizFixDescription": "Vazamento de memória no pool de conexões — auto-scaling disparado às 3:42 AM causou overflow de max_connections do PostgreSQL.",
       "vizFixButton": "Abrir Fix PR →",
       "vizProcessing": "Investigando...",
-      "cta": "CauseFlow Acesso Antecipado (sentinela AC-017)"
+      "cta": "CauseFlow OSS (sentinela AC-017)"
     },
     "techBar": {
       "title": "Conecta às ferramentas que seu time já usa"
@@ -141,7 +141,7 @@
     },
     "ctaFinal": {
       "title": "Pare de perder horas de engenharia com investigação de incidentes",
-      "subtitle": "Participe do Acesso Antecipado — investigue incidentes com IA enquanto sua equipe foca em construir.",
+      "subtitle": "Leia a documentação e explore o GitHub — investigue incidentes com IA enquanto sua equipe foca em construir.",
       "ctaPrimary": "Ler a documentação",
       "ctaSecondary": "Ou fale conosco para uma demonstração personalizada"
     },
@@ -204,7 +204,7 @@
       "lead": "O CauseFlow cruza Slack, GitHub, CloudWatch, Datadog e Jira para apresentar a causa raiz em minutos — com aprovação humana obrigatória.",
       "ctaPrimary": "Abrir o dashboard",
       "ctaSecondary": "Ver como funciona",
-      "trustText": "Em Early Access — somente leitura por padrão, seus dados nunca treinam um modelo compartilhado."
+      "trustText": "Somente leitura por padrão — seus dados nunca treinam um modelo compartilhado."
     },
     "narrative": {
       "eyebrow": "Como funciona",
@@ -245,7 +245,7 @@
       "headlineTail": "Comece a construir produto.",
       "description": "Abra o dashboard e conecte uma ferramenta em menos de cinco minutos. Somente leitura, sem contrato, sem cartão.",
       "ctaPrimary": "Abrir o dashboard",
-      "ctaSecondary": "Ver preços"
+      "ctaSecondary": "Ver no GitHub"
     },
     "newTemplate": {
       "hero": {
@@ -1147,7 +1147,7 @@
     "hero": {
       "title": "Migrando do Opsgenie?",
       "subtitle": "O Atlassian está encerrando o Opsgenie em abril de 2027. Não apenas substitua sua ferramenta de alertas — faça upgrade para investigação de incidentes com IA.",
-      "ctaPrimary": "Acesso Antecipado"
+      "ctaPrimary": "Ler a documentação"
     },
     "whatsHappening": {
       "title": "O Que Está Acontecendo",
@@ -1181,13 +1181,13 @@
     },
     "finalCta": {
       "title": "Não Espere Até Abril de 2027",
-      "subtitle": "Seja um dos primeiros a investigar incidentes com IA. Junte-se ao Acesso Antecipado — vagas limitadas para equipes prontas para modernizar seu fluxo de incidentes.",
+      "subtitle": "Seja um dos primeiros a investigar incidentes com IA. Leia a documentação e explore o GitHub para modernizar seu fluxo de incidentes.",
       "ctaPrimary": "Ler a documentação",
       "ctaSecondary": "Ver no GitHub"
     },
     "meta": {
       "title": "Migrando do Opsgenie",
-      "description": "O Atlassian está encerrando o Opsgenie em abril de 2027. Faça upgrade para investigação de incidentes com IA usando o CauseFlow — configuração em menos de 10 minutos, Acesso Antecipado disponível agora."
+      "description": "O Atlassian está encerrando o Opsgenie em abril de 2027. Faça upgrade para investigação de incidentes com IA usando o CauseFlow — configuração em menos de 10 minutos, documentação e GitHub disponíveis agora."
     }
   },
   "deploymentApproaches": {
@@ -1293,8 +1293,8 @@
     "cta": {
       "headline": "Pronto para Investigar seu Próximo Incidente em Minutos?",
       "description": "Junte-se às equipes de engenharia que já usam o CauseFlow para ir do ruído à causa raiz em menos de 5 minutos.",
-      "primary": "Acesso Antecipado",
-      "secondary": "Veja Como Funciona"
+      "primary": "Ler a documentação",
+      "secondary": "Ver no GitHub"
     }
   },
   "caseStudies": {

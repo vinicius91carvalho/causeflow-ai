@@ -11,20 +11,20 @@
       "pricing": "Pricing",
       "security": "Security",
       "signIn": "Sign In",
-      "getStartedFree": "Get Early Access",
+      "getStartedFree": "Read the docs",
       "dashboard": "Dashboard",
       "usecases": "Use Cases",
       "about": "About",
       "docs": "Docs"
     },
     "cta": {
-      "getStartedFree": "Get Early Access",
+      "getStartedFree": "Read the docs",
       "watchDemo": "See How It Works",
       "scheduleDemo": "Contact Us",
       "createAccount": "Create Account",
-      "talkToSales": "Talk to Sales",
+      "talkToSales": "View on GitHub",
       "learnMore": "Learn More About the Product",
-      "startNow": "Join the Beta",
+      "startNow": "Read the docs",
       "readDocs": "Read the docs",
       "viewOnGitHub": "View on GitHub"
     },
@@ -49,7 +49,7 @@
       "iso27001": "ISO 27001 (On Roadmap)",
       "hipaa": "HIPAA (On Roadmap)",
       "connectColumn": "Connect",
-      "talkToFounder": "Talk to the Co-Founder",
+      "talkToFounder": "GitHub",
       "about": "About"
     },
     "languageSelector": {
