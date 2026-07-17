@@ -20,3 +20,16 @@ are terminated then try again. If it still fails, a git process
 may have crashed in this repository earlier:
 remove the file manually to continue.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T00:33:33.525Z — Explicit Resume
+
+- WorkItem: WI-AC-007
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-007",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
