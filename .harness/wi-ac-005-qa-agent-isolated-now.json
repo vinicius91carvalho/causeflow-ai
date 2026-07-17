@@ -13,6 +13,7 @@
       "has_llc_body": false,
       "has_delaware": false,
       "forbidden_hits": [],
+      "chrome_forbidden_hits": [],
       "has_docs": true,
       "has_github": true,
       "has_causeflow_brand": true,
@@ -20,7 +21,7 @@
       "footer_ai_span": false,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "chrome_len": 5482,
+      "chrome_len": 5481,
       "body_len": 459673
     },
     {
@@ -31,6 +32,7 @@
       "has_llc_body": false,
       "has_delaware": false,
       "forbidden_hits": [],
+      "chrome_forbidden_hits": [],
       "has_docs": true,
       "has_github": true,
       "has_causeflow_brand": true,
@@ -38,7 +40,7 @@
       "footer_ai_span": false,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "chrome_len": 5482,
+      "chrome_len": 5481,
       "body_len": 187321
     },
     {
@@ -49,6 +51,7 @@
       "has_llc_body": false,
       "has_delaware": false,
       "forbidden_hits": [],
+      "chrome_forbidden_hits": [],
       "has_docs": true,
       "has_github": true,
       "has_causeflow_brand": true,
@@ -56,7 +59,7 @@
       "footer_ai_span": false,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "chrome_len": 5588,
+      "chrome_len": 5587,
       "body_len": 461724
     },
     {
@@ -67,6 +70,7 @@
       "has_llc_body": false,
       "has_delaware": false,
       "forbidden_hits": [],
+      "chrome_forbidden_hits": [],
       "has_docs": true,
       "has_github": true,
       "has_causeflow_brand": true,
@@ -74,7 +78,7 @@
       "footer_ai_span": false,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "chrome_len": 5588,
+      "chrome_len": 5587,
       "body_len": 189346
     }
   ],
