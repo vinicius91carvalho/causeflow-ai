@@ -65,10 +65,20 @@ export async function Footer() {
             </ul>
           </div>
 
-          {/* Connect column */}
+          {/* Connect column — OSS: GitHub + LinkedIn; no founder/early-access conversion CTAs */}
           <div>
             <h3 className="text-sm font-semibold">{t('footer.connectColumn')}</h3>
             <ul className="mt-4 space-y-2">
+              <li>
+                <a
+                  href={SITE.social.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  GitHub
+                </a>
+              </li>
               <li>
                 <a
                   href={SITE.social.linkedin}
@@ -77,16 +87,6 @@ export async function Footer() {
                   className="text-sm text-muted-foreground hover:text-foreground"
                 >
                   LinkedIn
-                </a>
-              </li>
-              <li>
-                <a
-                  href={SITE.cofounder.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  {t('footer.talkToFounder')}
                 </a>
               </li>
             </ul>

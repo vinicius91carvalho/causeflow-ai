@@ -1,0 +1,27 @@
+{
+  "phase": "verify-first",
+  "id": "WI-AC-004",
+  "ac": "AC-004",
+  "port": 5171,
+  "initial_fail": {
+    "root_cause": "Footer rendered Talk to the Co-Founder / Fale com o Co-Fundador conversion CTA on all marketing pages; PT-BR /from-opsgenie hero CTA label was Acesso Antecipado.",
+    "fix": "Removed cofounder conversion CTA from footer (GitHub+LinkedIn connect); set OSS Docs/GitHub CTA labels in shell+marketing i18n; PT fromOpsgenie hero.ctaPrimary -> Ler a documenta\u00e7\u00e3o."
+  },
+  "ac004_pass": true,
+  "routes_pass": [
+    "/",
+    "/product",
+    "/integrations",
+    "/use-cases",
+    "/security",
+    "/about",
+    "/from-opsgenie",
+    "/pt-br",
+    "/pt-br/product",
+    "/pt-br/integrations",
+    "/pt-br/use-cases",
+    "/pt-br/security",
+    "/pt-br/about",
+    "/pt-br/from-opsgenie"
+  ]
+}

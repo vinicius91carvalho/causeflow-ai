@@ -11,20 +11,20 @@
       "pricing": "Preços",
       "security": "Segurança",
       "signIn": "Entrar",
-      "getStartedFree": "Acesso Antecipado",
+      "getStartedFree": "Ler a documentação",
       "dashboard": "Painel",
       "usecases": "Casos de Uso",
       "about": "Sobre",
       "docs": "Docs"
     },
     "cta": {
-      "getStartedFree": "Acesso Antecipado",
+      "getStartedFree": "Ler a documentação",
       "watchDemo": "Veja Como Funciona",
       "scheduleDemo": "Fale Conosco",
       "createAccount": "Criar Conta",
-      "talkToSales": "Falar com Vendas",
+      "talkToSales": "Ver no GitHub",
       "learnMore": "Saiba Mais Sobre o Produto",
-      "startNow": "Acesso Antecipado",
+      "startNow": "Ler a documentação",
       "readDocs": "Ler a documentação",
       "viewOnGitHub": "Ver no GitHub"
     },
@@ -49,7 +49,7 @@
       "iso27001": "ISO 27001 (No Roadmap)",
       "hipaa": "HIPAA (No Roadmap)",
       "connectColumn": "Conectar",
-      "talkToFounder": "Fale com o Co-Fundador",
+      "talkToFounder": "GitHub",
       "about": "Sobre"
     },
     "languageSelector": {

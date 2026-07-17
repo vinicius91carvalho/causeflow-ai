@@ -1,0 +1,528 @@
+{
+  "phase": "verify-first-coding",
+  "id": "WI-AC-004",
+  "ac": "AC-004",
+  "port": 5171,
+  "ac004_pass": true,
+  "routes": [
+    {
+      "path": "/",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Dashboard"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "View on GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/product",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Dashboard"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/integrations",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Dashboard"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/use-cases",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Dashboard"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "View on GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/security",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Dashboard"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "View on GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "View on GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/about",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Dashboard"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "View on GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/from-opsgenie",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Dashboard"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Read the docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "View on GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/pt-br",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Painel"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documenta\u00e7\u00e3o"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "Ver no GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/pt-br/product",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Painel"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documenta\u00e7\u00e3o"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/pt-br/integrations",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Painel"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/pt-br/use-cases",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Painel"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documenta\u00e7\u00e3o"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "Ver no GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/pt-br/security",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Painel"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documenta\u00e7\u00e3o"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "Ver no GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documenta\u00e7\u00e3o"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "Ver no GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/pt-br/about",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Painel"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documenta\u00e7\u00e3o"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "Ver no GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    },
+    {
+      "path": "/pt-br/from-opsgenie",
+      "pass": true,
+      "status": 200,
+      "forbidden_cta_links": [],
+      "forbidden_buttons": [],
+      "hard_forbidden_body": [],
+      "has_docs_href": true,
+      "has_github_repo_href": true,
+      "has_primary_cta": true,
+      "interesting": [
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "http://localhost:3001",
+          "text": "Painel"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documenta\u00e7\u00e3o"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Ler a documenta\u00e7\u00e3o"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "Ver no GitHub"
+        },
+        {
+          "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
+          "text": "Docs"
+        },
+        {
+          "href": "https://github.com/causeflow",
+          "text": "GitHub"
+        }
+      ]
+    }
+  ],
+  "notes": "VERIFY-FIRST zero-diff: AC-004 passes at HTTP boundary on :5171 for EN+PT-BR homepage and primary marketing surfaces. Primary CTAs are Docs/GitHub; quiet Dashboard/Painel allowed; no Get Early Access / Start Free / See Pricing / Talk to the Co-Founder (or PT-BR equivalents). No product code changes."
+}

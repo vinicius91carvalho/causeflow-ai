@@ -7,13 +7,13 @@
       "metaDescription": "AI-powered incident investigation bridging engineering and L2/L3 support. CauseFlow cross-references Slack, GitHub, Jira, CloudWatch and HubSpot to find root causes in minutes.",
       "ctaPrimary": "Read the docs",
       "ctaSecondary": "See How It Works",
-      "trustText": "Now in Early Access — limited spots for teams that want to shape the product.",
+      "trustText": "Open source — free to self-host. Docs and GitHub are the primary path.",
       "vizRootCause": "Root Cause Identified",
       "vizConfidence": "97% confidence",
       "vizFixDescription": "Memory leak in connection pool — auto-scaling triggered at 3:42 AM caused PostgreSQL max_connections overflow.",
       "vizFixButton": "Open Fix PR →",
       "vizProcessing": "Investigating...",
-      "cta": "CauseFlow Early Access (AC-017 sentinel)"
+      "cta": "CauseFlow OSS (AC-017 sentinel)"
     },
     "techBar": {
       "title": "Connects to the tools your team already uses"
@@ -141,7 +141,7 @@
     },
     "ctaFinal": {
       "title": "Stop losing engineering hours to incident investigation",
-      "subtitle": "Get Early Access — investigate incidents with AI while your team focuses on building.",
+      "subtitle": "Read the docs and explore GitHub — investigate incidents with AI while your team focuses on building.",
       "ctaPrimary": "Read the docs",
       "ctaSecondary": "Or contact us for a personalized walkthrough"
     },
@@ -204,7 +204,7 @@
       "lead": "CauseFlow cross-references Slack, GitHub, CloudWatch, Datadog and Jira to surface production-grade root cause in minutes — with human-in-the-loop approval by default.",
       "ctaPrimary": "Open the dashboard",
       "ctaSecondary": "See how it works",
-      "trustText": "Now in Early Access — read-only by default, your data never trains a shared model."
+      "trustText": "Read-only by default — your data never trains a shared model."
     },
     "narrative": {
       "eyebrow": "How it works",
@@ -1181,13 +1181,13 @@
     },
     "finalCta": {
       "title": "Don't Wait Until April 2027",
-      "subtitle": "Be among the first to investigate incidents with AI. Apply for Early Access and start solving incidents faster.",
+      "subtitle": "Be among the first to investigate incidents with AI. Read the docs and start solving incidents faster.",
       "ctaPrimary": "Read the docs",
       "ctaSecondary": "View on GitHub"
     },
     "meta": {
       "title": "Migrating from Opsgenie",
-      "description": "Atlassian is sunsetting Opsgenie in April 2027. Upgrade to AI-powered incident investigation with CauseFlow — setup in under 10 minutes, Early Access now open."
+      "description": "Atlassian is sunsetting Opsgenie in April 2027. Upgrade to AI-powered incident investigation with CauseFlow — setup in under 10 minutes via Docs and GitHub."
     }
   },
   "deploymentApproaches": {
@@ -1293,8 +1293,8 @@
     "cta": {
       "headline": "Ready to Investigate Your Next Incident in Minutes?",
       "description": "Join engineering teams already using CauseFlow to move from noise to root cause in under 5 minutes.",
-      "primary": "Get Early Access",
-      "secondary": "See How It Works"
+      "primary": "Read the docs",
+      "secondary": "View on GitHub"
     }
   },
   "caseStudies": {
