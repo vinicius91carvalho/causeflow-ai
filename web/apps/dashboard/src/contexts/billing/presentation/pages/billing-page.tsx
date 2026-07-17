@@ -1,11 +1,12 @@
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * OSS commercial removal (AC-073): /dashboard/billing never renders commercial
- * billing UI. Redirect to the dashboard home (non-billing landing).
+ * OSS commercial removal (root AC-009): /dashboard/billing is hard-removed.
+ * Authenticated visits return framework not-found; never plan cards, Buy more,
+ * or quota packs.
  */
 export default function BillingRoute() {
-  redirect('/dashboard');
+  notFound();
 }

@@ -1,0 +1,44 @@
+{
+  "id": "WI-AC-009",
+  "phase": "verify-first-existing",
+  "base": "http://127.0.0.1:5170",
+  "email": "vf-ac009-1784248937@causeflow.local",
+  "shell": {
+    "status": 200,
+    "nav_billing": false,
+    "billing_nav_label": false,
+    "investigations_left": true,
+    "credits_remaining": true,
+    "credits_banner": false
+  },
+  "billing_nofollow": {
+    "status": 307,
+    "body_len": 72816,
+    "location": "/dashboard",
+    "plan_cards": false,
+    "buy_more": false,
+    "quota_packs": false,
+    "not_found_ui": true,
+    "redirected_home": true,
+    "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_n"
+  },
+  "billing_follow": {
+    "status": 200,
+    "body_len": 90146,
+    "location": null,
+    "plan_cards": false,
+    "buy_more": false,
+    "quota_packs": false,
+    "not_found_ui": true,
+    "redirected_home": true,
+    "snippet": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_14db65\" data-theme=\"cleric\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link rel=\"preload\" as=\"i"
+  },
+  "ac009_pass": false,
+  "checks": {
+    "hard404": false,
+    "noBillingNav": true,
+    "noCreditsWidget": false,
+    "noCommercialBillingUi": true
+  },
+  "defect": "Authenticated /dashboard/billing did not hard-404 (status=307 location=/dashboard); root AC-009 requires 404 without plan cards/Buy more/quota packs. Shell nav/credits ok=False"
+}
