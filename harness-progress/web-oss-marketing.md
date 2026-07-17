@@ -239,3 +239,12 @@ Evidence excerpt: {
 - WorkItem: WI-AC-003
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T03:08:15.217Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-003
+- AcceptanceChecks: AC-003
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/d5c7ca35-16e1-4ba0-85e4-a14396fb4a00/web-oss-marketing/WI-AC-003-1-integration_qa-f825c5403b2cbbc7.log
+- NextAction: next Ready Work Item
