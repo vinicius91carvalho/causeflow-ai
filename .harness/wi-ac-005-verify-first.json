@@ -31,7 +31,7 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
-      "body_len": 187320
+      "body_len": 187321
     },
     {
       "path": "/pt-br",
@@ -45,7 +45,7 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
-      "body_len": 461724
+      "body_len": 461723
     },
     {
       "path": "/pt-br/product",
@@ -59,7 +59,7 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
-      "body_len": 189345
+      "body_len": 189346
     }
   ]
 }
