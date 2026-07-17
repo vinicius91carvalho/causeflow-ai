@@ -19,6 +19,10 @@
       "id": "public-docs",
       "path": "public-docs",
       "description": "Public Mintlify product and API documentation site"
+    },
+    {
+      "id": "root",
+      "path": ""
     }
   ]
 }

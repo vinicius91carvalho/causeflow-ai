@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project_specification>
+  <project_name>CauseFlow Open Source</project_name>
+  <mode>existing-codebase</mode>
+
+  <project_goal>
+    Make the CauseFlow monorepo present and behave as a credible open-source SRE AI tool: commercial sales surfaces (pricing, plan selection, early-access/founder funnels, billing/credits) are gone; marketing CTAs are Docs, GitHub, and a quiet Dashboard link; Settings lets admins point investigations at any OpenAI-compatible LLM (Ornith local presets included) with an explicit fallback chain; Integrations ships Test Application (OSS) with public-docs explaining the fixed demo failure catalog; and a local-auth Playwright/API golden path proves Test Application → Ornith 9B → Incidents → full investigation workflow with evidence grounded in that catalog. Prior web/core OSS Acceptance Checks remain historical append-only records; this root Completion Contract is the sole proof for this goal.
+  </project_goal>
+
+  <overview>
+    CauseFlow is a multi-project monorepo (web marketing + dashboard, core control-plane API/workers, public-docs, relay). This root plan finishes the open-source productization across those surfaces without inventing a replacement stack. Operators run Docker Compose locally, authenticate with Core local JWT auth (not Clerk staging), connect the Core-owned causeflow-test-app, configure Ornith 9B (or another OpenAI-compatible profile) in Settings, and use Incidents to exercise triage → investigation → root cause → remediation against a documented demo failure catalog (order-service pool exhaustion, payment-service timeout, elevated CPU/latency, deploy v2.4.1-ac058). The website no longer sells plans or early access; public docs describe free self-host usage and the Test Application catalog.
+  </overview>
+
+  <domain>
+    <glossary>
+      <term name="Test Application (OSS)" avoid="stub mock only, Playwright fixture, Composio demo">
+        The Core-owned runnable HTTP service (causeflow-test-app on :5190) that operators connect from Integrations as a real upstream. It emits demo alerts and returns deterministic investigation evidence for the fixed failure catalog.
+      </term>
+      <term name="Investigation LLM profile" avoid="fixed three-provider enum, LlmConnectorId catalog">
+        A named tenant-scoped OpenAI-compatible connector (label, baseUrl, model, optional API key, optional contextWindowTokens, optional fallbackProfileId) stored by Core and activated for investigations.
+      </term>
+      <term name="Demo failure catalog" avoid="random chaos, operator failure playground">
+        The fixed, documented set of intentional issues in Test Application (OSS): order-service DB pool exhaustion, payment-service upstream timeout, high CPU / elevated p99, degraded health, and deploy v2.4.1-ac058 before alert onset.
+      </term>
+      <term name="OSS local auth" avoid="Clerk staging, .env.staging STAGING_TEST_USER">
+        Core register/login JWT authentication used by the local OSS dashboard runtime and golden-path E2E.
+      </term>
+      <term name="Commercial surface" avoid="usage-only billing page kept for OSS">
+        Pricing pages, plan selection, early-access/waitlist/founder CTAs, Stripe/credits/quota UX, and related APIs that sell or meter a hosted product.
+      </term>
+    </glossary>
+    <bounded_contexts>
+      <context name="OSS marketing identity" generator_context="web-oss-marketing">
+        <responsibility>web website chrome and copy present CauseFlow as an open-source project (Docs + GitHub + quiet Dashboard).</responsibility>
+        <relationships>Downstream of public-docs for Learn more / docs URLs; no dependency on billing.</relationships>
+      </context>
+      <context name="OSS dashboard product path" generator_context="web-oss-dashboard">
+        <responsibility>web dashboard removes commercial onboarding/billing, exposes custom Investigation LLM profiles, and surfaces Test Application (OSS) with docs deep-link.</responsibility>
+        <relationships>Downstream of core Investigation LLM APIs and stub-upstream connect/probe/ingest; upstream of golden-path E2E.</relationships>
+      </context>
+      <context name="OSS control plane" generator_context="core-oss-runtime">
+        <responsibility>core deletes commercial billing/credits/plan runtime on the OSS path, persists Investigation LLM profiles + fallback chain, and owns causeflow-test-app contracts.</responsibility>
+        <relationships>Upstream of web BFF; integrates Ornith/OpenAI-compatible LLM clients; emits incidents for the demo catalog.</relationships>
+      </context>
+      <context name="OSS public docs" generator_context="public-docs-oss">
+        <responsibility>public-docs documents free self-host usage and the Test Application demo failure catalog / golden path.</responsibility>
+        <relationships>Linked from web Integrations card; must not cite paid plans or live pricing.</relationships>
+      </context>
+      <context name="OSS golden path proof" generator_context="oss-golden-path">
+        <responsibility>Cross-project E2E proving Test Application + Ornith + Incidents full workflow with local auth.</responsibility>
+        <relationships>Depends on web-oss-dashboard and core-oss-runtime behaviors.</relationships>
+      </context>
+    </bounded_contexts>
+  </domain>
+
+  <technology_stack>
+    <general>
+      Existing causeflow-ai monorepo. Do not invent a replacement stack. Registered projects: web, core, public-docs, relay. Root docker-compose umbrella runs website :3000, dashboard :3001, Core API :3099, postgres, redis, hindsight, worker, causeflow-test-app :5190, docs as already wired for OSS. pnpm workspaces; Conventional Commits. This plan is existing-codebase: verify-first where already implemented, repair/implement only where Acceptance Checks fail.
+    </general>
+    <frontend>
+      <framework>web: Next.js 15 App Router (website SSG + dashboard SSR) as already in web/</framework>
+      <styling>Existing Tailwind + @causeflow/ui themes — preserve visual language; change copy/routes/CTAs, not a redesign</styling>
+      <state_management>Existing React 19 / Next patterns; dashboard BFF to Core</state_management>
+      <routing>Website and dashboard App Router with next-intl EN + PT-BR; hard-remove commercial routes (404)</routing>
+      <port>Website host :3000, dashboard host :3001 via compose/dev as today</port>
+      <patterns>Existing DDD bounded contexts in web; thin app routes; no Playwright page.route mocks as golden-path pass path</patterns>
+    </frontend>
+    <backend>
+      <runtime>core: Node.js 22 + Hono modular monolith as today</runtime>
+      <database>OSS Postgres persistence already used by local runtime; Investigation LLM profiles persist in Core (not dashboard). Prefer delete commercial billing/credits tables/use-cases on OSS product path rather than leaving zombie APIs.</database>
+      <port>Core API :3099 (compose); test-app :5190</port>
+      <patterns>Clean Architecture modules; OpenAI-compatible LLM client for Ornith; stub-upstream integration use cases for Test Application</patterns>
+    </backend>
+    <communication>
+      REST/JSON Core /v1 + dashboard /api BFF; SSE investigation progress; test-app webhooks into Core Datadog-shaped ingest; public-docs static/Mintlify site for operator docs.
+    </communication>
+  </technology_stack>
+
+  <integrations>
+    <integration name="Ornith 9B (OpenAI-compatible llama.cpp)">
+      <responsibility>Default local Investigation LLM for OSS demos via OpenAI-compatible API (typically host :8081, model Ornith-1.0-9B-code).</responsibility>
+      <availability>required for golden-path E2E when proving Ornith; optional if another profile is active</availability>
+      <configuration>Configured as an Investigation LLM profile (baseUrl/model); presets prefill Settings form. Env defaults may seed first-run but Settings profiles are the product path.</configuration>
+      <security>Optional API key stored by Core, never returned plaintext on GET.</security>
+      <failure_behavior>Follow optional fallbackProfileId chain; if exhausted, fail closed with clear configure/fix-LLM error. No silent DeterministicLLMClient or Anthropic success path.</failure_behavior>
+      <deployment>Operator host llama.cpp / documented session script; not bundled as a paid SaaS dependency.</deployment>
+      <affected_surfaces>core LLM client + health; web Settings Investigation LLM; golden-path E2E</affected_surfaces>
+    </integration>
+    <integration name="CauseFlow Test Application (OSS)">
+      <responsibility>Runnable demo upstream (core/test-app) exposing connect/probe/tools/alerts for the fixed demo failure catalog.</responsibility>
+      <availability>required for OSS compose golden path</availability>
+      <configuration>STUB_UPSTREAM_BASE_URL to Docker DNS hostname (e.g. http://causeflow-test-app:5190), not container localhost.</configuration>
+      <security>Tenant-scoped connect mapping; signed webhooks into Core ingest.</security>
+      <failure_behavior>If unreachable, Connect/Test fail with clear unreachable error and never mark healthy/connected success.</failure_behavior>
+      <deployment>Always started with default OSS compose as causeflow-test-app :5190.</deployment>
+      <affected_surfaces>core stub integration APIs; web Integrations card; Incidents golden path; public-docs catalog page</affected_surfaces>
+    </integration>
+    <integration name="Stripe / commercial billing">
+      <responsibility>removed from OSS product path</responsibility>
+      <availability>removed</availability>
+      <configuration>removed</configuration>
+      <security>No Stripe secrets in OSS web or Core runtime</security>
+      <failure_behavior>Routes/APIs deleted (prefer remove over 410 facade)</failure_behavior>
+      <deployment>removed</deployment>
+      <affected_surfaces>web billing context, Core billing module, marketing pricing, public-docs paid plan narrative</affected_surfaces>
+    </integration>
+    <integration name="Clerk staging E2E">
+      <responsibility>removed as pass path for this Completion Contract</responsibility>
+      <availability>removed for golden-path proof</availability>
+      <configuration>OSS local JWT auth only</configuration>
+      <security>Local register/login</security>
+      <failure_behavior>E2E must not depend on Clerk staging credentials</failure_behavior>
+      <deployment>local compose</deployment>
+      <affected_surfaces>web Playwright OSS project; dashboard auth in OSS runtime</affected_surfaces>
+    </integration>
+    <contradictions>
+      Existing web AC-078 expected /pricing redirect to docs; this root contract supersedes with hard 404. Existing public-docs billing pages still describe 410/usage billing screens; this contract requires hard-remove narrative aligned with deleted billing UI. Prior web/core OSS ACs remain in those project_specs.xml files as history; root ACs are the sole Completion Contract for this goal.
+    </contradictions>
+  </integrations>
+
+  <prerequisites>
+    <environment_setup>
+      - Work at monorepo Git root; changes land in web/, core/, public-docs/ (and root compose) as named by each Acceptance Check.
+      - Docker Compose OSS umbrella available; Core API, worker, postgres, redis, hindsight, causeflow-test-app, website :3000, dashboard :3001.
+      - Ornith 9B reachable for golden-path proof (operator host OpenAI-compatible endpoint).
+      - No Stripe/Clerk-staging credentials required for the Completion Contract.
+      - Prefer editing existing OSS WIP rather than inventing parallel stacks.
+      - Wide unrelated dead-code archaeology is deferred; only commercial product-path purge is in scope.
+    </environment_setup>
+  </prerequisites>
+
+  <core_features>
+    <foundation>
+      - Monorepo OSS compose keeps causeflow-test-app running with STUB_UPSTREAM_BASE_URL on Docker DNS.
+      - Root plan is the sole Completion Contract for OSS productization; subproject checks name web/core/public-docs.
+      - Runtime blockers (commercial deps forcing paid SaaS) stay removed for local smoke.
+    </foundation>
+    <web-oss-marketing>
+      - (web) Remove Pricing from header/footer/nav (EN + PT-BR).
+      - (web) /pricing and /pt-br/pricing hard-remove → 404 (no redirect, no plan cards).
+      - (web) Primary CTAs are Docs and GitHub; quiet Dashboard link allowed in chrome; no Get Early Access / Start Free / See Pricing / Talk to the Co-Founder sales funnel.
+      - (web) Replace CauseFlow AI, LLC sales chrome with OSS project identity; scrub early-access/limited-spots copy.
+      - (web) /get-started and equivalent early-access entry points hard-remove → 404.
+    </web-oss-marketing>
+    <web-oss-dashboard>
+      - (web) /onboarding/choose-plan hard-remove → 404; post create-organization lands on dashboard home.
+      - (web) Hard-remove Billing nav, credits/investigations-left chrome; /dashboard/billing → 404.
+      - (web) Remove waitlist/beta-waitlist commercial funnel routes (404).
+      - (web) Settings Investigation LLM: admin CRUD for OpenAI-compatible profiles + activate + optional fallbackProfileId; Ornith local/API presets prefill only.
+      - (web) Non-admins can view active provider label but cannot mutate profiles.
+      - (web) Integrations shows Test Application (OSS) with short scope summary + Learn more deep-link to public-docs catalog page.
+    </web-oss-dashboard>
+    <core-oss-runtime>
+      - (core) Prefer delete Stripe/checkout/portal/credits/plan-catalog/early-access APIs and runtime on OSS product path (not a long-lived 410 facade).
+      - (core) Persist Investigation LLM profiles (secrets redacted on GET); honor active profile + fallbackProfileId chain with cycle protection; exhausted chain fails closed.
+      - (core) Own causeflow-test-app contract: connect, probe, ingest, tool evidence for the fixed demo failure catalog.
+      - (core) Unreachable test-app fails connect/probe clearly; never false healthy success.
+    </core-oss-runtime>
+    <public-docs-oss>
+      - (public-docs) Canonical Test Application (OSS) page: scope, fixed demo failure catalog, golden-path steps, link target for Integrations Learn more.
+      - (public-docs) Remove paid plan / Stripe checkout / choose-a-plan narrative; describe free self-host OSS; no Dashboard Billing screen guidance.
+    </public-docs-oss>
+    <oss-golden-path>
+      - Local-auth E2E: connect Test Application → activate Ornith local profile (with optional fallback configured) → emit/ingest demo alert → Incidents shows incident → investigation completes with catalog-grounded evidence → root-cause + remediation visible.
+      - No Clerk staging; no Playwright mocks of integrations/incidents as pass path.
+    </oss-golden-path>
+  </core_features>
+
+  <acceptance_checks>
+    <acceptance_check id="AC-001" context="foundation" category="foundation" depends_on="">
+      <description>(monorepo-root + core) Default OSS compose starts causeflow-test-app healthy and configures Core STUB_UPSTREAM_BASE_URL with the Docker service hostname (not 127.0.0.1 inside the API container). A health check against the test app succeeds on the compose network.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-002" context="web-oss-marketing" category="functional" depends_on="">
+      <description>(web) On EN and PT-BR marketing pages, header/footer/nav have no Pricing item and shared nav constants do not list Pricing.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-003" context="web-oss-marketing" category="functional" depends_on="AC-002">
+      <description>(web) GET /pricing and /pt-br/pricing return 404 (or framework not-found) and never render paid plan cards or redirect to a sales pricing page.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-004" context="web-oss-marketing" category="functional" depends_on="AC-002">
+      <description>(web) Homepage and primary product marketing surfaces use Docs and/or GitHub as the primary CTA group, may include a quiet Dashboard link, and do not present Get Early Access, Start Free, See Pricing, or Talk to the Co-Founder as conversion CTAs (EN + PT-BR).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-005" context="web-oss-marketing" category="functional" depends_on="AC-004">
+      <description>(web) Marketing chrome no longer presents CauseFlow AI, LLC company-sales branding; OSS project identity (CauseFlow) plus Docs/GitHub framing is used instead. Privacy/Terms may remain if still valid legal pages.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-006" context="web-oss-marketing" category="edge-case" depends_on="AC-004">
+      <description>(web) /get-started and /pt-br/get-started (and equivalent early-access entry redirects to commercial sign-up) are hard-removed and return 404 rather than sending users to staging/commercial early-access funnels.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-007" context="web-oss-dashboard" category="functional" depends_on="">
+      <description>(web) Authenticated visit to /onboarding/choose-plan returns 404 and never renders Starter/Pro/Business plan cards or checkout actions.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-008" context="web-oss-dashboard" category="functional" depends_on="AC-007">
+      <description>(web) After OSS local-auth sign-up and create-organization, the user lands on dashboard home (or overview) without being forced through choose-plan or billing.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-009" context="web-oss-dashboard" category="functional" depends_on="">
+      <description>(web) Dashboard shell has no Billing nav and no credits/investigations-left widget; /dashboard/billing returns 404 and never shows plan cards, Buy more, or quota packs.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-010" context="web-oss-dashboard" category="edge-case" depends_on="AC-009">
+      <description>(web) /waitlist and /beta-waitlist (and locale equivalents) are hard-removed (404) and do not present early-access waitlist product UX.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-011" context="core-oss-runtime" category="functional" depends_on="">
+      <description>(core) OSS product path prefers delete: Stripe clients, checkout/portal/credits reservation, and plan-catalog enforcement used by the dashboard are removed (not relied on as a permanent 410 facade). Creating an investigation is not blocked by CREDITS_EXHAUSTED / free-tier quota.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-012" context="web-oss-dashboard" category="functional" depends_on="AC-011">
+      <description>(web) Dashboard billing API routes used for checkout/portal/credits are removed (404) or absent; investigation create via UI is not blocked by a local credits ledger.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-013" context="web-oss-dashboard" category="functional" depends_on="">
+      <description>(web + core) Admin can create an Investigation LLM profile (label, baseUrl, model, optional API key, optional contextWindowTokens, optional fallbackProfileId) via Settings; profile persists via Core and appears after reload.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-014" context="web-oss-dashboard" category="functional" depends_on="AC-013">
+      <description>(web + core) Admin can edit/delete profiles and activate exactly one; API keys are never returned plaintext after save (masked/redacted only).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-015" context="web-oss-dashboard" category="functional" depends_on="AC-013">
+      <description>(web) Ornith (local) and Ornith (API) example presets prefill the create form; they are helpers, not a locked three-provider enum catalog.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-016" context="web-oss-dashboard" category="edge-case" depends_on="AC-013">
+      <description>(web + core) Non-admin users cannot create/edit/delete/activate Investigation LLM profiles (UI disabled/absent and API 403 or equivalent).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-017" context="web-oss-dashboard" category="edge-case" depends_on="AC-014">
+      <description>(web + core) Active profile cannot be deleted until another is activated; clear error otherwise.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-018" context="core-oss-runtime" category="edge-case" depends_on="AC-014">
+      <description>(core) When the active Investigation LLM fails (e.g. Ornith down), Core follows optional fallbackProfileId chain (max depth / cycle-safe). If the chain is missing or exhausted, investigation fails closed with a clear configure/fix-LLM error and does not silently succeed via DeterministicLLMClient or Anthropic.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-019" context="web-oss-dashboard" category="edge-case" depends_on="AC-013">
+      <description>(web + core) Missing required profile fields are rejected with validation errors; optional API key may be omitted for local Ornith; connectivity probe is soft and does not block save/activate when the endpoint is temporarily down.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-020" context="web-oss-dashboard" category="functional" depends_on="AC-001">
+      <description>(web) Integrations lists Test Application (OSS) with a short scope summary and a Learn more link to the public-docs Test Application page (AC-023).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-021" context="web-oss-dashboard" category="functional" depends_on="AC-020,AC-001">
+      <description>(web + core) Authenticated Connect for Test Application (OSS) succeeds when the test app is healthy and persists a connected integration named Test Application (OSS).</description>
+    </acceptance_check>
+    <acceptance_check id="AC-022" context="web-oss-dashboard" category="edge-case" depends_on="AC-001">
+      <description>(web + core) When causeflow-test-app is stopped, Connect or Test fails with a clear unreachable message and does not mark the integration healthy/connected successfully.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-023" context="public-docs-oss" category="functional" depends_on="">
+      <description>(public-docs) A canonical Test Application (OSS) docs page explains scope, the fixed demo failure catalog (pool exhaustion, payment timeout, CPU/latency/health degradation, deploy v2.4.1-ac058), and the golden-path steps operators use with Incidents.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-024" context="public-docs-oss" category="functional" depends_on="AC-023">
+      <description>(public-docs) Docs no longer present paid tiers, Stripe checkout, choose-a-plan, or Dashboard Billing as the OSS product path; they describe free self-host usage and point to Docs/GitHub/self-host instructions.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-025" context="oss-golden-path" category="functional" depends_on="AC-001,AC-013,AC-015,AC-021,AC-023">
+      <description>(web + core) Golden-path E2E with OSS local auth only: activate Ornith (local) profile → connect Test Application → emit/ingest the demo alert → Incidents shows the incident → investigation runs → evidence/root-cause references the demo failure catalog → remediation artifact is visible. Clerk staging and Playwright mocks of /api/integrations or /api/incidents are not the pass path.</description>
+    </acceptance_check>
+    <acceptance_check id="AC-026" context="oss-golden-path" category="testing" depends_on="AC-025">
+      <description>(web + core) A single documented Playwright project and/or Core verify script is the harness QA gate for AC-025 and exits 0 on the local OSS stack with Ornith available.</description>
+    </acceptance_check>
+  </acceptance_checks>
+
+  <planning_decisions>
+    <decision id="D-001" topic="architectural-tradeoff">
+      <question>Where should this cross-cutting OSS Completion Contract live?</question>
+      <options>1) Git-root root project full contract 2) Gaps-only append on web 3) Split web/core without root</options>
+      <choice>Git-root root project owns the full Completion Contract; prior web/core OSS ACs remain historical append-only.</choice>
+      <rationale>User selected root ownership to avoid fighting overlapping queues while covering web+core+docs.</rationale>
+      <acceptance_checks>AC-001,AC-025,AC-026</acceptance_checks>
+    </decision>
+    <decision id="D-002" topic="ambiguous-requirement">
+      <question>What happens at /pricing?</question>
+      <options>1) Redirect to docs 2) OSS free-forever page 3) Hard remove 404</options>
+      <choice>Hard remove — 404, no Pricing nav, no redirect.</choice>
+      <rationale>User rejected sales pricing entirely, including redirect soft-landings.</rationale>
+      <acceptance_checks>AC-002,AC-003</acceptance_checks>
+    </decision>
+    <decision id="D-003" topic="ambiguous-requirement">
+      <question>What replaces commercial marketing CTAs?</question>
+      <options>1) Docs+GitHub only 2) Docs+GitHub+quiet Dashboard 3) Soft community CTA</options>
+      <choice>Docs + GitHub primary CTAs with a quiet Dashboard link; no early-access/founder/pricing funnel.</choice>
+      <rationale>Reads as OSS while operators can still open the local dashboard.</rationale>
+      <acceptance_checks>AC-004,AC-005,AC-006</acceptance_checks>
+    </decision>
+    <decision id="D-004" topic="ambiguous-requirement">
+      <question>What happens at /onboarding/choose-plan?</question>
+      <options>1) Redirect away 2) Hard remove 404 3) OSS welcome page at same URL</options>
+      <choice>Hard remove 404; post-org lands on dashboard home.</choice>
+      <rationale>Consistent with pricing hard-remove; no plan product.</rationale>
+      <acceptance_checks>AC-007,AC-008</acceptance_checks>
+    </decision>
+    <decision id="D-005" topic="ambiguous-requirement">
+      <question>How is Test Application explained and used?</question>
+      <options>1) Inline-only 2) Card + public-docs deep-link 3) Guided wizard</options>
+      <choice>Short card copy + public-docs canonical page; operators use resulting Incidents to test the full workflow against the fixed demo catalog already in core/test-app.</choice>
+      <rationale>User chose docs deep-link and full workflow testing on the example project's issues.</rationale>
+      <acceptance_checks>AC-020,AC-021,AC-023,AC-025</acceptance_checks>
+    </decision>
+    <decision id="D-006" topic="architectural-tradeoff">
+      <question>How are Investigation LLMs configured?</question>
+      <options>1) Custom OpenAI-compatible profiles 2) Env-only 3) Hybrid env+profiles</options>
+      <choice>Custom OpenAI-compatible profiles with Ornith presets as helpers; optional fallbackProfileId chain on failure.</choice>
+      <rationale>OSS operators must point at any compatible endpoint; fallback is explicit, not hidden Anthropic.</rationale>
+      <acceptance_checks>AC-013,AC-014,AC-015,AC-018</acceptance_checks>
+    </decision>
+    <decision id="D-007" topic="architectural-tradeoff">
+      <question>How aggressive is Core commercial dead-code cleanup?</question>
+      <options>1) Product-path purge prefer delete 2) Wide GC 3) 410 facade only</options>
+      <choice>Product-path purge with prefer delete for billing/credits/plans/early-access APIs the OSS dashboard does not need.</choice>
+      <rationale>User chose prefer remove without repo-wide archaeology.</rationale>
+      <acceptance_checks>AC-011,AC-012,AC-009</acceptance_checks>
+    </decision>
+    <decision id="D-008" topic="architectural-tradeoff">
+      <question>Which auth is the golden-path E2E pass path?</question>
+      <options>1) OSS local JWT 2) Clerk staging 3) Either</options>
+      <choice>OSS local auth only.</choice>
+      <rationale>Matches self-host operators; Clerk staging is not the OSS proof.</rationale>
+      <acceptance_checks>AC-025,AC-026</acceptance_checks>
+    </decision>
+    <decision id="D-009" topic="edge-case">
+      <question>Ornith down / active LLM fails?</question>
+      <options>1) Fail closed only 2) Auto-fallback via fallbackProfileId chain 3) Auto Anthropic</options>
+      <choice>Follow explicit fallbackProfileId chain (cycle-safe); exhausted → clear error; no silent stub/Anthropic success.</choice>
+      <rationale>User chose auto-fallback to another configured profile with explicit chain.</rationale>
+      <acceptance_checks>AC-018</acceptance_checks>
+    </decision>
+    <decision id="D-010" topic="edge-case">
+      <question>Test app unreachable; billing bookmarks; non-admin LLM; funnel routes?</question>
+      <options>In-scope fail-closed/404 behaviors vs defer</options>
+      <choice>Unreachable test-app clear failure; billing/waitlist/get-started/choose-plan/pricing 404; non-admin cannot mutate LLM; soft probe on save; keys redacted.</choice>
+      <rationale>Recommended defaults accepted by user for remaining edge cases.</rationale>
+      <acceptance_checks>AC-006,AC-007,AC-009,AC-010,AC-016,AC-017,AC-019,AC-022</acceptance_checks>
+    </decision>
+    <deferred>
+      Wide unrelated dead-code garbage collection outside commercial product path — deferred to a later feature to avoid risky monorepo churn.
+      Automatic Anthropic fallback when no OpenAI-compatible fallback profile exists — deferred; operators must configure fallbackProfileId explicitly.
+      Expanding the demo failure catalog beyond the existing core/test-app set — deferred.
+      Community Discord/Discussions CTA as primary marketing action — deferred; Docs+GitHub+quiet Dashboard only.
+    </deferred>
+  </planning_decisions>
+
+  <database_schema>
+    <tables>
+      <investigation_llm_profiles>
+        - id, tenant_id, label, base_url, model, api_key_encrypted (nullable), context_window_tokens (nullable), fallback_profile_id (nullable), created_at, updated_at
+      </investigation_llm_profiles>
+      <tenant_investigation_llm_settings>
+        - tenant_id, active_profile_id (nullable)
+      </tenant_investigation_llm_settings>
+      <integrations_stub_upstream>
+        - existing Core integration records for provider stub-upstream / Test Application (OSS); no new commercial billing tables
+      </integrations_stub_upstream>
+      <commercial_billing_tables>
+        - removed from OSS product path (prefer delete credits/subscription enforcement used by dashboard)
+      </commercial_billing_tables>
+    </tables>
+  </database_schema>
+
+  <api_endpoints_summary>
+    Core (OSS product path):
+    - CRUD /v1/settings/investigation-llm/profiles (names may match existing routes)
+    - POST /v1/settings/investigation-llm/profiles/:id/activate
+    - POST /v1/integrations/stub/connect
+    - POST /v1/integrations/stub/probe
+    - POST /v1/integrations/stub/ingest (or test-app alerts/emit orchestration)
+    - Incident list/detail + investigation SSE as today
+    - Commercial billing checkout/portal/credits endpoints removed (prefer delete)
+    Dashboard BFF mirrors the above under /api/...
+    Website: no /pricing route (404)
+  </api_endpoints_summary>
+
+  <ui_layout>
+    <main_structure>
+      Website: existing marketing layout without Pricing nav; hero CTA group Docs + GitHub; quiet Dashboard in chrome.
+      Dashboard: existing shell without Billing/credits chrome; Settings hosts Investigation LLM profiles card; Integrations hosts Test Application (OSS) card with Learn more; Incidents remains the investigation workspace.
+    </main_structure>
+  </ui_layout>
+
+  <design_system>
+    <color_palette>Preserve existing CauseFlow website and dashboard themes in packages/ui — no new brand system.</color_palette>
+    <typography>Preserve existing typography tokens.</typography>
+    <components>Reuse existing Shadcn/ui primitives; copy and route changes only unless a control is required for LLM profile CRUD.</components>
+    <animations>Preserve existing motion; do not add sales confetti/onboarding plan celebrations tied to commercial plans.</animations>
+  </design_system>
+
+  <key_interactions>
+    1) Visitor opens localhost:3000 → sees OSS CTAs (Docs/GitHub) → no pricing/early-access funnel; /pricing 404s.
+    2) Operator signs in with OSS local auth on :3001 → after org bootstrap lands on dashboard home → opens Integrations → reads Test Application scope → Learn more opens public-docs catalog → Connect succeeds.
+    3) Operator opens Settings → applies Ornith (local) preset → saves/activates profile (optional fallbackProfileId) → returns to Integrations/Incidents.
+    4) Demo alert ingested from Test Application → Incidents lists incident → investigation runs on Ornith (or fallback) → catalog-grounded root cause + remediation shown.
+  </key_interactions>
+
+  <implementation_steps>
+    <step number="1">
+      <title>Foundation: compose + test-app wiring</title>
+      <tasks>
+        - Verify root/core compose starts causeflow-test-app and STUB_UPSTREAM_BASE_URL (AC-001).
+      </tasks>
+    </step>
+    <step number="2">
+      <title>web commercial surface hard-remove</title>
+      <tasks>
+        - Remove pricing nav/routes, sales CTAs, LLC chrome, get-started (AC-002..AC-006).
+        - 404 choose-plan, billing, waitlist/beta; post-org → dashboard home (AC-007..AC-010, AC-012).
+      </tasks>
+    </step>
+    <step number="3">
+      <title>core commercial purge + LLM profiles + test-app</title>
+      <tasks>
+        - Delete OSS-path billing/credits/plan runtime (AC-011).
+        - Ensure Investigation LLM profile APIs + fallback chain (AC-013..AC-019).
+        - Ensure stub connect/probe/ingest + unreachable errors (AC-021, AC-022).
+      </tasks>
+    </step>
+    <step number="4">
+      <title>public-docs catalog + OSS narrative</title>
+      <tasks>
+        - Add/update Test Application docs page and scrub paid billing narrative (AC-023, AC-024).
+        - Wire Integrations Learn more to that page (AC-020).
+      </tasks>
+    </step>
+    <step number="5">
+      <title>Golden-path E2E gate</title>
+      <tasks>
+        - Implement/repair local-auth Playwright +/or Core verify script for full workflow (AC-025, AC-026).
+      </tasks>
+    </step>
+  </implementation_steps>
+
+  <success_criteria>
+    <functionality>localhost:3000 has no pricing/early-access sales funnel; localhost:3001 has no choose-plan/billing; Settings configures arbitrary OpenAI-compatible LLMs; Test Application connects; Incidents golden path works with Ornith and the documented catalog.</functionality>
+    <user_experience>Site reads as an open-source SRE project (Docs/GitHub), not a SaaS launch waitlist.</user_experience>
+    <technical_quality>Commercial product-path APIs removed in Core/web; secrets redacted; E2E uses local auth only; no silent LLM stub success.</technical_quality>
+    <design_polish>Existing design system preserved; copy/nav consistency EN+PT-BR; 404s for removed commercial routes.</design_polish>
+  </success_criteria>
+</project_specification>
