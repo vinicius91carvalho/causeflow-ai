@@ -21,7 +21,7 @@
       "footer_ai_span": false,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "chrome_len": 5481,
+      "chrome_len": 5482,
       "body_len": 459673
     },
     {
@@ -40,8 +40,8 @@
       "footer_ai_span": false,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "chrome_len": 5481,
-      "body_len": 187321
+      "chrome_len": 5482,
+      "body_len": 187305
     },
     {
       "path": "/pt-br",
@@ -59,8 +59,8 @@
       "footer_ai_span": false,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "chrome_len": 5587,
-      "body_len": 461724
+      "chrome_len": 5588,
+      "body_len": 461674
     },
     {
       "path": "/pt-br/product",
@@ -78,8 +78,8 @@
       "footer_ai_span": false,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "chrome_len": 5587,
-      "body_len": 189346
+      "chrome_len": 5588,
+      "body_len": 189345
     }
   ],
   "defects": []
