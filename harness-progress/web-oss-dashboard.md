@@ -1195,3 +1195,18 @@ Evidence excerpt: {
 - WorkItem: WI-AC-022
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T04:17:12.351Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-022
+- Outcome: integration could not complete
+- Defects: error: Unable to create '/home/vinicius/projects/causeflow-ai/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+fatal: Unable to write index.
+- NextAction: User reviews evidence and explicitly resumes with guidance
