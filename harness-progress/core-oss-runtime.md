@@ -175,3 +175,12 @@ Fix: shared local-llm circuit breaker must NOT block fallbackProfileId hops to a
 - WorkItem: WI-AC-018
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T21:55:58.560Z — Integrated Verification passed
+
+- Attempt: 2/3
+- WorkItem: WI-AC-018
+- AcceptanceChecks: AC-018
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/13d6ee27-ceb4-48cc-a983-d4717806bcf2/core-oss-runtime/WI-AC-018-2-integration_qa-c547e750c2b81ae8.log
+- NextAction: next Ready Work Item
