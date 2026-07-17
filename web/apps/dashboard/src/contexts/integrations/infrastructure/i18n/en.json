@@ -23,6 +23,9 @@
         "error": "Error",
         "available": "Available"
       },
+      "stubUpstream": {
+        "learnMore": "Learn more"
+      },
       "card": {
         "connectButton": "Connect",
         "authorizeButton": "Authorize with",

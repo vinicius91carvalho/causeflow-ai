@@ -7,6 +7,12 @@ export const SITE = {
   dashboardUrl: process.env.NEXT_PUBLIC_DASHBOARD_URL || 'https://dashboard.causeflow.ai',
   /** Published OSS docs (GitHub Pages). */
   docsUrl: 'https://vinicius91carvalho.github.io/causeflow-ai/',
+  /**
+   * Canonical Test Application (OSS) docs page (AC-020 / AC-023).
+   * Integrations "Learn more" deep-links here.
+   */
+  testApplicationDocsUrl:
+    'https://vinicius91carvalho.github.io/causeflow-ai/integrations/test-application',
   email: 'adm@causeflow.ai',
   social: {
     github: 'https://github.com/causeflow',

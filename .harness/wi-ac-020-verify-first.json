@@ -1,0 +1,29 @@
+{
+  "id": "WI-AC-020",
+  "phase": "verify-first-existing",
+  "base": "http://127.0.0.1:5170",
+  "email": "vf-ac020-1784257647406@causeflow.local",
+  "steps": [
+    {
+      "step": "dashboard_register",
+      "status": 200
+    },
+    {
+      "step": "catalog",
+      "status": 200,
+      "stub": {
+        "id": "stub-upstream",
+        "name": "Test Application (OSS)",
+        "category": "monitoring",
+        "type": "credential",
+        "description": "Core-owned demo upstream for the fixed failure catalog (pool exhaustion, payment timeout, CPU/latency, deploy marker). Connect via Core stub API — Composio is not used.",
+        "learnMoreUrl": "https://vinicius91carvalho.github.io/causeflow-ai/integrations/test-application"
+      }
+    }
+  ],
+  "expected_docs": "https://vinicius91carvalho.github.io/causeflow-ai/integrations/test-application",
+  "learnMoreUrl": "https://vinicius91carvalho.github.io/causeflow-ai/integrations/test-application",
+  "description": "Core-owned demo upstream for the fixed failure catalog (pool exhaustion, payment timeout, CPU/latency, deploy marker). Connect via Core stub API — Composio is not used.",
+  "ac020_pass": true,
+  "defects": []
+}
