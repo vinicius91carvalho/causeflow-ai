@@ -17333,3 +17333,175 @@ Evidence excerpt: {
 - WorkItem: WI-AC-015
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T11:33:41.008Z — Resumed
+
+- WorkItem: WI-AC-015
+- PreviousPhase: integration_qa
+- Attempt: 1
+- NextAction: integration-qa
+
+## 2026-07-17T11:35:06.845Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T11:35:07.334Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+  harness-progress/web-oss-dashboard.md
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T11:35:10.729Z — Explicit Resume
+
+- WorkItem: WI-AC-016
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: worker process exited; resume context after confirming worktree is healthy.
+Evidence excerpt: {
+  "id": "WI-AC-015",
+  "integration": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T11:36:37.614Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T11:36:38.130Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+  harness-progress/web-oss-dashboard.md
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T11:36:41.439Z — Explicit Resume
+
+- WorkItem: WI-AC-016
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-016",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T11:37:39.233Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T11:37:39.770Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+  harness-progress/web-oss-dashboard.md
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T11:37:43.025Z — Explicit Resume
+
+- WorkItem: WI-AC-016
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-016",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T11:39:16.339Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T11:39:16.841Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+  harness-progress/web-oss-dashboard.md
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T11:39:20.165Z — Explicit Resume
+
+- WorkItem: WI-AC-016
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-016",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T11:40:31.188Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T11:40:31.677Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+  harness-progress/web-oss-dashboard.md
+fatal: Unable to create '/home/vinicius/projects/causeflow-ai/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+error: conflicts in index. Try without --index.
+Merge with strategy ort failed.
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T11:40:35.086Z — Explicit Resume
+
+- WorkItem: WI-AC-016
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-016",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T11:41:47.960Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-016
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
