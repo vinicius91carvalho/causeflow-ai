@@ -221,3 +221,10 @@ Defect: expected AC-026 documented Playwright/API gate exits 0 on local OSS stac
 - Outcome: retryQueue / Control Host guidance applied to coding Repair Plan
 - Guidance: WI-AC-026 only. WI-AC-025 is integrated (IV green). Close documented Playwright/API gate with Ornith host.docker.internal; emit harness JSON.
 - NextAction: Coding
+
+## 2026-07-17T20:27:06.049Z — Resumed
+
+- WorkItem: WI-AC-026
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
