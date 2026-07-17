@@ -111,6 +111,17 @@ async function main() {
   step('dashboard_home', { url: page.url(), clerk: false });
 
   // 2) Activate Ornith (local) profile via Settings UI
+  // Gate: shipped example-presets must expose compose-reachable host.docker.internal.
+  const presetsRes = await page.request.get(`${DASH}/api/settings/investigation-llm-profiles/example-presets`);
+  const presetsBody = presetsRes.ok() ? await presetsRes.json() : {};
+  const shippedLocal = (presetsBody.items || []).find((p) => p.id === 'ornith-local');
+  step('shipped_ornith_local_preset', { status: presetsRes.status(), shippedLocal });
+  if (!shippedLocal || !/host\.docker\.internal:8081/.test(shippedLocal.baseUrl || '')) {
+    throw new Error(
+      `shipped Ornith (local) preset must use host.docker.internal:8081/v1; got ${JSON.stringify(shippedLocal)}`,
+    );
+  }
+
   await page.goto(`${DASH}/dashboard/settings`, { waitUntil: 'domcontentloaded' });
   await dismissWelcome(page);
   const card = page.getByTestId('investigation-llm-profiles-card');
@@ -124,6 +135,11 @@ async function main() {
   const localPreset = page.getByTestId('investigation-llm-preset-ornith-local');
   await localPreset.waitFor({ state: 'visible', timeout: 15_000 });
   await localPreset.click();
+  // Confirm the form prefilled the shipped compose-reachable base URL
+  const baseUrlValue = await page.getByTestId('investigation-llm-profile-base-url').inputValue().catch(() => '');
+  if (!/host\.docker\.internal:8081/.test(baseUrlValue)) {
+    throw new Error(`preset click did not prefill host.docker.internal baseUrl; got ${baseUrlValue}`);
+  }
   await page.getByTestId('investigation-llm-profile-label').fill(`Ornith (local) ${stamp}`);
   await page.getByTestId('investigation-llm-profile-create').click();
 
@@ -175,14 +191,40 @@ async function main() {
   const token = login.token;
   if (!token) throw new Error(`no token from core login: ${JSON.stringify(login)}`);
 
-  // Ensure Core connect uses host-reachable URLs (host-dev test-app)
-  const connect = await fetch(`${CORE}/v1/integrations/stub/connect`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ baseUrl: TEST_APP, coreBaseUrl: CORE }),
-  });
-  const connectBody = await connect.json().catch(() => ({}));
-  step('core_stub_connect', { status: connect.status, body: connectBody });
+  // Re-affirm stub connect. Host-dev Core reaches TEST_APP on published :5190, but
+  // the Docker test-app must webhook back via host.docker.internal (not 127.0.0.1).
+  // Compose Core prefers Docker DNS / empty body (STUB_UPSTREAM_BASE_URL).
+  const coreBaseForStub =
+    process.env.OSS_STUB_CORE_BASE_URL ||
+    (CORE.includes('127.0.0.1') || CORE.includes('localhost')
+      ? CORE.replace('127.0.0.1', 'host.docker.internal').replace('localhost', 'host.docker.internal')
+      : CORE);
+  const stubCandidates = [
+    { baseUrl: process.env.OSS_STUB_BASE_URL_FOR_CORE, coreBaseUrl: coreBaseForStub },
+    { baseUrl: TEST_APP, coreBaseUrl: coreBaseForStub },
+    { baseUrl: 'http://causeflow-test-app:5190', coreBaseUrl: undefined },
+    {}, // empty → compose STUB_UPSTREAM_* defaults
+  ];
+  let connectOk = false;
+  for (const payload of stubCandidates) {
+    const body = {};
+    if (payload.baseUrl) body.baseUrl = payload.baseUrl;
+    if (payload.coreBaseUrl) body.coreBaseUrl = payload.coreBaseUrl;
+    const connect = await fetch(`${CORE}/v1/integrations/stub/connect`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const connectBody = await connect.json().catch(() => ({}));
+    step('core_stub_connect', { status: connect.status, body: connectBody, payload: body });
+    if (connect.ok) {
+      connectOk = true;
+      break;
+    }
+  }
+  if (!connectOk) {
+    throw new Error(`stub connect failed for candidates ${JSON.stringify(stubCandidates)}`);
+  }
 
   const ingest = await fetch(`${CORE}/v1/integrations/stub/ingest`, {
     method: 'POST',
@@ -222,30 +264,50 @@ async function main() {
   await page.locator('main').waitFor({ state: 'visible', timeout: 30_000 });
   step('incidents_shows_incident', { incidentId, url: page.url() });
 
-  // 6) Poll investigation until complete; assert catalog + remediation in UI/API
+  // 6) Poll investigation until complete; assert catalog + remediation in UI/API.
+  // Prefer Core HTTP (compose :3099) so a transient dashboard blip cannot fail the gate.
   let final = null;
   let rootCause = '';
   let evidenceBlob = '';
   let remCount = 0;
   for (let i = 0; i < 180; i++) {
-    const detail = await page.request.get(`${DASH}/api/analyses/${incidentId}`);
-    const detailBody = detail.ok() ? await detail.json() : {};
-    const inv = await page.request.get(`${DASH}/api/investigation/${incidentId}/detail`);
-    let invBody = inv.ok() ? await inv.json() : {};
-    if (!inv.ok()) {
-      const coreInv = await fetch(`${CORE}/api/v1/investigation/${incidentId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }).catch(() => null);
-      if (coreInv?.ok) invBody = await coreInv.json();
+    let detailBody = {};
+    let invBody = {};
+    try {
+      const detail = await page.request.get(`${DASH}/api/analyses/${incidentId}`);
+      detailBody = detail.ok() ? await detail.json() : {};
+    } catch {
+      // dashboard optional during long investigation
+    }
+    try {
+      const inv = await page.request.get(`${DASH}/api/investigation/${incidentId}/detail`);
+      invBody = inv.ok() ? await inv.json() : {};
+    } catch {
+      // dashboard optional during long investigation
+    }
+
+    const coreInc = await fetch(`${CORE}/v1/incidents/${incidentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).catch(() => null);
+    const coreIncBody = coreInc?.ok ? await coreInc.json() : {};
+
+    const coreInv = await fetch(`${CORE}/api/v1/investigation/${incidentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).catch(() => null);
+    if (coreInv?.ok) {
+      const body = await coreInv.json();
+      invBody = { ...invBody, ...body };
     }
 
     const status =
+      coreIncBody.status ||
       detailBody.status ||
       detailBody.incident?.status ||
       invBody.incident?.status ||
       invBody.status ||
       '';
     rootCause =
+      coreIncBody.rootCause ||
       detailBody.rootCause ||
       detailBody.incident?.rootCause ||
       invBody.incident?.rootCause ||
@@ -279,7 +341,7 @@ async function main() {
       break;
     }
     if (status === 'failed') {
-      throw new Error(`investigation failed: ${rootCause || JSON.stringify({ detailBody, invBody })}`);
+      throw new Error(`investigation failed: ${rootCause || JSON.stringify({ coreIncBody, detailBody, invBody })}`);
     }
     await page.waitForTimeout(2_000);
   }

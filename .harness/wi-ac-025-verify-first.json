@@ -4,9 +4,9 @@
   "acceptance_check_id": "AC-025",
   "observation_method": "browser",
   "dashboard": "http://127.0.0.1:3001",
-  "core": "http://127.0.0.1:3099",
+  "core": "http://127.0.0.1:5171",
   "testApp": "http://127.0.0.1:5190",
-  "email": "ac025-browser-1784315262258@causeflow.local",
+  "email": "ac025-browser-1784316583178@causeflow.local",
   "steps": [
     {
       "step": "register",
@@ -14,8 +14,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "08337d35-8e24-48e9-abe3-993152d7e9a9",
-          "email": "ac025-browser-1784315262258@causeflow.local",
+          "id": "c50d89fb-4bac-4c50-ba90-658d9653f0de",
+          "email": "ac025-browser-1784316583178@causeflow.local",
           "name": "AC025 Browser"
         }
       },
@@ -27,19 +27,30 @@
       "clerk": false
     },
     {
+      "step": "shipped_ornith_local_preset",
+      "status": 200,
+      "shippedLocal": {
+        "id": "ornith-local",
+        "label": "Ornith (local)",
+        "baseUrl": "http://host.docker.internal:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "contextWindowTokens": 32768
+      }
+    },
+    {
       "step": "activate_ornith_local",
       "status": 200,
-      "activeProfileId": "db0bf583-d554-4faa-b2c6-a79b7472bd23",
+      "activeProfileId": "8cde0b5f-9912-40ee-ab59-30187091093c",
       "active": {
-        "id": "db0bf583-d554-4faa-b2c6-a79b7472bd23",
-        "label": "Ornith (local) 1784315262258",
+        "id": "8cde0b5f-9912-40ee-ab59-30187091093c",
+        "label": "Ornith (local) 1784316583178",
         "baseUrl": "http://host.docker.internal:8081/v1",
         "model": "Ornith-1.0-9B-code",
         "apiKeyConfigured": false,
         "contextWindowTokens": 32768,
         "isActive": true,
-        "createdAt": "Fri Jul 17 2026 19:07:49 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 19:07:49 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 16:29:49 GMT-0300 (Brasilia Standard Time)",
+        "updatedAt": "Fri Jul 17 2026 16:29:49 GMT-0300 (Brasilia Standard Time)"
       }
     },
     {
@@ -49,10 +60,17 @@
     },
     {
       "step": "core_stub_connect",
-      "status": 400,
+      "status": 201,
       "body": {
-        "error": "VALIDATION_ERROR",
-        "message": "Stub upstream unreachable at http://127.0.0.1:5190/health: fetch failed"
+        "integrationId": "stub-upstream-credential",
+        "provider": "stub-upstream",
+        "status": "active",
+        "stubConnectionId": "test-app-conn-8f67b6ff-9018-4f10-8290-0153daec407e-1784316595808",
+        "stubBaseUrl": "http://127.0.0.1:5190",
+        "connectedAt": "2026-07-17T19:29:55.808Z"
+      },
+      "payload": {
+        "coreBaseUrl": "http://host.docker.internal:5171"
       }
     },
     {
@@ -60,30 +78,36 @@
       "status": 202,
       "body": {
         "emitted": true,
-        "incidentId": "922c262a-cacd-4364-a8cd-a5f02deb45b1",
+        "incidentId": "10b872af-46e7-49ad-9e2b-3d9388db7657",
         "stubState": {
           "app": "causeflow-test-app",
-          "connectionCount": 1,
+          "connectionCount": 2,
           "connections": [
             {
-              "tenantId": "ade45f59-792d-4350-9b96-0d3598aa7213",
-              "connectionId": "test-app-conn-ade45f59-792d-4350-9b96-0d3598aa7213-1784315275734",
-              "coreBaseUrl": "http://causeflow-api:5171",
-              "connectedAt": "2026-07-17T19:07:55.734Z"
+              "tenantId": "ce50e112-0769-4505-904e-b51d968c1dda",
+              "connectionId": "test-app-conn-ce50e112-0769-4505-904e-b51d968c1dda-1784315840675",
+              "coreBaseUrl": "http://host.docker.internal:5171",
+              "connectedAt": "2026-07-17T19:17:20.675Z"
+            },
+            {
+              "tenantId": "8f67b6ff-9018-4f10-8290-0153daec407e",
+              "connectionId": "test-app-conn-8f67b6ff-9018-4f10-8290-0153daec407e-1784316595808",
+              "coreBaseUrl": "http://host.docker.internal:5171",
+              "connectedAt": "2026-07-17T19:29:55.808Z"
             }
           ],
-          "probeCount": 0,
-          "ingestCount": 1,
+          "probeCount": 1,
+          "ingestCount": 2,
           "toolCallCount": 0,
-          "lastProbeAt": null,
-          "lastIngestAt": "2026-07-17T19:07:55.974Z",
+          "lastProbeAt": "2026-07-17T19:23:51.226Z",
+          "lastIngestAt": "2026-07-17T19:29:55.841Z",
           "lastToolCallAt": null,
           "lastEmitResult": {
             "ok": true,
             "webhookStatus": 202,
-            "webhookUrl": "http://causeflow-api:5171/v1/webhooks/ade45f59-792d-4350-9b96-0d3598aa7213/datadog",
-            "incidentId": "922c262a-cacd-4364-a8cd-a5f02deb45b1",
-            "alertId": "test-app-alert-1784315275950"
+            "webhookUrl": "http://host.docker.internal:5171/v1/webhooks/8f67b6ff-9018-4f10-8290-0153daec407e/datadog",
+            "incidentId": "10b872af-46e7-49ad-9e2b-3d9388db7657",
+            "alertId": "test-app-alert-1784316595817"
           },
           "availableTools": [
             "query_logs",
@@ -92,13 +116,13 @@
             "get_service_health"
           ]
         },
-        "ingestedAt": "2026-07-17T19:07:55.975Z"
+        "ingestedAt": "2026-07-17T19:29:55.842Z"
       }
     },
     {
       "step": "incidents_shows_incident",
-      "incidentId": "922c262a-cacd-4364-a8cd-a5f02deb45b1",
-      "url": "http://127.0.0.1:3001/dashboard/incidents/922c262a-cacd-4364-a8cd-a5f02deb45b1"
+      "incidentId": "10b872af-46e7-49ad-9e2b-3d9388db7657",
+      "url": "http://127.0.0.1:3001/dashboard/incidents/10b872af-46e7-49ad-9e2b-3d9388db7657"
     },
     {
       "step": "poll_investigation",
@@ -117,7 +141,7 @@
     {
       "step": "poll_investigation",
       "i": 10,
-      "status": "triaging",
+      "status": "",
       "remCount": 0,
       "rootPreview": ""
     },
@@ -159,7 +183,7 @@
     {
       "step": "poll_investigation",
       "i": 40,
-      "status": "investigating",
+      "status": "",
       "remCount": 0,
       "rootPreview": ""
     },
@@ -192,45 +216,10 @@
       "rootPreview": ""
     },
     {
-      "step": "poll_investigation",
-      "i": 65,
-      "status": "investigating",
-      "remCount": 0,
-      "rootPreview": ""
-    },
-    {
-      "step": "poll_investigation",
-      "i": 70,
-      "status": "investigating",
-      "remCount": 0,
-      "rootPreview": ""
-    },
-    {
-      "step": "poll_investigation",
-      "i": 75,
-      "status": "",
-      "remCount": 0,
-      "rootPreview": ""
-    },
-    {
-      "step": "poll_investigation",
-      "i": 80,
-      "status": "",
-      "remCount": 0,
-      "rootPreview": ""
-    },
-    {
-      "step": "poll_investigation",
-      "i": 85,
-      "status": "",
-      "remCount": 0,
-      "rootPreview": ""
-    },
-    {
       "step": "catalog_grounded_evidence",
       "evidenceOk": true,
-      "rootCausePreview": "The root cause is a combination of undersized infrastructure and a brittle connection pool design. The order-service runs with only 2 ECS tasks and a fixed-size database connection pool that lacks adaptive backoff. Under the current load, t",
-      "evidenceBytes": 15936
+      "rootCausePreview": "The order-service connection pool is exhausted under sustained high load. The service runs with only 2 ECS tasks (insufficient for the current load), CPU is sustained above 90%, and the DB client uses a fixed pool size with no adaptive back",
+      "evidenceBytes": 15686
     },
     {
       "step": "remediation_visible",
@@ -241,10 +230,10 @@
   ],
   "pass": true,
   "defects": [],
-  "incidentId": "922c262a-cacd-4364-a8cd-a5f02deb45b1",
+  "incidentId": "10b872af-46e7-49ad-9e2b-3d9388db7657",
   "final": {
     "status": "awaiting_approval",
-    "rootCause": "The root cause is a combination of undersized infrastructure and a brittle connection pool design. The order-service runs with only 2 ECS tasks and a fixed-size database connection pool that lacks adaptive backoff. Under the current load, the pool fills to its maximum, new requests cannot acquire connections, and the service enters a cascading failure state: CPU rises above 90%, connection waiters accumulate, and the queue depth grows as retries pile up. The DB analyst confirmed no lock contention — the bottleneck is purely the pool size. The code analyzer confirmed the pool has no backoff strategy, so under pressure the service amplifies connection churn rather than gracefully degrading. This is a capacity + design issue, not a change-driven regression.",
+    "rootCause": "The order-service connection pool is exhausted under sustained high load. The service runs with only 2 ECS tasks (insufficient for the current load), CPU is sustained above 90%, and the DB client uses a fixed pool size with no adaptive backoff on checkout failures. When the pool reaches its maximum, requests block indefinitely waiting for a connection that will never be returned because no connections are being released (threads are stuck in checkout). This creates a cascading failure: blocked threads consume the thread pool, preventing new connections from being acquired, which further starves the pool. The issue is load-driven (no recent deploy) and is a capacity + resilience problem: the pool is too small for the load, the task count is too low to absorb the load, and the client has no backoff to fail fast.",
     "remCount": 1
   }
 }
