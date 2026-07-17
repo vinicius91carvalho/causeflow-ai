@@ -90,6 +90,19 @@ check(
   rg('resolveActiveLlmEndpointChain', clientFile),
 );
 
+const breakerFile = 'core/src/shared/infra/llm/oss-llm-circuit-breaker.ts';
+const breakerSrc = fs.readFileSync(path.join(ROOT, breakerFile), 'utf8');
+
+check(
+  'OSS LLM circuit breaker is per-endpoint (not one global breaker across fallback chain)',
+  /getOssLlmCircuitBreakerForEndpoint/.test(breakerSrc) &&
+    /endpointCircuitBreakerKey/.test(breakerSrc) &&
+    /breakersByEndpointKey|Map<string, CircuitBreaker>/.test(breakerSrc) &&
+    /callForEndpoint|getOssLlmCircuitBreakerForEndpoint/.test(clientSrc) &&
+    /endpointCircuitBreakerKey/.test(clientSrc),
+  rg('getOssLlmCircuitBreakerForEndpoint', breakerFile),
+);
+
 check(
   'local-llm-guard probes fallback chain for tenant',
   /resolveActiveLlmEndpointChain/.test(guardSrc) &&

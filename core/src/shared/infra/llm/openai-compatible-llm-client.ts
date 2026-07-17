@@ -19,6 +19,10 @@ import {
   contextOverflowGuidance,
   isContextOverflowError,
 } from './llm-context-errors.js';
+import {
+  endpointCircuitBreakerKey,
+  getOssLlmCircuitBreakerForEndpoint,
+} from './oss-llm-circuit-breaker.js';
 
 const DEFAULT_TIMEOUT_MS = Number(process.env['LLM_TIMEOUT_MS'] ?? 300_000);
 
@@ -35,14 +39,21 @@ interface ChatCompletionResponse {
 }
 
 export class OpenAiCompatibleLlmClient implements LLMClient {
-  private circuitBreaker?: { execute: <T>(fn: () => Promise<T>) => Promise<T> };
+  /** When set, each chain hop uses a per-endpoint breaker (AC-018). */
+  private circuitBreakerEnabled = false;
 
-  setCircuitBreaker(cb: { execute: <T>(fn: () => Promise<T>) => Promise<T> }): void {
-    this.circuitBreaker = cb;
+  setCircuitBreaker(_cb: { execute: <T>(fn: () => Promise<T>) => Promise<T> }): void {
+    this.circuitBreakerEnabled = true;
   }
 
-  private call<T>(fn: () => Promise<T>): Promise<T> {
-    return this.circuitBreaker ? this.circuitBreaker.execute(fn) : fn();
+  /**
+   * AC-018: execute under a per-endpoint (profileId/baseUrl) circuit breaker so a
+   * failed active hop cannot CircuitBreakerOpenError healthy fallbackProfileId hops.
+   */
+  private callForEndpoint<T>(endpoint: ResolvedLlmEndpoint, fn: () => Promise<T>): Promise<T> {
+    if (!this.circuitBreakerEnabled) return fn();
+    const key = endpointCircuitBreakerKey(endpoint);
+    return getOssLlmCircuitBreakerForEndpoint(key).execute(fn);
   }
 
   async complete<T>(params: CompletionParams): Promise<CompletionResult<T>> {
@@ -76,7 +87,7 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
     const response = await instrumentedCall(
       'local-llm',
       'chat.completions',
-      () => this.call(() => this.requestCompletion(params, endpoint, false)),
+      () => this.callForEndpoint(endpoint, () => this.requestCompletion(params, endpoint, false)),
       { attributes: { model, connector: endpoint.connectorId, ...(params.attributes ?? {}) } },
     );
     const raw = response.choices[0]?.message?.content ?? '';
@@ -106,7 +117,7 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
         'local-llm',
         'chat.completions.structured',
         () =>
-          this.call(() =>
+          this.callForEndpoint(endpoint, () =>
             this.requestCompletion({ ...params, systemPrompt, userPrompt }, endpoint, true),
           ),
         { attributes: { model, connector: endpoint.connectorId, ...(params.attributes ?? {}) } },

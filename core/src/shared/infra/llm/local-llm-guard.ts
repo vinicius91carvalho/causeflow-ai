@@ -52,7 +52,9 @@ export async function assertLocalLlmReachable(
   circuitBreaker?: Pick<CircuitBreaker, 'getState'> | { getState(): CircuitState },
   tenantId?: string,
 ): Promise<void> {
-  if (circuitBreaker?.getState() === 'open') {
+  // AC-018: when probing a fallbackProfileId chain, do not short-circuit on a single
+  // shared breaker — a failed active must not block healthy fallback hops.
+  if (!tenantId && circuitBreaker?.getState() === 'open') {
     throw new Error(`${LOCAL_LLM_UNAVAILABLE_MESSAGE} (circuit breaker open)`);
   }
   const reachable = await probeLocalLlmReachable(tenantId);

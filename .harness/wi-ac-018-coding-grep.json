@@ -1,6 +1,6 @@
 {
   "id": "WI-AC-018",
-  "phase": "verify-first",
+  "phase": "coding",
   "observation_method": "grep",
   "checks": [
     {
