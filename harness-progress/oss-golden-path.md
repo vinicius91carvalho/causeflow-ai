@@ -127,3 +127,12 @@
 - WorkItem: WI-AC-025
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T20:22:45.998Z — Integrated Verification passed
+
+- Attempt: 3/3
+- WorkItem: WI-AC-025
+- AcceptanceChecks: AC-025
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/8e428bfd-84e0-407d-9466-d09b3ae5af41/oss-golden-path/WI-AC-025-3-integration_qa-a8e7c675f991433f.log
+- NextAction: next Ready Work Item
