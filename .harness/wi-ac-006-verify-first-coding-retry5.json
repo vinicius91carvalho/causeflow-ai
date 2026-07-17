@@ -1,0 +1,27 @@
+{
+  "phase": "verify-first-coding",
+  "id": "WI-AC-006",
+  "ac": "AC-006",
+  "observation_method": "grep",
+  "passed": true,
+  "checks": {
+    "redirects_fn_present": true,
+    "redirects_empty_of_get_started": true,
+    "no_app_router_get_started_page": true,
+    "no_sitemap_get_started": true,
+    "no_middleware_get_started_funnel": true,
+    "no_product_href_to_get_started": true,
+    "get_started_constant_unused_in_product": true,
+    "no_commercial_early_access_redirect_wiring": true
+  },
+  "redirects_excerpt": "// Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.\n    // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.",
+  "redirects_code_only": "",
+  "href_hits": [],
+  "sitemap_hits": [],
+  "middleware_hits": [],
+  "get_started_constant_usage": [],
+  "presentation_get_started_usage": [],
+  "early_access_redirect_hits": [],
+  "app_get_started_routes": [],
+  "defects": []
+}
