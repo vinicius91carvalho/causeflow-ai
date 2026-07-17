@@ -1,0 +1,228 @@
+{
+  "id": "WI-AC-014",
+  "phase": "verify-first-existing-resume",
+  "base": "http://127.0.0.1:5170",
+  "core": "http://127.0.0.1:3099",
+  "email": "vf-ac014-1784286795342@causeflow.local",
+  "labelA": "AC014 Profile A 1784286795342",
+  "labelB": "AC014 Profile B 1784286795342",
+  "labelEdited": "AC014 Profile A Edited 1784286795342",
+  "steps": [
+    {
+      "step": "dashboard_register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "6b619a5c-9d1d-40b8-88b9-831463b26828",
+          "email": "vf-ac014-1784286795342@causeflow.local",
+          "name": "AC014 VF Admin"
+        }
+      }
+    },
+    {
+      "step": "create_profile_a",
+      "status": 201,
+      "body": {
+        "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+        "label": "AC014 Profile A 1784286795342",
+        "baseUrl": "https://api.openai.com/v1",
+        "model": "gpt-4o-mini",
+        "apiKeyConfigured": true,
+        "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "create_profile_b",
+      "status": 201,
+      "body": {
+        "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+        "label": "AC014 Profile B 1784286795342",
+        "baseUrl": "http://127.0.0.1:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "apiKeyConfigured": false,
+        "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "edit_profile_a",
+      "status": 200,
+      "body": {
+        "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+        "label": "AC014 Profile A Edited 1784286795342",
+        "baseUrl": "https://api.openai.com/v1",
+        "model": "gpt-4o",
+        "apiKeyConfigured": true,
+        "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "activate_profile_a",
+      "status": 200,
+      "body": {
+        "activeProfileId": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+        "profile": {
+          "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+          "label": "AC014 Profile A Edited 1784286795342",
+          "baseUrl": "https://api.openai.com/v1",
+          "model": "gpt-4o",
+          "apiKeyConfigured": true,
+          "isActive": true,
+          "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+        }
+      }
+    },
+    {
+      "step": "list_after_activate_a",
+      "status": 200,
+      "body": {
+        "activeProfileId": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+        "items": [
+          {
+            "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+            "label": "AC014 Profile A Edited 1784286795342",
+            "baseUrl": "https://api.openai.com/v1",
+            "model": "gpt-4o",
+            "apiKeyConfigured": true,
+            "isActive": true,
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+            "label": "AC014 Profile B 1784286795342",
+            "baseUrl": "http://127.0.0.1:8081/v1",
+            "model": "Ornith-1.0-9B-code",
+            "apiKeyConfigured": false,
+            "isActive": false,
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "activate_profile_b",
+      "status": 200,
+      "body": {
+        "activeProfileId": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+        "profile": {
+          "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+          "label": "AC014 Profile B 1784286795342",
+          "baseUrl": "http://127.0.0.1:8081/v1",
+          "model": "Ornith-1.0-9B-code",
+          "apiKeyConfigured": false,
+          "isActive": true,
+          "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+        }
+      }
+    },
+    {
+      "step": "list_after_activate_b",
+      "status": 200,
+      "body": {
+        "activeProfileId": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+        "items": [
+          {
+            "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d",
+            "label": "AC014 Profile A Edited 1784286795342",
+            "baseUrl": "https://api.openai.com/v1",
+            "model": "gpt-4o",
+            "apiKeyConfigured": true,
+            "isActive": false,
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+            "label": "AC014 Profile B 1784286795342",
+            "baseUrl": "http://127.0.0.1:8081/v1",
+            "model": "Ornith-1.0-9B-code",
+            "apiKeyConfigured": false,
+            "isActive": true,
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "delete_profile_a",
+      "status": 200,
+      "body": {
+        "success": true,
+        "id": "4c4d3273-2ceb-4ceb-be68-c824445dc39d"
+      }
+    },
+    {
+      "step": "list_after_delete_a",
+      "status": 200,
+      "body": {
+        "activeProfileId": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+        "items": [
+          {
+            "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+            "label": "AC014 Profile B 1784286795342",
+            "baseUrl": "http://127.0.0.1:8081/v1",
+            "model": "Ornith-1.0-9B-code",
+            "apiKeyConfigured": false,
+            "isActive": true,
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "core_list_direct",
+      "status": 200,
+      "body": {
+        "activeProfileId": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+        "items": [
+          {
+            "id": "587c9d40-4d23-4d0a-a507-70eae2f37639",
+            "label": "AC014 Profile B 1784286795342",
+            "baseUrl": "http://127.0.0.1:8081/v1",
+            "model": "Ornith-1.0-9B-code",
+            "apiKeyConfigured": false,
+            "isActive": true,
+            "createdAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:13:20 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      },
+      "leaks_plaintext": false
+    }
+  ],
+  "eval": {
+    "register_ok": true,
+    "create_a_ok": true,
+    "create_b_ok": true,
+    "create_a_api_key_configured": true,
+    "create_a_no_plaintext": true,
+    "edit_ok": true,
+    "edit_api_key_configured": true,
+    "edit_no_plaintext": true,
+    "activate_a_ok": true,
+    "exactly_one_active_after_a": true,
+    "activate_b_ok": true,
+    "exactly_one_active_after_b": true,
+    "delete_inactive_ok": true,
+    "list_after_no_plaintext": true,
+    "core_direct_no_plaintext": true,
+    "core_exactly_one_active": true
+  },
+  "ac014_pass": true,
+  "defects": []
+}
