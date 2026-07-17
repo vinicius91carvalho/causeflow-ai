@@ -26,6 +26,13 @@ describe('SITE', () => {
   it('docsUrl points to GitHub Pages', () => {
     expect(SITE.docsUrl).toBe('https://vinicius91carvalho.github.io/causeflow-ai/');
   });
+
+  it('testApplicationDocsUrl deep-links under published docs', () => {
+    expect(SITE.testApplicationDocsUrl).toBe(
+      'https://vinicius91carvalho.github.io/causeflow-ai/integrations/test-application',
+    );
+    expect(SITE.testApplicationDocsUrl.startsWith(SITE.docsUrl)).toBe(true);
+  });
 });
 
 describe('PRICING_PLANS', () => {

@@ -1,3 +1,4 @@
+import { SITE } from '@causeflow/shared/constants';
 import { type NextRequest, NextResponse } from 'next/server';
 import { isOssRuntime } from '@/contexts/billing/application/oss-runtime';
 import { INTEGRATION_AUTH_TYPES, type IntegrationType } from '@/contexts/integrations/domain/types';
@@ -5,14 +6,15 @@ import { INTEGRATION_CATALOG } from '@/contexts/integrations/presentation/compon
 import { getApiClient } from '@/lib/api/get-api-client';
 import { withAuth } from '@/lib/api/with-auth';
 
-/** OSS-only catalog card for the Core runnable test application (AC-055 / AC-058). */
+/** OSS-only catalog card for the Core runnable test application (AC-020 / AC-055 / AC-058). */
 const STUB_UPSTREAM_PROVIDER = {
   id: 'stub-upstream',
   name: 'Test Application (OSS)',
   category: 'monitoring',
   type: 'credential' as const,
   description:
-    'Core-owned runnable test application for open-source connector verification. Connects via Core stub API — Composio is not used.',
+    'Core-owned demo upstream for the fixed failure catalog (pool exhaustion, payment timeout, CPU/latency, deploy marker). Connect via Core stub API — Composio is not used.',
+  learnMoreUrl: SITE.testApplicationDocsUrl,
 };
 
 /**
@@ -109,7 +111,14 @@ export const GET = withAuth(async (_request: NextRequest) => {
       providers.splice(cwIdx, 1);
     }
 
-    if (!providers.some((p) => p.id === 'stub-upstream')) {
+    // Prefer the OSS Test Application card (scope summary + Learn more → AC-023 docs).
+    const stubIdx = providers.findIndex((p) => p.id === 'stub-upstream');
+    if (stubIdx >= 0) {
+      providers[stubIdx] = {
+        ...stripComposioLogo(providers[stubIdx]!),
+        ...STUB_UPSTREAM_PROVIDER,
+      };
+    } else {
       providers.unshift(STUB_UPSTREAM_PROVIDER);
     }
     // Prefer the OSS stub Datadog card over any OAuth catalog entry.

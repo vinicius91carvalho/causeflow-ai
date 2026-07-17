@@ -268,3 +268,46 @@ Evidence excerpt: {
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/e893a212-1fb8-49c7-b706-ab19884d67ee/web-oss-dashboard/WI-AC-013-1-integration_qa-eb51159c5c144c54.log
 - NextAction: next Ready Work Item
+
+## 2026-07-17T03:09:46.809Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-020
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
+
+## 2026-07-17T03:09:47.263Z — Blocked Work Item
+
+- Attempt: 1/3
+- WorkItem: WI-AC-020
+- Outcome: integration could not complete
+- Defects: error: Unable to create '/home/vinicius/projects/causeflow-ai/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
+error: could not write index
+fatal: stash failed
+- NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T03:09:48.475Z — Explicit Resume
+
+- WorkItem: WI-AC-020
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-020",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
+
+## 2026-07-17T03:13:04.624Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-020
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification

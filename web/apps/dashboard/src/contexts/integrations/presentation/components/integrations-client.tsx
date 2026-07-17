@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Settings2 } from 'lucide-react';
+import { ExternalLink, Search, Settings2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { PERMISSION } from '@/contexts/identity/domain/rbac/permissions';
@@ -40,6 +40,8 @@ interface CatalogProvider {
   description: string;
   /** Optional logo URL (local icons preferred; Composio CDN stripped in OSS) */
   logo?: string;
+  /** Public-docs deep-link (Test Application OSS — AC-020 / AC-023). */
+  learnMoreUrl?: string;
   setup?: {
     accountId: string;
     externalId: string;
@@ -267,6 +269,7 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
       connectedBy,
       isStale: isStaleConnection(lastTestedAt),
       setup: provider.setup,
+      learnMoreUrl: provider.learnMoreUrl,
     };
   });
 
@@ -626,8 +629,20 @@ export function IntegrationsClient({ sentryWebhookUrl }: IntegrationsClientProps
             // overlap the Add Trigger dropdown chevron.
             if (card.id === 'stub-upstream') {
               return (
-                <div key={card.id} data-testid="stub-upstream-card">
+                <div key={card.id} className="flex flex-col" data-testid="stub-upstream-card">
                   {cardEl}
+                  {card.learnMoreUrl && (
+                    <a
+                      href={card.learnMoreUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-testid="stub-upstream-learn-more"
+                      className="mt-2 self-start inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>{t('stubUpstream.learnMore')}</span>
+                    </a>
+                  )}
                 </div>
               );
             }
