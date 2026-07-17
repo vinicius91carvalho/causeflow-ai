@@ -1,0 +1,60 @@
+{
+  "id": "WI-AC-008",
+  "phase": "verify-first-existing",
+  "base": "http://127.0.0.1:5170",
+  "email": "vf-ac008-1784263204818@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "921a3d90-c3c9-4b26-adff-e61220e00782",
+          "email": "vf-ac008-1784263204818@causeflow.local",
+          "name": "AC008 VF Admin"
+        }
+      }
+    },
+    {
+      "step": "create_organization_redirect_chain",
+      "chain": [
+        {
+          "url": "http://127.0.0.1:5170/create-organization",
+          "status": 307,
+          "location": "/dashboard"
+        },
+        {
+          "url": "http://127.0.0.1:5170/dashboard",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalUrl": "http://127.0.0.1:5170/dashboard",
+      "finalStatus": 200
+    },
+    {
+      "step": "dashboard_redirect_chain",
+      "chain": [
+        {
+          "url": "http://127.0.0.1:5170/dashboard",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalUrl": "http://127.0.0.1:5170/dashboard",
+      "finalStatus": 200,
+      "body_len": 90287,
+      "snippet": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_14db65\" data-theme=\"cleric\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link"
+    }
+  ],
+  "cookie_present": true,
+  "eval": {
+    "register_ok": true,
+    "create_org_lands_dashboard_or_non_plan": true,
+    "create_org_skips_choose_plan_and_billing": true,
+    "dashboard_home_reachable_without_gate": true,
+    "no_commercial_gate_ui_on_dashboard": true
+  },
+  "pass": true
+}
