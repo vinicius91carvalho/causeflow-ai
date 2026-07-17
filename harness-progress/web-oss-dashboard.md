@@ -5876,3 +5876,16 @@ Evidence excerpt: {
   harness-progress/web-oss-dashboard.md
 Merge with strategy ort failed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T11:35:10.729Z — Explicit Resume
+
+- WorkItem: WI-AC-016
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: worker process exited; resume context after confirming worktree is healthy.
+Evidence excerpt: {
+  "id": "WI-AC-015",
+  "integration": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
