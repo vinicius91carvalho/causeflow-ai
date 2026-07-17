@@ -3,9 +3,9 @@
   "phase": "qa-independent",
   "base": "http://127.0.0.1:5170",
   "core": "http://127.0.0.1:3099",
-  "email": "qa-ac013-ind-1784250880@causeflow.local",
-  "profileLabel": "AC013 QA Ind Profile 1784250880",
-  "fallbackLabel": "AC013 QA Ind Fallback 1784250880",
+  "email": "qa-ac013-ind-1784254680@causeflow.local",
+  "profileLabel": "AC013 QA Ind Profile 1784254680",
+  "fallbackLabel": "AC013 QA Ind Fallback 1784254680",
   "steps": [
     {
       "step": "dashboard_register",
@@ -13,8 +13,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "e0c295fd-7fa2-457f-a054-47611052ca35",
-          "email": "qa-ac013-ind-1784250880@causeflow.local",
+          "id": "9a330640-4d96-41d1-bb95-624ba79a7d3d",
+          "email": "qa-ac013-ind-1784254680@causeflow.local",
           "name": "AC013 VF Admin"
         }
       }
@@ -28,28 +28,28 @@
       "step": "create_fallback_profile",
       "status": 201,
       "body": {
-        "id": "589d209d-df0b-4c94-9fa0-31a8f66b92c2",
-        "label": "AC013 QA Ind Fallback 1784250880",
+        "id": "9a89c7d6-c8cd-48b4-bc59-12f6fb19e3ed",
+        "label": "AC013 QA Ind Fallback 1784254680",
         "baseUrl": "http://127.0.0.1:8081/v1",
         "model": "Ornith-1.0-9B-code",
         "apiKeyConfigured": false,
-        "createdAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)"
       }
     },
     {
       "step": "create_profile_with_fallback",
       "status": 201,
       "body": {
-        "id": "8047a40a-6e59-4d71-80aa-e69022aa04d0",
-        "label": "AC013 QA Ind Profile 1784250880",
+        "id": "86be7632-1def-4363-8ad3-3b29fdd2d48d",
+        "label": "AC013 QA Ind Profile 1784254680",
         "baseUrl": "https://api.openai.com/v1",
         "model": "gpt-4o-mini",
         "apiKeyConfigured": true,
         "contextWindowTokens": 128000,
-        "fallbackProfileId": "589d209d-df0b-4c94-9fa0-31a8f66b92c2",
-        "createdAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)"
+        "fallbackProfileId": "9a89c7d6-c8cd-48b4-bc59-12f6fb19e3ed",
+        "createdAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)"
       }
     },
     {
@@ -59,26 +59,26 @@
         "activeProfileId": null,
         "items": [
           {
-            "id": "589d209d-df0b-4c94-9fa0-31a8f66b92c2",
-            "label": "AC013 QA Ind Fallback 1784250880",
+            "id": "9a89c7d6-c8cd-48b4-bc59-12f6fb19e3ed",
+            "label": "AC013 QA Ind Fallback 1784254680",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)"
           },
           {
-            "id": "8047a40a-6e59-4d71-80aa-e69022aa04d0",
-            "label": "AC013 QA Ind Profile 1784250880",
+            "id": "86be7632-1def-4363-8ad3-3b29fdd2d48d",
+            "label": "AC013 QA Ind Profile 1784254680",
             "baseUrl": "https://api.openai.com/v1",
             "model": "gpt-4o-mini",
             "apiKeyConfigured": true,
             "contextWindowTokens": 128000,
-            "fallbackProfileId": "589d209d-df0b-4c94-9fa0-31a8f66b92c2",
+            "fallbackProfileId": "9a89c7d6-c8cd-48b4-bc59-12f6fb19e3ed",
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       }
@@ -90,26 +90,26 @@
         "activeProfileId": null,
         "items": [
           {
-            "id": "589d209d-df0b-4c94-9fa0-31a8f66b92c2",
-            "label": "AC013 QA Ind Fallback 1784250880",
+            "id": "9a89c7d6-c8cd-48b4-bc59-12f6fb19e3ed",
+            "label": "AC013 QA Ind Fallback 1784254680",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)"
           },
           {
-            "id": "8047a40a-6e59-4d71-80aa-e69022aa04d0",
-            "label": "AC013 QA Ind Profile 1784250880",
+            "id": "86be7632-1def-4363-8ad3-3b29fdd2d48d",
+            "label": "AC013 QA Ind Profile 1784254680",
             "baseUrl": "https://api.openai.com/v1",
             "model": "gpt-4o-mini",
             "apiKeyConfigured": true,
             "contextWindowTokens": 128000,
-            "fallbackProfileId": "589d209d-df0b-4c94-9fa0-31a8f66b92c2",
+            "fallbackProfileId": "9a89c7d6-c8cd-48b4-bc59-12f6fb19e3ed",
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       }
@@ -121,26 +121,26 @@
         "activeProfileId": null,
         "items": [
           {
-            "id": "589d209d-df0b-4c94-9fa0-31a8f66b92c2",
-            "label": "AC013 QA Ind Fallback 1784250880",
+            "id": "9a89c7d6-c8cd-48b4-bc59-12f6fb19e3ed",
+            "label": "AC013 QA Ind Fallback 1784254680",
             "baseUrl": "http://127.0.0.1:8081/v1",
             "model": "Ornith-1.0-9B-code",
             "apiKeyConfigured": false,
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)"
           },
           {
-            "id": "8047a40a-6e59-4d71-80aa-e69022aa04d0",
-            "label": "AC013 QA Ind Profile 1784250880",
+            "id": "86be7632-1def-4363-8ad3-3b29fdd2d48d",
+            "label": "AC013 QA Ind Profile 1784254680",
             "baseUrl": "https://api.openai.com/v1",
             "model": "gpt-4o-mini",
             "apiKeyConfigured": true,
             "contextWindowTokens": 128000,
-            "fallbackProfileId": "589d209d-df0b-4c94-9fa0-31a8f66b92c2",
+            "fallbackProfileId": "9a89c7d6-c8cd-48b4-bc59-12f6fb19e3ed",
             "isActive": false,
-            "createdAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)",
-            "updatedAt": "Fri Jul 17 2026 01:14:45 GMT+0000 (Coordinated Universal Time)"
+            "createdAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 02:18:00 GMT+0000 (Coordinated Universal Time)"
           }
         ]
       }
