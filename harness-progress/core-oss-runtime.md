@@ -105,3 +105,14 @@ Fix requirements:
 - WorkItem: WI-AC-018
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T21:23:28.561Z — Blocked Work Item
+
+- Attempt: 2/3
+- WorkItem: WI-AC-018
+- Outcome: integration could not complete
+- Defects: error: Your local changes to the following files would be overwritten by merge:
+	.harness/wi-ac-018-verify-first.json
+Please commit your changes or stash them before you merge.
+Aborting
+- NextAction: User reviews evidence and explicitly resumes with guidance
