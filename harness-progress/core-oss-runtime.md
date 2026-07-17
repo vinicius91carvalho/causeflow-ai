@@ -63,3 +63,11 @@ Fix requirements:
 - WorkItem: WI-AC-018
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T21:14:17.037Z — Integrated Verification defect
+
+- Attempt: 2/3
+- WorkItem: WI-AC-018
+- Defects: Integrated Verification failed
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/135fe572-c9b5-4da0-b8ca-4c20846ce901/core-oss-runtime/WI-AC-018-2-integration_qa-e3b0c44298fc1c14.log
+- NextAction: Repair Plan
