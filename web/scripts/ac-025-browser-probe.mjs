@@ -5,10 +5,11 @@
  * Documented at repo-root README.md ("OSS golden-path QA gate") and
  * web/docs/development/testing.md. Package script: `pnpm verify:ac025`.
  *
- * Preconditions (host-dev / compose hybrid):
- *   - Core :5171 healthy with llm=ok (Ornith :8081)
- *   - Dashboard :3001 → CORE_API_URL host Core
- *   - Test Application on :5190 (host node or compose)
+ * Preconditions (compose preferred for Goal Review / IV):
+ *   - Dashboard :3001 (compose image with shipped Ornith local preset)
+ *   - Core :3099 healthy with llm=ok (Ornith on host :8081 via host.docker.internal)
+ *   - Test Application :5190
+ * Host-dev hybrid may use OSS_CORE_API_URL=http://127.0.0.1:5171 instead.
  *
  * Flow exercised at the real boundary:
  *   activate Ornith (local) profile → connect Test Application →
@@ -22,7 +23,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const DASH = process.env.OSS_DASHBOARD_URL || 'http://127.0.0.1:3001';
-const CORE = process.env.OSS_CORE_API_URL || 'http://127.0.0.1:5171';
+// Compose publishes Core on host :3099; host-dev Core often uses :5171.
+const CORE = process.env.OSS_CORE_API_URL || 'http://127.0.0.1:3099';
 const TEST_APP = process.env.OSS_TEST_APP_URL || 'http://127.0.0.1:5190';
 const OUT = process.env.AC025_OUT || path.join(process.cwd(), '.harness/wi-ac-025-verify-first.json');
 

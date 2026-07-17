@@ -124,8 +124,9 @@ pnpm exec playwright test --project=dashboard-oss-e2e --list
 pnpm exec playwright test --project=dashboard-oss-e2e tests/oss/ac-061-capstone.spec.ts
 
 # Root Completion Contract AC-025 / AC-026 harness QA gate (local-auth golden path)
-# Prerequisites: Core + worker, dashboard :3001, test-app :5190, Ornith :8081
-pnpm verify:ac025
+# Prerequisites: compose dashboard :3001, Core :3099, test-app :5190, Ornith :8081
+# Ornith (local) preset must ship host.docker.internal:8081/v1 (compose-reachable)
+OSS_CORE_API_URL=http://127.0.0.1:3099 pnpm verify:ac025
 # equivalent: node scripts/ac-025-browser-probe.mjs
 ```
 

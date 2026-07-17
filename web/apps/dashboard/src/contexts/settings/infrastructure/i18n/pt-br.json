@@ -131,7 +131,7 @@
         "labelField": "Rótulo",
         "labelPlaceholder": "ex.: Ornith local",
         "baseUrlField": "URL base",
-        "baseUrlPlaceholder": "http://127.0.0.1:8081/v1",
+        "baseUrlPlaceholder": "http://host.docker.internal:8081/v1",
         "modelField": "Modelo",
         "modelPlaceholder": "Ornith-1.0-9B-code",
         "apiKeyField": "Chave de API (opcional)",

@@ -86,14 +86,15 @@ Local docs from the umbrella stack remain on http://localhost:5181.
 The single harness QA gate for root **AC-025** (local-auth golden path with Ornith + Test Application) is the Playwright Chromium browser probe:
 
 ```bash
-# Prerequisites: Core + worker, dashboard BFF, causeflow-test-app :5190, Ornith :8081
-# (reuse healthy postgres/redis/hindsight; host-dev Core is typical for harness PORT worktrees)
+# Prerequisites: compose dashboard :3001 + Core :3099 + test-app :5190 + Ornith :8081
+# (reuse healthy postgres/redis/hindsight; rebuild dashboard after Ornith preset changes)
+# Shipped Settings preset ORNITH_LOCAL_PRESET uses http://host.docker.internal:8081/v1
 
 OSS_DASHBOARD_URL=http://127.0.0.1:3001 \
-OSS_CORE_API_URL=http://127.0.0.1:5171 \
+OSS_CORE_API_URL=http://127.0.0.1:3099 \
 OSS_TEST_APP_URL=http://127.0.0.1:5190 \
   node web/scripts/ac-025-browser-probe.mjs
-# symlink: node .harness/wi-ac-025-browser-probe.mjs
+# copy: node .harness/wi-ac-025-browser-probe.mjs
 # package script (from web/): pnpm verify:ac025
 ```
 
