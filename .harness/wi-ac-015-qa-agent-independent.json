@@ -2,7 +2,7 @@
   "id": "WI-AC-015",
   "phase": "qa-agent-independent",
   "base": "http://127.0.0.1:5170",
-  "email": "qa-ac015-1784287420@causeflow.local",
+  "email": "qa-ac015-1784287661@causeflow.local",
   "steps": [
     {
       "step": "register",
@@ -10,8 +10,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "c5bf33b3-6ec9-4e44-9927-c7a42265db87",
-          "email": "qa-ac015-1784287420@causeflow.local",
+          "id": "eb6101a9-f3b5-464b-b664-33a0a298d987",
+          "email": "qa-ac015-1784287661@causeflow.local",
           "name": "AC015 VF Admin"
         }
       }
@@ -50,13 +50,13 @@
       "step": "custom_profile_create",
       "status": 201,
       "body": {
-        "id": "450bf55d-964f-4d47-80b6-01ab1e93392a",
-        "label": "AC015 Custom 1784287425998",
+        "id": "1667d37d-af29-4f54-81e4-8bdd38614b3c",
+        "label": "AC015 Custom 1784287666616",
         "baseUrl": "https://api.openai.com/v1",
         "model": "gpt-4o-mini",
         "apiKeyConfigured": false,
-        "createdAt": "Fri Jul 17 2026 11:23:46 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 11:23:46 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 11:27:46 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:27:46 GMT+0000 (Coordinated Universal Time)"
       },
       "accepted": true
     }
