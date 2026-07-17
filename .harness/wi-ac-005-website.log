@@ -17,3 +17,6 @@
  GET /en/product 200 in 940ms
  GET /pt-br 200 in 209ms
  GET /pt-br/product 200 in 154ms
+[?25h
+
+stopped app.pid cleanup at 2026-07-17T05:31:10-03:00
