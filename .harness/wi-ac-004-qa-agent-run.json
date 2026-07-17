@@ -1,5 +1,5 @@
 {
-  "phase": "verify-first-coding",
+  "phase": "isolated-qa",
   "id": "WI-AC-004",
   "ac": "AC-004",
   "port": 5171,
