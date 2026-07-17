@@ -1,8 +1,8 @@
 {
   "id": "WI-AC-008",
-  "phase": "verify-first-existing-retry3",
+  "phase": "verify-first-existing-retry4",
   "base": "http://127.0.0.1:5170",
-  "email": "vf-ac008-1784263958995@causeflow.local",
+  "email": "vf-ac008-1784264193524@causeflow.local",
   "steps": [
     {
       "step": "register",
@@ -10,8 +10,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "2576e277-bc22-4fc6-b697-fbb67cb65484",
-          "email": "vf-ac008-1784263958995@causeflow.local",
+          "id": "c704e193-ab23-45e8-b8bc-42549b55577c",
+          "email": "vf-ac008-1784264193524@causeflow.local",
           "name": "AC008 VF Admin"
         }
       }

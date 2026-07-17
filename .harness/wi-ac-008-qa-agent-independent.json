@@ -2,7 +2,7 @@
   "id": "WI-AC-008",
   "phase": "qa-agent-independent-retest",
   "base": "http://127.0.0.1:5170",
-  "email": "qa-ac008-ind-1784263824510@causeflow.local",
+  "email": "qa-ac008-ind-1784264077804@causeflow.local",
   "steps": [
     {
       "step": "register",
@@ -10,8 +10,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "1529bb18-aa62-4a9e-9a0e-7eea90cd58c6",
-          "email": "qa-ac008-ind-1784263824510@causeflow.local",
+          "id": "13ec15a0-2771-482e-bcf0-0bd3011ae3c7",
+          "email": "qa-ac008-ind-1784264077804@causeflow.local",
           "name": "AC008 QA Independent"
         }
       }
@@ -44,7 +44,7 @@
       ],
       "finalUrl": "http://127.0.0.1:5170/dashboard",
       "finalStatus": 200,
-      "body_len": 90291,
+      "body_len": 90311,
       "snippet": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_14db65\" data-theme=\"cleric\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link"
     }
   ],
