@@ -1,15 +1,15 @@
 {
   "moduleId": "harness",
   "files": [
-    "evaluator",
-    "generator",
-    "grilling",
-    "learning-loop",
-    "monorepo-supervisor-ops",
-    "planner",
-    "setup",
-    "supervisor",
-    "update-project",
-    "worktree-git-recovery"
+    "harness-evaluator",
+    "harness-generator",
+    "harness-grilling",
+    "harness-learning-loop",
+    "harness-monorepo-supervisor-ops",
+    "harness-planner",
+    "harness-setup",
+    "harness-supervisor",
+    "harness-update-project",
+    "harness-worktree-git-recovery"
   ]
 }

@@ -1,0 +1,211 @@
+<project_specification>
+  <!--
+    TEMPLATE. Fill EVERY top-level section below. If the user explicitly does not
+    want a section's content, set its body to `removed` (e.g. <projects>removed</projects>)
+    rather than deleting the section. This file is consumed by /generator and is
+    treated as APPEND-ONLY afterwards: features are never edited, reordered, or removed.
+  -->
+
+  <project_name><!-- short product name --></project_name>
+
+  <!--
+    Optional. Set to `existing-codebase` when scaffolding the harness into a repo
+    that already implements the Project Goal. The generator then runs Work Items
+    verify-first: coding agents confirm the Acceptance Checks against existing
+    code at a real boundary, set implementation=true with no code changes when
+    they pass, and only repair the root cause when a check fails. Omit for new
+    projects (default: implement).
+  -->
+  <mode><!-- existing-codebase | new-project (default) --></mode>
+
+  <project_goal>
+    <!-- One observable system-level outcome. Goal Review evaluates this directly. -->
+  </project_goal>
+
+  <overview>
+    <!-- 1-2 paragraphs: what it is, who it's for, the experience to deliver. Be ambitious. -->
+  </overview>
+
+  <domain>
+    <!--
+      Product vocabulary and bounded contexts — guidance for agents only (not
+      validated by reconcile). Mirror CONTEXT.md / CONTEXT-MAP.md when those
+      exist; otherwise establish terms here during planning. Set the whole
+      section body to `removed` when the product has no meaningful domain split.
+    -->
+    <glossary>
+      <!--
+        Canonical product terms. Use `avoid` for overloaded synonyms agents must
+        not mix into APIs, UI copy, or Acceptance Checks.
+      -->
+      <term name="" avoid="">
+        <!-- one or two sentences: what it IS, not what it does -->
+      </term>
+    </glossary>
+    <bounded_contexts>
+      <!--
+        Product areas and how they relate. `generator_context` names the matching
+        <core_features> area / acceptance_check context when it differs from the
+        bounded-context name.
+      -->
+      <context name="" generator_context="">
+        <responsibility><!-- what this context owns --></responsibility>
+        <relationships>
+          <!-- upstream/downstream context names and integration in plain language -->
+        </relationships>
+      </context>
+    </bounded_contexts>
+  </domain>
+
+  <technology_stack>
+    <general>
+      <!-- repo style, deployment, conventions (e.g. monorepo, Docker, Conventional Commits) -->
+    </general>
+    <frontend>
+      <framework><!-- e.g. React + Vite --></framework>
+      <styling><!-- e.g. Tailwind --></styling>
+      <state_management></state_management>
+      <routing></routing>
+      <port>Launch the frontend on the PORT env var passed by init.sh (default {frontend_port}).</port>
+      <patterns><!-- e.g. Atomic Design, SOLID --></patterns>
+    </frontend>
+    <backend>
+      <runtime><!-- e.g. Node + Express --></runtime>
+      <database><!-- e.g. SQLite --></database>
+      <port>Launch the backend on the PORT env var passed by init.sh.</port>
+      <patterns><!-- e.g. Clean Architecture, DDD --></patterns>
+    </backend>
+    <communication><!-- REST / SSE / websockets / external APIs --></communication>
+  </technology_stack>
+
+  <integrations>
+    <!-- One entry per external/material technology. Never collapse platforms into a summary. -->
+    <integration name="">
+      <responsibility></responsibility>
+      <availability><!-- required | optional | feature-flagged --></availability>
+      <configuration><!-- credentials, environment variables, runtime configuration --></configuration>
+      <security><!-- authentication/security mechanism and tenant-isolation boundary --></security>
+      <failure_behavior></failure_behavior>
+      <deployment><!-- production deployment and local/test replacement --></deployment>
+      <affected_surfaces><!-- APIs, modules, and user flows, where relevant --></affected_surfaces>
+    </integration>
+    <contradictions><!-- documentation/code conflicts and which implementation evidence prevails --></contradictions>
+  </integrations>
+
+  <prerequisites>
+    <environment_setup>
+      <!-- env vars, secrets (reference, never inline), pre-installed deps, where code lives,
+           and every assumption a fresh implementation agent must know -->
+    </environment_setup>
+  </prerequisites>
+
+  <core_features>
+    <!--
+      THE SPINE. Group features into clearly named areas. Each area's tag name becomes a
+      `context` the generator builds and parallel /generator sessions claim independently,
+      so keep areas cohesive and reasonably decoupled. Put runtime blockers first in a
+      foundation area: local replacements/removals for required hosted services, database
+      setup, Docker startup, and the first smoke-testable path. Bullet concrete capabilities.
+    -->
+    <feature_area_name>
+      - capability 1
+      - capability 2
+    </feature_area_name>
+    <!-- add more feature areas... -->
+  </core_features>
+
+  <acceptance_checks>
+    <!--
+      Stable, append-only proof of the Project Goal. IDs never change. `context`
+      is the collision boundary, `category` is foundation/functional/style/edge-case,
+      and `depends_on` is a comma-separated list of prerequisite Acceptance Check IDs.
+      Every check states behavior observable through a browser or real HTTP boundary.
+      Edge cases that are in scope MUST appear here (category="edge-case" or folded
+      into a functional check with an explicit expected result) so the Completion
+      Contract is predictable without mid-build product Q&A.
+    -->
+    <acceptance_check id="AC-001" context="feature-area-name" category="foundation" depends_on="">
+      <description><!-- action/input and observable expected result --></description>
+    </acceptance_check>
+  </acceptance_checks>
+
+  <!--
+    REQUIRED. Record what grilling resolved so a fresh agent does not re-open
+    product questions. Cover all three topics: ambiguous-requirement,
+    architectural-tradeoff, edge-case. Link each decision to Acceptance Check IDs
+    that prove it. Use body `removed` only when the user explicitly deferred the
+    whole topic with a reason written in <deferred>.
+  -->
+  <planning_decisions>
+    <decision id="D-001" topic="ambiguous-requirement">
+      <question><!-- what a second reader could interpret two ways --></question>
+      <options><!-- interpretations or approaches considered --></options>
+      <choice><!-- selected interpretation --></choice>
+      <rationale><!-- why this choice makes the Completion Contract predictable --></rationale>
+      <acceptance_checks><!-- comma-separated AC-IDs that prove this decision --></acceptance_checks>
+    </decision>
+    <decision id="D-002" topic="architectural-tradeoff">
+      <question><!-- stack/boundary/persistence/integration choice --></question>
+      <options><!-- 2-3 concrete options with short cost/benefit --></options>
+      <choice><!-- selected approach --></choice>
+      <rationale><!-- why --></rationale>
+      <acceptance_checks><!-- AC-IDs that assume this choice --></acceptance_checks>
+    </decision>
+    <decision id="D-003" topic="edge-case">
+      <question><!-- failure or boundary behavior --></question>
+      <options><!-- in-scope expected results vs defer --></options>
+      <choice><!-- in-scope expected behavior, or deferred --></choice>
+      <rationale><!-- why in scope / why deferred --></rationale>
+      <acceptance_checks><!-- AC-IDs when in scope; empty when deferred --></acceptance_checks>
+    </decision>
+    <deferred><!-- optional: explicitly out-of-scope ambiguities/trade-offs/edge cases with reasons --></deferred>
+  </planning_decisions>
+
+  <database_schema>
+    <tables>
+      <table_name>
+        - column, column, column
+      </table_name>
+      <!-- add more tables, or `removed` if no persistence -->
+    </tables>
+  </database_schema>
+
+  <api_endpoints_summary>
+    <!-- group endpoints by area: METHOD /path per line, or `removed` if not applicable -->
+  </api_endpoints_summary>
+
+  <ui_layout>
+    <main_structure><!-- overall layout, breakpoints, persistent chrome --></main_structure>
+    <!-- per-region breakdowns (sidebar, main, panels, modals) -->
+  </ui_layout>
+
+  <design_system>
+    <color_palette><!-- primary, background, surface, text, borders (light + dark) --></color_palette>
+    <typography><!-- font stacks, sizes, weights --></typography>
+    <components><!-- key component styling rules --></components>
+    <animations><!-- transitions, loaders, micro-interactions --></animations>
+  </design_system>
+
+  <key_interactions>
+    <!-- step-by-step narratives of the primary user flows -->
+  </key_interactions>
+
+  <implementation_steps>
+    <step number="1">
+      <title></title>
+      <tasks>
+        <!-- Name exact repository-relative paths and commands where known. Each step
+             must leave an independently verifiable result and say what success looks like. -->
+        -
+      </tasks>
+    </step>
+    <!-- ordered build phases: runtime blockers and a smoke-testable foundation first -->
+  </implementation_steps>
+
+  <success_criteria>
+    <functionality><!-- observable inputs, actions, and expected outputs --></functionality>
+    <user_experience><!-- UX bar --></user_experience>
+    <technical_quality><!-- code/quality bar --></technical_quality>
+    <design_polish><!-- visual bar --></design_polish>
+  </success_criteria>
+</project_specification>

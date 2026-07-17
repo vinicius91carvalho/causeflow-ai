@@ -1,5 +1,5 @@
 ---
-name: generator
+name: harness-generator
 description: Build, resume, independently QA, integrate, and Goal Review a project from stable Acceptance Checks.
 allowed-tools: Bash, Agent, AskUserQuestion, Read
 ---

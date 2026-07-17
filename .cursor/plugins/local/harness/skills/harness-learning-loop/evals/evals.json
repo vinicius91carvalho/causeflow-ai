@@ -1,0 +1,45 @@
+{
+  "skill_name": "learning-loop",
+  "evals": [
+    {
+      "id": 0,
+      "name": "repeated-procedure-becomes-skill",
+      "prompt": "Here is a transcript of a coding session I just finished (attached as session-deploy-procedure.md). Run a learning-loop reflection on it: produce the findings report, then assume I approve every finding and scaffold them. Save the findings report as report.md and any artifacts you create into the outputs directory. Do not pause to ask me for approval.",
+      "expected_output": "A findings report that recommends creating a portable skill for the repeated deploy procedure and cites the recurrence as evidence.",
+      "files": ["fixtures/session-deploy-procedure.md"],
+      "assertions": [
+        "Recommends creating a SKILL for the repeated multi-step deploy procedure",
+        "Cites recurrence as evidence (the deploy steps were re-derived/repeated, or noted as happening multiple times per week)",
+        "Creates a portable SKILL.md with name and description frontmatter",
+        "Lists the actual deploy steps (build, migrate, deploy staging, smoke-test, promote) rather than a vague summary"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "repeated-correction-becomes-instruction",
+      "prompt": "Here is a transcript of a coding session I just finished (attached as session-repeated-correction.md). Run a learning-loop reflection on it: produce the findings report, then assume I approve every finding and scaffold them. Save the findings report as report.md and any artifacts you create into the outputs directory. Do not pause to ask me for approval.",
+      "expected_output": "A findings report that recommends a workflow-skill rule requiring tests before commits (not AGENTS.md/CLAUDE.md) and identifies that the user corrected this 3 times.",
+      "files": ["fixtures/session-repeated-correction.md"],
+      "assertions": [
+        "Recommends a workflow skill rule requiring tests before committing",
+        "Identifies the recurrence (the user corrected the same behavior about 3 times)",
+        "Routes the rule to a skills/*/SKILL.md (not AGENTS.md or CLAUDE.md)",
+        "Does not propose adding the rule to AGENTS.md or CLAUDE.md"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "preference-and-delegation",
+      "prompt": "Here is a transcript of a coding session I just finished (attached as session-preference-and-delegation.md). Run a learning-loop reflection on it: produce the findings report, then assume I approve every finding and scaffold them. Write any memory files (and the MEMORY.md pointer) into an outputs/memory/ subdirectory, save the findings report as report.md, and save any other artifacts into the outputs directory. Do not pause to ask me for approval.",
+      "expected_output": "A findings report plus a written memory entry capturing the pnpm/strict-mode standing rules (correct frontmatter + MEMORY.md pointer), and a recommendation for a subagent to handle the recurring flaky-test investigation.",
+      "files": ["fixtures/session-preference-and-delegation.md"],
+      "assertions": [
+        "Writes a memory entry file capturing the standing preferences (pnpm over npm, TypeScript strict mode)",
+        "The memory entry has valid frontmatter with name, description, and metadata.type fields",
+        "The memory entry type is 'user' or 'feedback' (a preference / standing rule)",
+        "Adds a one-line pointer for the new memory entry to a MEMORY.md file",
+        "Recommends a SUBAGENT/agent for the recurring flaky-test investigation"
+      ]
+    }
+  ]
+}
