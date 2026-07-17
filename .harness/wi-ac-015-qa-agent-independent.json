@@ -1,0 +1,65 @@
+{
+  "id": "WI-AC-015",
+  "phase": "qa-agent-independent",
+  "base": "http://127.0.0.1:5170",
+  "email": "qa-ac015-1784287661@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "eb6101a9-f3b5-464b-b664-33a0a298d987",
+          "email": "qa-ac015-1784287661@causeflow.local",
+          "name": "AC015 VF Admin"
+        }
+      }
+    },
+    {
+      "step": "example_presets_api",
+      "status": 200,
+      "count": 2,
+      "localPreset": {
+        "id": "ornith-local",
+        "label": "Ornith (local)",
+        "baseUrl": "http://127.0.0.1:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "contextWindowTokens": 32768
+      },
+      "apiPreset": {
+        "id": "ornith-api",
+        "label": "Ornith (API)",
+        "baseUrl": "https://your-ornith-host.example.com/v1",
+        "model": "Ornith-1.0-9B",
+        "contextWindowTokens": 262144
+      },
+      "hasLocalDefaults": true,
+      "hasApiDefaults": true
+    },
+    {
+      "step": "settings_html",
+      "status": 200,
+      "hasProfilesCard": true,
+      "hasExamplePresetsCopy": true,
+      "hasPresetButtons": false,
+      "hasApiPresetButton": false,
+      "hasThreeProviderCatalogOnly": false
+    },
+    {
+      "step": "custom_profile_create",
+      "status": 201,
+      "body": {
+        "id": "1667d37d-af29-4f54-81e4-8bdd38614b3c",
+        "label": "AC015 Custom 1784287666616",
+        "baseUrl": "https://api.openai.com/v1",
+        "model": "gpt-4o-mini",
+        "apiKeyConfigured": false,
+        "createdAt": "Fri Jul 17 2026 11:27:46 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:27:46 GMT+0000 (Coordinated Universal Time)"
+      },
+      "accepted": true
+    }
+  ],
+  "pass": true
+}
