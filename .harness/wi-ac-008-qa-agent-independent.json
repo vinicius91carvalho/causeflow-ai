@@ -1,0 +1,85 @@
+{
+  "id": "WI-AC-008",
+  "phase": "qa-agent-independent",
+  "base": "http://127.0.0.1:5170",
+  "email": "qa-ac008-ind-1784264601097@causeflow.local",
+  "steps": [
+    {
+      "step": "smoke_sign_in",
+      "status": 200
+    },
+    {
+      "step": "smoke_api_health",
+      "status": 200
+    },
+    {
+      "step": "register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "e033c040-4f4f-4419-b930-324b608354f5",
+          "email": "qa-ac008-ind-1784264601097@causeflow.local",
+          "name": "AC008 QA Independent"
+        }
+      }
+    },
+    {
+      "step": "create_organization_redirect_chain",
+      "chain": [
+        {
+          "url": "http://127.0.0.1:5170/create-organization",
+          "status": 307,
+          "location": "/dashboard"
+        },
+        {
+          "url": "http://127.0.0.1:5170/dashboard",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalUrl": "http://127.0.0.1:5170/dashboard",
+      "finalStatus": 200
+    },
+    {
+      "step": "dashboard_redirect_chain",
+      "chain": [
+        {
+          "url": "http://127.0.0.1:5170/dashboard",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalUrl": "http://127.0.0.1:5170/dashboard",
+      "finalStatus": 200,
+      "body_len": 90291,
+      "snippet": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_14db65\" data-theme=\"cleric\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link"
+    },
+    {
+      "step": "choose_plan_boundary",
+      "status": 404,
+      "is_404": true
+    }
+  ],
+  "defects": [],
+  "cookie_present": true,
+  "eval": {
+    "register_ok": true,
+    "create_org_lands_dashboard_or_non_plan": true,
+    "create_org_skips_choose_plan_and_billing": true,
+    "dashboard_home_reachable_without_gate": true,
+    "no_commercial_gate_ui_on_dashboard": true,
+    "choose_plan_is_404": true
+  },
+  "gate_hits": {
+    "/onboarding/choose-plan": false,
+    "Choose your plan": false,
+    "Buy more": false,
+    "quota pack": false,
+    "data-testid=[\"']choose-plan": false,
+    "Start Free Trial": false,
+    "Stripe Checkout": false
+  },
+  "plan_cards": false,
+  "pass": true
+}
