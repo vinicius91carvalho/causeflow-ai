@@ -15,3 +15,11 @@
 - Defects: expected when active Investigation LLM fails, Core follows fallbackProfileId to a healthy Ornith profile and investigation proceeds (or, if chain exhausted, fails closed with a clear configure/fix-LLM error); observed active bad baseUrl http://127.0.0.1:1/v1 + fallbackProfileId → http://host.docker.internal:8081/v1 still yields incident status=failed with empty evidenceByAgent while good-only Ornith completes (AC-025); api logs show local-llm.chat.completions.structured failed then CircuitBreakerOpenError for subsequent chain hops (incidents f7289013-1983-4764-a7e2-21a95eecf0ae / 679c473d-99d3-4132-95ba-fe259fd63dca); evidence .harness/goal-review-ac018-strict.json + docker logs causeflow-api
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/10ff0f31-f4c9-4793-b842-a72b4b3656b2/goal-review/goal-1-goal_review-2feacc1913ee5c2f.log
 - NextAction: repair affected Work Items
+
+## 2026-07-17T22:14:48.709Z — Goal Review passed
+
+- Outcome: On plan/opensource-docker with ledger 26/26 integrated, live OSS compose/HTTP/browser Goal Review passes all 26 Acceptance Checks and the Project Goal: marketing hard-removes commercial surfaces (Docs/GitHub/quiet Dashboard); dashboard has no billing/choose-plan; Investigation LLM profiles + Ornith presets + member 403s work; Test Application connects with docs Learn more; AC-018 fallback from bad active to host.docker.internal:8081 reaches awaiting_approval; pnpm verify:ac026 (ac-025-browser-probe) exits 0 with catalog-grounded evidence and remediation.
+- AcceptanceChecks: 
+- Defects: 
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/8c3bc9fa-1ec2-453d-a14c-8ba4620cf2e2/goal-review/goal-1-goal_review-2f617e4302dbeb24.log
+- NextAction: Project Goal complete
