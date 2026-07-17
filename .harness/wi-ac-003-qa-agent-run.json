@@ -1,0 +1,31 @@
+{
+  "id": "WI-AC-003",
+  "phase": "isolated-qa",
+  "ac003_pass": true,
+  "routes": [
+    {
+      "url": "http://127.0.0.1:5171/pricing",
+      "pass": true,
+      "status": 404,
+      "location": null,
+      "has_paid_plan_cards": false,
+      "paid_hits": [],
+      "redirects_to_sales": false,
+      "has_not_found_ui": true,
+      "body_len": 38495,
+      "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/we"
+    },
+    {
+      "url": "http://127.0.0.1:5171/pt-br/pricing",
+      "pass": true,
+      "status": 404,
+      "location": null,
+      "has_paid_plan_cards": false,
+      "paid_hits": [],
+      "redirects_to_sales": false,
+      "has_not_found_ui": true,
+      "body_len": 39206,
+      "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/we"
+    }
+  ]
+}
