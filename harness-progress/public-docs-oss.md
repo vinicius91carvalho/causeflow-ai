@@ -22,3 +22,12 @@
 - WorkItem: WI-AC-024
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T11:25:19.070Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-024
+- AcceptanceChecks: AC-024
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/c460a51b-ff8e-4c6b-9cdc-f8dd543770da/public-docs-oss/WI-AC-024-1-integration_qa-63fa2bf549e6524f.log
+- NextAction: next Ready Work Item
