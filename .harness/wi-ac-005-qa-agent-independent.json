@@ -1,5 +1,5 @@
 {
-  "phase": "probe",
+  "phase": "qa-agent-isolated",
   "id": "WI-AC-005",
   "ac": "AC-005",
   "port": 5171,
@@ -17,6 +17,11 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
+      "chrome_ai_brand": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
       "body_len": 459673
     },
     {
@@ -31,6 +36,11 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
+      "chrome_ai_brand": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
       "body_len": 187321
     },
     {
@@ -45,7 +55,12 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
-      "body_len": 461723
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
+      "chrome_ai_brand": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "body_len": 461724
     },
     {
       "path": "/pt-br/product",
@@ -59,7 +74,13 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
+      "chrome_ai_brand": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
       "body_len": 189346
     }
-  ]
+  ],
+  "defects": []
 }

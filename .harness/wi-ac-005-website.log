@@ -5,18 +5,19 @@
      · optimizePackageImports
 
  ✓ Starting...
- ✓ Ready in 970ms
- ✓ Compiled /middleware in 136ms (195 modules)
-(node:2880683) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+ ✓ Ready in 960ms
+ ✓ Compiled /middleware in 157ms (195 modules)
+(node:2892679) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
 (Use `node --trace-deprecation ...` to show where the warning was created)
  ○ Compiling /[locale] ...
- ✓ Compiled /[locale] in 1010ms (1415 modules)
- GET /en 200 in 1830ms
- GET /en 200 in 216ms
- GET /en 200 in 201ms
- ✓ Compiled /[locale]/product in 329ms (1450 modules)
- GET /en/product 200 in 912ms
- GET /pt-br 200 in 212ms
- GET /pt-br/product 200 in 102ms
-stopped pid=2880644
-[?25h
+ ✓ Compiled /[locale] in 1040ms (1415 modules)
+ GET /en 200 in 1852ms
+ GET /en 200 in 213ms
+ ✓ Compiled /[locale]/product in 321ms (1450 modules)
+ GET /en/product 200 in 935ms
+ GET /pt-br 200 in 214ms
+ GET /pt-br/product 200 in 119ms
+
+--- stop note ---
+2026-07-17T05:06:40-03:00
+verify-first AC-005 pass; stopping website
