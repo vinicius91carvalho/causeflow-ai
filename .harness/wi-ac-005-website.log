@@ -5,16 +5,17 @@
      · optimizePackageImports
 
  ✓ Starting...
- ✓ Ready in 1069ms
- ✓ Compiled /middleware in 135ms (195 modules)
-(node:2926286) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+ ✓ Ready in 1039ms
+ ✓ Compiled /middleware in 140ms (195 modules)
+(node:2936098) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
 (Use `node --trace-deprecation ...` to show where the warning was created)
  ○ Compiling /[locale] ...
- ✓ Compiled /[locale] in 1004ms (1415 modules)
- GET /en 200 in 1818ms
- GET /en 200 in 193ms
- ✓ Compiled /[locale]/product in 308ms (1450 modules)
- GET /en/product 200 in 877ms
- GET /pt-br 200 in 206ms
- GET /pt-br/product 200 in 102ms
-[?25h
+ ✓ Compiled /[locale] in 1007ms (1415 modules)
+ GET /en 200 in 1822ms
+ GET /en 200 in 211ms
+ ✓ Compiled /[locale]/product in 317ms (1450 modules)
+ GET /en/product 200 in 905ms
+ GET /pt-br 200 in 212ms
+ GET /pt-br/product 200 in 159ms
+
+{"at":"2026-07-17T05:16:37-03:00","kind":"wi-ac-005-website","port":5171,"pids":[2936067],"log":"/home/vinicius/projects/causeflow-ai-wt-root-web-oss-marketing/.harness/wi-ac-005-website.log"}
