@@ -22,3 +22,10 @@
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/8f6ed257-ed75-440d-8d09-ee0398287f77/oss-golden-path/WI-AC-025-1-integration_qa-a8e7c675f991433f.log
 - NextAction: next Ready Work Item
+
+## 2026-07-17T15:20:18.823Z — Resumed
+
+- WorkItem: WI-AC-026
+- PreviousPhase: coding
+- Attempt: 1
+- NextAction: coding
