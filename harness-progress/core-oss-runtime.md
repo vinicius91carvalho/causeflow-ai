@@ -129,3 +129,16 @@ Evidence excerpt: {
   "defects": []
 }
 - NextAction: Coding Attempt 1
+
+## 2026-07-17T21:23:32.149Z — Operator guidance
+
+- WorkItem: WI-AC-018
+- Outcome: retryQueue / Control Host guidance applied to coding Repair Plan
+- Guidance: Auto-retry: MERGE/IV ONLY after isolated QA already passed. Do NOT re-implement, do NOT re-run verify-first coding, do NOT burn a coding Attempt. Proceed to Checkpoint merge into the plan integration branch, then Integrated Verification. If .git/index.lock exists, wait and retry the merge — merge-lock noise is not a product defect.
+Evidence excerpt: {
+  "id": "WI-AC-018",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding
