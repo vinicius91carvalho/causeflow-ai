@@ -1,0 +1,778 @@
+[
+  {
+    "id": "WI-AC-001",
+    "context": "foundation",
+    "category": "foundation",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "(monorepo-root + core) Default OSS compose starts causeflow-test-app healthy and configures Core STUB_UPSTREAM_BASE_URL with the Docker service hostname (not 127.0.0.1 inside the API container). A health check against the test app succeeds on the compose network.",
+    "steps": [
+      "Verify AC-001: (monorepo-root + core) Default OSS compose starts causeflow-test-app healthy and configures Core STUB_UPSTREAM_BASE_URL with the Docker service hostname (not 127.0.0.1 inside the API container). A health check against the test app succeeds on the compose network."
+    ],
+    "acceptance_checks": [
+      "AC-001"
+    ],
+    "planning_decision_ids": [
+      "D-001"
+    ],
+    "depends_on": [],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(monorepo-root + core) Default OSS compose starts causeflow-test-app healthy and configures Core STUB_UPSTREAM_BASE_U...",
+    "acceptance_check_id": "AC-001",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-002",
+    "context": "web-oss-marketing",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web) On EN and PT-BR marketing pages, header/footer/nav have no Pricing item and shared nav constants do not list Pricing.",
+    "steps": [
+      "Verify AC-002: (web) On EN and PT-BR marketing pages, header/footer/nav have no Pricing item and shared nav constants do not list Pricing."
+    ],
+    "acceptance_checks": [
+      "AC-002"
+    ],
+    "planning_decision_ids": [
+      "D-002"
+    ],
+    "depends_on": [],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) On EN and PT-BR marketing pages, header/footer/nav have no Pricing item and shared nav constants do not list Pr...",
+    "acceptance_check_id": "AC-002",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-003",
+    "context": "web-oss-marketing",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web) GET /pricing and /pt-br/pricing return 404 (or framework not-found) and never render paid plan cards or redirect to a sales pricing page.",
+    "steps": [
+      "Verify AC-003: (web) GET /pricing and /pt-br/pricing return 404 (or framework not-found) and never render paid plan cards or redirect to a sales pricing page."
+    ],
+    "acceptance_checks": [
+      "AC-003"
+    ],
+    "planning_decision_ids": [
+      "D-002"
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) GET /pricing and /pt-br/pricing return 404 (or framework not-found) and never render paid plan cards or redirec...",
+    "acceptance_check_id": "AC-003",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-004",
+    "context": "web-oss-marketing",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web) Homepage and primary product marketing surfaces use Docs and/or GitHub as the primary CTA group, may include a quiet Dashboard link, and do not present Get Early Access, Start Free, See Pricing, or Talk to the Co-Founder as conversion CTAs (EN + PT-BR).",
+    "steps": [
+      "Verify AC-004: (web) Homepage and primary product marketing surfaces use Docs and/or GitHub as the primary CTA group, may include a quiet Dashboard link, and do not present Get Early Access, Start Free, See Pricing, or Talk to the Co-Founder as conversion CTAs (EN + PT-BR)."
+    ],
+    "acceptance_checks": [
+      "AC-004"
+    ],
+    "planning_decision_ids": [
+      "D-003"
+    ],
+    "depends_on": [
+      "AC-002"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) Homepage and primary product marketing surfaces use Docs and/or GitHub as the primary CTA group, may include a ...",
+    "acceptance_check_id": "AC-004",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-005",
+    "context": "web-oss-marketing",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web) Marketing chrome no longer presents CauseFlow AI, LLC company-sales branding; OSS project identity (CauseFlow) plus Docs/GitHub framing is used instead. Privacy/Terms may remain if still valid legal pages.",
+    "steps": [
+      "Verify AC-005: (web) Marketing chrome no longer presents CauseFlow AI, LLC company-sales branding; OSS project identity (CauseFlow) plus Docs/GitHub framing is used instead. Privacy/Terms may remain if still valid legal pages."
+    ],
+    "acceptance_checks": [
+      "AC-005"
+    ],
+    "planning_decision_ids": [
+      "D-003"
+    ],
+    "depends_on": [
+      "AC-004"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) Marketing chrome no longer presents CauseFlow AI, LLC company-sales branding; OSS project identity (CauseFlow) ...",
+    "acceptance_check_id": "AC-005",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-006",
+    "context": "web-oss-marketing",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "(web) /get-started and /pt-br/get-started (and equivalent early-access entry redirects to commercial sign-up) are hard-removed and return 404 rather than sending users to staging/commercial early-access funnels.",
+    "steps": [
+      "Verify AC-006: (web) /get-started and /pt-br/get-started (and equivalent early-access entry redirects to commercial sign-up) are hard-removed and return 404 rather than sending users to staging/commercial early-access funnels."
+    ],
+    "acceptance_checks": [
+      "AC-006"
+    ],
+    "planning_decision_ids": [
+      "D-003",
+      "D-010"
+    ],
+    "depends_on": [
+      "AC-004"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) /get-started and /pt-br/get-started (and equivalent early-access entry redirects to commercial sign-up) are har...",
+    "acceptance_check_id": "AC-006",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-007",
+    "context": "web-oss-dashboard",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web) Authenticated visit to /onboarding/choose-plan returns 404 and never renders Starter/Pro/Business plan cards or checkout actions.",
+    "steps": [
+      "Verify AC-007: (web) Authenticated visit to /onboarding/choose-plan returns 404 and never renders Starter/Pro/Business plan cards or checkout actions."
+    ],
+    "acceptance_checks": [
+      "AC-007"
+    ],
+    "planning_decision_ids": [
+      "D-004",
+      "D-010"
+    ],
+    "depends_on": [],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) Authenticated visit to /onboarding/choose-plan returns 404 and never renders Starter/Pro/Business plan cards or...",
+    "acceptance_check_id": "AC-007",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-008",
+    "context": "web-oss-dashboard",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web) After OSS local-auth sign-up and create-organization, the user lands on dashboard home (or overview) without being forced through choose-plan or billing.",
+    "steps": [
+      "Verify AC-008: (web) After OSS local-auth sign-up and create-organization, the user lands on dashboard home (or overview) without being forced through choose-plan or billing."
+    ],
+    "acceptance_checks": [
+      "AC-008"
+    ],
+    "planning_decision_ids": [
+      "D-004"
+    ],
+    "depends_on": [
+      "AC-007"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) After OSS local-auth sign-up and create-organization, the user lands on dashboard home (or overview) without be...",
+    "acceptance_check_id": "AC-008",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-009",
+    "context": "web-oss-dashboard",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web) Dashboard shell has no Billing nav and no credits/investigations-left widget; /dashboard/billing returns 404 and never shows plan cards, Buy more, or quota packs.",
+    "steps": [
+      "Verify AC-009: (web) Dashboard shell has no Billing nav and no credits/investigations-left widget; /dashboard/billing returns 404 and never shows plan cards, Buy more, or quota packs."
+    ],
+    "acceptance_checks": [
+      "AC-009"
+    ],
+    "planning_decision_ids": [
+      "D-007",
+      "D-010"
+    ],
+    "depends_on": [],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) Dashboard shell has no Billing nav and no credits/investigations-left widget; /dashboard/billing returns 404 an...",
+    "acceptance_check_id": "AC-009",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-010",
+    "context": "web-oss-dashboard",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "(web) /waitlist and /beta-waitlist (and locale equivalents) are hard-removed (404) and do not present early-access waitlist product UX.",
+    "steps": [
+      "Verify AC-010: (web) /waitlist and /beta-waitlist (and locale equivalents) are hard-removed (404) and do not present early-access waitlist product UX."
+    ],
+    "acceptance_checks": [
+      "AC-010"
+    ],
+    "planning_decision_ids": [
+      "D-010"
+    ],
+    "depends_on": [
+      "AC-009"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) /waitlist and /beta-waitlist (and locale equivalents) are hard-removed (404) and do not present early-access wa...",
+    "acceptance_check_id": "AC-010",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-011",
+    "context": "core-oss-runtime",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(core) OSS product path prefers delete: Stripe clients, checkout/portal/credits reservation, and plan-catalog enforcement used by the dashboard are removed (not relied on as a permanent 410 facade). Creating an investigation is not blocked by CREDITS_EXHAUSTED / free-tier quota.",
+    "steps": [
+      "Verify AC-011: (core) OSS product path prefers delete: Stripe clients, checkout/portal/credits reservation, and plan-catalog enforcement used by the dashboard are removed (not relied on as a permanent 410 facade). Creating an investigation is not blocked by CREDITS_EXHAUSTED / free-tier quota."
+    ],
+    "acceptance_checks": [
+      "AC-011"
+    ],
+    "planning_decision_ids": [
+      "D-007"
+    ],
+    "depends_on": [],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(core) OSS product path prefers delete: Stripe clients, checkout/portal/credits reservation, and plan-catalog enforce...",
+    "acceptance_check_id": "AC-011",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-012",
+    "context": "web-oss-dashboard",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web) Dashboard billing API routes used for checkout/portal/credits are removed (404) or absent; investigation create via UI is not blocked by a local credits ledger.",
+    "steps": [
+      "Verify AC-012: (web) Dashboard billing API routes used for checkout/portal/credits are removed (404) or absent; investigation create via UI is not blocked by a local credits ledger."
+    ],
+    "acceptance_checks": [
+      "AC-012"
+    ],
+    "planning_decision_ids": [
+      "D-007"
+    ],
+    "depends_on": [
+      "AC-011"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) Dashboard billing API routes used for checkout/portal/credits are removed (404) or absent; investigation create...",
+    "acceptance_check_id": "AC-012",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-013",
+    "context": "web-oss-dashboard",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web + core) Admin can create an Investigation LLM profile (label, baseUrl, model, optional API key, optional contextWindowTokens, optional fallbackProfileId) via Settings; profile persists via Core and appears after reload.",
+    "steps": [
+      "Verify AC-013: (web + core) Admin can create an Investigation LLM profile (label, baseUrl, model, optional API key, optional contextWindowTokens, optional fallbackProfileId) via Settings; profile persists via Core and appears after reload."
+    ],
+    "acceptance_checks": [
+      "AC-013"
+    ],
+    "planning_decision_ids": [
+      "D-006"
+    ],
+    "depends_on": [],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web + core) Admin can create an Investigation LLM profile (label, baseUrl, model, optional API key, optional context...",
+    "acceptance_check_id": "AC-013",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-014",
+    "context": "web-oss-dashboard",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web + core) Admin can edit/delete profiles and activate exactly one; API keys are never returned plaintext after save (masked/redacted only).",
+    "steps": [
+      "Verify AC-014: (web + core) Admin can edit/delete profiles and activate exactly one; API keys are never returned plaintext after save (masked/redacted only)."
+    ],
+    "acceptance_checks": [
+      "AC-014"
+    ],
+    "planning_decision_ids": [
+      "D-006"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web + core) Admin can edit/delete profiles and activate exactly one; API keys are never returned plaintext after sav...",
+    "acceptance_check_id": "AC-014",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-015",
+    "context": "web-oss-dashboard",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web) Ornith (local) and Ornith (API) example presets prefill the create form; they are helpers, not a locked three-provider enum catalog.",
+    "steps": [
+      "Verify AC-015: (web) Ornith (local) and Ornith (API) example presets prefill the create form; they are helpers, not a locked three-provider enum catalog."
+    ],
+    "acceptance_checks": [
+      "AC-015"
+    ],
+    "planning_decision_ids": [
+      "D-006"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) Ornith (local) and Ornith (API) example presets prefill the create form; they are helpers, not a locked three-p...",
+    "acceptance_check_id": "AC-015",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-016",
+    "context": "web-oss-dashboard",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "(web + core) Non-admin users cannot create/edit/delete/activate Investigation LLM profiles (UI disabled/absent and API 403 or equivalent).",
+    "steps": [
+      "Verify AC-016: (web + core) Non-admin users cannot create/edit/delete/activate Investigation LLM profiles (UI disabled/absent and API 403 or equivalent)."
+    ],
+    "acceptance_checks": [
+      "AC-016"
+    ],
+    "planning_decision_ids": [
+      "D-010"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web + core) Non-admin users cannot create/edit/delete/activate Investigation LLM profiles (UI disabled/absent and AP...",
+    "acceptance_check_id": "AC-016",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-017",
+    "context": "web-oss-dashboard",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "(web + core) Active profile cannot be deleted until another is activated; clear error otherwise.",
+    "steps": [
+      "Verify AC-017: (web + core) Active profile cannot be deleted until another is activated; clear error otherwise."
+    ],
+    "acceptance_checks": [
+      "AC-017"
+    ],
+    "planning_decision_ids": [
+      "D-010"
+    ],
+    "depends_on": [
+      "AC-014"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web + core) Active profile cannot be deleted until another is activated; clear error otherwise.",
+    "acceptance_check_id": "AC-017",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-018",
+    "context": "core-oss-runtime",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "(core) When the active Investigation LLM fails (e.g. Ornith down), Core follows optional fallbackProfileId chain (max depth / cycle-safe). If the chain is missing or exhausted, investigation fails closed with a clear configure/fix-LLM error and does not silently succeed via DeterministicLLMClient or Anthropic.",
+    "steps": [
+      "Verify AC-018: (core) When the active Investigation LLM fails (e.g. Ornith down), Core follows optional fallbackProfileId chain (max depth / cycle-safe). If the chain is missing or exhausted, investigation fails closed with a clear configure/fix-LLM error and does not silently succeed via DeterministicLLMClient or Anthropic."
+    ],
+    "acceptance_checks": [
+      "AC-018"
+    ],
+    "planning_decision_ids": [
+      "D-006",
+      "D-009"
+    ],
+    "depends_on": [
+      "AC-014"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(core) When the active Investigation LLM fails (e.g. Ornith down), Core follows optional fallbackProfileId chain (max...",
+    "acceptance_check_id": "AC-018",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-019",
+    "context": "web-oss-dashboard",
+    "category": "edge-case",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web + core) Missing required profile fields are rejected with validation errors; optional API key may be omitted for local Ornith; connectivity probe is soft and does not block save/activate when the endpoint is temporarily down.",
+    "steps": [
+      "Verify AC-019: (web + core) Missing required profile fields are rejected with validation errors; optional API key may be omitted for local Ornith; connectivity probe is soft and does not block save/activate when the endpoint is temporarily down."
+    ],
+    "acceptance_checks": [
+      "AC-019"
+    ],
+    "planning_decision_ids": [
+      "D-010"
+    ],
+    "depends_on": [
+      "AC-013"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web + core) Missing required profile fields are rejected with validation errors; optional API key may be omitted for...",
+    "acceptance_check_id": "AC-019",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-020",
+    "context": "web-oss-dashboard",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web) Integrations lists Test Application (OSS) with a short scope summary and a Learn more link to the public-docs Test Application page (AC-023).",
+    "steps": [
+      "Verify AC-020: (web) Integrations lists Test Application (OSS) with a short scope summary and a Learn more link to the public-docs Test Application page (AC-023)."
+    ],
+    "acceptance_checks": [
+      "AC-020"
+    ],
+    "planning_decision_ids": [
+      "D-005"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web) Integrations lists Test Application (OSS) with a short scope summary and a Learn more link to the public-docs T...",
+    "acceptance_check_id": "AC-020",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-021",
+    "context": "web-oss-dashboard",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(web + core) Authenticated Connect for Test Application (OSS) succeeds when the test app is healthy and persists a connected integration named Test Application (OSS).",
+    "steps": [
+      "Verify AC-021: (web + core) Authenticated Connect for Test Application (OSS) succeeds when the test app is healthy and persists a connected integration named Test Application (OSS)."
+    ],
+    "acceptance_checks": [
+      "AC-021"
+    ],
+    "planning_decision_ids": [
+      "D-005"
+    ],
+    "depends_on": [
+      "AC-020",
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web + core) Authenticated Connect for Test Application (OSS) succeeds when the test app is healthy and persists a co...",
+    "acceptance_check_id": "AC-021",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-022",
+    "context": "web-oss-dashboard",
+    "category": "edge-case",
+    "observation_method": "grep",
+    "observation_methods": [
+      "grep"
+    ],
+    "description": "(web + core) When causeflow-test-app is stopped, Connect or Test fails with a clear unreachable message and does not mark the integration healthy/connected successfully.",
+    "steps": [
+      "Verify AC-022: (web + core) When causeflow-test-app is stopped, Connect or Test fails with a clear unreachable message and does not mark the integration healthy/connected successfully."
+    ],
+    "acceptance_checks": [
+      "AC-022"
+    ],
+    "planning_decision_ids": [
+      "D-010"
+    ],
+    "depends_on": [
+      "AC-001"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web + core) When causeflow-test-app is stopped, Connect or Test fails with a clear unreachable message and does not ...",
+    "acceptance_check_id": "AC-022",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-023",
+    "context": "public-docs-oss",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(public-docs) A canonical Test Application (OSS) docs page explains scope, the fixed demo failure catalog (pool exhaustion, payment timeout, CPU/latency/health degradation, deploy v2.4.1-ac058), and the golden-path steps operators use with Incidents.",
+    "steps": [
+      "Verify AC-023: (public-docs) A canonical Test Application (OSS) docs page explains scope, the fixed demo failure catalog (pool exhaustion, payment timeout, CPU/latency/health degradation, deploy v2.4.1-ac058), and the golden-path steps operators use with Incidents."
+    ],
+    "acceptance_checks": [
+      "AC-023"
+    ],
+    "planning_decision_ids": [
+      "D-005"
+    ],
+    "depends_on": [],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(public-docs) A canonical Test Application (OSS) docs page explains scope, the fixed demo failure catalog (pool exhau...",
+    "acceptance_check_id": "AC-023",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-024",
+    "context": "public-docs-oss",
+    "category": "functional",
+    "observation_method": "http",
+    "observation_methods": [
+      "http"
+    ],
+    "description": "(public-docs) Docs no longer present paid tiers, Stripe checkout, choose-a-plan, or Dashboard Billing as the OSS product path; they describe free self-host usage and point to Docs/GitHub/self-host instructions.",
+    "steps": [
+      "Verify AC-024: (public-docs) Docs no longer present paid tiers, Stripe checkout, choose-a-plan, or Dashboard Billing as the OSS product path; they describe free self-host usage and point to Docs/GitHub/self-host instructions."
+    ],
+    "acceptance_checks": [
+      "AC-024"
+    ],
+    "planning_decision_ids": [],
+    "depends_on": [
+      "AC-023"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(public-docs) Docs no longer present paid tiers, Stripe checkout, choose-a-plan, or Dashboard Billing as the OSS prod...",
+    "acceptance_check_id": "AC-024",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-025",
+    "context": "oss-golden-path",
+    "category": "functional",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ],
+    "description": "(web + core) Golden-path E2E with OSS local auth only: activate Ornith (local) profile → connect Test Application → emit/ingest the demo alert → Incidents shows the incident → investigation runs → evidence/root-cause references the demo failure catalog → remediation artifact is visible. Clerk staging and Playwright mocks of /api/integrations or /api/incidents are not the pass path.",
+    "steps": [
+      "Verify AC-025: (web + core) Golden-path E2E with OSS local auth only: activate Ornith (local) profile → connect Test Application → emit/ingest the demo alert → Incidents shows the incident → investigation runs → evidence/root-cause references the demo failure catalog → remediation artifact is visible. Clerk staging and Playwright mocks of /api/integrations or /api/incidents are not the pass path."
+    ],
+    "acceptance_checks": [
+      "AC-025"
+    ],
+    "planning_decision_ids": [
+      "D-001",
+      "D-005",
+      "D-008"
+    ],
+    "depends_on": [
+      "AC-001",
+      "AC-013",
+      "AC-015",
+      "AC-021",
+      "AC-023"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web + core) Golden-path E2E with OSS local auth only: activate Ornith (local) profile → connect Test Application → e...",
+    "acceptance_check_id": "AC-025",
+    "status": "verify-first"
+  },
+  {
+    "id": "WI-AC-026",
+    "context": "oss-golden-path",
+    "category": "testing",
+    "observation_method": "browser",
+    "observation_methods": [
+      "browser"
+    ],
+    "description": "(web + core) A single documented Playwright project and/or Core verify script is the harness QA gate for AC-025 and exits 0 on the local OSS stack with Ornith available.",
+    "steps": [
+      "Verify AC-026: (web + core) A single documented Playwright project and/or Core verify script is the harness QA gate for AC-025 and exits 0 on the local OSS stack with Ornith available."
+    ],
+    "acceptance_checks": [
+      "AC-026"
+    ],
+    "planning_decision_ids": [
+      "D-001",
+      "D-008"
+    ],
+    "depends_on": [
+      "AC-025"
+    ],
+    "verify_first": true,
+    "implementation": false,
+    "qa": false,
+    "integration": false,
+    "retries": 0,
+    "title": "(web + core) A single documented Playwright project and/or Core verify script is the harness QA gate for AC-025 and e...",
+    "acceptance_check_id": "AC-026",
+    "status": "verify-first"
+  }
+]
