@@ -6390,3 +6390,16 @@ Please commit your changes or stash them before you merge.
 Aborting
 Merge with strategy ort failed.
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T12:16:57.777Z — Explicit Resume
+
+- WorkItem: WI-AC-019
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-019",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
