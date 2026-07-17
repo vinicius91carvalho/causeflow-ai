@@ -18304,3 +18304,10 @@ Evidence excerpt: {
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/609742fa-92f0-4caa-a9d3-9a75b7f94ae0/web-oss-dashboard/WI-AC-021-1-integration_qa-182c7373408dfd17.log
 - NextAction: next Ready Work Item
+
+## 2026-07-17T14:15:58.800Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-012
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
