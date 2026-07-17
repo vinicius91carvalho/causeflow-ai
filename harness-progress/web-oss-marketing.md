@@ -248,3 +248,10 @@ Evidence excerpt: {
 - Outcome: passed on integrated branch
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/d5c7ca35-16e1-4ba0-85e4-a14396fb4a00/web-oss-marketing/WI-AC-003-1-integration_qa-f825c5403b2cbbc7.log
 - NextAction: next Ready Work Item
+
+## 2026-07-17T03:08:16.234Z — Resumed
+
+- WorkItem: WI-AC-003
+- PreviousPhase: integrated
+- Attempt: 1
+- NextAction: next-work-item
