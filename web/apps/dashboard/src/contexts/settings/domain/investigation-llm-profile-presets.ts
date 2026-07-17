@@ -13,11 +13,15 @@ export interface InvestigationLlmProfilePreset {
   contextWindowTokens?: number;
 }
 
-/** Local llama.cpp / llama-session Ornith on :8081 (AC-057). */
+/**
+ * Local llama.cpp / llama-session Ornith on :8081 (AC-057 / AC-025).
+ * Prefer host.docker.internal so Core api/worker containers can reach the
+ * operator-host Ornith; 127.0.0.1 is loopback-only inside those containers.
+ */
 export const ORNITH_LOCAL_PRESET: InvestigationLlmProfilePreset = {
   id: 'ornith-local',
   label: 'Ornith (local)',
-  baseUrl: 'http://127.0.0.1:8081/v1',
+  baseUrl: 'http://host.docker.internal:8081/v1',
   model: 'Ornith-1.0-9B-code',
   contextWindowTokens: 32_768,
 };

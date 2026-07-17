@@ -18,7 +18,7 @@ const out = {
 const ORNITH_LOCAL = {
   id: 'ornith-local',
   label: 'Ornith (local)',
-  baseUrl: 'http://127.0.0.1:8081/v1',
+  baseUrl: 'http://host.docker.internal:8081/v1',
   model: 'Ornith-1.0-9B-code',
   contextWindowTokens: 32768,
 };

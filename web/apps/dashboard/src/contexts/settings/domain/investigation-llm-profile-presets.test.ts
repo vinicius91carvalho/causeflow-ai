@@ -15,9 +15,9 @@ describe('investigation-llm-profile-presets (AC-087)', () => {
     ]);
   });
 
-  it('Ornith (local) uses llama.cpp defaults on :8081', () => {
+  it('Ornith (local) uses llama.cpp defaults on :8081 via host.docker.internal', () => {
     expect(ORNITH_LOCAL_PRESET.label).toBe('Ornith (local)');
-    expect(ORNITH_LOCAL_PRESET.baseUrl).toBe('http://127.0.0.1:8081/v1');
+    expect(ORNITH_LOCAL_PRESET.baseUrl).toBe('http://host.docker.internal:8081/v1');
     expect(ORNITH_LOCAL_PRESET.model).toBe('Ornith-1.0-9B-code');
     expect(ORNITH_LOCAL_PRESET.contextWindowTokens).toBe(32_768);
   });

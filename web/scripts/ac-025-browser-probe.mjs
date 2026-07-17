@@ -145,8 +145,13 @@ async function main() {
   });
   if (!profilesBody.activeProfileId) throw new Error('no active investigation LLM profile');
   const active = (profilesBody.items || []).find((p) => p.id === profilesBody.activeProfileId);
-  if (!active || !/8081/.test(active.baseUrl || '') || !/Ornith/i.test(active.model || '')) {
-    throw new Error(`active profile is not Ornith local: ${JSON.stringify(active)}`);
+  // Compose api/worker cannot reach host loopback — preset must use host.docker.internal.
+  if (
+    !active ||
+    !/host\.docker\.internal:8081/.test(active.baseUrl || '') ||
+    !/Ornith/i.test(active.model || '')
+  ) {
+    throw new Error(`active profile is not Ornith local (compose-reachable): ${JSON.stringify(active)}`);
   }
 
   // 3) Connect Test Application via Integrations UI
