@@ -1,0 +1,114 @@
+{
+  "id": "WI-AC-019",
+  "phase": "verify-first-existing",
+  "acceptance_check_id": "AC-019",
+  "observation_method": "http",
+  "base": "http://127.0.0.1:5170",
+  "core": "http://127.0.0.1:3099",
+  "email": "vf-ac019-1784296665336959780@causeflow.local",
+  "label": "AC019 Ornith Soft 1784296665359",
+  "downBaseUrl": "http://127.0.0.1:1/v1",
+  "steps": [
+    {
+      "step": "dashboard_register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "919b3a40-cc73-4f9e-a7db-3deb4fa63a66",
+          "email": "vf-ac019-1784296665336959780@causeflow.local",
+          "name": "AC019 VF Admin"
+        }
+      }
+    },
+    {
+      "step": "reject_missing_label",
+      "status": 400,
+      "body": {
+        "error": "label, baseUrl, and model are required"
+      },
+      "validation_reject": true
+    },
+    {
+      "step": "reject_missing_baseUrl",
+      "status": 400,
+      "body": {
+        "error": "label, baseUrl, and model are required"
+      },
+      "validation_reject": true
+    },
+    {
+      "step": "reject_missing_model",
+      "status": 400,
+      "body": {
+        "error": "label, baseUrl, and model are required"
+      },
+      "validation_reject": true
+    },
+    {
+      "step": "reject_empty_required",
+      "status": 400,
+      "body": {
+        "error": "label, baseUrl, and model are required"
+      },
+      "validation_reject": true
+    },
+    {
+      "step": "list_after_rejects",
+      "status": 200,
+      "count": 0,
+      "leaked_invalid_count": 0
+    },
+    {
+      "step": "create_ornith_no_api_key_unreachable",
+      "status": 201,
+      "body": {
+        "id": "ad69b76b-90d6-493a-a231-96fdb6c1c8f8",
+        "label": "AC019 Ornith Soft 1784296665359",
+        "baseUrl": "http://127.0.0.1:1/v1",
+        "model": "Ornith-1.0-9B-code",
+        "apiKeyConfigured": false,
+        "contextWindowTokens": 32768,
+        "createdAt": "Fri Jul 17 2026 13:57:45 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 13:57:45 GMT+0000 (Coordinated Universal Time)"
+      },
+      "apiKeyConfigured": false,
+      "ok": true
+    },
+    {
+      "step": "activate_unreachable_soft_probe",
+      "status": 200,
+      "body": {
+        "activeProfileId": "ad69b76b-90d6-493a-a231-96fdb6c1c8f8",
+        "profile": {
+          "id": "ad69b76b-90d6-493a-a231-96fdb6c1c8f8",
+          "label": "AC019 Ornith Soft 1784296665359",
+          "baseUrl": "http://127.0.0.1:1/v1",
+          "model": "Ornith-1.0-9B-code",
+          "apiKeyConfigured": false,
+          "contextWindowTokens": 32768,
+          "isActive": true,
+          "createdAt": "Fri Jul 17 2026 13:57:45 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 13:57:45 GMT+0000 (Coordinated Universal Time)"
+        }
+      },
+      "ok": true
+    },
+    {
+      "step": "list_confirms_saved_active",
+      "status": 200,
+      "saved": {
+        "id": "ad69b76b-90d6-493a-a231-96fdb6c1c8f8",
+        "label": "AC019 Ornith Soft 1784296665359",
+        "baseUrl": "http://127.0.0.1:1/v1",
+        "model": "Ornith-1.0-9B-code",
+        "apiKeyConfigured": false,
+        "isActive": true
+      },
+      "activeProfileId": "ad69b76b-90d6-493a-a231-96fdb6c1c8f8"
+    }
+  ],
+  "pass": true,
+  "defects": [],
+  "notes": "AC-019 passes at HTTP boundary: BFF/Core reject missing required fields; Ornith-style profile saves without apiKey; save+activate succeed against unreachable baseUrl (soft probe)."
+}
