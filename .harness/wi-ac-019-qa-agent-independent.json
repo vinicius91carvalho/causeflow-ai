@@ -5,8 +5,8 @@
   "observation_method": "http",
   "base": "http://127.0.0.1:5170",
   "core": "http://127.0.0.1:3099",
-  "email": "vf-ac019-1784289101755@causeflow.local",
-  "label": "AC019 Ornith Soft 1784289101755",
+  "email": "vf-ac019-1784289277506@causeflow.local",
+  "label": "AC019 Ornith Soft 1784289277506",
   "downBaseUrl": "http://127.0.0.1:1/v1",
   "steps": [
     {
@@ -15,8 +15,8 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "094ebf49-85fb-43b3-9707-fe5e6f79d2b1",
-          "email": "vf-ac019-1784289101755@causeflow.local",
+          "id": "94476b8b-fad1-40e8-95dd-ca59f7b8b8af",
+          "email": "vf-ac019-1784289277506@causeflow.local",
           "name": "AC019 VF Admin"
         }
       }
@@ -63,14 +63,14 @@
       "step": "create_ornith_no_api_key_unreachable",
       "status": 201,
       "body": {
-        "id": "360d9c80-978a-4c20-852e-300d0e509135",
-        "label": "AC019 Ornith Soft 1784289101755",
+        "id": "735e40cd-ad88-4fee-a44f-062e83ce05c8",
+        "label": "AC019 Ornith Soft 1784289277506",
         "baseUrl": "http://127.0.0.1:1/v1",
         "model": "Ornith-1.0-9B-code",
         "apiKeyConfigured": false,
         "contextWindowTokens": 32768,
-        "createdAt": "Fri Jul 17 2026 11:51:41 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 11:51:41 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 11:54:37 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:54:37 GMT+0000 (Coordinated Universal Time)"
       },
       "apiKeyConfigured": false,
       "ok": true
@@ -79,17 +79,17 @@
       "step": "activate_unreachable_soft_probe",
       "status": 200,
       "body": {
-        "activeProfileId": "360d9c80-978a-4c20-852e-300d0e509135",
+        "activeProfileId": "735e40cd-ad88-4fee-a44f-062e83ce05c8",
         "profile": {
-          "id": "360d9c80-978a-4c20-852e-300d0e509135",
-          "label": "AC019 Ornith Soft 1784289101755",
+          "id": "735e40cd-ad88-4fee-a44f-062e83ce05c8",
+          "label": "AC019 Ornith Soft 1784289277506",
           "baseUrl": "http://127.0.0.1:1/v1",
           "model": "Ornith-1.0-9B-code",
           "apiKeyConfigured": false,
           "contextWindowTokens": 32768,
           "isActive": true,
-          "createdAt": "Fri Jul 17 2026 11:51:41 GMT+0000 (Coordinated Universal Time)",
-          "updatedAt": "Fri Jul 17 2026 11:51:41 GMT+0000 (Coordinated Universal Time)"
+          "createdAt": "Fri Jul 17 2026 11:54:37 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 11:54:37 GMT+0000 (Coordinated Universal Time)"
         }
       },
       "ok": true
@@ -98,14 +98,14 @@
       "step": "list_confirms_saved_active",
       "status": 200,
       "saved": {
-        "id": "360d9c80-978a-4c20-852e-300d0e509135",
-        "label": "AC019 Ornith Soft 1784289101755",
+        "id": "735e40cd-ad88-4fee-a44f-062e83ce05c8",
+        "label": "AC019 Ornith Soft 1784289277506",
         "baseUrl": "http://127.0.0.1:1/v1",
         "model": "Ornith-1.0-9B-code",
         "apiKeyConfigured": false,
         "isActive": true
       },
-      "activeProfileId": "360d9c80-978a-4c20-852e-300d0e509135"
+      "activeProfileId": "735e40cd-ad88-4fee-a44f-062e83ce05c8"
     }
   ],
   "pass": true,
