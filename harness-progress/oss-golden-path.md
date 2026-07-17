@@ -241,3 +241,10 @@ Observed: Goal Review ac-025-browser-probe reported pass=false under Ornith (loc
 Actions: rebuild compose dashboard (and api/worker if needed) from current plan HEAD; run ac-025-browser-probe against :3001/:3099/:5190; confirm activate_ornith_local activeProfile.baseUrl is http://host.docker.internal:8081/v1 and investigation reaches awaiting_approval/succeeded with remCount>=1; document that gate as the AC-026 harness path; commit before implementation=true.
 FORBIDDEN: VERIFY-FIRST zero-diff, changing ORNITH_LOCAL_PRESET back to 127.0.0.1, manual baseUrl override only in probes, or re-coding AC-025 preset.
 - NextAction: Coding
+
+## 2026-07-17T20:39:29.183Z — Checkpoint ready
+
+- Attempt: 1/3
+- WorkItem: WI-AC-026
+- Outcome: isolated QA passed
+- NextAction: Integrated Verification
