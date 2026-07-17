@@ -1,0 +1,32 @@
+{
+  "phase": "qa-agent-isolated",
+  "id": "WI-AC-006",
+  "ac": "AC-006",
+  "observation_method": "grep",
+  "ac006_pass": false,
+  "checks": {
+    "redirects_array_no_executable_entries": true,
+    "no_get_started_redirect_source": true,
+    "no_commercial_signup_destination": true,
+    "no_app_get_started_route": true,
+    "no_product_href_to_get_started": false,
+    "no_middleware_get_started": true,
+    "no_sitemap_get_started": true,
+    "no_routes_const_presentation_usage": true,
+    "no_early_access_commercial_redirect_wiring": true
+  },
+  "redirect_sources": [],
+  "redirect_destinations": [],
+  "app_get_started_routes": [],
+  "product_href_hits": [
+    "web/apps/website/src/contexts/marketing/presentation/pages/case-studies/cascading-500-page.tsx:129:              '{\"level\":\"warn\",\"msg\":\"CMS unavailable \u2014 no fallback cache found for path\",\"path\":\"/get-started\"}',",
+    "web/apps/website/src/contexts/marketing/presentation/pages/case-studies/cascading-500-page.tsx:130:              '{\"level\":\"error\",\"msg\":\"Rendering error page\",\"statusCode\":500,\"reason\":\"CMS_UNAVAILABLE\",\"path\":\"/get-started\"}',"
+  ],
+  "middleware_hits": [],
+  "sitemap_hits": [],
+  "routes_const_usage": [],
+  "early_access_wiring": [],
+  "redirect_wiring_hits": [],
+  "redirects_excerpt": "// Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.\n    // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.",
+  "defects": []
+}

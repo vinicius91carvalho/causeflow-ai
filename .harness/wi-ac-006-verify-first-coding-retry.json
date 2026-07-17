@@ -1,0 +1,31 @@
+{
+  "phase": "verify-first-coding",
+  "id": "WI-AC-006",
+  "ac": "AC-006",
+  "observation_method": "grep",
+  "ac006_pass": true,
+  "checks": {
+    "redirects_array_no_executable_entries": true,
+    "no_get_started_redirect_source": true,
+    "no_commercial_signup_destination": true,
+    "no_app_get_started_route": true,
+    "no_product_href_to_get_started": true,
+    "no_middleware_get_started": true,
+    "no_sitemap_get_started": true,
+    "no_routes_const_presentation_usage": true
+  },
+  "redirect_sources": [],
+  "redirect_destinations": [],
+  "executable_redirect_entries": [],
+  "app_get_started_routes": [],
+  "product_href_hits": [],
+  "middleware_hits": [],
+  "sitemap_hits": [],
+  "routes_const_usage": [],
+  "narrative_only_hits": [
+    "web/apps/website/src/contexts/marketing/presentation/pages/case-studies/cascading-500-page.tsx (CMS log narrative + test asserts no href)"
+  ],
+  "dead_constant": "web/packages/shared/src/domain/constants/routes.ts GET_STARTED unused in presentation",
+  "redirects_excerpt": "// Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.\n    // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.",
+  "notes": "Zero product diff. Hard-remove already in place: empty redirects(); no App Router get-started page; no product href/middleware/sitemap funnel; framework 404 for missing routes."
+}

@@ -1,0 +1,31 @@
+{
+  "phase": "qa-agent-isolated",
+  "id": "WI-AC-006",
+  "ac": "AC-006",
+  "observation_method": "grep",
+  "ac006_pass": true,
+  "checks": {
+    "redirects_array_empty": true,
+    "no_app_get_started_route": true,
+    "no_funnel_href_or_redirect": true,
+    "no_routes_get_started_presentation_usage": true,
+    "no_middleware_get_started": true,
+    "no_sitemap_get_started": true,
+    "no_commercial_early_access_redirect_wiring": true,
+    "no_nav_get_started": true
+  },
+  "redirect_sources": [],
+  "redirect_destinations": [],
+  "app_get_started_routes": [],
+  "funnel_hits": [],
+  "routes_const_usage": [],
+  "middleware_hits": [],
+  "sitemap_hits": [],
+  "early_access_funnel_hits": [],
+  "nav_hits": [],
+  "redirects_excerpt": "// Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.\n    // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.",
+  "notes": [
+    "Dead ROUTES.GET_STARTED constant remains (unused in presentation) \u2014 out of funnel scope",
+    "case-study log path strings (not hrefs): 11 lines"
+  ]
+}
