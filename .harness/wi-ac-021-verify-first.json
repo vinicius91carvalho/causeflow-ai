@@ -1,0 +1,81 @@
+{
+  "id": "WI-AC-021",
+  "phase": "verify-first-existing",
+  "acceptance_check_id": "AC-021",
+  "observation_method": "http",
+  "base": "http://127.0.0.1:5170",
+  "core": "http://127.0.0.1:3099",
+  "testApp": "http://127.0.0.1:5190",
+  "email": "vf-ac021-1784297035720709541@causeflow.local",
+  "steps": [
+    {
+      "step": "test_app_health",
+      "status": 200,
+      "body": {
+        "status": "ok",
+        "service": "causeflow-test-app",
+        "app": "causeflow-test-app"
+      }
+    },
+    {
+      "step": "dashboard_register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "06c42c6b-2f6c-4b10-9080-243d5588bd30",
+          "email": "vf-ac021-1784297035720709541@causeflow.local",
+          "name": "AC021 VF Admin"
+        }
+      }
+    },
+    {
+      "step": "stub_connect",
+      "status": 201,
+      "body": {
+        "integrationId": "stub-upstream-credential",
+        "provider": "stub-upstream",
+        "status": "active",
+        "stubConnectionId": "test-app-conn-5b2d2984-d226-4c88-8186-af375b54f62e-1784297035933",
+        "stubBaseUrl": "http://causeflow-test-app:5190",
+        "connectedAt": "2026-07-17T14:03:55.934Z"
+      }
+    },
+    {
+      "step": "list_integrations",
+      "status": 200,
+      "stub": {
+        "provider": "stub-upstream",
+        "source": "credential",
+        "status": "active",
+        "displayName": "Test Application (OSS)",
+        "connectedBy": "06c42c6b-2f6c-4b10-9080-243d5588bd30",
+        "createdAt": "Fri Jul 17 2026 14:03:55 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 14:03:55 GMT+0000 (Coordinated Universal Time)",
+        "type": "stub-upstream",
+        "name": "Test Application (OSS)"
+      },
+      "integrationCount": 1
+    },
+    {
+      "step": "core_list_integrations",
+      "status": 200,
+      "body": {
+        "integrations": [
+          {
+            "provider": "stub-upstream",
+            "source": "credential",
+            "status": "active",
+            "displayName": "Test Application (OSS)",
+            "connectedBy": "06c42c6b-2f6c-4b10-9080-243d5588bd30",
+            "createdAt": "Fri Jul 17 2026 14:03:55 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 14:03:55 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      }
+    }
+  ],
+  "pass": true,
+  "defects": [],
+  "notes": "Authenticated stub/connect succeeded with healthy test-app; GET /api/integrations persists connected Test Application (OSS)."
+}
