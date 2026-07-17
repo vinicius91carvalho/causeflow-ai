@@ -1913,3 +1913,16 @@ Evidence excerpt: {
 Please commit your changes or stash them before you merge.
 Aborting
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T04:55:08.928Z — Explicit Resume
+
+- WorkItem: WI-AC-008
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-008",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
