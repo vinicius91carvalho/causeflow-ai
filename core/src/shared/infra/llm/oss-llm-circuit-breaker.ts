@@ -29,14 +29,17 @@ export function registerOssLlmCircuitBreaker(breaker: CircuitBreaker): void {
   onStateChange = breaker.onStateChange;
 }
 
-/** Stable key for per-endpoint isolation (profileId preferred, else baseUrl). */
+/** Stable key for per-endpoint isolation (profileId + baseUrl). */
 export function endpointCircuitBreakerKey(endpoint: {
   profileId?: string;
   baseUrl: string;
 }): string {
   const profileId = endpoint.profileId?.trim();
-  if (profileId) return `profile:${profileId}`;
-  return `baseUrl:${endpoint.baseUrl}`;
+  const baseUrl = endpoint.baseUrl.trim();
+  // Include both so a failed active profile never shares a breaker with its
+  // fallbackProfileId hop (even if labels collide or profileId is omitted).
+  if (profileId) return `profile:${profileId}|baseUrl:${baseUrl}`;
+  return `baseUrl:${baseUrl}`;
 }
 
 export function getOssLlmCircuitBreakerForEndpoint(key: string): CircuitBreaker {

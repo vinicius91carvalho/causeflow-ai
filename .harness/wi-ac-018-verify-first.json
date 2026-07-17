@@ -31,7 +31,7 @@
     {
       "name": "OSS LLM circuit breaker is per-endpoint (not one global breaker across fallback chain)",
       "pass": true,
-      "evidence": "42:export function getOssLlmCircuitBreakerForEndpoint(key: string): CircuitBreaker {"
+      "evidence": "45:export function getOssLlmCircuitBreakerForEndpoint(key: string): CircuitBreaker {"
     },
     {
       "name": "local-llm-guard probes fallback chain for tenant",

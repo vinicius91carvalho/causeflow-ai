@@ -16,10 +16,10 @@ describe('oss-llm-circuit-breaker per-endpoint registry (AC-018)', () => {
     );
   });
 
-  it('keys by profileId when present else baseUrl', () => {
+  it('keys by profileId+baseUrl when profile present else baseUrl', () => {
     expect(
       endpointCircuitBreakerKey({ profileId: 'abc', baseUrl: 'http://a/v1' }),
-    ).toBe('profile:abc');
+    ).toBe('profile:abc|baseUrl:http://a/v1');
     expect(endpointCircuitBreakerKey({ baseUrl: 'http://a/v1' })).toBe('baseUrl:http://a/v1');
   });
 

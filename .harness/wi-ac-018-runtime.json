@@ -2,124 +2,130 @@
   "id": "WI-AC-018",
   "phase": "runtime-proof",
   "core": "http://127.0.0.1:3099",
-  "email": "ac018-rt-1784323162064@causeflow.local",
+  "email": "ac018-rt-1784324914221@causeflow.local",
   "steps": [
     {
       "step": "health",
-      "at": "2026-07-17T21:19:22.105Z",
+      "at": "2026-07-17T21:48:34.263Z",
       "ok": true
     },
     {
       "step": "register",
-      "at": "2026-07-17T21:19:22.203Z",
+      "at": "2026-07-17T21:48:34.646Z",
       "status": 201,
       "body": {
         "user": {
-          "id": "44b275c4-d524-4bf7-ada5-b93ae053f1a1",
-          "email": "ac018-rt-1784323162064@causeflow.local",
+          "id": "6f409054-0c2c-4920-9192-a36eea27fafc",
+          "email": "ac018-rt-1784324914221@causeflow.local",
           "name": "AC018 Runtime"
         },
         "tenant": {
-          "id": "2d7eff4a-8990-456a-abfd-4472f0d22580",
-          "name": "AC018 RT 1784323162064",
-          "slug": "ac018-rt-1784323162064"
+          "id": "30fc25e2-29ce-4c55-9520-e6d938ee7485",
+          "name": "AC018 RT 1784324914221",
+          "slug": "ac018-rt-1784324914221"
         },
-        "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0NGIyNzVjNC1kNTI0LTRiZjctYWRhNS1iOTNhZTA1M2YxYTEiLCJlbWFpbCI6ImFjMDE4LXJ0LTE3ODQzMjMxNjIwNjRAY2F1c2VmbG93LmxvY2FsIiwidGVuYW50X2lkIjoiMmQ3ZWZmNGEtODk5MC00NTZhLWFiZmQtNDQ3MmYwZDIyNTgwIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzg0MzIzMTYyLCJleHAiOjE3ODQ0MDk1NjIsImlzcyI6ImNhdXNlZmxvdyIsImF1ZCI6ImNhdXNlZmxvdy1hcGkifQ.1Kx8T_N_zeEB3VvR75ghpjY9xYODQru2nI99YBOYgJE"
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2ZjQwOTA1NC0wYzJjLTQ5MjAtOTE5Mi1hMzZlZWEyN2ZhZmMiLCJlbWFpbCI6ImFjMDE4LXJ0LTE3ODQzMjQ5MTQyMjFAY2F1c2VmbG93LmxvY2FsIiwidGVuYW50X2lkIjoiMzBmYzI1ZTItMjljZS00YzU1LTk1MjAtZTZkOTM4ZWU3NDg1Iiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzg0MzI0OTE0LCJleHAiOjE3ODQ0MTEzMTQsImlzcyI6ImNhdXNlZmxvdyIsImF1ZCI6ImNhdXNlZmxvdy1hcGkifQ.FoeXFZx9yBP3tytTuMzAQwYGFmSqiGmjoQFfgyNJSoU"
       }
     },
     {
       "step": "create_good_fallback",
-      "at": "2026-07-17T21:19:22.211Z",
+      "at": "2026-07-17T21:48:34.654Z",
       "status": 201,
-      "id": "b3e42ee5-0253-4c38-b2b6-120e5e9af5fe",
+      "id": "b1474d3b-7ca7-4c62-bb94-f4b42dc098bb",
       "body": {
-        "id": "b3e42ee5-0253-4c38-b2b6-120e5e9af5fe",
-        "label": "AC018 Ornith fallback 1784323162064",
+        "id": "b1474d3b-7ca7-4c62-bb94-f4b42dc098bb",
+        "label": "AC018 Ornith fallback 1784324914221",
         "baseUrl": "http://host.docker.internal:8081/v1",
         "model": "Ornith-1.0-9B-code",
         "apiKeyConfigured": false,
-        "createdAt": "Fri Jul 17 2026 21:19:22 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 21:19:22 GMT+0000 (Coordinated Universal Time)"
+        "createdAt": "Fri Jul 17 2026 21:48:34 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 21:48:34 GMT+0000 (Coordinated Universal Time)"
       }
     },
     {
       "step": "create_bad_active",
-      "at": "2026-07-17T21:19:22.218Z",
+      "at": "2026-07-17T21:48:34.660Z",
       "status": 201,
-      "id": "5c7d9f8c-faef-48c1-9597-97059d453390",
+      "id": "d409f52a-e4ec-4f60-a5d3-4890bb32551c",
       "body": {
-        "id": "5c7d9f8c-faef-48c1-9597-97059d453390",
-        "label": "AC018 bad active 1784323162064",
+        "id": "d409f52a-e4ec-4f60-a5d3-4890bb32551c",
+        "label": "AC018 bad active 1784324914221",
         "baseUrl": "http://127.0.0.1:1/v1",
         "model": "bad-model",
         "apiKeyConfigured": false,
-        "fallbackProfileId": "b3e42ee5-0253-4c38-b2b6-120e5e9af5fe",
-        "createdAt": "Fri Jul 17 2026 21:19:22 GMT+0000 (Coordinated Universal Time)",
-        "updatedAt": "Fri Jul 17 2026 21:19:22 GMT+0000 (Coordinated Universal Time)"
+        "fallbackProfileId": "b1474d3b-7ca7-4c62-bb94-f4b42dc098bb",
+        "createdAt": "Fri Jul 17 2026 21:48:34 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 21:48:34 GMT+0000 (Coordinated Universal Time)"
       }
     },
     {
       "step": "activate_bad_with_fallback",
-      "at": "2026-07-17T21:19:22.225Z",
+      "at": "2026-07-17T21:48:34.664Z",
       "status": 200,
       "body": {
-        "activeProfileId": "5c7d9f8c-faef-48c1-9597-97059d453390",
+        "activeProfileId": "d409f52a-e4ec-4f60-a5d3-4890bb32551c",
         "profile": {
-          "id": "5c7d9f8c-faef-48c1-9597-97059d453390",
-          "label": "AC018 bad active 1784323162064",
+          "id": "d409f52a-e4ec-4f60-a5d3-4890bb32551c",
+          "label": "AC018 bad active 1784324914221",
           "baseUrl": "http://127.0.0.1:1/v1",
           "model": "bad-model",
           "apiKeyConfigured": false,
-          "fallbackProfileId": "b3e42ee5-0253-4c38-b2b6-120e5e9af5fe",
+          "fallbackProfileId": "b1474d3b-7ca7-4c62-bb94-f4b42dc098bb",
           "isActive": true,
-          "createdAt": "Fri Jul 17 2026 21:19:22 GMT+0000 (Coordinated Universal Time)",
-          "updatedAt": "Fri Jul 17 2026 21:19:22 GMT+0000 (Coordinated Universal Time)"
+          "createdAt": "Fri Jul 17 2026 21:48:34 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 21:48:34 GMT+0000 (Coordinated Universal Time)"
         }
       }
     },
     {
       "step": "stub_connect",
-      "at": "2026-07-17T21:19:22.237Z",
+      "at": "2026-07-17T21:48:34.672Z",
       "status": 201,
       "body": {
         "integrationId": "stub-upstream-credential",
         "provider": "stub-upstream",
         "status": "active",
-        "stubConnectionId": "test-app-conn-2d7eff4a-8990-456a-abfd-4472f0d22580-1784323162232",
+        "stubConnectionId": "test-app-conn-30fc25e2-29ce-4c55-9520-e6d938ee7485-1784324914669",
         "stubBaseUrl": "http://causeflow-test-app:5190",
-        "connectedAt": "2026-07-17T21:19:22.233Z"
+        "connectedAt": "2026-07-17T21:48:34.669Z"
       }
     },
     {
       "step": "ingest",
-      "at": "2026-07-17T21:19:22.273Z",
+      "at": "2026-07-17T21:48:34.694Z",
       "status": 202,
       "body": {
         "emitted": true,
-        "incidentId": "e4f51c39-1ee4-4279-b93e-550069def917",
+        "incidentId": "fde8324e-daa7-4b77-a30c-f692c6e14c31",
         "stubState": {
           "app": "causeflow-test-app",
-          "connectionCount": 1,
+          "connectionCount": 2,
           "connections": [
             {
-              "tenantId": "2d7eff4a-8990-456a-abfd-4472f0d22580",
-              "connectionId": "test-app-conn-2d7eff4a-8990-456a-abfd-4472f0d22580-1784323162232",
+              "tenantId": "e4eda270-80b4-48a8-9f39-8c73b3fc2d3c",
+              "connectionId": "test-app-conn-e4eda270-80b4-48a8-9f39-8c73b3fc2d3c-1784324492265",
               "coreBaseUrl": "http://causeflow-api:5171",
-              "connectedAt": "2026-07-17T21:19:22.232Z"
+              "connectedAt": "2026-07-17T21:41:32.265Z"
+            },
+            {
+              "tenantId": "30fc25e2-29ce-4c55-9520-e6d938ee7485",
+              "connectionId": "test-app-conn-30fc25e2-29ce-4c55-9520-e6d938ee7485-1784324914669",
+              "coreBaseUrl": "http://causeflow-api:5171",
+              "connectedAt": "2026-07-17T21:48:34.669Z"
             }
           ],
-          "probeCount": 0,
-          "ingestCount": 1,
+          "probeCount": 1,
+          "ingestCount": 2,
           "toolCallCount": 0,
-          "lastProbeAt": null,
-          "lastIngestAt": "2026-07-17T21:19:22.271Z",
+          "lastProbeAt": "2026-07-17T21:43:31.626Z",
+          "lastIngestAt": "2026-07-17T21:48:34.692Z",
           "lastToolCallAt": null,
           "lastEmitResult": {
             "ok": true,
             "webhookStatus": 202,
-            "webhookUrl": "http://causeflow-api:5171/v1/webhooks/2d7eff4a-8990-456a-abfd-4472f0d22580/datadog",
-            "incidentId": "e4f51c39-1ee4-4279-b93e-550069def917",
-            "alertId": "test-app-alert-1784323162241"
+            "webhookUrl": "http://causeflow-api:5171/v1/webhooks/30fc25e2-29ce-4c55-9520-e6d938ee7485/datadog",
+            "incidentId": "fde8324e-daa7-4b77-a30c-f692c6e14c31",
+            "alertId": "test-app-alert-1784324914676"
           },
           "availableTools": [
             "query_logs",
@@ -128,66 +134,64 @@
             "get_service_health"
           ]
         },
-        "ingestedAt": "2026-07-17T21:19:22.272Z"
+        "ingestedAt": "2026-07-17T21:48:34.693Z"
       }
     },
     {
       "step": "investigate_trigger",
-      "at": "2026-07-17T21:21:59.927Z",
+      "at": "2026-07-17T21:50:41.302Z",
       "status": 200,
       "body": {
         "findings": [
           {
-            "text": "order-service DB connection pool is fully exhausted — active connections hit the configured maximum while connection waiters are growing, indicating requests are queuing for connections that never become available.",
+            "text": "order-service DB connection pool is fully saturated with active connections at the configured maximum, causing connection wait timeouts and checkout failures that correlate with the observed error spikes",
             "evidenceIds": [
-              "ev_log_analyst_pool_wait_timeout",
-              "ev_db_analyst_waiters_spike"
+              "ev_log_analyst_pool_wait",
+              "ev_metric_analyst_pool_max",
+              "ev_db_analyst_waiters"
             ]
           },
           {
-            "text": "CPUUtilization for order-service has been sustained above 90% for an extended period, confirming the service is under severe resource pressure and cannot process requests fast enough to release connections.",
+            "text": "CPU utilization for order-service has been sustained above 90% for an extended period, indicating the service is operating well beyond its designed capacity",
             "evidenceIds": [
-              "ev_metric_analyst_cpu_sustained"
+              "ev_metric_analyst_cpu",
+              "ev_log_analyst_high_cpu"
             ]
           },
           {
-            "text": "The service is running with only 2 desired tasks in ECS, which is insufficient to handle the current load — the infra inspector flagged CPU/memory as undersized for the current load.",
+            "text": "The service is running with only 2 desired tasks, which is undersized for the current load — insufficient concurrency to absorb traffic spikes",
             "evidenceIds": [
-              "ev_infra_inspector_undersized"
+              "ev_infra_inspector_desired_2",
+              "ev_metric_analyst_queue_depth"
             ]
           },
           {
-            "text": "The order-service DB client uses a fixed pool size with no adaptive backoff on checkout failure, meaning the service cannot recover gracefully when the pool is saturated — it simply blocks waiting for connections.",
+            "text": "The order-service DB client uses a fixed pool size with no adaptive backoff on checkout failure, meaning failed connection attempts pile up and amplify connection churn under load",
             "evidenceIds": [
-              "ev_code_analyzer_fixed_pool"
+              "ev_code_analyzer_fixed_pool",
+              "ev_log_analyst_checkout_failures"
             ]
           },
           {
-            "text": "No recent deployments or configuration changes in the last 24 hours — the change detector confirms this is a load-driven issue, not a change-driven regression.",
+            "text": "No lock contention on primary tables — the bottleneck is purely pool sizing, not database-level contention",
+            "evidenceIds": [
+              "ev_db_analyst_no_locks"
+            ]
+          },
+          {
+            "text": "No recent deployments or configuration changes in the last 24 hours — this is a load-driven incident, not a change-driven one",
             "evidenceIds": [
               "ev_change_detector_no_deploy"
             ]
-          },
-          {
-            "text": "No lock contention on primary database tables — the DB analyst confirmed the bottleneck is pool sizing, not query-level contention, so the fix must address the connection layer, not the SQL layer.",
-            "evidenceIds": [
-              "ev_db_analyst_waiters_spike"
-            ]
-          },
-          {
-            "text": "Queue depth is rising concurrently with pool saturation, indicating that the service is not only unable to process new requests but is also failing to drain existing work, creating a compounding feedback loop.",
-            "evidenceIds": [
-              "ev_metric_analyst_cpu_sustained"
-            ]
           }
         ],
-        "potentialRootCause": "The order-service is experiencing a cascading failure caused by a fixed-size DB connection pool that is fully saturated under elevated load. With only 2 ECS tasks running and no adaptive backoff on connection checkout failures, the service cannot recover when the pool is exhausted. As connections pile up waiting for checkout, CPU rises above 90% due to thread-pool saturation, which further prevents connections from being released back to the pool — creating a positive feedback loop. The root cause is a combination of: (1) undersized task capacity (2 tasks), (2) a rigid connection pool with no backoff/retry strategy, and (3) no circuit-breaking mechanism to shed load when the DB is unreachable. This is a load-driven issue confirmed by the absence of recent deployments.",
+        "potentialRootCause": "The root cause is a combination of insufficient horizontal capacity and a rigid DB connection pool configuration in order-service. Under elevated load, the fixed-size connection pool (no backoff, no adaptive sizing) fills to its maximum, causing all subsequent DB checkout attempts to queue and eventually timeout. With only 2 tasks running, the service lacks the concurrency headroom to absorb traffic spikes. The sustained >90% CPU confirms the service is operating beyond its designed capacity. The result is a cascading failure: DB waiters grow, threads saturate, and the service becomes unresponsive. No recent code or config changes triggered this — it is purely a capacity and resilience issue.",
         "recommendedActions": [
           {
             "action": "scale_horizontal",
             "label": "Scale order-service tasks from 2 to 6",
-            "description": "Increase the desired task count for the order-service ECS service from 2 to 6 to immediately increase processing capacity and reduce per-task CPU pressure, allowing connections to be released faster.",
-            "rationale": "Infra inspector confirmed only 2 desired tasks are running with undersized CPU/memory. Scaling to 6 tasks will distribute the load, reduce per-task CPU, and allow the connection pool to drain more quickly.",
+            "description": "Increase desired task count from 2 to 6 to provide sufficient concurrency headroom for the current load. This directly addresses the undersized capacity identified by infra inspector (desired=2) and the sustained >90% CPU observed by metric analyst.",
+            "rationale": "With only 2 tasks running and CPU above 90%, the service cannot absorb traffic spikes. Scaling to 6 tasks provides 3x concurrency headroom and distributes the DB connection load across more instances, reducing per-instance pool pressure.",
             "riskLevel": "medium",
             "estimatedDuration": "~5 min",
             "automated": true,
@@ -197,39 +201,39 @@
             }
           },
           {
+            "action": "increase_pool_size",
+            "label": "Increase DB connection pool size for order-service",
+            "description": "Raise the configured maximum DB connections for order-service beyond the current saturation point. The pool is at max with active waiters growing, so the ceiling must be raised to allow new connections to be acquired.",
+            "rationale": "DB analyst confirmed pool max is reached with waiters growing. The fixed pool size is the direct bottleneck — increasing it allows the service to acquire connections when the pool is under pressure, breaking the deadlock cycle.",
+            "riskLevel": "medium",
+            "estimatedDuration": "~3 min",
+            "automated": false,
+            "params": {
+              "service": "order-service",
+              "newPoolSize": 50
+            }
+          },
+          {
             "action": "enable_connection_timeout",
-            "label": "Add idle timeout to order-service DB connections",
-            "description": "Configure an idle connection timeout (e.g., 30 seconds) on the order-service DB connection pool to prevent connections from being held indefinitely during checkout wait states.",
-            "rationale": "Code analyzer found the DB client uses a fixed pool with no adaptive backoff. Idle timeouts will force stale connections to be released back to the pool, breaking the saturation feedback loop.",
+            "label": "Add idle timeout to DB connections in order-service",
+            "description": "Configure an idle timeout on DB connections (e.g., 300s) to prevent connection leaks. Combined with the fixed pool and no backoff, leaked connections contribute to pool saturation under load.",
+            "rationale": "Code analyzer found no adaptive backoff on checkout failure. Without timeouts, leaked/stale connections accumulate and prevent new connections from being acquired, worsening pool saturation.",
             "riskLevel": "low",
             "estimatedDuration": "~2 min",
-            "automated": true,
+            "automated": false,
             "params": {
               "service": "order-service",
-              "timeoutSeconds": 30
+              "timeoutSeconds": 300
             }
           },
           {
-            "action": "enable_circuit_breaker",
-            "label": "Enable circuit breaker on order-service DB dependency",
-            "description": "Activate a circuit breaker on the order-service's DB calls to stop attempting checkout when the pool is saturated, allowing the service to return 503s gracefully instead of blocking threads.",
-            "rationale": "With no backoff on checkout failures, every request blocks a thread waiting for a connection. A circuit breaker will shed load when the pool is exhausted, preventing thread-pool saturation and CPU spikes above 90%.",
-            "riskLevel": "low",
-            "estimatedDuration": "~2 min",
-            "automated": true,
-            "params": {
-              "service": "order-service",
-              "dependency": "order-db"
-            }
-          },
-          {
-            "action": "increase_memory_limit",
-            "label": "Increase ECS task memory and CPU limits for order-service",
-            "description": "Raise the CPU and memory limits on the order-service task definition to provide adequate headroom for the current load, preventing OOM and CPU throttling.",
-            "rationale": "Infra inspector flagged CPU/memory as undersized for current load. Higher limits will allow tasks to process more requests concurrently and release connections faster.",
+            "action": "create_fix_pr",
+            "label": "Open PR to add adaptive backoff on DB checkout failures",
+            "description": "Create a pull request that adds exponential backoff with jitter to DB connection checkout failures in order-service, replacing the current fixed-pool-without-backoff behavior.",
+            "rationale": "Code analyzer identified that the DB client uses a fixed pool size with no adaptive backoff on checkout failure. Adding backoff prevents connection churn amplification under load and is a structural fix for this class of incident.",
             "riskLevel": "medium",
             "estimatedDuration": "~5 min",
-            "automated": true,
+            "automated": false,
             "params": {
               "service": "order-service"
             }
@@ -237,8 +241,8 @@
           {
             "action": "add_cache_layer",
             "label": "Add response cache for order-service read paths",
-            "description": "Introduce a caching layer (e.g., ElastiCache or application-level cache) for order-service read-heavy paths to reduce DB connection hold time and overall load.",
-            "rationale": "DB analyst confirmed pool sizing is the bottleneck, not query performance. Reducing the number of DB connections needed per request via caching will directly alleviate pool saturation.",
+            "description": "Introduce a caching layer (e.g., ElastiCache or application-level cache) for order-service read-heavy paths to reduce DB connection demand.",
+            "rationale": "With CPU sustained above 90% and pool at max, reducing DB connection demand directly alleviates the bottleneck. A cache layer decouples read traffic from the DB, buying time while the code fix is developed.",
             "riskLevel": "medium",
             "estimatedDuration": "~10 min",
             "automated": false,
@@ -247,60 +251,60 @@
             }
           },
           {
-            "action": "optimize_queries",
-            "label": "Review and optimize order-service DB queries",
-            "description": "Audit the order-service's SQL queries for opportunities to reduce connection hold time — add indexes, batch queries, or rewrite full-table scans that contribute to pool saturation.",
-            "rationale": "While no lock contention was found, long-running queries still hold connections. Optimizing queries will reduce the time each connection is held, increasing effective pool throughput.",
-            "riskLevel": "medium",
-            "estimatedDuration": "~10 min",
+            "action": "escalate_to_oncall",
+            "label": "Page on-call engineer for manual DB pool tuning",
+            "description": "Escalate to the on-call engineer to verify the new pool size and timeout settings are applied, and to monitor waiter count regression in real-time.",
+            "rationale": "Pool size and timeout changes require manual verification in the deployment pipeline. The on-call engineer needs to confirm the changes take effect and validate waiter count decreases.",
+            "riskLevel": "low",
+            "estimatedDuration": "~1 min",
             "automated": false,
             "params": {
-              "dbIdentifier": "order-service-db"
+              "service": "order-service"
             }
           }
         ],
         "evidence": [
           {
             "type": "log_analysis",
-            "content": "Log analyst: order-service shows connection pool wait timeouts and thread-pool saturation under high CPU. Errors correlate with DB checkout failures."
+            "content": "Log analyst: order-service shows connection pool wait timeouts and thread-pool saturation under high CPU. Errors correlate with DB checkout failures. Key finding: Connection pool exhaustion under CPU pressure. Confidence: high."
           },
           {
             "type": "metric_analysis",
-            "content": "Metric analyst: CPUUtilization sustained above 90% for order-service. Concurrent DB connections at pool max; queue depth rising."
+            "content": "Metric analyst: CPUUtilization sustained above 90% for order-service. Concurrent DB connections at pool max; queue depth rising. Key finding: Sustained high CPU with saturated DB pool. Confidence: high."
           },
           {
             "type": "infra_state",
-            "content": "Infra inspector: order-service running with 2 desired tasks. Task definition CPU/memory appear undersized for current load."
+            "content": "Infra inspector: order-service running with 2 desired tasks. Task definition CPU/memory appear undersized for current load. Key finding: Capacity undersized for load. Confidence: medium."
           },
           {
-            "type": "code_analysis",
-            "content": "Code analyzer: order-service DB client uses a fixed pool size with no adaptive backoff on checkout failure. Recent code paths amplify connection churn under load."
+            "type": "log_analysis",
+            "content": "DB analyst: Connection waiters spiked while active connections hit the configured maximum. No lock contention on primary tables; pool sizing is the bottleneck. Key finding: Pool max reached, waiters growing. Confidence: high."
           },
           {
-            "type": "change_detection",
-            "content": "Change detector: No recent deployments in the last 24h. Configuration unchanged. Issue appears load-driven rather than change-driven."
+            "type": "log_analysis",
+            "content": "Code analyzer: order-service DB client uses a fixed pool size with no adaptive backoff on checkout failure. Recent code paths amplify connection churn under load. Key finding: Fixed pool size without backoff. Confidence: medium."
           },
           {
-            "type": "db_analysis",
-            "content": "DB analyst: Connection waiters spiked while active connections hit the configured maximum. No lock contention on primary tables; pool sizing is the bottleneck."
+            "type": "log_analysis",
+            "content": "Change detector: No recent deployments in the last 24h. Configuration unchanged. Issue appears load-driven rather than change-driven. Key finding: No correlating deploy. Confidence: high."
           }
         ],
         "customerExplanation": {
-          "summary": "The order-service, which handles customer orders, became unresponsive under load because its database connection pool was completely exhausted. When the pool runs out of connections, new requests pile up waiting, CPU spikes, and the service can no longer process anything — creating a cascading failure.",
-          "impact": "Customers experienced order processing delays, timeouts, and potential order failures. The service was unable to accept new requests while the pool was saturated.",
-          "resolution": "We are scaling the service from 2 to 6 tasks to immediately increase capacity, adding connection idle timeouts to release stale connections, and enabling a circuit breaker to gracefully shed load when the database is unreachable.",
-          "eta": "30 minutes for immediate relief (scaling + circuit breaker); longer-term fixes (caching, query optimization) will be deployed in the next maintenance window."
+          "summary": "The order-service, which handles customer orders, ran out of database connections under heavy load. Its connection pool was fully saturated with no way to acquire new connections, causing requests to queue and eventually fail. The service was also undersized (only 2 instances) for the current traffic, and had no backoff mechanism to handle connection failures gracefully.",
+          "impact": "Customers experienced order processing failures and timeouts as the service could not complete database operations. Queue depth rose as requests piled up waiting for DB access.",
+          "resolution": "Scaling the service from 2 to 6 tasks to restore capacity, increasing the DB connection pool size to allow new connections, and adding connection idle timeouts to prevent leaks. A code fix PR is being opened to add adaptive backoff on connection failures.",
+          "eta": "30 minutes for immediate capacity relief (scaling + pool increase); code fix will take longer to deploy"
         }
       }
     },
     {
       "step": "poll",
-      "at": "2026-07-17T21:21:59.948Z",
+      "at": "2026-07-17T21:50:41.311Z",
       "i": 0,
-      "elapsed": 21,
+      "elapsed": 9,
       "status": "awaiting_approval",
-      "evidenceLen": 13121,
-      "rootPreview": "The order-service is experiencing a cascading failure caused by a fixed-size DB connection pool that"
+      "evidenceLen": 12996,
+      "rootPreview": "The root cause is a combination of insufficient horizontal capacity and a rigid DB connection pool c"
     }
   ],
   "eval": {
@@ -312,7 +316,7 @@
     "not_instant_shared_breaker_fail": true,
     "investigation_progressed_or_clear_fail_closed": true,
     "finalStatus": "awaiting_approval",
-    "evidenceLen": 13121,
+    "evidenceLen": 12996,
     "earlyFailed": false
   },
   "passed": true

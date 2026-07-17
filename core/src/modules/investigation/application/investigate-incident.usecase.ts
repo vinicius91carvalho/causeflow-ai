@@ -412,6 +412,10 @@ export class InvestigateIncidentUseCase {
   }
 
   private failIfCircuitBreakerOpen(incidentId: IncidentId): void {
+    // AC-018: OSS Investigation LLM uses per-endpoint breakers + fallbackProfileId.
+    // Do not abort on the legacy shared Anthropic/health breaker — a failed active
+    // hop must not block healthy fallbacks (or clear chain-exhausted errors).
+    if (isLocalLlmFailClosedMode()) return;
     if (this.circuitBreaker?.getState() === 'open') {
       throw new InvestigationFailedError(
         String(incidentId),
@@ -1498,9 +1502,13 @@ export class InvestigateIncidentUseCase {
     // 4. If all agents failed, produce stub result so pipeline continues (AC-019)
     if (successfulResults.length === 0) {
       this.failIfCircuitBreakerOpen(incidentId);
-      const circuitErr = failedAgents.find((a) => a.error.includes('Circuit breaker is open'));
-      if (circuitErr) {
-        throw new InvestigationFailedError(String(incidentId), circuitErr.error);
+      // AC-018: shared CircuitBreakerOpen must not win over Investigation LLM fallback /
+      // clear chain-exhausted configure/fix-LLM errors on the OSS path.
+      if (!isLocalLlmFailClosedMode()) {
+        const circuitErr = failedAgents.find((a) => a.error.includes('Circuit breaker is open'));
+        if (circuitErr) {
+          throw new InvestigationFailedError(String(incidentId), circuitErr.error);
+        }
       }
       this.failClosedIfLocalLlmMode(incidentId);
       logger.warn(
@@ -2886,7 +2894,11 @@ Analyze and report your findings.${memoryContext}${repoContext}${priorFindings ?
           { role, error, stack, incidentId, tenantId },
           'Sub-agent failed during investigation',
         );
-        this.circuitBreaker?.onFailure();
+        // AC-018: do not open the shared breaker from a single hop/agent failure
+        // while OSS Investigation LLM fallbackProfileId chain may still succeed.
+        if (!isLocalLlmFailClosedMode()) {
+          this.circuitBreaker?.onFailure();
+        }
         failed.push({ role, error });
         await this.eventBus.publish({
           eventType: 'investigation.progress',
