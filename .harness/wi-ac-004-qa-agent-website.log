@@ -3,6 +3,6 @@
    - Network:      http://127.0.0.1:5171
 
  ✓ Starting...
- ✓ Ready in 164ms
-(node:1984394) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+ ✓ Ready in 195ms
+(node:2237854) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
 (Use `node --trace-deprecation ...` to show where the warning was created)
