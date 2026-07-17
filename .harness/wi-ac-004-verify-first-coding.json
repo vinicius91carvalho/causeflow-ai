@@ -11,9 +11,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -47,9 +48,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -79,9 +81,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -107,9 +110,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -143,9 +147,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -187,9 +192,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -223,9 +229,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -263,9 +270,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -299,9 +307,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -331,9 +340,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -359,9 +369,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -395,9 +406,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -439,9 +451,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -475,9 +488,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",

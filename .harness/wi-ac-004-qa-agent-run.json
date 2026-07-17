@@ -11,9 +11,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -22,10 +23,6 @@
         {
           "href": "https://dashboard-staging.causeflow.ai",
           "text": "Dashboard"
-        },
-        {
-          "href": "/use-cases/stale-pricing",
-          "text": "INV-2847mediumPricing page showing stale prices after CMS updateCMScacheCDNwebhookRoot cause: CMS invalidation webhook failing with 403 for 12min. CDN serving /"
         },
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -51,9 +48,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -83,9 +81,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -111,9 +110,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -122,10 +122,6 @@
         {
           "href": "https://dashboard-staging.causeflow.ai",
           "text": "Dashboard"
-        },
-        {
-          "href": "/use-cases/stale-pricing",
-          "text": "stale-pricingStale Pricing Page Caught Before Sales CallA cached CDN layer served a pricing page with outdated plan prices \u2014 48 hours before a critical enterpri"
         },
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -151,9 +147,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -195,9 +192,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -231,9 +229,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -271,9 +270,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -282,10 +282,6 @@
         {
           "href": "https://dashboard-staging.causeflow.ai",
           "text": "Painel"
-        },
-        {
-          "href": "/pt-br/use-cases/stale-pricing",
-          "text": "INV-2847mediumPricing page exibindo pre\u00e7os desatualizados ap\u00f3s atualiza\u00e7\u00e3o no CMSCMScacheCDNwebhookCausa raiz: Webhook de invalida\u00e7\u00e3o do CMS falhando em 403 h\u00e1 "
         },
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -311,9 +307,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -343,9 +340,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -371,9 +369,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -382,10 +381,6 @@
         {
           "href": "https://dashboard-staging.causeflow.ai",
           "text": "Painel"
-        },
-        {
-          "href": "/pt-br/use-cases/stale-pricing",
-          "text": "stale-pricingP\u00e1gina de Pre\u00e7os Desatualizada Detectada Antes da DemoUma camada de CDN em cache serviu uma p\u00e1gina de pre\u00e7os com valores desatualizados \u2014 48 horas "
         },
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -411,9 +406,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -455,9 +451,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
@@ -491,9 +488,10 @@
       "status": 200,
       "forbidden_cta_links": [],
       "forbidden_buttons": [],
+      "hard_forbidden_body": [],
       "has_docs_href": true,
       "has_github_repo_href": true,
-      "has_labeled_docs_or_github": true,
+      "has_primary_cta": true,
       "interesting": [
         {
           "href": "https://vinicius91carvalho.github.io/causeflow-ai/",
