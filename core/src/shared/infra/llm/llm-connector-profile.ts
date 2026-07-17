@@ -11,12 +11,19 @@ import {
 import { config } from '../../config/index.js';
 import {
   NoActiveInvestigationLlmError,
+  resolveActiveInvestigationLlmFallbackChain,
   resolveActiveInvestigationLlmProfileEndpoint,
 } from '../../../modules/oss/infra/resolve-investigation-llm-profile.js';
 import { usesLocalLlmConnector } from './llm-factory.js';
 import { getActiveLlmConnectorId } from './oss-llm-connector-store.js';
 
-export { NoActiveInvestigationLlmError, NO_ACTIVE_INVESTIGATION_LLM_ERROR } from '../../../modules/oss/infra/resolve-investigation-llm-profile.js';
+export {
+  InvestigationLlmChainExhaustedError,
+  INVESTIGATION_LLM_CHAIN_EXHAUSTED_ERROR,
+  MAX_INVESTIGATION_LLM_FALLBACK_DEPTH,
+  NoActiveInvestigationLlmError,
+  NO_ACTIVE_INVESTIGATION_LLM_ERROR,
+} from '../../../modules/oss/infra/resolve-investigation-llm-profile.js';
 
 export interface ResolvedLlmEndpoint {
   /** Legacy enum id or custom Investigation LLM profile UUID (AC-086). */
@@ -93,20 +100,7 @@ export async function getActiveLlmConnectorProfile(): Promise<LlmConnectorProfil
   return getLlmConnectorProfile(id);
 }
 
-export async function resolveActiveLlmEndpoint(tenantId?: string): Promise<ResolvedLlmEndpoint> {
-  if (tenantId && usesLocalLlmConnector()) {
-    const custom = await resolveActiveInvestigationLlmProfileEndpoint(tenantId);
-    if (!custom) {
-      throw new NoActiveInvestigationLlmError();
-    }
-    return custom;
-  }
-
-  if (tenantId) {
-    const custom = await resolveActiveInvestigationLlmProfileEndpoint(tenantId);
-    if (custom) return custom;
-  }
-
+async function resolveLegacyLlmEndpoint(): Promise<ResolvedLlmEndpoint> {
   const profile = await getActiveLlmConnectorProfile();
   const apiKey =
     profile.id === 'deepseek-opencode'
@@ -123,6 +117,40 @@ export async function resolveActiveLlmEndpoint(tenantId?: string): Promise<Resol
     contextWindowTokens: profile.contextWindowTokens,
     credentialsConfigured: profile.credentialsConfigured,
   };
+}
+
+export async function resolveActiveLlmEndpoint(tenantId?: string): Promise<ResolvedLlmEndpoint> {
+  if (tenantId && usesLocalLlmConnector()) {
+    const custom = await resolveActiveInvestigationLlmProfileEndpoint(tenantId);
+    if (!custom) {
+      throw new NoActiveInvestigationLlmError();
+    }
+    return custom;
+  }
+
+  if (tenantId) {
+    const custom = await resolveActiveInvestigationLlmProfileEndpoint(tenantId);
+    if (custom) return custom;
+  }
+
+  return resolveLegacyLlmEndpoint();
+}
+
+/**
+ * AC-018: ordered endpoints to try — active Investigation LLM then fallbackProfileId chain.
+ * Never includes DeterministicLLMClient or Anthropic as a silent success path.
+ */
+export async function resolveActiveLlmEndpointChain(
+  tenantId?: string,
+): Promise<ResolvedLlmEndpoint[]> {
+  if (tenantId) {
+    const chain = await resolveActiveInvestigationLlmFallbackChain(tenantId);
+    if (chain.length > 0) return chain;
+    if (usesLocalLlmConnector()) {
+      throw new NoActiveInvestigationLlmError();
+    }
+  }
+  return [await resolveLegacyLlmEndpoint()];
 }
 
 export function connectorEvidenceLabel(connectorId: string): string {

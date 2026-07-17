@@ -9,7 +9,11 @@ import type {
   CompletionResult,
 } from '../../application/ports/llm-client.port.js';
 import { instrumentedCall } from '../observability/outbound.js';
-import { resolveActiveLlmEndpoint } from './llm-connector-profile.js';
+import {
+  InvestigationLlmChainExhaustedError,
+  resolveActiveLlmEndpointChain,
+  type ResolvedLlmEndpoint,
+} from './llm-connector-profile.js';
 import {
   LlmContextTooLargeError,
   contextOverflowGuidance,
@@ -44,11 +48,31 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
   async complete<T>(params: CompletionParams): Promise<CompletionResult<T>> {
     const tenantId =
       typeof params.attributes?.tenantId === 'string' ? params.attributes.tenantId : undefined;
-    const endpoint = await resolveActiveLlmEndpoint(tenantId);
-    const model = endpoint.model;
-    if (params.responseSchema) {
-      return this.completeStructured(params, endpoint);
+    // AC-018: try active profile then optional fallbackProfileId chain (cycle-safe / max depth).
+    // Fail closed — never silently succeed via DeterministicLLMClient or Anthropic.
+    const chain = await resolveActiveLlmEndpointChain(tenantId);
+    let lastError: unknown;
+    for (const endpoint of chain) {
+      try {
+        if (params.responseSchema) {
+          return await this.completeStructured(params, endpoint);
+        }
+        return await this.completePlain(params, endpoint);
+      } catch (err) {
+        lastError = err;
+      }
     }
+    const detail = lastError instanceof Error ? lastError.message : String(lastError ?? 'unknown');
+    throw new InvestigationLlmChainExhaustedError(
+      `Investigation LLM failed and the fallbackProfileId chain is missing or exhausted (${detail}). Configure or fix the Investigation LLM in Settings — Core does not silently succeed via DeterministicLLMClient or Anthropic.`,
+    );
+  }
+
+  private async completePlain<T>(
+    params: CompletionParams,
+    endpoint: ResolvedLlmEndpoint,
+  ): Promise<CompletionResult<T>> {
+    const model = endpoint.model;
     const response = await instrumentedCall(
       'local-llm',
       'chat.completions',
@@ -70,7 +94,7 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
 
   private async completeStructured<T>(
     params: CompletionParams,
-    endpoint: Awaited<ReturnType<typeof resolveActiveLlmEndpoint>>,
+    endpoint: ResolvedLlmEndpoint,
   ): Promise<CompletionResult<T>> {
     const model = endpoint.model;
     const { $schema: _, ...rawSchema } = zodToJsonSchema(params.responseSchema!);
@@ -117,7 +141,7 @@ export class OpenAiCompatibleLlmClient implements LLMClient {
 
   private async requestCompletion(
     params: CompletionParams,
-    endpoint: Awaited<ReturnType<typeof resolveActiveLlmEndpoint>>,
+    endpoint: ResolvedLlmEndpoint,
     jsonMode: boolean,
   ): Promise<ChatCompletionResponse> {
     const { baseUrl, model, apiKey, connectorId } = endpoint;

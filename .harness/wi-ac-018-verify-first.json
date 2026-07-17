@@ -1,0 +1,53 @@
+{
+  "id": "WI-AC-018",
+  "phase": "verify-first",
+  "observation_method": "grep",
+  "checks": [
+    {
+      "name": "MAX_INVESTIGATION_LLM_FALLBACK_DEPTH defined (max depth)",
+      "pass": true,
+      "evidence": "14:export const MAX_INVESTIGATION_LLM_FALLBACK_DEPTH = 5;\n95:  while (currentId && depth < MAX_INVESTIGATION_LLM_FALLBACK_DEPTH) {"
+    },
+    {
+      "name": "cycle-safe visited Set in fallback walk",
+      "pass": true,
+      "evidence": "91:  const visited = new Set<string>();\n96:    if (visited.has(currentId)) {\n100:    visited.add(currentId);"
+    },
+    {
+      "name": "fallbackProfileId chain walker exists",
+      "pass": true,
+      "evidence": "3: * AC-018: optional fallbackProfileId chain (max depth / cycle-safe); exhausted → fail closed.\n13:/** AC-018: max hops along fallbackProfileId (includes the active profile). */\n57:  'Investigation LLM failed and the fallbackProfileId chain is missing or exhausted. Configure or fix the Investigation LLM in Settings — Core does not silently succeed via DeterministicLLMClient or Anthropic.';\n83: * AC-018: walk active profile → fallbackProfileId… with max depth and cycle protection.\n106:    currentId = profile.fallbackProfileId;"
+    },
+    {
+      "name": "clear configure/fix-LLM exhausted error (no DeterministicLLMClient/Anthropic silent success)",
+      "pass": true,
+      "evidence": "56:export const INVESTIGATION_LLM_CHAIN_EXHAUSTED_ERROR =\n68:  constructor(message: string = INVESTIGATION_LLM_CHAIN_EXHAUSTED_ERROR) {"
+    },
+    {
+      "name": "OpenAiCompatibleLlmClient walks endpoint chain on failure",
+      "pass": true,
+      "evidence": "14:  resolveActiveLlmEndpointChain,\n53:    const chain = await resolveActiveLlmEndpointChain(tenantId);"
+    },
+    {
+      "name": "local-llm-guard probes fallback chain for tenant",
+      "pass": true,
+      "evidence": "9:  resolveActiveLlmEndpointChain,\n38:      const chain = await resolveActiveLlmEndpointChain(tenantId);"
+    },
+    {
+      "name": "llm-connector-profile exports chain resolver (AC-018)",
+      "pass": true,
+      "evidence": "143:export async function resolveActiveLlmEndpointChain("
+    },
+    {
+      "name": "OSS createRawLlmClient uses OpenAiCompatibleLlmClient (not DeterministicLLMClient)",
+      "pass": true,
+      "evidence": "10:import { OpenAiCompatibleLlmClient } from './openai-compatible-llm-client.js';\n43:    const client = new OpenAiCompatibleLlmClient();"
+    },
+    {
+      "name": "OSS createRawLlmClient does not auto-pick Anthropic when local connector active",
+      "pass": true,
+      "evidence": "18:export function usesLocalLlmConnector(): boolean {\n24:  if (!usesLocalLlmConnector()) return false;\n31:  return usesLocalLlmConnector();\n42:  if (usesLocalLlmConnector()) {\n53:  if (usesLocalLlmConnector()) {"
+    }
+  ],
+  "passed": true
+}

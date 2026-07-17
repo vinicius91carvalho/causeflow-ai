@@ -902,7 +902,8 @@ export class InvestigateIncidentUseCase {
     if (isLocalLlmFailClosedMode()) {
       try {
         await assertActiveInvestigationLlmProfile(String(tenantId));
-        await assertLocalLlmReachable(this.circuitBreaker);
+        // AC-018: probe active + fallbackProfileId chain; exhausted → clear configure/fix-LLM error.
+        await assertLocalLlmReachable(this.circuitBreaker, String(tenantId));
       } catch (err) {
         throw new InvestigationFailedError(
           String(incidentId),
