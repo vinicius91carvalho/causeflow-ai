@@ -5797,3 +5797,16 @@ remove the file manually to continue.
 error: could not write index
 fatal: stash failed
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T11:22:28.343Z — Explicit Resume
+
+- WorkItem: WI-AC-015
+- Outcome: user authorized a new Attempt cycle
+- Guidance: Auto-retry: integration merge/checkpoint failure; retry merge and integrated verification.
+Evidence excerpt: {
+  "id": "WI-AC-015",
+  "qa": true,
+  "implementation": true,
+  "defects": []
+}
+- NextAction: Coding Attempt 1
