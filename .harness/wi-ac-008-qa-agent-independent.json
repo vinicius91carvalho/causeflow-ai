@@ -1,8 +1,8 @@
 {
   "id": "WI-AC-008",
-  "phase": "verify-first-existing-retry2",
+  "phase": "qa-agent-independent",
   "base": "http://127.0.0.1:5170",
-  "email": "vf-ac008-1784263705986@causeflow.local",
+  "email": "qa-ac008-final-1784263559621@causeflow.local",
   "steps": [
     {
       "step": "register",
@@ -10,9 +10,9 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "bc92e8e8-3c9b-489c-8e7d-895b9b2a781b",
-          "email": "vf-ac008-1784263705986@causeflow.local",
-          "name": "AC008 VF Admin"
+          "id": "307ddc92-68e0-4a20-9420-53f2716feb6b",
+          "email": "qa-ac008-final-1784263559621@causeflow.local",
+          "name": "AC008 QA Final"
         }
       }
     },
@@ -44,7 +44,7 @@
       ],
       "finalUrl": "http://127.0.0.1:5170/dashboard",
       "finalStatus": 200,
-      "body_len": 90287,
+      "body_len": 90442,
       "snippet": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_14db65\" data-theme=\"cleric\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link"
     }
   ],
@@ -56,5 +56,6 @@
     "dashboard_home_reachable_without_gate": true,
     "no_commercial_gate_ui_on_dashboard": true
   },
-  "pass": true
+  "pass": true,
+  "defects": []
 }
