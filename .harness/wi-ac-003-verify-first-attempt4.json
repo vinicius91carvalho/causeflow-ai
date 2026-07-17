@@ -1,0 +1,31 @@
+{
+  "phase": "verify-first-existing",
+  "ac003_pass": true,
+  "notes": "GET /pricing and /pt-br/pricing on PORT=5171",
+  "routes": [
+    {
+      "url": "http://127.0.0.1:5171/pricing",
+      "pass": true,
+      "status": 404,
+      "location": null,
+      "has_paid_plan_cards": false,
+      "redirects_to_docs": false,
+      "redirects_to_sales": false,
+      "has_not_found_ui": true,
+      "body_len": 38585,
+      "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/we"
+    },
+    {
+      "url": "http://127.0.0.1:5171/pt-br/pricing",
+      "pass": true,
+      "status": 404,
+      "location": null,
+      "has_paid_plan_cards": false,
+      "redirects_to_docs": false,
+      "redirects_to_sales": false,
+      "has_not_found_ui": true,
+      "body_len": 39253,
+      "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/we"
+    }
+  ]
+}
