@@ -74,3 +74,10 @@
 - Defects: Integrated Verification failed
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/651b83db-b666-423a-bc52-87470d956cc4/oss-golden-path/WI-AC-025-2-integration_qa-e3b0c44298fc1c14.log
 - NextAction: Repair Plan
+
+## 2026-07-17T19:06:07.849Z — Operator guidance
+
+- WorkItem: WI-AC-025
+- Outcome: retryQueue / Control Host guidance applied to coding Repair Plan
+- Guidance: Goal Review AC-025/AC-026 product repair (NOT verify-first). Implement Ornith ORNITH_LOCAL_PRESET.baseUrl=http://host.docker.internal:8081/v1 on gen branch, merge to plan/opensource-docker, rebuild dashboard, gate ac-025-browser-probe with shipped preset; close WI-AC-026. FORBIDDEN: VERIFY-FIRST zero-diff.
+- NextAction: Coding
