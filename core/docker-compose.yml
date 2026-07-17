@@ -51,6 +51,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - '5190:5190'
+    # Reach host-published Core / Ornith when webhook targets use host.docker.internal.
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     environment:
       TEST_APP_PORT: '5190'
       TEST_APP_HOST: '0.0.0.0'

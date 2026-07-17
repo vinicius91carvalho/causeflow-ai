@@ -1,0 +1,265 @@
+{
+  "id": "WI-AC-025",
+  "phase": "verify-first-browser",
+  "acceptance_check_id": "AC-025",
+  "observation_method": "browser",
+  "dashboard": "http://127.0.0.1:3001",
+  "core": "http://127.0.0.1:3099",
+  "testApp": "http://127.0.0.1:5190",
+  "email": "ac025-browser-1784318099648@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "808acc23-fd84-4d2d-b7f2-0d9b36bc5507",
+          "email": "ac025-browser-1784318099648@causeflow.local",
+          "name": "AC025 Browser"
+        }
+      },
+      "url": "about:blank"
+    },
+    {
+      "step": "dashboard_home",
+      "url": "http://127.0.0.1:3001/dashboard",
+      "clerk": false
+    },
+    {
+      "step": "shipped_ornith_local_preset",
+      "status": 200,
+      "shippedLocal": {
+        "id": "ornith-local",
+        "label": "Ornith (local)",
+        "baseUrl": "http://host.docker.internal:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "contextWindowTokens": 32768
+      }
+    },
+    {
+      "step": "activate_ornith_local",
+      "status": 200,
+      "activeProfileId": "fe402d94-4fbb-4988-b02e-df6afeda9fe9",
+      "active": {
+        "id": "fe402d94-4fbb-4988-b02e-df6afeda9fe9",
+        "label": "Ornith (local) 1784318099648",
+        "baseUrl": "http://host.docker.internal:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "apiKeyConfigured": false,
+        "contextWindowTokens": 32768,
+        "isActive": true,
+        "createdAt": "Fri Jul 17 2026 19:55:06 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 19:55:06 GMT+0000 (Coordinated Universal Time)"
+      }
+    },
+    {
+      "step": "connect_test_application",
+      "connected": true,
+      "via": "browser"
+    },
+    {
+      "step": "core_stub_connect",
+      "status": 201,
+      "body": {
+        "integrationId": "stub-upstream-credential",
+        "provider": "stub-upstream",
+        "status": "active",
+        "stubConnectionId": "test-app-conn-a38a02f9-b9c5-4dbe-901f-8996699fa1b8-1784318112592",
+        "stubBaseUrl": "http://causeflow-test-app:5190",
+        "connectedAt": "2026-07-17T19:55:12.592Z"
+      },
+      "payload": {}
+    },
+    {
+      "step": "emit_ingest_demo_alert",
+      "status": 202,
+      "body": {
+        "emitted": true,
+        "incidentId": "41851e70-174f-4d70-a675-fbcc8c563f04",
+        "stubState": {
+          "app": "causeflow-test-app",
+          "connectionCount": 2,
+          "connections": [
+            {
+              "tenantId": "6253ec05-277e-4094-a9ba-2e2523750c9f",
+              "connectionId": "test-app-conn-6253ec05-277e-4094-a9ba-2e2523750c9f-1784318060144",
+              "coreBaseUrl": "http://causeflow-api:5171",
+              "connectedAt": "2026-07-17T19:54:20.144Z"
+            },
+            {
+              "tenantId": "a38a02f9-b9c5-4dbe-901f-8996699fa1b8",
+              "connectionId": "test-app-conn-a38a02f9-b9c5-4dbe-901f-8996699fa1b8-1784318112592",
+              "coreBaseUrl": "http://causeflow-api:5171",
+              "connectedAt": "2026-07-17T19:55:12.592Z"
+            }
+          ],
+          "probeCount": 0,
+          "ingestCount": 2,
+          "toolCallCount": 0,
+          "lastProbeAt": null,
+          "lastIngestAt": "2026-07-17T19:55:12.612Z",
+          "lastToolCallAt": null,
+          "lastEmitResult": {
+            "ok": true,
+            "webhookStatus": 202,
+            "webhookUrl": "http://causeflow-api:5171/v1/webhooks/a38a02f9-b9c5-4dbe-901f-8996699fa1b8/datadog",
+            "incidentId": "41851e70-174f-4d70-a675-fbcc8c563f04",
+            "alertId": "test-app-alert-1784318112601"
+          },
+          "availableTools": [
+            "query_logs",
+            "query_metrics",
+            "get_deployments",
+            "get_service_health"
+          ]
+        },
+        "ingestedAt": "2026-07-17T19:55:12.613Z"
+      }
+    },
+    {
+      "step": "incidents_shows_incident",
+      "incidentId": "41851e70-174f-4d70-a675-fbcc8c563f04",
+      "url": "http://127.0.0.1:3001/dashboard/incidents/41851e70-174f-4d70-a675-fbcc8c563f04"
+    },
+    {
+      "step": "poll_investigation",
+      "i": 0,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 5,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 10,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 15,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 20,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 25,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 30,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 35,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 40,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 45,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 50,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 55,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 60,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 65,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 70,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 75,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 80,
+      "status": "awaiting_approval",
+      "remCount": 1,
+      "rootPreview": "The order-service is experiencing a cascading failure caused by a combination of undersized infrastructure capacity and "
+    },
+    {
+      "step": "catalog_grounded_evidence",
+      "evidenceOk": true,
+      "rootCausePreview": "The order-service is experiencing a cascading failure caused by a combination of undersized infrastructure capacity and a rigid connection pool design. Under elevated load, the service's fixed-size DB connection pool (no adaptive backoff) f",
+      "evidenceBytes": 15640
+    },
+    {
+      "step": "remediation_visible",
+      "remCount": 1,
+      "remVisible": true,
+      "uiHasRemediationWord": true
+    }
+  ],
+  "pass": true,
+  "defects": [],
+  "incidentId": "41851e70-174f-4d70-a675-fbcc8c563f04",
+  "final": {
+    "status": "awaiting_approval",
+    "rootCause": "The order-service is experiencing a cascading failure caused by a combination of undersized infrastructure capacity and a rigid connection pool design. Under elevated load, the service's fixed-size DB connection pool (no adaptive backoff) fills to its maximum, causing all subsequent DB checkout attempts to block or fail. With only 2 ECS tasks running and CPU already sustained above 90%, the service cannot scale to acquire more connections or process queued requests. The result is a feedback loop: pool saturation → checkout failures → increased latency → more queue buildup → further pool pressure. No recent code or config changes triggered this; it is a pure capacity and architectural resilience issue.",
+    "remCount": 1
+  }
+}

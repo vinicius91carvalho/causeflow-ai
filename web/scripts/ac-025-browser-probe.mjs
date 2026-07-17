@@ -193,20 +193,39 @@ async function main() {
   const token = login.token;
   if (!token) throw new Error(`no token from core login: ${JSON.stringify(login)}`);
 
-  // Re-affirm stub connect. Host-dev Core reaches TEST_APP on published :5190, but
-  // the Docker test-app must webhook back via host.docker.internal (not 127.0.0.1).
-  // Compose Core prefers Docker DNS / empty body (STUB_UPSTREAM_BASE_URL).
+  // Re-affirm stub connect.
+  // - Compose Core is published on host :3099 but containers reach it via Docker DNS
+  //   (STUB_UPSTREAM_CORE_BASE_URL=http://causeflow-api:5171). Prefer empty body so
+  //   those defaults win — rewriting :3099 → host.docker.internal breaks emit when
+  //   test-app lacks extra_hosts.
+  // - Host-dev Core on :5171 still needs host.docker.internal so the Docker test-app
+  //   can webhook back to the host process (not 127.0.0.1 inside the container).
+  const isComposeCore = /:(3099)\b/.test(CORE);
   const coreBaseForStub =
     process.env.OSS_STUB_CORE_BASE_URL ||
-    (CORE.includes('127.0.0.1') || CORE.includes('localhost')
-      ? CORE.replace('127.0.0.1', 'host.docker.internal').replace('localhost', 'host.docker.internal')
-      : CORE);
-  const stubCandidates = [
-    { baseUrl: process.env.OSS_STUB_BASE_URL_FOR_CORE, coreBaseUrl: coreBaseForStub },
-    { baseUrl: TEST_APP, coreBaseUrl: coreBaseForStub },
-    { baseUrl: 'http://causeflow-test-app:5190', coreBaseUrl: undefined },
-    {}, // empty → compose STUB_UPSTREAM_* defaults
-  ];
+    (isComposeCore
+      ? undefined
+      : CORE.includes('127.0.0.1') || CORE.includes('localhost')
+        ? CORE.replace('127.0.0.1', 'host.docker.internal').replace('localhost', 'host.docker.internal')
+        : CORE);
+  const stubCandidates = isComposeCore
+    ? [
+        {}, // empty → compose STUB_UPSTREAM_* defaults (Docker DNS)
+        {
+          baseUrl: 'http://causeflow-test-app:5190',
+          coreBaseUrl: 'http://causeflow-api:5171',
+        },
+        {
+          baseUrl: process.env.OSS_STUB_BASE_URL_FOR_CORE,
+          coreBaseUrl: process.env.OSS_STUB_CORE_BASE_URL,
+        },
+      ]
+    : [
+        { baseUrl: process.env.OSS_STUB_BASE_URL_FOR_CORE, coreBaseUrl: coreBaseForStub },
+        { baseUrl: TEST_APP, coreBaseUrl: coreBaseForStub },
+        { baseUrl: 'http://causeflow-test-app:5190', coreBaseUrl: undefined },
+        {}, // empty → compose STUB_UPSTREAM_* defaults
+      ];
   let connectOk = false;
   for (const payload of stubCandidates) {
     const body = {};

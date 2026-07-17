@@ -89,6 +89,10 @@ services:
     container_name: causeflow-test-app
     ports:
       - '5190:5190'
+    # Allow optional host.docker.internal webhook targets (host-dev Core :5171 /
+    # published compose :3099) in addition to Docker-DNS causeflow-api:5171.
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     environment:
       TEST_APP_PORT: '5190'
       TEST_APP_HOST: '0.0.0.0'

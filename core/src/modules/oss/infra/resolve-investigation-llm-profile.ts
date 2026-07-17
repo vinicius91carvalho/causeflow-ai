@@ -2,6 +2,7 @@
  * Resolves the active Investigation LLM endpoint from a tenant's custom profile (AC-086).
  * AC-018: optional fallbackProfileId chain (max depth / cycle-safe); exhausted → fail closed.
  */
+import { existsSync } from 'node:fs';
 import { AesGcmTokenEncryption } from '../../../shared/infra/credentials/aes-gcm-token-encryption.js';
 import type { ResolvedLlmEndpoint } from '../../../shared/infra/llm/llm-connector-profile.js';
 import type { InvestigationLlmProfile } from '../domain/investigation-llm-profile.entity.js';
@@ -12,6 +13,29 @@ const DEFAULT_CONTEXT_WINDOW = 32_768;
 
 /** AC-018: max hops along fallbackProfileId (includes the active profile). */
 export const MAX_INVESTIGATION_LLM_FALLBACK_DEPTH = 5;
+
+/**
+ * Host-loopback Ornith (:8081) is unreachable from api/worker containers (AC-025).
+ * Rewrite to the compose host-gateway when Core is running inside Docker.
+ */
+export function composeReachableLlmBaseUrl(
+  baseUrl: string,
+  runningInDocker: boolean = isRunningInDocker(),
+): string {
+  if (!runningInDocker) return baseUrl;
+  return baseUrl
+    .replace(/^http:\/\/127\.0\.0\.1:8081(?=\/|$)/, 'http://host.docker.internal:8081')
+    .replace(/^http:\/\/localhost:8081(?=\/|$)/, 'http://host.docker.internal:8081')
+    .replace(/^http:\/\/\[::1\]:8081(?=\/|$)/, 'http://host.docker.internal:8081');
+}
+
+export function isRunningInDocker(): boolean {
+  try {
+    return existsSync('/.dockerenv');
+  } catch {
+    return false;
+  }
+}
 
 let repo: PgInvestigationLlmProfileRepository | null = null;
 let encryption: AesGcmTokenEncryption | null = null;
@@ -42,7 +66,7 @@ export async function resolveInvestigationLlmProfileEndpoint(
     connectorId: profile.id,
     profileId: profile.id,
     label: profile.label,
-    baseUrl: profile.baseUrl,
+    baseUrl: composeReachableLlmBaseUrl(profile.baseUrl),
     model: profile.model,
     apiKey,
     contextWindowTokens: profile.contextWindowTokens ?? DEFAULT_CONTEXT_WINDOW,
