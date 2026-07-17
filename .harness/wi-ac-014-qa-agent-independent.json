@@ -1,0 +1,228 @@
+{
+  "id": "WI-AC-014",
+  "phase": "qa-agent-independent",
+  "base": "http://127.0.0.1:5170",
+  "core": "http://127.0.0.1:3099",
+  "email": "qa-ac014-1784286486@causeflow.local",
+  "labelA": "QA AC014 Profile A 1784286486",
+  "labelB": "QA AC014 Profile B 1784286486",
+  "labelEdited": "QA AC014 Profile A Edited 1784286486",
+  "steps": [
+    {
+      "step": "dashboard_register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "9f9f9a9b-a36e-4875-9cef-2804d6127e09",
+          "email": "qa-ac014-1784286486@causeflow.local",
+          "name": "AC014 VF Admin"
+        }
+      }
+    },
+    {
+      "step": "create_profile_a",
+      "status": 201,
+      "body": {
+        "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
+        "label": "QA AC014 Profile A 1784286486",
+        "baseUrl": "https://api.openai.com/v1",
+        "model": "gpt-4o-mini",
+        "apiKeyConfigured": true,
+        "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "create_profile_b",
+      "status": 201,
+      "body": {
+        "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+        "label": "QA AC014 Profile B 1784286486",
+        "baseUrl": "http://127.0.0.1:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "apiKeyConfigured": false,
+        "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "edit_profile_a",
+      "status": 200,
+      "body": {
+        "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
+        "label": "QA AC014 Profile A Edited 1784286486",
+        "baseUrl": "https://api.openai.com/v1",
+        "model": "gpt-4o",
+        "apiKeyConfigured": true,
+        "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "activate_profile_a",
+      "status": 200,
+      "body": {
+        "activeProfileId": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
+        "profile": {
+          "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
+          "label": "QA AC014 Profile A Edited 1784286486",
+          "baseUrl": "https://api.openai.com/v1",
+          "model": "gpt-4o",
+          "apiKeyConfigured": true,
+          "isActive": true,
+          "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+        }
+      }
+    },
+    {
+      "step": "list_after_activate_a",
+      "status": 200,
+      "body": {
+        "activeProfileId": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
+        "items": [
+          {
+            "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
+            "label": "QA AC014 Profile A Edited 1784286486",
+            "baseUrl": "https://api.openai.com/v1",
+            "model": "gpt-4o",
+            "apiKeyConfigured": true,
+            "isActive": true,
+            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+            "label": "QA AC014 Profile B 1784286486",
+            "baseUrl": "http://127.0.0.1:8081/v1",
+            "model": "Ornith-1.0-9B-code",
+            "apiKeyConfigured": false,
+            "isActive": false,
+            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "activate_profile_b",
+      "status": 200,
+      "body": {
+        "activeProfileId": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+        "profile": {
+          "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+          "label": "QA AC014 Profile B 1784286486",
+          "baseUrl": "http://127.0.0.1:8081/v1",
+          "model": "Ornith-1.0-9B-code",
+          "apiKeyConfigured": false,
+          "isActive": true,
+          "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+          "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+        }
+      }
+    },
+    {
+      "step": "list_after_activate_b",
+      "status": 200,
+      "body": {
+        "activeProfileId": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+        "items": [
+          {
+            "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd",
+            "label": "QA AC014 Profile A Edited 1784286486",
+            "baseUrl": "https://api.openai.com/v1",
+            "model": "gpt-4o",
+            "apiKeyConfigured": true,
+            "isActive": false,
+            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+            "label": "QA AC014 Profile B 1784286486",
+            "baseUrl": "http://127.0.0.1:8081/v1",
+            "model": "Ornith-1.0-9B-code",
+            "apiKeyConfigured": false,
+            "isActive": true,
+            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "delete_profile_a",
+      "status": 200,
+      "body": {
+        "success": true,
+        "id": "c9c2cc1d-0551-4b1e-98f9-026c8621d9fd"
+      }
+    },
+    {
+      "step": "list_after_delete_a",
+      "status": 200,
+      "body": {
+        "activeProfileId": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+        "items": [
+          {
+            "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+            "label": "QA AC014 Profile B 1784286486",
+            "baseUrl": "http://127.0.0.1:8081/v1",
+            "model": "Ornith-1.0-9B-code",
+            "apiKeyConfigured": false,
+            "isActive": true,
+            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      },
+      "leaks_plaintext": false
+    },
+    {
+      "step": "core_list_direct",
+      "status": 200,
+      "body": {
+        "activeProfileId": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+        "items": [
+          {
+            "id": "3b19e314-b20e-4fd2-8fcc-b3fd5c82b269",
+            "label": "QA AC014 Profile B 1784286486",
+            "baseUrl": "http://127.0.0.1:8081/v1",
+            "model": "Ornith-1.0-9B-code",
+            "apiKeyConfigured": false,
+            "isActive": true,
+            "createdAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)",
+            "updatedAt": "Fri Jul 17 2026 11:08:11 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      },
+      "leaks_plaintext": false
+    }
+  ],
+  "eval": {
+    "register_ok": true,
+    "create_a_ok": true,
+    "create_b_ok": true,
+    "create_a_api_key_configured": true,
+    "create_a_no_plaintext": true,
+    "edit_ok": true,
+    "edit_api_key_configured": true,
+    "edit_no_plaintext": true,
+    "activate_a_ok": true,
+    "exactly_one_active_after_a": true,
+    "activate_b_ok": true,
+    "exactly_one_active_after_b": true,
+    "delete_inactive_ok": true,
+    "list_after_no_plaintext": true,
+    "core_direct_no_plaintext": true,
+    "core_exactly_one_active": true
+  },
+  "ac014_pass": true,
+  "defects": []
+}
