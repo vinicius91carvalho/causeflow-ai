@@ -18,3 +18,5 @@
  GET /en/product 200 in 912ms
  GET /pt-br 200 in 212ms
  GET /pt-br/product 200 in 102ms
+stopped pid=2880644
+[?25h
