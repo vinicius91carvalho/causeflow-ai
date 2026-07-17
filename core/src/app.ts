@@ -6,7 +6,6 @@ import { requestId } from 'hono/request-id';
 import { config } from './shared/config/index.js';
 import { errorHandler } from './shared/infra/http/middleware/error-handler.js';
 import { authMiddleware } from './shared/infra/http/middleware/auth.middleware.js';
-import { ossBillingGoneMiddleware } from './shared/infra/http/middleware/oss-billing-gone.middleware.js';
 import { tenantMiddleware } from './shared/infra/http/middleware/tenant.middleware.js';
 import { rateLimitMiddleware } from './shared/infra/http/middleware/rate-limit.middleware.js';
 import { auditMiddleware } from './shared/infra/http/middleware/audit.middleware.js';
@@ -67,7 +66,6 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, '/'> {
   );
   app.use('*', requestId());
   app.use('*', otelLangfuseBridge());
-  app.use('*', ossBillingGoneMiddleware);
   app.use('*', authMiddleware);
   app.use('*', tenantMiddleware);
   app.use('*', rateLimitMiddleware);
@@ -171,9 +169,9 @@ export function createApp(ctx: AppContext): Hono<AppEnv, BlankSchema, '/'> {
   app.route('/v1/users', userRoutes);
   app.route('/v1/invites', inviteRoutes);
   // Billing routes (authenticated endpoints + optional webhook + optional signup)
-  // In the OSS runtime (AC-043), Stripe-dependent routes (webhook, signup) are
-  // not mounted. The billing routes themselves handle OSS mode internally by
-  // returning 410 Gone for disabled features and stub data for subscription/usage.
+  // OSS product path (root AC-011): Stripe checkout/portal/webhook/signup are not
+  // mounted — prefer delete over a permanent 410 facade. Remaining billing routes
+  // only expose use cases wired in bootstrap (usage + subscription stub).
   app.route('/v1/billing', createBillingRoutes(ctx.billingUseCases));
   if (!config.isOss()) {
     app.route('/v1/billing', createBillingWebhookRoute(ctx.billingUseCases));

@@ -21,9 +21,9 @@ import type { CreateSubscriptionUseCase } from '../application/create-subscripti
 
 /**
  * BillingUseCases — all fields are optional so the open-source local runtime
- * (AC-043) can omit Stripe-dependent use cases without importing Stripe.
- * Routes guard against missing use cases and return 410 Gone with a clear
- * message when the billing feature is disabled in the OSS build.
+ * can omit Stripe-dependent use cases without importing Stripe.
+ * Missing commercial use cases mean those routes are not registered (prefer
+ * delete over a permanent 410 facade; root AC-011).
  */
 export interface BillingUseCases {
   createCheckout?: CreateCheckoutUseCase;
@@ -73,64 +73,50 @@ export function createBillingRoutes(useCases: BillingUseCases) {
     });
   }
   // POST /v1/billing/checkout — create Checkout session (admin only)
-  // In the OSS runtime (AC-043), billing is disabled — returns 410 Gone.
-  app.post('/checkout', requireRole('admin'), zValidator('json', checkoutSchema), async (c) => {
-    if (!useCases.createCheckout) {
-      return c.json(
-        { error: 'Billing is disabled in the OSS build. Checkout is not available.' },
-        410,
-      );
-    }
-    const tenantId = c.get('tenantId');
-    const input = c.req.valid('json');
-    const result = await useCases.createCheckout.execute({
-      tenantId,
-      planKey: input.planKey,
-      successUrl: input.successUrl,
-      cancelUrl: input.cancelUrl,
-    });
-    return c.json(result);
-  });
-  // POST /v1/billing/checkout-session — alias for /checkout (AC-043 canonical path)
-  app.post(
-    '/checkout-session',
-    requireRole('admin'),
-    zValidator('json', checkoutSchema),
-    async (c) => {
-      if (!useCases.createCheckout) {
-        return c.json(
-          { error: 'Billing is disabled in the OSS build. Checkout is not available.' },
-          410,
-        );
-      }
+  // Omitted entirely when Stripe checkout is not wired (OSS product path).
+  if (useCases.createCheckout) {
+    app.post('/checkout', requireRole('admin'), zValidator('json', checkoutSchema), async (c) => {
       const tenantId = c.get('tenantId');
       const input = c.req.valid('json');
-      const result = await useCases.createCheckout.execute({
+      const result = await useCases.createCheckout!.execute({
         tenantId,
         planKey: input.planKey,
         successUrl: input.successUrl,
         cancelUrl: input.cancelUrl,
       });
       return c.json(result);
-    },
-  );
-  // POST /v1/billing/portal — create Billing Portal session (admin only)
-  // In the OSS runtime (AC-043), billing is disabled — returns 410 Gone.
-  app.post('/portal', requireRole('admin'), zValidator('json', portalSchema), async (c) => {
-    if (!useCases.createPortal) {
-      return c.json(
-        { error: 'Billing is disabled in the OSS build. Portal is not available.' },
-        410,
-      );
-    }
-    const tenantId = c.get('tenantId');
-    const input = c.req.valid('json');
-    const result = await useCases.createPortal.execute({
-      tenantId,
-      returnUrl: input.returnUrl,
     });
-    return c.json(result);
-  });
+    // POST /v1/billing/checkout-session — alias for /checkout
+    app.post(
+      '/checkout-session',
+      requireRole('admin'),
+      zValidator('json', checkoutSchema),
+      async (c) => {
+        const tenantId = c.get('tenantId');
+        const input = c.req.valid('json');
+        const result = await useCases.createCheckout!.execute({
+          tenantId,
+          planKey: input.planKey,
+          successUrl: input.successUrl,
+          cancelUrl: input.cancelUrl,
+        });
+        return c.json(result);
+      },
+    );
+  }
+  // POST /v1/billing/portal — create Billing Portal session (admin only)
+  // Omitted entirely when Stripe portal is not wired (OSS product path).
+  if (useCases.createPortal) {
+    app.post('/portal', requireRole('admin'), zValidator('json', portalSchema), async (c) => {
+      const tenantId = c.get('tenantId');
+      const input = c.req.valid('json');
+      const result = await useCases.createPortal!.execute({
+        tenantId,
+        returnUrl: input.returnUrl,
+      });
+      return c.json(result);
+    });
+  }
   // GET /v1/billing/subscription — get current subscription info (any authenticated role)
   // In the OSS runtime (AC-043), returns {"plan":"free","status":"active"} for every tenant.
   app.get('/subscription', async (c) => {

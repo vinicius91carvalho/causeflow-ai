@@ -1,0 +1,15 @@
+PASS: /health -> 200
+PASS: register -> 201
+PASS: /v1/billing/checkout removed (got 404, not 410 facade)
+PASS: /v1/billing/checkout must not return 410 facade body
+PASS: /v1/billing/checkout-session removed (got 404, not 410 facade)
+PASS: /v1/billing/checkout-session must not return 410 facade body
+PASS: /v1/billing/portal removed (got 404, not 410 facade)
+PASS: /v1/billing/portal must not return 410 facade body
+PASS: GET /v1/billing/credits removed (got 404)
+PASS: GET /v1/billing/plans (plan catalog) removed (got 404)
+PASS: POST /v1/incidents/chat -> 201
+PASS: investigation create not blocked by CREDITS_EXHAUSTED / free-tier quota
+PASS: incidentId present (8ee5b3cc-0c4b-4f93-a1bb-87b078dbdf61)
+---
+AC-011: ALL ASSERTIONS PASSED

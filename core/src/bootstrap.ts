@@ -893,10 +893,10 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
   };
 
   // Billing Use Cases (reuse early billing repo)
-  // AC-043: In the OSS runtime, Stripe-dependent use cases are omitted entirely
-  // so no Stripe SDK is loaded, no stripe.com call is ever made, and routes that
-  // depend on them return 410 Gone. The plan catalog is not instantiated to avoid
-  // pulling in the Stripe SDK at module evaluation time.
+  // Root AC-011 / historical AC-043: In the OSS runtime, Stripe-dependent use
+  // cases are omitted entirely so no Stripe SDK is loaded, no stripe.com call
+  // is ever made, and commercial routes are not registered (prefer delete).
+  // The plan catalog is not instantiated to avoid pulling in the Stripe SDK.
   const billingAccountRepo = billingAccountRepoEarly;
   const usageRecordRepo = config.isOss()
     ? new (
@@ -908,10 +908,11 @@ export async function bootstrap(overrides?: BootstrapOverrides): Promise<AppCont
 
   if (config.isOss()) {
     // OSS runtime: only usage records are supported (no Stripe dependency).
-    // The routes handle missing use cases gracefully:
+    // Missing commercial use cases → routes not registered (404), not 410:
     // - GET /v1/billing/subscription  → { plan:'free', status:'active' }
-    // - POST /v1/billing/checkout     → 410 Gone
-    // - POST /v1/billing/portal       → 410 Gone
+    // - POST /v1/billing/checkout     → not mounted
+    // - POST /v1/billing/portal       → not mounted
+    // - GET /v1/billing/credits       → not mounted
     // - GET /v1/billing/usage         → works (uses PgUsageRecordRepository)
     // - POST /v1/billing/webhook      → not mounted (skipped in app.ts for OSS)
     billingUseCases = {
