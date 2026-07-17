@@ -1,8 +1,8 @@
 {
   "id": "WI-AC-008",
-  "phase": "qa-agent-independent",
+  "phase": "qa-agent-independent-retest",
   "base": "http://127.0.0.1:5170",
-  "email": "qa-ac008-final-1784263559621@causeflow.local",
+  "email": "qa-ac008-ind-1784263824510@causeflow.local",
   "steps": [
     {
       "step": "register",
@@ -10,9 +10,9 @@
       "body": {
         "ok": true,
         "user": {
-          "id": "307ddc92-68e0-4a20-9420-53f2716feb6b",
-          "email": "qa-ac008-final-1784263559621@causeflow.local",
-          "name": "AC008 QA Final"
+          "id": "1529bb18-aa62-4a9e-9a0e-7eea90cd58c6",
+          "email": "qa-ac008-ind-1784263824510@causeflow.local",
+          "name": "AC008 QA Independent"
         }
       }
     },
@@ -44,10 +44,11 @@
       ],
       "finalUrl": "http://127.0.0.1:5170/dashboard",
       "finalStatus": 200,
-      "body_len": 90442,
+      "body_len": 90291,
       "snippet": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_14db65\" data-theme=\"cleric\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link"
     }
   ],
+  "defects": [],
   "cookie_present": true,
   "eval": {
     "register_ok": true,
@@ -56,6 +57,5 @@
     "dashboard_home_reachable_without_gate": true,
     "no_commercial_gate_ui_on_dashboard": true
   },
-  "pass": true,
-  "defects": []
+  "pass": true
 }
