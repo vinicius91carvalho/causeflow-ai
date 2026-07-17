@@ -1,0 +1,114 @@
+{
+  "phase": "qa-agent",
+  "id": "WI-AC-005",
+  "ac": "AC-005",
+  "port": 5171,
+  "ac005_pass": true,
+  "routes": [
+    {
+      "path": "/",
+      "pass": true,
+      "status": 200,
+      "has_llc": false,
+      "has_delaware": false,
+      "forbidden_hits": [],
+      "chrome_forbidden_hits": [],
+      "has_docs": true,
+      "has_github": true,
+      "has_causeflow_brand": true,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
+      "header_ai_span": false,
+      "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "body_len": 459672,
+      "header_brand_snippet": [
+        ">CauseFlow<",
+        ">CauseFlow<"
+      ],
+      "copyright_snippet": [
+        "\u00a9 "
+      ]
+    },
+    {
+      "path": "/product",
+      "pass": true,
+      "status": 200,
+      "has_llc": false,
+      "has_delaware": false,
+      "forbidden_hits": [],
+      "chrome_forbidden_hits": [],
+      "has_docs": true,
+      "has_github": true,
+      "has_causeflow_brand": true,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
+      "header_ai_span": false,
+      "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "body_len": 187321,
+      "header_brand_snippet": [
+        ">CauseFlow<",
+        ">CauseFlow<"
+      ],
+      "copyright_snippet": [
+        "\u00a9 "
+      ]
+    },
+    {
+      "path": "/pt-br",
+      "pass": true,
+      "status": 200,
+      "has_llc": false,
+      "has_delaware": false,
+      "forbidden_hits": [],
+      "chrome_forbidden_hits": [],
+      "has_docs": true,
+      "has_github": true,
+      "has_causeflow_brand": true,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
+      "header_ai_span": false,
+      "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "body_len": 461724,
+      "header_brand_snippet": [
+        ">CauseFlow<",
+        ">CauseFlow<"
+      ],
+      "copyright_snippet": [
+        "\u00a9 "
+      ]
+    },
+    {
+      "path": "/pt-br/product",
+      "pass": true,
+      "status": 200,
+      "has_llc": false,
+      "has_delaware": false,
+      "forbidden_hits": [],
+      "chrome_forbidden_hits": [],
+      "has_docs": true,
+      "has_github": true,
+      "has_causeflow_brand": true,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
+      "header_ai_span": false,
+      "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "body_len": 189346,
+      "header_brand_snippet": [
+        ">CauseFlow<",
+        ">CauseFlow<"
+      ],
+      "copyright_snippet": [
+        "\u00a9 "
+      ]
+    }
+  ],
+  "defects": []
+}
