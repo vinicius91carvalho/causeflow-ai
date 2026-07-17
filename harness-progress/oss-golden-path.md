@@ -248,3 +248,12 @@ FORBIDDEN: VERIFY-FIRST zero-diff, changing ORNITH_LOCAL_PRESET back to 127.0.0.
 - WorkItem: WI-AC-026
 - Outcome: isolated QA passed
 - NextAction: Integrated Verification
+
+## 2026-07-17T20:44:26.504Z — Integrated Verification passed
+
+- Attempt: 1/3
+- WorkItem: WI-AC-026
+- AcceptanceChecks: AC-026
+- Outcome: passed on integrated branch
+- Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/8353f9f9-1ebe-4642-a0fc-a7de01c16bcd/oss-golden-path/WI-AC-026-1-integration_qa-8cee9c1cca1a882c.log
+- NextAction: next Ready Work Item
