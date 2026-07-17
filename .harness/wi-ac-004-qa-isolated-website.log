@@ -1,0 +1,35 @@
+   ▲ Next.js 15.5.12
+   - Local:        http://127.0.0.1:5171
+   - Network:      http://127.0.0.1:5171
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+ ✓ Starting...
+ ✓ Ready in 1071ms
+ ✓ Compiled /middleware in 158ms (195 modules)
+(node:1962821) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ○ Compiling /[locale] ...
+ ✓ Compiled /[locale] in 1176ms (1415 modules)
+ GET /en 200 in 245ms
+ GET /en 200 in 226ms
+ ✓ Compiled /[locale]/product in 393ms (1450 modules)
+ GET /en/product 200 in 1054ms
+ ✓ Compiled /[locale]/integrations in 215ms (1463 modules)
+ GET /en/integrations 200 in 1404ms
+ ○ Compiling /[locale]/use-cases ...
+ ✓ Compiled /[locale]/use-cases in 544ms (1470 modules)
+ GET /en/use-cases 200 in 1047ms
+ ✓ Compiled /[locale]/security in 246ms (1478 modules)
+ GET /en/security 200 in 793ms
+ ✓ Compiled /[locale]/about in 235ms (1481 modules)
+ GET /en/about 200 in 732ms
+ ✓ Compiled /[locale]/from-opsgenie in 273ms (1487 modules)
+ GET /en/from-opsgenie 200 in 769ms
+ GET /pt-br 200 in 277ms
+ GET /pt-br/product 200 in 152ms
+ GET /pt-br/integrations 200 in 717ms
+ GET /pt-br/use-cases 200 in 87ms
+ GET /pt-br/security 200 in 134ms
+ GET /pt-br/about 200 in 97ms
+ GET /pt-br/from-opsgenie 200 in 90ms
