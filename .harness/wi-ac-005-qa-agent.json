@@ -17,9 +17,20 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "body_len": 459672
+      "body_len": 459672,
+      "header_brand_snippet": [
+        ">CauseFlow<"
+      ],
+      "footer_brand_snippet": [
+        ">CauseFlow<"
+      ],
+      "copyright_snippet": [
+        "\u00a9 "
+      ]
     },
     {
       "path": "/product",
@@ -33,9 +44,20 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "body_len": 187306
+      "body_len": 187320,
+      "header_brand_snippet": [
+        ">CauseFlow<"
+      ],
+      "footer_brand_snippet": [
+        ">CauseFlow<"
+      ],
+      "copyright_snippet": [
+        "\u00a9 "
+      ]
     },
     {
       "path": "/pt-br",
@@ -49,9 +71,20 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "body_len": 461674
+      "body_len": 461724,
+      "header_brand_snippet": [
+        ">CauseFlow<"
+      ],
+      "footer_brand_snippet": [
+        ">CauseFlow<"
+      ],
+      "copyright_snippet": [
+        "\u00a9 "
+      ]
     },
     {
       "path": "/pt-br/product",
@@ -65,9 +98,20 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "chrome_has_llc": false,
+      "chrome_has_causeflow": true,
       "has_privacy_link": true,
       "has_terms_link": true,
-      "body_len": 189346
+      "body_len": 189345,
+      "header_brand_snippet": [
+        ">CauseFlow<"
+      ],
+      "footer_brand_snippet": [
+        ">CauseFlow<"
+      ],
+      "copyright_snippet": [
+        "\u00a9 "
+      ]
     }
   ]
 }
