@@ -1,0 +1,24 @@
+{
+  "phase": "qa-agent-isolated",
+  "id": "WI-AC-006",
+  "ac": "AC-006",
+  "observation_method": "grep",
+  "ac006_pass": true,
+  "checks": {
+    "redirects_array_no_executable_entries": true,
+    "no_get_started_redirect_source": true,
+    "no_commercial_signup_destination": true,
+    "no_early_access_redirect_sources": true,
+    "no_app_get_started_route": true,
+    "no_product_href_to_get_started": true
+  },
+  "redirect_sources": [],
+  "redirect_destinations": [],
+  "redirects_excerpt": "[\n    // Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.\n    // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.\n  ]",
+  "app_get_started_routes": [],
+  "app_routes_named_get_started": [],
+  "product_href_hits": [],
+  "nav_hits": [],
+  "early_hits": [],
+  "routes_const_usage": []
+}
