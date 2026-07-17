@@ -1,8 +1,8 @@
 {
   "id": "WI-AC-020",
-  "phase": "verify-first-existing",
+  "phase": "qa-independent",
   "base": "http://127.0.0.1:5170",
-  "email": "vf-ac020-1784257877@causeflow.local",
+  "email": "qa-ac020-1784257757@causeflow.local",
   "steps": [
     {
       "step": "dashboard_register",
