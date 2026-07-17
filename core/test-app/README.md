@@ -74,6 +74,21 @@ Inside docker compose, Core uses `http://causeflow-test-app:5190` automatically.
 PORT=5171 TEST_APP_PORT=5190 bash .harness/ac058-verify.sh
 ```
 
+## Root AC-025 / AC-026 harness QA gate
+
+The monorepo-root Completion Contract uses a single documented browser probe
+as the harness QA gate for AC-025 (see root `README.md` → “OSS golden-path QA
+gate”). From the repo root with Core, dashboard, this test app, and Ornith up:
+
+```bash
+pnpm --dir web verify:ac025
+# or: node web/scripts/ac-025-browser-probe.mjs
+```
+
+Core's complementary verify script for the same product loop is `pnpm verify:ac061`
+below. Either gate exiting 0 on the local OSS stack with Ornith available
+satisfies root AC-026 when documented as above.
+
 ## AC-061 delivery gate (dashboard golden path)
 
 Core's harness QA / Goal Review entry point for the full product loop.

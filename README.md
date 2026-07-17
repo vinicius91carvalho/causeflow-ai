@@ -81,6 +81,31 @@ https://vinicius91carvalho.github.io/causeflow-ai/
 
 Local docs from the umbrella stack remain on http://localhost:5181.
 
+## OSS golden-path QA gate (AC-025 / AC-026)
+
+The single harness QA gate for root **AC-025** (local-auth golden path with Ornith + Test Application) is the Playwright Chromium browser probe:
+
+```bash
+# Prerequisites: Core + worker, dashboard BFF, causeflow-test-app :5190, Ornith :8081
+# (reuse healthy postgres/redis/hindsight; host-dev Core is typical for harness PORT worktrees)
+
+OSS_DASHBOARD_URL=http://127.0.0.1:3001 \
+OSS_CORE_API_URL=http://127.0.0.1:5171 \
+OSS_TEST_APP_URL=http://127.0.0.1:5190 \
+  node web/scripts/ac-025-browser-probe.mjs
+# symlink: node .harness/wi-ac-025-browser-probe.mjs
+# package script (from web/): pnpm verify:ac025
+```
+
+Exit **0** means the full AC-025 flow passed at a real browser boundary (no Clerk, no `page.route` mocks of integrations/incidents).
+
+Equivalent documented gates that cover the same product loop:
+
+| Gate | Command |
+|------|---------|
+| Playwright project `dashboard-oss-e2e` | `cd web && pnpm exec playwright test --project=dashboard-oss-e2e tests/oss/ac-061-capstone.spec.ts` |
+| Core verify script | `cd core && pnpm verify:ac061` |
+
 ## Further reading
 
 - Platform navigation index: [`docs/00-index.md`](./docs/00-index.md)

@@ -122,6 +122,11 @@ pnpm exec playwright test --project=dashboard-oss-e2e --list
 
 # Goal Review / run_completed gate (AC-061 capstone — full AC-054..AC-060 chain)
 pnpm exec playwright test --project=dashboard-oss-e2e tests/oss/ac-061-capstone.spec.ts
+
+# Root Completion Contract AC-025 / AC-026 harness QA gate (local-auth golden path)
+# Prerequisites: Core + worker, dashboard :3001, test-app :5190, Ornith :8081
+pnpm verify:ac025
+# equivalent: node scripts/ac-025-browser-probe.mjs
 ```
 
 > ALWAYS use `pnpm exec playwright`. Never use `pnpm dlx playwright` — it downloads a conflicting version that ignores the local config.

@@ -1,5 +1,9 @@
 /**
- * AC-025 browser probe — OSS local-auth golden path (no Clerk, no page.route mocks).
+ * AC-025 / AC-026 harness QA gate — OSS local-auth golden path
+ * (no Clerk, no page.route mocks of integrations/incidents).
+ *
+ * Documented at repo-root README.md ("OSS golden-path QA gate") and
+ * web/docs/development/testing.md. Package script: `pnpm verify:ac025`.
  *
  * Preconditions (host-dev / compose hybrid):
  *   - Core :5171 healthy with llm=ok (Ornith :8081)
@@ -10,6 +14,8 @@
  *   activate Ornith (local) profile → connect Test Application →
  *   emit/ingest demo alert → Incidents shows incident → investigation →
  *   catalog-grounded evidence/root-cause → remediation visible.
+ *
+ * Exit 0 = AC-025 pass (AC-026 gate green).
  */
 import { chromium } from 'playwright';
 import fs from 'node:fs';

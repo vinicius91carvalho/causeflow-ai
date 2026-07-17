@@ -1,0 +1,322 @@
+{
+  "id": "WI-AC-025",
+  "phase": "verify-first-browser",
+  "acceptance_check_id": "AC-025",
+  "observation_method": "browser",
+  "dashboard": "http://127.0.0.1:3001",
+  "core": "http://127.0.0.1:5171",
+  "testApp": "http://127.0.0.1:5190",
+  "email": "ac025-browser-1784301667811@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "fbbc7152-59a8-4a62-a127-9fa067a54608",
+          "email": "ac025-browser-1784301667811@causeflow.local",
+          "name": "AC025 Browser"
+        }
+      },
+      "url": "about:blank"
+    },
+    {
+      "step": "dashboard_home",
+      "url": "http://127.0.0.1:3001/dashboard",
+      "clerk": false
+    },
+    {
+      "step": "activate_ornith_local",
+      "status": 200,
+      "activeProfileId": "7c44eed9-0b6d-4544-8f65-78a6bbfcf926",
+      "active": {
+        "id": "7c44eed9-0b6d-4544-8f65-78a6bbfcf926",
+        "label": "Ornith (local) 1784301667811",
+        "baseUrl": "http://127.0.0.1:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "apiKeyConfigured": false,
+        "contextWindowTokens": 32768,
+        "isActive": true,
+        "createdAt": "Fri Jul 17 2026 12:21:15 GMT-0300 (Brasilia Standard Time)",
+        "updatedAt": "Fri Jul 17 2026 12:21:15 GMT-0300 (Brasilia Standard Time)"
+      }
+    },
+    {
+      "step": "connect_test_application",
+      "connected": true,
+      "via": "browser"
+    },
+    {
+      "step": "core_stub_connect",
+      "status": 201,
+      "body": {
+        "integrationId": "stub-upstream-credential",
+        "provider": "stub-upstream",
+        "status": "active",
+        "stubConnectionId": "test-app-conn-349f4fe6-99c5-49b2-bf08-b585d10d3c0b-1784301684207",
+        "stubBaseUrl": "http://127.0.0.1:5190",
+        "connectedAt": "2026-07-17T15:21:24.207Z"
+      }
+    },
+    {
+      "step": "emit_ingest_demo_alert",
+      "status": 202,
+      "body": {
+        "emitted": true,
+        "incidentId": "1e6596dd-66e1-4daf-812e-b60e5c6f9e52",
+        "stubState": {
+          "app": "causeflow-test-app",
+          "connectionCount": 3,
+          "connections": [
+            {
+              "tenantId": "461d11bb-dafe-4aa6-83b3-0448361d6225",
+              "connectionId": "test-app-conn-461d11bb-dafe-4aa6-83b3-0448361d6225-1784301293013",
+              "coreBaseUrl": "http://127.0.0.1:5171",
+              "connectedAt": "2026-07-17T15:14:53.013Z"
+            },
+            {
+              "tenantId": "8d52e83d-42d2-4f4f-8af6-1d74eafe8299",
+              "connectionId": "test-app-conn-8d52e83d-42d2-4f4f-8af6-1d74eafe8299-1784301503887",
+              "coreBaseUrl": "http://127.0.0.1:5171",
+              "connectedAt": "2026-07-17T15:18:23.887Z"
+            },
+            {
+              "tenantId": "349f4fe6-99c5-49b2-bf08-b585d10d3c0b",
+              "connectionId": "test-app-conn-349f4fe6-99c5-49b2-bf08-b585d10d3c0b-1784301684207",
+              "coreBaseUrl": "http://127.0.0.1:5171",
+              "connectedAt": "2026-07-17T15:21:24.207Z"
+            }
+          ],
+          "probeCount": 2,
+          "ingestCount": 3,
+          "toolCallCount": 0,
+          "lastProbeAt": "2026-07-17T15:18:58.032Z",
+          "lastIngestAt": "2026-07-17T15:21:24.261Z",
+          "lastToolCallAt": null,
+          "lastEmitResult": {
+            "ok": true,
+            "webhookStatus": 202,
+            "webhookUrl": "http://127.0.0.1:5171/v1/webhooks/349f4fe6-99c5-49b2-bf08-b585d10d3c0b/datadog",
+            "incidentId": "1e6596dd-66e1-4daf-812e-b60e5c6f9e52",
+            "alertId": "test-app-alert-1784301684216"
+          },
+          "availableTools": [
+            "query_logs",
+            "query_metrics",
+            "get_deployments",
+            "get_service_health"
+          ]
+        },
+        "ingestedAt": "2026-07-17T15:21:24.263Z"
+      }
+    },
+    {
+      "step": "incidents_shows_incident",
+      "incidentId": "1e6596dd-66e1-4daf-812e-b60e5c6f9e52",
+      "url": "http://127.0.0.1:3001/dashboard/incidents/1e6596dd-66e1-4daf-812e-b60e5c6f9e52"
+    },
+    {
+      "step": "poll_investigation",
+      "i": 0,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 5,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 10,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 15,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 20,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 25,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 30,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 35,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 40,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 45,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 50,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 55,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 60,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 65,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 70,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 75,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 80,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 85,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 90,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 95,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 100,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 105,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 110,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 115,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 120,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 125,
+      "status": "awaiting_approval",
+      "remCount": 1,
+      "rootPreview": "The root cause is a fixed-size DB connection pool in order-service that was exhausted under sustained high load. The ser"
+    },
+    {
+      "step": "catalog_grounded_evidence",
+      "evidenceOk": true,
+      "rootCausePreview": "The root cause is a fixed-size DB connection pool in order-service that was exhausted under sustained high load. The service has no adaptive backoff on connection checkout failures, so when the pool hits its maximum, requests queue up and f",
+      "evidenceBytes": 15434
+    },
+    {
+      "step": "remediation_visible",
+      "remCount": 1,
+      "remVisible": true,
+      "uiHasRemediationWord": true
+    }
+  ],
+  "pass": true,
+  "defects": [],
+  "incidentId": "1e6596dd-66e1-4daf-812e-b60e5c6f9e52",
+  "final": {
+    "status": "awaiting_approval",
+    "rootCause": "The root cause is a fixed-size DB connection pool in order-service that was exhausted under sustained high load. The service has no adaptive backoff on connection checkout failures, so when the pool hits its maximum, requests queue up and fail. With only 2 ECS tasks running and CPU already above 90%, the service cannot scale to acquire more connections. The pool exhaustion creates a cascading failure: exhausted pool → queued requests → higher CPU → more pool contention → more failures. No recent deployment or config change triggered this — it is a capacity and resilience issue that has been latent until load exceeded the system's tolerance.",
+    "remCount": 1
+  }
+}
