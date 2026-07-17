@@ -38,3 +38,21 @@
 - PreviousPhase: qa
 - Attempt: 2
 - NextAction: qa
+
+## 2026-07-17T21:13:38.982Z — Operator guidance
+
+- WorkItem: WI-AC-018
+- Outcome: retryQueue / Control Host guidance applied to coding Repair Plan
+- Guidance: Goal Review failed on AC-018 (evidence: .git/harness-evidence/root/72767d26-762e-4586-b46c-ec024ac5644d/goal-review/goal-1-goal_review-d7a9251a04c2b13e.log + .harness/goal-review-probes.json). Repair Plan — implement coding (NOT VERIFY-FIRST / zero-diff).
+
+expected: when active Investigation LLM fails, Core follows fallbackProfileId to a healthy Ornith profile and investigation proceeds (or, if chain exhausted, fails closed with a clear configure/fix-LLM error)
+observed: active bad baseUrl + fallbackProfileId → host.docker.internal:8081/v1 still yields incident status=failed within ~1s with empty evidenceByAgent; api logs show local-llm.chat.completions.structured failed then CircuitBreakerOpenError for subsequent chain hops (shared local-llm breaker opens after active hop and blocks remaining fallbacks). Incidents 25b50a3e / 04b460ab. Good-only Ornith succeeds after cooldown.
+
+Root cause: OpenAiCompatibleLlmClient walks the fallbackProfileId chain but wraps every hop in one shared CircuitBreaker (bootstrap/investigation-worker registerOssLlmCircuitBreaker). Active endpoint failure opens the breaker; later hops never reach Ornith.
+
+Fix requirements:
+1. Circuit breaker must be per-endpoint (or per profileId/baseUrl), not one global local-llm breaker across the fallback chain — a failed active must not CircuitBreakerOpenError healthy fallbacks.
+2. Keep fail-closed when the entire chain is exhausted with a clear configure/fix-LLM error (no DeterministicLLMClient/Anthropic silent success).
+3. Unit + runtime proof: bad active + healthy Ornith fallbackProfileId → investigation proceeds (or clear chain-exhausted error). Rebuild compose api/worker images; do not claim green from grep-only IV.
+4. Leave AC-025/026 Ornith host.docker.internal presets alone unless a real regression appears.
+- NextAction: Coding
