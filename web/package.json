@@ -15,7 +15,8 @@
     "check-types": "turbo check-types",
     "clean": "turbo clean && rm -rf node_modules",
     "ci:local": "pnpm check-types && pnpm check && pnpm test && pnpm build",
-    "verify:ac025": "node scripts/ac-025-browser-probe.mjs"
+    "verify:ac025": "node scripts/ac-025-browser-probe.mjs",
+    "verify:ac026": "node scripts/ac-025-browser-probe.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",

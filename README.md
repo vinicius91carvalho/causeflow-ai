@@ -83,22 +83,33 @@ Local docs from the umbrella stack remain on http://localhost:5181.
 
 ## OSS golden-path QA gate (AC-025 / AC-026)
 
-The single harness QA gate for root **AC-025** (local-auth golden path with Ornith + Test Application) is the Playwright Chromium browser probe:
+**AC-026** names the single documented harness QA gate for root **AC-025**
+(local-auth golden path with Ornith + Test Application). That gate is the
+Playwright Chromium browser probe `web/scripts/ac-025-browser-probe.mjs`
+(`pnpm --dir web verify:ac025` / `pnpm --dir web verify:ac026`). It must exit
+**0** on the local OSS compose stack with Ornith available and the shipped
+Settings preset `ORNITH_LOCAL_PRESET.baseUrl=http://host.docker.internal:8081/v1`
+(compose api/worker cannot reach host loopback).
 
 ```bash
 # Prerequisites: compose dashboard :3001 + Core :3099 + test-app :5190 + Ornith :8081
-# (reuse healthy postgres/redis/hindsight; rebuild dashboard after Ornith preset changes)
-# Shipped Settings preset ORNITH_LOCAL_PRESET uses http://host.docker.internal:8081/v1
+# Rebuild dashboard (and api/worker if needed) after Ornith preset changes so the
+# running image serves host.docker.internal — not a stale 127.0.0.1 preset.
 
 OSS_DASHBOARD_URL=http://127.0.0.1:3001 \
 OSS_CORE_API_URL=http://127.0.0.1:3099 \
 OSS_TEST_APP_URL=http://127.0.0.1:5190 \
   node web/scripts/ac-025-browser-probe.mjs
 # copy: node .harness/wi-ac-025-browser-probe.mjs
-# package script (from web/): pnpm verify:ac025
+# package scripts (from web/): pnpm verify:ac025  |  pnpm verify:ac026
 ```
 
-Exit **0** means the full AC-025 flow passed at a real browser boundary (no Clerk, no `page.route` mocks of integrations/incidents).
+Exit **0** means the full AC-025 flow passed at a real browser boundary (no Clerk,
+no `page.route` mocks of integrations/incidents): activate Ornith (local) with
+`activeProfile.baseUrl` containing `host.docker.internal:8081`, connect Test
+Application, ingest demo alert, investigation reaches `awaiting_approval` /
+`succeeded` with `remCount >= 1` and catalog-grounded evidence. That exit **0**
+is the AC-026 pass signal.
 
 Equivalent documented gates that cover the same product loop:
 

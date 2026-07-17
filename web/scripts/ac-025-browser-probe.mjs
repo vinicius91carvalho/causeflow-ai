@@ -3,7 +3,8 @@
  * (no Clerk, no page.route mocks of integrations/incidents).
  *
  * Documented at repo-root README.md ("OSS golden-path QA gate") and
- * web/docs/development/testing.md. Package script: `pnpm verify:ac025`.
+ * web/docs/development/testing.md. Package scripts: `pnpm verify:ac025` /
+ * `pnpm verify:ac026` (AC-026 = this gate exits 0 on local OSS + Ornith).
  *
  * Preconditions (compose preferred for Goal Review / IV):
  *   - Dashboard :3001 (compose image with shipped Ornith local preset)

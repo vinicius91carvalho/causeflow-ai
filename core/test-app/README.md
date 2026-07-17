@@ -81,13 +81,15 @@ as the harness QA gate for AC-025 (see root `README.md` → “OSS golden-path Q
 gate”). From the repo root with Core, dashboard, this test app, and Ornith up:
 
 ```bash
-pnpm --dir web verify:ac025
+pnpm --dir web verify:ac026
+# aliases: pnpm --dir web verify:ac025
 # or: node web/scripts/ac-025-browser-probe.mjs
 ```
 
+Exit **0** on compose (`:3001` / `:3099` / `:5190`) with Ornith and the shipped
+`host.docker.internal:8081/v1` Ornith (local) preset is the root **AC-026** pass.
 Core's complementary verify script for the same product loop is `pnpm verify:ac061`
-below. Either gate exiting 0 on the local OSS stack with Ornith available
-satisfies root AC-026 when documented as above.
+below.
 
 ## AC-061 delivery gate (dashboard golden path)
 

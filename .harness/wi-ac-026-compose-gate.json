@@ -1,0 +1,273 @@
+{
+  "id": "WI-AC-025",
+  "phase": "verify-first-browser",
+  "acceptance_check_id": "AC-025",
+  "observation_method": "browser",
+  "dashboard": "http://127.0.0.1:3001",
+  "core": "http://127.0.0.1:3099",
+  "testApp": "http://127.0.0.1:5190",
+  "email": "ac025-browser-1784320233843@causeflow.local",
+  "steps": [
+    {
+      "step": "register",
+      "status": 200,
+      "body": {
+        "ok": true,
+        "user": {
+          "id": "e0c43a47-6374-4163-86cc-6f2bdffc6e9b",
+          "email": "ac025-browser-1784320233843@causeflow.local",
+          "name": "AC025 Browser"
+        }
+      },
+      "url": "about:blank"
+    },
+    {
+      "step": "dashboard_home",
+      "url": "http://127.0.0.1:3001/dashboard",
+      "clerk": false
+    },
+    {
+      "step": "shipped_ornith_local_preset",
+      "status": 200,
+      "shippedLocal": {
+        "id": "ornith-local",
+        "label": "Ornith (local)",
+        "baseUrl": "http://host.docker.internal:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "contextWindowTokens": 32768
+      }
+    },
+    {
+      "step": "activate_ornith_local",
+      "status": 200,
+      "activeProfileId": "a5032188-2204-4514-bc78-7360d4b323e3",
+      "active": {
+        "id": "a5032188-2204-4514-bc78-7360d4b323e3",
+        "label": "Ornith (local) 1784320233843",
+        "baseUrl": "http://host.docker.internal:8081/v1",
+        "model": "Ornith-1.0-9B-code",
+        "apiKeyConfigured": false,
+        "contextWindowTokens": 32768,
+        "isActive": true,
+        "createdAt": "Fri Jul 17 2026 20:30:40 GMT+0000 (Coordinated Universal Time)",
+        "updatedAt": "Fri Jul 17 2026 20:30:40 GMT+0000 (Coordinated Universal Time)"
+      }
+    },
+    {
+      "step": "connect_test_application",
+      "connected": true,
+      "via": "browser"
+    },
+    {
+      "step": "core_stub_connect",
+      "status": 201,
+      "body": {
+        "integrationId": "stub-upstream-credential",
+        "provider": "stub-upstream",
+        "status": "active",
+        "stubConnectionId": "test-app-conn-007e27eb-8305-4171-bd5f-6972df3c29ec-1784320246794",
+        "stubBaseUrl": "http://causeflow-test-app:5190",
+        "connectedAt": "2026-07-17T20:30:46.794Z"
+      },
+      "payload": {}
+    },
+    {
+      "step": "emit_ingest_demo_alert",
+      "status": 202,
+      "body": {
+        "emitted": true,
+        "incidentId": "d764d03a-2d56-4415-ae23-30ea46595353",
+        "stubState": {
+          "app": "causeflow-test-app",
+          "connectionCount": 1,
+          "connections": [
+            {
+              "tenantId": "007e27eb-8305-4171-bd5f-6972df3c29ec",
+              "connectionId": "test-app-conn-007e27eb-8305-4171-bd5f-6972df3c29ec-1784320246794",
+              "coreBaseUrl": "http://causeflow-api:5171",
+              "connectedAt": "2026-07-17T20:30:46.794Z"
+            }
+          ],
+          "probeCount": 0,
+          "ingestCount": 1,
+          "toolCallCount": 0,
+          "lastProbeAt": null,
+          "lastIngestAt": "2026-07-17T20:30:46.824Z",
+          "lastToolCallAt": null,
+          "lastEmitResult": {
+            "ok": true,
+            "webhookStatus": 202,
+            "webhookUrl": "http://causeflow-api:5171/v1/webhooks/007e27eb-8305-4171-bd5f-6972df3c29ec/datadog",
+            "incidentId": "d764d03a-2d56-4415-ae23-30ea46595353",
+            "alertId": "test-app-alert-1784320246802"
+          },
+          "availableTools": [
+            "query_logs",
+            "query_metrics",
+            "get_deployments",
+            "get_service_health"
+          ]
+        },
+        "ingestedAt": "2026-07-17T20:30:46.824Z"
+      }
+    },
+    {
+      "step": "incidents_shows_incident",
+      "incidentId": "d764d03a-2d56-4415-ae23-30ea46595353",
+      "url": "http://127.0.0.1:3001/dashboard/incidents/d764d03a-2d56-4415-ae23-30ea46595353"
+    },
+    {
+      "step": "poll_investigation",
+      "i": 0,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 5,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 10,
+      "status": "triaging",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 15,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 20,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 25,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 30,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 35,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 40,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 45,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 50,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 55,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 60,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 65,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 70,
+      "status": "investigating",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 75,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 80,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 85,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "poll_investigation",
+      "i": 90,
+      "status": "",
+      "remCount": 0,
+      "rootPreview": ""
+    },
+    {
+      "step": "catalog_grounded_evidence",
+      "evidenceOk": true,
+      "rootCausePreview": "The root cause is a combination of undersized infrastructure and a brittle connection pool configuration in order-service. The service runs on only 2 ECS tasks with CPU/memory limits that are insufficient for the current load, causing CPU s",
+      "evidenceBytes": 16088
+    },
+    {
+      "step": "remediation_visible",
+      "remCount": 1,
+      "remVisible": true,
+      "uiHasRemediationWord": true
+    }
+  ],
+  "pass": true,
+  "defects": [],
+  "incidentId": "d764d03a-2d56-4415-ae23-30ea46595353",
+  "final": {
+    "status": "awaiting_approval",
+    "rootCause": "The root cause is a combination of undersized infrastructure and a brittle connection pool configuration in order-service. The service runs on only 2 ECS tasks with CPU/memory limits that are insufficient for the current load, causing CPU saturation above 90%. Under this pressure, the fixed-size DB connection pool (no adaptive backoff) becomes fully saturated — all connections are checked out and stuck on long-running queries or held by slow code paths. Because the pool has no backoff mechanism and recent code paths amplify connection churn, the pool cannot recover even when connections are released. This creates a cascading failure: exhausted pool → request queue backs up → more checkout attempts → pool stays saturated → CPU rises further. The incident is load-driven (no recent deploy), and the DB bottleneck is confirmed by the absence of lock contention — the pool sizing itself is the failure point.",
+    "remCount": 1
+  }
+}
