@@ -1,6 +1,6 @@
 {
   "id": "WI-AC-018",
-  "phase": "isolated-qa",
+  "phase": "qa-agent-independent",
   "observation_method": "grep",
   "checks": [
     {
@@ -26,7 +26,12 @@
     {
       "name": "OpenAiCompatibleLlmClient walks endpoint chain on failure",
       "pass": true,
-      "evidence": "14:  resolveActiveLlmEndpointChain,\n53:    const chain = await resolveActiveLlmEndpointChain(tenantId);"
+      "evidence": "14:  resolveActiveLlmEndpointChain,\n64:    const chain = await resolveActiveLlmEndpointChain(tenantId);"
+    },
+    {
+      "name": "OSS LLM circuit breaker is per-endpoint (not one global breaker across fallback chain)",
+      "pass": true,
+      "evidence": "42:export function getOssLlmCircuitBreakerForEndpoint(key: string): CircuitBreaker {"
     },
     {
       "name": "local-llm-guard probes fallback chain for tenant",
