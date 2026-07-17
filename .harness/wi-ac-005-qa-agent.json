@@ -1,5 +1,5 @@
 {
-  "phase": "probe",
+  "phase": "qa-agent",
   "id": "WI-AC-005",
   "ac": "AC-005",
   "port": 5171,
@@ -17,7 +17,9 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
-      "body_len": 459673
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "body_len": 459672
     },
     {
       "path": "/product",
@@ -31,7 +33,9 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
-      "body_len": 187321
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "body_len": 187306
     },
     {
       "path": "/pt-br",
@@ -45,6 +49,8 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
       "body_len": 461674
     },
     {
@@ -59,6 +65,8 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
       "body_len": 189346
     }
   ]

@@ -1,0 +1,24 @@
+   ▲ Next.js 15.5.12
+   - Local:        http://127.0.0.1:5171
+   - Network:      http://127.0.0.1:5171
+   - Experiments (use with caution):
+     · optimizePackageImports
+
+ ✓ Starting...
+ ✓ Ready in 977ms
+ ✓ Compiled /middleware in 137ms (195 modules)
+(node:2766373) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ○ Compiling /[locale] ...
+ ✓ Compiled /[locale] in 994ms (1415 modules)
+ GET /en 200 in 1795ms
+ GET /en 200 in 215ms
+ ○ Compiling /[locale]/product ...
+ ✓ Compiled /[locale]/product in 741ms (1464 modules)
+ GET /en 200 in 366ms
+ GET /en/product 200 in 1316ms
+ GET /pt-br 200 in 173ms
+ GET /en/product 200 in 346ms
+ GET /pt-br/product 200 in 93ms
+ GET /pt-br 200 in 356ms
+ GET /pt-br/product 200 in 102ms
