@@ -1,85 +1,36 @@
 ---
 title: "List plans"
 api: "GET /v1/billing/plans"
-description: "Retrieve the open-source plan catalog (single free tier in OSS deployments)."
+description: "Commercial plan-catalog APIs are not part of the open-source product path."
 ---
 
 ## Overview
 
-Returns the plan catalog exposed by your CauseFlow Core API.
-In **open-source / self-hosted** deployments, this is a single **Community** plan with no monthly price — commercial Stripe tiers are not part of the OSS product path.
+In **open-source / self-hosted** deployments, CauseFlow does not expose a paid plan catalog.
+Commercial subscription and payment APIs are removed from the OSS runtime — use free self-host setup instead of purchasing a hosted plan.
 
-**Authentication:** Public endpoint — no JWT required.
+**Deploy CauseFlow:** run `./init.sh` from the [CauseFlow monorepo](https://github.com/causeflow), then follow [Open-source usage](/billing/plans) and the [published docs](https://vinicius91carvalho.github.io/causeflow-ai/).
 
-<Note>
-  Mutating billing endpoints (`POST /v1/billing/checkout`, `POST /v1/billing/portal`, credit purchase, and similar) return **410 Gone** in the OSS runtime.
-  Deploy CauseFlow with `./init.sh` from the [CauseFlow monorepo](https://github.com/causeflow) instead of purchasing a hosted plan.
-</Note>
+## OSS behavior
 
-## Response
-
-Returns `200 OK`.
-
-```json
-{
-  "plans": [
-    {
-      "planId": "plan_community",
-      "name": "Community",
-      "priceMonthlyUsd": 0,
-      "features": {
-        "investigationsPerMonth": "unlimited",
-        "eventsPerMonth": "unlimited",
-        "apiRateLimitPerMinute": 2000,
-        "customSkills": true,
-        "relayAccess": true
-      }
-    }
-  ]
-}
-```
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `planId` | string | Unique plan identifier |
-| `name` | string | Human-readable plan name |
-| `priceMonthlyUsd` | number | Monthly price in USD (`0` for OSS Community) |
-| `features.investigationsPerMonth` | integer \| `"unlimited"` | Investigation quota (unmetered in OSS) |
-| `features.eventsPerMonth` | integer \| `"unlimited"` | Ingested events quota (unmetered in OSS) |
-| `features.apiRateLimitPerMinute` | integer | API rate limit enforced by Core |
-| `features.customSkills` | boolean | Custom investigation skills available |
-| `features.relayAccess` | boolean | Relay deployment included |
-
-### Error responses
-
-| Status | Error code | Description |
-| --- | --- | --- |
-| `429` | `rate_limit_exceeded` | Too many requests |
+| Outcome | Description |
+| --- | --- |
+| Not an OSS product path | Paid plan lists, hosted upgrades, and payment flows are out of scope |
+| Self-host instead | Clone the monorepo, run `./init.sh`, open the local dashboard |
 
 ## Examples
 
-<CodeGroup>
+Operators should call Core health and product APIs on the local stack, not a hosted billing catalog:
 
-```bash curl
-curl http://localhost:3099/v1/billing/plans
+```bash
+curl http://localhost:3099/health
 ```
-
-```typescript TypeScript
-const response = await fetch("http://localhost:3099/v1/billing/plans");
-const { plans } = await response.json();
-
-plans.forEach((p: { name: string; priceMonthlyUsd: number }) =>
-  console.log(`${p.name}: ${p.priceMonthlyUsd === 0 ? "free (OSS)" : `$${p.priceMonthlyUsd}/mo`}`)
-);
-```
-
-</CodeGroup>
 
 <CardGroup cols={2}>
-  <Card title="Usage" href="/api-reference/billing/usage">
-    Read investigation and event consumption metrics
-  </Card>
   <Card title="Open-source usage" href="/billing/plans">
     Self-host CauseFlow with Docker Compose
+  </Card>
+  <Card title="Quickstart" href="/getting-started/quickstart">
+    Register locally and investigate your first incident
   </Card>
 </CardGroup>

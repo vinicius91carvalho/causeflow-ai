@@ -1,110 +1,33 @@
 ---
 title: "Usage"
 api: "GET /v1/billing/usage"
-description: "Retrieve detailed usage metrics for the current and previous billing periods."
+description: "Operational usage metrics for self-hosted deployments (not commercial billing)."
 ---
 
 ## Overview
 
-Returns a detailed breakdown of API usage — investigations, events ingested, and API calls — for the current and optionally previous billing periods. Use this to build usage dashboards or track quota burn rate.
+In open-source deployments, usage concepts describe **operational load** (investigations and events), not a commercial billing period or paid quota table.
+See [Usage and quotas](/billing/usage-and-credits) for how those counters work on a self-hosted stack.
 
-**Required role:** `admin`
+**Deploy CauseFlow:** clone the [CauseFlow monorepo](https://github.com/causeflow), run `./init.sh`, and open the local dashboard at `http://localhost:3001`.
 
-## Request headers
+## OSS guidance
 
-<ParamField header="Authorization" type="string" required>
-  JWT Bearer token. Format: `Bearer <your-jwt>`.
-</ParamField>
+| Topic | Guidance |
+| --- | --- |
+| Limits | Bounded by your compute and LLM providers, not a hosted plan |
+| Monitoring | Watch Core/worker resource usage and investigation volume |
+| Docs | [Open-source usage](/billing/plans) and [GitHub Pages](https://vinicius91carvalho.github.io/causeflow-ai/) |
 
-## Query parameters
-
-<ParamField query="period" type="string">
-  Billing period to query. One of: `current`, `previous`. Default: `current`.
-</ParamField>
-
-<ParamField query="groupBy" type="string">
-  Aggregate usage by dimension. One of: `day`, `week`. Default: no grouping.
-</ParamField>
-
-## Response
-
-Returns `200 OK`.
-
-```json
-{
-  "period": "current",
-  "start": "2024-04-01T00:00:00Z",
-  "end": "2024-05-01T00:00:00Z",
-  "totals": {
-    "investigations": 142,
-    "events": 8420,
-    "apiCalls": 14230
-  },
-  "limits": {
-    "investigations": 500,
-    "events": 10000
-  },
-  "dailyBreakdown": [
-    {
-      "date": "2024-04-01",
-      "investigations": 12,
-      "events": 820,
-      "apiCalls": 1200
-    },
-    {
-      "date": "2024-04-02",
-      "investigations": 8,
-      "events": 430,
-      "apiCalls": 980
-    }
-  ]
-}
+```bash
+curl http://localhost:3099/health
 ```
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `period` | string | Period queried: `current` or `previous` |
-| `totals.investigations` | integer | Total investigations run in this period |
-| `totals.events` | integer | Total events ingested in this period |
-| `totals.apiCalls` | integer | Total authenticated API calls in this period |
-| `limits` | object | Plan quota limits for this period |
-| `dailyBreakdown` | array | Per-day breakdown when `groupBy=day` is set |
-
-### Error responses
-
-| Status | Error code | Description |
-| --- | --- | --- |
-| `401` | `unauthorized` | Missing or invalid JWT |
-| `403` | `forbidden` | Caller lacks `admin` role |
-
-## Examples
-
-<CodeGroup>
-
-```bash curl
-curl "https://api.causeflow.ai/v1/billing/usage?period=current&groupBy=day" \
-  -H "Authorization: Bearer eyJhbGc..."
-```
-
-```typescript TypeScript
-const params = new URLSearchParams({ period: "current", groupBy: "day" });
-const response = await fetch(
-  `https://api.causeflow.ai/v1/billing/usage?${params}`,
-  { headers: { Authorization: `Bearer ${token}` } }
-);
-
-const usage = await response.json();
-const pct = Math.round((usage.totals.investigations / usage.limits.investigations) * 100);
-console.log(`${pct}% of investigation quota used this period`);
-```
-
-</CodeGroup>
 
 <CardGroup cols={2}>
-  <Card title="Credits" href="/api-reference/billing/credits">
-    View credit balance for overage coverage
+  <Card title="Usage and quotas" href="/billing/usage-and-credits">
+    Events vs investigations on self-host
   </Card>
-  <Card title="Subscription" href="/api-reference/billing/subscription">
-    Upgrade your plan before quota exhaustion
+  <Card title="Open-source usage" href="/billing/plans">
+    Free self-host setup with Docs and GitHub
   </Card>
 </CardGroup>

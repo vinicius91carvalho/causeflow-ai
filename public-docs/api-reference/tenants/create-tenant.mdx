@@ -25,7 +25,7 @@ Creates a new tenant (organization) in CauseFlow. Each tenant is an isolated wor
 </ParamField>
 
 <ParamField body="plan" type="string">
-  The subscription plan for the tenant. One of: `starter`, `pro`, `business`, `enterprise`. Defaults to `starter` if not specified.
+  Optional deployment label for the tenant. In open-source self-host this is informational only (there is no paid plan selection). Defaults to `community` when omitted.
 </ParamField>
 
 <ParamField body="settings" type="object">
@@ -56,7 +56,7 @@ Returns `201 Created` with the newly created tenant.
   "name": "Acme Corp",
   "slug": "acme-corp",
   "status": "active",
-  "plan": "starter",
+  "plan": "community",
   "createdAt": "2026-04-01T12:00:00Z"
 }
 ```
@@ -67,7 +67,7 @@ Returns `201 Created` with the newly created tenant.
 | `name`      | string | The tenant display name                                  |
 | `slug`      | string | The URL-safe tenant identifier                           |
 | `status`    | string | Always `"active"` for newly created tenants              |
-| `plan`      | string | The subscription plan                                    |
+| `plan`      | string | Deployment label (`community` in OSS; not a paid tier)   |
 | `createdAt` | string | ISO 8601 timestamp of when the tenant was created        |
 
 ### Error responses
@@ -90,7 +90,7 @@ curl https://api.causeflow.ai/v1/tenants \
     "name": "Acme Corp",
     "slug": "acme-corp",
     "ownerEmail": "owner@acme.com",
-    "plan": "pro",
+    "plan": "community",
     "settings": {
       "awsRoleArn": "<your-aws-iam-role-arn>",
       "awsExternalId": "causeflow-ext-id-acme",
@@ -110,7 +110,7 @@ const response = await fetch("https://api.causeflow.ai/v1/tenants", {
     name: "Acme Corp",
     slug: "acme-corp",
     ownerEmail: "owner@acme.com",
-    plan: "pro",
+    plan: "community",
     settings: {
       awsRoleArn: "<your-aws-iam-role-arn>",
       awsExternalId: "causeflow-ext-id-acme",

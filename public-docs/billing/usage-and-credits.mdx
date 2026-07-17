@@ -4,7 +4,7 @@ sidebarTitle: "Usage"
 description: "Understand how investigations and events are consumed in a self-hosted deployment."
 ---
 
-In the open-source distribution, CauseFlow does not meter usage against paid plan tiers or bill through Stripe.
+In the open-source distribution, CauseFlow does not meter usage against commercial plan quotas or bill for overages.
 This page explains how **investigations** and **events** are counted so you can monitor load on your own infrastructure.
 
 ## Events vs investigations
@@ -38,21 +38,14 @@ flowchart TD
 
 ## Open-source limits
 
-Self-hosted CauseFlow does **not** enforce Starter / Pro / Business monthly allowances or overage billing.
+Self-hosted CauseFlow does **not** enforce monthly commercial allowances or overage billing.
 Your practical limits come from:
 
 - CPU, memory, and storage on the machines running Core, the worker, and the dashboard
 - LLM provider rate limits and API keys you configure
 - Database and Redis capacity in your Docker Compose stack
 
-Tune these in your deployment instead of purchasing quota packs or upgrading a commercial plan.
-
-## Viewing usage
-
-**Dashboard > Billing** (when enabled in your build) may show investigations and events consumed in the current period for operational visibility.
-There is no Stripe payment method, overage charge, or **Buy Quota** purchase path in the OSS runtime.
-
-You can also query usage through the API. See [GET /v1/billing/usage](/api-reference/billing/usage).
+Tune these in your deployment instead of purchasing hosted quota packs.
 
 ## Deploying CauseFlow
 

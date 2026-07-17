@@ -1,0 +1,24 @@
+{
+  "id": "WI-AC-024",
+  "phase": "verify",
+  "acceptance_check_id": "AC-024",
+  "observation_method": "http",
+  "ac024_pass": true,
+  "port": 5171,
+  "probed": [
+    "/billing/plans",
+    "/billing/usage-and-credits",
+    "/billing/manage-subscription",
+    "/getting-started/quickstart",
+    "/integrations/overview",
+    "/dashboard/analyses",
+    "/api-reference/billing/plans",
+    "/api-reference/billing/purchase",
+    "/api-reference/billing/subscription",
+    "/api-reference/billing/credits",
+    "/api-reference/billing/usage",
+    "/api-reference/introduction",
+    "/security/rbac"
+  ],
+  "notes": "Public-docs OSS pages describe free self-host usage and Docs/GitHub pointers; no paid tiers, Stripe checkout, choose-a-plan, or Dashboard Billing as the OSS product path."
+}

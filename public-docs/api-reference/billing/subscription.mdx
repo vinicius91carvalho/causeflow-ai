@@ -1,123 +1,30 @@
 ---
 title: "Subscription"
 api: "GET /v1/billing/subscription"
-description: "View the current tenant's active subscription plan and billing details."
+description: "Hosted subscription APIs are not part of the open-source product path."
 ---
 
 ## Overview
 
-Returns the current subscription for your tenant, including the active plan, billing cycle, and quota usage for the current period.
+Hosted subscription, plan upgrade, and payment-method APIs are **not** part of the open-source product path.
+Self-hosted tenants do not select a commercial plan after organization creation.
 
-**Required role:** `admin`
+**Deploy CauseFlow:** clone the [CauseFlow monorepo](https://github.com/causeflow), run `./init.sh`, and continue with the [Quickstart](/getting-started/quickstart).
 
-## Request headers
+## OSS behavior
 
-<ParamField header="Authorization" type="string" required>
-  JWT Bearer token. Format: `Bearer <your-jwt>`.
-</ParamField>
+| Outcome | Description |
+| --- | --- |
+| Not an OSS product path | No plan upgrades, invoices, or payment methods |
+| Self-host instead | Local auth → create organization → dashboard home |
 
-## Response
-
-Returns `200 OK`.
-
-```json
-{
-  "subscriptionId": "sub_01HX9VTPQR3KF8MZWBYD5N6JCE",
-  "planId": "plan_pro",
-  "planName": "Pro",
-  "status": "active",
-  "currentPeriodStart": "2024-04-01T00:00:00Z",
-  "currentPeriodEnd": "2024-05-01T00:00:00Z",
-  "cancelAtPeriodEnd": false,
-  "usage": {
-    "investigationsUsed": 142,
-    "investigationsLimit": 500,
-    "eventsUsed": 8420,
-    "eventsLimit": 10000
-  },
-  "paymentMethod": {
-    "type": "card",
-    "last4": "4242",
-    "brand": "visa"
-  }
-}
-```
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `subscriptionId` | string | Unique subscription identifier |
-| `planId` | string | Active plan ID |
-| `status` | string | One of: `active`, `past_due`, `canceled`, `trialing` |
-| `currentPeriodStart` | string | Start of the current billing period |
-| `currentPeriodEnd` | string | End of the current billing period |
-| `cancelAtPeriodEnd` | boolean | `true` if subscription will not renew |
-| `usage.investigationsUsed` | integer | Investigations consumed this period |
-| `usage.investigationsLimit` | integer | Monthly investigation quota |
-
-## Change plan
-
-To change plans, send a `PATCH` to `/v1/billing/subscription`:
-
-```json
-{ "planId": "plan_business" }
-```
-
-Upgrades take effect immediately. Downgrades take effect at the end of the current period.
-
-### Error responses
-
-| Status | Error code | Description |
-| --- | --- | --- |
-| `401` | `unauthorized` | Missing or invalid JWT |
-| `403` | `forbidden` | Caller lacks `admin` role |
-| `404` | `no_subscription` | Tenant has no active subscription |
-
-## Examples
-
-<CodeGroup>
-
-```bash curl
-# Get subscription
-curl https://api.causeflow.ai/v1/billing/subscription \
-  -H "Authorization: Bearer eyJhbGc..."
-
-# Upgrade plan
-curl https://api.causeflow.ai/v1/billing/subscription \
-  -X PATCH \
-  -H "Authorization: Bearer eyJhbGc..." \
-  -H "Content-Type: application/json" \
-  -d '{ "planId": "plan_business" }'
-```
-
-```typescript TypeScript
-// Get subscription
-const response = await fetch(
-  "https://api.causeflow.ai/v1/billing/subscription",
-  { headers: { Authorization: `Bearer ${token}` } }
-);
-const sub = await response.json();
-
-const pct = Math.round((sub.usage.investigationsUsed / sub.usage.investigationsLimit) * 100);
-console.log(`Plan: ${sub.planName} — ${pct}% of investigations used`);
-
-// Upgrade plan
-await fetch("https://api.causeflow.ai/v1/billing/subscription", {
-  method: "PATCH",
-  headers: {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ planId: "plan_business" }),
-});
-```
-
-</CodeGroup>
+Published docs: [GitHub Pages](https://vinicius91carvalho.github.io/causeflow-ai/).
 
 <CardGroup cols={2}>
-  <Card title="Usage" href="/api-reference/billing/usage">
-    View detailed usage breakdown
+  <Card title="Open-source usage" href="/billing/plans">
+    Self-host CauseFlow with Docker Compose
   </Card>
-  <Card title="Credits" href="/api-reference/billing/credits">
-    View your credit balance
+  <Card title="No commercial billing" href="/billing/manage-subscription">
+    What OSS operators should expect
   </Card>
 </CardGroup>

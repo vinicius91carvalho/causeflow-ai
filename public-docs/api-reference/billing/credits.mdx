@@ -1,82 +1,28 @@
 ---
 title: "Credits balance"
 api: "GET /v1/billing/credits"
-description: "View the current credit balance for investigation and event quotas."
+description: "Hosted credit balances are not part of the open-source product path."
 ---
 
 ## Overview
 
-Returns the current credit balances for your tenant. Credits supplement plan quotas — when your monthly quota is exhausted, operations draw from your credit balance.
+Hosted credit balances and quota packs are **not** part of the open-source product path.
+Self-hosted CauseFlow does not sell or meter investigation credits against a commercial plan.
 
-**Required role:** `admin` or `member`
+**Deploy CauseFlow:** clone the [CauseFlow monorepo](https://github.com/causeflow), run `./init.sh`, and follow [Open-source usage](/billing/plans).
 
-## Request headers
+## OSS behavior
 
-<ParamField header="Authorization" type="string" required>
-  JWT Bearer token. Format: `Bearer <your-jwt>`.
-</ParamField>
-
-## Response
-
-Returns `200 OK`.
-
-```json
-{
-  "credits": {
-    "investigations": {
-      "balance": 250,
-      "unit": "investigations",
-      "lastPurchasedAt": "2024-03-15T10:00:00Z"
-    },
-    "events": {
-      "balance": 50000,
-      "unit": "events",
-      "lastPurchasedAt": "2024-03-15T10:00:00Z"
-    }
-  },
-  "checkedAt": "2024-04-01T14:30:00Z"
-}
-```
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `credits.investigations.balance` | integer | Remaining investigation credits |
-| `credits.events.balance` | integer | Remaining event ingestion credits |
-| `credits.*.lastPurchasedAt` | string | ISO 8601 timestamp of the last credit purchase. `null` if never purchased |
-
-### Error responses
-
-| Status | Error code | Description |
-| --- | --- | --- |
-| `401` | `unauthorized` | Missing or invalid JWT |
-| `403` | `forbidden` | Caller lacks required role |
-
-## Examples
-
-<CodeGroup>
-
-```bash curl
-curl https://api.causeflow.ai/v1/billing/credits \
-  -H "Authorization: Bearer eyJhbGc..."
-```
-
-```typescript TypeScript
-const response = await fetch("https://api.causeflow.ai/v1/billing/credits", {
-  headers: { Authorization: `Bearer ${token}` },
-});
-
-const { credits } = await response.json();
-console.log(`Investigation credits remaining: ${credits.investigations.balance}`);
-console.log(`Event credits remaining: ${credits.events.balance}`);
-```
-
-</CodeGroup>
+| Outcome | Description |
+| --- | --- |
+| Not an OSS product path | No credit purchase or plan-quota balance |
+| Self-host instead | Monitor load via your infra and [Usage and quotas](/billing/usage-and-credits) |
 
 <CardGroup cols={2}>
-  <Card title="Purchase credits" href="/api-reference/billing/purchase">
-    Buy additional investigation or event credits
+  <Card title="Usage and quotas" href="/billing/usage-and-credits">
+    How investigations and events are counted
   </Card>
-  <Card title="Usage" href="/api-reference/billing/usage">
-    View detailed usage and burn rate
+  <Card title="Open-source usage" href="/billing/plans">
+    Free self-host setup
   </Card>
 </CardGroup>

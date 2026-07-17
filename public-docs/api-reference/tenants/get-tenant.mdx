@@ -26,7 +26,7 @@ Returns `200 OK` with the full tenant object.
   "name": "Acme Corp",
   "slug": "acme-corp",
   "status": "active",
-  "plan": "pro",
+  "plan": "community",
   "createdAt": "2026-01-15T09:30:00Z",
   "settings": {
     "awsRoleArn": "<your-aws-iam-role-arn>",
@@ -43,7 +43,7 @@ Returns `200 OK` with the full tenant object.
 | `name`                     | string  | The tenant display name                                             |
 | `slug`                     | string  | The URL-safe tenant identifier                                      |
 | `status`                   | string  | Tenant status: `active` or `suspended`                              |
-| `plan`                     | string  | The subscription plan: `starter`, `pro`, `business`, or `enterprise` |
+| `plan`                     | string  | Deployment label (`community` in OSS; not a paid tier)               |
 | `createdAt`                | string  | ISO 8601 timestamp of when the tenant was created                   |
 | `settings.awsRoleArn`      | string  | ARN of the AWS IAM role used for AWS integrations                   |
 | `settings.awsExternalId`   | string  | External ID used when assuming the AWS IAM role                     |

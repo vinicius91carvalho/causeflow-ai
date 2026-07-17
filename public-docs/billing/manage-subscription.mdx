@@ -1,55 +1,19 @@
 ---
-title: "Billing in open source"
-sidebarTitle: "Billing"
-description: "What to expect from billing screens and APIs in the self-hosted OSS build."
+title: "No commercial billing in OSS"
+sidebarTitle: "No billing"
+description: "The open-source distribution has no subscription or payment product path."
 ---
 
 The open-source CauseFlow distribution does **not** sell subscriptions or process payments.
-There is no Stripe checkout, customer portal, or paid plan upgrade path.
+Operators self-host the stack; there is no plan upgrade, payment method, or hosted checkout flow to follow.
 
-## Dashboard behavior
+## What to do instead
 
-In a self-hosted deployment:
+1. Clone the [CauseFlow monorepo](https://github.com/causeflow).
+2. Run `./init.sh` from the repository root.
+3. Open the local dashboard at `http://localhost:3001` and continue with the [Quickstart](/getting-started/quickstart).
 
-- Sign-up and organization creation do **not** gate on plan selection.
-- **Dashboard > Billing** may display usage summaries for operators.
-- Checkout, billing portal, credit purchase, and subscription mutation actions return **410 Gone** with a message that billing is disabled in the OSS build.
-
-This is intentional.
-Commercial billing secrets stay out of the dashboard; any future hosted billing would live in a separate deployment profile.
-
-## What is not available
-
-The following commercial flows are **not** part of the OSS product path:
-
-- Choosing Starter, Pro, Business, or Enterprise tiers
-- Stripe checkout or saved payment methods
-- Monthly or annual subscription invoices
-- Quota pack purchases or overage auto-charge
-- Self-serve plan upgrades, downgrades, or cancellations through a payment provider
-
-Do not expect these flows when following the [Quickstart](/getting-started/quickstart) or [Open-source usage](/billing/plans) guides.
-
-## APIs
-
-Billing API routes may still exist for compatibility, but mutating endpoints (checkout, portal, purchase, subscribe, cancel, and similar) respond with **410 Gone** in the OSS runtime.
-Read-only usage endpoints may continue to return metrics for monitoring.
-
-See the [API reference](/api-reference/billing/plans) for endpoint shapes.
-
-## Running CauseFlow
-
-Deploy the full stack from the [CauseFlow monorepo](https://github.com/causeflow):
-
-```bash
-git clone https://github.com/causeflow
-cd causeflow
-./init.sh
-```
-
-When `./init.sh` reports **Ready**, open the dashboard at `http://localhost:3001` and continue with the [Quickstart](/getting-started/quickstart).
-
-For documentation mirrors and deep dives, use the [GitHub Pages docs](https://vinicius91carvalho.github.io/causeflow-ai/).
+For full setup instructions, use the [published docs](https://vinicius91carvalho.github.io/causeflow-ai/) and [Open-source usage](/billing/plans).
 
 ## Questions
 

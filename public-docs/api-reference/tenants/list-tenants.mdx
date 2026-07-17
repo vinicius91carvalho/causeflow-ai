@@ -20,13 +20,13 @@ Returns `200 OK` with an array of tenants.
     {
       "tenantId": "ten_EXAMPLE_01HX9VTPQR3KF8MZ",
       "name": "Acme Corp",
-      "plan": "pro",
+      "plan": "community",
       "status": "active"
     },
     {
       "tenantId": "ten_EXAMPLE_02JY0WUQRS4LG9NA",
       "name": "Globex Systems",
-      "plan": "business",
+      "plan": "community",
       "status": "active"
     }
   ]
@@ -37,7 +37,7 @@ Returns `200 OK` with an array of tenants.
 | ---------- | ------ | ------------------------------------------------------------------- |
 | `tenantId` | string | Unique identifier for the tenant                                    |
 | `name`     | string | The tenant display name                                             |
-| `plan`     | string | The subscription plan: `starter`, `pro`, `business`, or `enterprise` |
+| `plan`     | string | Deployment label (`community` in OSS; not a paid tier)               |
 | `status`   | string | Tenant status: `active` or `suspended`                              |
 
 ## Examples
