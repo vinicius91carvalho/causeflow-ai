@@ -207,3 +207,10 @@ Defect: expected AC-026 documented Playwright/API gate exits 0 on local OSS stac
 - Outcome: Attempt budget already exhausted
 - Defects: 
 - NextAction: User reviews evidence and explicitly resumes with guidance
+
+## 2026-07-17T20:25:18.895Z — Operator guidance
+
+- WorkItem: WI-AC-025
+- Outcome: retryQueue / Control Host guidance applied to coding Repair Plan
+- Guidance: False attempt exhaustion from stale GR reopen of WI-AC-025 after IV green. AC-025 stays integrated. Continue WI-AC-026 only with fresh attempt budget.
+- NextAction: Coding
