@@ -72,7 +72,7 @@ describe('POST /api/billing/checkout', () => {
     expect(res.status).toBe(400);
   });
 
-  it('returns 410 in OSS runtime without calling Core (AC-075)', async () => {
+  it('returns 404 in OSS runtime without calling Core (AC-012)', async () => {
     mockIsOssRuntime.mockReturnValue(true);
     const req = new NextRequest('http://localhost:3001/api/billing/checkout', {
       method: 'POST',
@@ -81,7 +81,7 @@ describe('POST /api/billing/checkout', () => {
     });
 
     const res = await (POST as any)(req);
-    expect(res.status).toBe(410);
+    expect(res.status).toBe(404);
     expect(mockCreateCheckout).not.toHaveBeenCalled();
   });
 

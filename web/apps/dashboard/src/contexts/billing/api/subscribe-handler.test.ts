@@ -29,7 +29,7 @@ describe('POST /api/billing/subscribe', () => {
     mockIsOssRuntime.mockReturnValue(false);
   });
 
-  it('returns 410 in OSS runtime without calling Core (AC-075)', async () => {
+  it('returns 404 in OSS runtime without calling Core (AC-012)', async () => {
     mockIsOssRuntime.mockReturnValue(true);
     const req = new NextRequest('http://localhost/api/billing/subscribe', {
       method: 'POST',
@@ -38,7 +38,7 @@ describe('POST /api/billing/subscribe', () => {
     });
 
     const res = await (POST as any)(req);
-    expect(res.status).toBe(410);
+    expect(res.status).toBe(404);
   });
 
   it('returns subscriptionId and clientSecret from Core API', async () => {

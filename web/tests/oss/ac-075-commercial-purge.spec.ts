@@ -12,7 +12,7 @@ test.describe('AC-075 — commercial billing purge', () => {
     await blockTrackers(page);
   });
 
-  test('dashboard billing checkout/portal return 410; pricing returns 404', async ({
+  test('dashboard billing checkout/portal return 404; pricing returns 404', async ({
     page,
     request,
   }) => {
@@ -27,12 +27,13 @@ test.describe('AC-075 — commercial billing purge', () => {
     const checkoutRes = await request.post('/api/billing/checkout', {
       data: { planId: 'starter', from: 'billing' },
     });
-    expect(checkoutRes.status()).toBe(410);
+    // Root AC-012: removed (404) or absent — not a permanent 410 facade.
+    expect(checkoutRes.status()).toBe(404);
     const checkoutBody = (await checkoutRes.json()) as { error?: string };
     expect(checkoutBody.error ?? '').toMatch(/billing is disabled/i);
 
     const portalRes = await request.post('/api/billing/portal', { data: {} });
-    expect(portalRes.status()).toBe(410);
+    expect(portalRes.status()).toBe(404);
     const portalBody = (await portalRes.json()) as { error?: string };
     expect(portalBody.error ?? '').toMatch(/billing is disabled/i);
 

@@ -19,12 +19,12 @@ vi.mock('./oss-runtime', () => ({
 
 import { ossBillingGoneResponse } from './oss-billing-gone';
 
-describe('ossBillingGoneResponse (AC-075)', () => {
-  it('returns 410 when OSS runtime is active', async () => {
+describe('ossBillingGoneResponse (AC-012 / AC-075)', () => {
+  it('returns 404 when OSS runtime is active (not a 410 facade)', async () => {
     mockIsOssRuntime.mockReturnValue(true);
     const res = ossBillingGoneResponse();
     expect(res).not.toBeNull();
-    expect(res?.status).toBe(410);
+    expect(res?.status).toBe(404);
     const body = await res?.json();
     expect(body.error).toBe(BILLING_DISABLED_MESSAGE);
   });

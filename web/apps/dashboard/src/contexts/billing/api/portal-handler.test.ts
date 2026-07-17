@@ -34,14 +34,14 @@ describe('billing portal handler', () => {
     expect(POST).toBeDefined();
   });
 
-  it('returns 410 in OSS runtime without calling Core (AC-075)', async () => {
+  it('returns 404 in OSS runtime without calling Core (AC-012)', async () => {
     mockIsOssRuntime.mockReturnValue(true);
     const req = new NextRequest('http://localhost:3001/api/billing/portal', {
       method: 'POST',
     });
 
     const res = await (POST as any)(req);
-    expect(res.status).toBe(410);
+    expect(res.status).toBe(404);
     expect(mockCreatePortal).not.toHaveBeenCalled();
   });
 

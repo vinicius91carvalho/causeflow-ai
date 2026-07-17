@@ -1,0 +1,20 @@
+{
+  "id": "WI-AC-012",
+  "phase": "post-fix",
+  "base": "http://127.0.0.1:5170",
+  "email": "vf-ac012-1784297485305@causeflow.local",
+  "routes": {
+    "POST /api/billing/checkout": 404,
+    "POST /api/billing/portal": 404,
+    "GET /api/billing/credits": 404,
+    "POST /api/billing/credits": 404
+  },
+  "create_statuses": [
+    201,
+    201,
+    201,
+    201,
+    201
+  ],
+  "ac012_pass": true
+}
