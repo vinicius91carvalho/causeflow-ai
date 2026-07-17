@@ -71,3 +71,10 @@ Fix requirements:
 - Defects: Integrated Verification failed
 - Evidence: /home/vinicius/projects/causeflow-ai/.git/harness-evidence/root/135fe572-c9b5-4da0-b8ca-4c20846ce901/core-oss-runtime/WI-AC-018-2-integration_qa-e3b0c44298fc1c14.log
 - NextAction: Repair Plan
+
+## 2026-07-17T21:14:18.440Z — Resumed
+
+- WorkItem: WI-AC-018
+- PreviousPhase: repair_plan
+- Attempt: 2
+- NextAction: repair-plan
