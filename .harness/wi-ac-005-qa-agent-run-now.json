@@ -1,5 +1,5 @@
 {
-  "phase": "probe",
+  "phase": "qa-agent-isolated",
   "id": "WI-AC-005",
   "ac": "AC-005",
   "port": 5171,
@@ -9,7 +9,8 @@
       "path": "/",
       "pass": true,
       "status": 200,
-      "has_llc": false,
+      "has_llc_chrome": false,
+      "has_llc_body": false,
       "has_delaware": false,
       "forbidden_hits": [],
       "has_docs": true,
@@ -17,13 +18,17 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "chrome_len": 5482,
       "body_len": 459673
     },
     {
       "path": "/product",
       "pass": true,
       "status": 200,
-      "has_llc": false,
+      "has_llc_chrome": false,
+      "has_llc_body": false,
       "has_delaware": false,
       "forbidden_hits": [],
       "has_docs": true,
@@ -31,13 +36,17 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "chrome_len": 5482,
       "body_len": 187321
     },
     {
       "path": "/pt-br",
       "pass": true,
       "status": 200,
-      "has_llc": false,
+      "has_llc_chrome": false,
+      "has_llc_body": false,
       "has_delaware": false,
       "forbidden_hits": [],
       "has_docs": true,
@@ -45,13 +54,17 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "chrome_len": 5588,
       "body_len": 461724
     },
     {
       "path": "/pt-br/product",
       "pass": true,
       "status": 200,
-      "has_llc": false,
+      "has_llc_chrome": false,
+      "has_llc_body": false,
       "has_delaware": false,
       "forbidden_hits": [],
       "has_docs": true,
@@ -59,7 +72,11 @@
       "has_causeflow_brand": true,
       "header_ai_span": false,
       "footer_ai_span": false,
-      "body_len": 189345
+      "has_privacy_link": true,
+      "has_terms_link": true,
+      "chrome_len": 5588,
+      "body_len": 189346
     }
-  ]
+  ],
+  "defects": []
 }
