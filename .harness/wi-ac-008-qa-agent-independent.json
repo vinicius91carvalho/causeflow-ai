@@ -2,16 +2,24 @@
   "id": "WI-AC-008",
   "phase": "qa-agent-independent-retest",
   "base": "http://127.0.0.1:5170",
-  "email": "qa-ac008-ind-1784264077804@causeflow.local",
+  "email": "qa-ac008-ind-1784264345666@causeflow.local",
   "steps": [
+    {
+      "step": "smoke_sign_in",
+      "status": 200
+    },
+    {
+      "step": "smoke_api_health",
+      "status": 200
+    },
     {
       "step": "register",
       "status": 200,
       "body": {
         "ok": true,
         "user": {
-          "id": "13ec15a0-2771-482e-bcf0-0bd3011ae3c7",
-          "email": "qa-ac008-ind-1784264077804@causeflow.local",
+          "id": "a408e6a5-1c64-4fc0-ad5c-e8474466c2a3",
+          "email": "qa-ac008-ind-1784264345666@causeflow.local",
           "name": "AC008 QA Independent"
         }
       }
@@ -44,8 +52,13 @@
       ],
       "finalUrl": "http://127.0.0.1:5170/dashboard",
       "finalStatus": 200,
-      "body_len": 90311,
+      "body_len": 90440,
       "snippet": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_14db65\" data-theme=\"cleric\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link"
+    },
+    {
+      "step": "choose_plan_boundary",
+      "status": 404,
+      "is_404": true
     }
   ],
   "defects": [],
@@ -55,7 +68,18 @@
     "create_org_lands_dashboard_or_non_plan": true,
     "create_org_skips_choose_plan_and_billing": true,
     "dashboard_home_reachable_without_gate": true,
-    "no_commercial_gate_ui_on_dashboard": true
+    "no_commercial_gate_ui_on_dashboard": true,
+    "choose_plan_is_404": true
   },
-  "pass": true
+  "pass": true,
+  "gate_hits": {
+    "/onboarding/choose-plan": false,
+    "Choose your plan": false,
+    "Buy more": false,
+    "quota pack": false,
+    "data-testid=[\"\\']choose-plan": false,
+    "Start Free Trial": false,
+    "Stripe Checkout": false
+  },
+  "plan_cards": false
 }
