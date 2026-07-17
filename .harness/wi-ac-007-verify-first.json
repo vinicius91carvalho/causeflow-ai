@@ -1,0 +1,15 @@
+{
+  "phase": "verify-first-existing",
+  "base": "http://127.0.0.1:5170",
+  "auth_choose_plan": {
+    "status": 200,
+    "has_starter": true,
+    "has_pro": true,
+    "has_business": true,
+    "has_startTrial": true,
+    "has_checkout": true,
+    "has_not_found": false
+  },
+  "ac007_pass": false,
+  "defect": "Authenticated GET /onboarding/choose-plan returned 200 with Starter/Pro/Business plan cards and checkout actions; root AC-007 requires 404 hard-remove."
+}

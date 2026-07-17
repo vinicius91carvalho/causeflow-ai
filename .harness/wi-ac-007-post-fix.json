@@ -1,0 +1,50 @@
+{
+  "phase": "post-fix",
+  "base": "http://127.0.0.1:5170",
+  "email": "$EMAIL",
+  "nofollow": {
+    "label": "nofollow",
+    "status": 404,
+    "status_lines": [
+      "HTTP/1.1 404 Not Found"
+    ],
+    "locations": [],
+    "body_len": 73074,
+    "markers": {
+      "Starter": false,
+      "Pro": true,
+      "Business": false,
+      "startTrial": false,
+      "Choose Your Plan": false,
+      "checkout": false,
+      "Subscribe": false,
+      "Buy more": false
+    },
+    "has_commercial_plan_cards": false,
+    "has_not_found_ui": true,
+    "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/we"
+  },
+  "follow": {
+    "label": "follow",
+    "status": 404,
+    "status_lines": [
+      "HTTP/1.1 404 Not Found"
+    ],
+    "locations": [],
+    "body_len": 73074,
+    "markers": {
+      "Starter": false,
+      "Pro": true,
+      "Business": false,
+      "startTrial": false,
+      "Choose Your Plan": false,
+      "checkout": false,
+      "Subscribe": false,
+      "Buy more": false
+    },
+    "has_commercial_plan_cards": false,
+    "has_not_found_ui": true,
+    "snippet": "<!DOCTYPE html><html id=\"__next_error__\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/we"
+  },
+  "ac007_pass": true
+}
