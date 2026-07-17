@@ -14,19 +14,7 @@ const DASHBOARD_URL =
 const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   redirects: async () => [
-    // /get-started is retired — route users straight to the dashboard sign-up.
-    {
-      source: '/get-started',
-      destination: `${DASHBOARD_URL}/auth/sign-up`,
-      permanent: true,
-      locale: false,
-    },
-    {
-      source: '/:locale(pt-br)/get-started',
-      destination: `${DASHBOARD_URL}/auth/sign-up`,
-      permanent: true,
-      locale: false,
-    },
+    // Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.
     // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.
   ],
   transpilePackages: [
