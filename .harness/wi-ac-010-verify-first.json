@@ -1,0 +1,27 @@
+{
+  "id": "WI-AC-010",
+  "phase": "verify-first-existing",
+  "observation_method": "grep",
+  "routes": [
+    "/waitlist",
+    "/pt-br/waitlist",
+    "/beta-waitlist",
+    "/pt-br/beta-waitlist"
+  ],
+  "sources": {
+    "waitlist_page": "web/apps/dashboard/src/contexts/identity/presentation/pages/waitlist-page.tsx",
+    "beta_waitlist_page": "web/apps/dashboard/src/contexts/identity/presentation/pages/beta-waitlist-page.tsx",
+    "waitlist_route": "web/apps/dashboard/src/app/[locale]/waitlist/[[...waitlist]]/page.tsx",
+    "beta_waitlist_route": "web/apps/dashboard/src/app/[locale]/beta-waitlist/page.tsx"
+  },
+  "grep": {
+    "notFound_in_waitlist_page": true,
+    "notFound_in_beta_waitlist_page": true,
+    "join_the_waitlist_in_route_or_page": false,
+    "were_in_beta_in_route_or_page": false,
+    "early_access_in_route_or_page": false,
+    "private_beta_in_route_or_page": false
+  },
+  "ac010_pass": true,
+  "notes": "VERIFY-FIRST initially failed: waitlist/beta-waitlist pages rendered early-access UX. Hard-removed via notFound() (same pattern as AC-009 billing). Locale equivalents share [locale] App Router pages."
+}
