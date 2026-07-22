@@ -40,12 +40,20 @@ const nextConfig = {
       '@radix-ui/react-tooltip',
     ],
   },
+  // Baked into client+server bundles so image-loader/publicAsset see the Pages prefix.
+  env: {
+    NEXT_PUBLIC_BASE_PATH: isGitHubPages ? '/causeflow-ai' : '',
+  },
   ...(isGitHubPages
     ? {
         output: 'export',
         basePath: '/causeflow-ai',
         trailingSlash: true,
-        images: { unoptimized: true },
+        images: {
+          unoptimized: true,
+          loader: 'custom',
+          loaderFile: './src/lib/image-loader.ts',
+        },
       }
     : {
         redirects: async () => [

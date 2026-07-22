@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { publicAsset } from '@/lib/public-asset';
 
 /**
  * HowWorksSection — "Conecta. Investiga. Explica." 3-column strip.
@@ -82,12 +83,12 @@ export function HowWorksSection({
 // inward-pointing arrows. Communicates "plug many tools into one brain".
 function ConnectStackVisual() {
   const tiles = [
-    { id: 'sentry', src: '/icons/integrations/sentry.svg', label: 'Sentry' },
-    { id: 'datadog', src: '/icons/integrations/datadog.svg', label: 'Datadog' },
-    { id: 'grafana', src: '/icons/integrations/grafana.svg', label: 'Grafana' },
-    { id: 'github', src: '/icons/integrations/github.svg', label: 'GitHub' },
-    { id: 'slack', src: '/icons/integrations/slack.svg', label: 'Slack' },
-    { id: 'pagerduty', src: '/icons/integrations/pagerduty.svg', label: 'PagerDuty' },
+    { id: 'sentry', src: publicAsset('/icons/integrations/sentry.svg'), label: 'Sentry' },
+    { id: 'datadog', src: publicAsset('/icons/integrations/datadog.svg'), label: 'Datadog' },
+    { id: 'grafana', src: publicAsset('/icons/integrations/grafana.svg'), label: 'Grafana' },
+    { id: 'github', src: publicAsset('/icons/integrations/github.svg'), label: 'GitHub' },
+    { id: 'slack', src: publicAsset('/icons/integrations/slack.svg'), label: 'Slack' },
+    { id: 'pagerduty', src: publicAsset('/icons/integrations/pagerduty.svg'), label: 'PagerDuty' },
   ] as const;
   return (
     <div className="relative grid h-full w-full grid-cols-[1fr_auto] items-center gap-4 px-4 py-4">

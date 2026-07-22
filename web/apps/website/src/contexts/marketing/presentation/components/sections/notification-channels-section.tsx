@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { publicAsset } from '@/lib/public-asset';
 
 /**
  * NotificationChannelsSection — "NOTIFICAÇÃO" section.
@@ -23,9 +24,9 @@ interface NotificationChannelsSectionProps {
 }
 
 const ICON_SRCS: Record<string, string> = {
-  slack: '/icons/integrations/slack.svg',
-  pagerduty: '/icons/integrations/pagerduty.svg',
-  linear: '/icons/integrations/linear.svg',
+  slack: publicAsset('/icons/integrations/slack.svg'),
+  pagerduty: publicAsset('/icons/integrations/pagerduty.svg'),
+  linear: publicAsset('/icons/integrations/linear.svg'),
 };
 
 export function NotificationChannelsSection({

@@ -42,8 +42,9 @@ import {
 } from '@/contexts/marketing/presentation/components/structured-data';
 import { Footer } from '@/contexts/shell/presentation/components/navigation/footer';
 import { Header } from '@/contexts/shell/presentation/components/navigation/header';
-import { ossMarketingDocsCta, ossMarketingGitHubCta } from '@/lib/oss-marketing-ctas';
 import { generatePageMetadata } from '@/lib/metadata';
+import { ossMarketingDocsCta, ossMarketingGitHubCta } from '@/lib/oss-marketing-ctas';
+import { publicAsset } from '@/lib/public-asset';
 
 // ---------------------------------------------------------------------------
 // Integrations carousel — kept from previous homepage (per user request)
@@ -96,7 +97,7 @@ function buildLogoIcon(item: LogoItem) {
     name: item.name,
     icon: (
       <Image
-        src={item.src}
+        src={publicAsset(item.src)}
         alt={item.name}
         width={20}
         height={20}

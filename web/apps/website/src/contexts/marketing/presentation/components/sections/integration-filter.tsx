@@ -4,6 +4,7 @@ import type { Integration } from '@causeflow/shared/types';
 import { cn } from '@causeflow/ui/lib';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@causeflow/ui/primitives';
 import Image from 'next/image';
+import { publicAsset } from '@/lib/public-asset';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { IntegrationCard } from './integration-card';
@@ -11,7 +12,7 @@ import { IntegrationCard } from './integration-card';
 const INTEGRATION_ICONS: Record<string, ReactNode> = {
   slack: (
     <Image
-      src="/icons/integrations/slack.svg"
+      src={publicAsset('/icons/integrations/slack.svg')}
       alt="Slack"
       className="h-7 w-7"
       width={28}
@@ -20,7 +21,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   github: (
     <Image
-      src="/icons/integrations/github.svg"
+      src={publicAsset('/icons/integrations/github.svg')}
       alt="GitHub"
       className="h-7 w-7"
       width={28}
@@ -29,7 +30,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   jira: (
     <Image
-      src="/icons/integrations/jira.svg"
+      src={publicAsset('/icons/integrations/jira.svg')}
       alt="Jira"
       className="h-7 w-7"
       width={28}
@@ -38,7 +39,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   'aws-cloudwatch': (
     <Image
-      src="/icons/integrations/aws-cloudwatch.svg"
+      src={publicAsset('/icons/integrations/aws-cloudwatch.svg')}
       alt="AWS CloudWatch"
       className="h-7 w-7"
       width={28}
@@ -47,7 +48,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   hubspot: (
     <Image
-      src="/icons/integrations/hubspot.svg"
+      src={publicAsset('/icons/integrations/hubspot.svg')}
       alt="HubSpot"
       className="h-7 w-7"
       width={28}
@@ -56,7 +57,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   trello: (
     <Image
-      src="/icons/integrations/trello.svg"
+      src={publicAsset('/icons/integrations/trello.svg')}
       alt="Trello"
       className="h-7 w-7"
       width={28}
@@ -65,7 +66,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   'postgresql-mysql': (
     <Image
-      src="/icons/integrations/postgresql.svg"
+      src={publicAsset('/icons/integrations/postgresql.svg')}
       alt="PostgreSQL"
       className="h-7 w-7"
       width={28}
@@ -74,7 +75,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   linear: (
     <Image
-      src="/icons/integrations/linear.svg"
+      src={publicAsset('/icons/integrations/linear.svg')}
       alt="Linear"
       className="h-7 w-7"
       width={28}
@@ -83,7 +84,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   sentry: (
     <Image
-      src="/icons/integrations/sentry.svg"
+      src={publicAsset('/icons/integrations/sentry.svg')}
       alt="Sentry"
       className="h-7 w-7"
       width={28}
@@ -92,7 +93,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   mongodb: (
     <Image
-      src="/icons/integrations/mongodb.svg"
+      src={publicAsset('/icons/integrations/mongodb.svg')}
       alt="MongoDB"
       className="h-7 w-7"
       width={28}
@@ -101,7 +102,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   datadog: (
     <Image
-      src="/icons/integrations/datadog.svg"
+      src={publicAsset('/icons/integrations/datadog.svg')}
       alt="Datadog"
       className="h-7 w-7"
       width={28}
@@ -110,7 +111,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   pagerduty: (
     <Image
-      src="/icons/integrations/pagerduty.svg"
+      src={publicAsset('/icons/integrations/pagerduty.svg')}
       alt="PagerDuty"
       className="h-7 w-7"
       width={28}
@@ -119,7 +120,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   grafana: (
     <Image
-      src="/icons/integrations/grafana.svg"
+      src={publicAsset('/icons/integrations/grafana.svg')}
       alt="Grafana"
       className="h-7 w-7"
       width={28}
@@ -128,7 +129,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   confluence: (
     <Image
-      src="/icons/integrations/confluence.svg"
+      src={publicAsset('/icons/integrations/confluence.svg')}
       alt="Confluence"
       className="h-7 w-7"
       width={28}
@@ -137,7 +138,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   notion: (
     <Image
-      src="/icons/integrations/notion.svg"
+      src={publicAsset('/icons/integrations/notion.svg')}
       alt="Notion"
       className="h-7 w-7"
       width={28}
@@ -146,7 +147,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   shortcut: (
     <Image
-      src="/icons/integrations/shortcut.svg"
+      src={publicAsset('/icons/integrations/shortcut.svg')}
       alt="Shortcut"
       className="h-7 w-7"
       width={28}
@@ -155,7 +156,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   gitlab: (
     <Image
-      src="/icons/integrations/gitlab.svg"
+      src={publicAsset('/icons/integrations/gitlab.svg')}
       alt="GitLab"
       className="h-7 w-7"
       width={28}
@@ -164,7 +165,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   bitbucket: (
     <Image
-      src="/icons/integrations/bitbucket.svg"
+      src={publicAsset('/icons/integrations/bitbucket.svg')}
       alt="Bitbucket"
       className="h-7 w-7"
       width={28}
@@ -173,7 +174,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   'microsoft-teams': (
     <Image
-      src="/icons/integrations/microsoft-teams.svg"
+      src={publicAsset('/icons/integrations/microsoft-teams.svg')}
       alt="Microsoft Teams"
       className="h-7 w-7"
       width={28}
@@ -182,7 +183,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   discord: (
     <Image
-      src="/icons/integrations/discord.svg"
+      src={publicAsset('/icons/integrations/discord.svg')}
       alt="Discord"
       className="h-7 w-7"
       width={28}
@@ -191,7 +192,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   'new-relic': (
     <Image
-      src="/icons/integrations/new-relic.svg"
+      src={publicAsset('/icons/integrations/new-relic.svg')}
       alt="New Relic"
       className="h-7 w-7"
       width={28}
@@ -200,7 +201,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   opsgenie: (
     <Image
-      src="/icons/integrations/opsgenie.svg"
+      src={publicAsset('/icons/integrations/opsgenie.svg')}
       alt="Opsgenie"
       className="h-7 w-7"
       width={28}
@@ -209,7 +210,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   splunk: (
     <Image
-      src="/icons/integrations/splunk.svg"
+      src={publicAsset('/icons/integrations/splunk.svg')}
       alt="Splunk"
       className="h-7 w-7"
       width={28}
@@ -218,7 +219,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   asana: (
     <Image
-      src="/icons/integrations/asana.svg"
+      src={publicAsset('/icons/integrations/asana.svg')}
       alt="Asana"
       className="h-7 w-7"
       width={28}
@@ -227,7 +228,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   servicenow: (
     <Image
-      src="/icons/integrations/servicenow.svg"
+      src={publicAsset('/icons/integrations/servicenow.svg')}
       alt="ServiceNow"
       className="h-7 w-7"
       width={28}
@@ -236,7 +237,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   'google-docs': (
     <Image
-      src="/icons/integrations/google-docs.svg"
+      src={publicAsset('/icons/integrations/google-docs.svg')}
       alt="Google Docs"
       className="h-7 w-7"
       width={28}
@@ -245,7 +246,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   salesforce: (
     <Image
-      src="/icons/integrations/salesforce.svg"
+      src={publicAsset('/icons/integrations/salesforce.svg')}
       alt="Salesforce"
       className="h-7 w-7"
       width={28}
@@ -254,7 +255,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   zendesk: (
     <Image
-      src="/icons/integrations/zendesk.svg"
+      src={publicAsset('/icons/integrations/zendesk.svg')}
       alt="Zendesk"
       className="h-7 w-7"
       width={28}
@@ -263,7 +264,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   intercom: (
     <Image
-      src="/icons/integrations/intercom.svg"
+      src={publicAsset('/icons/integrations/intercom.svg')}
       alt="Intercom"
       className="h-7 w-7"
       width={28}
@@ -272,7 +273,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   postgresql: (
     <Image
-      src="/icons/integrations/postgresql.svg"
+      src={publicAsset('/icons/integrations/postgresql.svg')}
       alt="PostgreSQL"
       className="h-7 w-7"
       width={28}
@@ -281,7 +282,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   mysql: (
     <Image
-      src="/icons/integrations/mysql.svg"
+      src={publicAsset('/icons/integrations/mysql.svg')}
       alt="MySQL"
       className="h-7 w-7"
       width={28}
@@ -290,7 +291,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   'google-cloud': (
     <Image
-      src="/icons/integrations/google-cloud.svg"
+      src={publicAsset('/icons/integrations/google-cloud.svg')}
       alt="Google Cloud"
       className="h-7 w-7"
       width={28}
@@ -299,7 +300,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   azure: (
     <Image
-      src="/icons/integrations/azure.svg"
+      src={publicAsset('/icons/integrations/azure.svg')}
       alt="Azure"
       className="h-7 w-7"
       width={28}
@@ -308,7 +309,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   kubernetes: (
     <Image
-      src="/icons/integrations/kubernetes.svg"
+      src={publicAsset('/icons/integrations/kubernetes.svg')}
       alt="Kubernetes"
       className="h-7 w-7"
       width={28}
@@ -316,11 +317,11 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
     />
   ),
   aws: (
-    <Image src="/icons/integrations/aws.svg" alt="AWS" className="h-7 w-7" width={28} height={28} />
+    <Image src={publicAsset('/icons/integrations/aws.svg')} alt="AWS" className="h-7 w-7" width={28} height={28} />
   ),
   'github-actions': (
     <Image
-      src="/icons/integrations/github-actions.svg"
+      src={publicAsset('/icons/integrations/github-actions.svg')}
       alt="GitHub Actions"
       className="h-7 w-7"
       width={28}
@@ -329,7 +330,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   circleci: (
     <Image
-      src="/icons/integrations/circleci.svg"
+      src={publicAsset('/icons/integrations/circleci.svg')}
       alt="CircleCI"
       className="h-7 w-7"
       width={28}
@@ -338,7 +339,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   jenkins: (
     <Image
-      src="/icons/integrations/jenkins.svg"
+      src={publicAsset('/icons/integrations/jenkins.svg')}
       alt="Jenkins"
       className="h-7 w-7"
       width={28}
@@ -347,7 +348,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   argocd: (
     <Image
-      src="/icons/integrations/argocd.svg"
+      src={publicAsset('/icons/integrations/argocd.svg')}
       alt="Argo CD"
       className="h-7 w-7"
       width={28}
@@ -356,7 +357,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   'rest-api': (
     <Image
-      src="/icons/integrations/rest-api.svg"
+      src={publicAsset('/icons/integrations/rest-api.svg')}
       alt="REST API"
       className="h-7 w-7"
       width={28}
@@ -365,7 +366,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   'custom-webhooks': (
     <Image
-      src="/icons/integrations/custom-webhooks.svg"
+      src={publicAsset('/icons/integrations/custom-webhooks.svg')}
       alt="Custom Webhooks"
       className="h-7 w-7"
       width={28}
@@ -374,7 +375,7 @@ const INTEGRATION_ICONS: Record<string, ReactNode> = {
   ),
   graphql: (
     <Image
-      src="/icons/integrations/graphql.svg"
+      src={publicAsset('/icons/integrations/graphql.svg')}
       alt="GraphQL"
       className="h-7 w-7"
       width={28}
