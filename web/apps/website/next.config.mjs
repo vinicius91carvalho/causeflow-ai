@@ -3,6 +3,7 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const isDev = process.env.NODE_ENV === 'development';
+const isGitHubPages = process.env.GITHUB_PAGES === '1';
 
 const DASHBOARD_URL =
   process.env.NEXT_PUBLIC_DASHBOARD_URL ??
@@ -13,10 +14,6 @@ const DASHBOARD_URL =
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
-  redirects: async () => [
-    // Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.
-    // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.
-  ],
   transpilePackages: [
     '@causeflow/shared',
     '@causeflow/ui',
@@ -43,34 +40,47 @@ const nextConfig = {
       '@radix-ui/react-tooltip',
     ],
   },
-  headers: async () => [
-    {
-      source: '/(.*)',
-      headers: [
-        { key: 'X-Frame-Options', value: 'DENY' },
-        { key: 'X-Content-Type-Options', value: 'nosniff' },
-        { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-        { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-        {
-          key: 'Strict-Transport-Security',
-          value: 'max-age=63072000; includeSubDomains; preload',
-        },
-        {
-          key: 'Content-Security-Policy',
-          value: [
-            "default-src 'self'",
-            `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://*.clarity.ms`,
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-            "img-src 'self' data: https:",
-            "font-src 'self' https://fonts.gstatic.com",
-            `connect-src 'self' https://www.google-analytics.com https://*.clarity.ms ${DASHBOARD_URL}${isDev ? ' ws://127.0.0.1:* ws://localhost:*' : ''}`,
-            "frame-src 'self'",
-            "worker-src 'self' blob:",
-          ].join('; '),
-        },
-      ],
-    },
-  ],
+  ...(isGitHubPages
+    ? {
+        output: 'export',
+        basePath: '/causeflow-ai',
+        trailingSlash: true,
+        images: { unoptimized: true },
+      }
+    : {
+        redirects: async () => [
+          // Root AC-006: /get-started and /pt-br/get-started hard-removed (404). No commercial sign-up redirect.
+          // Root AC-003: /pricing is hard-removed (404 via pricing-page notFound). No redirect.
+        ],
+        headers: async () => [
+          {
+            source: '/(.*)',
+            headers: [
+              { key: 'X-Frame-Options', value: 'DENY' },
+              { key: 'X-Content-Type-Options', value: 'nosniff' },
+              { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+              { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+              {
+                key: 'Strict-Transport-Security',
+                value: 'max-age=63072000; includeSubDomains; preload',
+              },
+              {
+                key: 'Content-Security-Policy',
+                value: [
+                  "default-src 'self'",
+                  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://*.clarity.ms`,
+                  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+                  "img-src 'self' data: https:",
+                  "font-src 'self' https://fonts.gstatic.com",
+                  `connect-src 'self' https://www.google-analytics.com https://*.clarity.ms ${DASHBOARD_URL}${isDev ? ' ws://127.0.0.1:* ws://localhost:*' : ''}`,
+                  "frame-src 'self'",
+                  "worker-src 'self' blob:",
+                ].join('; '),
+              },
+            ],
+          },
+        ],
+      }),
 };
 
 export default withNextIntl(nextConfig);

@@ -18,6 +18,10 @@
   "navbar": {
     "links": [
       {
+        "label": "Website",
+        "href": "https://vinicius91carvalho.github.io/causeflow-ai/"
+      },
+      {
         "label": "Support",
         "href": "mailto:support@causeflow.ai"
       }
@@ -25,7 +29,7 @@
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://dashboard.causeflow.ai"
+      "href": "http://localhost:3001"
     }
   },
   "contextual": {
@@ -336,12 +340,12 @@
       "anchors": [
         {
           "anchor": "Dashboard",
-          "href": "https://dashboard.causeflow.ai",
+          "href": "http://localhost:3001",
           "icon": "gauge"
         },
         {
           "anchor": "Status",
-          "href": "https://api.causeflow.ai/v1/health",
+          "href": "http://localhost:3099/health",
           "icon": "signal"
         }
       ]

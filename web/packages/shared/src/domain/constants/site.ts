@@ -5,14 +5,14 @@ export const SITE = {
   url: 'https://causeflow.ai',
   // Falls back to production URL; override via NEXT_PUBLIC_DASHBOARD_URL env var.
   dashboardUrl: process.env.NEXT_PUBLIC_DASHBOARD_URL || 'https://dashboard.causeflow.ai',
-  /** Published OSS docs (GitHub Pages). */
-  docsUrl: 'https://vinicius91carvalho.github.io/causeflow-ai/',
+  /** Published OSS docs (GitHub Pages under /docs). */
+  docsUrl: 'https://vinicius91carvalho.github.io/causeflow-ai/docs/',
   /**
    * Canonical Test Application (OSS) docs page (AC-020 / AC-023).
    * Integrations "Learn more" deep-links here.
    */
   testApplicationDocsUrl:
-    'https://vinicius91carvalho.github.io/causeflow-ai/integrations/test-application',
+    'https://vinicius91carvalho.github.io/causeflow-ai/docs/integrations/test-application',
   email: 'adm@causeflow.ai',
   social: {
     github: 'https://github.com/causeflow',

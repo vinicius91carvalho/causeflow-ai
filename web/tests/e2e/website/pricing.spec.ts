@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const BLOCKED_HOSTS = ['google-analytics.com', 'googletagmanager.com', 'clarity.ms', 'c.bing.com'];
-const DOCS_URL = 'https://vinicius91carvalho.github.io/causeflow-ai/';
+const DOCS_URL = 'https://vinicius91carvalho.github.io/causeflow-ai/docs/';
 
 test.beforeEach(async ({ page }) => {
   await page.route('**/*', (route) => {

@@ -73,11 +73,12 @@ curl http://localhost:3099/health
 
 Dashboard readiness check used by `./init.sh`: http://localhost:3001/auth/sign-in
 
-## Published docs (GitHub Pages)
+## Published site + docs (GitHub Pages)
 
-Public documentation is published at:
-
-https://vinicius91carvalho.github.io/causeflow-ai/
+| Surface | URL |
+|---|---|
+| Marketing website | https://vinicius91carvalho.github.io/causeflow-ai/ |
+| Public docs | https://vinicius91carvalho.github.io/causeflow-ai/docs/ |
 
 Local docs from the umbrella stack remain on http://localhost:5181.
 

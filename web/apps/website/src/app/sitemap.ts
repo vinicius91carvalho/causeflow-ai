@@ -1,5 +1,8 @@
 import type { MetadataRoute } from 'next';
 
+// Required for `output: 'export'` (GitHub Pages).
+export const dynamic = 'force-static';
+
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://causeflow.ai';
 
 const pages = [

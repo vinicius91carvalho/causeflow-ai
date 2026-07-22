@@ -60,7 +60,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://causeflow.ai'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://causeflow.ai'),
   title: {
     template: '%s | CauseFlow AI',
     default: "CauseFlow AI — Your Stack's Problem Detective",

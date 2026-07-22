@@ -7,6 +7,7 @@
     "dev": "next dev --hostname 127.0.0.1",
     "dev:turbopack": "next dev --turbopack --hostname 127.0.0.1",
     "build": "next build",
+    "build:github-pages": "node scripts/build-github-pages.mjs",
     "start": "next start",
     "lint": "biome lint ./src",
     "check-types": "tsc --noEmit",

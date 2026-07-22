@@ -10,7 +10,7 @@ const pass = process.env.AC020_PASS ?? 'TestPass123!';
 const outPath = process.env.AC020_OUT ?? '.harness/wi-ac-020-verify-first.json';
 const EXPECTED_DOCS =
   process.env.AC020_DOCS_URL ??
-  'https://vinicius91carvalho.github.io/causeflow-ai/integrations/test-application';
+  'https://vinicius91carvalho.github.io/causeflow-ai/docs/integrations/test-application';
 
 const out = {
   id: 'WI-AC-020',

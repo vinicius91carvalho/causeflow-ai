@@ -240,8 +240,8 @@
       - Monorepo root `docker-compose.yml` becomes the umbrella OSS platform stack: website on host :3000, dashboard on host :3001, Core API on host :3099, postgres, redis, hindsight, and worker exactly as today, plus `causeflow-docs` published on host :5181 and container :3000. This supersedes the public-docs acceptance-check note that umbrella docs were on :3000.
       - Root `init.sh` is fail-closed: it requires Docker plus the Docker Compose plugin before doing anything, starts `docker compose up -d` from the monorepo root, waits until the stack is healthy, prints a local URL matrix, and never starts the relay. Relay startup remains documented only in the relay README and relay `init.sh`.
       - Root `README.md` explains the CauseFlow monorepo, quickstart via `./init.sh`, the local URL matrix, links to `core`/`web`/`public-docs`/`relay` READMEs, `docs/00-index.md`, the published GitHub Pages docs URL, and API health.
-      - Monorepo-root `.github/workflows/docs-pages.yml` builds `public-docs` with `mint export`, not `mint deploy`, and publishes GitHub Pages at https://vinicius91carvalho.github.io/causeflow-ai/.
-      - Website Docs links in the header, footer, shared navigation constants, and a homepage main-page Docs CTA/link point to https://vinicius91carvalho.github.io/causeflow-ai/ instead of the hardcoded docs.causeflow.ai URL.
+      - Monorepo-root `.github/workflows/docs-pages.yml` builds the marketing website static export plus `public-docs` with `mint export` (not `mint deploy`), and publishes GitHub Pages with the website at https://vinicius91carvalho.github.io/causeflow-ai/ and docs at https://vinicius91carvalho.github.io/causeflow-ai/docs/.
+      - Website Docs links in the header, footer, shared navigation constants, and a homepage main-page Docs CTA/link point to https://vinicius91carvalho.github.io/causeflow-ai/docs/ instead of the hardcoded docs.causeflow.ai URL.
     </monorepo-root-oss-dx>
 
     <oss-commercial-removal>
@@ -937,20 +937,20 @@
 
     <acceptance_check id="AC-065" context="monorepo-root-oss-dx" category="ops" depends_on="AC-062">
       <title>GitHub Pages workflow exports Mint docs without deploying Mintlify</title>
-      <description>At the monorepo root, `.github/workflows/docs-pages.yml` exists, builds `public-docs` using `mint export`, and deploys the generated static artifact to GitHub Pages. The workflow does not run `mint deploy` or `mintlify deploy`.</description>
+      <description>At the monorepo root, `.github/workflows/docs-pages.yml` exists, builds the marketing website static export and `public-docs` using `mint export`, and deploys the combined artifact to GitHub Pages (website at `/`, docs at `/docs`). The workflow does not run `mint deploy` or `mintlify deploy`.</description>
       <steps>
         <step>Step 1: Open monorepo-root `.github/workflows/docs-pages.yml`.</step>
-        <step>Step 2: Confirm the workflow builds `public-docs` with `mint export` and publishes through GitHub Pages.</step>
+        <step>Step 2: Confirm the workflow builds the website static export plus `public-docs` with `mint export`, publishes the website at the Pages root and docs under `/docs`, and does not run Mintlify hosted deploy.</step>
         <step>Step 3: Confirm no workflow step invokes `mint deploy` or `mintlify deploy`.</step>
       </steps>
     </acceptance_check>
 
     <acceptance_check id="AC-066" context="monorepo-root-oss-dx" category="functional" depends_on="AC-065">
       <title>Website Docs links point to published GitHub Pages docs</title>
-      <description>The website header, footer, shared navigation constants, and homepage main-page Docs CTA/link all point to https://vinicius91carvalho.github.io/causeflow-ai/ instead of docs.causeflow.ai, and the unit/navigation tests are updated to assert that URL.</description>
+      <description>The website header, footer, shared navigation constants, and homepage main-page Docs CTA/link all point to https://vinicius91carvalho.github.io/causeflow-ai/docs/ instead of docs.causeflow.ai, and the unit/navigation tests are updated to assert that URL.</description>
       <steps>
         <step>Step 1: Inspect website header, footer, shared navigation constants, and homepage main-page CTA/link definitions.</step>
-        <step>Step 2: Confirm every Docs link uses https://vinicius91carvalho.github.io/causeflow-ai/ and no website Docs link still targets docs.causeflow.ai.</step>
+        <step>Step 2: Confirm every Docs link uses https://vinicius91carvalho.github.io/causeflow-ai/docs/ and no website Docs link still targets docs.causeflow.ai.</step>
         <step>Step 3: Run the relevant unit/navigation tests and confirm they assert the Pages URL.</step>
       </steps>
     </acceptance_check>
@@ -1267,7 +1267,7 @@
 
     <decision id="PD-DOCS-PAGES-URL" topic="architectural-tradeoff">
       <question>What public docs URL should the website use for OSS delivery?</question>
-      <choice>Use https://vinicius91carvalho.github.io/causeflow-ai/ and replace the hardcoded docs.causeflow.ai website links.</choice>
+      <choice>Use https://vinicius91carvalho.github.io/causeflow-ai/docs/ for docs (website at the Pages root) and replace the hardcoded docs.causeflow.ai website links.</choice>
       <rationale>GitHub Pages is the requested open-source publishing target and matches the root docs workflow.</rationale>
       <acceptance_checks>AC-065,AC-066</acceptance_checks>
     </decision>

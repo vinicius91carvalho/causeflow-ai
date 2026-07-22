@@ -1,12 +1,21 @@
-# Build public-docs with `mint export` and publish the static artifact to GitHub Pages.
-# PD-PAGES-WORKFLOW / AC-065: static export only - no Mintlify-hosted deployment commands.
-name: Docs Pages
+# Build marketing website (static export) + public-docs (mint export) for GitHub Pages.
+# Layout: website at /causeflow-ai/, docs at /causeflow-ai/docs/
+# AC-065: mint export only for docs — no Mintlify-hosted deployment commands.
+name: GitHub Pages
 
 on:
   push:
     branches: [main]
     paths:
       - "public-docs/**"
+      - "web/apps/website/**"
+      - "web/packages/shared/**"
+      - "web/packages/ui/**"
+      - "web/packages/analytics/**"
+      - "web/packages/forms/**"
+      - "web/package.json"
+      - "web/pnpm-lock.yaml"
+      - "web/pnpm-workspace.yaml"
       - ".github/workflows/docs-pages.yml"
       - ".github/scripts/rewrite-github-pages-base.mjs"
   workflow_dispatch:
@@ -22,7 +31,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build mint export
+    name: Build website + docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +39,28 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install website dependencies
+        working-directory: web
+        run: pnpm install --frozen-lockfile
+
+      - name: Build website static export
+        working-directory: web
+        run: pnpm --filter @causeflow/website build:github-pages
+        env:
+          GITHUB_PAGES: "1"
+          NEXT_PUBLIC_SITE_URL: https://vinicius91carvalho.github.io/causeflow-ai
+          NEXT_PUBLIC_DASHBOARD_URL: http://localhost:3001
+          NEXT_PUBLIC_DEPLOYMENT_STAGE: development
+
+      - name: Stage website into _site
+        run: |
+          mkdir -p _site
+          cp -a web/apps/website/out/. _site/
 
       - name: Install mint CLI
         # Same pin as public-docs/Dockerfile - open-source CLI, no Mintlify account.
@@ -40,13 +70,13 @@ jobs:
         working-directory: public-docs
         run: |
           mint export --output export.zip --telemetry false
-          mkdir -p ../_site
-          unzip -q export.zip -d ../_site
+          mkdir -p ../_site/docs
+          unzip -q export.zip -d ../_site/docs
           rm -f export.zip
 
-      # Project Pages URL is /causeflow-ai/; mint export emits root-absolute `/` assets.
-      - name: Rewrite export for GitHub Pages base path
-        run: node .github/scripts/rewrite-github-pages-base.mjs _site /causeflow-ai
+      # Docs live under /causeflow-ai/docs/; mint export emits root-absolute `/` assets.
+      - name: Rewrite docs export for GitHub Pages base path
+        run: node .github/scripts/rewrite-github-pages-base.mjs _site/docs /causeflow-ai/docs
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

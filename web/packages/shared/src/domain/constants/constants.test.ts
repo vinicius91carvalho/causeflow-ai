@@ -23,13 +23,13 @@ describe('SITE', () => {
     expect(SITE.url).toBe('https://causeflow.ai');
   });
 
-  it('docsUrl points to GitHub Pages', () => {
-    expect(SITE.docsUrl).toBe('https://vinicius91carvalho.github.io/causeflow-ai/');
+  it('docsUrl points to GitHub Pages /docs', () => {
+    expect(SITE.docsUrl).toBe('https://vinicius91carvalho.github.io/causeflow-ai/docs/');
   });
 
   it('testApplicationDocsUrl deep-links under published docs', () => {
     expect(SITE.testApplicationDocsUrl).toBe(
-      'https://vinicius91carvalho.github.io/causeflow-ai/integrations/test-application',
+      'https://vinicius91carvalho.github.io/causeflow-ai/docs/integrations/test-application',
     );
     expect(SITE.testApplicationDocsUrl.startsWith(SITE.docsUrl)).toBe(true);
   });

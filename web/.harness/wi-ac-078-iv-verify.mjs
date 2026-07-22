@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const DOCS_URL = 'https://vinicius91carvalho.github.io/causeflow-ai/';
+const DOCS_URL = 'https://vinicius91carvalho.github.io/causeflow-ai/docs/';
 const BASE = 'http://127.0.0.1:5170';
 
 async function probe(path) {
