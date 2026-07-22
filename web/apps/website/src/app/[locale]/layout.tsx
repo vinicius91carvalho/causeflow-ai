@@ -54,6 +54,8 @@ const themeInitScript = `
 `;
 
 const isStaging = process.env.NEXT_PUBLIC_DEPLOYMENT_STAGE === 'staging';
+// Static export does not always prefix metadata icon URLs with next.config basePath.
+const assetBase = process.env.GITHUB_PAGES === '1' ? '/causeflow-ai' : '';
 
 export const viewport: Viewport = {
   themeColor: '#0A0A14',
@@ -68,11 +70,16 @@ export const metadata: Metadata = {
   description:
     'AI-powered incident investigation for engineering teams of 2-50 engineers. Root cause analysis in minutes, not hours.',
   icons: {
-    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
-    apple: [{ url: '/apple-touch-icon.png' }, { url: '/apple-icon.svg', type: 'image/svg+xml' }],
+    icon: [{ url: `${assetBase}/favicon.svg`, type: 'image/svg+xml' }],
+    apple: [
+      { url: `${assetBase}/apple-touch-icon.png` },
+      { url: `${assetBase}/apple-icon.svg`, type: 'image/svg+xml' },
+    ],
   },
   openGraph: {
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'CauseFlow AI' }],
+    images: [
+      { url: `${assetBase}/og-image.png`, width: 1200, height: 630, alt: 'CauseFlow AI' },
+    ],
   },
   ...(isStaging && {
     robots: { index: false, follow: false },
