@@ -8,6 +8,8 @@ import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import {
   organizationSchema,
+  softwareApplicationSchema,
+  softwareSourceCodeSchema,
   StructuredData,
   websiteSchema,
 } from '@/contexts/marketing/presentation/components/structured-data';
@@ -65,10 +67,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://causeflow.ai'),
   title: {
     template: '%s | CauseFlow AI',
-    default: "CauseFlow AI — Your Stack's Problem Detective",
+    default: 'CauseFlow AI — Open-Source Incident Investigation',
   },
   description:
-    'AI-powered incident investigation for engineering teams of 2-50 engineers. Root cause analysis in minutes, not hours.',
+    'CauseFlow is open-source AI incident investigation you can self-host. Root cause analysis in minutes, not hours — for engineering and L2/L3 support teams.',
   icons: {
     icon: [{ url: `${assetBase}/favicon.svg`, type: 'image/svg+xml' }],
     apple: [
@@ -77,9 +79,25 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
+    title: 'CauseFlow AI — Open-Source Incident Investigation',
+    description:
+      'Open-source AI incident investigation. Self-host with Docker Compose and find root causes in minutes.',
+    siteName: 'CauseFlow AI',
+    type: 'website',
     images: [
-      { url: `${assetBase}/og-image.png`, width: 1200, height: 630, alt: 'CauseFlow AI' },
+      {
+        url: `${assetBase}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: 'CauseFlow AI — Open-Source Incident Investigation',
+      },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CauseFlow AI — Open-Source Incident Investigation',
+    description:
+      'Open-source AI incident investigation. Self-host with Docker Compose and find root causes in minutes.',
   },
   ...(isStaging && {
     robots: { index: false, follow: false },
@@ -141,6 +159,8 @@ export default async function LocaleLayout({
         </a>
         <StructuredData data={organizationSchema} />
         <StructuredData data={websiteSchema} />
+        <StructuredData data={softwareApplicationSchema} />
+        <StructuredData data={softwareSourceCodeSchema} />
         <AnalyticsProvider config={analyticsConfig}>
           <NextIntlClientProvider messages={clientMessages}>
             <ThemeProvider defaultThemeId={defaultThemeId} defaultColorMode="light" lockColorMode>

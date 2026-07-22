@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { getDashboardUrl } from '@/lib/dashboard-url';
+import { OSS_MARKETING_GITHUB_HREF } from '@/lib/oss-marketing-ctas';
 import { publicAsset } from '@/lib/public-asset';
 import { LanguageSelector } from './language-selector';
 import { MobileMenu } from './mobile-menu';
@@ -28,17 +29,29 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold">
-          <Image
-            src={publicAsset('/favicon.svg')}
-            alt=""
-            width={28}
-            height={28}
-            aria-hidden="true"
-          />
-          <span className="text-foreground">CauseFlow</span>
-        </Link>
+        {/* Logo + open-source mark */}
+        <div className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold">
+            <Image
+              src={publicAsset('/favicon.svg')}
+              alt=""
+              width={28}
+              height={28}
+              aria-hidden="true"
+            />
+            <span className="text-foreground">CauseFlow</span>
+          </Link>
+          <a
+            href={OSS_MARKETING_GITHUB_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden rounded-full border border-[hsl(var(--brand-green)_/_0.35)] bg-[hsl(var(--brand-green)_/_0.08)] px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[hsl(var(--brand-green))] transition-colors hover:bg-[hsl(var(--brand-green)_/_0.14)] sm:inline-flex"
+
+            title={t('nav.openSource')}
+          >
+            {t('nav.openSource')}
+          </a>
+        </div>
 
         {/* Desktop Nav */}
         <nav aria-label="Main navigation" className="hidden items-center gap-1 lg:flex">

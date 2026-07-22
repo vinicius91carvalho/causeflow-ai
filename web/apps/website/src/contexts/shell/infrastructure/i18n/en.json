@@ -15,7 +15,8 @@
       "dashboard": "Dashboard",
       "usecases": "Use Cases",
       "about": "About",
-      "docs": "Docs"
+      "docs": "Docs",
+      "openSource": "Open Source"
     },
     "cta": {
       "getStartedFree": "Read the docs",
@@ -29,7 +30,7 @@
       "viewOnGitHub": "View on GitHub"
     },
     "footer": {
-      "description": "Intelligent incident investigation for engineering and L2/L3 support teams.",
+      "description": "Open-source AI incident investigation for engineering and L2/L3 support teams.",
       "productColumn": "Product",
       "companyColumn": "Company",
       "legalColumn": "Legal",

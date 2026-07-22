@@ -1,7 +1,8 @@
 export const SITE = {
   name: 'CauseFlow AI',
-  tagline: "Your Stack's Problem Detective",
-  description: 'AI-powered incident investigation for engineering teams of 2-50 engineers.',
+  tagline: 'Open-Source Incident Investigation',
+  description:
+    'Open-source AI incident investigation for engineering teams. Self-host CauseFlow and find root causes in minutes.',
   url: 'https://causeflow.ai',
   // Falls back to production URL; override via NEXT_PUBLIC_DASHBOARD_URL env var.
   dashboardUrl: process.env.NEXT_PUBLIC_DASHBOARD_URL || 'https://dashboard.causeflow.ai',

@@ -8,4 +8,9 @@ describe('Header', () => {
   it('does not import or render DevThemeSwitcher', () => {
     expect(headerSource).not.toMatch(/DevThemeSwitcher/);
   });
+
+  it('exposes an Open Source badge linking to GitHub', () => {
+    expect(headerSource).toMatch(/nav\.openSource/);
+    expect(headerSource).toMatch(/OSS_MARKETING_GITHUB_HREF/);
+  });
 });

@@ -15,7 +15,8 @@
       "dashboard": "Painel",
       "usecases": "Casos de Uso",
       "about": "Sobre",
-      "docs": "Docs"
+      "docs": "Docs",
+      "openSource": "Open Source"
     },
     "cta": {
       "getStartedFree": "Ler a documentação",
@@ -29,7 +30,7 @@
       "viewOnGitHub": "Ver no GitHub"
     },
     "footer": {
-      "description": "Investigação inteligente de incidentes para times de engenharia e suporte L2/L3.",
+      "description": "Investigação de incidentes com IA open-source para times de engenharia e suporte L2/L3.",
       "productColumn": "Produto",
       "companyColumn": "Empresa",
       "legalColumn": "Legal",

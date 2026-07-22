@@ -19,6 +19,8 @@ export function generatePageMetadata({
   const alternateEn = `${BASE_URL}${path}`;
   const alternatePtBr = `${BASE_URL}/pt-br${path}`;
 
+  const fullTitle = `${title} | CauseFlow AI`;
+
   return {
     title,
     description,
@@ -27,17 +29,24 @@ export function generatePageMetadata({
       languages: { en: alternateEn, 'pt-br': alternatePtBr, 'x-default': alternateEn },
     },
     openGraph: {
-      title: `${title} | CauseFlow AI`,
+      title: fullTitle,
       description,
       url,
       siteName: 'CauseFlow AI',
       locale: locale === 'en' ? 'en_US' : 'pt_BR',
       type: 'website',
-      images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: fullTitle,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${title} | CauseFlow AI`,
+      title: fullTitle,
       description,
     },
     ...(process.env.NEXT_PUBLIC_DEPLOYMENT_STAGE === 'staging' && {

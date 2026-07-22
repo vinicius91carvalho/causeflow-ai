@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { getDashboardUrl } from '@/lib/dashboard-url';
+import { OSS_MARKETING_GITHUB_HREF } from '@/lib/oss-marketing-ctas';
 import { publicAsset } from '@/lib/public-asset';
 
 interface MobileMenuProps {
@@ -37,6 +38,15 @@ export function MobileMenu({ open, onClose, navItems }: MobileMenuProps) {
               aria-hidden="true"
             />
             <span className="text-foreground">CauseFlow</span>
+            <a
+              href={OSS_MARKETING_GITHUB_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onClose}
+              className="rounded-full border border-[hsl(var(--brand-green)_/_0.35)] bg-[hsl(var(--brand-green)_/_0.08)] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[hsl(var(--brand-green))]"
+            >
+              {t('nav.openSource')}
+            </a>
           </SheetTitle>
           <SheetDescription className="sr-only">Navigation menu</SheetDescription>
         </SheetHeader>

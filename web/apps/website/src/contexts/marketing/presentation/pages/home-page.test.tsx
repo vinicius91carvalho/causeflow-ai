@@ -29,4 +29,9 @@ describe('home-page.tsx dynamic-import skeletons', () => {
     expect(source).toMatch(/ossMarketingDocsCta/);
     expect(source).toMatch(/ossMarketingGitHubCta/);
   });
+
+  it('passes open-source hero labels into HeroMainHeader', () => {
+    expect(source).toMatch(/hero\.eyebrow/);
+    expect(source).toMatch(/hero\.trust2/);
+  });
 });

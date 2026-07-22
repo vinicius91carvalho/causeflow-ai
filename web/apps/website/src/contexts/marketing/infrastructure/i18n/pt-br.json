@@ -2,9 +2,9 @@
   "home": {
     "hero": {
       "badge": "O primeiro agente de IA que conecta investigação de incidentes e resolução de problemas de clientes",
-      "headline": "Investigue incidentes de produção em minutos, não horas",
+      "headline": "Investigação de Incidentes com IA Open-Source",
       "subheadline": "A maior parte do tempo de resolução de incidentes é investigação, não correção. O CauseFlow usa múltiplos agentes de IA em paralelo — causa raiz em ~3 minutos, resolução completa em ~30 minutos vs. 2–4 horas. Novos agentes são adicionados continuamente (documentação, runbooks e mais).",
-      "metaDescription": "Investigação de incidentes com IA conectando engenharia e suporte L2/L3. CauseFlow cruza Slack, GitHub, Jira, CloudWatch e HubSpot para encontrar causas raiz em minutos.",
+      "metaDescription": "CauseFlow é open-source: investigue incidentes com IA na sua infraestrutura. Self-host com Docker. Cruza Slack, GitHub, Jira e CloudWatch para achar a causa raiz em minutos.",
       "ctaPrimary": "Ler a documentação",
       "ctaSecondary": "Veja Como Funciona",
       "trustText": "Open source — self-host gratuito. Docs e GitHub são o caminho principal.",
@@ -251,17 +251,19 @@
       "hero": {
         "audEng": "Para Engenharia",
         "audOps": "Para Customer Ops",
+        "eyebrow": "Open-source · self-host gratuito",
         "h1a": "Investigue incidentes em",
         "h1bEm": "minutos",
         "h1bTail": ", não horas.",
-        "lead": "Agentes de IA especializados trabalham em paralelo, encontram a causa raiz, apresentam evidências e propõem a correção.",
+        "lead": "Agentes de IA open-source trabalham em paralelo, encontram a causa raiz, apresentam evidências e propõem a correção — na sua infraestrutura.",
         "opsH1aPre": "Tickets",
         "opsH1aEm": "resolvidos",
         "opsH1b": "antes do segundo café.",
-        "opsLead": "L2/L3 de suporte recebem a causa raiz — com evidências — direto no ticket. Sem pingar engenharia para cada cliente bloqueado.",
+        "opsLead": "O CauseFlow open-source entrega a causa raiz — com evidências — direto no ticket. Sem pingar engenharia para cada cliente bloqueado.",
         "cta1": "Agendar demo →",
         "cta2": "Ver em ação",
         "trust1": "Somente leitura por padrão",
+        "trust2": "Open source",
         "trust3": "Human-in-the-loop",
         "dash": {
           "workspace": "Workspace",

@@ -19,6 +19,7 @@ interface HeroMainHeaderProps {
   labels: {
     audEng: string;
     audOps: string;
+    eyebrow: string;
     engH1a: string;
     engH1bEm: string;
     engH1bTail: string;
@@ -28,6 +29,7 @@ interface HeroMainHeaderProps {
     opsH1b: string;
     opsLead: string;
     trust1: string;
+    trust2: string;
     trust3: string;
   };
   /** Pass <MiniDashboardVisual> — rendered full-width below the copy. */
@@ -129,6 +131,11 @@ export function HeroMainHeader({ labels, visual }: HeroMainHeaderProps) {
       </div>
 
       <div className="relative mx-auto max-w-[1200px]">
+        {/* Open-source eyebrow — early SEO signal above the H1 */}
+        <p className="mb-5 text-center font-mono text-[11.5px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--brand-green))]">
+          {labels.eyebrow}
+        </p>
+
         {/* Audience toggle — centered pill */}
         <div className="flex justify-center">
           <fieldset className="inline-flex items-center gap-1 rounded-full border border-border bg-foreground/[0.04] p-1 text-[13px] font-semibold">
@@ -227,7 +234,7 @@ export function HeroMainHeader({ labels, visual }: HeroMainHeaderProps) {
                 aria-hidden="true"
                 className="h-[5px] w-[5px] rounded-full bg-[hsl(160_62%_38%)]"
               />
-              SOC 2 Type II
+              {labels.trust2}
             </li>
             <li className="flex items-center gap-2">
               <span

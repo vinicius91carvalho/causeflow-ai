@@ -2,9 +2,9 @@
   "home": {
     "hero": {
       "badge": "The first AI agent bridging incident investigation and customer issue resolution",
-      "headline": "Investigate production incidents in minutes, not hours",
+      "headline": "Open-Source AI Incident Investigation",
       "subheadline": "Most incident resolution time is investigation, not fixing. CauseFlow deploys 6 specialized AI agents in parallel — root cause identified in ~3 minutes, end-to-end resolution in ~35 minutes vs. 2–4 hours manual. Root cause identified in minutes. Human approves. Fix deployed.",
-      "metaDescription": "AI-powered incident investigation bridging engineering and L2/L3 support. CauseFlow cross-references Slack, GitHub, Jira, CloudWatch and HubSpot to find root causes in minutes.",
+      "metaDescription": "CauseFlow is open-source AI incident investigation you can self-host. Specialized agents cross-reference Slack, GitHub, Jira & CloudWatch to find root causes in minutes.",
       "ctaPrimary": "Read the docs",
       "ctaSecondary": "See How It Works",
       "trustText": "Open source — free to self-host. Docs and GitHub are the primary path.",
@@ -251,17 +251,19 @@
       "hero": {
         "audEng": "For Engineering",
         "audOps": "For Customer Ops",
+        "eyebrow": "Open-source · free to self-host",
         "h1a": "Investigate incidents in",
         "h1bEm": "minutes",
         "h1bTail": ", not hours.",
-        "lead": "Specialized AI agents work in parallel, find the root cause, present evidence and propose the fix.",
+        "lead": "Open-source AI agents work in parallel, find the root cause, present evidence and propose the fix — on your infrastructure.",
         "opsH1aPre": "Tickets",
         "opsH1aEm": "resolved",
         "opsH1b": "before the second coffee.",
-        "opsLead": "L2/L3 support get the root cause — with evidence — delivered straight to the ticket. No pinging engineering for every blocked customer.",
+        "opsLead": "Open-source CauseFlow delivers the root cause — with evidence — straight to the ticket. No pinging engineering for every blocked customer.",
         "cta1": "Schedule a demo →",
         "cta2": "See it in action",
         "trust1": "Read-only by default",
+        "trust2": "Open source",
         "trust3": "Human-in-the-loop",
         "dash": {
           "workspace": "Workspace",

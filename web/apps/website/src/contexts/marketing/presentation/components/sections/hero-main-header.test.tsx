@@ -59,4 +59,9 @@ describe('HeroMainHeader source contract', () => {
     expect(source).toMatch(/visual/);
     expect(source.indexOf('{labels.audEng}')).toBeLessThan(source.indexOf('{visual}'));
   });
+
+  it('surfaces open-source messaging in the hero header', () => {
+    expect(source).toMatch(/labels\.eyebrow/);
+    expect(source).toMatch(/labels\.trust2/);
+  });
 });

@@ -281,6 +281,7 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
         labels={{
           audEng: t('hero.audEng'),
           audOps: t('hero.audOps'),
+          eyebrow: t('hero.eyebrow'),
           engH1a: t('hero.h1a'),
           engH1bEm: t('hero.h1bEm'),
           engH1bTail: t('hero.h1bTail'),
@@ -290,6 +291,7 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
           opsH1b: t('hero.opsH1b'),
           opsLead: t('hero.opsLead'),
           trust1: t('hero.trust1'),
+          trust2: t('hero.trust2'),
           trust3: t('hero.trust3'),
         }}
         visual={<MiniDashboardVisual labels={dashLabels} />}
