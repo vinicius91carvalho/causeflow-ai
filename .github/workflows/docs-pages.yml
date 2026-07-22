@@ -54,7 +54,7 @@ jobs:
         env:
           GITHUB_PAGES: "1"
           NEXT_PUBLIC_SITE_URL: https://vinicius91carvalho.github.io/causeflow-ai
-          NEXT_PUBLIC_DASHBOARD_URL: http://localhost:3001
+          NEXT_PUBLIC_DASHBOARD_URL: https://github.com/vinicius91carvalho/causeflow-ai
           NEXT_PUBLIC_DEPLOYMENT_STAGE: development
 
       - name: Stage website into _site

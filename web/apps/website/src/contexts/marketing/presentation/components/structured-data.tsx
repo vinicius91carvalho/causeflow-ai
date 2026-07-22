@@ -20,7 +20,7 @@ export const organizationSchema = {
   logo: 'https://causeflow.ai/logo.png',
   description: 'AI-powered incident investigation for engineering teams of 2-50 engineers.',
   sameAs: [
-    'https://github.com/causeflow',
+    'https://github.com/vinicius91carvalho/causeflow-ai',
     'https://linkedin.com/company/causeflow',
     'https://twitter.com/causeflowai',
   ],

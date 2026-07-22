@@ -18,7 +18,7 @@ export const FOOTER_PRODUCT_LINKS: NavItem[] = [
 
 export const FOOTER_COMPANY_LINKS: NavItem[] = [
   { label: 'Contact', href: `mailto:${SITE.email}` },
-  { label: 'Platform Status', href: 'https://status.causeflow.ai' },
+  { label: 'Platform Status', href: 'https://github.com/vinicius91carvalho/causeflow-ai/actions' },
 ];
 
 export const FOOTER_LEGAL_LINKS: NavItem[] = [

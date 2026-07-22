@@ -87,7 +87,10 @@ try {
     GITHUB_PAGES: '1',
     NODE_ENV: 'production',
     NEXT_PUBLIC_DEPLOYMENT_STAGE: process.env.NEXT_PUBLIC_DEPLOYMENT_STAGE || 'development',
-    NEXT_PUBLIC_DASHBOARD_URL: process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3001',
+    // Published Pages CTAs open the public GitHub repo (not a hosted dashboard).
+    NEXT_PUBLIC_DASHBOARD_URL:
+      process.env.NEXT_PUBLIC_DASHBOARD_URL ||
+      'https://github.com/vinicius91carvalho/causeflow-ai',
     NEXT_PUBLIC_SITE_URL:
       process.env.NEXT_PUBLIC_SITE_URL || 'https://vinicius91carvalho.github.io/causeflow-ai',
   };

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { getDashboardUrl } from '@/lib/dashboard-url';
+import { publicAsset } from '@/lib/public-asset';
 import { LanguageSelector } from './language-selector';
 import { MobileMenu } from './mobile-menu';
 
@@ -22,13 +23,20 @@ export function Header() {
   const t = useTranslations('common');
   const [mobileOpen, setMobileOpen] = useState(false);
   const dashboardUrl = getDashboardUrl();
+  const primaryCtaIsGitHub = dashboardUrl.includes('github.com');
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 text-xl font-bold">
-          <Image src="/favicon.svg" alt="" width={28} height={28} aria-hidden="true" />
+          <Image
+            src={publicAsset('/favicon.svg')}
+            alt=""
+            width={28}
+            height={28}
+            aria-hidden="true"
+          />
           <span className="text-foreground">CauseFlow</span>
         </Link>
 
@@ -62,10 +70,11 @@ export function Header() {
           <LanguageSelector />
           <a
             href={dashboardUrl}
+            target={primaryCtaIsGitHub ? '_blank' : undefined}
             rel="noopener noreferrer"
             className="hidden rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
           >
-            {t('nav.dashboard')}
+            {primaryCtaIsGitHub ? 'GitHub' : t('nav.dashboard')}
           </a>
           {/* Mobile hamburger */}
           <button

@@ -28,8 +28,9 @@ describe('FOOTER_PRODUCT_LINKS', () => {
 });
 
 describe('FOOTER_COMPANY_LINKS', () => {
-  it('includes Platform Status link', () => {
+  it('includes Platform Status link to GitHub Actions', () => {
     const status = FOOTER_COMPANY_LINKS.find((item) => item.label === 'Platform Status');
     expect(status).toBeDefined();
+    expect(status?.href).toBe('https://github.com/vinicius91carvalho/causeflow-ai/actions');
   });
 });

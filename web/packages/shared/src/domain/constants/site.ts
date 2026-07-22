@@ -15,8 +15,8 @@ export const SITE = {
     'https://vinicius91carvalho.github.io/causeflow-ai/docs/integrations/test-application',
   email: 'adm@causeflow.ai',
   social: {
-    github: 'https://github.com/causeflow',
-    linkedin: 'https://www.linkedin.com/company/causeflow-ai/',
+    github: 'https://github.com/vinicius91carvalho/causeflow-ai',
+    linkedin: 'https://www.linkedin.com/in/vinicius-carvalho-a04b46116',
   },
   cofounder: {
     name: 'Vinicius Carvalho',

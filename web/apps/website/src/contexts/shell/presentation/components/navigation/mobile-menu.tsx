@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { getDashboardUrl } from '@/lib/dashboard-url';
+import { publicAsset } from '@/lib/public-asset';
 
 interface MobileMenuProps {
   open: boolean;
@@ -21,13 +22,20 @@ interface MobileMenuProps {
 export function MobileMenu({ open, onClose, navItems }: MobileMenuProps) {
   const t = useTranslations('common');
   const dashboardUrl = getDashboardUrl();
+  const primaryCtaIsGitHub = dashboardUrl.includes('github.com');
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="right" className="w-80">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2 text-left">
-            <Image src="/favicon.svg" alt="" width={24} height={24} aria-hidden="true" />
+            <Image
+              src={publicAsset('/favicon.svg')}
+              alt=""
+              width={24}
+              height={24}
+              aria-hidden="true"
+            />
             <span className="text-foreground">CauseFlow</span>
           </SheetTitle>
           <SheetDescription className="sr-only">Navigation menu</SheetDescription>
@@ -61,10 +69,11 @@ export function MobileMenu({ open, onClose, navItems }: MobileMenuProps) {
           <a
             href={dashboardUrl}
             onClick={onClose}
+            target={primaryCtaIsGitHub ? '_blank' : undefined}
             rel="noopener noreferrer"
             className="flex w-full items-center gap-2 rounded-md px-3 py-3 text-left text-base font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            {t('nav.dashboard')}
+            {primaryCtaIsGitHub ? 'GitHub' : t('nav.dashboard')}
           </a>
         </div>
       </SheetContent>

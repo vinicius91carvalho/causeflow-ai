@@ -28,8 +28,8 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "http://localhost:3001"
+      "label": "GitHub",
+      "href": "https://github.com/vinicius91carvalho/causeflow-ai"
     }
   },
   "contextual": {
@@ -37,9 +37,8 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/causeflowai",
-      "github": "https://github.com/causeflow",
-      "linkedin": "https://linkedin.com/company/causeflow"
+      "github": "https://github.com/vinicius91carvalho/causeflow-ai",
+      "linkedin": "https://www.linkedin.com/in/vinicius-carvalho-a04b46116"
     }
   },
   "navigation": {
@@ -339,13 +338,13 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Dashboard",
-          "href": "http://localhost:3001",
-          "icon": "gauge"
+          "anchor": "GitHub",
+          "href": "https://github.com/vinicius91carvalho/causeflow-ai",
+          "icon": "github"
         },
         {
-          "anchor": "Status",
-          "href": "http://localhost:3099/health",
+          "anchor": "CI",
+          "href": "https://github.com/vinicius91carvalho/causeflow-ai/actions",
           "icon": "signal"
         }
       ]
