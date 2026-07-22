@@ -8,6 +8,7 @@ on:
     paths:
       - "public-docs/**"
       - ".github/workflows/docs-pages.yml"
+      - ".github/scripts/rewrite-github-pages-base.mjs"
   workflow_dispatch:
 
 permissions:
@@ -42,6 +43,10 @@ jobs:
           mkdir -p ../_site
           unzip -q export.zip -d ../_site
           rm -f export.zip
+
+      # Project Pages URL is /causeflow-ai/; mint export emits root-absolute `/` assets.
+      - name: Rewrite export for GitHub Pages base path
+        run: node .github/scripts/rewrite-github-pages-base.mjs _site /causeflow-ai
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
