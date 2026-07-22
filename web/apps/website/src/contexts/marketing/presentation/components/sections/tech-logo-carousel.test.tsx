@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { buildSeamlessTrack, SETS_PER_HALF } from './tech-logo-carousel';
 
 /**
  * Tests for TechLogoCarousel data contract.
@@ -101,5 +102,17 @@ describe('TechLogoCarousel total logo count', () => {
   it('total featured logos is 19', () => {
     const totalLogos = CAROUSEL_ROW1_LOGOS.length + CAROUSEL_ROW2_LOGOS.length;
     expect(totalLogos).toBe(19);
+  });
+});
+
+describe('TechLogoCarousel ultra-wide seamless track', () => {
+  it('duplicates each half enough times for 4K/ultrawide coverage', () => {
+    expect(SETS_PER_HALF).toBeGreaterThanOrEqual(4);
+    const base = CAROUSEL_ROW1_LOGOS.map((name) => ({ name }));
+    const track = buildSeamlessTrack(base);
+    // Two identical halves × SETS_PER_HALF copies of the base set
+    expect(track).toHaveLength(base.length * SETS_PER_HALF * 2);
+    const mid = track.length / 2;
+    expect(track.slice(0, mid).map((l) => l.name)).toEqual(track.slice(mid).map((l) => l.name));
   });
 });
